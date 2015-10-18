@@ -9,8 +9,8 @@ module openconfig-routing-policy {
 
   // import some basic types
   import ietf-inet-types { prefix inet; }
-  import openconfig-policy-types {prefix pt; }
-
+  import openconfig-policy-types { prefix pt; }
+  import openconfig-extensions { prefix oc-ext; }
 
   // meta
   organization
@@ -76,12 +76,19 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2015-10-09" {
+    description
+      "Initial OpenConfig public release";
+    reference "1.1.0";
+  }
+
   revision "2015-05-15" {
     description
       "Initial revision";
-    reference "TBD";
+    reference "Pre-release";
   }
-
 
   // typedef statements
 
@@ -101,6 +108,121 @@ module openconfig-routing-policy {
 
   // grouping statements
 
+  grouping prefix-set {
+    description
+      "Data definition for a list of IPv4 or IPv6 prefixes which
+      are matched as part of a policy";
+
+    list prefix-set {
+      key prefix-set-name;
+      description
+        "List of the defined prefix sets";
+
+      leaf prefix-set-name {
+        type string;
+        description
+          "name / label of the prefix set -- this is used to
+          reference the set in match conditions";
+      }
+
+      list prefix {
+        key "ip-prefix masklength-range";
+        description
+          "List of prefix expressions that are part of the set";
+
+        leaf ip-prefix {
+          type inet:ip-prefix;
+          mandatory true;
+          description
+            "The prefix member in CIDR notation -- while the
+            prefix may be either IPv4 or IPv6, most
+            implementations require all members of the prefix set
+            to be the same address family.  Mixing address types in
+            the same prefix set is likely to cause an error.";
+        }
+
+        leaf masklength-range {
+          type string {
+            pattern '^([0-9]+\.\.[0-9]+)|exact$';
+          }
+          description
+            "Defines a range for the masklength, or 'exact' if
+            the prefix has an exact length.
+
+            Example: 10.3.192.0/21 through 10.3.192.0/24 would be
+            expressed as prefix: 10.3.192.0/21,
+            masklength-range: 21..24.
+
+            Example: 10.3.192.0/21 would be expressed as
+            prefix: 10.3.192.0/21,
+            masklength-range: exact";
+        }
+      }
+    }
+  }
+
+  grouping neighbor-set {
+    description
+      "Data definition for a list of IPv4 or IPv6 neighbors which can
+      be matched in a routing policy";
+
+    list neighbor-set {
+      key neighbor-set-name;
+      description
+          "Definitions for neighbor sets";
+
+      leaf neighbor-set-name {
+        type string;
+        description
+            "name / label of the neighbor set -- this is used to
+            reference the set in match conditions";
+      }
+
+      list neighbor {
+        key "address";
+        description
+            "list of addresses that are part of the neighbor set";
+
+        leaf address {
+          type inet:ip-address;
+          description
+              "IP address of the neighbor set member";
+        }
+      }
+    }
+  }
+
+  grouping tag-set {
+    description
+      "Data definitions for a list of tags which can be matched
+      in policies";
+
+    list tag-set {
+      key tag-set-name;
+      description
+        "Definitions for tag sets";
+
+      leaf tag-set-name {
+        type string;
+        description
+          "name / label of the tag set -- this is used to reference
+          the set in match conditions";
+      }
+
+      list tag {
+        key "value";
+        description
+          "list of tags that are part of the tag set";
+
+        leaf value {
+          type pt:tag-type;
+          description
+            "Value of the tag set member";
+        }
+      }
+    }
+  }
+
   grouping generic-defined-sets {
     description
       "Data definitions for pre-defined sets of attributes used in
@@ -112,112 +234,21 @@ module openconfig-routing-policy {
       description
         "Enclosing container for defined prefix sets for matching";
 
-      list prefix-set {
-        key prefix-set-name;
-        description
-          "List of the defined prefix sets";
-
-        leaf prefix-set-name {
-          type string;
-          description
-            "name / label of the prefix set -- this is used to
-            reference the set in match conditions";
-        }
-
-        list prefix {
-          key "ip-prefix masklength-range";
-          description
-            "List of prefix expressions that are part of the set";
-
-          leaf ip-prefix {
-            type inet:ip-prefix;
-            mandatory true;
-            description
-              "The prefix member in CIDR notation -- while the
-              prefix may be either IPv4 or IPv6, most
-              implementations require all members of the prefix set
-              to be the same address family.  Mixing address types in
-              the same prefix set is likely to cause an error.";
-          }
-
-          leaf masklength-range {
-            type string {
-              pattern '^([0-9]+\.\.[0-9]+)|exact$';
-            }
-            description
-              "Defines a range for the masklength, or 'exact' if
-              the prefix has an exact length.
-
-              Example: 10.3.192.0/21 through 10.3.192.0/24 would be
-              expressed as prefix: 10.3.192.0/21,
-              masklength-range: 21..24.
-
-              Example: 10.3.192.0/21 would be expressed as
-              prefix: 10.3.192.0/21,
-              masklength-range: exact";
-          }
-        }
-      }
+      uses prefix-set;
     }
 
     container neighbor-sets {
       description
         "Enclosing container for defined neighbor sets for matching";
 
-      list neighbor-set {
-        key neighbor-set-name;
-        description
-            "Definitions for neighbor sets";
-
-        leaf neighbor-set-name {
-          type string;
-          description
-              "name / label of the neighbor set -- this is used to
-              reference the set in match conditions";
-        }
-
-        list neighbor {
-          key "address";
-          description
-              "list of addresses that are part of the neighbor set";
-
-          leaf address {
-            type inet:ip-address;
-            description
-                "IP address of the neighbor set member";
-          }
-        }
-      }
+      uses neighbor-set;
     }
 
     container tag-sets {
       description
         "Enclosing container for defined tag sets for matching";
 
-      list tag-set {
-        key tag-set-name;
-        description
-          "Definitions for tag sets";
-
-        leaf tag-set-name {
-          type string;
-          description
-            "name / label of the tag set -- this is used to reference
-            the set in match conditions";
-        }
-
-        list tag {
-          key "value";
-          description
-            "list of tags that are part of the tag set";
-
-          leaf value {
-            type pt:tag-type;
-            description
-              "Value of the tag set member";
-          }
-        }
-      }
+      uses tag-set;
     }
   }
 

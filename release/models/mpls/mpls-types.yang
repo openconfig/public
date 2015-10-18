@@ -18,13 +18,19 @@ module mpls-types {
   description
     "General types for MPLS / TE data model";
 
-  revision "2015-10-04" {
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2015-10-14" {
     description
       "Work in progress";
-    reference "TBD";
+    reference "0.2.0";
   }
 
-  // extension statements
+  revision "2015-07-04" {
+    description
+      "Work in progress";
+    reference "Pre-release";
+  }
 
   // feature statements
 
@@ -54,7 +60,7 @@ module mpls-types {
 
 
   identity protection-type {
-    description "base identity for protection type"; 
+    description "base identity for protection type";
   }
 
   identity unprotected {
@@ -64,12 +70,12 @@ module mpls-types {
 
   identity link-protection-requested {
     base protection-type;
-    description "link protection is desired"; 
+    description "link protection is desired";
   }
 
   identity link-node-protection-requested {
     base protection-type;
-    description "node and link protection are both desired"; 
+    description "node and link protection are both desired";
   }
 
   identity lsp-type {
@@ -84,7 +90,7 @@ module mpls-types {
       "Label switched path is an ingress (headend)
        LSP";
   }
-  
+
   identity EGRESS {
     base "lsp-type";
     description

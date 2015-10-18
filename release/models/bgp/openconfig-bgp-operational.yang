@@ -12,6 +12,7 @@ module openconfig-bgp-operational {
   import ietf-inet-types { prefix inet; }
   import ietf-yang-types { prefix yang; }
   import openconfig-bgp-types { prefix bgp-types; }
+  import openconfig-extensions { prefix oc-ext; }
 
   // meta
 
@@ -27,11 +28,18 @@ module openconfig-bgp-operational {
     configuration, focusing on operational data (i.e., state
     variables) related to BGP operations";
 
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2015-10-09" {
+    description
+      "Initial OpenConfig public release";
+    reference "1.1.0";
+  }
 
   revision "2015-05-15" {
     description
       "Initial revision";
-    reference "TBD";
+    reference "Pre-release";
   }
 
   // extension statements
@@ -247,15 +255,15 @@ module openconfig-bgp-operational {
     leaf remote-address {
       type inet:ip-address;
       description
-        "Remote port being used by the peer for the TCP session
-        supporting the BGP session";
+        "Remote address to which the BGP session has been
+        established";
     }
 
     leaf remote-port {
       type inet:port-number;
       description
-        "Remote address to which the BGP session has been
-        established";
+        "Remote port being used by the peer for the TCP session
+        supporting the BGP session";
     }
   }
 

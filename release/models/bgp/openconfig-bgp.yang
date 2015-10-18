@@ -13,6 +13,7 @@ module openconfig-bgp {
   import openconfig-routing-policy { prefix rpol; }
   import openconfig-bgp-types { prefix bgp-types; }
   import openconfig-bgp-operational { prefix bgp-op; }
+  import openconfig-extensions { prefix oc-ext; }
 
   // meta
   organization
@@ -47,10 +48,18 @@ module openconfig-bgp {
           +-> [ optional pointer to peer-group ]
           +-> AFI / SAFI [ per-AFI overrides ]";
 
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2015-10-09" {
+    description
+      "Initial OpenConfig public release";
+    reference "1.1.0";
+  }
+
   revision "2015-05-15" {
       description
-        "";
-      reference "TBD";
+        "Refactored BGP module";
+      reference "Pre-release";
   }
 
   grouping bgp-global_config {

@@ -6,7 +6,8 @@ module openconfig-bgp-types {
 	prefix "bgp-types";
 
 	import ietf-inet-types { prefix inet; }
-    import openconfig-types { prefix oc-types; }
+  import openconfig-types { prefix oc-types; }
+  import openconfig-extensions { prefix oc-ext; }
 
 	// meta
 	organization
@@ -21,9 +22,17 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2015-10-09" {
+    description
+      "Initial OpenConfig public release";
+    reference "1.1.0";
+  }
+
   revision "2015-05-15" {
     description "Initial revision";
-    reference "TBD";
+    reference "Pre-release";
   }
 
 
@@ -72,70 +81,70 @@ module openconfig-bgp-types {
     reference "RFC4760 - multiprotocol extensions for BGP-4";
   }
 
-  identity ipv4-unicast {
+  identity IPV4-UNICAST {
     base afi-safi-type;
     description
       "IPv4 unicast (AFI,SAFI = 1,1)";
     reference "RFC4760";
   }
 
-  identity ipv6-unicast {
+  identity IPV6-UNICAST {
     base afi-safi-type;
     description
       "IPv6 unicast (AFI,SAFI = 2,1)";
     reference "RFC4760";
   }
 
-  identity ipv4-labelled-unicast {
+  identity IPV4-LABELLED-UNICAST {
     base afi-safi-type;
     description
       "Labelled IPv4 unicast (AFI,SAFI = 1,4)";
     reference "RFC3107";
   }
 
-  identity ipv6-labelled-unicast {
+  identity IPV6-LABELLED-UNICAST {
     base afi-safi-type;
     description
       "Labelled IPv6 unicast (AFI,SAFI = 2,4)";
     reference "RFC3107";
   }
 
-  identity l3vpn-ipv4-unicast {
+  identity L3VPN-IPV4-UNICAST {
     base afi-safi-type;
     description
       "Unicast IPv4 MPLS L3VPN (AFI,SAFI = 1,128)";
     reference "RFC4364";
   }
 
-  identity l3vpn-ipv6-unicast {
+  identity L3VPN-IPV6-UNICAST {
     base afi-safi-type;
     description
       "Unicast IPv6 MPLS L3VPN (AFI,SAFI = 2,128)";
     reference "RFC4659";
   }
 
-  identity l3vpn-ipv4-multicast {
+  identity L3VPN-IPV4-MULTICAST {
     base afi-safi-type;
     description
       "Multicast IPv4 MPLS L3VPN (AFI,SAFI = 1,129)";
     reference "RFC6514";
   }
 
-  identity l3vpn-ipv6-multicast {
+  identity L3VPN-IPV6-MULTICAST {
     base afi-safi-type;
     description
       "Multicast IPv6 MPLS L3VPN (AFI,SAFI = 2,129)";
     reference "RFC6514";
   }
 
-  identity l2vpn-vpls {
+  identity L2VPN-VPLS {
     base afi-safi-type;
     description
       "BGP-signalled VPLS (AFI,SAFI = 25,65)";
     reference "RFC4761";
   }
 
-  identity l2vpn-evpn {
+  identity L2VPN-EVPN {
     base afi-safi-type;
     description
       "BGP MPLS Based Ethernet VPN (AFI,SAFI = 25,70)";

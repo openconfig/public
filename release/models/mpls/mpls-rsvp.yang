@@ -26,13 +26,19 @@ module mpls-rsvp {
      parameters and LSP-specific configuration for constrained-path
      LSPs";
 
-  revision "2015-09-18" {
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2015-10-14" {
     description
-      "Initial revision";
-    reference "TBD";
+      "Work in progress";
+    reference "0.2.0";
   }
 
-  // extension statements
+  revision "2015-07-04" {
+    description
+      "Work in progress";
+    reference "Pre-release";
+  }
 
   // feature statements
 
@@ -128,7 +134,7 @@ module mpls-rsvp {
       description "Top level container for RSVP hello parameters";
       container config {
         description
-          "Configuration parameters relating to RSVP 
+          "Configuration parameters relating to RSVP
            hellos";
         uses mpls-rsvp-hellos_config;
       }
@@ -260,7 +266,7 @@ module mpls-rsvp {
 
   grouping mpls-rsvp-protection_config {
     description "RSVP facility (link/node) protection configuration";
-    
+
     leaf link-protection-style-requested {
       type identityref {
 	base mplst:protection-type;
@@ -268,7 +274,7 @@ module mpls-rsvp {
       description
 	"style of mpls frr protection desired:
          link, link-node, or unprotected";
-      default mplst:link-node-protection-requested; 
+      default mplst:link-node-protection-requested;
     }
 
     leaf bypass-optimize-interval {
@@ -388,7 +394,7 @@ module mpls-rsvp {
 
       container rsvp-sessions {
           description "Configuration and state of RSVP sessions";
-         
+
 	  container config {
             description
               "Configuration of RSVP sessions on the device";
@@ -707,13 +713,13 @@ module mpls-rsvp {
       leaf source-port {
         type uint16;
         description "RSVP source port";
-        reference "RFC 2205"; 
+        reference "RFC 2205";
       }
 
       leaf destination-port {
         type uint16;
         description "RSVP source port";
-        reference "RFC 2205"; 
+        reference "RFC 2205";
 
       }
 
@@ -754,7 +760,7 @@ module mpls-rsvp {
         description
           "Incoming MPLS label associated with this RSVP session";
       }
-      
+
       leaf label-out {
         type mplst:mpls-label;
         description
@@ -907,7 +913,7 @@ module mpls-rsvp {
 
     leaf out-rsvp-ack-messages {
       type yang:counter64;
-      description 
+      description
         "Number of sent RSVP refresh reduction ack messages";
     }
   }

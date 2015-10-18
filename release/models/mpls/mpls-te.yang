@@ -29,13 +29,19 @@ submodule mpls-te {
     signaling protocol or mechanism (see related submodules for
     signaling protocol-specific configuration).";
 
-  revision "2015-10-04" {
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2015-10-14" {
     description
       "Work in progress";
-    reference "TBD";
+    reference "0.2.0";
   }
 
-  // extension statements
+  revision "2015-07-04" {
+    description
+      "Work in progress";
+    reference "Pre-release";
+  }
 
   // feature statements
 
@@ -71,7 +77,7 @@ submodule mpls-te {
       explicitly specified as a collection of strict or/and loose
       hops";
   }
-  
+
   // typedef statements
 
   typedef mpls-hop-type {
@@ -159,7 +165,7 @@ submodule mpls-te {
         engineered LSPs";
       uses te-lsp-common_config;
       uses te_lsp_reoptimize_config;
-      uses mpls-te-lsp_state; 
+      uses mpls-te-lsp_state;
     }
 
     container path-computation-method {
@@ -232,7 +238,7 @@ submodule mpls-te {
             uses te-lsp-exclude-admin-group_config;
           }
         }
-      
+
 	container include-any-groups {
 	  description
 	    "Configuration and state related to admin
@@ -254,7 +260,7 @@ submodule mpls-te {
 	    uses te-lsp-include-any-admin-group_config;
 	  }
 	}
-      
+
 	container include-all-groups {
 	  description
 	    "Configuration and state related to admin
@@ -319,7 +325,7 @@ submodule mpls-te {
       description "destination egress node for the LSP";
     }
   }
-  
+
   // TODO - note that this is only currently defined for
   // RSVP-like entities
 
@@ -545,12 +551,12 @@ submodule mpls-te {
       protection";
     leaf protection-style-requested {
       type identityref {
-	base mplst:protection-type;
+        base mplst:protection-type;
       }
-      description
-       "style of mpls frr protection desired: can be
-        link, link-node or unprotected.";
       default mplst:unprotected;
+      description
+        "style of mpls frr protection desired: can be
+        link, link-node or unprotected.";
     }
   }
 
@@ -751,7 +757,7 @@ submodule mpls-te {
       with the SRLG";
 
     leaf srlg-name {
-      type string; 
+      type string;
       description "SRLG group identifier";
     }
 
@@ -784,9 +790,11 @@ submodule mpls-te {
 
   grouping mpls-te-srlg-top {
     description
-     "Top level grouping for configuring MPLS shared
+     "Top level grouping for MPLS shared
       risk link groups.";
     container mpls-te-srlg {
+      description
+	"Shared risk link groups attributes";
       list srlg {
 	key srlg-name;
 	description "List of shared risk link groups";
@@ -848,7 +856,7 @@ submodule mpls-te {
       "Counters and statistical data relevent to a single
        label switched path.";
 
-   
+
    leaf oper-status {
      type identityref {
        base mplst:lsp-oper-status;
@@ -856,7 +864,7 @@ submodule mpls-te {
      description
        "The operational status of the MPLS label switched path";
    }
-   
+
    leaf lsp-type {
      type identityref {
        base mplst:lsp-type;

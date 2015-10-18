@@ -14,6 +14,7 @@ module mpls {
   import mpls-sr { prefix sr; }
   import mpls-ldp { prefix ldp; }
   import openconfig-types { prefix oc-types; }
+  import openconfig-interfaces { prefix ocif; }
 
   // include submodules
   include mpls-te;
@@ -69,13 +70,19 @@ module mpls {
                              +-------+
     ";
 
-  revision "2015-07-04" {
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2015-10-14" {
     description
-      "Initial revision";
-    reference "TBD";
+      "Work in progress";
+    reference "0.2.0";
   }
 
-  // extension statements
+  revision "2015-07-04" {
+    description
+      "Work in progress";
+    reference "Pre-release";
+  }
 
   // feature statements
 
@@ -111,20 +118,21 @@ module mpls {
       }
 
   }
- 
- 
+
+
  grouping mpls-admin-groups-top {
 
-   description "top-level mpls admin-groups config and state containers";
+   description "top-level mpls admin-groups config
+   and state containers";
 
     container mpls-admin-groups {
       description
         "Top-level container for admin-groups configuration
         and state";
-      
+
       list admin-group {
-	key admin-group-name; 
-	description "configuration of value to name mapping 
+	key admin-group-name;
+	description "configuration of value to name mapping
         for mpls affinities/admin-groups";
 
 	leaf admin-group-name {
@@ -132,29 +140,41 @@ module mpls {
             path "../mpls:config/mpls:admin-group-name";
           }
           description
-            "name for mpls admin-group"; 
+            "name for mpls admin-group";
 	}
 	container config {
 	  description "Configurable items for admin-groups";
-	  uses mpls-admin-group_config; 
+	  uses mpls-admin-group_config;
 	}
 
 	container state {
-	  description "Operational state for admin-groups"; 
-	  uses mpls-admin-group_config; 
+	  description "Operational state for admin-groups";
+	  uses mpls-admin-group_config;
 	}
       }
     }
  }
- 
+
 
   grouping mpls-te-igp-flooding-bandwidth_config {
-
+    description
+      "Configurable items for igp flooding bandwidth
+       threshold configuration.";
     leaf threshold-type {
       type enumeration {
-	// TODO: do we want to make these identities?
-	enum DELTA;
-	enum THRESHOLD-CROSSED;
+	enum DELTA {
+	  description "DELTA indicates that the local
+          system should flood IGP updates when a
+          change in reserved bandwidth >= the specified
+          delta occurs on the interface.";
+	}
+	enum THRESHOLD-CROSSED {
+	  description "THRESHOLD-CROSSED indicates that
+          the local system should trigger an update (and
+          hence flood) the reserved bandwidth when the
+          reserved bandwidth changes such that it crosses,
+          or becomes equal to one of the threshold values.";
+	}
       }
       description
 	"The type of threshold that should be used to specify the
@@ -168,86 +188,113 @@ module mpls {
     }
 
     leaf delta-percentage {
-      type oc-types:percentage;
       when "../threshold-type = 'DELTA'" {
-	description
-	  "The percentage delta can only be specified when the threshold
-        type is specified to be a percentage delta of the reserved
-        bandwidth";
+        description
+          "The percentage delta can only be specified when the
+          threshold type is specified to be a percentage delta of
+          the reserved bandwidth";
       }
+      type oc-types:percentage;
       description
 	"The percentage of the maximum-reservable-bandwidth considered
       as the delta that results in an IGP update being flooded";
     }
 
     leaf threshold-specification {
-      type enumeration {
-	enum MIRRORED-UP-DOWN;
-	enum SEPARATE-UP-DOWN;
-      }
       when "../threshold-type = 'THRESHOLD-CROSSED'" {
-	description
-	  "The selection of whether mirrored or separate threshold
-        values are to be used requires user specified thresholds to
-        be set";
+        description
+          "The selection of whether mirrored or separate threshold
+          values are to be used requires user specified thresholds to
+          be set";
+      }
+      type enumeration {
+      	enum MIRRORED-UP-DOWN {
+      	  description
+            "MIRRORED-UP-DOWN indicates that a single set of
+            threshold values should be used for both increasing
+            and decreasing bandwidth when determining whether
+            to trigger updated bandwidth values to be flooded
+            in the IGP TE extensions.";
+      	}
+      	enum SEPARATE-UP-DOWN {
+      	  description
+            "SEPARATE-UP-DOWN indicates that a separate
+            threshold values should be used for the increasing
+            and decreasing bandwidth when determining whether
+            to trigger updated bandwidth values to be flooded
+            in the IGP TE extensions.";
+      	}
       }
       description
-	"This value specifies whether a single set of threshold values
-      should be used for both increasing and decreasing bandwidth
-      when determining whether to trigger updated bandwidth values to
-      be flooded in the IGP TE extensions. MIRRORED-UP-DOWN indicates
-      that a single value (or set of values) should be used for both
-      increasing and decreasing values, where SEPARATE-UP-DOWN
-      specifies that the increasing and decreasing values will be
-      separately specified";
+
+        "This value specifies whether a single set of threshold
+        values should be used for both increasing and decreasing
+        bandwidth when determining whether to trigger updated
+        bandwidth values to be flooded in the IGP TE extensions.
+        MIRRORED-UP-DOWN indicates that a single value (or set of
+        values) should be used for both increasing and decreasing
+        values, where SEPARATE-UP-DOWN specifies that the increasing
+        and decreasing values will be separately specified";
     }
 
     leaf-list up-thresholds {
-      type oc-types:percentage;
       when "../threshold-type = 'THRESHOLD-CROSSED'" +
-	"and ../threshold-specification = 'SEPARATE-UP-DOWN'" {
-	description
-	  "A list of up-thresholds can only be specified when the
-        bandwidth update is triggered based on crossing a threshold
-        and separate up and down thresholds are required";
+        "and ../threshold-specification = 'SEPARATE-UP-DOWN'" {
+        description
+          "A list of up-thresholds can only be specified when the
+          bandwidth update is triggered based on crossing a threshold
+          and separate up and down thresholds are required";
       }
+      type oc-types:percentage;
       description
-	"The thresholds (expressed as a percentage of the maximum
-      reservable bandwidth) at which bandwidth updates are to be
-      triggered when the bandwidth is increasing.";
+        "The thresholds (expressed as a percentage of the maximum
+        reservable bandwidth) at which bandwidth updates are to be
+        triggered when the bandwidth is increasing.";
     }
 
     leaf-list down-thresholds {
-      type oc-types:percentage;
       when "../threshold-type = 'THRESHOLD-CROSSED'" +
-	"and ../threshold-specification = 'SEPARATE-UP-DOWN'" {
-	description
-	  "A list of down-thresholds can only be specified when the
-        bandwidth update is triggered based on crossing a threshold
-        and separate up and down thresholds are required";
+        "and ../threshold-specification = 'SEPARATE-UP-DOWN'" {
+        description
+          "A list of down-thresholds can only be specified when the
+          bandwidth update is triggered based on crossing a threshold
+          and separate up and down thresholds are required";
       }
+      type oc-types:percentage;
       description
-	"The thresholds (expressed as a percentage of the maximum
-      reservable bandwidth) at which bandwidth updates are to be
-      triggered when the bandwidth is decreasing.";
+        "The thresholds (expressed as a percentage of the maximum
+        reservable bandwidth) at which bandwidth updates are to be
+        triggered when the bandwidth is decreasing.";
     }
 
     leaf-list up-down-thresholds {
-      type oc-types:percentage;
       when "../threshold-type = 'THRESHOLD-CROSSED'" +
-	"and ../threshold-specification = 'MIRRORED-UP-DOWN'" {
-	description
-	  "A list of thresholds corresponding to both increasing
-        and decreasing bandwidths can be specified only when an
-        update is triggered based on crossing a threshold, and
-        the same up and down thresholds are required.";
+        "and ../threshold-specification = 'MIRRORED-UP-DOWN'" {
+        description
+          "A list of thresholds corresponding to both increasing
+          and decreasing bandwidths can be specified only when an
+          update is triggered based on crossing a threshold, and
+          the same up and down thresholds are required.";
       }
+      type oc-types:percentage;
       description
-	"The thresholds (expressed as a percentage of the maximum
-      reservable bandwidth of the interface) at which bandwidth
-      updates are flooded - used both when the bandwidth is
-      increasing and decreasing";
+        "The thresholds (expressed as a percentage of the maximum
+        reservable bandwidth of the interface) at which bandwidth
+        updates are flooded - used both when the bandwidth is
+        increasing and decreasing";
     }
+  }
+
+  grouping mpls-te-igp-flooding-bandwdith-if {
+    description "Interface-level group for traffic engineering
+    database flooding options options";
+
+     container igp-flooding-bandwidth {
+      description "Interface bandwidth change percentages
+      that trigger update events into the IGP traffic
+      engineering database (TED)";
+      uses  mpls-te-igp-flooding-bandwidth_config;
+     }
   }
 
 
@@ -275,7 +322,7 @@ module mpls {
   grouping te_lsp_delay_config {
     description "Group for the timers goerning the delay
     in installation and cleanup of TE LSPs";
-    
+
     leaf te-lsp-install-delay {
       type uint16 {
         range 0..3600;
@@ -293,39 +340,85 @@ module mpls {
     }
   }
 
-  grouping te-interface-attributes {
+  grouping te-interface-attributes-top {
+    description
+      "Top level grouping for attributes
+       for TE interfaces.";
+
+      list interface {
+	key interface-name;
+	description "List of TE interfaces";
+
+	leaf interface-name {
+	  type leafref {
+	    path "../config/interface-name";
+	    require-instance true;
+	  }
+	  description "The interface name";
+	}
+
+	container config {
+	  description "Configuration parameters related to TE interfaces:";
+          uses te-interface-attributes-config;
+	}
+
+	container state {
+	  config false;
+	  description "State parameters related to TE interfaces";
+	  uses te-interface-attributes-config;
+	}
+      }
+  }
+
+  grouping te-interface-attributes-config {
     description "global level definitions for interfaces
     on which TE is run";
 
-    // TODO: this should be made a reference to an interface in the
-    // interfaces model
-    // TODO - should probably have as key the interface name, also
-    // need an easy way to specify all interfaces and to exclude
-    // interfaces.
-    list te-interfaces {
-
-      key interface-name;
-      description "interfaces for which MPLS is enabled";
-
       leaf interface-name {
-        type string;
+        type ocif:interface-ref;
         description "reference to interface name";
-        // TODO: add ref to interface model
       }
 
-      uses mpls-admin-groups-top;
-      uses mpls-te-igp-flooding-bandwidth; 
+      leaf te-metric {
+	type uint32;
+	description "TE specific metric for the link";
+      }
 
-    }
+      list srlg {
+	key srlg-name;
+	description "list of shared risk link groups on the
+        interface";
+	leaf srlg-name {
+	  type string;
+	  description "The SRLG group identifier";
+	}
+      }
+
+      list admin-group {
+	key admin-group-name;
+	description "list of admin groups on the
+        interface";
+	leaf admin-group-name {
+	  type string;
+	  description "The admin group identifier";
+	}
+      }
+
+      uses  mpls-te-igp-flooding-bandwdith-if;
+
   }
 
   grouping mpls-te-lsp-timers {
+    description
+      "Grouping for traffic engineering timers";
     container te_lsp_timers {
-      description "definition for delays associated with setup
+      description
+      "definition for delays associated with setup
       and cleanup of TE LSPs";
 
       container config {
-        description "Configuration parameters related
+        description
+        "Configuration parameters related
         to timers for TE LSPs";
 
         uses te_lsp_delay_config;
@@ -350,9 +443,9 @@ container mpls {
 
     container global {
       // entropy label support, label ranges will be added here.
-     description "general mpls configuration applicable to any type
-     of LSP and signaling protocol - label ranges, entropy label support
-     may be added here";
+     description "general mpls configuration applicable to any
+     type of LSP and signaling protocol - label ranges,
+     entropy label supportmay be added here";
     }
 
     container te-global-attributes {
@@ -365,8 +458,9 @@ container mpls {
     }
 
     container te-intf-attributes {
-      description "traffic engineering attributes specific for interfaces"; 
-      uses te-interface-attributes;
+      description "traffic engineering attributes specific
+      for interfaces";
+      uses te-interface-attributes-top;
     }
 
     container signaling-protocols {
@@ -425,4 +519,4 @@ container mpls {
   // rpc statements
 
   // notification statements
-}
+  }

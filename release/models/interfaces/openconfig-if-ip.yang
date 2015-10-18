@@ -12,6 +12,7 @@ module openconfig-if-ip {
   import openconfig-interfaces { prefix ocif; }
   import openconfig-vlan { prefix vlan; }
   import ietf-yang-types { prefix yang; }
+  import openconfig-extensions { prefix oc-ext; }
 
   // meta
   organization "OpenConfig working group";
@@ -27,10 +28,18 @@ module openconfig-if-ip {
     described by RFC 7277.  The primary differences are in the
     structure of configuration and state data.";
 
+  oc-ext:openconfig-version "0.1.1";
+
+  revision "2015-10-09" {
+    description
+      "Initial OpenConfig public release";
+    reference "0.1.1";
+  }
+
   revision "2015-08-20" {
     description
       "Initial revision";
-    reference "TBD";
+    reference "Pre-release";
   }
 
   // extension statements
@@ -695,7 +704,7 @@ module openconfig-if-ip {
       before preempting";
     }
 
-    leaf accept_mode {
+    leaf accept-mode {
       type boolean;
       // TODO: should we adopt the RFC default given the common
       // operational practice of setting to true?
