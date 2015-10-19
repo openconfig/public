@@ -17,6 +17,7 @@ Published versions of OpenConfig modules can be found in the ```release/models``
  * `rib` - a data model representing the BGP-4 routing information base (RIB) contents. Extensions to the 'base' RIB model adding additional data elements of operational use are defined in `openconfig-rib-bgp-ext`.
  * `telemetry` - describing state and configuration parameters relating to a device's ability to stream telemetry information to a network management system.
  * `vlan` - a model allowing the configuration and state retrieval of parameters corresponding to 802.1Q VLANs on a device - including the creation of routed interfaces corresponding to those VLANs.
+ * `network-instance` - which model defining configuration and operational state parameters for a Layer 2 or Layer 3 forwarding instance on a network element.
 
 Generic type definitions which OpenConfig utilises can be found in the `openconfig-types` module.
 
