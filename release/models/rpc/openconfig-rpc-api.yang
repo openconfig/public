@@ -1,0 +1,680 @@
+module openconfig-rpc-api {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/rpc/api";
+
+  prefix "oc-rpc";
+
+  import ietf-inet-types { prefix inet; }
+  import openconfig-extensions { prefix oc-ext; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module documents a set of RPCs recommended for network
+    management systems (NMS) based on OpenConfig models and
+    conventions. The RPCs are intended to offer guidance for server
+    implementors as a reference for service endpoints which can meet
+    requirements for configuration and telemetry.
+
+    Actual implementations may provide slightly different variations
+    on parameters, naming, etc., or extensions which add additional
+    service endpoints.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2015-10-30" {
+    description
+      "Initial draft for public review";
+    reference "0.1.0";
+  }
+
+  // extension statements
+
+  // feature statements
+
+  // identity statements
+
+  identity openconfig-rpc-response-types {
+    description
+      "Base identity for RPC response codes";
+  }
+
+  identity openconfig-schema-format-types {
+    description
+      "Base identity for supported schema formats";
+  }
+
+  identity json-schema {
+    base openconfig-schema-format-types;
+    description
+      "JSON-Schema";
+    reference
+      "http://json-schema.org/";
+  }
+
+  identity yang-schema {
+    base openconfig-schema-format-types;
+    description
+      "YANG model";
+    reference
+      "RFC 6020";
+  }
+
+  identity xsd-schema {
+    base openconfig-schema-format-types;
+    description
+      "XML Schema Definition";
+    reference
+      "http://www.w3.org/XML/Schema";
+  }
+
+  identity openconfig-schema-mode-types {
+    description
+      "Base identity for schema retrieval modes";
+  }
+
+  identity uri-mode {
+    base openconfig-schema-mode-types;
+    description
+      "Retrieve schema using a supplied URI";
+  }
+
+  identity file-mode {
+    base openconfig-schema-mode-types;
+    description
+      "Schema delivered in a file";
+  }
+
+  identity openconfig-data-encoding-types {
+    description
+      "Base identity for supported encoding for configuration and
+      operational state data";
+  }
+
+  identity encoding-xml {
+    base openconfig-data-encoding-types;
+    description
+      "XML encoding";
+  }
+
+  identity encoding-json-ietf {
+    base openconfig-data-encoding-types;
+    description
+      "JSON encoded based on IETF draft standard";
+    reference
+      "draft-ietf-netmod-yang-json";
+  }
+
+  identity encoding-proto3 {
+    base openconfig-data-encoding-types;
+    description
+      "Protocol buffers v3";
+    reference
+      "https://developers.google.com/protocol-buffers/docs/overview";
+  }
+
+  identity edit-config-commands {
+    description
+      "Base identity for subcommands for the edit-config
+      service.";
+  }
+
+  identity update-config {
+    base edit-config-commands;
+    description
+      "Updates the configuration at the target device at the
+      specified path(s). Data in the request is added to the current
+      device configuration (this is referred to as 'merge' in
+      NETCONF, for example).  If the specified data exists, it is
+      overwritten by the contents of the message.  If the path
+      specifies a list node, the configuration data is considered an
+      addition (append) to the list with the new element.";
+  }
+
+  identity replace-config {
+    base edit-config-commands;
+    description
+      "Replaces the configuration at the target device at the
+      specified path(s). If the specified data exists, it is
+      overwritten by the contents of the message.  Configuration data
+      that is not specified is deleted by the server.";
+  }
+
+  identity delete-config {
+    base edit-config-commands;
+    description
+      "Deletes the configuration at the target device. If the
+      specified data does not exist, the device returns success.";
+  }
+
+  // typedef statements
+
+  typedef openconfig-path {
+    type string;
+    //TODO: consider adding a pattern constraint on this type
+    description
+      "Path specification for elements of OpenConfig data models";
+  }
+
+  // grouping statements
+
+  grouping request-hdr {
+    description
+      "Common header for all RPC requests";
+
+    leaf request-id {
+      type uint64;
+      description
+        "Identifier sent in request messages";
+    }
+  }
+
+  grouping reply-hdr {
+    description
+      "Common header for all RPC replies";
+
+    leaf request-id {
+      type uint64;
+      description
+        "The request id corresponding to the request";
+    }
+
+    leaf response-code {
+      type identityref {
+        base openconfig-rpc-response-types;
+      }
+      description
+        "Numerical code corresponding to the returned message.";
+    }
+
+    leaf message {
+      type string;
+      description
+        "Error or information text associated with the return-code
+        value.";
+    }
+  }
+
+  grouping path-list {
+    description
+      "List / array of data model paths";
+
+    leaf-list path {
+      type openconfig-path;
+      description
+        "List of data model paths to retrieve";
+    }
+  }
+
+  grouping telemetry-path-list {
+    description
+      "List of data models paths and filters
+       which are used in a telemetry operation.";
+
+    list paths {
+      key path;
+      description "List of data model paths, keyed by path name";
+
+      leaf path {
+        type openconfig-path;
+        description "Data model path of interest";
+      }
+
+      leaf filter {
+        type string;
+        description
+          "Regular expression to be used in filtering state leaves";
+      }
+
+      leaf suppress-unchanged {
+        type boolean;
+        description
+          "If this is set to true, the target device will only send
+          updates to the collector upon a change in data value";
+      }
+
+      leaf max-silent-interval {
+        type uint32;
+        description
+          "Maximum time in ms the target device may go without sending
+          a message to the collector. If this time expires with
+          suppress-unchanged set, the target device must send an update
+          message regardless if the data values have changed.";
+      }
+
+      leaf sample-frequency {
+        type uint32;
+        description
+          "Time in ms between collection and transmission of the
+          specified data to the collector platform. The target device
+          will sample the corresponding data (e.g,. a counter) and
+          immediately send to the collector destination.
+
+          If sample-frequency is set to 0, then the network device
+          must emit an update upon every datum change.";
+      }
+    }
+  }
+
+  grouping openconfig-data {
+    description
+      "Common elements of OpenConfig data instances";
+
+    leaf path {
+      type openconfig-path;
+      description
+        "Data model path corresponding to the data in the message";
+    }
+
+    leaf values {
+      type string;
+      description
+        "Data encoded using the encoding specified in
+        setDataEncoding, or the device's default encoding.  This
+        data may be specified by the management system, e.g., when
+        sending configuration data, or by the device when returning
+        configuration or operational state / telemetry data.";
+    }
+  }
+
+  grouping subscription-input {
+    description
+      "Data associated with a telemetry subscription";
+
+    list collectors {
+      key "address port";
+      description
+      "List of optional collector endpoints to send data for
+      this subscription, specified as an ip+port combination.
+      If no collector destinations are specified, the collector
+      destination is assumed to be the requester on the rpc channel";
+
+      leaf address {
+        type inet:ip-address;
+        description "IP address of collector endpoint";
+      }
+
+      leaf port {
+        type inet:port-number;
+        description
+          "Transport protocol port number for the collector
+           destination";
+      }
+    }
+
+    leaf export-dscp-marking {
+      type inet:dscp;
+      description
+        "The DSCP code point value to be set on telemetry messages
+         to the collector platform.";
+    }
+  }
+
+  grouping subscription-response {
+    description
+      "Response message to a telemetry subscription creation or
+       get request.";
+
+    leaf subscription-id {
+      type uint32;
+      description
+        "Unique id for the subscription on the device.  This is
+        generated by the device and returned in a subscription
+        request or when listing existing subscriptions";
+    }
+
+    list collectors {
+      key "address port";
+      description
+      "List of optional collector endpoints to send data for
+      this subscription, specified as an ip+port combination.
+      If no collector destinations are specified, the collector
+      destination is inferred from requester on the rpc channel.";
+
+      leaf address {
+        type inet:ip-address;
+        description "IP address of collector endpoint";
+      }
+
+      leaf port {
+        type inet:port-number;
+        description
+          "Transport protocol port number for the collector
+           destination";
+      }
+    }
+
+    leaf export-dscp-marking {
+      type inet:dscp;
+      description
+        "The DSCP code point value to be set on telemetry messages
+         to the collector platform.";
+    }
+
+  }
+
+  grouping schema {
+    description
+      "Data associated with requests for information about the
+      schemas / models supported by the device";
+
+    leaf model-name {
+      type string;
+      description
+        "Name of the corresponding YANG module";
+    }
+
+    leaf model-namespace {
+      type string;
+      description
+        "Namespace the model belongs to, whether standard or ad-hoc";
+    }
+
+    leaf model-version {
+      type string;
+      description
+        "Model version -- for YANG models this should be at least the
+        'revision' but could also include a more conventional
+        version number";
+    }
+
+    leaf model-data {
+      type string;
+      description
+        "Model data, formatted according to the requested format
+        (e.g., JSON-Schema, YANG, etc.) and using the requested
+        mode (URI, file, etc.)";
+    }
+  }
+
+  grouping schema-request {
+    description
+      "Data included in requests for supported schemas";
+
+    leaf schema-format {
+      type identityref {
+        base openconfig-schema-format-types;
+      }
+      description
+        "Schema format requested, e.g., JSON-Schema, XSD, Proto,
+        YANG";
+    }
+
+    leaf request-mode {
+      type identityref {
+        base openconfig-schema-mode-types;
+      }
+      description
+        "Mode for delivering the schema data";
+    }
+  }
+
+  grouping config-data-request {
+    description
+      "Parameters included in requests for configuration data:
+      standard request header and the list of paths specifying
+      the data requested.";
+
+    uses request-hdr;
+    uses path-list;
+  }
+
+  grouping config-data-reply {
+    description
+      "Return values in a reply to requests for configuration
+      data: standard reply header and a list of data values with
+      the corresponding paths.";
+
+    uses reply-hdr;
+
+    list data {
+      key path;
+      description
+        "List of configuration data items, each consisting of the
+        data model path, and corresponding data encoded based on
+        the requested format";
+
+      uses openconfig-data;
+    }
+
+  }
+
+  grouping config-request {
+    description
+      "Data included in configuration update requests";
+
+    uses request-hdr;
+
+    list config-command {
+      key path;
+      description
+        "List of configuration data items, each consisting of the
+        data model path, and corresponding data encoded based on
+        the requested format";
+
+      uses openconfig-data;
+
+      leaf command {
+        type identityref {
+          base edit-config-commands;
+        }
+        description
+          "The type of configuration modification requested for the
+          corresponding path.  Note that some commands, such as
+          'delete' do not specify any associated data with the
+          path.";
+      }
+    }
+  }
+
+
+  grouping config-reply {
+    description
+      "Data included in replies to configuration update requests";
+
+    uses reply-hdr;
+  }
+
+  grouping oper-data-request {
+    description
+      "Data items for requests for operational data";
+
+    uses request-hdr;
+
+    uses path-list;
+
+    leaf oper-only {
+      type boolean;
+      description
+        "When this is set to true, the device should return only the
+        operational state data that is marked as operational: true.
+        Otherwise, it should return all operational state date
+        (config: false).";
+    }
+  }
+
+  grouping oper-data-reply {
+    description
+      "Data contained in replies to requests for operational data";
+
+    uses reply-hdr;
+
+    list data {
+      key path;
+      description
+        "List of operational state data items, each consisting of the
+        data model path, and corresponding data encoded based on
+        the requested format";
+
+      uses openconfig-data;
+    }
+  }
+
+
+  // data definition statements
+
+  // augment statements
+
+  // rpc statements
+
+
+  rpc getModels {
+    description
+      "Returns a repeated structure of supported data models";
+    input {
+      uses schema-request;
+    }
+    output {
+
+      list schema {
+
+        key model-name;
+        description
+          "list of supported schemas";
+
+        uses schema;
+      }
+    }
+  }
+
+  rpc setDataEncoding {
+    description
+      "Select and set one of the data encodings returned by
+      getDataEncodings";
+    input {
+
+      leaf encoding {
+        type identityref {
+          base openconfig-data-encoding-types;
+        }
+        description
+          "Identifier for the encoding scheme";
+      }
+    }
+  }
+
+  rpc getDataEncodings {
+    description
+      "Return the set of data encodings supported by the device for
+      configuration and telemetry data modeled in YANG";
+    output {
+      leaf-list encoding {
+        type identityref {
+          base openconfig-data-encoding-types;
+        }
+        description
+          "List of identifiers indicating the supported encoding
+          schemes";
+      }
+    }
+  }
+
+  rpc editConfig {
+    description
+      "Modify configuration on the target device. The editConfig
+      service accepts a combination of commands, each with an
+      associated path specification to indicate which data should
+      be modified.
+
+      The commands in an editConfig request should be
+      fully validated and accepted by the device before a response
+      is returned.  The application of the configuration commands
+      may or may not be complete when the command returns.  The NMS
+      is expected to be able to track the application of the
+      configuration using the operational state data in the telemetry
+      stream, or by retrieving the state data using an RPC.";
+
+    input {
+      uses config-request;
+    }
+    output {
+      uses config-reply;
+    }
+  }
+
+  rpc telemetrySubscribe {
+    description
+      "Request an inline subscription for data at the specified path.
+      The device should send telemetry data back on the same
+      connection as the subscription request.";
+    input {
+      uses subscription-input;
+      uses telemetry-path-list;
+    }
+
+    output {
+      uses subscription-response;
+      uses telemetry-path-list;
+    }
+  }
+
+  rpc getTelemetrySubscriptions {
+    description
+      "Get the list of current telemetry subscriptions from the
+      target.  This command returns a list of existing subscriptions
+      not including those that are established via configuration.";
+    output {
+      list subscription {
+
+        key subscription-id;
+        description
+          "List of current telemetry subscriptions";
+
+        uses subscription-response;
+        uses telemetry-path-list;
+      }
+    }
+  }
+
+  rpc cancelTelemetrySubscription {
+    description
+      "Terminates and removes an exisiting telemetry subscription";
+    input {
+      leaf subscription-id {
+        type uint32;
+        description
+          "Subscription identifier as returned by the device when
+          subscription was requested";
+      }
+    }
+  }
+
+  rpc getConfig {
+    description
+      "Prompts the device to return configuration data at the path
+      specified in the request.  All 'config: true' data is
+      returned.";
+    input {
+      uses config-data-request;
+    }
+    output {
+      uses config-data-reply;
+    }
+  }
+
+  rpc getOperational {
+    description
+      "Prompts the device to return operational state data at the
+      path specified in the request.  The caller may specify that
+      only data marked 'operational: true' in the schema are
+      returned, otherwise all 'config: false' data is returned
+      (e.g., including the applied configuration that is part of
+      operational state)";
+    input {
+      uses oper-data-request;
+    }
+    output {
+      uses oper-data-reply;
+    }
+  }
+
+
+}
