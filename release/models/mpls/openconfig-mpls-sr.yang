@@ -1,4 +1,4 @@
-module mpls-sr {
+module openconfig-mpls-sr {
 
   yang-version "1";
 
@@ -10,7 +10,9 @@ module mpls-sr {
 
   // import some basic types
   import ietf-inet-types { prefix inet; }
-  import mpls-types { prefix mplst; }
+  import openconfig-mpls-types { prefix mplst; }
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-interfaces { prefix ocif; }
 
   // meta
   organization "OpenConfig working group";
@@ -24,18 +26,18 @@ module mpls-sr {
     including global parameters, and LSP-specific configuration for
     both constrained-path and IGP-congruent LSPs";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2015-11-05" {
+    description
+      "Initial public release of MPLS models";
+    reference "0.2.1";
+  }
 
   revision "2015-10-14" {
     description
       "Work in progress";
     reference "0.2.0";
-  }
-
-  revision "2015-07-04" {
-    description
-      "Work in progress";
-    reference "Pre-release";
   }
 
   // feature statements
@@ -45,12 +47,6 @@ module mpls-sr {
   // typedef statements
 
   grouping srgb_config {
-
-    // Matches the "global" configuration options in
-    // draft-litkowski-spring-yang...
-    // TODO: request to Stéphane for this to be a separate
-    // grouping such that it can be included.
-
     leaf lower-bound {
       type uint32;
       description
@@ -84,18 +80,12 @@ module mpls-sr {
       description
         "Number of SRGB indexes that are currently allocated";
     }
-
-    // TODO: where do we put LFIB entries?
-
   }
 
   grouping adjacency-sid_config {
     description
       "Configuration related to an Adjacency Segment Identifier
       (SID)";
-
-    // tuned from draft-litkowski-spring-yang
-    // TODO: need to send a patch to Stéphane
 
     leaf-list advertise {
       type enumeration {
@@ -135,8 +125,7 @@ module mpls-sr {
       enabled interface";
 
     leaf interface {
-      type string;
-      // TODO: this should be changed to a leafref.
+      type ocif:interface-ref;
       description
         "Reference to the interface for which segment routing
         configuration is to be applied.";
@@ -146,10 +135,12 @@ module mpls-sr {
   // grouping statements
 
   grouping sr-global {
-    description "global segment routing signaling configuration";
+    description
+      "Global segment routing signaling configuration";
 
     container segment-routing {
-      description "SR global signaling config";
+      description
+        "SR global signaling config";
 
       list srgb {
         key "lower-bound upper-bound";
@@ -215,14 +206,9 @@ module mpls-sr {
     }
   }
 
-  grouping te-tunnel-sr_config {
+  grouping sr-path-attributes_config {
     description
-      "Configuration parameters relating to all SR-TE LSPs";
-
-    leaf tunnel-type {
-      type mplst:tunnel-type;
-      description "specifies the type of LSP, e.g., P2P or P2MP";
-    }
+      "Configuration parameters relating to SR-TE LSPs";
 
     leaf sid-selection-mode {
       type enumeration {
@@ -251,93 +237,6 @@ module mpls-sr {
         "When this value is set to true, only SIDs that are
         protected are to be selected by the calculating method
         for the SR-TE LSP.";
-    }
-  }
-
-  grouping te-tunnel-sr_state {
-    description
-      "State parameters relating to an SR-TE tunnel";
-    // placeholder
-    // TODO: selected SID stack
-  }
-
-  grouping te-sr_config {
-    description
-      "Configuration parameters relating to an SR-TE LSP";
-
-    leaf destination {
-      type inet:ip-address;
-      description
-        "The destination IP for the SR-TE LSP";
-    }
-  }
-
-  grouping te-sr_state {
-    description
-      "State parameters relating to SR-TE for the LSP";
-    // placeholder
-  }
-
-  grouping te-tunnel-sr {
-    description "defintiions for SR-signaled LSP tunnel types,
-    .e.g., applicable to point-to-point LSPs";
-
-    container config {
-      description
-        "Configuration parameters relating to SR-TE";
-      uses te-sr_config;
-    }
-    container state {
-      config false;
-      description
-        "State parameters relating to SR-TE";
-      uses te-sr_config;
-      uses te-sr_state;
-    }
-
-    container tunnel {
-      description "contains configuration stanzas for different LSP
-      tunnel types (P2P, P2MP, etc.)";
-
-      container config {
-        description
-          "Configuration parameters relating to SR-TE for the
-          tunnel";
-        uses te-tunnel-sr_config;
-      }
-      container state {
-        config false;
-        description
-          "State information relating to SR-TE for the tunnel";
-        uses te-tunnel-sr_config;
-        uses te-tunnel-sr_state;
-      }
-
-      container p2p-lsp {
-        when "tunnel-type = 'P2P'" {
-          description "container active when LSP tunnel type is
-          point to point";
-        }
-        description "Config for point-to-point tunnels";
-
-        // fill out the configuration details per segment
-        // routing requrements
-      }
-    }
-  }
-
-
-  grouping te-lsp-sr-setup {
-    description "data definitions for SR signaling";
-
-    container segment-routing {
-
-      presence "Presence of this container sets the LSP to use
-      SR signaling";
-
-      description "Configuration for signaling SR-based TE LSPs";
-
-      uses te-tunnel-sr;
     }
   }
 
@@ -417,24 +316,29 @@ module mpls-sr {
 
 
   grouping igp-tunnel-sr {
-    description "defintiions for SR-signaled, IGP-based LSP tunnel
-    types";
+    description
+      "defintiions for SR-signaled, IGP-based LSP tunnel
+      types";
 
     container tunnel {
-      description "contains configuration stanzas for different LSP
-      tunnel types (P2P, P2MP, etc.)";
+      description
+        "contains configuration stanzas for different LSP
+        tunnel types (P2P, P2MP, etc.)";
 
       leaf tunnel-type {
         type mplst:tunnel-type;
-        description "specifies the type of LSP, e.g., P2P or P2MP";
+        description
+          "specifies the type of LSP, e.g., P2P or P2MP";
       }
 
       container p2p-lsp {
         when "tunnel-type = 'P2P'" {
-          description "container active when LSP tunnel type is
-          point to point";
+          description
+            "container active when LSP tunnel type is
+            point to point";
         }
-        description "properties of point-to-point tunnels";
+        description
+          "properties of point-to-point tunnels";
 
         list fec {
           key "fec-address";
@@ -480,16 +384,19 @@ module mpls-sr {
   }
 
   grouping igp-lsp-sr-setup {
-    description "grouping for SR-IGP path setup for IGP-congruent
-    LSPs";
+    description
+      "grouping for SR-IGP path setup for IGP-congruent
+      LSPs";
 
     container segment-routing {
 
-      presence "Presence of this container sets the LSP to use
-      SR signaling";
+      presence
+        "Presence of this container sets the LSP to use
+        SR signaling";
 
-      description "segment routing signaling extensions for
-      IGP-confgruent LSPs";
+      description
+        "segment routing signaling extensions for
+        IGP-confgruent LSPs";
 
       uses igp-tunnel-sr;
 

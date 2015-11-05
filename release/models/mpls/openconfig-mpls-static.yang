@@ -1,14 +1,15 @@
-submodule mpls-static {
+submodule openconfig-mpls-static {
 
   yang-version "1";
 
-  belongs-to "mpls" {
+  belongs-to "openconfig-mpls" {
     prefix "mpls";
   }
 
   // import some basic types
-  import mpls-types {prefix mplst; }
+  import openconfig-mpls-types {prefix mplst; }
   import ietf-inet-types { prefix inet; }
+  import openconfig-extensions { prefix oc-ext; }
 
 
   // meta
@@ -21,18 +22,18 @@ submodule mpls-static {
   description
     "Defines static LSP configuration";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2015-11-05" {
+    description
+      "Initial public release of MPLS models";
+    reference "0.2.1";
+  }
 
   revision "2015-10-14" {
     description
       "Work in progress";
     reference "0.2.0";
-  }
-
-  revision "2015-07-04" {
-    description
-      "Work in progress";
-    reference "Pre-release";
   }
 
   // feature statements
@@ -44,36 +45,43 @@ submodule mpls-static {
   // grouping statements
 
   grouping static-lsp-common {
-    description "common definitions for static LSPs";
+    description
+      "common definitions for static LSPs";
 
     leaf next-hop {
       type inet:ip-address;
-      description "next hop IP address for the LSP";
+      description
+        "next hop IP address for the LSP";
     }
 
     leaf incoming-label {
       type mplst:mpls-label;
-      description "label value on the incoming packet";
+      description
+        "label value on the incoming packet";
     }
 
     leaf push-label {
       type mplst:mpls-label;
-      description "label value to push at the current hop for the
-      LSP";
+      description
+        "label value to push at the current hop for the
+        LSP";
     }
   }
 
   grouping static-lsp-main {
-    description "grouping for top level list of static LSPs";
+    description
+      "grouping for top level list of static LSPs";
 
 
     list label-switched-path {
       key name;
-      description "list of defined static LSPs";
+      description
+        "list of defined static LSPs";
 
       leaf name {
         type string;
-        description "name to identify the LSP";
+        description
+          "name to identify the LSP";
       }
 
       // TODO: separation into ingress, transit, egress may help
@@ -81,21 +89,24 @@ submodule mpls-static {
       // consider whether implementations can support the
       // separation
       container ingress {
-        description "Static LSPs for which the router is an
+        description
+          "Static LSPs for which the router is an
           ingress node";
 
         uses static-lsp-common;
       }
 
       container transit {
-        description "static LSPs for which the router is a
+        description
+          "static LSPs for which the router is a
           transit node";
 
         uses static-lsp-common;
       }
 
       container egress {
-        description "static LSPs for which the router is a
+        description
+          "static LSPs for which the router is a
           egress  node";
 
         uses static-lsp-common;
