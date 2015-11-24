@@ -24,7 +24,13 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the IETF YANG
     model for interfaces described by RFC 7223";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2015-11-20" {
+    description
+      "OpenConfig public release";
+    reference "0.2.0";
+  }
 
   revision "2015-10-09" {
     description
@@ -113,11 +119,20 @@ module openconfig-if-ethernet {
         expected to show the system-assigned MAC address.";
     }
 
+    leaf auto-negotiate {
+      type boolean;
+      default true;
+      description
+        "Set to TRUE to request the interface to auto-negotiate
+        transmission parameters with its peer interface.  When
+        set to FALSE, the transmission parameters are specified
+        manually.";
+      reference
+        "IEEE 802.3-2012 auto-negotiation transmission parameters";
+    }
+
     leaf duplex-mode {
       type enumeration {
-        enum AUTO {
-          description "Auto-negotiated duplex mode";
-        }
         enum FULL {
           description "Full duplex mode";
         }
@@ -125,30 +140,26 @@ module openconfig-if-ethernet {
           description "Half duplex mode";
         }
       }
-      default AUTO;
-      description "Set the duplex mode of the interface to full-
-      or half-duplex operation.";
+      description
+        "When auto-negotiate is TRUE, this optionally sets the
+        duplex mode that will be advertised to the peer.  If
+        unspecified, the interface should negotiate the duplex mode
+        directly (typically full-duplex).  When auto-negotiate is
+        FALSE, this sets the duplex mode on the interface directly.";
     }
 
-    choice port-speed {
-      description "Port speed can either be auto-negotiated or set
-      explicitly";
-      case auto {
-        leaf auto {
-          type empty;
-          description "Set the link speed to auto-negotiate";
-        }
+    leaf port-speed {
+      type identityref {
+        base ethernet-speed;
       }
-      case manual {
-        leaf speed {
-          type identityref {
-            base ethernet-speed;
-          }
-          description "Set the link speed to a fixed value --
-          supported values are defined by ethernet-speed
-          identities";
-        }
-      }
+      description
+        "When auto-negotiate is TRUE, this optionally sets the
+        port-speed mode that will be advertised to the peer for
+        negotiation.  If unspecified, it is expected that the
+        interface will select the highest speed available based on
+        negotiation.  When auto-negotiate is set to FALSE, sets the
+        link speed to a fixed value -- supported values are defined
+        by ethernet-speed identities";
     }
 
     leaf enable-flow-control {
@@ -158,7 +169,11 @@ module openconfig-if-ethernet {
         "Enable or disable flow control for this interface.
         Ethernet flow control is a mechanism by which a receiver
         may send PAUSE frames to a sender to stop transmission for
-        a specified time.";
+        a specified time.
+
+        This setting should override auto-negotiated flow control
+        settings.  If left unspecified, and auto-negotiate is TRUE,
+        flow control mode is negotiated with the peer interface.";
       reference
         "IEEE 802.3x";
     }
@@ -241,6 +256,13 @@ module openconfig-if-ethernet {
   grouping ethernet-interface-state {
     description
       "Grouping for defining Ethernet-specific operational state";
+
+    leaf hw-mac-address {
+      type yang:mac-address;
+      description
+        "Represenets the 'burned-in',  or system-assigned, MAC
+        address for the Ethernet interface.";
+    }
 
     container counters {
       description "Ethernet interface counters";
