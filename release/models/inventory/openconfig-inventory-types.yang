@@ -1,0 +1,127 @@
+module openconfig-inventory-types {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/inventory-types";
+
+  prefix "oc-inv-types";
+
+  import openconfig-extensions { prefix oc-ext; }
+
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines data types (e.g., YANG identities)
+    to support the OpenConfig component inventory model.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2015-12-18" {
+    description
+      "Initial public release";
+    reference "0.1.0";
+  }
+
+  revision "2015-09-08" {
+    description
+      "Initial revision";
+    reference "Pre-release";
+  }
+
+  // identity statements
+
+  identity openconfig-hardware-component {
+    description
+      "Base identity for hardware related components in a managed
+      device.  Derived identities are partially based on contents
+      of the IANA Entity MIB.";
+    reference
+      "IANA Entity MIB and RFC 6933";
+  }
+
+
+  identity openconfig-software-component {
+    description
+      "Base identity for software-related components in a managed
+      device";
+  }
+
+  // hardware types
+
+  identity CHASSIS {
+    base openconfig-hardware-component;
+    description
+      "Chassis component, typically with multiple slots / shelves";
+  }
+
+  identity BACKPLANE {
+    base openconfig-hardware-component;
+    description
+      "Backplane component for aggregating traffic, typically
+      contained in a chassis component";
+  }
+
+  identity POWER-SUPPLY {
+    base openconfig-hardware-component;
+    description
+      "Component that is supplying power to the device";
+  }
+
+  identity FAN {
+    base openconfig-hardware-component;
+    description
+      "Cooling fan, or could be some other heat-reduction component";
+  }
+
+  identity SENSOR {
+    base openconfig-hardware-component;
+    description
+      "Physical sensor, e.g., a temperature sensor in a chassis";
+  }
+
+  identity MODULE {
+    base openconfig-hardware-component;
+    description
+      "Replaceable hardware module, e.g., a daughtercard";
+  }
+
+  identity LINECARD {
+    base openconfig-hardware-component;
+    description
+      "Linecard component, typically inserted into a chassis slot";
+  }
+
+  identity PORT {
+    base openconfig-hardware-component;
+    description
+      "Physical port, e.g., for attaching pluggables and networking
+      cables";
+  }
+
+  identity TRANSCEIVER {
+    base openconfig-hardware-component;
+    description
+      "Pluggable module present in a port";
+  }
+
+  identity CPU {
+    base openconfig-hardware-component;
+    description
+      "Processing unit, e.g., a management processor";
+  }
+
+  identity OPERATING-SYSTEM {
+    base openconfig-software-component;
+    description
+      "Operating system running on a component";
+  }
+
+
+}
