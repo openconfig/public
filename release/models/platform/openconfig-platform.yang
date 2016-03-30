@@ -1,14 +1,14 @@
-module openconfig-inventory {
+module openconfig-platform {
 
   yang-version "1";
 
   // namespace
   namespace "http://openconfig.net/yang/inventory";
 
-  prefix "oc-inv";
+  prefix "oc-platform";
 
-  import openconfig-inventory-types { prefix oc-inv-types; }
-  import openconfig-interfaces { prefix ocif; }
+  import openconfig-platform-types { prefix oc-platform-types; }
+  import openconfig-interfaces { prefix oc-if; }
   import openconfig-extensions { prefix oc-ext; }
 
 
@@ -62,18 +62,12 @@ module openconfig-inventory {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
 
-  revision "2015-12-18" {
+  revision "2016-03-25" {
     description
-      "Initial public release";
-    reference "0.1.0";
-  }
-
-  revision "2015-09-08" {
-    description
-      "Initial revision";
-    reference "Pre-release";
+      "Public release";
+    reference "0.2.0";
   }
 
   // grouping statements
@@ -249,10 +243,10 @@ module openconfig-inventory {
     leaf type {
       type union {
         type identityref {
-          base oc-inv-types:openconfig-hardware-component;
+          base oc-platform-types:OPENCONFIG_HARDWARE_COMPONENT;
         }
         type identityref {
-          base oc-inv-types:openconfig-software-component;
+          base oc-platform-types:OPENCONFIG_SOFTWARE_COMPONENT;
         }
       }
       description
@@ -272,13 +266,13 @@ module openconfig-inventory {
         "System-supplied description of the component";
     }
 
-    leaf serial_no {
+    leaf serial-no {
       type string;
       description
         "System-assigned serial number of the component.";
     }
 
-    leaf part_no {
+    leaf part-no {
       type string;
       description
         "System-assigned part number for the component.  This should
@@ -339,7 +333,7 @@ module openconfig-inventory {
 
   // augments
 
-  augment "/ocif:interfaces/ocif:interface/ocif:state" {
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:state" {
     //TODO: add 'when' or other condition to make sure this
     //leafref points to a component of type PORT.
     description
@@ -348,7 +342,8 @@ module openconfig-inventory {
 
     leaf hardware-port {
       type leafref {
-        path "/oc-inv:components/oc-inv:component/oc-inv:name";
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
       }
       description
         "References the hardware port in the device inventory";

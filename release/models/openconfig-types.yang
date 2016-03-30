@@ -3,7 +3,7 @@ module openconfig-types {
 
 	namespace "http://openconfig.net/yang/openconfig-types";
 
-	prefix "openconfig-types";
+	prefix "oc-types";
 
   // import statements
   import openconfig-extensions { prefix oc-ext; }
@@ -21,17 +21,12 @@ module openconfig-types {
     are used across OpenConfig models. It can be imported by modules
     that make use of these types.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.1.1";
 
-  revision "2015-10-09" {
+  revision "2016-03-25" {
     description
-      "Initial OpenConfig public release";
-    reference "0.1.0";
-  }
-
-  revision "2015-08-14" {
-    description "Initial revision";
-    reference "TBD";
+      "OpenConfig public release";
+    reference "0.1.1";
   }
 
   typedef percentage {
@@ -83,6 +78,22 @@ module openconfig-types {
       description
         "The maximum value of the statitic over the sampling
         period";
+    }
+  }
+
+  grouping avg-min-max-current-stats-precision1 {
+    description
+      "Common grouping for recording current statistic value in
+      addition to avg-min-max stats";
+
+    uses oc-types:avg-min-max-stats-precision1;
+
+    leaf current {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      description
+        "The most current recorded value of the statistic.";
     }
   }
 }

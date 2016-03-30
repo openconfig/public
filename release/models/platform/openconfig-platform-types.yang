@@ -1,11 +1,11 @@
-module openconfig-inventory-types {
+module openconfig-platform-types {
 
   yang-version "1";
 
   // namespace
-  namespace "http://openconfig.net/yang/inventory-types";
+  namespace "http://openconfig.net/yang/platform-types";
 
-  prefix "oc-inv-types";
+  prefix "oc-platform-types";
 
   import openconfig-extensions { prefix oc-ext; }
 
@@ -21,23 +21,17 @@ module openconfig-inventory-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
 
-  revision "2015-12-18" {
+  revision "2016-03-25" {
     description
-      "Initial public release";
-    reference "0.1.0";
-  }
-
-  revision "2015-09-08" {
-    description
-      "Initial revision";
-    reference "Pre-release";
+      "Public release";
+    reference "0.2.0";
   }
 
   // identity statements
 
-  identity openconfig-hardware-component {
+  identity OPENCONFIG_HARDWARE_COMPONENT {
     description
       "Base identity for hardware related components in a managed
       device.  Derived identities are partially based on contents
@@ -47,7 +41,7 @@ module openconfig-inventory-types {
   }
 
 
-  identity openconfig-software-component {
+  identity OPENCONFIG_SOFTWARE_COMPONENT {
     description
       "Base identity for software-related components in a managed
       device";
@@ -56,69 +50,69 @@ module openconfig-inventory-types {
   // hardware types
 
   identity CHASSIS {
-    base openconfig-hardware-component;
+    base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Chassis component, typically with multiple slots / shelves";
   }
 
   identity BACKPLANE {
-    base openconfig-hardware-component;
+    base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Backplane component for aggregating traffic, typically
       contained in a chassis component";
   }
 
-  identity POWER-SUPPLY {
-    base openconfig-hardware-component;
+  identity POWER_SUPPLY {
+    base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Component that is supplying power to the device";
   }
 
   identity FAN {
-    base openconfig-hardware-component;
+    base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Cooling fan, or could be some other heat-reduction component";
   }
 
   identity SENSOR {
-    base openconfig-hardware-component;
+    base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Physical sensor, e.g., a temperature sensor in a chassis";
   }
 
   identity MODULE {
-    base openconfig-hardware-component;
+    base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Replaceable hardware module, e.g., a daughtercard";
   }
 
   identity LINECARD {
-    base openconfig-hardware-component;
+    base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Linecard component, typically inserted into a chassis slot";
   }
 
   identity PORT {
-    base openconfig-hardware-component;
+    base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Physical port, e.g., for attaching pluggables and networking
       cables";
   }
 
   identity TRANSCEIVER {
-    base openconfig-hardware-component;
+    base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Pluggable module present in a port";
   }
 
   identity CPU {
-    base openconfig-hardware-component;
+    base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Processing unit, e.g., a management processor";
   }
 
-  identity OPERATING-SYSTEM {
-    base openconfig-software-component;
+  identity OPERATING_SYSTEM {
+    base OPENCONFIG_SOFTWARE_COMPONENT;
     description
       "Operating system running on a component";
   }
