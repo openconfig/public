@@ -3,14 +3,15 @@ module openconfig-vlan {
   yang-version "1";
 
   // namespace
-  namespace "http://openconfig.net/yang/vlan";
+  namespace "http://openconfig.net/yang/vlan-types";
 
-  prefix "vlan";
+  prefix "oc-vlan";
 
   // import some basic types
-  import openconfig-interfaces { prefix ocif; }
-  import openconfig-if-ethernet { prefix eth; }
-  import openconfig-if-aggregate { prefix lag; }
+  import openconfig-vlan-types { prefix oc-vlan-types; }
+  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-if-ethernet { prefix oc-eth; }
+  import openconfig-if-aggregate { prefix oc-lag; }
   import iana-if-type { prefix ift; }
   import openconfig-extensions { prefix oc-ext; }
 
@@ -25,136 +26,14 @@ module openconfig-vlan {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "1.0.0";
 
-  revision "2015-10-09" {
+  revision "2016-03-28" {
     description
-      "Initial OpenConfig public release";
-    reference "0.1.1";
+      "OpenConfig public release";
+    reference "1.0.0";
   }
 
-  revision "2015-08-20" {
-    description
-      "Initial revision";
-    reference "TBD";
-  }
-
-  // extension statements
-
-  // feature statements
-
-  // identity statements
-
-  // typedef statements
-
-  // TODO: typedefs should be defined in a vlan-types.yang file.
-  typedef vlan-id {
-    type uint16 {
-      range 1..4094;
-    }
-    description
-      "Type definition representing a single-tagged VLAN";
-  }
-
-  typedef vlan-range {
-    type string {
-      // range specified as [lower]..[upper]
-      pattern "(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|"       +
-              "[1-9][0-9]{1,2}|[1-9])\.\.(409[0-4]|"        +
-              "40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|" +
-              "[1-9])";
-    }
-    description
-      "Type definition representing a range of single-tagged
-      VLANs. A range is specified as x..y where x and y are
-      valid VLAN IDs (1 <= vlan-id <= 4094). The range is
-      assumed to be inclusive, such that any VLAN-ID matching
-      x <= VLAN-ID <= y falls within the range.";
-  }
-
-  typedef qinq-id {
-    type string {
-      pattern
-        "(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|"       +
-        "[1-9][0-9]{1,2}|[1-9])\."                    +
-        "((409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|"      +
-        "[1-9][0-9]{1,2}|[1-9])|\*)";
-    }
-    description
-      "Type definition representing a single double-tagged/QinQ VLAN
-      identifier. The format of a QinQ VLAN-ID is x.y where X is the
-      'outer' VLAN identifier, and y is the 'inner' VLAN identifier.
-      Both x and y must be valid VLAN IDs (1 <= vlan-id <= 4094)
-      with the exception that y may be equal to a wildcard (*). In
-      cases where y is set to the wildcard, this represents all inner
-      VLAN identifiers where the outer VLAN identifier is equal to
-      x";
-  }
-
-  typedef qinq-id-range {
-    type union {
-      type string {
-        // match cases where the range is specified as x..y.z
-        pattern
-          "(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|"    +
-          "[1-9][0-9]{1,2}|[1-9])\.\."               +
-          "(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|"    +
-          "[1-9][0-9]{1,2}|[1-9])\."                 +
-          "((409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|"   +
-          "[1-9][0-9]{1,2}|[1-9])|\*)";
-      }
-      type string {
-        // match cases where the range is specified as x.y..z
-        pattern
-          "(\*|(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|"    +
-          "[1-9][0-9]{1,2}|[1-9]))\."                 +
-          "(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|"    +
-          "[1-9][0-9]{1,2}|[1-9])\.\."               +
-          "(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|"    +
-          "[1-9][0-9]{1,2}|[1-9])";
-      }
-    }
-    description
-      "A type definition representing a range of double-tagged/QinQ
-      VLAN identifiers. The format of a QinQ VLAN-ID range can be
-      specified in three formats. Where the range is outer VLAN IDs
-      the range is specified as x..y.z. In this case outer VLAN
-      identifiers meeting the criteria x <= outer-vlan-id <= y are
-      accepted iff the inner VLAN-ID is equal to y - or any inner-tag
-      if the wildcard is specified. Alternatively the range can be
-      specified as x.y..z. In this case only VLANs with an
-      outer-vlan-id qual to x are accepted (x may again be the
-      wildcard). Inner VLANs are accepted if they meet the inequality
-      y <= inner-vlan-id <= z.";
-  }
-
-  typedef vlan-mode-type {
-    type enumeration {
-      enum ACCESS {
-        description "Access mode VLAN interface (No 802.1q header)";
-      }
-      enum TRUNK {
-        description "Trunk mode VLAN interface";
-      }
-    }
-    description
-      "VLAN interface mode (trunk or access)";
-  }
-
-  typedef vlan-ref {
-    type union {
-      type vlan-id;
-      type string;
-      // TODO: string should be changed to leafref to reference
-      // an existing VLAN.  this is not allowed in YANG 1.0 but
-      // is expected to be in YANG 1.1.
-      // type leafref {
-      //  path "vlan:vlans/vlan:vlan/vlan:config/vlan:name";
-      // }
-    }
-    description
-      "Reference to a VLAN by name or id";
-  }
 
   // grouping statements
 
@@ -162,7 +41,7 @@ module openconfig-vlan {
     description "VLAN configuration container.";
 
     leaf vlan-id {
-      type vlan-id;
+      type oc-vlan-types:vlan-id;
       description "Interface VLAN id.";
     }
 
@@ -184,16 +63,39 @@ module openconfig-vlan {
       description "Admin state of the VLAN";
     }
 
+    leaf tpid {
+      type identityref {
+        base oc-vlan-types:TPID_TYPES;
+      }
+      default oc-vlan-types:TPID_0x8100;
+      description
+        "Optionally set the tag protocol identifier field (TPID) that
+        is accepted on the VLAN";
+    }
+
   }
 
   grouping vlan-state {
     description "State variables for VLANs";
 
-    leaf-list member-ports {
-	    type ocif:interface-ref;
+  }
+
+  grouping vlan-members-state {
+    description
+      "List of interfaces / subinterfaces belonging to the VLAN.";
+
+    container members {
       description
-         "List of current member ports including access ports
-          and trunk ports that support this vlan";
+        "Enclosing container for list of member interfaces";
+
+      list member {
+        config false;
+        description
+          "List of references to interfaces / subinterfaces
+          associated with the VLAN.";
+
+        uses oc-if:interface-ref-state;
+      }
     }
   }
 
@@ -203,8 +105,9 @@ module openconfig-vlan {
       Ethernet interface.";
 
     leaf interface-mode {
-        type vlan-mode-type;
-        description "Set the interface to access or trunk mode for
+      type oc-vlan-types:vlan-mode-type;
+      description
+        "Set the interface to access or trunk mode for
         VLANs";
     }
 
@@ -214,8 +117,8 @@ module openconfig-vlan {
           "Native VLAN is valid for trunk mode interfaces";
       }
       type union {
-        type vlan-id;
-        type qinq-id;
+        type oc-vlan-types:vlan-id;
+        type oc-vlan-types:qinq-id;
       }
       description
         "Set the native VLAN id for untagged frames arriving on
@@ -229,8 +132,8 @@ module openconfig-vlan {
           "Access VLAN assigned to the interfaces";
       }
       type union {
-        type vlan-id;
-        type qinq-id;
+        type oc-vlan-types:vlan-id;
+        type oc-vlan-types:qinq-id;
       }
       description
         "Assign the access vlan to the access port.";
@@ -243,10 +146,10 @@ module openconfig-vlan {
           interfaces.";
       }
       type union {
-        type vlan-id;
-        type vlan-range;
-        type qinq-id;
-        type qinq-id-range;
+        type oc-vlan-types:vlan-id;
+        type oc-vlan-types:vlan-range;
+        type oc-vlan-types:qinq-id;
+        type oc-vlan-types:qinq-id-range;
       }
       description
         "Specify VLANs, or ranges thereof, that the interface may
@@ -271,62 +174,46 @@ module openconfig-vlan {
       "Top-level grouping for VLAN data associated with an
       Ethernet interface";
 
-    container vlan {
+    container switched-vlan {
       description
         "Enclosing container for VLAN interface-specific
-        data on Ethernet interfaces";
+        data on Ethernet interfaces.  These are for standard
+        L2, switched-style VLANs.";
 
       container config {
           description "Configuration parameters for VLANs";
 
           uses vlan-ethernet-config;
-        }
+      }
 
-        container state {
+      container state {
 
-          config false;
-          description "State variables for VLANs";
+        config false;
+        description "State variables for VLANs";
 
-          uses vlan-ethernet-config;
-          uses vlan-ethernet-state;
-        }
+        uses vlan-ethernet-config;
+        uses vlan-ethernet-state;
+      }
     }
   }
 
   grouping vlan-logical-config {
     description
       "VLAN related configuration that is part of subinterface
-      (logical interface) configuration";
+      (logical interface) configuration.  These are generally
+      L3 VLANs with an id that is local.";
 
-    choice local-global {
+
+    leaf vlan-id {
+      type union {
+        type oc-vlan-types:vlan-id;
+        type oc-vlan-types:qinq-id;
+      }
       description
-        "VLAN may be locally scoped to a subinterface, or reference
-        a globally defined device-wide VLAN.  In the case of local
-        scoping, the VLAN id may be duplicated in multiple
+        "VLAN id for the subinterface -- specified inline for the
+        case of a local VLAN.  The id is scoped to the
+        subinterface, and could be repeated on different
         subinterfaces.";
-
-      case global {
-
-        leaf global-vlan-id {
-          type vlan-ref;
-          description
-            "VLAN id for the subinterface -- references a global
-            VLAN by name or id.";
-        }
-      }
-
-      case local {
-
-        leaf vlan-id {
-          type union {
-            type vlan-id;
-            type qinq-id;
-          }
-          description
-            "VLAN id for the subinterface -- specified inline for the
-            case of a local VLAN";
-        }
-      }
     }
   }
 
@@ -353,7 +240,8 @@ module openconfig-vlan {
 
         leaf vlan-id {
           type leafref {
-            path "/vlan:vlans/vlan:vlan/vlan:config/vlan:vlan-id";
+            path "/oc-vlan:vlans/oc-vlan:vlan/oc-vlan:config/" +
+              "oc-vlan:vlan-id";
           }
           description "references the configured vlan-id";
         }
@@ -372,6 +260,7 @@ module openconfig-vlan {
           uses vlan-config;
           uses vlan-state;
         }
+        uses vlan-members-state;
       }
     }
   }
@@ -466,8 +355,8 @@ module openconfig-vlan {
 
   // augment statements
 
-  augment "/ocif:interfaces/ocif:interface/ocif:subinterfaces/" +
-    "ocif:subinterface" {
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:subinterfaces/" +
+    "oc-if:subinterface" {
     //TODO: augmentation path will need to be updated for
     //full device model
     description "Adds VLAN settings to individual subinterfaces";
@@ -475,10 +364,10 @@ module openconfig-vlan {
     uses vlan-logical-top;
   }
 
-  augment "/ocif:interfaces/ocif:interface/eth:ethernet" {
+  augment "/oc-if:interfaces/oc-if:interface/oc-eth:ethernet" {
     //TODO: augmentation path will need to be updated for
     //full device model
-    when "ocif:type = 'ift:ethernetCsmacd'" {
+    when "oc-if:type = 'ift:ethernetCsmacd'" {
       description "Active when the interface is Ethernet";
     }
     description "Adds VLAN settings to individual Ethernet
@@ -487,10 +376,10 @@ module openconfig-vlan {
     uses vlan-ethernet-top;
   }
 
-  augment "/ocif:interfaces/ocif:interface/lag:aggregation" {
+  augment "/oc-if:interfaces/oc-if:interface/oc-lag:aggregation" {
     //TODO: augmentation path will need to be updated for
     //full device model
-    when "ocif:type = 'ift:ieee8023adLag'" {
+    when "oc-if:type = 'ift:ieee8023adLag'" {
       description "Active when the interface is a LAG";
     }
     description "Adds VLAN settings to a LAG interface";
@@ -498,8 +387,8 @@ module openconfig-vlan {
     uses vlan-ethernet-top;
   }
 
-  augment "/ocif:interfaces/ocif:interface" {
-    when "ocif:type = 'ift:l3ipvlan'" {
+  augment "/oc-if:interfaces/oc-if:interface" {
+    when "oc-if:type = 'ift:l3ipvlan'" {
       description
         "Active when the interface is a logical interface providing
         L3 routing for VLANs";

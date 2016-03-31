@@ -5,10 +5,10 @@ module openconfig-interfaces {
   // namespace
   namespace "http://openconfig.net/yang/interfaces";
 
-  prefix "ocif";
+  prefix "oc-if";
 
   // import some basic types
-  import ietf-interfaces { prefix if; }
+  import ietf-interfaces { prefix ietf-if; }
   import ietf-yang-types { prefix yang; }
   import openconfig-extensions { prefix oc-ext; }
 
@@ -20,51 +20,128 @@ module openconfig-interfaces {
     netopenconfig@googlegroups.com";
 
   description
-    "Model for managing network interfaces.
+    "Model for managing network interfaces and subinterfaces.  This
+    module also defines convenience types / groupings for other
+    models to create references to interfaces:
+
+      base-interface-ref (type) -  reference to a base interface
+      interface-ref (grouping) -  container for reference to a
+        interface + subinterface
+      interface-ref-state (grouping) - container for read-only
+        (opstate) reference to interface + subinterface
 
     This model reuses data items defined in the IETF YANG model for
     interfaces described by RFC 7223 with an alternate structure
-    (particularly for operational state data) and with additional
-    configuration items.";
+    (particularly for operational state data) and and with
+    additional configuration items.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "1.0.0";
 
-  revision "2015-11-20" {
+  revision "2016-03-28" {
     description
       "OpenConfig public release";
-    reference "0.2.0";
+    reference "1.0.0";
   }
 
-  revision "2015-10-09" {
-    description
-      "Initial OpenConfig public release";
-    reference "0.1.1";
-  }
-
-  revision "2015-08-20" {
-    description
-      "Initial revision";
-    reference "Pre-release";
-  }
-
-  // extension statements
-
-  // feature statements
-
-  // identity statements
 
   // typedef statements
 
-  typedef interface-ref {
+  typedef base-interface-ref {
     type leafref {
-      path "/ocif:interfaces/ocif:interface/ocif:name";
+      path "/oc-if:interfaces/oc-if:interface/oc-if:name";
     }
     description
-      "This type is used by data models that need to reference
-       configured interfaces.";
+      "Reusable type for by-name reference to a base interface.
+      This type may be used in cases where ability to reference
+      a subinterface is not required.";
+  }
+
+  typedef interface-id {
+    type string;
+    description
+      "User-defined identifier for an interface, generally used to
+      name a interface reference.  The id can be arbitrary but a
+      useful convention is to use a combination of base interface
+      name and subinterface index.";
   }
 
   // grouping statements
+
+  grouping interface-ref-common {
+    description
+      "Reference leafrefs to interface / subinterface";
+
+    leaf interface {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description
+        "Reference to a base interface.  If a reference to a
+        subinterface is required, this leaf must be specified
+        to indicate the base interface.";
+    }
+
+    leaf subinterface {
+      type leafref {
+        path "/oc-if:interfaces/" +
+          "oc-if:interface[oc-if:name=current()/../interface]/" +
+          "oc-if:subinterfaces/oc-if:subinterface/oc-if:index";
+      }
+      description
+        "Reference to a subinterface -- this requires the base
+        interface to be specified using the interface leaf in
+        this container.  If only a reference to a base interface
+        is requuired, this leaf should not be set.";
+    }
+  }
+
+  grouping interface-ref-state-container {
+    description
+      "Reusable opstate w/container for a reference to an
+      interface or subinterface";
+
+    container state {
+      config false;
+      description
+        "Operational state for interface-ref";
+
+      uses interface-ref-common;
+    }
+  }
+
+  grouping interface-ref {
+    description
+      "Reusable definition for a reference to an interface or
+      subinterface";
+
+    container interface-ref {
+      description
+        "Reference to an interface or subinterface";
+
+      container config {
+        description
+          "Configured reference to interface / subinterface";
+
+        uses interface-ref-common;
+      }
+
+      uses interface-ref-state-container;
+    }
+  }
+
+  grouping interface-ref-state {
+    description
+      "Reusable opstate w/container for a reference to an
+      interface or subinterface";
+
+    container interface-ref {
+      description
+        "Reference to an interface or subinterface";
+
+      uses interface-ref-state-container;
+    }
+  }
+
 
   grouping interface-common-config {
     description
@@ -176,7 +253,7 @@ module openconfig-interfaces {
 
     leaf type {
       type identityref {
-        base if:interface-type;
+        base ietf-if:interface-type;
       }
       mandatory true;
       description
@@ -347,12 +424,12 @@ module openconfig-interfaces {
           description
             "Waiting for some external event.";
         }
-        enum NOT-PRESENT {
+        enum NOT_PRESENT {
           value 6;
           description
             "Some component (typically hardware) is missing.";
         }
-        enum LOWER-LAYER-DOWN {
+        enum LOWER_LAYER_DOWN {
           value 7;
           description
             "Down due to state of lower-layer interface(s).";
@@ -670,6 +747,57 @@ module openconfig-interfaces {
 
   // data definition statements
 
+  grouping sub-unnumbered-config {
+    description
+      "Configuration data for unnumbered subinterfaces";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "Indicates that the subinterface is unnumbered.  By default
+        the subinterface is numbered, i.e., expected to have an
+        IP address configuration.";
+    }
+  }
+
+  grouping sub-unnumbered-state {
+    description
+      "Operational state data unnumbered subinterfaces";
+  }
+
+  grouping sub-unnumbered-top {
+    description
+      "Top-level grouping unnumbered subinterfaces";
+
+    container unnumbered {
+      description
+        "Top-level container for setting unnumbered interfaces.
+        Includes reference the interface that provides the
+        address information";
+
+      container config {
+        description
+          "Configuration data for unnumbered interface";
+
+        uses sub-unnumbered-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for unnumbered interfaces";
+
+        uses sub-unnumbered-config;
+        uses sub-unnumbered-state;
+      }
+
+      uses oc-if:interface-ref;
+    }
+  }
+
   grouping subinterfaces-config {
     description
       "Configuration data for subinterfaces";
@@ -682,18 +810,6 @@ module openconfig-interfaces {
         On systems with no support for subinterfaces, or not using
         subinterfaces, this value should default to 0, i.e., the
         default subinterface.";
-    }
-
-    leaf unnumbered {
-      type leafref {
-        path "../../index";
-      }
-      default false;
-      description
-        "Indicates that the subinterface is unnumbered, and provides
-        a reference to the subinterface that provides the IP
-        address information (v4, v6 or both) for the current
-        subinterface.";
     }
 
     uses interface-common-config;
@@ -727,7 +843,7 @@ module openconfig-interfaces {
 
         leaf index {
           type leafref {
-            path "../ocif:config/ocif:index";
+            path "../oc-if:config/oc-if:index";
           }
           description
             "The index number of the subinterface -- used to address
@@ -773,7 +889,7 @@ module openconfig-interfaces {
 
         leaf name {
           type leafref {
-            path "../ocif:config/ocif:name";
+            path "../oc-if:config/oc-if:name";
           }
           description
             "References the configured name of the interface";
@@ -813,11 +929,5 @@ module openconfig-interfaces {
 
   uses interfaces-top;
 
-
-  // augment statements
-
-  // rpc statements
-
-  // notification statements
 
 }

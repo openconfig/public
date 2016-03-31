@@ -5,12 +5,12 @@ module openconfig-if-ip {
   // namespace
   namespace "http://openconfig.net/yang/interfaces/ip";
 
-  prefix "ocip";
+  prefix "oc-ip";
 
   // import some basic types
   import ietf-inet-types { prefix inet; }
-  import openconfig-interfaces { prefix ocif; }
-  import openconfig-vlan { prefix vlan; }
+  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-vlan { prefix oc-vlan; }
   import ietf-yang-types { prefix yang; }
   import openconfig-extensions { prefix oc-ext; }
 
@@ -28,39 +28,17 @@ module openconfig-if-ip {
     described by RFC 7277.  The primary differences are in the
     structure of configuration and state data.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "1.0.0";
 
-  revision "2015-11-20" {
+  revision "2016-03-28" {
     description
       "OpenConfig public release";
-    reference "0.2.0";
-  }
-
-  revision "2015-10-09" {
-    description
-      "Initial OpenConfig public release";
-    reference "0.1.1";
-  }
-
-  revision "2015-08-20" {
-    description
-      "Initial revision";
-    reference "Pre-release";
+    reference "1.0.0";
   }
 
   // extension statements
 
   // feature statements
-
- feature ipv6-privacy-autoconf {
-    description
-      "Indicates support for Privacy Extensions for Stateless Address
-      Autoconfiguration in IPv6.";
-    reference
-      "RFC 4941: Privacy Extensions for Stateless Address
-                Autoconfiguration in IPv6
-      RFC 7277 - A YANG Data Model for IP Management";
- }
 
   // identity statements
 
@@ -238,109 +216,6 @@ module openconfig-if-ip {
       type neighbor-origin;
       description
         "The origin of this neighbor entry, static or dynamic.";
-    }
-  }
-
-  grouping ipv6-autoconf-config {
-    description
-      "Configuration data for IPv6 address autoconfiguration";
-
-    leaf create-global-addresses {
-      type boolean;
-      default true;
-      description
-        "[adapted from IETF IP model RFC 7277]
-
-        If enabled, the host creates global addresses as
-        described in RFC 4862.";
-      reference
-        "RFC 4862: IPv6 Stateless Address Autoconfiguration
-                  Section 5.5";
-    }
-    leaf create-temporary-addresses {
-      if-feature ipv6-privacy-autoconf;
-      type boolean;
-      default false;
-      description
-      "[adapted from IETF IP model RFC 7277]
-
-      If enabled, the host creates temporary addresses as
-      described in RFC 4941.";
-      reference
-        "RFC 4941: Privacy Extensions for Stateless Address
-                  Autoconfiguration in IPv6";
-    }
-
-    leaf temporary-valid-lifetime {
-      if-feature ipv6-privacy-autoconf;
-      type uint32;
-      units "seconds";
-      default 604800;
-      description
-        "[adapted from IETF IP model RFC 7277]
-
-        The time period during which the temporary address
-        is valid.";
-      reference
-        "RFC 4941: Privacy Extensions for Stateless Address
-                  Autoconfiguration in IPv6
-                  - TEMP_VALID_LIFETIME";
-    }
-
-    leaf temporary-preferred-lifetime {
-      if-feature ipv6-privacy-autoconf;
-      type uint32;
-      units "seconds";
-      default 86400;
-      description
-        "[adapted from IETF IP model RFC 7277]
-
-        The time period during which the temporary address is
-        preferred.";
-      reference
-        "RFC 4941: Privacy Extensions for Stateless Address
-                  Autoconfiguration in IPv6
-                  - TEMP_PREFERRED_LIFETIME";
-    }
-  }
-
-  grouping ipv6-autoconf-state {
-    description
-      "Operational state data for IPv6 address autoconfiguration";
-
-    //TODO: placeholder for additional opstate for IPv6 autoconf
-  }
-
-  grouping ipv6-autoconf-top {
-    description
-      "Top-level grouping for IPv6 address autoconfiguration";
-
-    container autoconf {
-      description
-        "Top-level container for IPv6 autoconf";
-
-      container config {
-        description
-          "[adapted from IETF IP model RFC 7277]
-
-          Parameters to control the autoconfiguration of IPv6
-          addresses, as described in RFC 4862.";
-        reference
-          "RFC 4862: IPv6 Stateless Address Autoconfiguration";
-
-        uses ipv6-autoconf-config;
-      }
-
-      container state {
-
-        config false;
-
-        description
-          "Operational state data ";
-
-        uses ipv6-autoconf-config;
-        uses ipv6-autoconf-state;
-      }
     }
   }
 
@@ -608,8 +483,7 @@ module openconfig-if-ip {
 
     leaf track-interface {
       type leafref {
-        path "/ocif:interfaces/ocif:interface/ocif:name";
-        require-instance true;
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
       }
       // TODO: we may need to add some restriction to ethernet
       // or IP interfaces.
@@ -801,80 +675,89 @@ module openconfig-if-ip {
     interfaces";
 
     container ipv4 {
-      presence
-       "Enables IPv4 unless the 'enabled' leaf
-        (which defaults to 'true') is set to 'false'";
       description
-       "Parameters for the IPv4 address family.";
+        "Parameters for the IPv4 address family.";
 
-      list address {
-        key ip;
+      container addresses {
         description
-         "The list of configured IPv4 addresses on the interface.";
+          "Enclosing container for address list";
 
-        leaf ip {
-          type leafref {
-            path "../ocip:config/ocip:ip";
+        list address {
+          key ip;
+          description
+           "The list of configured IPv4 addresses on the interface.";
+
+          leaf ip {
+            type leafref {
+              path "../oc-ip:config/oc-ip:ip";
+            }
+            description "References the configured IP address";
           }
-          description "References the configured IP address";
+
+          container config {
+            description "Configuration data for each configured IPv4
+            address on the interface";
+
+            uses ipv4-config-address;
+
+          }
+
+          container state {
+
+            config false;
+            description "Operational state data for each IPv4 address
+            configured on the interface";
+
+            uses ipv4-config-address;
+            uses ipv4-state-address;
+          }
+
         }
-
-        container config {
-          description "Configuration data for each configured IPv4
-          address on the interface";
-
-          uses ipv4-config-address;
-
-        }
-
-        container state {
-
-          config false;
-          description "Operational state data for each IPv4 address
-          configured on the interface";
-
-          uses ipv4-config-address;
-          uses ipv4-state-address;
-        }
-
       }
 
-      list neighbor {
-        key "ip";
+      container neighbors {
         description
-         "A list of mappings from IPv4 addresses to
-          link-layer addresses.
+          "Enclosing container for neighbor list";
 
-          Entries in this list are used as static entries in the
-          ARP Cache.";
-        reference
-         "RFC 826: An Ethernet Address Resolution Protocol";
+        list neighbor {
+          key "ip";
+          description
+           "A list of mappings from IPv4 addresses to
+            link-layer addresses.
 
-        leaf ip {
-          type leafref  {
-            path "../ocip:config/ocip:ip";
+            Entries in this list are used as static entries in the
+            ARP Cache.";
+          reference
+           "RFC 826: An Ethernet Address Resolution Protocol";
+
+          leaf ip {
+            type leafref  {
+              path "../oc-ip:config/oc-ip:ip";
+            }
+            description "References the configured IP address";
           }
-          description "References the configured IP address";
-        }
 
-        container config {
-          description "Configuration data for each configured IPv4
-          address on the interface";
+          container config {
+            description "Configuration data for each configured IPv4
+            address on the interface";
 
-          uses ipv4-config-neighbor;
+            uses ipv4-config-neighbor;
 
-        }
+          }
 
-        container state {
+          container state {
 
-          config false;
-          description "Operational state data for each IPv4 address
-          configured on the interface";
+            config false;
+            description "Operational state data for each IPv4 address
+            configured on the interface";
 
-          uses ipv4-config-neighbor;
-          uses ipv4-state-neighbor;
+            uses ipv4-config-neighbor;
+            uses ipv4-state-neighbor;
+          }
         }
       }
+
+      uses oc-if:sub-unnumbered-top;
 
       container config {
         description
@@ -895,87 +778,88 @@ module openconfig-if-ip {
   }
 
   grouping ipv6-top {
-    description "Top-level configuration and state for IPv6
-    interfaces";
+    description
+      "Top-level configuration and state for IPv6 interfaces";
 
     container ipv6 {
-      presence
-       "Enables IPv6 unless the 'enabled' leaf
-        (which defaults to 'true') is set to 'false'";
       description
        "Parameters for the IPv6 address family.";
 
-      list address {
-        key "ip";
+      container addresses {
         description
-         "The list of configured IPv6 addresses on the interface.";
+          "Enclosing container for address list";
 
-        leaf ip {
-          type leafref {
-            path "../ocip:config/ocip:ip";
-          }
-          description "References the configured IP address";
-        }
-
-        container config {
+        list address {
+          key "ip";
           description
-            "Configuration data for each IPv6 address on
+           "The list of configured IPv6 addresses on the interface.";
+
+          leaf ip {
+            type leafref {
+              path "../oc-ip:config/oc-ip:ip";
+            }
+            description "References the configured IP address";
+          }
+
+          container config {
+            description
+              "Configuration data for each IPv6 address on
+              the interface";
+
+            uses ipv6-config-address;
+
+          }
+
+          container state {
+
+            config false;
+            description
+              "State data for each IPv6 address on the
+              interface";
+
+            uses ipv6-config-address;
+            uses ipv6-state-address;
+          }
+        }
+      }
+
+      container neighbors {
+        description
+          "Enclosing container for list of IPv6 neighbors";
+
+        list neighbor {
+          key "ip";
+          description
+            "List of IPv6 neighbors";
+
+          leaf ip {
+            type leafref {
+              path "../oc-ip:config/oc-ip:ip";
+            }
+            description
+              "References the configured IP neighbor address";
+          }
+
+          container config {
+            description "Configuration data for each IPv6 address on
             the interface";
 
-          uses ipv6-config-address;
+            uses ipv6-config-neighbor;
 
-        }
+          }
 
-        container state {
+          container state {
 
-          config false;
-          description
-            "State data for each IPv6 address on the
+            config false;
+            description "State data for each IPv6 address on the
             interface";
 
-          uses ipv6-config-address;
-          uses ipv6-state-address;
-        }
-      }
-
-      list neighbor {
-        key "ip";
-        description
-          "A list of mappings from IPv6 addresses to
-          link-layer addresses.
-
-          Entries in this list are used as static entries in the
-          Neighbor Cache.";
-        reference
-          "RFC 4861: Neighbor Discovery for IP version 6 (IPv6)";
-
-        leaf ip {
-          type leafref {
-            path "../ocip:config/ocip:ip";
+            uses ipv6-config-neighbor;
+            uses ipv6-state-neighbor;
           }
-          description
-            "References the configured IP neighbor address";
         }
-
-        container config {
-          description "Configuration data for each IPv6 address on
-          the interface";
-
-          uses ipv6-config-neighbor;
-
-        }
-
-        container state {
-
-          config false;
-          description "State data for each IPv6 address on the
-          interface";
-
-          uses ipv6-config-neighbor;
-          uses ipv6-state-neighbor;
-        }
-
       }
+      uses oc-if:sub-unnumbered-top;
 
       container config {
         description "Top-level config data for the IPv6 interface";
@@ -984,7 +868,6 @@ module openconfig-if-ip {
       }
 
       container state {
-
         config false;
         description
           "Top-level operational state data for the IPv6 interface";
@@ -992,15 +875,13 @@ module openconfig-if-ip {
         uses ipv6-config-global;
 
       }
-
-      uses ipv6-autoconf-top;
     }
   }
 
   // augment statements
 
-  augment "/ocif:interfaces/ocif:interface/ocif:subinterfaces/" +
-    "ocif:subinterface" {
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:subinterfaces/" +
+    "oc-if:subinterface" {
     description
       "IPv4 addr family configuration for
       interfaces";
@@ -1009,8 +890,8 @@ module openconfig-if-ip {
 
   }
 
-  augment "/ocif:interfaces/ocif:interface/ocif:subinterfaces/" +
-    "ocif:subinterface" {
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:subinterfaces/" +
+    "oc-if:subinterface" {
     description
       "IPv6 addr family configuration for
       interfaces";
@@ -1021,8 +902,9 @@ module openconfig-if-ip {
 
   // VRRP for IPv4 interfaces
 
-  augment "/ocif:interfaces/ocif:interface/ocif:subinterfaces/" +
-    "ocif:subinterface/ocip:ipv4/ocip:address" {
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:subinterfaces/" +
+    "oc-if:subinterface/oc-ip:ipv4/oc-ip:addresses/oc-ip:address" {
+
     description
       "Additional IP addr family configuration for
       interfaces";
@@ -1032,9 +914,10 @@ module openconfig-if-ip {
   }
 
   // VRRP for IPv6 interfaces
-  augment "/ocif:interfaces/ocif:interface/ocif:subinterfaces/" +
-    "ocif:subinterface/ocip:ipv6/ocip:address" {
-     description
+
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:subinterfaces/" +
+    "oc-if:subinterface/oc-ip:ipv6/oc-ip:addresses/oc-ip:address" {
+    description
       "Additional IP addr family configuration for
       interfaces";
 
@@ -1042,26 +925,27 @@ module openconfig-if-ip {
 
   }
 
-  augment "/ocif:interfaces/ocif:interface/ocif:subinterfaces/" +
-    "ocif:subinterface/ocip:ipv6/ocip:address/vrrp/vrrp-group/" +
-    "config" {
-      description
-        "Additional VRRP data for IPv6 interfaces";
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:subinterfaces/" +
+    "oc-if:subinterface/oc-ip:ipv6/oc-ip:addresses/oc-ip:address/" +
+    "vrrp/vrrp-group/config" {
+    description
+      "Additional VRRP data for IPv6 interfaces";
 
     uses ip-vrrp-ipv6-config;
   }
 
-  augment "/ocif:interfaces/ocif:interface/ocif:subinterfaces/" +
-  "ocif:subinterface/ocip:ipv6/ocip:address/vrrp/vrrp-group/state" {
-      description
-        "Additional VRRP data for IPv6 interfaces";
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:subinterfaces/" +
+  "oc-if:subinterface/oc-ip:ipv6/oc-ip:addresses/oc-ip:address/vrrp/" +
+    "vrrp-group/state" {
+    description
+      "Additional VRRP data for IPv6 interfaces";
 
     uses ip-vrrp-ipv6-state;
   }
 
   // Augments for for routed VLANs
 
-  augment "/ocif:interfaces/ocif:interface/vlan:routed-vlan" {
+  augment "/oc-if:interfaces/oc-if:interface/oc-vlan:routed-vlan" {
     description
       "IPv4 addr family configuration for
       interfaces";
@@ -1070,7 +954,7 @@ module openconfig-if-ip {
 
   }
 
-  augment "/ocif:interfaces/ocif:interface/vlan:routed-vlan" {
+  augment "/oc-if:interfaces/oc-if:interface/oc-vlan:routed-vlan" {
     description
       "IPv6 addr family configuration for
       interfaces";
@@ -1081,8 +965,8 @@ module openconfig-if-ip {
 
   // VRRP for routed VLAN interfaces
 
-  augment "/ocif:interfaces/ocif:interface/vlan:routed-vlan/" +
-    "ocip:ipv4/ocip:address" {
+  augment "/oc-if:interfaces/oc-if:interface/oc-vlan:routed-vlan/" +
+    "oc-ip:ipv4/oc-ip:addresses/oc-ip:address" {
     description
       "Additional IP addr family configuration for
       interfaces";
@@ -1091,9 +975,9 @@ module openconfig-if-ip {
 
   }
 
-  augment "/ocif:interfaces/ocif:interface/vlan:routed-vlan/" +
-    "ocip:ipv6/ocip:address" {
-     description
+  augment "/oc-if:interfaces/oc-if:interface/oc-vlan:routed-vlan/" +
+    "oc-ip:ipv6/oc-ip:addresses/oc-ip:address" {
+    description
       "Additional IP addr family configuration for
       interfaces";
 
@@ -1101,18 +985,19 @@ module openconfig-if-ip {
 
   }
 
-  augment "/ocif:interfaces/ocif:interface/vlan:routed-vlan/" +
-    "ocip:ipv6/ocip:address/vrrp/vrrp-group/config" {
-      description
-        "Additional VRRP data for IPv6 interfaces";
+  augment "/oc-if:interfaces/oc-if:interface/oc-vlan:routed-vlan/" +
+    "oc-ip:ipv6/oc-ip:addresses/oc-ip:address/vrrp/vrrp-group/config" {
+    description
+      "Additional VRRP data for IPv6 interfaces";
 
     uses ip-vrrp-ipv6-config;
   }
 
-  augment "/ocif:interfaces/ocif:interface/vlan:routed-vlan/" +
-    "ocip:ipv6/ocip:address/vrrp/vrrp-group/state" {
-      description
-        "Additional VRRP data for IPv6 interfaces";
+
+  augment "/oc-if:interfaces/oc-if:interface/oc-vlan:routed-vlan/" +
+    "oc-ip:ipv6/oc-ip:addresses/oc-ip:address/vrrp/vrrp-group/state" {
+    description
+      "Additional VRRP data for IPv6 interfaces";
 
     uses ip-vrrp-ipv6-state;
   }
