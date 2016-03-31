@@ -5,7 +5,7 @@ module openconfig-policy-types {
   // namespace
   namespace "http://openconfig.net/yang/policy-types";
 
-  prefix "ptypes";
+  prefix "oc-pol-types";
 
   // import some basic types
   import ietf-yang-types { prefix yang; }
@@ -24,40 +24,34 @@ module openconfig-policy-types {
     policy.  It can be imported by modules that contain protocol-
     specific policy conditions and actions.";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "2.0.0";
 
-  revision "2015-10-09" {
+  revision "2016-03-28" {
     description
-      "Initial OpenConfig public release";
-    reference "1.1.0";
-  }
-
-  revision "2015-05-15" {
-    description
-      "Initial revision";
-    reference "Pre-release";
+      "OpenConfig public release";
+    reference "2.0.0";
   }
 
   // identity statements
 
-  identity attribute-comparison {
+  identity ATTRIBUTE_COMPARISON {
     description
       "base type for supported comparison operators on route
       attributes";
   }
 
-  identity attribute-eq {
-    base attribute-comparison;
+  identity ATTRIBUTE_EQ {
+    base ATTRIBUTE_COMPARISON;
     description "== comparison";
   }
 
-  identity attribute-ge {
-    base attribute-comparison;
+  identity ATTRIBUTE_GE {
+    base ATTRIBUTE_COMPARISON;
     description ">= comparison";
   }
 
-  identity attribute-le {
-    base attribute-comparison;
+  identity ATTRIBUTE_LE {
+    base ATTRIBUTE_COMPARISON;
     description "<= comparison";
   }
 
@@ -110,7 +104,7 @@ module openconfig-policy-types {
 
     leaf operator {
         type identityref {
-          base attribute-comparison;
+          base ATTRIBUTE_COMPARISON;
         }
         description
           "type of comparison to be performed";
@@ -137,48 +131,48 @@ module openconfig-policy-types {
       Administrative Tags";
   }
 
-  identity install-protocol-type {
+  identity INSTALL_PROTOCOL_TYPE {
     description
       "Base type for protocols which can install prefixes into the
       RIB";
   }
 
   identity BGP {
-    base install-protocol-type;
+    base INSTALL_PROTOCOL_TYPE;
     description "BGP";
     reference "RFC 4271";
   }
 
   identity ISIS {
-    base install-protocol-type;
+    base INSTALL_PROTOCOL_TYPE;
     description "IS-IS";
     reference "ISO/IEC 10589";
   }
 
   identity OSPF {
-    base install-protocol-type;
+    base INSTALL_PROTOCOL_TYPE;
     description "OSPFv2";
     reference "RFC 2328";
   }
 
   identity OSPF3 {
-    base install-protocol-type;
+    base INSTALL_PROTOCOL_TYPE;
     description "OSPFv3";
     reference "RFC 5340";
   }
 
   identity STATIC {
-    base install-protocol-type;
+    base INSTALL_PROTOCOL_TYPE;
     description "Locally-installed static route";
   }
 
-  identity DIRECTLY-CONNECTED {
-    base install-protocol-type;
+  identity DIRECTLY_CONNECTED {
+    base INSTALL_PROTOCOL_TYPE;
     description "A directly connected route";
   }
 
-  identity LOCAL-AGGREGATE {
-    base install-protocol-type;
+  identity LOCAL_AGGREGATE {
+    base INSTALL_PROTOCOL_TYPE;
     description "Locally defined aggregate route";
   }
 }
