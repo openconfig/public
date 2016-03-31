@@ -5,16 +5,16 @@ module openconfig-mpls {
   // namespace
   namespace "http://openconfig.net/yang/mpls";
 
-  prefix "mpls";
+  prefix "oc-mpls";
 
 
   // import some basic types
-  import openconfig-mpls-types { prefix mplst; }
-  import openconfig-mpls-rsvp { prefix rsvp; }
-  import openconfig-mpls-sr { prefix sr; }
-  import openconfig-mpls-ldp { prefix ldp; }
+  import openconfig-mpls-types { prefix oc-mplst; }
+  import openconfig-mpls-rsvp { prefix oc-rsvp; }
+  import openconfig-mpls-sr { prefix oc-sr; }
+  import openconfig-mpls-ldp { prefix oc-ldp; }
   import openconfig-types { prefix oc-types; }
-  import openconfig-interfaces { prefix ocif; }
+  import openconfig-interfaces { prefix oc-if; }
   import openconfig-extensions { prefix oc-ext; }
 
   // include submodules
@@ -71,23 +71,13 @@ module openconfig-mpls {
                              +-------+
     ";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "1.0.0";
 
-  revision "2015-11-05" {
+  revision "2016-03-25" {
     description
-      "Initial public release of MPLS models";
-    reference "0.2.1";
+      "Public release of MPLS models";
+    reference "1.0.0";
   }
-
-  revision "2015-10-14" {
-    description
-      "Work in progress";
-    reference "0.2.0";
-  }
-
-  // feature statements
-
-  // identity statements
 
 
   // grouping statements
@@ -134,7 +124,7 @@ module openconfig-mpls {
 
         leaf admin-group-name {
           type leafref {
-            path "../mpls:config/mpls:admin-group-name";
+            path "../oc-mpls:config/oc-mpls:admin-group-name";
           }
           description
             "name for mpls admin-group";
@@ -146,6 +136,7 @@ module openconfig-mpls {
         }
 
         container state {
+          config false;
           description
             "Operational state for admin-groups";
           uses mpls-admin-group_config;
@@ -167,7 +158,7 @@ module openconfig-mpls {
             change in reserved bandwidth >= the specified
             delta occurs on the interface.";
         }
-        enum THRESHOLD-CROSSED {
+        enum THRESHOLD_CROSSED {
           description
             "THRESHOLD-CROSSED indicates that
             the local system should trigger an update (and
@@ -181,7 +172,7 @@ module openconfig-mpls {
         values at which bandwidth is flooded. DELTA indicates that
         the local system should flood IGP updates when a change in
         reserved bandwidth >= the specified delta occurs on the
-        interface. Where THRESHOLD-CROSSED is specified, the local
+        interface. Where THRESHOLD_CROSSED is specified, the local
         system should trigger an update (and hence flood) the
         reserved bandwidth when the reserved bandwidth changes such
         that it crosses, or becomes equal to one of the threshold
@@ -203,24 +194,24 @@ module openconfig-mpls {
     }
 
     leaf threshold-specification {
-      when "../threshold-type = 'THRESHOLD-CROSSED'" {
+      when "../threshold-type = 'THRESHOLD_CROSSED'" {
         description
           "The selection of whether mirrored or separate threshold
           values are to be used requires user specified thresholds to
           be set";
       }
       type enumeration {
-        enum MIRRORED-UP-DOWN {
+        enum MIRRORED_UP_DOWN {
           description
-            "MIRRORED-UP-DOWN indicates that a single set of
+            "MIRRORED_UP_DOWN indicates that a single set of
             threshold values should be used for both increasing
             and decreasing bandwidth when determining whether
             to trigger updated bandwidth values to be flooded
             in the IGP TE extensions.";
         }
-        enum SEPARATE-UP-DOWN {
+        enum SEPARATE_UP_DOWN {
           description
-            "SEPARATE-UP-DOWN indicates that a separate
+            "SEPARATE_UP_DOWN indicates that a separate
             threshold values should be used for the increasing
             and decreasing bandwidth when determining whether
             to trigger updated bandwidth values to be flooded
@@ -239,8 +230,8 @@ module openconfig-mpls {
     }
 
     leaf-list up-thresholds {
-      when "../threshold-type = 'THRESHOLD-CROSSED'" +
-        "and ../threshold-specification = 'SEPARATE-UP-DOWN'" {
+      when "../threshold-type = 'THRESHOLD_CROSSED'" +
+        "and ../threshold-specification = 'SEPARATE_UP_DOWN'" {
           description
             "A list of up-thresholds can only be specified when the
             bandwidth update is triggered based on crossing a
@@ -255,8 +246,8 @@ module openconfig-mpls {
     }
 
     leaf-list down-thresholds {
-      when "../threshold-type = 'THRESHOLD-CROSSED'" +
-        "and ../threshold-specification = 'SEPARATE-UP-DOWN'" {
+      when "../threshold-type = 'THRESHOLD_CROSSED'" +
+        "and ../threshold-specification = 'SEPARATE_UP_DOWN'" {
           description
             "A list of down-thresholds can only be specified when the
             bandwidth update is triggered based on crossing a
@@ -271,8 +262,8 @@ module openconfig-mpls {
     }
 
     leaf-list up-down-thresholds {
-      when "../threshold-type = 'THRESHOLD-CROSSED'" +
-        "and ../threshold-specification = 'MIRRORED-UP-DOWN'" {
+      when "../threshold-type = 'THRESHOLD_CROSSED'" +
+        "and ../threshold-specification = 'MIRRORED_UP_DOWN'" {
           description
             "A list of thresholds corresponding to both increasing
             and decreasing bandwidths can be specified only when an
@@ -344,17 +335,16 @@ module openconfig-mpls {
       for TE interfaces.";
 
     list interface {
-      key name;
+      key interface-id;
       description
         "List of TE interfaces";
 
-      leaf name {
+      leaf interface-id {
         type leafref {
-          path "../config/name";
-          require-instance true;
+          path "../config/interface-id";
         }
         description
-          "The interface name";
+          "Reference to the interface id list key";
       }
 
       container config {
@@ -370,6 +360,8 @@ module openconfig-mpls {
         uses te-interface-attributes_config;
       }
 
+      uses oc-if:interface-ref;
+
       uses  mpls-te-igp-flooding-bandwidth;
     }
   }
@@ -379,10 +371,10 @@ module openconfig-mpls {
       "global level definitions for interfaces
       on which TE is run";
 
-    leaf name {
-      type ocif:interface-ref;
+    leaf interface-id {
+      type oc-if:interface-id;
       description
-        "reference to interface name";
+        "Id of the interface";
     }
 
     leaf te-metric {
@@ -393,7 +385,7 @@ module openconfig-mpls {
 
     leaf-list srlg-membership {
       type leafref {
-          path "../../../../te-global-attributes/srlg/srlg/name";
+          path "../../../../te-global-attributes/srlgs/srlg/name";
       }
       description
         "list of references to named shared risk link groups that the
@@ -412,8 +404,8 @@ module openconfig-mpls {
       "Grouping for traffic engineering timers";
     container te-lsp-timers {
       description
-      "Definition for delays associated with setup
-      and cleanup of TE LSPs";
+        "Definition for delays associated with setup
+        and cleanup of TE LSPs";
 
       container config {
         description
@@ -441,9 +433,9 @@ module openconfig-mpls {
 
     leaf null-label {
       type identityref {
-        base mplst:null-label-type;
+        base oc-mplst:NULL_LABEL_TYPE;
       }
-      default mplst:IMPLICIT;
+      default oc-mplst:IMPLICIT;
       description
         "The null-label type used, implicit or explicit";
     }
@@ -471,21 +463,20 @@ module openconfig-mpls {
     description
       "Top level grouping for attributes
       for MPLS-enabled interfaces.";
-    container mpls-interface-attributes {
+    container interface-attributes {
       description
         "Parameters related to MPLS interfaces";
       list interface {
-        key name;
+        key interface-id;
         description
           "List of TE interfaces";
 
-	      leaf name {
+	      leaf interface-id {
 	        type leafref {
-	          path "../config/name";
-	          require-instance true;
+	          path "../config/interface-id";
 	        }
 	        description
-            "The interface name";
+            "Reference to the interface id list key";
     	  }
 
         container config {
@@ -500,6 +491,8 @@ module openconfig-mpls {
             "State parameters related to TE interfaces";
           uses mpls-interface-attributes-config;
         }
+
+        uses oc-if:interface-ref;
       }
     }
   }
@@ -509,10 +502,10 @@ module openconfig-mpls {
       "global level definitions for interfaces
       on which MPLS is run";
 
-    leaf name {
-      type ocif:interface-ref;
+    leaf interface-id {
+      type oc-if:interface-id;
       description
-        "reference to interface name";
+        "Indentifier for the MPLS interface";
     }
 
     leaf mpls-enabled {
@@ -524,80 +517,82 @@ module openconfig-mpls {
   }
 
 
-container mpls {
-    presence "
-      top-level container for MPLS config and operational
-      state";
+grouping mpls-top {
+  description
+    "Top level grouping for MPLS configuration and state";
 
-    description
-      "Anchor point for mpls configuration and operational
-      data";
-
-    container global {
-      // entropy label support, label ranges will be added here.
-     description
-      "general mpls configuration applicable to any
-      type of LSP and signaling protocol - label ranges,
-      entropy label supportmay be added here";
-     uses mpls-global-top;
-     uses mpls-interfaces-top;
-    }
-
-    container te-global-attributes {
+  container mpls {
       description
-        "traffic-engineering global attributes";
-      uses mpls-te-srlg-top;
-      uses mpls-te-igp-flooding-bandwidth;
-      uses mpls-admin-groups-top;
-      uses mpls-te-lsp-timers;
-    }
+        "Anchor point for mpls configuration and operational
+        data";
 
-    container te-interface-attributes {
-      description
-        "traffic engineering attributes specific
-        for interfaces";
-      uses te-interface-attributes-top;
-    }
-
-    container signaling-protocols {
-      description
-        "top-level signaling protocol configuration";
-
-      uses rsvp:rsvp-global;
-      uses sr:sr-global;
-      uses ldp:ldp-global;
-    }
-
-    container lsps {
-      description
-        "LSP definitions and configuration";
-
-      container constrained-path {
-        description
-          "traffic-engineered LSPs supporting different
-          path computation and signaling methods";
-	      uses explicit-paths_top;
-        uses te-tunnels_top;
+      container global {
+        // entropy label support, label ranges will be added here.
+       description
+        "general mpls configuration applicable to any
+        type of LSP and signaling protocol - label ranges,
+        entropy label supportmay be added here";
+       uses mpls-global-top;
+       uses mpls-interfaces-top;
       }
 
-      container unconstrained-path {
+      container te-global-attributes {
         description
-          "LSPs that use the IGP-determined path, i.e., non
-          traffic-engineered, or non constrained-path";
-
-        uses igp-lsp-common;
-        uses igp-lsp-setup;
+          "traffic-engineering global attributes";
+        uses mpls-te-srlg-top;
+        uses mpls-admin-groups-top;
+        uses mpls-te-lsp-timers;
       }
 
-      container static-lsps {
+      container te-interface-attributes {
         description
-          "statically configured LSPs, without dynamic
-          signaling";
+          "traffic engineering attributes specific
+          for interfaces";
+        uses te-interface-attributes-top;
+      }
 
-        uses static-lsp-main;
+      container signaling-protocols {
+        description
+          "top-level signaling protocol configuration";
+
+        uses oc-rsvp:rsvp-global;
+        uses oc-sr:sr-global;
+        uses oc-ldp:ldp-global;
+      }
+
+      container lsps {
+        description
+          "LSP definitions and configuration";
+
+        container constrained-path {
+          description
+            "traffic-engineered LSPs supporting different
+            path computation and signaling methods";
+  	      uses explicit-paths_top;
+          uses te-tunnels_top;
+        }
+
+        container unconstrained-path {
+          description
+            "LSPs that use the IGP-determined path, i.e., non
+            traffic-engineered, or non constrained-path";
+
+          uses igp-lsp-common;
+          uses igp-lsp-setup;
+        }
+
+        container static-lsps {
+          description
+            "statically configured LSPs, without dynamic
+            signaling";
+
+          uses static-lsp-top;
+        }
       }
     }
   }
+
+  uses mpls-top;
 
   // augment statements
 

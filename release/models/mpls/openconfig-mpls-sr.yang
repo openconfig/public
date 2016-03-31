@@ -5,14 +5,14 @@ module openconfig-mpls-sr {
   // namespace
   namespace "http://openconfig.net/yang/sr";
 
-  prefix "sr";
+  prefix "oc-sr";
 
 
   // import some basic types
   import ietf-inet-types { prefix inet; }
-  import openconfig-mpls-types { prefix mplst; }
+  import openconfig-mpls-types { prefix oc-mplst; }
   import openconfig-extensions { prefix oc-ext; }
-  import openconfig-interfaces { prefix ocif; }
+  import openconfig-interfaces { prefix oc-if; }
 
   // meta
   organization "OpenConfig working group";
@@ -26,25 +26,15 @@ module openconfig-mpls-sr {
     including global parameters, and LSP-specific configuration for
     both constrained-path and IGP-congruent LSPs";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "1.0.0";
 
-  revision "2015-11-05" {
+  revision "2016-03-25" {
     description
-      "Initial public release of MPLS models";
-    reference "0.2.1";
+      "Public release of MPLS models";
+    reference "1.0.0";
   }
 
-  revision "2015-10-14" {
-    description
-      "Work in progress";
-    reference "0.2.0";
-  }
-
-  // feature statements
-
-  // identity statements
-
-  // typedef statements
+  // grouping statements
 
   grouping srgb_config {
     leaf lower-bound {
@@ -89,7 +79,7 @@ module openconfig-mpls-sr {
 
     leaf-list advertise {
       type enumeration {
-        enum "PROTECTED" {
+        enum PROTECTED {
           description
             "Advertise an Adjacency-SID for this interface, which is
             eligible to be protected using a local protection
@@ -124,8 +114,8 @@ module openconfig-mpls-sr {
       "Configuration parameters relating to a Segment Routing
       enabled interface";
 
-    leaf interface {
-      type ocif:interface-ref;
+    leaf interface-id {
+      type oc-if:interface-id;
       description
         "Reference to the interface for which segment routing
         configuration is to be applied.";
@@ -142,66 +132,103 @@ module openconfig-mpls-sr {
       description
         "SR global signaling config";
 
-      list srgb {
-        key "lower-bound upper-bound";
-        uses srgb_config;
-        container config {
-          description
-            "Configuration parameters relating to the Segment Routing
-            Global Block (SRGB)";
-          uses srgb_config;
-        }
-        container state {
-          config false;
-          description
-            "State parameters relating to the Segment Routing Global
-            Block (SRGB)";
-          uses srgb_config;
-          uses srgb_state;
-        }
+      container srgbs {
         description
-          "List of Segment Routing Global Block (SRGB) entries. These
-          label blocks are reserved to be allocated as domain-wide
-          entries.";
-      }
+          "Enclosing container for segment routing global blocks";
 
-      list interfaces {
-        key "interface";
-        uses interface_config;
-        container config {
-          description
-            "Interface configuration parameters for Segment Routing
-            relating to the specified interface";
-          uses interface_config;
-        }
-        container state {
-          config false;
-          description
-            "State parameters for Segment Routing features relating
-            to the specified interface";
-          uses interface_config;
-        }
-        container adjacency-sid {
-          description
-            "Configuration for Adjacency SIDs that are related to
-            the specified interface";
+        list srgb {
+          key "lower-bound upper-bound";
+
+          leaf lower-bound {
+            type leafref {
+              path "../config/lower-bound";
+            }
+            description
+              "Reference to the lower bound of the SRGB";
+          }
+
+          leaf upper-bound {
+            type leafref {
+              path "../config/upper-bound";
+            }
+            description
+              "Reference to the upper bound of the SRGB";
+          }
+
           container config {
             description
-              "Configuration parameters for the Adjacency-SIDs
-              that are related to this interface";
-            uses adjacency-sid_config;
+              "Configuration parameters relating to the Segment Routing
+              Global Block (SRGB)";
+            uses srgb_config;
           }
           container state {
             config false;
             description
-              "State parameters for the Adjacency-SIDs that are
-              related to this interface";
-            uses adjacency-sid_config;
+              "State parameters relating to the Segment Routing Global
+              Block (SRGB)";
+            uses srgb_config;
+            uses srgb_state;
           }
+          description
+            "List of Segment Routing Global Block (SRGB) entries. These
+            label blocks are reserved to be allocated as domain-wide
+            entries.";
         }
+      }
+
+      container interfaces {
         description
-          "List of interfaces with associated segment routing
-          configuration";
+          "Enclosing container for SR interfaces";
+
+        list interface {
+          key interface-id;
+
+          leaf interface-id {
+            type leafref {
+              path "../config/interface-id";
+            }
+            description
+              "Reference to the id of the interface";
+          }
+
+          container config {
+            description
+              "Interface configuration parameters for Segment Routing
+              relating to the specified interface";
+            uses interface_config;
+          }
+          container state {
+            config false;
+            description
+              "State parameters for Segment Routing features relating
+              to the specified interface";
+            uses interface_config;
+          }
+
+          uses oc-if:interface-ref;
+
+          container adjacency-sid {
+            description
+              "Configuration for Adjacency SIDs that are related to
+              the specified interface";
+            container config {
+              description
+                "Configuration parameters for the Adjacency-SIDs
+                that are related to this interface";
+              uses adjacency-sid_config;
+            }
+            container state {
+              config false;
+              description
+                "State parameters for the Adjacency-SIDs that are
+                related to this interface";
+              uses adjacency-sid_config;
+            }
+          }
+          description
+            "List of interfaces with associated segment routing
+            configuration";
+        }
       }
     }
   }
@@ -212,19 +239,19 @@ module openconfig-mpls-sr {
 
     leaf sid-selection-mode {
       type enumeration {
-        enum "ADJ-SID-ONLY" {
+        enum ADJ_SID_ONLY {
           description
             "The SR-TE tunnel should only use adjacency SIDs
             to build the SID stack to be pushed for the LSP";
         }
-        enum "MIXED-MODE" {
+        enum MIXED_MODE {
           description
             "The SR-TE tunnel can use a mix of adjacency
             and prefix SIDs to build the SID stack to be pushed
             to the LSP";
         }
       }
-      default "MIXED-MODE";
+      default MIXED_MODE;
       description
         "The restrictions placed on the SIDs to be selected by the
         calculation method for the SR-TE LSP";
@@ -259,21 +286,21 @@ module openconfig-mpls-sr {
 
     leaf type {
       type enumeration {
-        enum "INDEX" {
+        enum INDEX {
           description
             "Set when the value of the prefix SID should be specified
             as an off-set from the SRGB's zero-value. When multiple
             SRGBs are specified, the zero-value is the minimum
             of their lower bounds";
         }
-        enum "ABSOLUTE" {
+        enum ABSOLUTE {
           description
             "Set when the value of a prefix SID is specified as the
             absolute value within an SRGB. It is an error to specify
             an absolute value outside of a specified SRGB";
         }
       }
-      default "INDEX";
+      default INDEX;
       description
         "Specifies how the value of the Prefix-SID should be
         interpreted - whether as an offset to the SRGB, or as an
@@ -290,19 +317,19 @@ module openconfig-mpls-sr {
 
     leaf last-hop-behavior {
       type enumeration {
-        enum "EXPLICIT-NULL" {
+        enum EXPLICIT_NULL {
           description
             "Specifies that the explicit null label is to be used
             when the penultimate hop forwards a labelled packet to
             this Prefix-SID";
         }
-        enum "UNCHANGED" {
+        enum UNCHANGED {
           description
             "Specicies that the Prefix-SID's label value is to be
             left in place when the penultimate hop forwards to this
             Prefix-SID";
         }
-        enum "PHP" {
+        enum PHP {
           description
             "Specicies that the penultimate hop should pop the
             Prefix-SID label before forwarding to the eLER";
@@ -314,6 +341,16 @@ module openconfig-mpls-sr {
     }
   }
 
+  grouping igp-tunnel-sr-config {
+    description
+      "Configuration parameters relating to SR IGP tunnels";
+
+    leaf tunnel-type {
+        type oc-mplst:tunnel-type;
+        description
+          "specifies the type of LSP, e.g., P2P or P2MP";
+    }
+  }
 
   grouping igp-tunnel-sr {
     description
@@ -325,10 +362,19 @@ module openconfig-mpls-sr {
         "contains configuration stanzas for different LSP
         tunnel types (P2P, P2MP, etc.)";
 
-      leaf tunnel-type {
-        type mplst:tunnel-type;
+      container config {
         description
-          "specifies the type of LSP, e.g., P2P or P2MP";
+          "Configuration parameters relating to SR tunnels";
+        uses igp-tunnel-sr-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters relating to IGP SR
+          tunnels";
+
+        uses igp-tunnel-sr-config;
       }
 
       container p2p-lsp {
@@ -342,7 +388,14 @@ module openconfig-mpls-sr {
 
         list fec {
           key "fec-address";
-          uses sr_fec-address_config;
+
+          leaf fec-address {
+            type leafref {
+              path "../config/fec-address";
+            }
+            description
+              "Reference to the FEC address for the SR LSP";
+          }
 
           description
             "List of FECs that are to be originated as SR LSPs";
@@ -389,10 +442,6 @@ module openconfig-mpls-sr {
       LSPs";
 
     container segment-routing {
-
-      presence
-        "Presence of this container sets the LSP to use
-        SR signaling";
 
       description
         "segment routing signaling extensions for
