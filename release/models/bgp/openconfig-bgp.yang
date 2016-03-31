@@ -5,14 +5,15 @@ module openconfig-bgp {
   // namespace
   namespace "http://openconfig.net/yang/bgp";
 
-  prefix "bgp";
+  prefix "oc-bgp";
 
   // import some basic inet types
   import ietf-inet-types { prefix inet; }
-  import openconfig-bgp-multiprotocol { prefix bgp-mp; }
-  import openconfig-routing-policy { prefix rpol; }
-  import openconfig-bgp-types { prefix bgp-types; }
-  import openconfig-bgp-operational { prefix bgp-op; }
+  import ietf-yang-types { prefix yang; }
+  import openconfig-bgp-multiprotocol { prefix oc-bgp-mp; }
+  import openconfig-routing-policy { prefix oc-rpol; }
+  import openconfig-bgp-types { prefix oc-bgp-types; }
+  import openconfig-bgp-operational { prefix oc-bgp-op; }
   import openconfig-extensions { prefix oc-ext; }
 
   // meta
@@ -48,19 +49,14 @@ module openconfig-bgp {
           +-> [ optional pointer to peer-group ]
           +-> AFI / SAFI [ per-AFI overrides ]";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "2.0.0";
 
-  revision "2015-10-09" {
+  revision "2016-03-28" {
     description
-      "Initial OpenConfig public release";
-    reference "1.1.0";
+      "OpenConfig public release";
+    reference "2.0.0";
   }
 
-  revision "2015-05-15" {
-      description
-        "Refactored BGP module";
-      reference "Pre-release";
-  }
 
   grouping bgp-global_config {
     description
@@ -74,10 +70,13 @@ module openconfig-bgp {
         the 32-bit as-number type from the model in RFC 6991.";
     }
     leaf router-id {
-      type inet:ipv4-address;
+      type yang:dotted-quad;
       description
-        "Router id of the router, expressed as an
-        32-bit value, IPv4 address.";
+        "Router id of the router - an unsigned 32-bit integer
+        expressed in dotted quad notation.";
+      reference
+        "RFC4271 - A Border Gateway Protocol 4 (BGP-4),
+        Section 4.2";
     }
   }
 
@@ -152,7 +151,7 @@ module openconfig-bgp {
     }
 
     leaf peer-type {
-        type bgp-types:peer-type;
+        type oc-bgp-types:peer-type;
         description
           "Explicitly designate the peer or peer group as internal
           (iBGP) or external (eBGP).";
@@ -169,9 +168,11 @@ module openconfig-bgp {
       // could also make this a container with a flag to enable
       // remove-private and separate option.  here, option implies
       // remove-private is enabled.
-      type bgp-types:remove-private-as-option;
+      type oc-bgp-types:remove-private-as-option;
       description
-        "Remove private AS numbers from updates sent to peers.";
+        "Remove private AS numbers from updates sent to peers - when
+        this leaf is not specified, the AS_PATH attribute should be
+        sent to the peer unchanged";
     }
 
     leaf route-flap-damping {
@@ -182,7 +183,7 @@ module openconfig-bgp {
     }
 
     leaf send-community {
-      type bgp-types:community-type;
+      type oc-bgp-types:community-type;
       default "NONE";
       description
         "Specify which types of community should be sent to the
@@ -356,7 +357,7 @@ module openconfig-bgp {
       the local system when acting as a route-reflector";
 
     leaf route-reflector-cluster-id {
-      type bgp-types:rr-cluster-id-type;
+      type oc-bgp-types:rr-cluster-id-type;
       description
         "route-reflector cluster id to use when local router is
         configured as a route reflector.  Commonly set at the group
@@ -425,7 +426,6 @@ module openconfig-bgp {
       type leafref {
         // we are at /bgp/neighbors/neighbor/
         path "/bgp/peer-groups/peer-group/peer-group-name";
-        require-instance true;
       }
       description
         "The peer-group with which this neighbor is associated";
@@ -520,10 +520,10 @@ module openconfig-bgp {
       description
         "State information relating to the global BGP router";
       uses bgp-global_config;
-      uses bgp-op:bgp-global_state;
+      uses oc-bgp-op:bgp-global_state;
     }
 
-    uses bgp-mp:bgp-route-selection-options;
+    uses oc-bgp-mp:bgp-route-selection-options;
 
     container default-route-distance {
       description
@@ -563,14 +563,14 @@ module openconfig-bgp {
       }
     }
 
-    uses bgp-mp:bgp-use-multiple-paths;
+    uses oc-bgp-mp:bgp-use-multiple-paths;
 
     uses bgp-graceful-restart;
 
     container afi-safis {
       description
         "Address family specific configuration";
-      uses bgp-mp:bgp-common-afi-safi-list;
+      uses oc-bgp-mp:bgp-common-afi-safi-list;
     }
   }
 
@@ -786,22 +786,35 @@ module openconfig-bgp {
       description
         "Per-address-family configuration parameters associated with
         the neighbor or group";
-      uses bgp-mp:bgp-common-afi-safi-list;
+      uses oc-bgp-mp:bgp-common-afi-safi-list;
     }
 
     uses bgp-graceful-restart;
 
-    uses rpol:apply-policy-group;
+    uses oc-rpol:apply-policy-group;
   }
 
-  grouping bgp-neighbor-neighbor-address_config {
+  grouping bgp-neighbor-neighbor-additional_config {
     description
-      "Configuration options relating to the BGP neighbor address";
+      "Configuration options relating only to a BGP neighbor";
 
     leaf neighbor-address {
         type inet:ip-address;
         description
           "Address of the BGP peer, either in IPv4 or IPv6";
+    }
+
+    leaf enabled {
+        type boolean;
+        default true;
+        description
+          "Whether the BGP peer is enabled. In cases where the
+          enabled leaf is set to false, the local system should not
+          initiate connections to the neighbor, and should not
+          respond to TCP connections attempts from the neighbor. If
+          the state of the BGP session is ESTABLISHED at the time
+          that this leaf is set to false, the BGP session should be
+          ceased.";
     }
   }
 
@@ -834,57 +847,57 @@ module openconfig-bgp {
   augment /bgp/peer-groups/peer-group {
     description
       "Augmentation to add multipath configuration to a peer-group";
-    uses bgp-mp:bgp-use-multiple-paths;
+    uses oc-bgp-mp:bgp-use-multiple-paths;
   }
 
   augment /bgp/neighbors/neighbor {
     description
       "Augmentation to add the multipath configuration to a
       neighbor";
-    uses bgp-mp:bgp-use-multiple-paths-neighbor;
+    uses oc-bgp-mp:bgp-use-multiple-paths-neighbor;
   }
 
   augment /bgp/peer-groups/peer-group/afi-safis/afi-safi {
     description
       "Augmentation to add multipath configuration to a peer-group
       on a per-AFI-SAFI basis";
-    uses bgp-mp:bgp-use-multiple-paths;
+    uses oc-bgp-mp:bgp-use-multiple-paths;
   }
 
   augment /bgp/neighbors/neighbor/afi-safis/afi-safi {
     description
       "Augmentation to add multipath configuration to a neighbor
       on a per-AFI-SAFI basis";
-    uses bgp-mp:bgp-use-multiple-paths-neighbor;
+    uses oc-bgp-mp:bgp-use-multiple-paths-neighbor;
   }
 
   augment /bgp/global/afi-safis/afi-safi {
     description
       "Augmentation to add global instance specific AFI-SAFI
       configuration information";
-    uses bgp-mp:bgp-global-afi-safi;
-    uses bgp-mp:bgp-use-multiple-paths;
+    uses oc-bgp-mp:bgp-global-afi-safi;
+    uses oc-bgp-mp:bgp-use-multiple-paths;
   }
 
   augment /bgp/peer-groups/peer-group/afi-safis/afi-safi {
     description
       "Augmentation that adds peer-group instance specific
       AFI-SAFI configuration information";
-    uses bgp-mp:bgp-group-afi-safi;
+    uses oc-bgp-mp:bgp-group-afi-safi;
   }
 
   augment /bgp/neighbors/neighbor/config {
     description
-      "Augmentation adding the neighbor address to the
-      neighbor configuration container";
-    uses bgp-neighbor-neighbor-address_config;
+      "Augmentation to add neighbor specific configuration
+      options to the tree";
+    uses bgp-neighbor-neighbor-additional_config;
   }
 
   augment /bgp/neighbors/neighbor/state {
     description
       "Augmentation adding the neighbor address to the
       neighbor state container";
-    uses bgp-neighbor-neighbor-address_config;
+    uses bgp-neighbor-neighbor-additional_config;
   }
 
   augment /bgp/peer-groups/peer-group/config {
@@ -911,10 +924,10 @@ module openconfig-bgp {
     description
       "Augmentation to add operational state related to a particular
       BGP neighbor";
-    uses bgp-op:bgp-neighbor_state;
+    uses oc-bgp-op:bgp-neighbor_state;
   }
 
-  augment /bgp/neighbors/bgp:neighbor/state {
+  augment /bgp/neighbors/oc-bgp:neighbor/state {
     description
       "Augmentation to add operational state related to a particular
       BGP neighbor";
@@ -926,13 +939,13 @@ module openconfig-bgp {
       container sent {
         description
           "Counters relating to BGP messages sent to the neighbor";
-        uses bgp-op:bgp-neighbor-message-counters-sent_state;
+        uses oc-bgp-op:bgp-neighbor-message-counters-sent_state;
         }
 
       container received {
         description
           "Counters for BGP messages received from the neighbor";
-        uses bgp-op:bgp-neighbor-message-counters-received_state;
+        uses oc-bgp-op:bgp-neighbor-message-counters-received_state;
       }
     }
 
@@ -940,57 +953,57 @@ module openconfig-bgp {
       description
         "Counters related to queued messages associated with the
         BGP neighbor";
-      uses bgp-op:bgp-neighbor-queue-counters_state;
+      uses oc-bgp-op:bgp-neighbor-queue-counters_state;
     }
   }
 
-  augment /bgp:bgp/bgp:neighbors/neighbor/timers/state {
+  augment /oc-bgp:bgp/oc-bgp:neighbors/neighbor/timers/state {
     description
       "Augmentation to add the operational state of timers associated
       with the BGP neighbor";
-    uses bgp-op:bgp-neighbor-timers_state;
+    uses oc-bgp-op:bgp-neighbor-timers_state;
   }
 
   augment /bgp/neighbors/neighbor/transport/state {
     description
       "Augmentation to add the operational state of the transport
       session associated with the BGP neighbor";
-    uses bgp-op:bgp-neighbor-transport_state;
+    uses oc-bgp-op:bgp-neighbor-transport_state;
   }
 
   augment /bgp/neighbors/neighbor/error-handling/state {
     description
       "Augmentation to add the operational state of the error
       handling associated with the BGP neighbor";
-    uses bgp-op:bgp-neighbor-error-handling_state;
+    uses oc-bgp-op:bgp-neighbor-error-handling_state;
   }
 
   augment /bgp/neighbors/neighbor/graceful-restart/state {
     description
       "Augmentation to add the operational state of graceful-restart
       associated with a BGP neighbor";
-    uses bgp-op:bgp-afi-safi-graceful-restart_state;
+    uses oc-bgp-op:bgp-afi-safi-graceful-restart_state;
   }
 
   augment /bgp/peer-groups/peer-group/state {
     description
       "Augmentation to add the operational state and counters
       relating to a BGP peer-group";
-    uses bgp-op:bgp-peer-group_state;
+    uses oc-bgp-op:bgp-peer-group_state;
   }
 
   augment /bgp/global/afi-safis/afi-safi/state {
     description
       "Augmentation to add operational state and counters
       on a per-AFI-SAFI basis to the global BGP router";
-    uses bgp-op:bgp-global-afi-safi_state;
+    uses oc-bgp-op:bgp-global-afi-safi_state;
   }
 
   augment /bgp/neighbors/neighbor/afi-safis/afi-safi/state {
     description
       "Augmentation to add per-AFI-SAFI operational state
       and counters to the BGP neighbor";
-    uses bgp-op:bgp-neighbor-afi-safi_state;
+    uses oc-bgp-op:bgp-neighbor-afi-safi_state;
   }
 
   augment "/bgp/neighbors/neighbor/afi-safis/afi-safi/" +
@@ -998,7 +1011,7 @@ module openconfig-bgp {
     description
       "Augmentation to add per-AFI-SAFI operational state for BGP
       graceful-restart";
-    uses bgp-op:bgp-neighbor-afi-safi-graceful-restart_state;
+    uses oc-bgp-op:bgp-neighbor-afi-safi-graceful-restart_state;
   }
 
   grouping bgp-top {
@@ -1014,7 +1027,7 @@ module openconfig-bgp {
         description
           "Global configuration for the BGP router";
           uses bgp-global-base;
-          uses rpol:apply-policy-group;
+          uses oc-rpol:apply-policy-group;
       }
 
       container neighbors {

@@ -3,7 +3,7 @@ module openconfig-bgp-types {
 
 	namespace "http://openconfig.net/yang/bgp-types";
 
-	prefix "bgp-types";
+	prefix "oc-bgp-types";
 
 	import ietf-inet-types { prefix inet; }
   import openconfig-types { prefix oc-types; }
@@ -22,135 +22,130 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "2.0.0";
 
-  revision "2015-10-09" {
+  revision "2016-03-28" {
     description
-      "Initial OpenConfig public release";
-    reference "1.1.0";
-  }
-
-  revision "2015-05-15" {
-    description "Initial revision";
-    reference "Pre-release";
+      "OpenConfig public release";
+    reference "2.0.0";
   }
 
 
-  identity bgp-capability {
+  identity BGP_CAPABILITY {
     description "Base identity for a BGP capability";
   }
 
   identity MPBGP {
-    base "bgp-capability";
+    base BGP_CAPABILITY;
     description
       "Multi-protocol extensions to BGP";
     reference "RFC2858";
   }
 
-  identity ROUTE-REFRESH {
-    base "bgp-capability";
+  identity ROUTE_REFRESH {
+    base BGP_CAPABILITY;
     description
       "The BGP route-refresh functionality";
     reference "RFC2918";
   }
 
   identity ASN32 {
-    base "bgp-capability";
+    base BGP_CAPABILITY;
     description
       "4-byte (32-bit) AS number functionality";
     reference "RFC6793";
   }
 
-  identity GRACEFUL-RESTART {
-    base "bgp-capability";
+  identity GRACEFUL_RESTART {
+    base BGP_CAPABILITY;
     description
       "Graceful restart functionality";
     reference "RFC4724";
   }
 
-  identity ADD-PATHS {
-    base "bgp-capability";
+  identity ADD_PATHS {
+    base BGP_CAPABILITY;
     description
       "BGP add-paths";
     reference "draft-ietf-idr-add-paths";
   }
 
-  identity afi-safi-type {
+  identity AFI_SAFI_TYPE {
     description
       "Base identity type for AFI,SAFI tuples for BGP-4";
     reference "RFC4760 - multiprotocol extensions for BGP-4";
   }
 
-  identity IPV4-UNICAST {
-    base afi-safi-type;
+  identity IPV4_UNICAST {
+    base AFI_SAFI_TYPE;
     description
       "IPv4 unicast (AFI,SAFI = 1,1)";
     reference "RFC4760";
   }
 
-  identity IPV6-UNICAST {
-    base afi-safi-type;
+  identity IPV6_UNICAST {
+    base AFI_SAFI_TYPE;
     description
       "IPv6 unicast (AFI,SAFI = 2,1)";
     reference "RFC4760";
   }
 
-  identity IPV4-LABELLED-UNICAST {
-    base afi-safi-type;
+  identity IPV4_LABELED_UNICAST {
+    base AFI_SAFI_TYPE;
     description
-      "Labelled IPv4 unicast (AFI,SAFI = 1,4)";
+      "Labeled IPv4 unicast (AFI,SAFI = 1,4)";
     reference "RFC3107";
   }
 
-  identity IPV6-LABELLED-UNICAST {
-    base afi-safi-type;
+  identity IPV6_LABELED_UNICAST {
+    base AFI_SAFI_TYPE;
     description
-      "Labelled IPv6 unicast (AFI,SAFI = 2,4)";
+      "Labeled IPv6 unicast (AFI,SAFI = 2,4)";
     reference "RFC3107";
   }
 
-  identity L3VPN-IPV4-UNICAST {
-    base afi-safi-type;
+  identity L3VPN_IPV4_UNICAST {
+    base AFI_SAFI_TYPE;
     description
       "Unicast IPv4 MPLS L3VPN (AFI,SAFI = 1,128)";
     reference "RFC4364";
   }
 
-  identity L3VPN-IPV6-UNICAST {
-    base afi-safi-type;
+  identity L3VPN_IPV6_UNICAST {
+    base AFI_SAFI_TYPE;
     description
       "Unicast IPv6 MPLS L3VPN (AFI,SAFI = 2,128)";
     reference "RFC4659";
   }
 
-  identity L3VPN-IPV4-MULTICAST {
-    base afi-safi-type;
+  identity L3VPN_IPV4_MULTICAST {
+    base AFI_SAFI_TYPE;
     description
       "Multicast IPv4 MPLS L3VPN (AFI,SAFI = 1,129)";
     reference "RFC6514";
   }
 
-  identity L3VPN-IPV6-MULTICAST {
-    base afi-safi-type;
+  identity L3VPN_IPV6_MULTICAST {
+    base AFI_SAFI_TYPE;
     description
       "Multicast IPv6 MPLS L3VPN (AFI,SAFI = 2,129)";
     reference "RFC6514";
   }
 
-  identity L2VPN-VPLS {
-    base afi-safi-type;
+  identity L2VPN_VPLS {
+    base AFI_SAFI_TYPE;
     description
       "BGP-signalled VPLS (AFI,SAFI = 25,65)";
     reference "RFC4761";
   }
 
-  identity L2VPN-EVPN {
-    base afi-safi-type;
+  identity L2VPN_EVPN {
+    base AFI_SAFI_TYPE;
     description
       "BGP MPLS Based Ethernet VPN (AFI,SAFI = 25,70)";
   }
 
-  identity bgp-well-known-std-community {
+  identity BGP_WELL_KNOWN_STD_COMMUNITY {
     description
       "Reserved communities within the standard community space
       defined by RFC1997. These communities must fall within the
@@ -159,7 +154,7 @@ module openconfig-bgp-types {
   }
 
   identity NO_EXPORT {
-    base bgp-well-known-std-community;
+    base BGP_WELL_KNOWN_STD_COMMUNITY;
     description
       "Do not export NLRI received carrying this community outside
       the bounds of this autonomous system, or this confederation if
@@ -169,7 +164,7 @@ module openconfig-bgp-types {
   }
 
   identity NO_ADVERTISE {
-    base bgp-well-known-std-community;
+    base BGP_WELL_KNOWN_STD_COMMUNITY;
     description
       "All NLRI received carrying this community must not be
       advertised to other BGP peers. This community has a value of
@@ -178,7 +173,7 @@ module openconfig-bgp-types {
   }
 
   identity NO_EXPORT_SUBCONFED {
-    base bgp-well-known-std-community;
+    base BGP_WELL_KNOWN_STD_COMMUNITY;
     description
       "All NLRI received carrying this community must not be
       advertised to external BGP peers - including over confederation
@@ -187,7 +182,7 @@ module openconfig-bgp-types {
   }
 
   identity NOPEER {
-    base bgp-well-known-std-community;
+    base BGP_WELL_KNOWN_STD_COMMUNITY;
     description
       "An autonomous system receiving NLRI tagged with this community
       is advised not to readvertise the NLRI to external bi-lateral
@@ -214,7 +209,7 @@ module openconfig-bgp-types {
 
   typedef bgp-well-known-community-type {
     type identityref {
-      base bgp-well-known-std-community;
+      base BGP_WELL_KNOWN_STD_COMMUNITY;
     }
     description
       "Type definition for well-known IETF community attribute
@@ -350,15 +345,34 @@ module openconfig-bgp-types {
       external";
   }
 
+  identity REMOVE_PRIVATE_AS_OPTION {
+    description
+      "Base identity for options for removing private autonomous
+      system numbers from the AS_PATH attribute";
+  }
+
+  identity PRIVATE_AS_REMOVE_ALL {
+    base REMOVE_PRIVATE_AS_OPTION;
+    description
+      "Strip all private autonmous system numbers from the AS_PATH.
+      This action is performed regardless of the other content of the
+      AS_PATH attribute, and for all instances of private AS numbers
+      within that attribute.";
+  }
+
+  identity PRIVATE_AS_REPLACE_ALL {
+    base REMOVE_PRIVATE_AS_OPTION;
+    description
+      "Replace all instances of private autonomous system numbers in
+      the AS_PATH with the local BGP speaker's autonomous system
+      number. This action is performed regardless of the other
+      content of the AS_PATH attribute, and for all instances of
+      private AS number within that attribute.";
+  }
 
   typedef remove-private-as-option {
-    type enumeration {
-      enum ALL {
-        description "remove all private ASes in the path";
-      }
-      enum REPLACE {
-        description "replace private ASes with local AS";
-      }
+    type identityref {
+      base REMOVE_PRIVATE_AS_OPTION;
     }
     description
       "set of options for configuring how private AS path numbers

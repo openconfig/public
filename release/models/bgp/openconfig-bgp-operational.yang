@@ -6,12 +6,12 @@ module openconfig-bgp-operational {
   // TODO: change to an ietf or other more generic namespace
   namespace "http://openconfig.net/yang/bgp-operational";
 
-  prefix "bgp-op";
+  prefix "oc-bgp-op";
 
   // import some basic inet types
   import ietf-inet-types { prefix inet; }
   import ietf-yang-types { prefix yang; }
-  import openconfig-bgp-types { prefix bgp-types; }
+  import openconfig-bgp-types { prefix oc-bgp-types; }
   import openconfig-extensions { prefix oc-ext; }
 
   // meta
@@ -28,27 +28,14 @@ module openconfig-bgp-operational {
     configuration, focusing on operational data (i.e., state
     variables) related to BGP operations";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "2.0.0";
 
-  revision "2015-10-09" {
+  revision "2016-03-28" {
     description
-      "Initial OpenConfig public release";
-    reference "1.1.0";
+      "OpenConfig public release";
+    reference "2.0.0";
   }
 
-  revision "2015-05-15" {
-    description
-      "Initial revision";
-    reference "Pre-release";
-  }
-
-  // extension statements
-
-  // feature statements
-
-  // identity statements
-
-  // typedef statements
 
   // grouping statements
 
@@ -157,7 +144,7 @@ module openconfig-bgp-operational {
 
     leaf-list supported-capabilities {
       type identityref {
-        base bgp-types:bgp-capability;
+        base oc-bgp-types:BGP_CAPABILITY;
       }
       description
         "BGP capabilities negotiated as supported with the peer";
@@ -348,7 +335,7 @@ module openconfig-bgp-operational {
 
     leaf mode {
       type enumeration {
-        enum HELPER-ONLY {
+        enum HELPER_ONLY {
           description
             "The local router is operating in helper-only mode, and
             hence will not retain forwarding state during a local
@@ -362,7 +349,7 @@ module openconfig-bgp-operational {
             and also maintains forwarding state during local session
             restart";
         }
-        enum REMOTE-HELPER {
+        enum REMOTE_HELPER {
           description
             "The local system is able to retain routes during restart
             but the remote system is only able to act as a helper";

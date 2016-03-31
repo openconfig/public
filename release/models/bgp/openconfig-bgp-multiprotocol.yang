@@ -5,12 +5,12 @@ module openconfig-bgp-multiprotocol {
   // namespace
   namespace "http://openconfig.net/yang/bgp-multiprotocol";
 
-  prefix "bgp-mp";
+  prefix "oc-bgp-mp";
 
   // import some basic inet types
-  import openconfig-routing-policy { prefix rpol; }
-  import openconfig-bgp-types { prefix bgp-types; }
-  import openconfig-bgp-operational { prefix bgp-op; }
+  import openconfig-routing-policy { prefix oc-rpol; }
+  import openconfig-bgp-types { prefix oc-bgp-types; }
+  import openconfig-bgp-operational { prefix oc-bgp-op; }
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
 
@@ -33,18 +33,12 @@ module openconfig-bgp-multiprotocol {
     pre-standard or custom AFI/SAFI types.  This module is only
     intended to capture the most";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "2.0.0";
 
-  revision "2015-10-09" {
+  revision "2016-03-28" {
     description
-      "Initial OpenConfig public release";
-    reference "1.1.0";
-  }
-
-  revision "2015-05-15" {
-    description
-      "Refactored multiprotocol module";
-    reference "Pre-release";
+      "OpenConfig public release";
+    reference "2.0.0";
   }
 
   grouping ipv4-unicast-group {
@@ -52,7 +46,7 @@ module openconfig-bgp-multiprotocol {
       "Group for IPv4 Unicast configuration options";
 
     container ipv4-unicast {
-      when "../afi-safi-name = 'bgp-mp:ipv4-unicast'" {
+      when "../afi-safi-name = 'oc-bgp-types:IPV4_UNICAST'" {
         description
           "Include this container for IPv4 Unicast specific
           configuration";
@@ -72,7 +66,7 @@ module openconfig-bgp-multiprotocol {
       "Group for IPv6 Unicast configuration options";
 
     container ipv6-unicast {
-      when "../afi-safi-name = 'bgp-mp:ipv6-unicast'" {
+      when "../afi-safi-name = 'oc-bgp-types:IPV6_UNICAST'" {
         description
           "Include this container for IPv6 Unicast specific
           configuration";
@@ -88,42 +82,42 @@ module openconfig-bgp-multiprotocol {
     }
   }
 
-  grouping ipv4-labelled-unicast-group {
+  grouping ipv4-labeled-unicast-group {
     description
-      "Group for IPv4 Labelled Unicast configuration options";
+      "Group for IPv4 Labeled Unicast configuration options";
 
-    container ipv4-labelled-unicast {
-      when "../afi-safi-name = 'bgp-mp:ipv4-labelled-unicast'" {
+    container ipv4-labeled-unicast {
+      when "../afi-safi-name = 'oc-bgp-types:IPV4_LABELED_UNICAST'" {
         description
-          "Include this container for IPv4 Labelled Unicast specific
+          "Include this container for IPv4 Labeled Unicast specific
           configuration";
       }
 
-      description "IPv4 Labelled Unicast configuration options";
+      description "IPv4 Labeled Unicast configuration options";
 
       uses all-afi-safi-common;
 
-      // placeholder for IPv4 Labelled Unicast specific config
+      // placeholder for IPv4 Labeled Unicast specific config
       // options
     }
   }
 
-  grouping ipv6-labelled-unicast-group {
+  grouping ipv6-labeled-unicast-group {
     description
-      "Group for IPv6 Labelled Unicast configuration options";
+      "Group for IPv6 Labeled Unicast configuration options";
 
-    container ipv6-labelled-unicast {
-      when "../afi-safi-name = 'bgp-mp:ipv6-labelled-unicast'" {
+    container ipv6-labeled-unicast {
+      when "../afi-safi-name = 'oc-bgp-types:IPV6_LABELED_UNICAST'" {
         description
-          "Include this container for IPv6 Labelled Unicast specific
+          "Include this container for IPv6 Labeled Unicast specific
           configuration";
       }
 
-      description "IPv6 Labelled Unicast configuration options";
+      description "IPv6 Labeled Unicast configuration options";
 
       uses all-afi-safi-common;
 
-      // placeholder for IPv6 Labelled Unicast specific config
+      // placeholder for IPv6 Labeled Unicast specific config
       // options.
     }
   }
@@ -133,7 +127,7 @@ module openconfig-bgp-multiprotocol {
       "Group for IPv4 Unicast L3VPN configuration options";
 
     container l3vpn-ipv4-unicast {
-      when "../afi-safi-name = 'bgp-mp:l3vpn-ipv4-unicast'" {
+      when "../afi-safi-name = 'oc-bgp-types:L3VPN_IPV4_UNICAST'" {
         description
           "Include this container for IPv4 Unicast L3VPN specific
           configuration";
@@ -153,7 +147,7 @@ module openconfig-bgp-multiprotocol {
       "Group for IPv6 Unicast L3VPN configuration options";
 
     container l3vpn-ipv6-unicast {
-      when "../afi-safi-name = 'bgp-mp:l3vpn-ipv6-unicast'" {
+      when "../afi-safi-name = 'oc-bgp-types:L3VPN_IPV6_UNICAST'" {
         description
           "Include this container for unicast IPv6 L3VPN specific
           configuration";
@@ -174,7 +168,7 @@ module openconfig-bgp-multiprotocol {
       "Group for IPv4 L3VPN multicast configuration options";
 
     container l3vpn-ipv4-multicast {
-      when "../afi-safi-name = 'bgp-mp:l3vpn-ipv4-multicast'" {
+      when "../afi-safi-name = 'oc-bgp-types:L3VPN_IPV4_MULTICAST'" {
         description
           "Include this container for multicast IPv6 L3VPN specific
           configuration";
@@ -195,7 +189,7 @@ module openconfig-bgp-multiprotocol {
       "Group for IPv6 L3VPN multicast configuration options";
 
     container l3vpn-ipv6-multicast {
-      when "../afi-safi-name = 'bgp-mp:l3vpn-ipv6-multicast'" {
+      when "../afi-safi-name = 'oc-bgp-types:L3VPN_IPV6_MULTICAST'" {
         description
           "Include this container for multicast IPv6 L3VPN specific
           configuration";
@@ -216,7 +210,7 @@ module openconfig-bgp-multiprotocol {
       "Group for BGP-signalled VPLS configuration options";
 
     container l2vpn-vpls {
-      when "../afi-safi-name = 'bgp-mp:l2vpn-vpls'" {
+      when "../afi-safi-name = 'oc-bgp-types:L2VPN_VPLS'" {
         description
           "Include this container for BGP-signalled VPLS specific
           configuration";
@@ -237,7 +231,7 @@ module openconfig-bgp-multiprotocol {
       "Group for BGP EVPN configuration options";
 
     container l2vpn-evpn {
-      when "../afi-safi-name = 'bgp-mp:l2vpn-evpn'" {
+      when "../afi-safi-name = 'oc-bgp-types:L2VPN_EVPN'" {
         description
           "Include this container for BGP EVPN specific
           configuration";
@@ -372,6 +366,7 @@ module openconfig-bgp-multiprotocol {
         uses bgp-use-multiple-paths_config;
       }
       container state {
+        config false;
         description
           "State parameters relating to multipath";
         uses bgp-use-multiple-paths_config;
@@ -426,6 +421,7 @@ module openconfig-bgp-multiprotocol {
         uses bgp-use-multiple-paths_config;
       }
       container state {
+        config false;
         description
           "State parameters relating to multipath";
         uses bgp-use-multiple-paths_config;
@@ -484,7 +480,7 @@ module openconfig-bgp-multiprotocol {
 
     leaf afi-safi-name {
       type identityref {
-        base bgp-types:afi-safi-type;
+        base oc-bgp-types:AFI_SAFI_TYPE;
       }
       description "AFI,SAFI";
     }
@@ -709,16 +705,16 @@ module openconfig-bgp-multiprotocol {
         description
           "State information relating to the AFI-SAFI";
         uses bgp-afi-safi_config;
-        uses bgp-op:bgp-afi-safi_state;
+        uses oc-bgp-op:bgp-afi-safi_state;
       }
 
       // import and export policy included for the afi/safi
-      uses rpol:apply-policy-group;
+      uses oc-rpol:apply-policy-group;
 
       uses ipv4-unicast-group;
       uses ipv6-unicast-group;
-      uses ipv4-labelled-unicast-group;
-      uses ipv6-labelled-unicast-group;
+      uses ipv4-labeled-unicast-group;
+      uses ipv6-labeled-unicast-group;
       uses l3vpn-ipv4-unicast-group;
       uses l3vpn-ipv6-unicast-group;
       uses l3vpn-ipv4-multicast-group;
