@@ -5,13 +5,14 @@ module openconfig-rib-bgp {
   // namespace
   namespace "http://openconfig.net/yang/rib/bgp";
 
-  prefix "bgprib";
+  prefix "oc-bgprib";
 
   // import some basic types
   import ietf-inet-types { prefix inet; }
   import ietf-yang-types { prefix yang; }
-  import openconfig-bgp-types { prefix bgpt; }
+  import openconfig-bgp-types { prefix oc-bgpt; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-rib-bgp-types { prefix oc-bgpribt; }
 
   // meta
   organization "OpenConfig working group";
@@ -48,59 +49,20 @@ module openconfig-rib-bgp {
     eligible for sending (advertising) to the neighbor after output
     policy rules have been applied.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
 
-  revision "2015-10-09" {
+  revision "2016-04-11" {
     description
-      "Initial OpenConfig public release";
-    reference "0.1.0";
+      "OpenConfig public release";
+    reference "0.2.0";
   }
 
-  revision "2015-09-15" {
-    description
-      "Initial revision";
-    reference "Pre-release";
-  }
 
   // extension statements
 
   // feature statements
 
   // identity statements
-
-
-  identity invalid-route-reason {
-    description
-      "Base identity for reason code for routes that are rejected as
-      invalid.  Some derived entities are based on BMP v3";
-    reference "BGP Monitoring Protocol (draft-ietf-grow-bmp-07)";
-  }
-
-  identity invalid-cluster-loop {
-    base invalid-route-reason;
-    description
-      "Route was invalid due to CLUSTER_LIST loop";
-  }
-
-  identity invalid-as-loop {
-    base invalid-route-reason;
-    description
-      "Route was invalid due to AS_PATH loop";
-  }
-
-  identity invalid-originator {
-    base invalid-route-reason;
-    description
-      "Route was invalid due to ORIGINATOR_ID, e.g., update has
-      local router as originator";
-  }
-
-  identity invalid-confed {
-    base invalid-route-reason;
-    description
-      "Route was invalid due to a loop in the AS_CONFED_SEQUENCE or
-      AS_CONFED_SET attributes";
-  }
 
   // typedef statements
 
@@ -111,7 +73,7 @@ module openconfig-rib-bgp {
     reference "RFC 4271 - A Border Gateway Protocol 4 (BGP-4)";
 
     leaf origin {
-      type bgpt:bgp-origin-attr-type;
+      type oc-bgpt:bgp-origin-attr-type;
       description
         "BGP attribute defining the origin of the path information.";
     }
@@ -226,7 +188,7 @@ module openconfig-rib-bgp {
     }
 
     leaf-list community {
-      type bgpt:bgp-std-community-type;
+      type oc-bgpt:bgp-std-community-type;
       description
         "List of standard BGP community attributes.";
     }
@@ -257,7 +219,7 @@ module openconfig-rib-bgp {
     }
 
     leaf-list ext-community {
-      type bgpt:bgp-ext-community-type;
+      type oc-bgpt:bgp-ext-community-type;
       description
         "List of BGP extended community attributes";
       reference "RFC 4360 - BGP Extended Communities Attribute";
@@ -358,7 +320,7 @@ module openconfig-rib-bgp {
 
     leaf invalid-reason {
       type identityref {
-        base invalid-route-reason;
+        base oc-bgpribt:INVALID_ROUTE_REASON;
       }
       description
         "If the route is rejected as invalid, this indicates the
@@ -442,6 +404,7 @@ module openconfig-rib-bgp {
       "Common grouping for a list of BGP routes for IPv6 unicast";
 
     container routes {
+      config false;
       description
         "Enclosing container for list of routes in the routing
         table.";
@@ -468,6 +431,7 @@ module openconfig-rib-bgp {
       "Top-level grouping for IPv4 routing tables";
 
     container loc-rib {
+      config false;
       description
         "Main routing table on the router, containing best-path
         selections for each prefix.  The loc-rib may contain
@@ -484,6 +448,7 @@ module openconfig-rib-bgp {
     }
 
     container neighbors {
+      config false;
       description
         "Enclosing container for neighbor list";
 
@@ -546,10 +511,12 @@ module openconfig-rib-bgp {
       "Top-level grouping for the BGP RIB";
 
     container bgp-rib {
+      config false;
       description
         "Top level container for BGP RIBs";
 
       container afi-safis {
+        config false;
         description
           "Enclosing container for address family list";
 
@@ -560,13 +527,13 @@ module openconfig-rib-bgp {
 
           leaf afi-safi-name {
             type identityref {
-              base bgpt:afi-safi-type;
+              base oc-bgpt:AFI_SAFI_TYPE;
             }
             description "AFI,SAFI";
           }
 
           container ipv4-unicast {
-            when "../afi-safi-name = 'bgpt:ipv4-unicast'" {
+            when "../afi-safi-name = 'oc-bgpt:IPV4_UNICAST'" {
               description
                 "Include this container for IPv4 unicast RIB";
             }
@@ -578,7 +545,7 @@ module openconfig-rib-bgp {
           }
 
           container ipv6-unicast {
-            when "../afi-safi-name = 'bgpt:ipv6-unicast'" {
+            when "../afi-safi-name = 'oc-bgpt:IPV6_UNICAST'" {
               description
                 "Include this container for IPv6 unicast RIB";
             }
