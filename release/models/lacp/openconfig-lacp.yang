@@ -27,12 +27,12 @@ module openconfig-lacp {
     managing aggregate interfaces.   It works in conjunction with
     the OpenConfig interfaces and aggregate interfaces models.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.0.1";
 
-  revision "2016-03-28" {
+  revision "2016-04-12" {
     description
       "OpenConfig public release";
-    reference "1.0.0";
+    reference "1.0.1";
   }
 
 
@@ -415,17 +415,9 @@ grouping aggregation-lacp-members-statistics {
       LACP data";
 
     container lacp {
-      when "../config/lag-type = LACP" {
-        description
-          "LACP configuration and opstate is active when the
-          aggregate interface type is LACP";
-        }
-
       description
         "Configuration and operational state data for LACP protocol
         operation on the aggregate interface";
-      // TODO: need to add more parameters and operational state
-      // container
 
       container config {
         description
@@ -452,8 +444,5 @@ grouping aggregation-lacp-members-statistics {
 
   // augment statements
 
-  // rpc statements
-
-  // notification statements
 
 }
