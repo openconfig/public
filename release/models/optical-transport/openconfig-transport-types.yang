@@ -21,12 +21,21 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
 
-  revision "2016-03-25" {
+  revision "2016-05-31" {
     description
       "Public release";
-    reference "0.2.0";
+    reference "0.3.0";
+  }
+
+  // typedef statements
+
+  typedef frequency-type {
+    type uint64;
+    units "MHz";
+    description
+      "Type for optical spectrum frequency values";
   }
 
   typedef admin-state-type {
@@ -46,6 +55,30 @@ module openconfig-transport-types {
     }
     description "Administrative state modes for
     logical channels in the transponder model.";
+  }
+
+  typedef loopback-mode-type {
+    type enumeration {
+      enum NONE {
+        description
+          "No loopback is applied";
+      }
+      enum FACILITY {
+        description
+          "A loopback which directs traffic normally transmitted
+          on the port back to the device as if received on the same
+          port from an external source.";
+      }
+      enum TERMINAL {
+        description
+          "A loopback which directs traffic received from an external
+          source on the port back out the transmit side of the same
+          port.";
+      }
+    }
+    default NONE;
+    description
+      "Loopback modes for transponder logical channels";
   }
 
 
