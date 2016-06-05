@@ -10,6 +10,7 @@ module openconfig-telemetry {
   // import some basic types
   import ietf-inet-types { prefix inet; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-rpc-types { prefix oc-rpc-types; }
 
   // meta
   organization "OpenConfig working group";
@@ -21,12 +22,12 @@ module openconfig-telemetry {
     "Data model which creates the configuration for the telemetry
      systems and functions on the device.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
 
-  revision "2016-02-04" {
+  revision "2016-05-31" {
     description
-      "Initial OpenConfig public release";
-    reference "0.2.0";
+      "OpenConfig public release";
+    reference "0.3.0";
   }
 
   container telemetry-system {
@@ -212,16 +213,16 @@ module openconfig-telemetry {
            other redundancy changes.";
 
         list subscription {
-          key subscription-id;
+          key subscription-name;
           description
             "List of telemetry subscriptions. A telemetry
             subscription consists of a set of collection
             destinations, stream attributes, and associated paths to
             state information in the model (sensor data)";
 
-          leaf subscription-id {
+          leaf subscription-name {
             type leafref {
-              path "../config/subscription-id";
+              path "../config/subscription-name";
             }
             description
               "Reference to the identifier of the subscription
@@ -234,9 +235,11 @@ module openconfig-telemetry {
               "Config parameters relating to the telemetry
               subscriptions on the local device";
 
-            uses telemetry-subscription-config;
+            uses telemetry-subscription-name-config;
             uses telemetry-local-source-address-config;
             uses telemetry-qos-marking-config;
+            uses telemetry-stream-protocol-config;
+            uses telemetry-stream-encoding-config;
           }
 
           container state {
@@ -245,10 +248,13 @@ module openconfig-telemetry {
               "State parameters relating to the telemetry
               subscriptions on the local device";
 
+            uses telemetry-subscription-name-config;
             uses telemetry-subscription-config;
             uses telemetry-subscription-state;
             uses telemetry-local-source-address-config;
             uses telemetry-qos-marking-config;
+            uses telemetry-stream-protocol-config;
+            uses telemetry-stream-encoding-config;
           }
 
           container sensor-profiles {
@@ -343,6 +349,7 @@ module openconfig-telemetry {
               }
 
               container state {
+                config false;
                 description
                 "State information related to telemetry
                  destinations";
@@ -403,6 +410,8 @@ module openconfig-telemetry {
               uses telemetry-heartbeat-config;
               uses telemetry-suppress-redundant-config;
               uses telemetry-qos-marking-config;
+              uses telemetry-stream-protocol-config;
+              uses telemetry-stream-encoding-config;
             }
 
             container sensor-paths {
@@ -446,22 +455,6 @@ module openconfig-telemetry {
   // identity statements
 
   // typedef statements
-
-  typedef telemetry-stream-protocol {
-    type enumeration {
-      enum TCP {
-        description
-          "TCP protocol transport for the stream";
-      }
-      enum UDP {
-        description
-          "UDP protocol transport for the stream";
-      }
-    }
-    description
-      "Selectable protocols for transport
-       of the telemetry stream";
-  }
 
   // grouping statements
 
@@ -576,16 +569,67 @@ module openconfig-telemetry {
     leaf subscription-id {
       type uint64;
       description
-        "Identifer of the telemetry subscription.
-         Will be used by configuration operations needing
-         to modify or delete the telemetry subscription";
+        "System generated identifer of the telemetry
+         subscription.";
     }
+  }
+
+  grouping telemetry-subscription-name-config {
+    description
+      "Configuration parameters relating to the configured
+       name of the telemetry subscription. The name is a user
+       configured string value which uniquely identifies the
+       subscription in the configuration database.";
+
+     leaf subscription-name {
+       type string;
+       description
+         "User configured identifier of the telemetry
+          subscription. This value is used primarily for
+          subscriptions configured locally on the network
+          element.";
+     }
   }
 
   grouping telemetry-subscription-state {
     description
       "State values for the telemetry subscription";
     //TODO add values
+  }
+
+  grouping telemetry-stream-protocol-config {
+    description
+      "Configuration parameters relating to the
+       transport protocol carrying telemetry
+       data.";
+
+    leaf protocol {
+      type identityref {
+        base oc-rpc-types:STREAM_PROTOCOL;
+      }
+      description
+        "Selection of the transport protocol for the telemetry
+         stream.";
+    }
+  }
+
+  grouping telemetry-stream-encoding-config {
+    description
+      "Configuration parameters relating to the
+       encoding of telemetry data to and from the
+       network element. The encoding method controls
+       specifically the wire format of the telemetry
+       data, and also controls which RPC framework
+       may be in use to exchange telemetry data.";
+
+     leaf encoding {
+       type identityref {
+         base oc-rpc-types:DATA_ENCODING_METHOD;
+       }
+       description
+         "Selection of the specific encoding or RPC framework
+          for telemetry messages to and from the network element.";
+     }
   }
 
   grouping telemetry-stream-destination-config {
@@ -601,12 +645,6 @@ module openconfig-telemetry {
         description
           "Protocol (udp or tcp) port number for the telemetry
            stream destination";
-      }
-      leaf destination-protocol {
-        type telemetry-stream-protocol;
-        description
-          "Protocol used to transmit telemetry data to the
-           collector";
       }
   }
 
