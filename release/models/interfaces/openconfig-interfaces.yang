@@ -35,12 +35,12 @@ module openconfig-interfaces {
     (particularly for operational state data) and and with
     additional configuration items.";
 
-  oc-ext:openconfig-version "1.0.1";
+  oc-ext:openconfig-version "1.0.2";
 
-  revision "2016-04-12" {
+  revision "2016-05-26" {
     description
       "OpenConfig public release";
-    reference "1.0.1";
+    reference "1.0.2";
   }
 
 
@@ -835,7 +835,7 @@ module openconfig-interfaces {
         with a physical interface";
 
       list subinterface {
-        key index;
+        key "index";
 
         description
           "The list of subinterfaces (logical interfaces) associated
@@ -843,7 +843,7 @@ module openconfig-interfaces {
 
         leaf index {
           type leafref {
-            path "../oc-if:config/oc-if:index";
+            path "../config/index";
           }
           description
             "The index number of the subinterface -- used to address
@@ -882,14 +882,14 @@ module openconfig-interfaces {
 
 
       list interface {
-        key name;
+        key "name";
 
         description
           "The list of named interfaces on the device.";
 
         leaf name {
           type leafref {
-            path "../oc-if:config/oc-if:name";
+            path "../config/name";
           }
           description
             "References the configured name of the interface";

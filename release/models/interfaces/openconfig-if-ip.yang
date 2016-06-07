@@ -28,12 +28,12 @@ module openconfig-if-ip {
     described by RFC 7277.  The primary differences are in the
     structure of configuration and state data.";
 
-  oc-ext:openconfig-version "1.0.1";
+  oc-ext:openconfig-version "1.0.2";
 
-  revision "2016-04-12" {
+  revision "2016-05-26" {
     description
       "OpenConfig public release";
-    reference "1.0.1";
+    reference "1.0.2";
   }
 
 
@@ -67,7 +67,6 @@ module openconfig-if-ip {
           "[adapted from RFC 7277]
 
           Indicates an address chosen by the system at
-
           random, e.g., an IPv4 address within 169.254/16, an
           RFC 4941 temporary address, or an RFC 7217 semantically
           opaque address.";
@@ -110,7 +109,7 @@ module openconfig-if-ip {
 
   // grouping statements
 
-  grouping ipv4-config-global {
+  grouping ipv4-global-config {
     description "Configuration data for IPv4 interfaces across
     all addresses assigned to the interface";
     reference "RFC 7277 - A YANG Data Model for IP Management";
@@ -145,7 +144,7 @@ module openconfig-if-ip {
 
   }
 
-  grouping ipv4-config-address {
+  grouping ipv4-address-config {
 
     description
       "Per IPv4 adresss configuration data for the
@@ -170,7 +169,7 @@ module openconfig-if-ip {
     }
   }
 
-  grouping ipv4-config-neighbor {
+  grouping ipv4-neighbor-config {
     description
       "[adapted from IETF IP model RFC 7277]
 
@@ -191,7 +190,7 @@ module openconfig-if-ip {
     }
   }
 
-  grouping ipv4-state-address {
+  grouping ipv4-address-state {
     description
       "State variables for IPv4 addresses on the interface";
 
@@ -203,7 +202,7 @@ module openconfig-if-ip {
     }
   }
 
-  grouping ipv4-state-neighbor {
+  grouping ipv4-neighbor-state {
     description
       "State variables for IPv4 neighbor entries on the interface.";
 
@@ -214,7 +213,7 @@ module openconfig-if-ip {
     }
   }
 
-  grouping ipv6-config-global {
+  grouping ipv6-global-config {
     description
       "Configuration data at the global level for each
       IPv6 interface";
@@ -269,7 +268,7 @@ module openconfig-if-ip {
     }
   }
 
-  grouping ipv6-config-address {
+  grouping ipv6-address-config {
     description "Per-address configuration data for IPv6 interfaces";
 
     leaf ip {
@@ -292,7 +291,7 @@ module openconfig-if-ip {
     }
   }
 
-  grouping ipv6-state-address {
+  grouping ipv6-address-state {
     description
       "Per-address operational state data for IPv6 interfaces";
 
@@ -366,7 +365,7 @@ module openconfig-if-ip {
     }
   }
 
-  grouping ipv6-config-neighbor {
+  grouping ipv6-neighbor-config {
     description
       "Per-neighbor configuration data for IPv6 interfaces";
 
@@ -388,7 +387,7 @@ module openconfig-if-ip {
     }
   }
 
-  grouping ipv6-state-neighbor {
+  grouping ipv6-neighbor-state {
     description "Per-neighbor state variables for IPv6 interfaces";
 
     leaf origin {
@@ -629,7 +628,7 @@ module openconfig-if-ip {
         (VRRP) Version 3 for IPv4 and IPv6";
 
       list vrrp-group {
-        key virtual-router-id;
+        key "virtual-router-id";
         description
           "List of VRRP groups, keyed by virtual router id";
 
@@ -678,7 +677,7 @@ module openconfig-if-ip {
           "Enclosing container for address list";
 
         list address {
-          key ip;
+          key "ip";
           description
            "The list of configured IPv4 addresses on the interface.";
 
@@ -693,7 +692,7 @@ module openconfig-if-ip {
             description "Configuration data for each configured IPv4
             address on the interface";
 
-            uses ipv4-config-address;
+            uses ipv4-address-config;
 
           }
 
@@ -703,8 +702,8 @@ module openconfig-if-ip {
             description "Operational state data for each IPv4 address
             configured on the interface";
 
-            uses ipv4-config-address;
-            uses ipv4-state-address;
+            uses ipv4-address-config;
+            uses ipv4-address-state;
           }
 
         }
@@ -736,7 +735,7 @@ module openconfig-if-ip {
             description "Configuration data for each configured IPv4
             address on the interface";
 
-            uses ipv4-config-neighbor;
+            uses ipv4-neighbor-config;
 
           }
 
@@ -746,8 +745,8 @@ module openconfig-if-ip {
             description "Operational state data for each IPv4 address
             configured on the interface";
 
-            uses ipv4-config-neighbor;
-            uses ipv4-state-neighbor;
+            uses ipv4-neighbor-config;
+            uses ipv4-neighbor-state;
           }
         }
       }
@@ -758,7 +757,7 @@ module openconfig-if-ip {
         description
           "Top-level IPv4 configuration data for the interface";
 
-        uses ipv4-config-global;
+        uses ipv4-global-config;
       }
 
       container state {
@@ -767,7 +766,7 @@ module openconfig-if-ip {
         description
           "Top level IPv4 operational state data";
 
-        uses ipv4-config-global;
+        uses ipv4-global-config;
       }
     }
   }
@@ -801,7 +800,7 @@ module openconfig-if-ip {
               "Configuration data for each IPv6 address on
               the interface";
 
-            uses ipv6-config-address;
+            uses ipv6-address-config;
 
           }
 
@@ -812,8 +811,8 @@ module openconfig-if-ip {
               "State data for each IPv6 address on the
               interface";
 
-            uses ipv6-config-address;
-            uses ipv6-state-address;
+            uses ipv6-address-config;
+            uses ipv6-address-state;
           }
         }
       }
@@ -839,7 +838,7 @@ module openconfig-if-ip {
             description "Configuration data for each IPv6 address on
             the interface";
 
-            uses ipv6-config-neighbor;
+            uses ipv6-neighbor-config;
 
           }
 
@@ -849,8 +848,8 @@ module openconfig-if-ip {
             description "State data for each IPv6 address on the
             interface";
 
-            uses ipv6-config-neighbor;
-            uses ipv6-state-neighbor;
+            uses ipv6-neighbor-config;
+            uses ipv6-neighbor-state;
           }
         }
       }
@@ -859,7 +858,7 @@ module openconfig-if-ip {
       container config {
         description "Top-level config data for the IPv6 interface";
 
-        uses ipv6-config-global;
+        uses ipv6-global-config;
       }
 
       container state {
@@ -867,7 +866,7 @@ module openconfig-if-ip {
         description
           "Top-level operational state data for the IPv6 interface";
 
-        uses ipv6-config-global;
+        uses ipv6-global-config;
 
       }
     }
