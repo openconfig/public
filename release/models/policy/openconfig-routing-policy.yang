@@ -77,12 +77,12 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
-  oc-ext:openconfig-version "2.0.0";
+  oc-ext:openconfig-version "2.0.1";
 
-  revision "2016-03-28" {
+  revision "2016-05-12" {
     description
       "OpenConfig public release";
-    reference "2.0.0";
+    reference "2.0.1";
   }
 
 
@@ -133,7 +133,7 @@ module openconfig-routing-policy {
         "Enclosing container ";
 
       list prefix-set {
-        key prefix-set-name;
+        key "prefix-set-name";
         description
           "List of the defined prefix sets";
 
@@ -269,7 +269,7 @@ module openconfig-routing-policy {
     }
 
     leaf-list address {
-      type inet:ip-address;
+      type inet:ip-address-no-zone;
       description
         "List of IP addresses in the neighbor set";
     }
@@ -291,7 +291,7 @@ module openconfig-routing-policy {
         definitions";
 
       list neighbor-set {
-        key neighbor-set-name;
+        key "neighbor-set-name";
         description
           "List of defined neighbor sets for use in policies.";
 
@@ -357,7 +357,7 @@ module openconfig-routing-policy {
         "Enclosing container for the list of tag sets.";
 
       list tag-set {
-        key tag-set-name;
+        key "tag-set-name";
         description
           "List of tag set definitions.";
 
@@ -862,12 +862,10 @@ module openconfig-routing-policy {
         "Enclosing container for policy statements";
 
       list statement {
-        key name;
+        key "name";
         // TODO: names of policy statements within a policy
-        // definition should be optional, however, YANG
-        // requires a unique id for lists; not sure that a
-        // compound key works either -- need to investigate
-        // further.
+        // definition should probably be optional, however, YANG
+        // requires a unique id for lists
         ordered-by user;
         description
           "Policy statements group conditions and actions
@@ -947,7 +945,7 @@ module openconfig-routing-policy {
           definitions";
 
       list policy-definition {
-        key name;
+        key "name";
         description
           "List of top-level policy definitions, keyed by unique
           name.  These policy definitions are expected to be
