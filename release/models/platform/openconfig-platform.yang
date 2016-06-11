@@ -62,18 +62,18 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
 
-  revision "2016-05-10" {
+  revision "2016-06-06" {
     description
       "Public release";
-    reference "0.3.0";
+    reference "0.4.0";
   }
 
   // grouping statements
 
 
-  grouping inventory-component-properties-config {
+  grouping platform-component-properties-config {
     description
       "System-defined configuration data for component properties";
 
@@ -101,7 +101,7 @@ module openconfig-platform {
     }
   }
 
-  grouping inventory-component-properties-state {
+  grouping platform-component-properties-state {
     description
       "Operational state data for component properties";
 
@@ -112,7 +112,7 @@ module openconfig-platform {
     }
   }
 
-  grouping inventory-component-properties-top {
+  grouping platform-component-properties-top {
     description
       "Top-level grouping ";
 
@@ -121,7 +121,7 @@ module openconfig-platform {
         "Enclosing container ";
 
       list property {
-        key name;
+        key "name";
         description
           "List of system properties for the component";
 
@@ -137,7 +137,7 @@ module openconfig-platform {
           description
             "Configuration data for each property";
 
-          uses inventory-component-properties-config;
+          uses platform-component-properties-config;
         }
 
         container state {
@@ -147,42 +147,33 @@ module openconfig-platform {
           description
             "Operational state data for each property";
 
-          uses inventory-component-properties-config;
-          uses inventory-component-properties-state;
+          uses platform-component-properties-config;
+          uses platform-component-properties-state;
         }
       }
     }
   }
 
-  grouping inventory-subcomponent-ref-config {
+  grouping platform-subcomponent-ref-config {
     description
       "Configuration data for subcomponent references";
 
     leaf name {
-      type string;
+      type leafref {
+        path "../../../../../component/config/name";
+      }
       description
-        "Name of the subcomponent -- should reflect the name of
-        the referenced component";
+        "Reference to the name of the subcomponent";
     }
   }
 
-  grouping inventory-subcomponent-ref-state {
+  grouping platform-subcomponent-ref-state {
     description
       "Operational state data for subcomponent references";
 
-    //TODO: the name itself could perhaps be the reference to the
-    //component
-    leaf reference {
-      type leafref {
-        path "../../../../../component/name";
-      }
-      description
-        "References the corresponding component in the overall
-        list of inventory components";
-    }
   }
 
-  grouping inventory-subcomponent-ref-top {
+  grouping platform-subcomponent-ref-top {
     description
       "Top-level grouping for list of subcomponent references";
 
@@ -191,7 +182,7 @@ module openconfig-platform {
         "Enclosing container for subcomponent references";
 
       list subcomponent {
-        key name;
+        key "name";
         description
           "List of subcomponent references";
 
@@ -200,14 +191,14 @@ module openconfig-platform {
             path "../config/name";
           }
           description
-            "Reference to the subcomponent name";
+            "Reference to the name list key";
         }
 
         container config {
           description
             "Configuration data ";
 
-          uses inventory-subcomponent-ref-config;
+          uses platform-subcomponent-ref-config;
         }
 
         container state {
@@ -217,26 +208,26 @@ module openconfig-platform {
           description
             "Operational state data ";
 
-          uses inventory-subcomponent-ref-config;
-          uses inventory-subcomponent-ref-state;
+          uses platform-subcomponent-ref-config;
+          uses platform-subcomponent-ref-state;
         }
       }
     }
   }
 
-  grouping inventory-component-config {
+  grouping platform-component-config {
     description
       "Configuration data for components";
 
     leaf name {
       type string;
       description
-        "Device name for the component -- this may not be a
+        "Device name for the component -- this will not be a
         configurable parameter on many implementations";
     }
   }
 
-  grouping inventory-component-state {
+  grouping platform-component-state {
     description
       "Operational state data for device components.";
 
@@ -297,7 +288,7 @@ module openconfig-platform {
     }
   }
 
-  grouping inventory-component-top {
+  grouping platform-component-top {
     description
       "Top-level grouping for components in the device inventory";
 
@@ -306,7 +297,7 @@ module openconfig-platform {
         "Enclosing container for the components in the system.";
 
       list component {
-        key name;
+        key "name";
         description
           "List of components, keyed by component name.";
 
@@ -322,7 +313,7 @@ module openconfig-platform {
           description
             "Configuration data for each component";
 
-          uses inventory-component-config;
+          uses platform-component-config;
         }
 
         container state {
@@ -332,19 +323,19 @@ module openconfig-platform {
           description
             "Operational state data for each component";
 
-          uses inventory-component-config;
-          uses inventory-component-state;
+          uses platform-component-config;
+          uses platform-component-state;
         }
 
-        uses inventory-component-properties-top;
-        uses inventory-subcomponent-ref-top;
+        uses platform-component-properties-top;
+        uses platform-subcomponent-ref-top;
       }
     }
   }
 
   // data definition statements
 
-  uses inventory-component-top;
+  uses platform-component-top;
 
 
   // augments
