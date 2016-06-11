@@ -9,10 +9,11 @@ module openconfig-terminal-device {
 
   import openconfig-types { prefix oc-types; }
   import openconfig-transport-types { prefix oc-opt-types; }
-  import ietf-yang-types { prefix yang; }
   import openconfig-if-ethernet { prefix oc-eth; }
   import openconfig-platform { prefix oc-platform; }
+  import openconfig-platform-transceiver { prefix oc-transceiver; }
   import openconfig-extensions { prefix oc-ext; }
+  import ietf-yang-types { prefix yang; }
 
 
   // meta
@@ -73,60 +74,14 @@ module openconfig-terminal-device {
     ports per linecard, separate linecards for client and line ports,
     etc.).";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
 
-  revision "2016-03-25" {
+  revision "2016-05-31" {
     description
       "Public release";
-    reference "0.2.0";
+    reference "0.3.0";
   }
 
-
-  grouping terminal-output-optical-power {
-    description
-      "Reusable leaves related to optical output power -- this is
-      typically configurable on line side and read-only on the
-      client-side";
-
-    leaf output-power {
-      type decimal64 {
-        fraction-digits 2;
-      }
-      units dBm;
-      description
-        "The output optical power of this port in units of 0.01dBm.
-        If the port is an aggregate of multiple physical channels,
-        this attribute is the total power or sum of all channels.";
-    }
-
-    leaf laser-bias-current {
-      type decimal64 {
-        fraction-digits 1;
-      }
-      units mA;
-      description
-        "The current applied by the system to the transmit laser to
-        achieve the output power.  The current is expressed in mA
-        with up to one decimal precision.";
-    }
-  }
-
-  grouping terminal-output-optical-frequency {
-    description
-      "Reusable leaves related to optical output power -- this is
-      typically configurable on line side and read-only on the
-      client-side";
-
-    leaf output-frequency {
-      type uint64;
-      units dBm;
-      description
-        "The frequency in MHz of the individual physical channel
-        (e.g. ITU C50 - 195.0THz and would be reported as
-        195,000,000 MHz in this model). This attribute is not
-        configurable on most client ports.";
-    }
-  }
 
   grouping terminal-input-optical-power {
     description
@@ -214,26 +169,77 @@ module openconfig-terminal-device {
     }
   }
 
+  grouping terminal-otn-protocol-counter-stats {
+    description
+      "Counter based statistics containers for logical channels
+      using OTN framing";
+
+    leaf errored-seconds {
+      type yang:counter64;
+      description
+        "The number of seconds that at least one errored blocks occurs,
+        at least one code violation occurs, loss of sync is detected or
+        loss of signal is detected";
+    }
+
+    leaf severely-errored-seconds {
+      type yang:counter64;
+      description
+        "The number of seconds that loss of frame is detected OR
+        the number of errored blocks, code violations, loss of sync or
+        loss of signal is detected exceeds a predefined threshold";
+    }
+
+    leaf unavailable-seconds {
+      type yang:counter64;
+      description
+        "The number of seconds during which the link is unavailable";
+    }
+
+    leaf code-violations {
+      type yang:counter64;
+      description
+        "For ethernet or fiberchannel links, the number of 8b/10b
+        coding violations. For SONET/SDH, the number of BIP (bit
+        interleaved parity) errors";
+    }
+
+    leaf fec-uncorrectable-words {
+      type yang:counter64;
+      description
+        "The number words that were uncorrectable by the FEC";
+    }
+
+    leaf fec-corrected-bytes {
+      type yang:counter64;
+      description
+        "The number of bytes that were corrected by the FEC";
+    }
+
+    leaf fec-corrected-bits {
+      type yang:counter64;
+      description
+        "The number of bits that were corrected by the FEC";
+    }
+
+    leaf background-block-errors {
+      type yang:counter64;
+      description
+        "The number of background block errors";
+    }
+  }
 
   grouping terminal-otn-protocol-multi-stats {
     description
       "Multi-value statistics containers for logical channels using
-      OTN framing (e.g., max, min, avg)";
+      OTN framing (e.g., max, min, avg, instant)";
 
     container pre-fec-ber {
       description
         "Bit error rate before forward error correction -- computed
         value";
 
-      container state {
-        config false;
-
-        description
-          "statistics container";
-
-        uses oc-types:avg-min-max-current-stats-precision1;
-      }
-
+      uses oc-types:avg-min-max-instant-stats-precision1;
     }
 
     container post-fec-ber {
@@ -241,14 +247,23 @@ module openconfig-terminal-device {
         "Bit error rate after forward error correction -- computed
         value";
 
-      container state {
-        config false;
+      uses oc-types:avg-min-max-instant-stats-precision1;
+    }
 
-        description
-          "statistics container";
+    container q-value {
+      description
+        "Quality value (factor) of a channel";
 
-        uses oc-types:avg-min-max-current-stats-precision1;
-      }
+      uses oc-types:avg-min-max-instant-stats-precision1;
+    }
+
+    container esnr {
+      description
+        "Electrical signal to noise ratio. Baud rate
+        normalized signal to noise ratio based on
+        error vector magnitude";
+
+      uses oc-types:avg-min-max-instant-stats-precision1;
     }
   }
 
@@ -269,7 +284,8 @@ module openconfig-terminal-device {
         description
           "Remote defect indication (RDI) message received";
       }
-
+      uses terminal-otn-protocol-counter-stats;
+      uses terminal-otn-protocol-multi-stats;
   }
 
   grouping terminal-otn-protocol-top {
@@ -299,90 +315,6 @@ module openconfig-terminal-device {
 
         uses terminal-otn-protocol-config;
         uses terminal-otn-protocol-state;
-      }
-
-      uses terminal-otn-protocol-multi-stats;
-    }
-  }
-
-
-
-  grouping terminal-physical-channel-config {
-    description
-      "Configuration data for physical client channels";
-
-    leaf index {
-      type uint16 {
-        range 0..max;
-      }
-      description
-        "Index of the physical channnel or lane within a physical
-        client port";
-    }
-
-    leaf description {
-      type string;
-      description
-        "Text description for the client physical channel";
-    }
-
-    leaf tx-laser {
-      type boolean;
-      description
-        "Enable (true) or disable (false) the transmit label for the
-        channel";
-    }
-  }
-
-  grouping terminal-physical-channel-state {
-    description
-      "Operational state data for client channels.";
-
-      uses terminal-output-optical-power;
-      uses terminal-output-optical-frequency;
-
-  }
-
-  grouping terminal-physical-channel-top {
-    description
-      "Top-level grouping for physical client channels";
-
-    container physical-channels {
-      description
-        "Enclosing container for client channels";
-
-      list channel {
-        key index;
-        description
-          "List of client channels, keyed by index within a physical
-          client port.  A physical port with a single channel would
-          have a single zero-indexed element";
-
-        leaf index {
-          type leafref {
-            path "../config/index";
-          }
-          description
-            "Reference to the index number of the channel";
-        }
-
-        container config {
-          description
-            "Configuration data for physical channels";
-
-          uses terminal-physical-channel-config;
-        }
-
-        container state {
-
-          config false;
-
-          description
-            "Operational state data for channels";
-
-          uses terminal-physical-channel-config;
-          uses terminal-physical-channel-state;
-        }
       }
     }
   }
@@ -448,7 +380,7 @@ module openconfig-terminal-device {
         mappings";
 
       list assignment {
-        key index;
+        key "index";
         description
           "List of assignments to logical clients";
 
@@ -480,197 +412,6 @@ module openconfig-terminal-device {
           uses terminal-client-port-assignment-state;
         }
       }
-    }
-  }
-
-  grouping terminal-port-transceiver-config {
-    description
-      "Configuration data for client port transceivers";
-
-    leaf enabled {
-      type boolean;
-      description
-        "Turns power on / off to the transceiver -- provides a means
-        to power on/off the transceiver (in the case of SFP, SFP+,
-        QSFP,...) or enable high-power mode (in the case of CFP,
-        CFP2, CFP4) and is optionally supported (device can choose to
-        always enable).  True = power on / high power, False =
-        powered off";
-    }
-
-    leaf form-factor {
-      type identityref {
-        base oc-opt-types:TRANSCEIVER_FORM_FACTOR_TYPE;
-      }
-      description
-        "Indicates the type of optical transceiver used on this
-        port.  If the client port is built into the device and not
-        plugable, then non-pluggable is the corresponding state. If
-        a device port supports multiple form factors (e.g. QSFP28
-        and QSFP+, then the value of the transceiver installed shall
-        be reported. If no transceiver is present, then the value of
-        the highest rate form factor shall be reported
-        (QSFP28, for example).
-
-        The form factor is included in configuration data to allow
-        pre-configuring a device with the expected type of
-        transceiver ahead of deployment.  The corresponding state
-        leaf should reflect the actual transceiver type plugged into
-        the system.";
-    }
-  }
-
-  grouping terminal-port-transceiver-state {
-    description
-      "Operational state data for client port transceivers";
-
-    leaf present {
-      type enumeration {
-        enum PRESENT {
-          description
-            "Transceiver is present on the port";
-        }
-        enum NOT_PRESENT {
-          description
-            "Transceiver is not present on the port";
-        }
-      }
-      description
-        "Indicates whether a transceiver is present in
-        the specified client port.";
-    }
-
-    leaf connector-type {
-      type identityref {
-        base oc-opt-types:FIBER_CONNECTOR_TYPE;
-      }
-      description
-        "Connector type used on this port";
-    }
-
-    leaf internal-temp {
-      type int16 {
-        range -40..125;
-      }
-      description
-        "Internally measured temperature in degrees Celsius. MSA
-        valid range is between -40 and +125C. Accuracy shall be
-        better than +/- 3 degC over the whole temperature range.";
-    }
-
-    leaf vendor {
-      type string {
-        length 1..16;
-      }
-      description
-        "Full name of transceiver vendor. 16-octet field that
-        contains ASCII characters, left-aligned and padded on the
-        right with ASCII spaces (20h)";
-    }
-
-    leaf vendor-part {
-      type string {
-        length 1..16;
-      }
-      description
-        "Transceiver vendor's part number. 16-octet field that
-        contains ASCII characters, left-aligned and padded on the
-        right with ASCII spaces (20h). If part number is undefined,
-        all 16 octets = 0h";
-    }
-
-    leaf vendor-rev {
-      type string {
-        length 1..2;
-      }
-      description
-        "Transceiver vendor's revision number. 2-octet field that
-        contains ASCII characters, left-aligned and padded on the
-        right with ASCII spaces (20h)";
-    }
-
-    //TODO: these compliance code leaves should be active based on
-    //the type of port
-    leaf ethernet-compliance-code {
-      type identityref {
-        base oc-opt-types:ETHERNET_PMD_TYPE;
-      }
-      description
-        "Ethernet PMD that the transceiver supports. The SFF/QSFP
-        MSAs have registers for this and CFP MSA has similar.";
-    }
-
-    leaf sonet-sdh-compliance-code {
-      type identityref {
-        base oc-opt-types:SONET_APPLICATION_CODE;
-      }
-      description
-        "SONET/SDH application code supported by the port";
-    }
-
-    leaf otn-compliance-code {
-      type identityref {
-        base oc-opt-types:OTN_APPLICATION_CODE;
-      }
-      description
-        "OTN application code supported by the port";
-    }
-
-    leaf serial-no {
-      type string {
-        length 1..16;
-      }
-      description
-        "Transceiver serial number. 16-octet field that contains
-        ASCII characters, left-aligned and padded on the right with
-        ASCII spaces (20h). If part serial number is undefined, all
-        16 octets = 0h";
-    }
-
-    leaf date-code {
-      type yang:date-and-time;
-      description
-        "Representation of the transceiver date code, typically
-        stored as YYMMDD.  The time portion of the value is
-        undefined and not intended to be read.";
-    }
-
-    leaf fault-condition {
-      type boolean;
-      description
-        "Indicates if a fault condition exists in the transceiver";
-    }
-
-  }
-
-  grouping terminal-port-transceiver-top {
-    description
-      "Top-level grouping for client port transceiver data";
-
-    container transceiver {
-      description
-        "Top-level container for client port transceiver data";
-
-      container config {
-        description
-          "Configuration data for client port transceivers";
-
-        uses terminal-port-transceiver-config;
-      }
-
-      container state {
-
-        config false;
-
-        description
-          "Operational state data for client port transceivers";
-
-        uses terminal-port-transceiver-config;
-        uses terminal-port-transceiver-state;
-      }
-      // physical channels are associated with a transceiver
-      // component
-      uses terminal-physical-channel-top;
     }
   }
 
@@ -773,7 +514,7 @@ module openconfig-terminal-device {
         "Enclosing container for tributary assignments";
 
       list assignment {
-        key index;
+        key "index";
         description
           "Logical channel elements may be assigned directly to
           optical channels for line-side transmission, or can be
@@ -845,8 +586,9 @@ module openconfig-terminal-device {
     leaf-list physical-channel {
       type leafref {
         path "/oc-platform:components/oc-platform:component/" +
-          "oc-opt-term:transceiver/oc-opt-term:physical-channels/" +
-          "oc-opt-term:channel/oc-opt-term:index";
+          "oc-transceiver:transceiver/" +
+          "oc-transceiver:physical-channels/" +
+          "oc-transceiver:channel/oc-transceiver:index";
       }
       description
         "This list should be populated with references
@@ -971,6 +713,13 @@ module openconfig-terminal-device {
         available for the logical element";
     }
 
+    leaf loopback-mode {
+      type oc-opt-types:loopback-mode-type;
+      description
+        "Sets the loopback type on the logical channel. Setting the
+        mode to something besides NONE activates the loopback in
+        the specified mode.";
+    }
   }
 
 
@@ -1005,7 +754,7 @@ module openconfig-terminal-device {
         "Enclosing container the list of logical channels";
 
       list channel {
-        key index;
+        key "index";
         description
           "List of logical channels";
         //TODO: naming for this list of logical elements should be
@@ -1052,6 +801,7 @@ module openconfig-terminal-device {
               protocol used by the link is Ethernet.";
           }
         }
+        uses terminal-logical-channel-ingress-top;
         uses terminal-logical-chan-assignment-top;
       }
     }
@@ -1063,20 +813,19 @@ module openconfig-terminal-device {
       "Configuration data for describing optical channels";
 
     leaf frequency {
-      type uint64;
-      units MHz;
+      type oc-opt-types:frequency-type;
       description
         "Frequency of the optical channel, expressed in MHz";
     }
 
-    leaf power {
+    leaf target-output-power {
       type decimal64 {
         fraction-digits 2;
       }
       units dBm;
       description
-        "Optical power level of the optical channel, expressed in
-        increments of 0.01 dBm (decibel-milliwats)";
+        "Target output optical power level of the optical channel,
+        expressed in increments of 0.01 dBm (decibel-milliwats)";
     }
 
     leaf operational-mode {
@@ -1118,6 +867,40 @@ module openconfig-terminal-device {
         channels must be managed together (e.g., transmitted on the
         same line port), it can indicate that by setting the group-id
         to the same value across related optical channels.";
+    }
+
+    uses oc-transceiver:optical-power-state;
+
+    container chromatic-dispersion {
+      description
+        "Chromatic Dispersion of an optical channel
+        in ps/nm as reported by receiver";
+
+      uses oc-types:avg-min-max-instant-stats-precision1;
+    }
+
+    container polarization-mode-dispersion {
+      description
+        "Polarization Mode Dispersion of an optical channel
+        in ps as reported by receiver";
+
+      uses oc-types:avg-min-max-instant-stats-precision1;
+    }
+
+    container second-order-polarization-mode-dispersion {
+      description
+        "Second Order Polarization Mode Dispersion of an optical
+        channel in ps^2 as reported by receiver";
+
+      uses oc-types:avg-min-max-instant-stats-precision1;
+    }
+
+    container polarization-dependent-loss {
+      description
+        "Polarization Dependent Loss of an optical channel
+        in dB as reported by receiver";
+
+      uses oc-types:avg-min-max-instant-stats-precision1;
     }
   }
 
@@ -1201,23 +984,13 @@ module openconfig-terminal-device {
         "Enclosing container for list of operational modes";
 
       list mode {
-        key mode-id;
+        key "mode-id";
         config false;
         description
           "List of operational modes supported by the platform.
           The operational mode provides a platform-defined summary
           of information such as symbol rate, modulation, pulse
           shaping, etc.";
-
-          //TODO: examples of the kind of info that would be useful to
-      //report in the operational mode:
-      //Symbol rate (32G, 40G, 43G, 64G, etc.)
-      //Modulation (QPSK, 8-QAM, 16-QAM, etc.)
-      //Differential encoding (on, off/pilot symbol, etc)
-      //State of polarization tracking mode (default, med.
-      //high-speed, etc.)
-      //Pulse shaping (RRC, RC, roll-off factor)
-      //FEC mode (SD, HD, % OH)
 
         leaf mode-id {
           type leafref {
@@ -1301,36 +1074,17 @@ module openconfig-terminal-device {
   // augment statements
 
   augment "/oc-platform:components/oc-platform:component" {
-    description
-      "Adding transceiver data to physical inventory";
-
-    uses terminal-port-transceiver-top {
-      when "/oc-platform:components/oc-platform:component/" +
-        "type = TRANSCEIVER" {
-          description
-            "Augment is active when component is of type TRANSCEIVER";
-      }
+    when "/oc-platform:components/oc-platform:component/" +
+      "oc-platform:state/oc-platform:type = 'OPTICAL_CHANNEL'" {
+      description
+        "Augment is active when component is of type
+        OPTICAL_CHANNEL";
     }
-  }
-
-  augment "/oc-platform:components/oc-platform:component" {
     description
       "Adding optical channel data to physical inventory";
 
     uses terminal-optical-channel-top {
-      when "/oc-platform:components/oc-platform:component/" +
-        "type = OPTICAL_CHANNEL" {
-        description
-          "Augment is active when component is of type
-          OPTICAL_CHANNEL";
-      }
     }
   }
-
-
-
-  // rpc statements
-
-  // notification statements
 
 }
