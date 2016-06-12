@@ -49,14 +49,19 @@ module openconfig-bgp {
           +-> [ optional pointer to peer-group ]
           +-> AFI / SAFI [ per-AFI overrides ]";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2016-06-06" {
+    description
+      "OpenConfig public release";
+    reference "2.1.0";
+  }
 
   revision "2016-03-31" {
     description
       "OpenConfig public release";
     reference "2.0.1";
   }
-
 
   grouping bgp-global_config {
     description
@@ -413,6 +418,16 @@ module openconfig-bgp {
       description
         "The maximum number of paths to advertise to neighbors
         for a single NLRI";
+    }
+
+    leaf eligible-prefix-policy {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+          "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+        "A reference to a routing policy which can be used to
+        restrict the prefixes for which add-paths is enabled";
     }
   }
 

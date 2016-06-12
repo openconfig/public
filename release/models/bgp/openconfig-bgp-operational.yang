@@ -13,6 +13,7 @@ module openconfig-bgp-operational {
   import ietf-yang-types { prefix yang; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-types { prefix oc-types; }
 
   // meta
 
@@ -28,7 +29,13 @@ module openconfig-bgp-operational {
     configuration, focusing on operational data (i.e., state
     variables) related to BGP operations";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2016-06-06" {
+    description
+      "OpenConfig public release";
+    reference "2.1.0";
+  }
 
   revision "2016-03-31" {
     description
@@ -140,6 +147,31 @@ module openconfig-bgp-operational {
         }
       description
         "Operational state of the BGP peer";
+    }
+
+    leaf last-established {
+      type oc-types:timeticks64;
+      description
+        "This timestamp indicates the time that the
+        BGP session last transitioned in or out of the Established
+        state.  The value is the timestamp in seconds relative to
+        the Unix Epoch (Jan 1, 1970 00:00:00 UTC).
+
+        The BGP session uptime can be computed by clients as the
+        difference between this value and the current time in UTC
+        (assuming the session is in the ESTABLISHED state, per the
+        session-state leaf).";
+    }
+
+    leaf established-transitions {
+      type yang:counter64;
+      description
+        "Number of transitions to the Established state for
+        the neighbor session.  This value is analogous to the
+        bgpPeerFsmEstablishedTransitions object from the standard
+        BGP-4 MIB";
+      reference
+        "RFC 4273 - Definitions of Managed Objects for BGP-4";
     }
 
     leaf-list supported-capabilities {
@@ -275,10 +307,16 @@ module openconfig-bgp-operational {
 
     leaf uptime {
       type yang:timeticks;
+      status deprecated;
       description
         "This timer determines the amount of time since the
         BGP last transitioned in or out of the Established
-        state";
+        state.
+
+        This leaf will be removed in a future version and should
+        not be used by new management systems.  The
+        last-established timestamp can be used to compute session
+        uptime as noted in the description for last-established.";
     }
 
     leaf negotiated-hold-time {

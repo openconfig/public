@@ -28,7 +28,13 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2016-06-06" {
+    description
+      "OpenConfig public release";
+    reference "2.1.0";
+  }
 
   revision "2016-03-31" {
     description
@@ -66,7 +72,7 @@ module openconfig-bgp-policy {
 
   typedef bgp-next-hop-type {
     type union {
-      type inet:ip-address;
+      type inet:ip-address-no-zone;
       type enumeration {
         enum SELF {
           description "special designation for local router's own
@@ -109,7 +115,6 @@ module openconfig-bgp-policy {
         path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
           "oc-bgp-pol:bgp-defined-sets/oc-bgp-pol:community-sets/" +
           "oc-bgp-pol:community-set/oc-bgp-pol:community-set-name";
-        require-instance true;
       }
       description
         "References a defined community set";
@@ -218,7 +223,6 @@ module openconfig-bgp-policy {
         path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
           "oc-bgp-pol:bgp-defined-sets/oc-bgp-pol:as-path-sets/" +
           "oc-bgp-pol:as-path-set/oc-bgp-pol:as-path-set-name";
-        require-instance true;
       }
       description "References a defined AS path set";
     }
@@ -371,7 +375,7 @@ module openconfig-bgp-policy {
     }
 
     leaf-list next-hop-in {
-      type inet:ip-address;
+      type inet:ip-address-no-zone;
       description
         "List of next hop addresses to check for in the route
         update";
@@ -819,7 +823,6 @@ module openconfig-bgp-policy {
           "oc-bgp-pol:bgp-defined-sets/" +
           "oc-bgp-pol:community-sets/oc-bgp-pol:community-set/" +
           "oc-bgp-pol:community-set-name";
-        require-instance true;
       }
       description
         "References a defined community set by name";
@@ -984,7 +987,6 @@ module openconfig-bgp-policy {
           "oc-bgp-pol:ext-community-sets/" +
           "oc-bgp-pol:ext-community-set/" +
           "oc-bgp-pol:ext-community-set-name";
-        require-instance true;
       }
       description
         "References a defined extended community set by
