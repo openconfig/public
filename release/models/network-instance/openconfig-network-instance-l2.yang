@@ -1,0 +1,135 @@
+module openconfig-network-instance-l2 {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/network-instance-l2";
+
+  prefix "oc-ni-l2";
+
+  // import some basic types
+  //import ietf-inet-types { prefix inet; }
+  import openconfig-extensions { prefix "ocext"; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module contains groupings which specifically relate to
+    Layer 2 network instance configuration and operational state
+    parameters.";
+
+  ocext:openconfig-version "0.2.1";
+
+  revision "2016-07-08" {
+    description
+      "Updated with refactored routing protocol models";
+    reference "0.2.1";
+  }
+
+  revision "2016-03-29" {
+    description
+      "Initial revision";
+    reference "0.2.0";
+  }
+
+  revision "2015-11-20" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+  grouping l2ni-instance {
+    description
+      "Configuration and operational state parameters relating
+      to a Layer 2 network instance";
+
+    container fdb {
+      description
+        "Operational state and configuration parameters relating to
+        the forwarding database of the network instance";
+
+      container config {
+        description
+          "Configuration parameters relating to the FDB";
+        uses l2ni-fdb-mac-config;
+      }
+      container state {
+        config false;
+        description
+          "Operational state parameters relating to the FDB";
+        uses l2ni-fdb-mac-config;
+      }
+    }
+  }
+
+  grouping l2ni-instance-common-config {
+    description
+      "Common configuration options which are specific to Layer 2
+      network instances";
+
+    leaf mtu {
+      type uint16;
+      description
+        "The maximum frame size which should be supported for this
+        instance for Layer 2 frames";
+    }
+
+  }
+
+  grouping l2ni-fdb-mac-config {
+    description
+      "Parameters relating to FDB behaviour relating to MAC
+      addresses";
+
+    leaf mac-learning {
+      type boolean;
+      description
+        "When this leaf is set to true, MAC learning is enabled for
+        the network instance, such that MAC addresses are learned
+        from ingress frames and added to the FDB.";
+    }
+
+    leaf mac-aging-time {
+      // Cisco supports one aging time for local and remote, but
+      // can specify this time is absolute or against inactivity.
+      // ALU SROS supports different aging times for local and remote
+      // but does not allow absolute/inactivity specification.
+      // JNPR supports only a single aging time, and no specification
+      // of whether inactivity/absolute is used.
+      // It is easy to augment new options in here for local remote
+      // and an extra leaf to allow specification of the type of aging
+      // so this is left as a single value.
+      type uint16;
+      units seconds;
+      description
+        "The number of seconds of inactivity after which the entry
+        in the local FDB is timed out.";
+    }
+
+    leaf maximum-entries {
+      type uint16;
+      description
+        "The maximum number of MAC address entries that should be
+        accepted into the FDB";
+    }
+  }
+
+  grouping l2ni-encapsulation-config {
+    description
+      "Encapsulation related configuration parameters for a L2
+      network instance";
+
+    leaf control-word {
+      type boolean;
+      description
+        "Whether the control-word should be used for the network
+        instance";
+      reference "RFC3985";
+    }
+  }
+}
