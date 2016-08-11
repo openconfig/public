@@ -35,12 +35,12 @@ module openconfig-acl {
     criteria that cross protocol layers, e.g., MAC layer and IP
     layer matches.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
 
-  revision "2016-06-22" {
+  revision "2016-08-08" {
     description
-      "Initial public version";
-    reference "0.1.0";
+      "OpenConfig public release";
+    reference "0.2.0";
   }
 
   revision "2016-01-22" {
@@ -52,56 +52,45 @@ module openconfig-acl {
 
   // ACL action type
 
-  identity ACL_ACTION_TYPE {
+  identity FORWARDING_ACTION {
     description
-      "Base identity for categories of ACL actions";
-  }
-
-  identity FORWARD {
-    base ACL_ACTION_TYPE;
-    description
-      "Forwarding-related actions";
-  }
-
-  identity LOG {
-    base ACL_ACTION_TYPE;
-    description
-      "Logging-related actions";
-  }
-
-  identity FORWARDING_ACTIONS {
-    description
-      "Base identity for forwarding-related actions";
+      "Base identity for actions in the forwarding category";
   }
 
   identity ACCEPT {
-    base FORWARDING_ACTIONS;
+    base FORWARDING_ACTION;
     description
       "Accept the packet";
   }
 
   identity DROP {
-    base FORWARDING_ACTIONS;
+    base FORWARDING_ACTION;
     description
       "Drop packet without sending any ICMP error message";
   }
 
   identity REJECT {
-    base FORWARDING_ACTIONS;
+    base FORWARDING_ACTION;
     description
       "Drop the packet and send an ICMP error message to the source";
   }
 
-  identity LOG_DESTINATION {
+  identity LOG_ACTION {
     description
       "Base identity for defining the destination for logging
       actions";
   }
 
-  identity SYSLOG {
-    base LOG_DESTINATION;
+  identity LOG_SYSLOG {
+    base LOG_ACTION;
     description
       "Log the packet in Syslog";
+  }
+
+  identity LOG_NONE {
+    base LOG_ACTION;
+    description
+      "No logging";
   }
 
   identity ACL_COUNTER_CAPABILITY {
@@ -176,44 +165,26 @@ module openconfig-acl {
     description
       "Config of action type";
 
-    leaf index {
-      type uint32;
-      description
-        "Index / key of the list of actions for an ACL entry";
-    }
-
-    leaf action-type {
-      type identityref {
-        base ACL_ACTION_TYPE;
-      }
-      description
-        "Type of action for matched packets";
-    }
 
     leaf forwarding-action {
-      when "action-type='FORWARD'" {
-        description
-          "Forwarding actions are valid when the action type is
-          FORWARD";
-      }
       type identityref {
-        base FORWARDING_ACTIONS;
+        base FORWARDING_ACTION;
       }
+      mandatory true;
       description
-        "Specifies the forwarding action";
+        "Specifies the forwarding action.  One forwarding action
+        must be specified for each ACL entry";
     }
 
-    leaf log-destination {
-      when "action-type='LOG'" {
-        description
-          "Log destination is valid when the action type is LOG";
-      }
+    leaf log-action {
       type identityref {
-        base LOG_DESTINATION;
+        base LOG_ACTION;
       }
+      default LOG_NONE;
       description
-
-        "Specifies the log destination for matched packets";
+        "Specifies the log action and destination for
+        matched packets.  The default is not to log the
+        packet.";
     }
 
 
@@ -234,32 +205,18 @@ module openconfig-acl {
         "Enclosing container for list of ACL actions associated
         with an entry";
 
-      list action {
-        key "index";
+      container config {
         description
-          "List of actions to take on matched packets";
+          "Config data for ACL actions";
+        uses action-config;
+      }
 
-        leaf index {
-          type leafref {
-            path "../config/index";
-          }
-          description
-            "Reference to the list entry index";
-        }
-
-        container config {
-          description
-            "Config data";
-          uses action-config;
-        }
-
-        container state {
-          config false;
-          description
-            "State information";
-          uses action-config;
-          uses action-state;
-        }
+      container state {
+        config false;
+        description
+          "State information for ACL actions";
+        uses action-config;
+        uses action-state;
       }
     }
   }
@@ -323,12 +280,11 @@ module openconfig-acl {
         the relying only on order in the list.";
     }
 
-    leaf entry-id {
+    leaf description {
       type string;
       description
-        "A user-defined identifier for this Access List Entry.  The
-        entry id may be used to assign a descriptive label to an
-        ACL entry.";
+        "A user-defined description, or comment, for this Access List
+        Entry.";
     }
 
   }
@@ -351,7 +307,6 @@ module openconfig-acl {
 
       list acl-entry {
         key "sequence-id";
-        ordered-by user;
         description
           "List of ACL entries comprising an ACL set";
 
@@ -395,6 +350,12 @@ module openconfig-acl {
       type string;
       description
         "The name of the access-list set";
+    }
+
+    leaf description {
+      type string;
+      description
+        "Description, or comment, for the ACL set";
     }
 
   }
