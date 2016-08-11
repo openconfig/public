@@ -38,7 +38,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  ocext:openconfig-version "0.2.1";
+  ocext:openconfig-version "0.2.2";
+
+  revision "2016-08-11" {
+    description
+      "Resolve repeated container names in routing protocols"
+    reference "0.2.2";
+  }
 
   revision "2016-07-08" {
     description
@@ -62,24 +68,24 @@ module openconfig-network-instance {
     description
       "Top-level grouping containing a list of network instances.";
 
-  	container network-instances {
+    container network-instances {
       description
         "The L2, L3, or L2+L3 forwarding instances that are
         configured on the local system";
 
-  		list network-instance {
-  			key "name";
+      list network-instance {
+        key "name";
 
         description
           "Network instances configured on the local system";
 
-  			leaf name {
-  				type leafref {
-  					path "../config/name";
-  				}
-  				description
-  					"A unique name identifying the network instance";
-  			}
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "A unique name identifying the network instance";
+        }
 
 
         uses oc-ni-l2:l2ni-instance {
@@ -497,7 +503,7 @@ module openconfig-network-instance {
 
             uses protocols-target-table;
 
-            container static {
+            uses oc-loc-rt:local-static-top {
               when "../config/identifier = 'STATIC'" {
                 description
                   "Include static route parameters only when the
@@ -506,10 +512,9 @@ module openconfig-network-instance {
               description
                 "Configuration and state parameters relating to
                 static routes";
-              uses oc-loc-rt:local-static-top;
             }
 
-            container aggregate {
+            uses oc-loc-rt:local-aggregate-top {
               when "../config/identifier = 'LOCAL-AGGREGATE'" {
                 description
                   "Include aggregate route parameters only when the
@@ -518,10 +523,9 @@ module openconfig-network-instance {
               description
                 "Configuration and state parameters relating to
                 locally generated aggregate routes";
-              uses oc-loc-rt:local-aggregate-top;
             }
 
-            container bgp {
+            uses oc-bgp:bgp-top {
               when "../config/identifier = 'BGP'" {
                 description
                   "Include BGP parameters only when the protocol
@@ -530,13 +534,12 @@ module openconfig-network-instance {
               description
                 "Configuration and state parameters relating to
                 Border Gateway Protocol (BGP)";
-              uses oc-bgp:bgp-top;
             }
 
           }
         }
-  		}
-  	}
+      }
+    }
   }
 
   grouping network-instance-type-dependent-config {
