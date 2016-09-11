@@ -1,0 +1,35 @@
+module openconfig-fib-types {
+
+  namespace "http://openconfig.net/yang/fib-types";
+  prefix "oc-ft";
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-network-instance { prefix "oc-nit"; }
+
+  organization
+    "OpenConfig Working Group";
+
+  contact
+    "OpenConfig Working Group
+    www.openconfig.net";
+
+  description
+    "Types related to the OpenConfig FIB model";
+
+  oc-ext:openconfig-version "0.2.0";
+
+  revision 2016-09-07 {
+    description
+      "Initial revision for external review";
+    reference "0.2.0";
+  }
+
+  typedef network-instance-ref {
+    type leafref {
+      path "/oc-nit:network-instances/oc-nit:network-instance/" +
+           "oc-nit:config/oc-nit:name";
+      }
+    description
+      "A reference to a network instance.";
+  }
+}

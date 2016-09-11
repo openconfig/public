@@ -1,0 +1,283 @@
+module openconfig-fib {
+
+  yang-version "1";
+
+  namespace "http://openconfig.net/yang/fib";
+
+  prefix "oc-fib";
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import ietf-inet-types { prefix "inet"; }
+  import ietf-yang-types { prefix "yang"; }
+  import openconfig-fib-types { prefix "oc-ft"; }
+  import openconfig-mpls-types { prefix "oc-mplst"; }
+
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "A model describing the forwarding entries installed on a network
+    element. It should be noted that this model is not expected to align 1:1
+    with the underlying structure used directly by a forwarding element (e.g.,
+    linecard), but rather provide an abstraction that can be consumed by an
+    NMS to observe, and in some cases manipulate, the internal forwarding
+    database in a simplified manner";
+
+  oc-ext:openconfig-version "0.2.0";
+
+  revision 2016-09-07 {
+    description
+      "Initial revision for external review";
+    reference "0.2.0";
+  }
+
+  // Structure intended in the model:
+  //  - NB: the -top grouping is intended to be instantiated under
+  //    network-instances/network-instance to allow FIB multi-tenancy
+  //  - All paths are relative to /network-instances/network-instance
+  //
+  //  fib/entries/entry:
+  //    - index (allows for multiple five-tuple rules to be within the list)
+  //    - next-hops
+  //      - next-hop
+  //        - l3-address
+  //        - l2-address (if this is a l2 adjacency)
+  //        - egress-interface
+  //        - forwarding-table
+
+  // config + state groupings
+
+  grouping fib-entry-config {
+    description
+      "Configuration parameters relating to a forwarding entry";
+
+    leaf index {
+      type uint64;
+      description
+        "A unique index referring to the FIB entry";
+    }
+  }
+
+  grouping fib-entry-state {
+    description
+      "Operational state parameters relating to a forwarding entry";
+
+    leaf packets-forwarded {
+      type yang:counter64;
+      description
+        "The number of packets which have matched - and hence been
+        forwarded - based on the FIB entry";
+    }
+
+    leaf octets-forwarded {
+      type yang:counter64;
+      description
+        "The number of octets which have matched and been forwarded
+        by the FIB entry";
+    }
+
+  }
+
+  grouping fib-entry-match-state {
+    description
+      "Match critiera for FIB entries";
+
+    leaf ip-prefix {
+      type inet:ip-prefix;
+      description
+        "The IP prefix that the forwarding entry matches. Used for Layer 3
+        forwarding entries.";
+    }
+
+    leaf mac-address {
+      type yang:mac-address;
+      description
+         "The MAC address that the forwarding entry matches. Used for Layer 2
+         forwarding entries, e.g., within a VSI instance.";
+    }
+
+    leaf mpls-label {
+      type oc-mplst:mpls-label;
+      description
+        "The MPLS label that the forwarding entry matches. Used for MPLS
+        forwarding entries, whereby the local device acts as an LSR";
+    }
+
+    // robjs@: Going forward, to represent 5-tuple based forwarding then
+    // openconfig-packet-match-types can be used to add IP protocol, TCP/UDP
+    // port, ethertype etc.
+  }
+
+  grouping fib-entry-nexthop-config {
+    description
+      "Configuration parameters relating to a next-hop entry for a FIB
+      entry";
+
+    leaf index {
+      type uint64;
+      description
+        "A unique entry for the next-hop";
+    }
+  }
+
+  grouping fib-entry-nexthop-state {
+    description
+      "Parameters relating to a next-hop within the FIB entry";
+
+    leaf weight {
+      type uint32;
+      description
+        "The weight of the next-hop. Traffic is balanced according to the
+        ratio described by the relative weights of the next hops that exist
+        for the FIB entry. Note that all next-hops that are specified are
+        assumed to be active next-hops and therefore eligible (and selected)
+        for packet forwarding.";
+    }
+
+    leaf ip-address {
+      type inet:ip-address-no-zone;
+      description
+        "The IP address of the next-hop system";
+    }
+
+    leaf mac-address {
+      type yang:mac-address;
+      description
+        "The MAC address of the next-hop if resolved by the local network
+        instance";
+    }
+
+    leaf-list mpls-label-stack {
+      type oc-mplst:mpls-label;
+      description
+        "The MPLS label stack imposed when forwarding packets to the next-hop
+        - the stack is encoded as a leaf list whereby the order of the entries
+        is such that the first entry in the list is the label at the bottom
+        of the stack.
+
+        To this end, a packet which is to forwarded to a device using a service
+        label of 42, and a transport label of 8072 will be represented with a
+        label stack list of [42, 8072]";
+    }
+
+    leaf network-instance {
+      type oc-ft:network-instance-ref;
+      description
+        "The table within which the next-hop should be resolved. When this leaf
+        is unspecified, the next-hop is resolved within the local instance.";
+    }
+
+  }
+
+  // structural groupings
+
+  grouping fib-top {
+    description
+      "Top level grouping for the FIB";
+
+    container entries {
+      description
+        "Enclosing container for a list of forwarding database entries within
+        the network instance";
+
+      list entry {
+        key "index";
+
+        description
+          "A forwarding database entry within the network instance";
+
+        leaf index {
+          type leafref {
+            // TODO: should this be config/index, since we may make this
+            // a r/w model vs. a r/o one.
+            path "../config/index";
+          }
+          description
+            "A pointer to the index of the FIB entry within the
+            network instance";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the forwarding entry";
+          uses fib-entry-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to the forwarding entry";
+
+          uses fib-entry-config;
+          uses fib-entry-state;
+        }
+
+        container match {
+          description
+            "Match criteria for the FIB entry";
+
+          container config {
+            description
+              "Configuration of match criteria for the FIB entry";
+          }
+
+          container state {
+            config false;
+            description
+              "Operational state parameters for match criteria of the FIB
+              entry";
+
+            uses fib-entry-match-state;
+          }
+        }
+
+        container next-hops {
+          description
+            "Enclosing container for the list of next-hops associated with
+            the forwarding entry";
+
+          list next-hop {
+            key "index";
+
+            description
+              "A next-hop associated with the forwarding instance. The entries
+              within the next-hop list should only reflect next-hops that are
+              actively used by the local system. That is to say inactive, backup
+              or FRR next-hops should not be included within this list.";
+
+            leaf index {
+              type leafref {
+                path "../config/index";
+              }
+              description
+                "A unique index identifying the next-hop entry for the FIB entry";
+            }
+
+            container config {
+              description
+                "Configuration parameters relating to the FIB next-hop entry";
+
+              uses fib-entry-nexthop-config;
+            }
+
+            container state {
+              config false;
+              description
+                "Operational state parameters relating to the FIB next-hop entry";
+
+              uses fib-entry-nexthop-config;
+              uses fib-entry-nexthop-state;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  uses fib-top;
+
+}
