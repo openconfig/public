@@ -1,15 +1,14 @@
-module openconfig-network-instance-l2 {
+submodule openconfig-network-instance-l2 {
 
-  yang-version "1";
+  belongs-to openconfig-network-instance {
+    prefix "oc-netinst";
+  }
 
-  // namespace
-  namespace "http://openconfig.net/yang/network-instance-l2";
-
-  prefix "oc-ni-l2";
 
   // import some basic types
-  //import ietf-inet-types { prefix inet; }
-  import openconfig-extensions { prefix "ocext"; }
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-interfaces { prefix "oc-if"; }
+  import ietf-yang-types { prefix "yang"; }
 
   // meta
   organization "OpenConfig working group";
@@ -23,7 +22,13 @@ module openconfig-network-instance-l2 {
     Layer 2 network instance configuration and operational state
     parameters.";
 
-  ocext:openconfig-version "0.2.3";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2016-09-28" {
+    description
+      "Change L2 instance to submodule; add MAC table";
+    reference "0.3.0";
+  }
 
   revision "2016-08-11" {
     description
@@ -70,6 +75,8 @@ module openconfig-network-instance-l2 {
           "Operational state parameters relating to the FDB";
         uses l2ni-fdb-mac-config;
       }
+
+       uses l2ni-mac-table-top;
     }
   }
 
@@ -136,6 +143,117 @@ module openconfig-network-instance-l2 {
         "Whether the control-word should be used for the network
         instance";
       reference "RFC3985";
+    }
+  }
+
+  grouping l2ni-mac-table-config {
+    description
+      "Configuration data for MAC table entries";
+
+    leaf mac-address {
+      type yang:mac-address;
+      description
+        "MAC address for the dynamic or static MAC table
+        entry";
+    }
+
+    leaf vlan {
+      //TODO(aashaikh): Consider whether this should just reflect the
+      //VLAN id or be a union type to also support displaying/setting
+      //the VLAN by name (i.e., global VLAN configured in the VLAN
+      // model).
+      type leafref {
+        path "../../../../../../vlans/vlan/config/vlan-id";
+      }
+      description
+        "VLAN from which this MAC address was received";
+    }
+  }
+
+  grouping l2ni-mac-table-state {
+    description
+      "Operational state data for MAC table entries";
+
+    leaf age {
+      type uint64;
+      units seconds;
+      description
+        "The time in seconds since the MAC address has been in the
+        table";
+    }
+
+    leaf entry-type {
+      type enumeration {
+        enum STATIC {
+          description
+            "Statically programmed MAC table entry";
+        }
+        enum DYNAMIC {
+          description
+            "Dynamically learned MAC table entry";
+        }
+      }
+      description
+        "Indicates whether the entry was statically configured, or
+        dynamically learned.";
+    }
+
+  }
+
+  grouping l2ni-mac-table-top {
+    description
+      "Top-level grouping for MAC table list";
+
+
+    container mac-table {
+      description
+        "Table of learned or statically configured MAC addresses and
+        corresponding VLANs in the bridge domain";
+
+      container entries {
+        description
+          "Enclosing container for list of MAC table entries";
+
+        list entry {
+          key "mac-address";
+          description
+            "List of learned MAC addresses";
+
+          leaf mac-address {
+            type leafref {
+              path "../config/mac-address";
+            }
+            description
+              "Reference to mac-address list key";
+          }
+
+          container config {
+            description
+              "Configuration data for MAC table entries";
+
+            uses l2ni-mac-table-config;
+          }
+
+          container state {
+
+            config false;
+
+            description
+              "Operational state data for MAC table entries";
+
+            uses l2ni-mac-table-config;
+            uses l2ni-mac-table-state;
+          }
+
+          container interface {
+            description
+              "Reference to the base and/or subinterface for the
+              MAC table entry";
+
+            uses oc-if:interface-ref;
+          }
+        }
+      }
     }
   }
 }

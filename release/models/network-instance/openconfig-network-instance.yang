@@ -16,13 +16,15 @@ module openconfig-network-instance {
   import openconfig-routing-policy { prefix "oc-rpol"; }
   import openconfig-local-routing { prefix "oc-loc-rt"; }
   import openconfig-interfaces { prefix "oc-if"; }
-  import openconfig-extensions { prefix "ocext"; }
-  import openconfig-network-instance-l2 { prefix "oc-ni-l2"; }
+  import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-network-instance-l3 { prefix "oc-ni-l3"; }
   import openconfig-types { prefix "oc-types"; }
   import openconfig-bgp { prefix "oc-bgp"; }
   import openconfig-mpls { prefix "oc-mpls"; }
   import openconfig-vlan { prefix "oc-vlan"; }
+
+  // include submodules
+  include openconfig-network-instance-l2;
 
   // meta
   organization "OpenConfig working group";
@@ -38,7 +40,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  ocext:openconfig-version "0.2.3";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2016-09-28" {
+    description
+      "Change L2 instance to submodule; add MAC table";
+    reference "0.3.0";
+  }
 
   revision "2016-08-11" {
     description
@@ -88,7 +96,7 @@ module openconfig-network-instance {
         }
 
 
-        uses oc-ni-l2:l2ni-instance {
+        uses l2ni-instance {
             when "../type = 'L2VSI' or ../type = 'L2P2P'" +
                  " or ../type = 'L2L3'" {
                     description
@@ -134,7 +142,7 @@ module openconfig-network-instance {
 
             uses encapsulation-config;
 
-            uses oc-ni-l2:l2ni-encapsulation-config {
+            uses l2ni-encapsulation-config {
               when "../../../type = 'L2VSI' or ../../../type = 'L2P2P'
                       or ../../../type = 'L2L3'" {
                         description
@@ -554,7 +562,7 @@ module openconfig-network-instance {
       }
     }
 
-    uses oc-ni-l2:l2ni-instance-common-config {
+    uses l2ni-instance-common-config {
       when "../type = 'L2VSI' or ../type = 'L2P2P'" +
            " or ../type = 'L2L3'" {
               description
