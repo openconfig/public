@@ -40,7 +40,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2016-10-12" {
+    description
+      "Update table connections";
+    reference "0.4.0";
+  }
 
   revision "2016-09-28" {
     description
@@ -177,29 +183,43 @@ module openconfig-network-instance {
             between tables";
 
           list table-connection {
-            key "src-table dst-table";
+            key "src-protocol dst-protocol address-family";
 
             description
               "A list of connections between pairs of routing or
               forwarding tables, the leaking of entries between
-              which is specified by the import and export policy";
+              which is specified by the import policy.
 
-            leaf src-table {
+              A connection connecting a source table to a destination
+              table implies that routes that match the policy specified
+              for the connection are available for the destination
+              protocol to advertise, or match within its policies.";
+
+            leaf src-protocol {
               type leafref {
-                path "../config/src-table";
+                path "../config/src-protocol";
               }
               description
-                "The name of the table which should be utilised
-                as the source of forwarding or routing information";
+                "The name of the protocol associated with the table
+                which should be utilised as the source of forwarding
+                or routing information";
             }
 
-            leaf dst-table {
+            leaf dst-protocol {
               type leafref {
-                path "../config/dst-table";
+                path "../config/dst-protocol";
               }
               description
                 "The table to which routing entries should be
                 exported";
+            }
+
+            leaf address-family {
+              type leafref {
+                path "../config/address-family";
+              }
+              description
+                "The address family associated with the connection";
             }
 
             container config {
@@ -264,31 +284,50 @@ module openconfig-network-instance {
             instance";
 
           list table {
-            key "table-name";
+            key "protocol address-family";
 
             description
               "A network instance manages one or more forwarding or
-              routing tables. These may reflect the Layer 2
-              forwarding information base, the Layer 3 routing
-              information base of the MPLS LFIB. Protocols may be
-              explictly associated with a particular table into
-              which they populate entries. Multiple protocols may
-              install entries into a single table, or there may be a
-              1:1 relationship between a routing protocol and a
-              table. The 'table-connections' construct is used to
-              specify how entries are propagated between tables.";
+              routing tables. These may reflect a Layer 2 forwarding
+              information base, a Layer 3 routing table, or an MPLS
+              LFIB.
 
-            leaf table-name {
+              The table populated by a protocol within an instance is
+              identified by the protocol identifier (e.g., BGP, IS-IS)
+              and the address family (e.g., IPv4, IPv6) supported by
+              that protocol. Multiple instances of the same protocol
+              populate a single table -- such that
+              a single IS-IS or OSPF IPv4 table exists per network
+              instance.
+
+              An implementation is expected to create entries within
+              this list when the relevant protocol context is enabled.
+              i.e., when a BGP instance is created with IPv4 and IPv6
+              address families enabled, the protocol=BGP,
+              address-family=IPv4 table is created by the system.";
+
+            leaf protocol {
               type leafref {
-                path "../config/table-name";
+                path "../config/protocol";
               }
               description
-                "A name for the table";
+                "A reference to the protocol that populates
+                the table";
+            }
+
+            leaf address-family {
+              type leafref {
+                path "../config/address-family";
+              }
+              description
+                "A reference to the address-family that the
+                table represents";
             }
 
             container config {
               description
-                "Configuration parameters related to the table";
+                "Configuration parameters relating to the
+                table";
               uses table-config;
             }
 
@@ -509,8 +548,6 @@ module openconfig-network-instance {
               uses protocols-state;
             }
 
-            uses protocols-target-table;
-
             uses oc-loc-rt:local-static-top {
               when "../config/identifier = 'STATIC'" {
                 description
@@ -662,13 +699,23 @@ module openconfig-network-instance {
 
   grouping table-config {
     description
-      "Configuration parameters relating to a L2/L2.5/L3 table that
-      exists within the network instance";
+      "Config parameters relating to an L2/L2.5/L3 table that exists
+      within a network instance";
 
-    leaf table-name {
-      type string;
+    leaf protocol {
+      type leafref {
+        path "../../../../protocols/protocol/config/identifier";
+      }
       description
-        "A human-readable name for the table";
+        "Reference to the protocol that the table is associated with.";
+    }
+
+    leaf address-family {
+      type identityref {
+        base oc-types:ADDRESS_FAMILY;
+      }
+      description
+        "The address family (IPv4, IPv6) of the table's entries";
     }
   }
 
@@ -707,32 +754,38 @@ module openconfig-network-instance {
       associated with this network instance";
   }
 
-  grouping table-state {
-    description
-      "State parameters relating to a table - this may be
-      utilised to store generic structure for retrieving the contents
-      of a RIB, FIB or LFIB";
-    // placeholder
-  }
-
   grouping inter-table-policies-config {
     description
       "Configuration entries that relate to how RIB or FIB entries
       are propagated between tables within the same network
       instance";
 
-    leaf src-table {
+    leaf src-protocol {
       type leafref {
         // we are at table-connections/table-connection/config/.
-        path "../../../../tables/table/table-name";
+        path "../../../../tables/table/config/protocol";
       }
       description
         "The source protocol for the table connection";
     }
 
-    leaf dst-table {
+    leaf address-family {
       type leafref {
-        path "../../../../tables/table/table-name";
+        // we are at table-connections/table-connection/config/.
+        path "../../../../tables/" +
+          "table[protocol=current()/../src-protocol]/" +
+          "config/address-family";
+      }
+      description
+        "The address family associated with the connection. This
+        must be defined for the source protocol. The target
+        address family is implicitly defined by the address family
+        specified for the source protocol.";
+    }
+
+    leaf dst-protocol {
+      type leafref {
+        path "../../../../tables/table/config/protocol";
       }
       description
         "The destination protocol for the table connection";
@@ -837,125 +890,6 @@ module openconfig-network-instance {
         ECMP path selection behaviour for the instance";
     }
   }
-
-  grouping protocols-target-table {
-    description
-      "Configuration and state parameters relating to the target
-      table";
-
-    container target-table {
-      description
-        "Configuration and state parameters relating to the table
-        which should be populated by the routing protocol";
-
-        container config {
-          description
-            "Configuration parameters relating to the target table";
-
-          uses protocols-target-table-config;
-        }
-
-        container state {
-          config false;
-
-          description
-            "Operational state parameters relating to the target
-            table";
-          uses protocols-target-table-config;
-        }
-
-        uses protocols-target-table-af;
-    }
-  }
-
-  grouping protocols-target-table-config {
-    description
-      "Configuration parameters relating to the association that
-      a protocol has with a table within the network instance";
-
-    leaf global-target-table {
-     type leafref {
-      path "../../../../../tables/table/table-name";
-     }
-     description
-      "The table (RIB, FIB, or LFIB) that the protocol should
-      populate its entries in.";
-    }
-  }
-
-  grouping protocols-target-table-af-config {
-    description
-      "Configuration parameters relating to the association
-      that individual AFI, SAFIs within a network instance have with
-      a table within the network instance";
-
-    leaf address-family {
-      type identityref {
-        base "oc-types:ADDRESS_FAMILY";
-      }
-      description
-        "The address family for which the association is being
-        specified";
-    }
-
-    leaf target-table {
-      // we are at /network-instances/network-instance/protocols/
-      // protocol/target-table/af-target-tables/af-target-table/
-      // config/target-table
-      type leafref {
-        path "../../../../../../../tables/table/table-name";
-      }
-      description
-        "A reference to the target table to which the address
-        family should be associated";
-    }
-  }
-
-  grouping protocols-target-table-af {
-    description
-      "Configuration and state parameters relating to the address
-      family target table";
-
-    container af-target-tables {
-      description
-        "Where a protocol may populate different target-tables based
-        on the address family that routing entries are associated
-        with, entries within the list provide this mapping";
-
-      list af-target-table {
-        key "address-family";
-
-        description
-          "List of address family to target table associations";
-
-        leaf address-family {
-          type leafref {
-            path "../config/address-family";
-          }
-          description
-            "Reference to the address family for which the
-            association is being specified";
-        }
-
-        container config {
-          description
-            "Configuration parameters relating to the target table
-            mapping";
-
-          uses protocols-target-table-af-config;
-        }
-
-        container state {
-          config false;
-          description
-            "Operational state parameters relating to the target
-            table mapping";
-          uses protocols-target-table-af-config;
-        }
-      }
-    }
-  }
-
 
   grouping protocols-state {
     description
