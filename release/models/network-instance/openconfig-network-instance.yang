@@ -22,6 +22,7 @@ module openconfig-network-instance {
   import openconfig-bgp { prefix "oc-bgp"; }
   import openconfig-mpls { prefix "oc-mpls"; }
   import openconfig-vlan { prefix "oc-vlan"; }
+  import openconfig-isis { prefix "oc-isis"; }
 
   // include submodules
   include openconfig-network-instance-l2;
@@ -40,7 +41,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.4.1";
+
+  revision "2016-11-10" {
+    description
+      "Add IS-IS to OpenConfig network instance";
+    reference "0.4.1";
+  }
 
   revision "2016-10-12" {
     description
@@ -560,7 +567,7 @@ module openconfig-network-instance {
             }
 
             uses oc-loc-rt:local-aggregate-top {
-              when "../config/identifier = 'LOCAL-AGGREGATE'" {
+              when "../config/identifier = 'LOCAL_AGGREGATE'" {
                 description
                   "Include aggregate route parameters only when the
                   protocol is set to aggregate";
@@ -581,6 +588,16 @@ module openconfig-network-instance {
                 Border Gateway Protocol (BGP)";
             }
 
+            uses oc-isis:isis-top {
+              when "../config/identifier = 'ISIS'" {
+                description
+                  "Include IS-IS configuration when the protocol is of type
+                  IS-IS";
+              }
+              description
+                "Configuration and state parameters relating to Intermediate
+                System to Intermediate System (IS-IS).";
+            }
           }
         }
       }
