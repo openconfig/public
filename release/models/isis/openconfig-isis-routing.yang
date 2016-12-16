@@ -8,6 +8,7 @@ submodule openconfig-isis-routing {
   import openconfig-isis-types { prefix oc-isis-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-mpls-types { prefix oc-mplst; }
+  import openconfig-segment-routing { prefix oc-sr; }
 
   // meta
   organization "OpenConfig working group";
@@ -19,7 +20,13 @@ submodule openconfig-isis-routing {
   description
     "This module describes YANG model for ISIS Routing";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2016-12-15" {
+    description
+      "Add segment routing to IS-IS module";
+    reference "0.2.0";
+  }
 
   revision "2016-10-18" {
     description
@@ -187,6 +194,7 @@ submodule openconfig-isis-routing {
         uses isis-metric-config;
         uses rt-admin-config;
       }
+
       uses isis-mt-list;
     }
   }
@@ -235,6 +243,8 @@ submodule openconfig-isis-routing {
         uses isis-metric-config;
         uses rt-admin-config;
       }
+
+      uses oc-sr:sr-igp-interface-top;
     }
   }
   
@@ -292,7 +302,7 @@ submodule openconfig-isis-routing {
       key "afi-name";
 
       description
-            "Address-family list.";
+        "Address-family list.";
 
       leaf afi-name {
         type leafref {

@@ -28,7 +28,19 @@ module openconfig-mpls-rsvp {
      parameters and LSP-specific configuration for constrained-path
      LSPs";
 
-  oc-ext:openconfig-version "1.0.1";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2016-12-15" {
+    description
+      "Add additional MPLS parameters";
+    reference "2.1.0";
+  }
+
+  revision "2016-09-01" {
+    description
+      "Revisions based on implementation feedback";
+    reference "2.0.0";
+  }
 
   revision "2016-08-08" {
     description
@@ -412,7 +424,7 @@ module openconfig-mpls-rsvp {
           "Attributes relating to RSVP-TE enabled interfaces";
 
         list interface {
-          key interface-id;
+          key "interface-id";
           description
             "list of per-interface RSVP configurations";
 
@@ -622,6 +634,8 @@ module openconfig-mpls-rsvp {
             session";
         }
 
+        uses mpls-rsvp-record-route-object-top;
+
         container state {
           description
             "Operational state parameters relating to the
@@ -730,7 +744,7 @@ module openconfig-mpls-rsvp {
       description
         "Enclosing container for bandwidth reservation";
       list bandwidth-reservation {
-        key priority;
+        key "priority";
         config false;
         description
           "Available and reserved bandwidth by priority on
@@ -937,6 +951,80 @@ module openconfig-mpls-rsvp {
       type yang:counter64;
       description
         "Number of sent RSVP refresh reduction ack messages";
+    }
+  }
+
+  grouping mpls-rsvp-record-route-object-top {
+    description
+      "Top-level structure grouping for list of record route
+      objects.";
+
+    container record-route-objects {
+      description
+        "Enclosing container for MPLS RRO objects associated with the
+        traffic engineered tunnel.";
+
+      list record-route-object {
+
+        key "index";
+        config false;
+        description
+        "Read-only list of record route objects associated with the
+        traffic engineered tunnel. Each entry in the list
+        may contain a hop IP address, MPLS label allocated
+        at the hop, and the flags associated with the entry.";
+
+        leaf index {
+          type leafref {
+            path "../state/index";
+          }
+          description
+            "Reference to the index of the record route object.
+            The index is used to indicate the ordering of hops in
+            the path.";
+        }
+
+        container state {
+
+          config false;
+
+          description
+            "Information related to RRO objects. The hop, label, and
+            optional flags are present for each entry in the list.";
+
+          uses mpls-rsvp-record-route-object-state;
+        }
+      }
+    }
+  }
+
+  grouping mpls-rsvp-record-route-object-state {
+    description
+      "Grouping to hold information relating to record route
+       objects relevant to a traffic engineering LSP.";
+
+    leaf index {
+      type uint8;
+      description
+        "Index of object in the list. Used for ordering.";
+    }
+
+    leaf address {
+      type inet:ip-address;
+      description
+        "IP router hop for RRO entry";
+    }
+
+    leaf reported-label {
+      type oc-mplst:mpls-label;
+      description
+        "Label reported for RRO hop";
+    }
+
+    leaf reported-flags {
+      type uint8;
+      description
+        "Subobject flags for MPLS label";
     }
   }
 

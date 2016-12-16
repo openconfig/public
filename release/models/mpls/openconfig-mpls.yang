@@ -11,11 +11,11 @@ module openconfig-mpls {
   // import some basic types
   import openconfig-mpls-types { prefix oc-mplst; }
   import openconfig-mpls-rsvp { prefix oc-rsvp; }
-  import openconfig-mpls-sr { prefix oc-sr; }
   import openconfig-mpls-ldp { prefix oc-ldp; }
   import openconfig-types { prefix oc-types; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-segment-routing { prefix oc-sr; }
 
   // include submodules
   include openconfig-mpls-te;
@@ -71,7 +71,19 @@ module openconfig-mpls {
                              +-------+
     ";
 
-  oc-ext:openconfig-version "1.0.1";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2016-12-15" {
+    description
+      "Add additional MPLS parameters";
+    reference "2.1.0";
+  }
+
+  revision "2016-09-01" {
+    description
+      "Revisions based on implementation feedback";
+    reference "2.0.0";
+  }
 
   revision "2016-08-08" {
     description
@@ -117,7 +129,7 @@ module openconfig-mpls {
         and state";
 
       list admin-group {
-        key admin-group-name;
+        key "admin-group-name";
         description
           "configuration of value to name mapping
           for mpls affinities/admin-groups";
@@ -335,7 +347,7 @@ module openconfig-mpls {
       for TE interfaces.";
 
     list interface {
-      key interface-id;
+      key "interface-id";
       description
         "List of TE interfaces";
 
@@ -413,7 +425,7 @@ module openconfig-mpls {
           to timers for TE LSPs";
 
         uses te-lsp-delay_config;
-	      uses te-tunnel-reoptimize_config;
+        uses te-tunnel-reoptimize_config;
       }
 
       container state {
@@ -446,9 +458,9 @@ module openconfig-mpls {
       "Top level grouping for global MPLS configuration ";
 
       container config {
-	      description
+        description
           "Top level global MPLS configuration";
-	      uses mpls-global_config;
+        uses mpls-global_config;
       }
 
       container state {
@@ -467,17 +479,17 @@ module openconfig-mpls {
       description
         "Parameters related to MPLS interfaces";
       list interface {
-        key interface-id;
+        key "interface-id";
         description
           "List of TE interfaces";
 
-	      leaf interface-id {
-	        type leafref {
-	          path "../config/interface-id";
-	        }
-	        description
+        leaf interface-id {
+          type leafref {
+            path "../config/interface-id";
+          }
+          description
             "Reference to the interface id list key";
-    	  }
+        }
 
         container config {
           description
@@ -512,16 +524,86 @@ module openconfig-mpls {
       type boolean;
       default false;
       description
-        "Enable MPLS forwarding on this interfacek";
+        "Enable MPLS forwarding on this interface";
     }
   }
 
+  grouping mpls-label-block-config {
+    description
+      "Configuration parameters relating to an MPLS label block.";
 
-grouping mpls-top {
-  description
-    "Top level grouping for MPLS configuration and state";
+    leaf local-id {
+      type string;
+      description
+        "A local identifier for the global label block allocation.";
+    }
 
-  container mpls {
+    leaf lower-bound {
+      type oc-mplst:mpls-label;
+      description
+        "Lower bound of the global label block. The block is defined to include
+        this label.";
+    }
+
+    leaf upper-bound {
+      type oc-mplst:mpls-label;
+      description
+        "Upper bound for the global label block. The block is defined to include
+        this label.";
+    }
+  }
+
+  grouping mpls-label-blocks-top {
+    description
+      "Top-level configuration and operational state parameters corresponding
+      to reserved label blocks.";
+
+    container reserved-label-blocks {
+      description
+        "A range of labels starting with the start-label and up-to and including
+        the end label that should be allocated as reserved. These labels should
+        not be utilised by any dynamic label allocation on the local system unless
+        the allocating protocol is explicitly configured to specify that
+        allocation of labels should be out of the label block specified.";
+
+      list reserved-label-block {
+        key "local-id";
+
+        description
+          "A range of labels starting with the start-label up to and including
+          the end label that should be allocated for use by a specific protocol.";
+
+        leaf local-id {
+          type leafref {
+            path "../config/local-id";
+          }
+          description
+            "A reference to a unique local identifier for this label block.";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the label block.";
+
+          uses mpls-label-block-config;
+        }
+
+        container state {
+          config false;
+          description
+            "State parameters relating to the label block.";
+
+          uses mpls-label-block-config;
+        }
+      }
+    }
+  }
+
+  grouping mpls-top {
+    description
+      "Top level grouping for MPLS configuration and state";
+
+    container mpls {
       description
         "Anchor point for mpls configuration and operational
         data";
@@ -534,6 +616,7 @@ grouping mpls-top {
         entropy label supportmay be added here";
        uses mpls-global-top;
        uses mpls-interfaces-top;
+       uses mpls-label-blocks-top;
       }
 
       container te-global-attributes {
@@ -556,8 +639,8 @@ grouping mpls-top {
           "top-level signaling protocol configuration";
 
         uses oc-rsvp:rsvp-global;
-        uses oc-sr:sr-global;
         uses oc-ldp:ldp-global;
+        uses oc-sr:sr-mpls-top;
       }
 
       container lsps {
@@ -568,7 +651,7 @@ grouping mpls-top {
           description
             "traffic-engineered LSPs supporting different
             path computation and signaling methods";
-  	      uses explicit-paths_top;
+          uses explicit-paths_top;
           uses te-tunnels_top;
         }
 

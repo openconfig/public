@@ -22,6 +22,7 @@ module openconfig-network-instance {
   import openconfig-bgp { prefix "oc-bgp"; }
   import openconfig-mpls { prefix "oc-mpls"; }
   import openconfig-vlan { prefix "oc-vlan"; }
+  import openconfig-segment-routing { prefix "oc-sr"; }
   import openconfig-isis { prefix "oc-isis"; }
 
   // include submodules
@@ -41,7 +42,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2016-12-15" {
+    description
+      "Add segment routing to network instance";
+    reference "0.5.0";
+  }
 
   revision "2016-11-10" {
     description
@@ -111,7 +118,7 @@ module openconfig-network-instance {
 
         uses l2ni-instance {
             when "../type = 'L2VSI' or ../type = 'L2P2P'" +
-                 " or ../type = 'L2L3'" {
+                 " or ../type = 'L2L3' or ../type = 'DEFAULT_INSTANCE'" {
                     description
                       "Layer 2 configuration parameters included when
                       a network instance is a Layer 2 instance or a
@@ -499,7 +506,15 @@ module openconfig-network-instance {
           when "../config/type = 'DEFAULT'" {
             description
               "MPLS configuration is only valid within the default
-              network instance";
+              network instance.";
+          }
+        }
+
+        uses oc-sr:sr-top {
+          when "../config/type = 'DEFAULT'" {
+            description
+              "Segment routing configuration is only valid with the default
+              network instance.";
           }
         }
 

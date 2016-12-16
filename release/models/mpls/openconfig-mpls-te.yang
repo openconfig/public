@@ -10,6 +10,7 @@ submodule openconfig-mpls-te {
   // import some basic types
   import ietf-inet-types { prefix inet; }
   import openconfig-mpls-rsvp { prefix oc-rsvp; }
+  import openconfig-mpls-sr { prefix oc-sr; }
   import openconfig-mpls-types {prefix oc-mplst; }
   import openconfig-types { prefix oc-types; }
   import ietf-yang-types { prefix yang; }
@@ -29,7 +30,19 @@ submodule openconfig-mpls-te {
     signaling protocol or mechanism (see related submodules for
     signaling protocol-specific configuration).";
 
-  oc-ext:openconfig-version "1.0.1";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2016-12-15" {
+    description
+      "Add additional MPLS parameters";
+    reference "2.1.0";
+  }
+
+  revision "2016-09-01" {
+    description
+      "Revisions based on implementation feedback";
+    reference "2.0.0";
+  }
 
   revision "2016-08-08" {
     description
@@ -251,7 +264,7 @@ submodule openconfig-mpls-te {
 
     leaf-list exclude-group {
       type leafref {
-        path "../../../../../../../../../te-global-attributes" +
+        path "../../../../../../../../../../te-global-attributes" +
           "/mpls-admin-groups/admin-group/admin-group-name";
       }
       description
@@ -261,7 +274,7 @@ submodule openconfig-mpls-te {
 
     leaf-list include-all-group {
       type leafref {
-        path "../../../../../../../../../te-global-attributes" +
+        path "../../../../../../../../../../te-global-attributes" +
           "/mpls-admin-groups/admin-group/admin-group-name";
       }
       description
@@ -271,7 +284,7 @@ submodule openconfig-mpls-te {
 
     leaf-list include-any-group {
       type leafref {
-        path "../../../../../../../../../te-global-attributes" +
+        path "../../../../../../../../../../te-global-attributes" +
           "/mpls-admin-groups/admin-group/admin-group-name";
       }
       description
@@ -326,80 +339,6 @@ submodule openconfig-mpls-te {
       description
         "style of mpls frr protection desired: can be
         link, link-node or unprotected.";
-    }
-  }
-
-  grouping te-record-route-object-state {
-    description
-      "Grouping to hold information relating to record route
-       objects relevant to a traffic engineering LSP.";
-
-    leaf index {
-      type uint8;
-      description
-        "Index of object in the list. Used for ordering.";
-    }
-
-    leaf address {
-      type inet:ip-address;
-      description
-        "IP router hop for RRO entry";
-    }
-
-    leaf reported-label {
-      type oc-mplst:mpls-label;
-      description
-        "Label reported for RRO hop";
-    }
-
-    leaf reported-flags {
-      type uint8;
-      description
-        "Subobject flags for MPLS label";
-    }
-  }
-
-  grouping te-record-route-object-top {
-    description
-      "Top-level structure grouping for list of record route
-      objects.";
-
-    container record-route-objects {
-      description
-        "Enclosing container for MPLS RRO objects associated with the
-        traffic engineered tunnel.";
-
-      list record-route-object {
-
-        key index;
-        config false;
-        description
-        "Read-only list of record route objects associated with the
-        traffic engineered tunnel. Each entry in the list
-        may contain a hop IP address, MPLS label allocated
-        at the hop, and the flags associated with the entry.";
-
-        leaf index {
-          type leafref {
-            path "../state/index";
-          }
-          description
-            "Reference to the index of the record route object.
-            The index is used to indicate the ordering of hops in
-            the path.";
-        }
-
-        container state {
-
-          config false;
-
-          description
-            "Information related to RRO objects. The hop, label, and
-            optional flags are present for each entry in the list.";
-
-          uses te-record-route-object-state;
-        }
-      }
     }
   }
 
@@ -472,6 +411,7 @@ submodule openconfig-mpls-te {
             "Configuration parameters relating to named explicit
             paths";
           uses named-explicit-path-config;
+          uses oc-sr:sr-path-attributes_config;
         }
 
         container state {
@@ -480,6 +420,7 @@ submodule openconfig-mpls-te {
             "Operational state parameters relating to the named
             explicit paths";
           uses named-explicit-path-config;
+          uses oc-sr:sr-path-attributes_config;
         }
 
         container explicit-route-objects {
@@ -581,14 +522,15 @@ submodule openconfig-mpls-te {
       description
         "Shared risk link groups attributes";
       list srlg {
-        key name;
+        key "name";
         description
           "List of shared risk link groups";
 
         leaf name {
           type leafref {
             path "../config/name";
-            require-instance true;
+            // Requires YANG 1.1
+            //require-instance true;
           }
           description
             "The SRLG group identifier";
@@ -617,7 +559,7 @@ submodule openconfig-mpls-te {
             "SRLG members for static (not flooded) SRLGs ";
 
           list members-list {
-            key from-address;
+            key "from-address";
             description
              "List of SRLG members, which are expressed
               as IP address endpoints of links contained in the
@@ -626,7 +568,8 @@ submodule openconfig-mpls-te {
             leaf from-address {
               type leafref {
                 path "../config/from-address";
-                require-instance true;
+                // Requires YANG 1.1
+                //require-instance true;
               }
               description
                 "The from address of the link in the SRLG";
@@ -760,7 +703,7 @@ submodule openconfig-mpls-te {
 
   }
 
- grouping tunnel-p2p-attributes_config {
+  grouping tunnel-p2p-attributes_config {
     description
       "Configuration related to p2p LSPs";
     leaf destination {
@@ -768,7 +711,24 @@ submodule openconfig-mpls-te {
       description
         "P2P tunnel destination address";
     }
- }
+  }
+
+  grouping p2p-path_state {
+    description
+      "Operational state parameters for p2p paths";
+
+    leaf associated-rsvp-session {
+      type leafref {
+        path "../../../../../../../../../signaling-protocols/" +
+             "rsvp-te/sessions/session/local-index";
+      }
+      description
+        "If the signalling protocol specified for this path is
+        RSVP-TE, this leaf provides a reference to the associated
+        session within the RSVP-TE protocol sessions list, such
+        that details of the signaling can be retrieved.";
+    }
+  }
 
   grouping p2p-path_config {
     description
@@ -834,10 +794,11 @@ submodule openconfig-mpls-te {
       }
 
       type leafref {
-        path "../../../../../../"
+        path "../../../../../../../"
              + "named-explicit-paths/named-explicit-path/"
              + "config/name";
-        require-instance true;
+        // Requires YANG 1.1
+        //require-instance true;
       }
       description
         "reference to a defined path";
@@ -851,7 +812,6 @@ submodule openconfig-mpls-te {
         "Specifies a preference for this path. The lower the
         number higher the preference";
     }
-
 
     uses oc-rsvp:rsvp-p2p-path-attributes_config;
   }
@@ -908,16 +868,6 @@ submodule openconfig-mpls-te {
       description
        "The lsp role at the current node, whether it is headend,
         transit or tailend.";
-    }
-
-    leaf-list associated-rsvp-sessions {
-      type leafref {
-        path "../../../../../../signaling-protocols/rsvp-te/" +
-             "sessions/session/local-index";
-      }
-      description
-       "This reference ties the LSP object to the associated
-        RSVP session(s) on the network element.";
     }
 
     container counters {
@@ -1099,7 +1049,8 @@ submodule openconfig-mpls-te {
 
     leaf secondary-path {
       type leafref {
-        path "../../../../../p2p-secondary-paths/config/name";
+        path "../../../../../../p2p-secondary-paths/" + 
+             "p2p-secondary-path/config/name";
       }
       description
         "A reference to the secondary path that should be utilised
@@ -1132,85 +1083,92 @@ submodule openconfig-mpls-te {
     description
       "Top level grouping for p2p primary paths";
 
-    list p2p-primary-paths {
-      key "name";
+    container p2p-primary-path {
       description
-       "List of p2p primary paths for a tunnel";
+        "Primary paths associated with the LSP";
 
-      leaf name {
-       type leafref {
-         path "../config/name";
-         require-instance true;
-       }
-       description
-        "Path name";
-      }
-
-      container config {
-       description
-        "Configuration parameters related to paths";
-       uses p2p-path_config;
-      }
-
-      container state {
-        config false;
+      list p2p-primary-path {
+        key "name";
         description
-          "State parameters related to paths";
-        uses p2p-path_config;
-      }
+         "List of p2p primary paths for a tunnel";
 
-      container candidate-secondary-paths {
-        description
-          "The set of candidate secondary paths which may be used
-          for this primary path. When secondary paths are specified
-          in the list the path of the secondary LSP in use must be
-          restricted to those path options referenced. The
-          priority of the secondary paths is specified within the
-          list. Higher priority values are less preferred - that is
-          to say that a path with priority 0 is the most preferred
-          path. In the case that the list is empty, any secondary
-          path option may be utilised when the current primary path
-          is in use.";
+        leaf name {
+         type leafref {
+           path "../config/name";
+           // Requires YANG 1.1
+           //require-instance true;
+         }
+         description
+          "Path name";
+        }
 
-        list candidate-secondary-path {
-          key "secondary-path";
+        container config {
+         description
+          "Configuration parameters related to paths";
+         uses p2p-path_config;
+        }
 
+        container state {
+          config false;
           description
-            "List of secondary paths which may be utilised when the
-            current primary path is in use";
+            "State parameters related to paths";
+          uses p2p-path_config;
+          uses p2p-path_state;
+        }
 
-          leaf secondary-path {
-            type leafref {
-              path "../config/secondary-path";
+        container candidate-secondary-paths {
+          description
+            "The set of candidate secondary paths which may be used
+            for this primary path. When secondary paths are specified
+            in the list the path of the secondary LSP in use must be
+            restricted to those path options referenced. The
+            priority of the secondary paths is specified within the
+            list. Higher priority values are less preferred - that is
+            to say that a path with priority 0 is the most preferred
+            path. In the case that the list is empty, any secondary
+            path option may be utilised when the current primary path
+            is in use.";
+
+          list candidate-secondary-path {
+            key "secondary-path";
+
+            description
+              "List of secondary paths which may be utilised when the
+              current primary path is in use";
+
+            leaf secondary-path {
+              type leafref {
+                path "../config/secondary-path";
+              }
+              description
+                "A reference to the secondary path option reference
+                which acts as the key of the candidate-secondary-path
+                list";
             }
-            description
-              "A reference to the secondary path option reference
-              which acts as the key of the candidate-secondary-path
-              list";
-          }
 
-          container config {
-            description
-              "Configuration parameters relating to the candidate
-              secondary path";
+            container config {
+              description
+                "Configuration parameters relating to the candidate
+                secondary path";
 
-            uses p2p-path-candidate-secondary-path-config;
-          }
+              uses p2p-path-candidate-secondary-path-config;
+            }
 
-          container state {
-            config false;
-            description
-              "Operational state parameters relating to the candidate
-              secondary path";
+            container state {
+              config false;
+              description
+                "Operational state parameters relating to the candidate
+                secondary path";
 
-            uses p2p-path-candidate-secondary-path-config;
-            uses p2p-path-candidate-secondary-path-state;
+              uses p2p-path-candidate-secondary-path-config;
+              uses p2p-path-candidate-secondary-path-state;
+            }
           }
         }
+
+        uses te-path-placement-constraints-top;
+
       }
-
-      uses te-path-placement-constraints-top;
-
     }
   }
 
@@ -1218,34 +1176,41 @@ submodule openconfig-mpls-te {
     description
       "Top level grouping for p2p secondary paths";
 
-    list p2p-secondary-paths {
-      key "name";
+    container p2p-secondary-paths {
       description
-        "List of p2p primary paths for a tunnel";
+        "Secondary paths for the LSP";
 
-      leaf name {
-        type leafref {
-          path "../config/name";
-          require-instance true;
+      list p2p-secondary-path {
+        key "name";
+        description
+          "List of p2p primary paths for a tunnel";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+            // Requires YANG 1.1
+            //require-instance true;
+          }
+          description
+            "Path name";
         }
-        description
-          "Path name";
-      }
 
-      container config {
-        description
-          "Configuration parameters related to paths";
-        uses p2p-path_config;
-      }
+        container config {
+          description
+            "Configuration parameters related to paths";
+          uses p2p-path_config;
+        }
 
-      container state {
-        config false;
-        description
-          "State parameters related to paths";
-        uses p2p-path_config;
-      }
+        container state {
+          config false;
+          description
+            "State parameters related to paths";
+          uses p2p-path_config;
+          uses p2p-path_state;
+        }
 
-      uses te-path-placement-constraints-top;
+        uses te-path-placement-constraints-top;
+      }
     }
   }
 
@@ -1257,26 +1222,22 @@ submodule openconfig-mpls-te {
       description
         "Enclosing container for tunnels";
       list tunnel {
-        key "name source";
+        key "name";
         description
-          "List of TE tunnels";
+          "List of TE tunnels. This list contains only the LSPs that the
+          current device originates (i.e., for which it is the head-end).
+          Where the signaling protocol utilised for an LSP allows a mid-point
+          or tail device to be aware of the LSP (e.g., RSVP-TE), then the
+          associated sessions are maintained per protocol";
 
         leaf name {
           type leafref {
             path "../config/name";
-            require-instance true;
+            // Requires YANG 1.1
+            //require-instance true;
           }
           description
             "The tunnel name";
-        }
-
-        leaf source {
-          type leafref {
-            path "../config/source";
-            require-instance true;
-          }
-          description
-            "The source IP address of the tunnel";
         }
 
         container config {
@@ -1296,7 +1257,6 @@ submodule openconfig-mpls-te {
 
         uses te-tunnel-bandwidth_top;
         uses te-tunnel-p2p_top;
-        uses te-record-route-object-top;
         // TODO - add the p2mp configuration
       }
     }

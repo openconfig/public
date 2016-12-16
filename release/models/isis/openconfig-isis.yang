@@ -15,6 +15,7 @@ module openconfig-isis {
   import openconfig-routing-policy { prefix "oc-rpol"; }
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-interfaces { prefix "oc-if"; }
+  import openconfig-segment-routing { prefix "oc-sr"; }
   // TODO(robjs): Import authentication and keychain following merge of these
   // modules.
   //import openconfig-authentication-types { prefix "oc-auth-types"; }
@@ -54,7 +55,13 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2016-12-15" {
+    description
+      "Add segment routing to IS-IS module";
+    reference "0.2.0";
+  }
 
   revision "2016-10-18" {
     description
@@ -1105,6 +1112,8 @@ module openconfig-isis {
 
       uses isis-afi-safi-list;
     }
+
+    uses oc-sr:sr-igp-top;
   }
 
   grouping isis-route-preference-config {
