@@ -62,12 +62,12 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.0";
 
-  revision "2016-06-06" {
+  revision "2016-12-22" {
     description
-      "Public release";
-    reference "0.4.0";
+      "Added temperature state variable to component";
+    reference "0.5.0";
   }
 
   // grouping statements
@@ -288,6 +288,21 @@ module openconfig-platform {
     }
   }
 
+  grouping platform-component-temp-state {
+    description
+      "Temperature state data for device components";
+
+    container temperature {
+      description
+        "Temperature in degrees Celsius of the component. Values include
+        the instantaneous, average, minimum, and maximum statistics. If
+        avg/min/max statistics are not supported, the target is expected
+        to just supply the instant value";
+
+      uses oc-platform-types:avg-min-max-instant-stats-precision1-celsius;
+    }
+  }
+
   grouping platform-component-top {
     description
       "Top-level grouping for components in the device inventory";
@@ -325,6 +340,7 @@ module openconfig-platform {
 
           uses platform-component-config;
           uses platform-component-state;
+          uses platform-component-temp-state;
         }
 
         uses platform-component-properties-top;
@@ -345,7 +361,7 @@ module openconfig-platform {
     //leafref points to a component of type PORT.
     description
       "Adds a reference from the base interface to the corresponding
-      port in the device inventory.";
+      port component in the device inventory.";
 
     leaf hardware-port {
       type leafref {

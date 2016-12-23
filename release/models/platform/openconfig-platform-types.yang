@@ -21,12 +21,60 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.0";
 
-  revision "2016-06-06" {
+  revision "2016-12-22" {
     description
-      "Public release";
-    reference "0.4.0";
+      "Added temperature state variable to component";
+    reference "0.5.0";
+  }
+
+  // grouping statements
+
+  grouping avg-min-max-instant-stats-precision1-celsius {
+    description
+      "Common grouping for recording temperature values in
+      Celsius with 1 decimal precision. Values include the
+      instantaneous, average, minimum, and maximum statistics";
+
+    leaf instant {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The instantaneous value of the statistic.";
+    }
+
+    leaf avg {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The arithmetic mean value of the statistic over the
+        sampling period.";
+    }
+
+    leaf min {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The minimum value of the statistic over the sampling
+        period";
+    }
+
+    leaf max {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The maximum value of the statistic over the sampling
+        period";
+    }
   }
 
   // identity statements
