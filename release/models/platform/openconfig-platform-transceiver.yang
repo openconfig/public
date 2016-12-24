@@ -9,6 +9,7 @@ module openconfig-platform-transceiver {
 
   // import some basic types
   import openconfig-platform { prefix oc-platform; }
+  import openconfig-interfaces { prefix oc-if; }
   import openconfig-transport-types { prefix oc-opt-types; }
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
@@ -33,12 +34,12 @@ module openconfig-platform-transceiver {
     module defines a concrete schema for the associated data for
     components with type=TRANSCEIVER.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
 
-  revision "2016-05-24" {
+  revision "2016-12-22" {
     description
-      "Initial public release";
-    reference "0.1.0";
+      "Adds preconfiguration data and clarified units";
+    reference "0.2.0";
   }
 
   // identity statements
@@ -58,11 +59,13 @@ module openconfig-platform-transceiver {
       description
         "The output optical power of this port in units of 0.01dBm.
         If the port is an aggregate of multiple physical channels,
-        this attribute is the total power or sum of all channels. If
-        avg/min/max statistics are not supported, the target is
-        expected to just supply the instant value";
+        this attribute is the total power or sum of all channels.
+        Values include the instantaneous, average, minimum, and
+        maximum statistics. If avg/min/max statistics are not
+        supported, the target is expected to just supply the
+        instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision1;
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
     }
 
     container input-power {
@@ -70,21 +73,24 @@ module openconfig-platform-transceiver {
         "The input optical power of this port in units of 0.01dBm.
         If the port is an aggregate of multiple physical channels,
         this attribute is the total power or sum of all channels.
-        If avg/min/max statistics are not supported, the target is
-        expected to just supply the instant value";
+        Values include the instantaneous, average, minimum, and
+        maximum statistics. If avg/min/max statistics are not
+        supported, the target is expected to just supply the
+        instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision1;
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
     }
 
     container laser-bias-current {
       description
         "The current applied by the system to the transmit laser to
-        achieve the output power.  The current is expressed in mA
-        with up to one decimal precision. If avg/min/max statistics
-        are not supported, the target is expected to just supply
-        the instant value";
+        achieve the output power. The current is expressed in mA
+        with up to two decimal precision. Values include the
+        instantaneous, average, minimum, and maximum statistics.
+        If avg/min/max statistics are not supported, the target is
+        expected to just supply the instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision1;
+      uses oc-types:avg-min-max-instant-stats-precision2-mA;
     }
   }
 
@@ -210,14 +216,14 @@ module openconfig-platform-transceiver {
         powered off";
     }
 
-    leaf form-factor {
+    leaf form-factor-preconf {
       type identityref {
         base oc-opt-types:TRANSCEIVER_FORM_FACTOR_TYPE;
       }
       description
         "Indicates the type of optical transceiver used on this
         port.  If the client port is built into the device and not
-        plugable, then non-pluggable is the corresponding state. If
+        pluggable, then non-pluggable is the corresponding state. If
         a device port supports multiple form factors (e.g. QSFP28
         and QSFP+, then the value of the transceiver installed shall
         be reported. If no transceiver is present, then the value of
@@ -229,6 +235,18 @@ module openconfig-platform-transceiver {
         transceiver ahead of deployment.  The corresponding state
         leaf should reflect the actual transceiver type plugged into
         the system.";
+    }
+
+    leaf ethernet-pmd-preconf {
+      type identityref {
+        base oc-opt-types:ETHERNET_PMD_TYPE;
+      }
+      description
+        "The Ethernet PMD is a property of the optical transceiver
+        used on the port, indicating the type of physical connection.
+        It is included in configuration data to allow pre-configuring
+        a port/transceiver with the expected PMD.  The actual PMD is
+        indicated by the ethernet-pmd state leaf.";
     }
   }
 
@@ -252,6 +270,21 @@ module openconfig-platform-transceiver {
         the specified client port.";
     }
 
+    leaf form-factor {
+      type identityref {
+        base oc-opt-types:TRANSCEIVER_FORM_FACTOR_TYPE;
+      }
+      description
+        "Indicates the type of optical transceiver used on this
+        port.  If the client port is built into the device and not
+        pluggable, then non-pluggable is the corresponding state. If
+        a device port supports multiple form factors (e.g. QSFP28
+        and QSFP+, then the value of the transceiver installed shall
+        be reported. If no transceiver is present, then the value of
+        the highest rate form factor shall be reported
+        (QSFP28, for example).";
+    }
+
     leaf connector-type {
       type identityref {
         base oc-opt-types:FIBER_CONNECTOR_TYPE;
@@ -261,6 +294,9 @@ module openconfig-platform-transceiver {
     }
 
     leaf internal-temp {
+    // TODO: this should probably be removed if we add temperature
+    // as a top-level component property, i.e., transceiver temp
+    // should be reported there.
       type int16 {
         range -40..125;
       }
@@ -303,13 +339,14 @@ module openconfig-platform-transceiver {
 
     //TODO: these compliance code leaves should be active based on
     //the type of port
-    leaf ethernet-compliance-code {
+    leaf ethernet-pmd {
       type identityref {
         base oc-opt-types:ETHERNET_PMD_TYPE;
       }
       description
-        "Ethernet PMD that the transceiver supports. The SFF/QSFP
-        MSAs have registers for this and CFP MSA has similar.";
+        "Ethernet PMD (physical medium dependent sublayer) that the
+        transceiver supports. The SFF/QSFP MSAs have registers for
+        this and CFP MSA has similar.";
     }
 
     leaf sonet-sdh-compliance-code {
@@ -391,15 +428,37 @@ module openconfig-platform-transceiver {
   // augment statements
 
   augment "/oc-platform:components/oc-platform:component" {
-    when "/oc-platform:components/oc-platform:component/" +
-      "oc-platform:state/oc-platform:type = 'TRANSCEIVER'" {
-      description
-        "Augment is active when component is of type TRANSCEIVER";
-    }
     description
       "Adding transceiver data to physical inventory";
 
-    uses port-transceiver-top;
+    uses port-transceiver-top {
+      when "current()/oc-platform:state/" +
+        "oc-platform:type = 'TRANSCEIVER'" {
+        description
+          "Augment is active when component is of type TRANSCEIVER";
+      }
+    }
+  }
+
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:state" {
+    //TODO: add 'when' or other condition to make sure this
+    //leafref points to a component of type TRANSCEIVER.
+    description
+      "Adds a reference from the base interface to its corresponding
+      physical channels.";
+
+    leaf-list physical-channel {
+      type leafref {
+        path "/oc-platform:components/" +
+          "oc-platform:component[oc-platform:name=current()/../oc-platform:hardware-port]/" +
+          "oc-transceiver:transceiver/" +
+          "oc-transceiver:physical-channels/oc-transceiver:channel/" +
+          "oc-transceiver:index";
+      }
+      description
+        "For a channelized interface, list of references to the
+        physical channels (lanes) corresponding to the interface.";
+    }
   }
 
   // rpc statements
