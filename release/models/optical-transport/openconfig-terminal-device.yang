@@ -74,12 +74,12 @@ module openconfig-terminal-device {
     ports per linecard, separate linecards for client and line ports,
     etc.).";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
 
-  revision "2016-06-17" {
+  revision "2016-12-22" {
     description
-      "Public release";
-    reference "0.3.1";
+      "Fixes and additions to terminal optics model";
+    reference "0.4.0";
   }
 
 
@@ -127,8 +127,8 @@ module openconfig-terminal-device {
 
       container config {
         description
-          "Configuration data for Ethernet protocol framing on logical
-          channels";
+          "Configuration data for Ethernet protocol framing on
+          logical channels";
 
         uses terminal-ethernet-protocol-config;
       }
@@ -136,8 +136,8 @@ module openconfig-terminal-device {
       container state {
         config false;
         description
-          "Operational state data for Ethernet protocol framing on logical
-          channels";
+          "Operational state data for Ethernet protocol framing
+          on logical channels";
 
         uses terminal-ethernet-protocol-state;
       }
@@ -164,8 +164,9 @@ module openconfig-terminal-device {
     leaf tti-msg-auto {
       type boolean;
       description
-        "Trail trace identifier (TTI) transmit message automatically created.
-        If True, then setting a custom transmit message would be invalid.";
+        "Trail trace identifier (TTI) transmit message automatically
+        created.  If true, then setting a custom transmit message
+        would be invalid.";
     }
   }
 
@@ -177,17 +178,18 @@ module openconfig-terminal-device {
     leaf errored-seconds {
       type yang:counter64;
       description
-        "The number of seconds that at least one errored blocks occurs,
-        at least one code violation occurs, loss of sync is detected or
-        loss of signal is detected";
+        "The number of seconds that at least one errored blocks
+        occurs, at least one code violation occurs, loss of sync is
+        detected or loss of signal is detected";
     }
 
     leaf severely-errored-seconds {
       type yang:counter64;
       description
         "The number of seconds that loss of frame is detected OR
-        the number of errored blocks, code violations, loss of sync or
-        loss of signal is detected exceeds a predefined threshold";
+        the number of errored blocks, code violations, loss of sync
+        or loss of signal is detected exceeds a predefined
+        threshold";
     }
 
     leaf unavailable-seconds {
@@ -237,33 +239,55 @@ module openconfig-terminal-device {
     container pre-fec-ber {
       description
         "Bit error rate before forward error correction -- computed
-        value";
+        value with 18 decimal precision. Note that decimal64
+        supports values as small as i x 10^-18 where i is an
+        integer. Values smaller than this should be reported as 0
+        to inidicate error free or near error free performance.
+        Values include the instantaneous, average, minimum, and
+        maximum statistics. If avg/min/max statistics are not
+        supported, the target is expected to just supply the
+        instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision1;
+      uses oc-opt-types:avg-min-max-instant-stats-precision18-ber;
     }
 
     container post-fec-ber {
       description
         "Bit error rate after forward error correction -- computed
-        value";
+        value with 18 decimal precision. Note that decimal64
+        supports values as small as i x 10^-18 where i is an
+        integer. Values smaller than this should be reported as 0
+        to inidicate error free or near error free performance.
+        Values include the instantaneous, average, minimum, and
+        maximum statistics. If avg/min/max statistics are not
+        supported, the target is expected to just supply the
+        instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision1;
+      uses oc-opt-types:avg-min-max-instant-stats-precision18-ber;
     }
 
     container q-value {
       description
-        "Quality value (factor) of a channel";
+        "Quality value (factor) in dB of a channel with two
+        decimal precision. Values include the instantaneous,
+        average, minimum, and maximum statistics. If avg/min/max
+        statistics are not supported, the target is expected
+        to just supply the instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision1;
+      uses oc-types:avg-min-max-instant-stats-precision2-dB;
     }
 
     container esnr {
       description
         "Electrical signal to noise ratio. Baud rate
         normalized signal to noise ratio based on
-        error vector magnitude";
+        error vector magnitude in dB with two decimal
+        precision. Values include the instantaneous, average,
+        minimum, and maximum statistics. If avg/min/max
+        statistics are not supported, the target is expected
+        to just supply the instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision1;
+      uses oc-types:avg-min-max-instant-stats-precision2-dB;
     }
   }
 
@@ -459,7 +483,7 @@ module openconfig-terminal-device {
           "oc-opt-term:logical-channels/oc-opt-term:channel/" +
           "oc-opt-term:index";
       }
-      must "assignment-type = LOGICAL_CHANNEL" {
+      must "../assignment-type = 'LOGICAL_CHANNEL'" {
         description
           "The assignment-type must be set to LOGICAL_CHANNEL for
           this leaf to be valid";
@@ -473,7 +497,7 @@ module openconfig-terminal-device {
         path "/oc-platform:components/oc-platform:component/" +
           "oc-platform:name";
       }
-      must "assignment-type = OPTICAL_CHANNEL" {
+      must "../assignment-type = 'OPTICAL_CHANNEL'" {
         description
           "The assignment-type must be set to OPTICAL_CHANNEL for
           this leaf to be valid";
@@ -788,14 +812,14 @@ module openconfig-terminal-device {
         }
 
         uses terminal-otn-protocol-top {
-          when "../config/protocol-type = PROT_OTN" {
+          when "config/logical-channel-type = 'PROT_OTN'" {
             description
               "Include the OTN protocol data only when the
               channel is using OTN framing.";
           }
         }
         uses terminal-ethernet-protocol-top {
-          when "../config/protocol-type = PROT_ETHERNET" {
+          when "config/logical-channel-type = 'PROT_ETHERNET'" {
             description
               "Include the Ethernet protocol statistics only when the
               protocol used by the link is Ethernet.";
@@ -830,19 +854,17 @@ module openconfig-terminal-device {
 
     leaf operational-mode {
       type uint16;
-      // this must statement checks for existence of the
-      // operational mode in the list of supported operational
-      // modes
-      must "boolean(../../../../operational-modes/state/" +
-        "supported-modes[mode-id=current()])" {
-        description
-          "The referenced operational mode must exist in the list of
-          supported operational modes supplied by the device";
-      }
       description
         "Vendor-specific mode identifier -- sets the operational
-        mode for the channel";
+        mode for the channel.  The specified operational mode must
+        exist in the list of supported operational modes supplied
+        by the device";
+      //
+      // Ideally, this leaf should be a leafref to the supported
+      // operational modes, but YANG 1.0 does not allow a r/w
+      // leaf to be a leafref to a r/o leaf.
     }
+
 
     leaf line-port {
       type leafref {
@@ -873,34 +895,50 @@ module openconfig-terminal-device {
 
     container chromatic-dispersion {
       description
-        "Chromatic Dispersion of an optical channel
-        in ps/nm as reported by receiver";
+        "Chromatic Dispersion of an optical channel in
+        picoseconds / nanometer (ps/nm) as reported by receiver
+        with two decimal precision. Values include the instantaneous,
+        average, minimum, and maximum statistics. If avg/min/max
+        statistics are not supported, the target is expected to just
+        supply the instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision1;
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-ps-nm;
     }
 
     container polarization-mode-dispersion {
       description
         "Polarization Mode Dispersion of an optical channel
-        in ps as reported by receiver";
+        in picosends (ps) as reported by receiver with two decimal
+        precision. Values include the instantaneous, average,
+        minimum, and maximum statistics. If avg/min/max statistics
+        are not supported, the target is expected to just supply the
+        instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision1;
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-ps;
     }
 
     container second-order-polarization-mode-dispersion {
       description
         "Second Order Polarization Mode Dispersion of an optical
-        channel in ps^2 as reported by receiver";
+        channel in picoseconds squared (ps^2) as reported by
+        receiver with two decimal precision. Values include the
+        instantaneous, average, minimum, and maximum statistics.
+        If avg/min/max statistics are not supported, the target
+        is expected to just supply the instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision1;
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-ps2;
     }
 
     container polarization-dependent-loss {
       description
         "Polarization Dependent Loss of an optical channel
-        in dB as reported by receiver";
+        in dB as reported by receiver with two decimal precision.
+        Values include the instantaneous, average, minimum, and
+        maximum statistics. If avg/min/max statistics are not
+        supported, the target is expected to just supply the
+        instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision1;
+      uses oc-types:avg-min-max-instant-stats-precision2-dB;
     }
   }
 

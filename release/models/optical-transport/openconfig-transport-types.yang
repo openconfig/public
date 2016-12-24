@@ -21,12 +21,12 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
 
-  revision "2016-06-17" {
+  revision "2016-12-22" {
     description
-      "Public release";
-    reference "0.3.1";
+      "Fixes and additions for terminal optics model";
+    reference "0.4.0";
   }
 
   // typedef statements
@@ -81,6 +81,194 @@ module openconfig-transport-types {
       "Loopback modes for transponder logical channels";
   }
 
+  // grouping statements
+
+  grouping avg-min-max-instant-stats-precision2-ps-nm {
+    description
+      "Common grouping for recording picosecond per nanometer
+      values with 2 decimal precision. Values include the
+      instantaneous, average, minimum, and maximum statistics";
+
+    leaf instant {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps-nm;
+      description
+        "The instantaneous value of the statistic.";
+    }
+
+    leaf avg {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps-nm;
+      description
+        "The arithmetic mean value of the statistic over the
+        sampling period.";
+    }
+
+    leaf min {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps-nm;
+      description
+        "The minimum value of the statistic over the sampling
+        period";
+    }
+
+    leaf max {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps-nm;
+      description
+        "The maximum value of the statistic over the sampling
+        period";
+    }
+  }
+
+  grouping avg-min-max-instant-stats-precision2-ps {
+    description
+      "Common grouping for recording picosecond values with
+      2 decimal precision. Values include the instantaneous,
+      average, minimum, and maximum statistics";
+
+    leaf instant {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps;
+      description
+        "The instantaneous value of the statistic.";
+    }
+
+    leaf avg {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps;
+      description
+        "The arithmetic mean value of the statistic over the
+        sampling period.";
+    }
+
+    leaf min {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps;
+      description
+        "The minimum value of the statistic over the sampling
+        period";
+    }
+
+    leaf max {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps;
+      description
+        "The maximum value of the statistic over the sampling
+        period";
+    }
+  }
+
+  grouping avg-min-max-instant-stats-precision2-ps2 {
+    description
+      "Common grouping for recording picosecond^2 values with
+      2 decimal precision. Values include the instantaneous,
+      average, minimum, and maximum statistics";
+
+    leaf instant {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps^2;
+      description
+        "The instantaneous value of the statistic.";
+    }
+
+    leaf avg {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps^2;
+      description
+        "The arithmetic mean value of the statistic over the
+        sampling period.";
+    }
+
+    leaf min {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps^2;
+      description
+        "The minimum value of the statistic over the sampling
+        period";
+    }
+
+    leaf max {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps^2;
+      description
+        "The maximum value of the statistic over the sampling
+        period";
+    }
+  }
+
+  grouping avg-min-max-instant-stats-precision18-ber {
+    description
+      "Common grouping for recording bit error rate (BER) values
+      with 18 decimal precision. Note that decimal64 supports
+      values as small as i x 10^-18 where i is an integer. Values
+      smaller than this should be reported as 0 to inidicate error
+      free or near error free performance. Values include the
+      instantaneous, average, minimum, and maximum statistics";
+
+    leaf instant {
+      type decimal64 {
+        fraction-digits 18;
+      }
+      units bit-errors-per-second;
+      description
+        "The instantaneous value of the statistic.";
+    }
+
+    leaf avg {
+      type decimal64 {
+        fraction-digits 18;
+      }
+      units bit-errors-per-second;
+      description
+        "The arithmetic mean value of the statistic over the
+        sampling period.";
+    }
+
+    leaf min {
+      type decimal64 {
+        fraction-digits 18;
+      }
+      units bit-errors-per-second;
+      description
+        "The minimum value of the statistic over the sampling
+        period";
+    }
+
+    leaf max {
+      type decimal64 {
+        fraction-digits 18;
+      }
+      units bit-errors-per-second;
+      description
+        "The maximum value of the statistic over the sampling
+        period";
+    }
+  }
 
   // identity statements
 
@@ -239,8 +427,15 @@ module openconfig-transport-types {
   identity QSFP {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
     description
+      "OriginalQuad Small Form-factor Pluggable transceiver that can
+      support 4x1G physical channels.  Not commonly used.";
+  }
+
+  identity QSFP_PLUS {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
       "Quad Small Form-factor Pluggable transceiver that can support
-      up to 4x10G physical channels";
+      up to 4x10G physical channels.";
   }
 
   identity QSFP28 {
@@ -248,6 +443,12 @@ module openconfig-transport-types {
     description
       "QSFP pluggable optic with support for up to 4x28G physical
       channels";
+  }
+
+  identity CPAK {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "Cisco CPAK transceiver supporting 100 Gb/s.";
   }
 
   identity SFP {
