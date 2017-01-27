@@ -24,6 +24,7 @@ module openconfig-network-instance {
   import openconfig-vlan { prefix "oc-vlan"; }
   import openconfig-segment-routing { prefix "oc-sr"; }
   import openconfig-isis { prefix "oc-isis"; }
+  import openconfig-aft { prefix "oc-aft"; }
 
   // include submodules
   include openconfig-network-instance-l2;
@@ -42,7 +43,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2017-01-13" {
+    description
+      "Add AFT to the network instance";
+    reference "0.6.0";
+  }
 
   revision "2016-12-15" {
     description
@@ -92,6 +99,15 @@ module openconfig-network-instance {
     reference "0.1.0";
   }
 
+  typedef network-instance-ref {
+    type leafref {
+      path "/network-instances/network-instance/config/name";
+    }
+    description
+      "A re-usable type that can be referenced within other
+       modules that references a network instance.";
+  }
+
   grouping network-instance-top {
     description
       "Top-level grouping containing a list of network instances.";
@@ -114,7 +130,6 @@ module openconfig-network-instance {
           description
             "A unique name identifying the network instance";
         }
-
 
         uses l2ni-instance {
             when "../type = 'L2VSI' or ../type = 'L2P2P'" +
@@ -179,8 +194,17 @@ module openconfig-network-instance {
               "State parameters relating to the encapsulation of
               the network instance";
             uses encapsulation-config;
-          }
 
+            uses l2ni-encapsulation-config {
+              when "../../../type = 'L2VSI' or ../../../type = 'L2P2P'
+                      or ../../../type = 'L2L3'" {
+                        description
+                          "Only allow L2 encapsulations to be set
+                          when the instance is of a type that supports
+                          L2";
+              }
+            }
+          }
         }
 
         container inter-instance-policies {
@@ -519,6 +543,8 @@ module openconfig-network-instance {
         }
 
         uses oc-vlan:vlan-top;
+
+        uses oc-aft:aft-top;
 
         container protocols {
           description

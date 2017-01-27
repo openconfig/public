@@ -33,7 +33,13 @@ module openconfig-segment-routing {
       - SR SID advertisements - instantiated within the relevant IGP.
       - SR-specific counters - instantied within the relevant dataplane.";
 
-  oc-ext:openconfig-version "0.0.2";
+  oc-ext:openconfig-version "0.0.3";
+
+  revision "2017-01-12" {
+    description
+      "Minor compliance fixes.";
+    reference "0.0.3";
+  }
 
   revision "2016-12-15" {
     description
@@ -93,6 +99,11 @@ module openconfig-segment-routing {
     }
 
     leaf-list mpls-label-blocks {
+      when "../dataplane-type = 'MPLS'" {
+        description
+          "Allow the MPLS label block to be specified only for SRGBs that are
+          using the MPLS dataplane.";
+      }
       type leafref {
         // We are at /network-instances/network-instance/segment-routing/
         // srgbs/srgb/config/mpls-label-blocks
@@ -102,25 +113,18 @@ module openconfig-segment-routing {
       description
         "A list of refences to the label blocks that are used to make
         up the SRGB.";
-
-      when "../dataplane-type = 'MPLS'" {
-        description
-          "Allow the MPLS label block to be specified only for SRGBs that are
-          using the MPLS dataplane.";
-      }
     }
 
     leaf-list ipv6-prefixes {
-      type inet:ipv6-prefix;
-      description
-        "A list of IPv6 prefixes which are to be used for segment routing using
-        the IPv6 dataplane.";
-
       when "../dataplane-type = 'IPV6'" {
         description
           "Allow IPv6 prefixes to be specified only when the dataplane
           realisation of the SRGB is IPv6.";
       }
+      type inet:ipv6-prefix;
+      description
+        "A list of IPv6 prefixes which are to be used for segment routing using
+        the IPv6 dataplane.";
     }
   }
 
@@ -163,6 +167,11 @@ module openconfig-segment-routing {
     }
 
     leaf mpls-label-block {
+      when "../dataplane-type = 'MPLS'" {
+        description
+          "Allow the MPLS label block to be specified only for SRLBs that are
+          using the MPLS dataplane.";
+      }
       type leafref {
         path "../../../../../mpls/global/reserved-label-blocks/" +
              "reserved-label-block/config/local-id";
@@ -170,23 +179,17 @@ module openconfig-segment-routing {
       description
         "A reference to the MPLS label block that is used to contain the
         SIDs of the SRLB.";
-      when "../dataplane-type = 'MPLS'" {
-        description
-          "Allow the MPLS label block to be specified only for SRLBs that are
-          using the MPLS dataplane.";
-      }
     }
 
     leaf ipv6-prefix {
-      type inet:ipv6-prefix;
-      description
-        "The IPv6 prefix that is used for the SRLB.";
-
       when "../dataplane-type = 'IPV6'" {
         description
           "Allow IPv6 prefixes to be specified only when the dataplane
           realisation of the SRGB is IPv6.";
       }
+      type inet:ipv6-prefix;
+      description
+        "The IPv6 prefix that is used for the SRLB.";
     }
   }
 
@@ -299,6 +302,7 @@ module openconfig-segment-routing {
           }
 
           container state {
+            config false;
             description
               "State parameters for per-SID statistics";
             uses sr-mpls-sid-counters-state;
@@ -322,6 +326,9 @@ module openconfig-segment-routing {
             type leafref {
               path "../config/interface-id";
             }
+            description
+              "A reference to the ID for the interface for which SR is
+              configured";
           }
 
           container config {
@@ -360,6 +367,7 @@ module openconfig-segment-routing {
               }
 
               container state {
+                config false;
                 description
                   "State parameters for per-SID statistics";
                 uses sr-mpls-sid-counters-state;
@@ -374,6 +382,10 @@ module openconfig-segment-routing {
                   key "exp";
                   config false;
 
+                  description
+                    "SID entries for the forwarding class associated with the
+                    referenced MPLS EXP.";
+
                   leaf exp {
                     type leafref {
                       path "../state/exp";
@@ -384,6 +396,7 @@ module openconfig-segment-routing {
                   }
 
                   container state {
+                    config false;
                     description
                       "Per-SID, per forwarding class counters for Segment Routing
                       with the MPLS dataplane";
@@ -577,6 +590,10 @@ module openconfig-segment-routing {
             relevant explicit null label before forwarding the packet.";
         }
       }
+      description
+        "The options associated with the IGP prefix SID for MPLS. The value
+        of this leaf specifies the option that the SID should be advertised
+        into the IGP with.";
     }
   }
 
@@ -737,6 +754,7 @@ module openconfig-segment-routing {
           }
 
           container state {
+            config false;
             description
               "Operational state parameters relating to the AdjSID.";
             uses sr-igp-interface-adjsid-config;
