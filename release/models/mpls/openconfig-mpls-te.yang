@@ -8,12 +8,12 @@ submodule openconfig-mpls-te {
 
 
   // import some basic types
-  import ietf-inet-types { prefix inet; }
+  import openconfig-inet-types { prefix inet; }
   import openconfig-mpls-rsvp { prefix oc-rsvp; }
   import openconfig-mpls-sr { prefix oc-sr; }
   import openconfig-mpls-types {prefix oc-mplst; }
   import openconfig-types { prefix oc-types; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-yang-types { prefix yang; }
   import openconfig-extensions { prefix oc-ext; }
 
 
@@ -30,7 +30,13 @@ submodule openconfig-mpls-te {
     signaling protocol or mechanism (see related submodules for
     signaling protocol-specific configuration).";
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.2.0";
+
+  revision "2017-01-26" {
+    description
+      "Add RSVP Tspec, clarify units for RSVP, remove unused LDP";
+    reference "2.2.0";
+  }
 
   revision "2016-12-15" {
     description
@@ -170,16 +176,16 @@ submodule openconfig-mpls-te {
     }
 
     leaf min-bw {
-      type uint32;
+      type oc-mplst:bandwidth-kbps;
       description
-        "set the minimum bandwidth in Mbps for an
+        "set the minimum bandwidth in Kbps for an
          auto-bandwidth LSP";
     }
 
     leaf max-bw {
-      type uint32;
+      type oc-mplst:bandwidth-kbps;
       description
-        "set the maximum bandwidth in Mbps for an
+        "set the maximum bandwidth in Kbps for an
          auto-bandwidth LSP";
     }
 
@@ -201,7 +207,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping  te-lsp-overflow_config {
+  grouping te-lsp-overflow_config {
     description
      "configuration for mpls lsp bandwidth
       overflow adjustment";
@@ -382,7 +388,6 @@ submodule openconfig-mpls-te {
     }
   }
 
-
   // Explicit paths config somewhat following the IETF model
   grouping explicit-paths_top {
     description
@@ -461,7 +466,6 @@ submodule openconfig-mpls-te {
       }
     }
   }
-
 
   grouping mpls-te-srlg_config {
     description
@@ -645,14 +649,6 @@ submodule openconfig-mpls-te {
         "Specifies a preference for this tunnel.
         A lower number signifies a better preference";
     }
-
-// TODO (rjs): Old specification of metric, suggest to change
-// to the style below.
-//    leaf metric {
-//      type te-metric-type;
-//      description
-//        "LSP metric, either explicit or IGP";
-//    }
 
     leaf metric-type {
       type identityref {
@@ -943,10 +939,25 @@ submodule openconfig-mpls-te {
          "The bandwidth value when bandwidth is explicitly
           specified";
       }
-      type uint32;
+      type oc-mplst:bandwidth-kbps;
       description
        "set bandwidth explicitly, e.g., using
         offline calculation";
+    }
+  }
+
+  grouping te-tunnel-bandwidth_state {
+    description
+      "Operational state parameters relating to bandwidth for a tunnel";
+
+    leaf signaled-bandwidth {
+      type oc-mplst:bandwidth-kbps;
+      description
+        "The currently signaled bandwidth of the LSP. In the case where
+        the bandwidth is specified explicitly, then this will match the
+        value of the set-bandwidth leaf; in cases where the bandwidth is
+        dynamically computed by the system, the current value of the
+        bandwidth should be reflected.";
     }
   }
 
@@ -971,6 +982,7 @@ submodule openconfig-mpls-te {
           "State parameters related to bandwidth
           configuration of TE tunnels";
         uses te-tunnel-bandwidth_config;
+        uses te-tunnel-bandwidth_state;
       }
 
       container auto-bandwidth {

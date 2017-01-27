@@ -8,9 +8,9 @@ module openconfig-mpls-rsvp {
   prefix "oc-rsvp";
 
   // import some basic types
-  import ietf-inet-types { prefix inet; }
+  import openconfig-inet-types { prefix inet; }
   import openconfig-mpls-types { prefix oc-mplst; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-yang-types { prefix yang; }
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-interfaces { prefix oc-if; }
@@ -28,7 +28,13 @@ module openconfig-mpls-rsvp {
      parameters and LSP-specific configuration for constrained-path
      LSPs";
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.2.0";
+
+  revision "2017-01-26" {
+    description
+      "Add RSVP Tspec, clarify units for RSVP, remove unused LDP";
+    reference "2.2.0";
+  }
 
   revision "2016-12-15" {
     description
@@ -64,11 +70,12 @@ module openconfig-mpls-rsvp {
       type uint16 {
         range 0..max;
       }
-      // The RFC actually recommends 30 seconds as default.
-      default 0;
+      default 30;
       description
         "Timeout value for soft preemption to revert
-         to hard preemption";
+         to hard preemption. The default timeout for
+         soft-preemption is 30 seconds - after which
+         the local system reverts to hard pre-emption.";
       reference "RFC5712 MPLS-TE soft preemption";
     }
   }
@@ -440,12 +447,7 @@ module openconfig-mpls-rsvp {
           container config {
             description
               "Configuration of per-interface RSVP parameters";
-
-            leaf interface-id {
-              type oc-if:interface-id;
-              description
-                "Identifier for the interface";
-            }
+            uses mpls-rsvp-interfaces-config;
           }
 
           container state {
@@ -454,6 +456,8 @@ module openconfig-mpls-rsvp {
               "Per-interface RSVP protocol and state information";
 
             uses mpls-rsvp-interfaces-state;
+            uses mpls-rsvp-interfaces-config;
+
             container counters {
               config false;
               description
@@ -642,7 +646,7 @@ module openconfig-mpls-rsvp {
             RSVP session";
 
           leaf local-index {
-            type uint32;
+            type uint64;
             description
               "The index used to identify the RSVP session
                on the local network element. This index is
@@ -712,6 +716,14 @@ module openconfig-mpls-rsvp {
               a transit session vs. an ingress session.";
           }
 
+          leaf protection-requested {
+            type identityref {
+              base oc-mplst:PROTECTION_TYPE;
+            }
+            description
+              "The type of protection requested for the RSVP session";
+          }
+
           leaf label-in {
             type oc-mplst:mpls-label;
             description
@@ -723,10 +735,66 @@ module openconfig-mpls-rsvp {
             description
               "Outgoing MPLS label associated with this RSVP session";
           }
+
+          container sender-tspec {
+            description
+              "Operational state statistics relating to the SENDER_TSPEC
+              received for the RSVP session";
+
+            leaf rate {
+              type oc-types:ieeefloat32;
+              units "Bps";
+              description
+                "The rate at which the head-end device generates traffic,
+                expressed in bytes per second.";
+              reference
+                "RFC2210: RSVP with INTSERV";
+            }
+
+            leaf size {
+              type oc-types:ieeefloat32;
+              units "bytes per second";
+              description
+                "The size of the token bucket that is used to determine
+                the rate at which the head-end device generates traffic,
+                expressed in bytes per second.";
+              reference
+                "RFC2210: RSVP with INTSERV";
+            }
+
+            leaf peak-data-rate {
+              type union {
+                type oc-types:ieeefloat32;
+                type enumeration {
+                  enum INFINITY {
+                    description
+                      "The head-end device has no maximum data rate.";
+                  }
+                }
+              }
+              units "bytes per second";
+              description
+                "The maximum traffic generation rate that the head-end
+                device sends traffic at.";
+              reference
+                "RFC2210: RSVP with INTSERV";
+            }
+          }
         }
       }
     }
   } //rsvp-session-state
+
+  grouping mpls-rsvp-interfaces-config {
+    description
+      "RSVP configuration information relevant to an interface";
+
+    leaf interface-id {
+      type oc-if:interface-id;
+      description
+        "Identifier for the interface";
+    }
+  }
 
   grouping mpls-rsvp-interfaces-state {
     description
