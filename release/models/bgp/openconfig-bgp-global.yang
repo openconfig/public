@@ -5,12 +5,13 @@ submodule openconfig-bgp-global {
   }
 
   import openconfig-extensions { prefix oc-ext; }
-  import ietf-inet-types { prefix inet; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-inet-types { prefix oc-inet; }
 
   // Include common submodule
   include openconfig-bgp-common;
   include openconfig-bgp-common-multiprotocol;
+  include openconfig-bgp-peer-group;
 
   // meta
   organization
@@ -24,7 +25,13 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "2.1.1";
+  oc-ext:openconfig-version "3.0.0";
+
+  revision "2017-01-26" {
+    description
+      "Add dynamic neighbor support, migrate to OpenConfig types";
+    reference "3.0.0";
+  }
 
   revision "2016-06-21" {
     description
@@ -37,7 +44,7 @@ submodule openconfig-bgp-global {
       "Global configuration options for the BGP router.";
 
     leaf as {
-      type inet:as-number;
+      type oc-inet:as-number;
       mandatory true;
       description
         "Local autonomous system number of the router.  Uses
@@ -45,7 +52,7 @@ submodule openconfig-bgp-global {
     }
 
     leaf router-id {
-      type yang:dotted-quad;
+      type oc-yang:dotted-quad;
       description
         "Router id of the router - an unsigned 32-bit integer
         expressed in dotted quad notation.";
@@ -100,16 +107,94 @@ submodule openconfig-bgp-global {
     }
 
     leaf identifier {
-      type inet:as-number;
+      type oc-inet:as-number;
       description
         "Confederation identifier for the autonomous system.";
     }
 
     leaf-list member-as {
-      type inet:as-number;
+      type oc-inet:as-number;
       description
         "Remote autonomous systems that are to be treated
         as part of the local confederation.";
+    }
+  }
+
+  grouping bgp-global-dynamic-neighbors {
+    description
+      "Grouping containing configuration relating to dynamic peers.";
+
+    container dynamic-neighbor-prefixes {
+      description
+        "A list of IP prefixes from which the system should:
+          - Accept connections to the BGP daemon
+          - Dynamically configure a BGP neighbor corresponding to the
+            source address of the remote system, using the parameters
+            of the specified peer-group.
+         For such neighbors, an entry within the neighbor list should
+         be created, indicating that the peer was dynamically
+         configured, and referencing the peer-group from which the
+         configuration was derived.";
+
+      list dynamic-neighbor-prefix {
+        key "prefix";
+        description
+          "An individual prefix from which dynamic neighbor
+          connections are allowed.";
+
+        leaf prefix {
+          type leafref {
+            path "../config/prefix";
+          }
+          description
+            "Reference to the IP prefix from which source connections
+            are allowed for the dynamic neighbor group.";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the source prefix
+            for the dynamic BGP neighbor connections.";
+
+          uses bgp-global-dynamic-neighbor-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to the source
+            prefix for the dynamic BGP neighbor connections.";
+
+          uses bgp-global-dynamic-neighbor-config;
+        }
+      }
+    }
+  }
+
+  grouping bgp-global-dynamic-neighbor-config {
+    description
+      "Configuration parameters relating to an individual prefix from
+      which dynamic neighbors are accepted.";
+
+    leaf prefix {
+      type oc-inet:ip-prefix;
+      description
+        "The IP prefix within which the source address of the remote
+        BGP speaker must fall to be considered eligible to the
+        dynamically configured."; }
+
+    leaf peer-group {
+      type leafref {
+        // At bgp/global/dynamic-neighbor-prefixes/dynamic-neighbor
+        // prefix/config/peer-group
+        path "../../../../../peer-groups/peer-group/config/" + 
+             "peer-group-name";
+      }
+      description
+        "The peer-group within which the dynamic neighbor will be
+        configured.  The configuration parameters used for the dynamic
+        neighbor are those specified within the referenced peer
+        group.";
     }
   }
 
@@ -248,6 +333,8 @@ submodule openconfig-bgp-global {
         "Address family specific configuration";
       uses bgp-global-afi-safi-list;
     }
+
+    uses bgp-global-dynamic-neighbors;
   }
 
 }

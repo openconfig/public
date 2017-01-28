@@ -9,7 +9,6 @@ module openconfig-bgp {
 
   // import some basic inet types
   import openconfig-extensions { prefix oc-ext; }
-  import openconfig-routing-policy { prefix oc-rpol; }
 
   // Include the OpenConfig BGP submodules
   // Common: defines the groupings that are common across more than
@@ -60,7 +59,13 @@ module openconfig-bgp {
           +-> [ optional pointer to peer-group ]
           +-> AFI / SAFI [ per-AFI overrides ]";
 
-  oc-ext:openconfig-version "2.1.1";
+  oc-ext:openconfig-version "3.0.0";
+
+  revision "2017-01-26" {
+    description
+      "Add dynamic neighbor support, migrate to OpenConfig types";
+    reference "3.0.0";
+  }
 
   revision "2016-06-21" {
     description
@@ -92,7 +97,6 @@ module openconfig-bgp {
         description
           "Global configuration for the BGP router";
           uses bgp-global-base;
-          uses oc-rpol:apply-policy-group;
       }
 
       container neighbors {

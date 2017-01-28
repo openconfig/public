@@ -24,7 +24,13 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "2.1.1";
+  oc-ext:openconfig-version "3.0.0";
+
+  revision "2017-01-26" {
+    description
+      "Add dynamic neighbor support, migrate to OpenConfig types";
+    reference "3.0.0";
+  }
 
   revision "2016-06-21" {
     description
@@ -386,6 +392,17 @@ submodule openconfig-bgp-common-multiprotocol {
         from the neighbour";
     }
 
+    leaf prevent-teardown {
+      type boolean;
+      default false;
+      description
+        "Do not tear down the BGP session when the maximum
+        prefix limit is exceeded, but rather only log a
+        warning. The default of this leaf is false, such
+        that when it is not specified, the session is torn
+        down.";
+    }
+
     leaf shutdown-threshold-pct {
       type oc-types:percentage;
       description
@@ -419,5 +436,4 @@ submodule openconfig-bgp-common-multiprotocol {
         "If set to true, send the default-route to the neighbour(s)";
     }
   }
-
 }

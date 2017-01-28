@@ -8,8 +8,8 @@ submodule openconfig-bgp-neighbor {
   import openconfig-routing-policy { prefix oc-rpol; }
   import openconfig-types { prefix oc-types; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
-  import ietf-inet-types { prefix inet; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-yang-types { prefix oc-yang; }
 
   // Include the common submodule
   include openconfig-bgp-common;
@@ -29,7 +29,13 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "2.1.1";
+  oc-ext:openconfig-version "3.0.0";
+
+  revision "2017-01-26" {
+    description
+      "Add dynamic neighbor support, migrate to OpenConfig types";
+    reference "3.0.0";
+  }
 
   revision "2016-06-21" {
     description
@@ -52,7 +58,7 @@ submodule openconfig-bgp-neighbor {
     }
 
     leaf neighbor-address {
-        type inet:ip-address;
+        type oc-inet:ip-address;
         description
           "Address of the BGP peer, either in IPv4 or IPv6";
     }
@@ -168,7 +174,7 @@ submodule openconfig-bgp-neighbor {
     }
 
     leaf established-transitions {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of transitions to the Established state for
         the neighbor session.  This value is analogous to the
@@ -208,6 +214,15 @@ submodule openconfig-bgp-neighbor {
         "Counters related to queued messages associated with the
         BGP neighbor";
       uses bgp-neighbor-queue-counters-state;
+    }
+
+    leaf dynamically-configured {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, the peer was configured dynamically
+        due to an inbound connection request from a specified source prefix
+        within a dynamic-neighbor-prefix.";
     }
   }
 
@@ -256,21 +271,21 @@ submodule openconfig-bgp-neighbor {
       used for the BGP session";
 
     leaf local-port {
-      type inet:port-number;
+      type oc-inet:port-number;
       description
         "Local TCP port being used for the TCP session supporting
         the BGP session";
     }
 
     leaf remote-address {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description
         "Remote address to which the BGP session has been
         established";
     }
 
     leaf remote-port {
-      type inet:port-number;
+      type oc-inet:port-number;
       description
         "Remote port being used by the peer for the TCP session
         supporting the BGP session";
