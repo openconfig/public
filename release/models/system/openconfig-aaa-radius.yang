@@ -1,0 +1,136 @@
+submodule openconfig-aaa-radius {
+
+  yang-version "1";
+
+  belongs-to "openconfig-aaa" {
+    prefix "oc-aaa";
+  }
+
+  // import some basic types
+  import ietf-inet-types { prefix inet; }
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-aaa-types { prefix oc-aaa-types; }
+  import openconfig-types { prefix oc-types; }
+
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines configuration and operational state data
+    related to the RADIUS protocol for authentication,
+    authorization, and accounting.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2017-01-29" {
+    description
+      "Initial public release";
+    reference "0.1.0";
+  }
+
+  // extension statements
+
+  // feature statements
+
+  // identity statements
+
+  identity RADIUS {
+    base oc-aaa-types:AAA_SERVER_TYPE;
+    description
+      "Remote Authentication Dial In User Service (RADIUS) AAA
+      server";
+    reference
+      "RFC 2865 - Remote Authentication Dial In User Service
+      (RADIUS)";
+  }
+
+  // typedef statements
+
+  // grouping statements
+
+  grouping aaa-radius-server-config {
+    description
+      "Configuration data for a RADIUS server";
+
+    leaf auth-port {
+      type inet:port-number;
+      default 1812;
+      description
+        "Port number for authentication requests";
+    }
+
+    leaf acct-port {
+      type inet:port-number;
+      default 1813;
+      description
+        "Port number for accounting requests";
+    }
+
+    leaf secret-key {
+      type oc-types:routing-password;
+      description
+        "The unencrypted shared key used between the authentication
+        server and the device.";
+    }
+
+    leaf source-address {
+      type inet:ip-address;
+      description
+        "Source IP address to use in messages to the TACACS server";
+    }
+
+    leaf retransmit-attempts {
+      type uint8;
+      description
+        "Number of times the system may resend a request to the
+        RADIUS server when it is unresponsive";
+    }
+  }
+
+  grouping aaa-radius-server-state {
+    description
+      "Operational state data for a RADIUS server";
+  }
+
+  grouping aaa-radius-server-top {
+    description
+      "Top-level grouping for RADIUS server data";
+
+    container radius {
+      description
+        "Top-level container for RADIUS server data";
+
+      container config {
+        description
+          "Configuration data for RADIUS servers";
+
+        uses aaa-radius-server-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for RADIUS servers";
+
+        uses aaa-radius-server-config;
+        uses aaa-radius-server-state;
+      }
+    }
+  }
+
+  // data definition statements
+
+  // augment statements
+
+  // rpc statements
+
+  // notification statements
+
+}
