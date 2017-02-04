@@ -25,7 +25,13 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "3.0.0";
+  oc-ext:openconfig-version "3.0.1";
+
+  revision "2017-02-02" {
+    description
+      "Bugfix to remove remaining global-level policy data";
+    reference "3.0.1";
+  }
 
   revision "2017-01-26" {
     description
@@ -187,7 +193,7 @@ submodule openconfig-bgp-global {
       type leafref {
         // At bgp/global/dynamic-neighbor-prefixes/dynamic-neighbor
         // prefix/config/peer-group
-        path "../../../../../peer-groups/peer-group/config/" + 
+        path "../../../../../peer-groups/peer-group/config/" +
              "peer-group-name";
       }
       description
@@ -196,6 +202,25 @@ submodule openconfig-bgp-global {
         neighbor are those specified within the referenced peer
         group.";
     }
+  }
+
+  grouping bgp-global-mp-all-afi-safi-list-contents {
+    description
+      "A grouping used for contents of the list of AFI-SAFI
+      entries at the global BGP level.";
+
+    // import and export policy included for the afi/safi
+
+    uses bgp-common-mp-ipv4-unicast-group;
+    uses bgp-common-mp-ipv6-unicast-group;
+    uses bgp-common-mp-ipv4-labeled-unicast-group;
+    uses bgp-common-mp-ipv6-labeled-unicast-group;
+    uses bgp-common-mp-l3vpn-ipv4-unicast-group;
+    uses bgp-common-mp-l3vpn-ipv6-unicast-group;
+    uses bgp-common-mp-l3vpn-ipv4-multicast-group;
+    uses bgp-common-mp-l3vpn-ipv6-multicast-group;
+    uses bgp-common-mp-l2vpn-vpls-group;
+    uses bgp-common-mp-l2vpn-evpn-group;
   }
 
   grouping bgp-global-afi-safi-list {
@@ -249,7 +274,7 @@ submodule openconfig-bgp-global {
 
       uses bgp-common-route-selection-options;
       uses bgp-common-global-group-use-multiple-paths;
-      uses bgp-common-mp-all-afi-safi-list-contents;
+      uses bgp-global-mp-all-afi-safi-list-contents;
     }
   }
 
