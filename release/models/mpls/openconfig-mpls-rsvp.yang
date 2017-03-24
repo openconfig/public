@@ -28,7 +28,13 @@ module openconfig-mpls-rsvp {
      parameters and LSP-specific configuration for constrained-path
      LSPs";
 
-  oc-ext:openconfig-version "2.2.0";
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2017-03-22" {
+    description
+      "Add RSVP calculated-absolute-subscription-bw";
+    reference "2.3.0";
+  }
 
   revision "2017-01-26" {
     description
@@ -166,6 +172,7 @@ module openconfig-mpls-rsvp {
   grouping mpls-rsvp-subscription_config {
     description
       "RSVP subscription configuration";
+
     leaf subscription {
       type oc-types:percentage;
       description
@@ -173,6 +180,23 @@ module openconfig-mpls-rsvp {
          RSVP can reserve";
     }
   }
+
+  grouping mpls-rsvp-subscription_state {
+    description
+      "Operational state parameters relating to the
+      bandwidth subscription on an interface";
+
+    leaf calculated-absolute-subscription-bw {
+      type uint64;
+      units "kbps";
+      description
+        "The calculated absolute value of the bandwidth
+        which is reservable to RSVP-TE on the interface
+        prior to any adjustments that may be made from
+        external sources.";
+    }
+  }
+
   grouping mpls-rsvp-subscription {
     description
       "Top level group for RSVP subscription options";
@@ -195,6 +219,7 @@ module openconfig-mpls-rsvp {
           "State parameters relating to RSVP
           subscription options";
         uses mpls-rsvp-subscription_config;
+        uses mpls-rsvp-subscription_state;
       }
     }
   }
