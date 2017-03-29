@@ -1,11 +1,11 @@
-module openconfig-wavelength-router {
+module openconfig-channel-monitor {
 
   yang-version "1";
 
   // namespace
-  namespace "http://openconfig.net/yang/wavelength-router";
+  namespace "http://openconfig.net/yang/channel-monitor";
 
-  prefix "oc-wave-router";
+  prefix "oc-chan-monitor";
 
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
@@ -22,14 +22,9 @@ module openconfig-wavelength-router {
       www.openconfig.net";
 
   description
-    "This model describes configuration and operational state data
-    for an optical transport line system node, or ROADM (incl. CDC
-    ROADMs, WSS, Dynamic Gain Equalizer/DGE).
-
-    Nodes are modeled as a configurable switching element with
-    ingress and egress ports, as well as a number of add/drop ports
-    that can be set up to direct portions of the optical spectrum
-    to the appropriate degrees.";
+    "This model describes operational state data for an optical
+    channel monitor (OCM) for optical transport line system
+    elements such as wavelength routers (ROADMs) and amplifiers.";
 
   oc-ext:openconfig-version "0.2.0";
 
@@ -39,9 +34,9 @@ module openconfig-wavelength-router {
     reference "0.2.0";
   }
 
-  revision "2016-03-31" {
+  revision "2016-09-14" {
     description
-      "Initial public release";
+      "Initial revision";
     reference "0.1.0";
   }
 
@@ -121,9 +116,9 @@ module openconfig-wavelength-router {
     }
   }
 
-  grouping media-channel-psd-config {
+  grouping media-channel-psd-state {
     description
-      "Configuration data for the media channel PSD";
+      "Operational state data for the media channel PSD";
 
     leaf lower-frequency {
       type oc-opt-types:frequency-type;
@@ -152,28 +147,25 @@ module openconfig-wavelength-router {
     }
   }
 
-  grouping media-channel-psd-state {
-    description
-      "Operational state data for the media channel PSD";
-  }
 
   grouping media-channel-psd-top {
     description
       "Top-level grouping ";
 
-    container psd-distribution {
+    container channels {
       description
         "Enclosing container for the list of values describing
         the power spectral density distribution";
 
-      list psd-value {
+      list channel {
         key "lower-frequency upper-frequency";
+        config false;
         description
           "List of tuples describing the PSD distribution";
 
         leaf lower-frequency {
           type leafref {
-            path "../config/lower-frequency";
+            path "../state/lower-frequency";
           }
           description
             "Reference to the list key";
@@ -181,18 +173,12 @@ module openconfig-wavelength-router {
 
         leaf upper-frequency {
           type leafref {
-            path "../config/upper-frequency";
+            path "../state/upper-frequency";
           }
           description
             "Reference to the list key";
         }
 
-        container config {
-          description
-            "Configuration data for PSD";
-
-          uses media-channel-psd-config;
-        }
 
         container state {
 
@@ -201,7 +187,6 @@ module openconfig-wavelength-router {
           description
             "Operational state data for PSD";
 
-          uses media-channel-psd-config;
           uses media-channel-psd-state;
         }
       }
@@ -218,12 +203,6 @@ module openconfig-wavelength-router {
         "Identifier for the defined media channel";
     }
 
-    leaf name {
-      type string;
-      description
-        "The user supplied name of the media channel";
-    }
-
     leaf lower-frequency {
       type oc-opt-types:frequency-type;
       description
@@ -238,96 +217,54 @@ module openconfig-wavelength-router {
         channel";
     }
 
-    leaf admin-status {
-      type oc-opt-types:admin-state-type;
-      description
-          "Sets the admin status of the media channel";
-    }
-
   }
 
-  grouping media-channel-state {
+  grouping channel-monitor-config {
     description
-      "Operational state data for media channels ";
-
-    leaf oper-status {
-      type enumeration {
-        enum UP {
-          description
-            "Media channel is operationally up";
-        }
-        enum DOWN {
-          description
-            "Media channel is operationally down";
-        }
-      }
-      description
-        "Operational state of the media channel";
-    }
-
+      "Configuration data ";
   }
 
-  grouping media-channel-top {
+  grouping channel-monitor-state {
     description
-      "Top-level grouping for list of defined media channels";
+      "Operational state data ";
+  }
 
-    container media-channels {
+  grouping channel-monitor-top {
+    description
+      "Top-level grouping ";
+
+    container channel-monitor {
       description
-        "Enclosing container for media channel list";
+        "Top-level container for optical channel monitor data";
 
-      list channel {
-        key "index";
+      container config {
         description
-          "List of media channels";
+          "Configuration data ";
 
-        leaf index {
-          type leafref {
-            path "../config/index";
-          }
-          description
-            "Reference to index number of the media channel";
-        }
-
-        container config {
-          description
-            "Configuration data ";
-
-          uses media-channel-config;
-        }
-
-        container state {
-
-          config false;
-
-          description
-            "Operational state data ";
-
-          uses media-channel-config;
-          uses media-channel-state;
-        }
-
-        uses media-channel-source-port-top;
-        uses media-channel-dest-port-top;
-        uses media-channel-psd-top;
+        uses channel-monitor-config;
       }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data ";
+
+        uses channel-monitor-config;
+        uses channel-monitor-state;
+      }
+
+      uses media-channel-psd-top;
     }
   }
 
-  grouping wavelength-router-top {
-    description
-      "Top level grouping for the wavelength router";
 
-    container wavelength-router {
-      description
-        "Top-level container for wavelength router device";
-
-      uses media-channel-top;
-    }
-  }
 
   // data definition statements
 
-  uses wavelength-router-top;
+  uses channel-monitor-top;
+
 
   // augment statements
 

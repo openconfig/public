@@ -8,10 +8,12 @@ module openconfig-transport-line-common {
   prefix "oc-line-com";
 
   // import some basic types
-  import openconfig-platform { prefix oc-platform; }
-  import openconfig-interfaces { prefix oc-if; }
   import iana-if-type { prefix ift; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-platform { prefix oc-platform; }
+  import openconfig-types { prefix oc-types; }
+  import openconfig-transport-types { prefix oc-opt-types; }
 
 
   // meta
@@ -26,7 +28,13 @@ module openconfig-transport-line-common {
     models for optical transport line system elements, such as
     amplifiers and ROADMs (wavelength routers).";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2017-03-28" {
+    description
+      "Added min/max/avg stats, status for media channels, OCM, APS";
+    reference "0.2.0";
+  }
 
   revision "2016-03-31" {
     description
@@ -93,6 +101,35 @@ module openconfig-transport-line-common {
   grouping optical-osc-state {
     description
       "Operational state data for OSC interfaces";
+
+    container input-power {
+      description
+        "The input optical power of this port in units
+        of 0.01dBm. If avg/min/max statistics are not supported,
+        the target is expected to just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+    }
+
+    container output-power {
+      description
+        "The output optical power of this port in units
+        of 0.01dBm. If avg/min/max statistics are not supported,
+        the target is expected to just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+    }
+
+    container laser-bias-current {
+      description
+        "The current applied by the system to the transmit laser to
+        achieve the output power. The current is expressed in mA
+        with up to one decimal precision. If avg/min/max statistics
+        are not supported, the target is expected to just supply
+        the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-mA;
+    }
   }
 
 
@@ -103,27 +140,22 @@ module openconfig-transport-line-common {
       data for optical supervisory channels (OSC) for amplifiers,
       WSS/ROADM, nodes, etc.";
 
-    container supervisory-channels {
+    container config {
       description
-        "Top-level container for OSC data";
+        "Configuration data for OSCs";
 
-      container config {
-        description
-          "Configuration data for OSCs";
+      uses optical-osc-config;
+    }
 
-        uses optical-osc-config;
-      }
+    container state {
 
-      container state {
+      config false;
 
-        config false;
+      description
+        "Operational state data for OSCs";
 
-        description
-          "Operational state data for OSCs";
-
-        uses optical-osc-config;
-        uses optical-osc-state;
-      }
+      uses optical-osc-config;
+      uses optical-osc-state;
     }
   }
 
@@ -131,6 +163,12 @@ module openconfig-transport-line-common {
   grouping transport-line-common-port-config {
     description
       "Configuration data for optical line ports";
+
+    leaf admin-state {
+      type oc-opt-types:admin-state-type;
+      description
+          "Sets the admin state of the optical-port";
+    }
   }
 
   grouping transport-line-common-port-state {
@@ -146,6 +184,24 @@ module openconfig-transport-line-common {
         informational field that should be made available by the
         device (e.g., in the openconfig-platform model).";
     }
+
+    container input-power {
+      description
+        "The total input optical power of this port in units
+        of 0.01dBm. If avg/min/max statistics are not supported,
+        just supply the instant value";
+      
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+    }
+
+    container output-power {
+      description
+        "The total output optical power of this port in units
+        of 0.01dBm. If avg/min/max statistics are not supported,
+        just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+    }
   }
 
   grouping transport-line-common-port-top {
@@ -155,6 +211,14 @@ module openconfig-transport-line-common {
     container optical-port {
       description
         "Top-level container ";
+
+      container config {
+
+        description
+          "Operational config data for optical line ports";
+
+        uses transport-line-common-port-config;
+      }
 
       container state {
 
