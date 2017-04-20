@@ -23,12 +23,12 @@ module openconfig-rib-bgp-ext {
     are not currently supported in a majority of BGP
     implementations.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
 
-  revision "2016-04-11" {
+  revision "2016-10-17" {
     description
-      "OpenConfig public release";
-    reference "0.2.0";
+      "OpenConfig BGP RIB refactor";
+    reference "0.3.0";
   }
 
 
@@ -53,7 +53,7 @@ module openconfig-rib-bgp-ext {
 
   augment "/oc-bgprib:bgp-rib/oc-bgprib:afi-safis/" +
     "oc-bgprib:afi-safi/oc-bgprib:ipv4-unicast/oc-bgprib:loc-rib/" +
-    "oc-bgprib:routes/oc-bgprib:route" {
+    "oc-bgprib:routes/oc-bgprib:route/oc-bgprib:state" {
       description
         "Add extended annotations to the Loc-RIB for IPv4";
 
@@ -62,7 +62,7 @@ module openconfig-rib-bgp-ext {
 
   augment "/oc-bgprib:bgp-rib/oc-bgprib:afi-safis/" +
     "oc-bgprib:afi-safi/oc-bgprib:ipv6-unicast/oc-bgprib:loc-rib/" +
-    "oc-bgprib:routes/oc-bgprib:route" {
+    "oc-bgprib:routes/oc-bgprib:route/oc-bgprib:state" {
       description
         "Add extended annotations to the Loc-RIB for IPv6";
 
@@ -72,7 +72,8 @@ module openconfig-rib-bgp-ext {
   augment "/oc-bgprib:bgp-rib/oc-bgprib:afi-safis/" +
     "oc-bgprib:afi-safi/oc-bgprib:ipv4-unicast/" +
     "oc-bgprib:neighbors/oc-bgprib:neighbor/" +
-    "oc-bgprib:adj-rib-in-pre/oc-bgprib:routes/oc-bgprib:route" {
+    "oc-bgprib:adj-rib-in-pre/oc-bgprib:routes/oc-bgprib:route" +
+    "/oc-bgprib:state" {
       description
         "Add extended annotations to Adj-RIB for IPv4";
 
@@ -82,7 +83,8 @@ module openconfig-rib-bgp-ext {
   augment "/oc-bgprib:bgp-rib/oc-bgprib:afi-safis/" +
     "oc-bgprib:afi-safi/oc-bgprib:ipv4-unicast/" +
     "oc-bgprib:neighbors/oc-bgprib:neighbor/" +
-    "oc-bgprib:adj-rib-in-post/oc-bgprib:routes/oc-bgprib:route" {
+    "oc-bgprib:adj-rib-in-post/oc-bgprib:routes/oc-bgprib:route" +
+    "/oc-bgprib:state"{
       description
         "Add extended annotations to Adj-RIB for IPv4";
 
@@ -92,7 +94,8 @@ module openconfig-rib-bgp-ext {
   augment "/oc-bgprib:bgp-rib/oc-bgprib:afi-safis/" +
     "oc-bgprib:afi-safi/oc-bgprib:ipv4-unicast/" +
     "oc-bgprib:neighbors/oc-bgprib:neighbor/" +
-    "oc-bgprib:adj-rib-out-pre/oc-bgprib:routes/oc-bgprib:route" {
+    "oc-bgprib:adj-rib-out-pre/oc-bgprib:routes/oc-bgprib:route" +
+    "/oc-bgprib:state"{
       description
         "Add extended annotations to Adj-RIB for IPv4";
 
@@ -102,7 +105,8 @@ module openconfig-rib-bgp-ext {
   augment "/oc-bgprib:bgp-rib/oc-bgprib:afi-safis/" +
     "oc-bgprib:afi-safi/oc-bgprib:ipv4-unicast/" +
     "oc-bgprib:neighbors/oc-bgprib:neighbor/" +
-    "oc-bgprib:adj-rib-out-post/oc-bgprib:routes/oc-bgprib:route" {
+    "oc-bgprib:adj-rib-out-post/oc-bgprib:routes/oc-bgprib:route" +
+    "/oc-bgprib:state"{
       description
         "Add extended annotations to Adj-RIB for IPv4";
 
@@ -112,7 +116,8 @@ module openconfig-rib-bgp-ext {
   augment "/oc-bgprib:bgp-rib/oc-bgprib:afi-safis/" +
     "oc-bgprib:afi-safi/oc-bgprib:ipv6-unicast/" +
     "oc-bgprib:neighbors/oc-bgprib:neighbor/" +
-    "oc-bgprib:adj-rib-in-pre/oc-bgprib:routes/oc-bgprib:route" {
+    "oc-bgprib:adj-rib-in-pre/oc-bgprib:routes/oc-bgprib:route" +
+    "/oc-bgprib:state"{
       description
         "Add extended annotations to Adj-RIB for IPv6";
 
@@ -122,7 +127,8 @@ module openconfig-rib-bgp-ext {
   augment "/oc-bgprib:bgp-rib/oc-bgprib:afi-safis/" +
     "oc-bgprib:afi-safi/oc-bgprib:ipv6-unicast/" +
     "oc-bgprib:neighbors/oc-bgprib:neighbor/" +
-    "oc-bgprib:adj-rib-in-post/oc-bgprib:routes/oc-bgprib:route" {
+    "oc-bgprib:adj-rib-in-post/oc-bgprib:routes/oc-bgprib:route" +
+    "/oc-bgprib:state"{
       description
         "Add extended annotations to Adj-RIB for IPv6";
 
@@ -132,7 +138,8 @@ module openconfig-rib-bgp-ext {
   augment "/oc-bgprib:bgp-rib/oc-bgprib:afi-safis/" +
     "oc-bgprib:afi-safi/oc-bgprib:ipv6-unicast/" +
     "oc-bgprib:neighbors/oc-bgprib:neighbor/" +
-    "oc-bgprib:adj-rib-out-pre/oc-bgprib:routes/oc-bgprib:route" {
+    "oc-bgprib:adj-rib-out-pre/oc-bgprib:routes/oc-bgprib:route" +
+    "/oc-bgprib:state"{
       description
         "Add extended annotations to Adj-RIB for IPv6";
 
@@ -142,7 +149,8 @@ module openconfig-rib-bgp-ext {
   augment "/oc-bgprib:bgp-rib/oc-bgprib:afi-safis/" +
     "oc-bgprib:afi-safi/oc-bgprib:ipv6-unicast/" +
     "oc-bgprib:neighbors/oc-bgprib:neighbor/" +
-    "oc-bgprib:adj-rib-out-post/oc-bgprib:routes/oc-bgprib:route" {
+    "oc-bgprib:adj-rib-out-post/oc-bgprib:routes/oc-bgprib:route" +
+    "/oc-bgprib:state"{
       description
         "Add extended annotations to Adj-RIB for IPv6";
 
