@@ -8,7 +8,7 @@ module openconfig-local-routing {
   prefix "oc-loc-rt";
 
   // import some basic types
-  import ietf-inet-types { prefix inet; }
+  import openconfig-inet-types { prefix inet; }
   import openconfig-policy-types { prefix oc-pt; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-interfaces { prefix oc-if; }
@@ -42,7 +42,13 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.0.1";
+
+  revision "2017-05-15" {
+    description
+      "Update to resolve style guide non-compliance.";
+    reference "1.0.1";
+  }
 
   revision "2016-05-11" {
     description
@@ -138,7 +144,7 @@ module openconfig-local-routing {
 
     leaf next-hop {
       type union {
-        type inet:ip-address-no-zone;
+        type inet:ip-address;
         type local-defined-next-hop;
       }
       description
@@ -200,7 +206,7 @@ module openconfig-local-routing {
         "Enclosing container for the list of static routes";
 
       list static {
-        key prefix;
+        key "prefix";
         description
           "List of locally configured static routes";
 
@@ -237,7 +243,7 @@ module openconfig-local-routing {
             route being specified";
 
           list next-hop {
-            key index;
+            key "index";
 
             description
               "A list of next-hops to be utilised for the static
@@ -322,7 +328,7 @@ module openconfig-local-routing {
         routes";
 
       list aggregate {
-        key prefix;
+        key "prefix";
         description
           "List of aggregates";
 
