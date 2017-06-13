@@ -3,7 +3,7 @@
 
 **Contributors:** Anees Shaikh, Rob Shakir, Kristian Larsson<br>
 **October 26, 2015**<br>
-*Updated: January  20, 2016*
+*Updated: June 10, 2016*
 
 
 ## Background
@@ -27,6 +27,7 @@ and released soon.
   - [Module template](#module-template)
   - [Modeling operational state](#modeling-operational-state)
   - [Top-level data nodes vs. groupings](#top-level-data-nodes-vs-groupings)
+  - [Module version](#module-version)
 - [YANG style conventions](#yang-style-conventions)
   - [Naming](#naming)
     - [Module naming](#module-naming)
@@ -40,6 +41,7 @@ and released soon.
     - [Enumerations](#enumerations)
     - [Identities](#identities)
 - [YANG language usage](#yang-language-usage)
+  - [`list`](#list)
   - [`presence`](#presence)
   - [`feature` and `if-feature`](#feature-and-if-feature)
   - [`choice`](#choice)
@@ -104,6 +106,27 @@ then instantiate it once in the module with a `uses` statement.
 This allows maximum reuse of data definitions across models, and also makes it
 easier to compose models using simple imports.
 
+Modules should generally have a single `xxx-top` grouping that allows it to be
+instantiated in other modules.  This top-level grouping should not have any
+self-augmentations.
+
+### Module version
+
+Every module must have an `openconfig-version` statement indicating its
+semantic version number.  This statement is a YANG extension defined in the
+openconfig-extensions module.  The YANG revision statement should reference
+semantic version.
+
+```
+oc-ext:openconfig-version "0.4.0";
+
+  revision "2016-05-31" {
+    description
+      "Public release";
+    reference "0.4.0";
+  }
+```
+
 ## YANG style conventions
 Style conventions describe guidelines related to conventions used in writing
 YANG modules.
@@ -149,7 +172,9 @@ Each module requires a `prefix` statement with a prefix that other dependent
 modules will use (also used in path references within the same module). Prefixes
 should be short and clear, with abbreviations as appropriate.
 
-Examples: `oc-types`, `oclldp`, `ocif`
+Module prefixes should be of the form `oc-xxx[-yyy]`
+
+Examples: `oc-types`, `oc-lldp`, `oc-if-ethernet`
 
 ### Path references
 
@@ -225,6 +250,68 @@ identity LC_CONNECTOR {
 Language rules describe guidelines on use of specific YANG language statements,
 including how modules should be structured and parsed.
 
+### `list`
+
+YANG list keys should be quoted:
+```
+list interfaces {
+  key "name";
+  ...
+}
+
+list servers {
+  key "address port";
+  ...
+}
+```
+
+YANG requires leaf nodes that are list keys to be direct descendents of the `list`
+statement.  Since key leaf nodes must also be members of the list data, they will
+generally reside in a `config` or `state` container (see
+[Modeling operational state](#modeling-operational-state)).  Hence, the list key leaf
+nodes should be of type `leafref` with a `path` pointing to the corresponding "actual"
+leaf in the config or state container.
+
+```
+grouping interfaces-config {
+
+  leaf name {
+    ...
+  }
+}
+
+grouping interfaces-list-top
+  list interface {
+    key "name";
+
+    leaf name {
+      type leafref {
+        path "../config/name";
+      }
+    }
+
+    container config {
+
+      uses interface-config;
+    }
+
+    ...
+  }
+}
+```
+
+Lists should have an enclosing container with no other data nodes inside
+it.
+
+```
+container interfaces {
+
+  list interface {
+    ...
+  }
+}
+```
+
 ### `presence`
 
 Use of `presence` containers should be avoided.
@@ -270,6 +357,7 @@ choice bandwidth {
   case explicit {
     leaf bw-value {
       type uint32;
+    }
   }
   case auto {
     leaf min {
