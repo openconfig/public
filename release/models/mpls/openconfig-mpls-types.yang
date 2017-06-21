@@ -19,7 +19,13 @@ module openconfig-mpls-types {
   description
     "General types for MPLS / TE data model";
 
-  oc-ext:openconfig-version "2.3.0";
+  oc-ext:openconfig-version "2.4.0";
+
+  revision "2017-06-21" {
+    description
+      "Add TC bits typedef.";
+    reference "2.4.0";
+  }
 
   revision "2017-03-22" {
     description
@@ -365,6 +371,15 @@ module openconfig-mpls-types {
     units "Gbps";
     description
       "Bandwidth values expressed in gigabits per second";
+  }
+
+  typedef mpls-tc {
+    type uint8 {
+      range "0..7";
+    }
+    description
+      "Values of the MPLS Traffic Class (formerly known as
+      Experimental, EXP) bits";
   }
 
   // grouping statements

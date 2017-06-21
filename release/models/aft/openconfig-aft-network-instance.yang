@@ -28,12 +28,25 @@ module openconfig-aft-network-instance {
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/" +
-          "oc-ni:afts/oc-ni:aft/oc-ni:entries/oc-ni:entry/" +
+          "oc-ni:afts/oc-ni:ipv4-unicast/oc-ni:ipv4-entry/" +
           "oc-ni:next-hops/oc-ni:next-hop/oc-ni:state" {
 
     description
       "Add leaves that require referencing of a network instance to the
-      operational state parameters of a next-hop within the AFT.";
+      operational state parameters of a next-hop within the AFT for IPv4
+      unicast.";
+
+    uses aft-nexthop-ni-state;
+  }
+
+ augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:afts/oc-ni:ipv6-unicast/oc-ni:ipv6-entry/" +
+          "oc-ni:next-hops/oc-ni:next-hop/oc-ni:state" {
+
+    description
+      "Add leaves that require referencing of a network instance to the
+      operational state parameters of a next-hop within the AFT for IPv6
+      unicast.";
 
     uses aft-nexthop-ni-state;
   }
@@ -53,11 +66,19 @@ module openconfig-aft-network-instance {
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/" +
-          "oc-ni:afts/oc-ni:aft/oc-ni:entries/oc-ni:entry/" +
-          "oc-ni:match/oc-ni:state" {
+          "oc-ni:afts/oc-ni:ipv4-unicast/oc-ni:ipv4-entry/oc-ni:state" {
     description
       "Add leaves that require referencing of a network instance to the
-      operational state parmaeters of an entry within the AFT.";
+      operational state parameters of an entry within the IPv4 unicast AFT.";
+
+    uses aft-entry-ni-state;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:afts/oc-ni:ipv6-unicast/oc-ni:ipv6-entry/oc-ni:state" {
+    description
+      "Add leaves that require referencing of a network instance to the
+      operational state parameters of an entry within the IPv6 unicast AFT.";
 
     uses aft-entry-ni-state;
   }
