@@ -84,6 +84,40 @@ module openconfig-transport-line-protection {
       "The secondary line path connected to an automatic protection
       switch port indicating the secondary path";
   }
+  
+  identity APS_MODE {
+    description
+      "Base identity for identifying the work mode on an
+      automatic protection switch";
+  }
+
+  identity APS_AUTOREV {
+    base APS_MODE;
+    description
+      "revert after protection switch
+        once the fault is restored";
+  }
+
+  identity APS_AUTONOREV {
+    base APS_MODE;
+    description
+      "no revert after protection switch
+        once the fault is restored";
+  }
+  
+   identity APS_FORCE {
+    base APS_MODE;
+    description
+      "force switch primary/second path 
+        in the local regardless of the optical power";
+  }
+
+  identity APS_MANUAL {
+    base APS_MODE;
+    description
+      "manual switch primary/second path 
+        in the local and remote";
+  }
 
   // grouping statements
 
@@ -348,15 +382,58 @@ module openconfig-transport-line-protection {
         corresponding to this automatic protection switch module
         in the device";
     }
-
-    leaf revertive {
-      type boolean;
+    
+    leaf active-mode {
+      type identityref {
+        base APS_MODE;
+      }
       description
-        "Revertive behavior of the module.
-        If True, then automatically revert after protection switch
-        once the fault is restored.";
+        "Indicates aps work mode";
     }
-
+    
+    leaf return-timer {
+      type uint16;
+      units "seconds";
+      description
+        "time from the second path to primary path,
+          after the primary path is restored";
+    }
+    
+    leaf switch-timer {
+      type uint16;
+      units "seconds";
+      description
+        "switch time from one path(primary/second) to another path(second/primary).";
+    }
+    
+     leaf common-in-alarm-threshold {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "common in alarm threshold in increments of 0.01 dBm";
+    }
+    
+     leaf common-out-alarm-threshold {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "common out alarm threshold in increments of 0.01 dBm";
+    }
+    
+     leaf primary-alarm-threshold {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "primary alarm threshold in increments of 0.01 dBm";
+    }
+    
+  
     leaf primary-switch-threshold {
       type decimal64 {
         fraction-digits 2;
@@ -385,6 +462,15 @@ module openconfig-transport-line-protection {
         then it is recommended to set both primary-switch-threshold
         and secondary-switch-threshold to the same value to be
         explicit";
+    }
+    
+     leaf secondary-alarm-threshold {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "secondary alarm threshold in increments of 0.01 dBm";
     }
 
     leaf secondary-switch-threshold {
