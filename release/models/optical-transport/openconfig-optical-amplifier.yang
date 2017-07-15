@@ -7,6 +7,7 @@ module openconfig-optical-amplifier {
 
   prefix "oc-opt-amp";
 
+  import openconfig-platform { prefix oc-platform; }
   import openconfig-transport-line-common { prefix oc-line-com; }
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
@@ -24,7 +25,13 @@ module openconfig-optical-amplifier {
     for optical amplifiers, deployed as part of a transport
     line system.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2017-07-08" {
+    description
+      "Add monitor port type and refs to hw ports, ";
+    reference "0.3.0";
+  }
 
   revision "2017-03-28" {
     description
@@ -202,6 +209,26 @@ module openconfig-optical-amplifier {
   grouping optical-amplifier-state {
     description
       "Operational state data for optical amplifiers";
+
+    leaf ingress-port {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
+      }
+      description
+        "Reference to system-supplied name of the amplifier ingress
+        port. This leaf is only valid for ports of type INGRESS.";
+    }
+
+    leaf egress-port {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
+      }
+      description
+        "Reference to system-supplied name of the amplifier egress
+        port. This leaf is only valid for ports of type EGRESS.";
+    }
 
     container actual-gain {
       description

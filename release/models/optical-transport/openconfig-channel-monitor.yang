@@ -11,6 +11,7 @@ module openconfig-channel-monitor {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-types { prefix oc-types; }
   import openconfig-interfaces { prefix oc-if; }
+  import openconfig-platform { prefix oc-platform; }
   import openconfig-transport-types { prefix oc-opt-types; }
 
 
@@ -26,7 +27,13 @@ module openconfig-channel-monitor {
     channel monitor (OCM) for optical transport line system
     elements such as wavelength routers (ROADMs) and amplifiers.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2017-07-08" {
+    description
+      "Support multiple OCMs, add refs to hw ports, ";
+    reference "0.3.0";
+  }
 
   revision "2017-03-28" {
     description
@@ -221,7 +228,37 @@ module openconfig-channel-monitor {
 
   grouping channel-monitor-config {
     description
-      "Configuration data ";
+      "Configuration data for the optical channel monitor";
+
+    leaf name {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
+      }
+      description
+        "Reference to system-supplied name of the port on the
+        optical channel monitor (OCM). If this port is embedded
+        in another card (i.e. an amplifier card) the device
+        should still define a port representing the OCM even if
+        it is internal and not physically present on the
+        faceplate of the card";
+    }
+
+    leaf monitor-port {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
+      }
+      description
+        "Reference to system-supplied name of the port that the
+        channel monitor is physically connected to. This port
+        will be of type MONITOR. This port is a tap off of the
+        monitored-port and would be in the same card as the
+        monitored port. If this port is embedded in another card
+        (i.e. an amplifier card) the device should still define
+        a port representing the monitor port if it is internal
+        and not physically present on the faceplate of the card";
+    }
   }
 
   grouping channel-monitor-state {
@@ -233,33 +270,45 @@ module openconfig-channel-monitor {
     description
       "Top-level grouping ";
 
-    container channel-monitor {
+    container channel-monitors {
       description
-        "Top-level container for optical channel monitor data";
+        "Top-level container for optical channel monitors";
 
-      container config {
+      list channel-monitor {
+        key "name";
         description
-          "Configuration data ";
+          "List of channel monitors, keyed by channel monitor name.";
 
-        uses channel-monitor-config;
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "References the optical channel monitor name";
+        }
+
+        container config {
+          description
+            "Configuration data ";
+
+          uses channel-monitor-config;
+        }
+
+        container state {
+
+          config false;
+
+          description
+            "Operational state data ";
+
+          uses channel-monitor-config;
+          uses channel-monitor-state;
+        }
+
+        uses media-channel-psd-top;
       }
-
-      container state {
-
-        config false;
-
-        description
-          "Operational state data ";
-
-        uses channel-monitor-config;
-        uses channel-monitor-state;
-      }
-
-      uses media-channel-psd-top;
     }
   }
-
-
 
   // data definition statements
 
