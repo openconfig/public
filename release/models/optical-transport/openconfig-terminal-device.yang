@@ -74,7 +74,13 @@ module openconfig-terminal-device {
     ports per linecard, separate linecards for client and line ports,
     etc.).";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2017-07-08" {
+    description
+      "Adds test-signal";
+    reference "1.0.0";
+  }
 
   revision "2016-12-22" {
     description
@@ -743,6 +749,13 @@ module openconfig-terminal-device {
         "Sets the loopback type on the logical channel. Setting the
         mode to something besides NONE activates the loopback in
         the specified mode.";
+    }
+
+    leaf test-signal {
+      type boolean;
+      description
+        "When enabled the logical channel's DSP will generate a pseudo
+        randmon bit stream (PRBS) which can be used during testing.";
     }
   }
 
