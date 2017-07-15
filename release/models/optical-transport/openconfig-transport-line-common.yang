@@ -264,7 +264,7 @@ module openconfig-transport-line-common {
 
     uses transport-line-common-port-top {
       when "/oc-platform:components/oc-platform:component/" +
-        "state/type = PORT" {
+        "oc-platform:state/oc-platform:type = 'PORT'" {
         description
           "Augment is active when component is of type
           PORT";
@@ -275,7 +275,7 @@ module openconfig-transport-line-common {
   //TODO:this is placeholder until SONET model is added
   //to interfaces model
   augment "/oc-if:interfaces/oc-if:interface" {
-    when "oc-if:type = 'ift:sonet'" {
+    when "oc-if:config/oc-if:type = 'ift:sonet'" {
       description "Additional interface configuration parameters when
       the interface type is SONET/SDH";
     }
