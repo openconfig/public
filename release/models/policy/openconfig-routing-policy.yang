@@ -8,7 +8,7 @@ module openconfig-routing-policy {
   prefix "oc-rpol";
 
   // import some basic types
-  import ietf-inet-types { prefix inet; }
+  import openconfig-inet-types { prefix oc-inet; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-policy-types { prefix oc-pol-types; }
   import openconfig-extensions { prefix oc-ext; }
@@ -77,7 +77,16 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "3.0.0";
+
+  revision "2017-07-14" {
+    description
+      "Replace policy choice node/type with policy-result
+      enumeration;simplified defined set naming;removed generic
+      IGP actions; migrate to OpenConfig types; added mode for
+      prefix sets";
+    reference "3.0.0";
+  }
 
   revision "2016-05-12" {
     description
@@ -89,16 +98,35 @@ module openconfig-routing-policy {
   // typedef statements
 
   typedef default-policy-type {
+    // this typedef retained for name compatibiity with default
+    // import and export policy
     type enumeration {
       enum ACCEPT_ROUTE {
-        description "default policy to accept the route";
+        description
+          "Default policy to accept the route";
       }
       enum REJECT_ROUTE {
-        description "default policy to reject the route";
+        description
+          "Default policy to reject the route";
       }
     }
-    description "type used to specify default route disposition in
-    a policy chain";
+    description
+      "Type used to specify route disposition in
+      a policy chain";
+  }
+
+  typedef policy-result-type {
+    type enumeration {
+      enum ACCEPT_ROUTE {
+        description "Policy accepts the route";
+      }
+      enum REJECT_ROUTE {
+        description "Policy rejects the route";
+      }
+    }
+    description
+      "Type used to specify route disposition in
+      a policy chain";
   }
 
 
@@ -109,11 +137,36 @@ module openconfig-routing-policy {
       "Configuration data for prefix sets used in policy
       definitions.";
 
-    leaf prefix-set-name {
+    leaf name {
       type string;
       description
         "name / label of the prefix set -- this is used to
         reference the set in match conditions";
+    }
+
+    leaf mode {
+      type enumeration {
+        enum IPV4 {
+          description
+            "Prefix set contains IPv4 prefixes only";
+        }
+        enum IPV6 {
+          description
+            "Prefix set contains IPv6 prefixes only";
+        }
+        enum MIXED {
+          description
+            "Prefix set contains mixed IPv4 and IPv6 prefixes";
+        }
+      }
+      description
+        "Indicates the mode of the prefix set, in terms of which
+        address families (IPv4, IPv6, or both) are present.  The
+        mode provides a hint, but the device must validate that all
+        prefixes are of the indicated type, and is expected to
+        reject the configuration if there is a discrepancy.  The
+        MIXED mode may not be supported on devices that require
+        prefix sets to be of only one address family.";
     }
 
   }
@@ -133,13 +186,13 @@ module openconfig-routing-policy {
         "Enclosing container ";
 
       list prefix-set {
-        key "prefix-set-name";
+        key "name";
         description
           "List of the defined prefix sets";
 
-        leaf prefix-set-name {
+        leaf name {
           type leafref {
-            path "../config/prefix-set-name";
+            path "../config/name";
           }
           description
             "Reference to prefix name list key";
@@ -173,7 +226,7 @@ module openconfig-routing-policy {
       "Configuration data for a prefix definition";
 
     leaf ip-prefix {
-      type inet:ip-prefix;
+      type oc-inet:ip-prefix;
       mandatory true;
       description
         "The prefix member in CIDR notation -- while the
@@ -261,7 +314,7 @@ module openconfig-routing-policy {
     description
       "Configuration data for neighbor set definitions";
 
-    leaf neighbor-set-name {
+    leaf name {
       type string;
       description
           "name / label of the neighbor set -- this is used to
@@ -269,7 +322,7 @@ module openconfig-routing-policy {
     }
 
     leaf-list address {
-      type inet:ip-address-no-zone;
+      type oc-inet:ip-address;
       description
         "List of IP addresses in the neighbor set";
     }
@@ -291,13 +344,13 @@ module openconfig-routing-policy {
         definitions";
 
       list neighbor-set {
-        key "neighbor-set-name";
+        key "name";
         description
           "List of defined neighbor sets for use in policies.";
 
-        leaf neighbor-set-name {
+        leaf name {
           type leafref {
-            path "../config/neighbor-set-name";
+            path "../config/name";
           }
           description
             "Reference to the neighbor set name list key.";
@@ -328,7 +381,7 @@ module openconfig-routing-policy {
     description
       "Configuration data for tag set definitions.";
 
-    leaf tag-set-name {
+    leaf name {
       type string;
       description
         "name / label of the tag set -- this is used to reference
@@ -357,13 +410,13 @@ module openconfig-routing-policy {
         "Enclosing container for the list of tag sets.";
 
       list tag-set {
-        key "tag-set-name";
+        key "name";
         description
           "List of tag set definitions.";
 
-        leaf tag-set-name {
+        leaf name {
           type leafref {
-            path "../config/tag-set-name";
+            path "../config/name";
           }
           description
             "Reference to the tag set name list key";
@@ -425,7 +478,7 @@ module openconfig-routing-policy {
         "Optional parameter that governs the behaviour of the
         match operation.  This leaf only supports matching on ANY
         member of the set or inverting the match.  Matching on ALL is
-        not supported)";
+        not supported";
     }
   }
 
@@ -476,16 +529,14 @@ module openconfig-routing-policy {
 
     leaf prefix-set {
         type leafref {
-          path "/routing-policy/defined-sets/prefix-sets/" +
-          "prefix-set/prefix-set-name";
-          //TODO: require-instance should be added when it's
-          //supported in YANG 1.1
-          //require-instance true;
+          path "../../../../../../../../defined-sets/" +
+            "prefix-sets/prefix-set/config/name";
         }
         description "References a defined prefix set";
       }
       uses match-set-options-restricted-group;
   }
+
 
   grouping prefix-set-condition-state {
     description
@@ -527,8 +578,8 @@ module openconfig-routing-policy {
 
     leaf neighbor-set {
       type leafref {
-        path "/routing-policy/defined-sets/neighbor-sets/" +
-        "neighbor-set/neighbor-set-name";
+        path "../../../../../../../../defined-sets/neighbor-sets/" +
+        "neighbor-set/name";
         //TODO: require-instance should be added when it's
         //supported in YANG 1.1
         //require-instance true;
@@ -579,8 +630,8 @@ module openconfig-routing-policy {
 
     leaf tag-set {
       type leafref {
-        path "/routing-policy/defined-sets/tag-sets/tag-set" +
-        "/tag-set-name";
+        path "../../../../../../../../defined-sets/tag-sets/tag-set" +
+        "/name";
         //TODO: require-instance should be added when it's
         //supported in YANG 1.1
         //require-instance true;
@@ -635,87 +686,16 @@ module openconfig-routing-policy {
 
   }
 
-  grouping igp-generic-conditions {
-    description "grouping for IGP policy conditions";
-
-  }
-
-
-  grouping igp-conditions {
-    description "grouping for IGP-specific policy conditions";
-
-    container igp-conditions {
-      description "Policy conditions for IGP attributes";
-
-      uses igp-generic-conditions;
-
-    }
-  }
-
   grouping generic-actions {
     description
       "Definitions for common set of policy action statements that
       manage the disposition or control flow of the policy";
 
-    choice route-disposition {
+    leaf policy-result {
+      type policy-result-type;
       description
         "Select the final disposition for the route, either
         accept or reject.";
-      leaf accept-route {
-        type empty;
-        description "accepts the route into the routing table";
-      }
-
-      leaf reject-route {
-        type empty;
-        description "rejects the route";
-      }
-    }
-  }
-
-
-  grouping igp-actions-config {
-    description
-      "Configuration data for IGP policy actions";
-
-    leaf set-tag {
-        type oc-pol-types:tag-type;
-        description
-          "Set the tag value for OSPF or IS-IS routes.";
-      }
-  }
-
-  grouping igp-actions-state {
-    description
-      "Operational state data for IGP policy actions ";
-  }
-
-  grouping igp-actions-top {
-    description
-      "Top-level grouping ";
-
-    container igp-actions {
-      description
-        "Actions to set IGP route attributes; these actions
-        apply to multiple IGPs";
-
-      container config {
-        description
-          "Configuration data ";
-
-        uses igp-actions-config;
-      }
-
-      container state {
-
-        config false;
-
-        description
-          "Operational state data ";
-
-        uses igp-actions-config;
-        uses igp-actions-state;
-      }
     }
   }
 
@@ -727,7 +707,7 @@ module openconfig-routing-policy {
 
       leaf call-policy {
         type leafref {
-          path "/oc-rpol:routing-policy/" +
+          path "../../../../../../../" +
             "oc-rpol:policy-definitions/" +
             "oc-rpol:policy-definition/oc-rpol:name";
           //TODO: require-instance should be added when
@@ -789,7 +769,6 @@ module openconfig-routing-policy {
         uses policy-conditions-state;
       }
       uses generic-conditions;
-      uses igp-conditions;
     }
   }
 
@@ -848,8 +827,6 @@ module openconfig-routing-policy {
         uses policy-actions-config;
         uses policy-actions-state;
       }
-
-      uses igp-actions-top;
     }
   }
 
