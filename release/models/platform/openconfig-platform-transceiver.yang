@@ -34,7 +34,13 @@ module openconfig-platform-transceiver {
     module defines a concrete schema for the associated data for
     components with type=TRANSCEIVER.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2017-07-08" {
+    description
+      "Adds clarification on aggregate power measurement data";
+    reference "0.3.0";
+  }
 
   revision "2016-12-22" {
     description
@@ -57,9 +63,13 @@ module openconfig-platform-transceiver {
 
     container output-power {
       description
-        "The output optical power of this port in units of 0.01dBm.
-        If the port is an aggregate of multiple physical channels,
-        this attribute is the total power or sum of all channels.
+        "The output optical power of a physical channel in units
+        of 0.01dBm, which may be associated with individual
+        physical channels, or an aggregate of multiple physical
+        channels (i.e., for the overall transceiver). For an
+        aggregate, this may be a measurement from a photodetector
+        or a a calculation performed on the device by summing up
+        all of the related individual physical channels.
         Values include the instantaneous, average, minimum, and
         maximum statistics. If avg/min/max statistics are not
         supported, the target is expected to just supply the
@@ -70,9 +80,13 @@ module openconfig-platform-transceiver {
 
     container input-power {
       description
-        "The input optical power of this port in units of 0.01dBm.
-        If the port is an aggregate of multiple physical channels,
-        this attribute is the total power or sum of all channels.
+        "The input optical power of a physical channel in units
+        of 0.01dBm, which may be associated with individual
+        physical channels, or an aggregate of multiple physical
+        channels (i.e., for the overall transceiver). For an
+        aggregate, this may be a measurement from a photodetector
+        or a a calculation performed on the device by summing up
+        all of the related individual physical channels.
         Values include the instantaneous, average, minimum, and
         maximum statistics. If avg/min/max statistics are not
         supported, the target is expected to just supply the
@@ -389,6 +403,8 @@ module openconfig-platform-transceiver {
       description
         "Indicates if a fault condition exists in the transceiver";
     }
+
+    uses optical-power-state;
 
   }
 
