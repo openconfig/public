@@ -28,7 +28,20 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "4.0.1";
+
+  revision "2017-07-30" {
+    description
+      "Clarification of add-paths send-max leaf";
+    reference "4.0.1";
+  }
+
+  revision "2017-07-10" {
+    description
+      "Add error notifications; moved add-paths config; add AS
+      prepend policy features; removed unneeded config leaves";
+    reference "4.0.0";
+  }
 
   revision "2017-02-02" {
     description
@@ -94,7 +107,7 @@ module openconfig-bgp-policy {
     type union {
       type uint32;
       type string {
-        pattern "^[+-][0-9]+";
+        pattern '^[+-][0-9]+$';
       }
       type enumeration {
         enum IGP {
@@ -687,9 +700,19 @@ module openconfig-bgp-policy {
         range 1..max;
       }
       description
-        "Number of times to prepend the local AS number to the AS
-        path.  The value should be between 1 and the maximum
-        supported by the implementation.";
+        "Number of times to prepend the value specified in the asn
+        leaf to the AS path. If no value is specified by the asn
+        leaf, the local AS number of the system is used. The value
+        should be between 1 and the maximum supported by the
+        implementation.";
+    }
+
+    leaf asn {
+      type oc-inet:as-number;
+      description
+        "The AS number to prepend to the AS path. If this leaf is
+        not specified and repeat-n is set, then the local AS
+        number will be used for prepending.";
     }
   }
 
@@ -704,13 +727,12 @@ module openconfig-bgp-policy {
 
     container set-as-path-prepend {
       description
-        "action to prepend local AS number to the AS-path a
+        "Action to prepend the specified AS number to the AS-path a
         specified number of times";
 
       container config {
         description
           "Configuration data for the AS path prepend action";
-
 
         uses as-path-prepend-config;
       }

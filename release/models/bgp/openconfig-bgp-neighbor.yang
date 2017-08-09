@@ -29,7 +29,20 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "4.0.1";
+
+  revision "2017-07-30" {
+    description
+      "Clarification of add-paths send-max leaf";
+    reference "4.0.1";
+  }
+
+  revision "2017-07-10" {
+    description
+      "Add error notifications; moved add-paths config; add AS
+      prepend policy features; removed unneeded config leaves";
+    reference "4.0.0";
+  }
 
   revision "2017-02-02" {
     description
@@ -249,6 +262,38 @@ submodule openconfig-bgp-neighbor {
       description
         "Number of BGP NOTIFICATION messages indicating an
         error condition has occurred exchanged.";
+    }
+
+    leaf last-notification-time {
+      type oc-types:timeticks64;
+      description
+        "This timestamp indicates the time that a NOTIFICATION
+        message was sent or received on the peering session
+        (based on whether this leaf is associated with
+        sent or received messages).
+
+        The value is the timestamp in seconds relative to
+        the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+    }
+
+    leaf last-notification-error-code {
+      type identityref {
+        base oc-bgp-types:BGP_ERROR_CODE;
+      }
+      description
+        "Indicates the last BGP error sent or received on the peering
+        session (based on whether this leaf is associated with
+        sent or received messages).";
+    }
+
+    leaf last-notification-error-subcode {
+      type identityref {
+        base oc-bgp-types:BGP_ERROR_SUBCODE;
+      }
+      description
+        "Indicates the last BGP error subcode sent or received on
+        the peering session (based on whether this leaf is associated
+        with sent or received messages)";
     }
   }
 
@@ -496,6 +541,7 @@ submodule openconfig-bgp-neighbor {
         }
       }
 
+      uses bgp-common-structure-neighbor-group-add-paths;
       uses bgp-common-mp-all-afi-safi-list-contents;
       uses bgp-neighbor-use-multiple-paths;
     }
@@ -601,7 +647,6 @@ submodule openconfig-bgp-neighbor {
     uses bgp-common-structure-neighbor-group-ebgp-multihop;
     uses bgp-common-structure-neighbor-group-route-reflector;
     uses bgp-common-structure-neighbor-group-as-path-options;
-    uses bgp-common-structure-neighbor-group-add-paths;
     uses bgp-neighbor-use-multiple-paths;
     uses oc-rpol:apply-policy-group;
 

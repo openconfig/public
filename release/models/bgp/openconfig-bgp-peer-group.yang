@@ -24,7 +24,20 @@ submodule openconfig-bgp-peer-group {
     "This sub-module contains groupings that are specific to the
     peer-group context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "4.0.1";
+
+  revision "2017-07-30" {
+    description
+      "Clarification of add-paths send-max leaf";
+    reference "4.0.1";
+  }
+
+  revision "2017-07-10" {
+    description
+      "Add error notifications; moved add-paths config; add AS
+      prepend policy features; removed unneeded config leaves";
+    reference "4.0.0";
+  }
 
   revision "2017-02-02" {
     description
@@ -105,7 +118,7 @@ submodule openconfig-bgp-peer-group {
         }
       }
 
-      uses bgp-common-route-selection-options;
+      uses bgp-common-structure-neighbor-group-add-paths;
       uses bgp-common-global-group-use-multiple-paths;
       uses bgp-common-mp-all-afi-safi-list-contents;
     }
@@ -209,7 +222,6 @@ submodule openconfig-bgp-peer-group {
     uses bgp-common-structure-neighbor-group-ebgp-multihop;
     uses bgp-common-structure-neighbor-group-route-reflector;
     uses bgp-common-structure-neighbor-group-as-path-options;
-    uses bgp-common-structure-neighbor-group-add-paths;
     uses bgp-common-global-group-use-multiple-paths;
     uses oc-rpol:apply-policy-group;
 

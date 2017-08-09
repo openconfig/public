@@ -24,7 +24,20 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "4.0.1";
+
+  revision "2017-07-30" {
+    description
+      "Clarification of add-paths send-max leaf";
+    reference "4.0.1";
+  }
+
+  revision "2017-07-10" {
+    description
+      "Add error notifications; moved add-paths config; add AS
+      prepend policy features; removed unneeded config leaves";
+    reference "4.0.0";
+  }
 
   revision "2017-02-02" {
     description
@@ -306,6 +319,16 @@ submodule openconfig-bgp-common {
         "Replace occurrences of the peer's AS in the AS_PATH
         with the local autonomous system number";
     }
+
+    leaf disable-peer-as-filter {
+      type boolean;
+      default "false";
+      description
+        "When set to true, the system advertises routes to a peer
+        even if the peer's AS was in the AS path.  The default
+        behavior (false) suppresses advertisements to peers if
+        their AS number is in the AS path of the route.";
+    }
   }
 
   grouping bgp-common-neighbor-group-add-paths-config {
@@ -317,15 +340,29 @@ submodule openconfig-bgp-common {
       type boolean;
       default false;
       description
-        "Enable ability to receive multiple path advertisements
-        for an NLRI from the neighbor or group";
+        "Enable capability negotiation to receive multiple path
+        advertisements for an NLRI from the neighbor or group";
+      reference
+        "RFC 7911 - Advertisement of Multiple Paths in BGP";
+    }
+
+    leaf send {
+      type boolean;
+      default false;
+      description
+        "Enable capability negotiation to send multiple path
+        advertisements for an NLRI from the neighbor or group";
+      reference
+        "RFC 7911 - Advertisement of Multiple Paths in BGP";
     }
 
     leaf send-max {
       type uint8;
       description
-        "The maximum number of paths to advertise to neighbors
-        for a single NLRI";
+        "The maximum total number of paths to advertise to neighbors
+        for a single NLRI.  This includes the single best path as
+        well as additional paths advertised when add-paths is
+        enabled.";
     }
 
     leaf eligible-prefix-policy {

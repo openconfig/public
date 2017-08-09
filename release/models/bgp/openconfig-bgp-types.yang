@@ -9,6 +9,9 @@ module openconfig-bgp-types {
   import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-extensions { prefix "oc-ext"; }
 
+  // Include definitions of BGP error notifications
+  include openconfig-bgp-errors;
+
   // meta
   organization
     "OpenConfig working group";
@@ -22,7 +25,20 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "4.0.1";
+
+  revision "2017-07-30" {
+    description
+      "Clarification of add-paths send-max leaf";
+    reference "4.0.1";
+  }
+
+  revision "2017-07-10" {
+    description
+      "Add error notifications; moved add-paths config; add AS
+      prepend policy features; removed unneeded config leaves";
+    reference "4.0.0";
+  }
 
   revision "2017-02-02" {
     description
@@ -240,7 +256,6 @@ module openconfig-bgp-types {
       type uint32 {
       // per RFC 1997, 0x00000000 - 0x0000FFFF and 0xFFFF0000 -
       // 0xFFFFFFFF are reserved
-        range "65536..4294901759"; // 0x00010000..0xFFFEFFFF
       }
       type string {
         pattern '^(6553[0-5]|655[0-2][0-9]|654[0-9]{2}|65[0-4][0-9]{2}'      +
@@ -359,7 +374,7 @@ module openconfig-bgp-types {
         - route-target:<4b IPv4>:<2b value> per RFC4360 section 4
         - route-origin:<2b ASN>:<4b value> per RFC4360 section 5
         - route-origin:<4b IPv4>:<2b value> per RFC4360 section 5";
-    reference 
+    reference
       "RFC 4360 - BGP Extended Communities Attribute
        RFC 5668 - 4-Octet AS Specific BGP Extended Community";
   }
@@ -372,22 +387,23 @@ module openconfig-bgp-types {
       }
     }
     description
-      "A type definition utilised to define the extended community in a
-      context where the system is receiving the extended community from
-      an external source, such that the value may be unknown. In the case
-      that the received extended community is unknown it is defined to be
-      a 8-octet quantity formatted according to RFC4360:
+      "A type definition utilised to define the extended community
+      in a context where the system is receiving the extended
+      community from an external source, such that the value may be
+      unknown. In the case that the received extended community is
+      unknown it is defined to be a 8-octet quantity formatted
+      according to RFC4360:
 
       Type Field: 1 or 2 octets.
       Value Field: Remaining octets.
 
-      The high-order octet of the type field is encoded such that bit 0
-      indicates whether the extended community type is IANA assigned; 
-      and bit 1 indicates whether the extended community is transitive.
-      The remaining bits of the high-order type field must be interpreted
-      to determine whether the low-order type field should be parsed,
-      or whether the entire remainder of the extended community is a
-      value.";
+      The high-order octet of the type field is encoded such that
+      bit 0 indicates whether the extended community type is IANA
+      assigned; and bit 1 indicates whether the extended community
+      is transitive.  The remaining bits of the high-order type
+      field must be interpreted to determine whether the low-order
+      type field should be parsed, or whether the entire remainder
+      of the extended community is a value.";
     reference
       "RFC 4360 - BGP Extended Communities Attribute
        RFC 5668 - 4-Octet AS Specific BGP Extended Community";

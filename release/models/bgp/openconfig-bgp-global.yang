@@ -8,10 +8,11 @@ submodule openconfig-bgp-global {
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-inet-types { prefix oc-inet; }
 
-  // Include common submodule
+  // Include common submodules
   include openconfig-bgp-common;
   include openconfig-bgp-common-multiprotocol;
   include openconfig-bgp-peer-group;
+  include openconfig-bgp-common-structure;
 
   // meta
   organization
@@ -25,7 +26,20 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "4.0.1";
+
+  revision "2017-07-30" {
+    description
+      "Clarification of add-paths send-max leaf";
+    reference "4.0.1";
+  }
+
+  revision "2017-07-10" {
+    description
+      "Add error notifications; moved add-paths config; add AS
+      prepend policy features; removed unneeded config leaves";
+    reference "4.0.0";
+  }
 
   revision "2017-02-02" {
     description
@@ -105,17 +119,12 @@ submodule openconfig-bgp-global {
       router is within an autonomous system which is part of a BGP
       confederation.";
 
-    leaf enabled {
-      type boolean;
-      description
-        "When this leaf is set to true it indicates that
-        the local-AS is part of a BGP confederation";
-    }
-
     leaf identifier {
       type oc-inet:as-number;
       description
-        "Confederation identifier for the autonomous system.";
+        "Confederation identifier for the autonomous system.
+        Setting the identifier indicates that the local-AS is part
+        of a BGP confederation.";
     }
 
     leaf-list member-as {
@@ -274,6 +283,7 @@ submodule openconfig-bgp-global {
 
       uses bgp-common-route-selection-options;
       uses bgp-common-global-group-use-multiple-paths;
+      uses bgp-common-structure-neighbor-group-add-paths;
       uses bgp-global-mp-all-afi-safi-list-contents;
     }
   }
