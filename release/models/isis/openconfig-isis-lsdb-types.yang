@@ -17,10 +17,16 @@ module openconfig-isis-lsdb-types {
     www.openconfig.net";
 
   description
-    "This module contains general LSDB type definitions for use in ISIS YANG
-    model. ";
+    "This module contains general LSDB type definitions for use in
+    ISIS YANG model. ";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.3.2";
+
+  revision "2017-07-26" {
+    description
+      "Update LSDB and fix bugs.";
+    reference "0.3.2";
+  }
 
   revision "2017-05-15" {
     description
@@ -141,6 +147,15 @@ module openconfig-isis-lsdb-types {
       "RFC6232: Purge Originator Identification TLV";
   }
 
+  identity LSP_BUFFER_SIZE {
+   base "ISIS_TLV_TYPE";
+   description
+     "ISIS TLV 14. The maximum MTU that the advertising system can
+     receive, expressed in bytes.";
+   reference
+     "ISO 10589: LSP Buffer Size TLV";
+  }
+
   identity EXTENDED_IS_REACHABILITY {
     base "ISIS_TLV_TYPE";
     description
@@ -200,10 +215,11 @@ module openconfig-isis-lsdb-types {
   identity IPV4_EXTERNAL_REACHABILITY {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 130. TLV defines IP addresses outside the routing domain
-      reachable via interfaces on this Intermediate system. This is permitted to
-      appear multiple times, and in an LSP with any LSP number. However,
-      this field must not appear in pseudonode LSPs";
+      "ISIS TLV 130. TLV defines IP addresses outside the routing
+      domain reachable via interfaces on this Intermediate system.
+      This is permitted to appear multiple times, and in an LSP with
+      any LSP number. However, this field must not appear in
+      pseudonode LSPs";
     reference "
       RFC1195: OSI ISIS for IP and Dual Environments.  RFC5302:
       Domain-Wide Prefix Distribution with Two-Level IS-IS";
@@ -212,19 +228,21 @@ module openconfig-isis-lsdb-types {
   identity IPV4_INTERFACE_ADDRESSES {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 132. The IP address of one or more interfaces corresponding to
-      the SNPAs enabled on this Intermediate system (i.e., one or more IP
-      addresses of this router). This is permitted to appear multiple times,
-      and in an LSP with any LSP number.";
+      "ISIS TLV 132. The IP address of one or more interfaces
+      corresponding to the SNPAs enabled on this Intermediate system
+      (i.e., one or more IP addresses of this router). This is
+      permitted to appear multiple times, and in an LSP with any LSP
+      number.";
     reference
-      "RFC1195: Use of OSI IS-IS for Routing in TCP/IP and Dual Environments";
+      "RFC1195: Use of OSI IS-IS for Routing in TCP/IP and Dual
+      Environments";
   }
 
   identity IPV4_TE_ROUTER_ID {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 134. Traffic Engineering router ID TLV that contains the 4-octet
-      router ID of the router originating the LSP";
+      "ISIS TLV 134. Traffic Engineering router ID TLV that contains
+      the 4-octet router ID of the router originating the LSP";
     reference
       "RFC5305: IS-IS Extensions for Traffic Engineering";
   }
@@ -232,9 +250,9 @@ module openconfig-isis-lsdb-types {
   identity EXTENDED_IPV4_REACHABILITY {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 135. Extended IP reachability TLV that provides for a 32-bit
-      metric and adds one bit to indicate that a prefix has been redistributed
-      _down_ in the hierarchy";
+      "ISIS TLV 135. Extended IP reachability TLV that provides for a
+      32-bit metric and adds one bit to indicate that a prefix has
+      been redistributed _down_ in the hierarchy";
     reference
       "RFC5305: IS-IS Extensions for Traffic Engineering";
   }
@@ -242,14 +260,15 @@ module openconfig-isis-lsdb-types {
   identity DYNAMIC_NAME {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 137. The Dynamic hostname TLV is optional.  This TLV may be
-      present in any fragment of a non-pseudonode LSP.  The value field
-      identifies the symbolic name of the router originating the LSP.  This
-      symbolic name can be the FQDN for the router, it can be a subset of the
-      FQDN, or it can be any string operators want to use for the router.";
+      "ISIS TLV 137. The Dynamic hostname TLV is optional.  This TLV
+      may be present in any fragment of a non-pseudonode LSP.  The
+      value field identifies the symbolic name of the router
+      originating the LSP.  This symbolic name can be the FQDN for the
+      router, it can be a subset of the FQDN, or it can be any string
+      operators want to use for the router.";
     reference
-      "RFC6233: IS-IS Registry Extension for Purges, RFC 5301: Dynamic Hostname
-      Exchange Mechanism for IS-IS.";
+      "RFC6233: IS-IS Registry Extension for Purges, RFC 5301: Dynamic
+      Hostname Exchange Mechanism for IS-IS.";
   }
 
   identity IPV4_SRLG {
@@ -257,8 +276,8 @@ module openconfig-isis-lsdb-types {
     description
       "ISIS TLV 138. IPv4 Shared Risk Link Group TLV";
     reference
-      "RFC5307: IS-IS Extensions in Support of Generalized Multi-Protocol Label
-      Switching (GMPLS)";
+      "RFC5307: IS-IS Extensions in Support of Generalized
+      Multi-Protocol Label Switching (GMPLS)";
   }
 
   identity IPV6_SRLG {
@@ -272,12 +291,13 @@ module openconfig-isis-lsdb-types {
   identity IPV6_TE_ROUTER_ID {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 140. The IPv6 TE Router ID TLV contains a 16-octet IPv6 address.
-      A stable global IPv6 address MUST be used, so that the router ID provides
-      a routable address, regardless of the state of a node's interfaces. If a
-      router does not implement traffic engineering, it MAY include or omit the
-      IPv6 TE Router ID TLV.  If a router implements traffic engineering for
-      IPv6, it MUST include this TLV in its LSP.  This TLV MUST NOT be included
+      "ISIS TLV 140. The IPv6 TE Router ID TLV contains a 16-octet
+      IPv6 address. A stable global IPv6 address MUST be used, so that
+      the router ID provides a routable address, regardless of the
+      state of a node's interfaces. If a router does not implement
+      traffic engineering, it MAY include or omit the IPv6 TE Router
+      ID TLV.  If a router implements traffic engineering for IPv6, it
+      MUST include this TLV in its LSP.  This TLV MUST NOT be included
       more than once in an LSP.";
     reference
       "RFC6119: IPv6 Traffic Engineering in IS-IS.";
@@ -286,69 +306,74 @@ module openconfig-isis-lsdb-types {
   identity MT_ISN {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 222. TLV is aligned with extended IS reachability TLV type 22
-      beside an additional two bytes in front at the beginning of the TLV that.
-      indicate MT membership.";
+      "ISIS TLV 222. TLV is aligned with extended IS reachability TLV
+      type 22 beside an additional two bytes in front at the beginning
+      of the TLV that. indicate MT membership.";
     reference
-      "RFC5120: M-ISIS: Multi Topology (MT) Routing in Intermediate System to
-      Intermediate Systems (IS-ISs)";
+      "RFC5120: M-ISIS: Multi Topology (MT) Routing in Intermediate
+      System to Intermediate Systems (IS-ISs)";
   }
 
   identity MT_IS_NEIGHBOR_ATTRIBUTE {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 223. Is is identical in format to TLV 222. In the event that
-      there is a need to advertise in Extended LSPs such information associated
-      with neighbors of the Originating System, it is necessary to define new
-      TLVs to carry the sub-TLV information.";
+      "ISIS TLV 223. Is is identical in format to TLV 222. In the
+      event that there is a need to advertise in Extended LSPs such
+      information associated with neighbors of the Originating System,
+      it is necessary to define new TLVs to carry the sub-TLV
+      information.";
     reference
-      "RFC5311: Simplified Extension of Link State PDU (LSP) Space for IS-IS";
+      "RFC5311: Simplified Extension of Link State PDU (LSP) Space for
+      IS-IS";
   }
 
   identity MULTI_TOPOLOGY {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 229. This MT TLV can advertise up to 127 MTs.  It is announced
-      in IIHs and LSP fragment 0, and can occur multiple times.  The resulting
-      MT set SHOULD be the union of all the MT TLV occurrences in the packet.
-      Any other IS-IS PDU occurrence of this TLV MUST be ignored.  Lack of MT
-      TLV in hellos and fragment zero LSPs MUST be interpreted as participation
-      of the advertising interface or router in MT ID #0 only.  If a router
-      advertises MT TLV, it has to advertise all the MTs it participates in,
-      specifically including topology ID #0 also.";
+      "ISIS TLV 229. This MT TLV can advertise up to 127 MTs.  It is
+      announced in IIHs and LSP fragment 0, and can occur multiple
+      times.  The resulting MT set SHOULD be the union of all the MT
+      TLV occurrences in the packet. Any other IS-IS PDU occurrence of
+      this TLV MUST be ignored.  Lack of MT TLV in hellos and fragment
+      zero LSPs MUST be interpreted as participation of the
+      advertising interface or router in MT ID #0 only.  If a router
+      advertises MT TLV, it has to advertise all the MTs it
+      participates in, specifically including topology ID #0 also.";
     reference
-      "RFC5120: M-ISIS: Multi Topology (MT) Routing in Intermediate System to
-      Intermediate Systems (IS-ISs)";
+      "RFC5120: M-ISIS: Multi Topology (MT) Routing in Intermediate
+      System to Intermediate Systems (IS-ISs)";
   }
 
   identity IPV6_INTERFACE_ADDRESSES {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 232. IPv6 Interface Address TLV that maps directly to the IP
-      Interface Address TLV in [RFC1195]. We necessarily modify the contents to
-      be 0-15 16-octet IPv6 interface addresses instead of 0-63 4-octet IPv4
-      interface addresses";
+      "ISIS TLV 232. IPv6 Interface Address TLV that maps directly to
+      the IP Interface Address TLV in [RFC1195]. We necessarily modify
+      the contents to be 0-15 16-octet IPv6 interface addresses
+      instead of 0-63 4-octet IPv4 interface addresses";
     reference "RFC5308: Routing IPv6 with IS-IS.";
   }
 
   identity MT_IPV4_REACHABILITY {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 235. TLV is aligned with extended IP reachability TLV type 135
-      beside an additional two bytes in front to indicate MT membership";
+      "ISIS TLV 235. TLV is aligned with extended IP reachability TLV
+      type 135 beside an additional two bytes in front to indicate MT
+      membership";
     reference
-      "RFC5120: M-ISIS: Multi Topology (MT) Routing in Intermediate System to
-      Intermediate Systems (IS-ISs)";
+      "RFC5120: M-ISIS: Multi Topology (MT) Routing in Intermediate
+      System to Intermediate Systems (IS-ISs)";
   }
 
   identity IPV6_REACHABILITY {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 236. The IPv6 Reachability TLV describes network reachability
-      through the specification of a routing prefix, metric information, a bit
-      to indicate if the prefix is being advertised down from a higher level, a
-      bit to indicate if the prefix is being distributed from another routing
-      protocol, and OPTIONALLY the existence of Sub-TLVs to allow for later
+      "ISIS TLV 236. The IPv6 Reachability TLV describes network
+      reachability through the specification of a routing prefix,
+      metric information, a bit to indicate if the prefix is being
+      advertised down from a higher level, a bit to indicate if the
+      prefix is being distributed from another routing protocol, and
+      OPTIONALLY the existence of Sub-TLVs to allow for later
       extension.";
     reference
       "RFC5308: Routing IPv6 with IS-IS";
@@ -357,19 +382,20 @@ module openconfig-isis-lsdb-types {
   identity MT_IPV6_REACHABILITY {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 237. TLV is aligned with IPv6 Reachability TLV type 236 beside
-      an additional two bytes in front to indicate MT membership.";
+      "ISIS TLV 237. TLV is aligned with IPv6 Reachability TLV type
+      236 beside an additional two bytes in front to indicate MT
+      membership.";
     reference
-      "RFC5120: M-ISIS: Multi Topology (MT) Routing in Intermediate System to
-      Intermediate Systems (IS-ISs).";
+      "RFC5120: M-ISIS: Multi Topology (MT) Routing in Intermediate
+      System to Intermediate Systems (IS-ISs).";
   }
 
   identity ROUTER_CAPABILITY {
     base "ISIS_TLV_TYPE";
     description
-      "ISIS TLV 242. IS-IS TLV named CAPABILITY, formed of multiple sub-TLVs,
-      which allows a router to announce its capabilities within an IS-IS level
-      or the entire routing domain.";
+      "ISIS TLV 242. IS-IS TLV named CAPABILITY, formed of multiple
+      sub-TLVs, which allows a router to announce its capabilities
+      within an IS-IS level or the entire routing domain.";
     reference
       "RFC4971: Intermediate System to Intermediate System (IS-IS)
       Extensions for Advertising Router Information.";
@@ -385,6 +411,15 @@ module openconfig-isis-lsdb-types {
       "RFC5305: IS-IS Extensions for Traffic Engineering";
   }
 
+  identity IS_REACHABILITY_LINK_ID {
+    base "IS_REACHABILITY_SUBTLVS_TYPE";
+    description
+      "sub-TLV 4. Link Local/Remote Identifiers.";
+    reference
+      "RFC5307: IS-IS Extensions in Support of Generalized
+      Multi-Protocol Label Switching (GMPLS)";
+  }
+
   identity IS_REACHABILITY_IPV4_INTERFACE_ADDRESS {
     base "IS_REACHABILITY_SUBTLVS_TYPE";
     description
@@ -396,7 +431,7 @@ module openconfig-isis-lsdb-types {
   identity IS_REACHABILITY_IPV4_NEIGHBOR_ADDRESS {
     base "IS_REACHABILITY_SUBTLVS_TYPE";
     description
-      "sub-TLV 6. IPv4 Neighbor Address.";
+      "sub-TLV 8. IPv4 Neighbor Address.";
     reference
       "RFC5305: IS-IS Extensions for Traffic Engineering.";
   }
@@ -446,8 +481,8 @@ module openconfig-isis-lsdb-types {
     description
       "sub-TLV 14. Extended Administrative Group.";
     reference
-      "RFC7308: Extended Administrative Groups in MPLS Traffic Engineering
-      (MPLS-TE).";
+      "RFC7308: Extended Administrative Groups in MPLS Traffic
+      Engineering (MPLS-TE).";
   }
 
   identity IS_REACHABILITY_TE_DEFAULT_METRIC {
@@ -480,8 +515,8 @@ module openconfig-isis-lsdb-types {
     description
       "sub-TLV 22. Bandwidth Constraints.";
     reference
-      "RFC4124: Protocol Extensions for Support of Diffserv-aware MPLS Traffic
-      Engineering.";
+      "RFC4124: Protocol Extensions for Support of Diffserv-aware MPLS
+      Traffic Engineering.";
   }
 
   identity IS_REACHABILITY_UNCONSTRAINED_LSP {

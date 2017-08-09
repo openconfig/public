@@ -34,7 +34,13 @@ submodule openconfig-isis-lsp {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.3.2";
+
+  revision "2017-07-26" {
+    description
+      "Update LSDB and fix bugs.";
+    reference "0.3.2";
+  }
 
   revision "2017-05-15" {
     description
@@ -199,6 +205,45 @@ submodule openconfig-isis-lsp {
           }
         }
 
+        container link-id {
+          when "../state/type = " +
+               "'oc-isis-lsdb-types:IS_REACHABILITY_LINK_ID'" {
+            description
+              "Only include the link identifier container when the
+              sub-TLV is type 4";
+          }
+          description
+            "This container defines sub-TLV 4.";
+
+          container state {
+            description
+              "State parameters of sub-TLV 4.";
+
+            leaf local {
+              type uint32;
+              description
+                "The value field of this sub-TLV contains 4 octets of
+                Link Local Identifier followed by 4 octets of Link
+                Remote Identifier.";
+              reference
+                "RFC5307: IS-IS Extensions in Support of Generalized
+                Multi-Protocol Label Switching (GMPLS). sub-TLV 3: TLV
+                22,23,141,222, 223.";
+            }
+
+            leaf remote {
+              type uint32;
+              description
+                "If the Link Remote Identifier is unknown, it is set
+                to 0.";
+              reference
+                "RFC5307: IS-IS Extensions in Support of Generalized
+                Multi-Protocol Label Switching (GMPLS). sub-TLV 3: TLV
+                22,23,141,222, 223.";
+            }
+          }
+        }
+
         container ipv4-interface-address {
           when "../state/type = " +
                "'oc-isis-lsdb-types:IS_REACHABILITY_IPV4_INTERFACE_ADDRESS'" {
@@ -213,7 +258,7 @@ submodule openconfig-isis-lsp {
             description
               "State parameters of sub-TLV 6.";
 
-            leaf-list ipv4-interface-address {
+            leaf-list address {
               type inet:ipv4-address;
               description
                 "A 4-octet IPv4 address for the interface described by
@@ -240,7 +285,7 @@ submodule openconfig-isis-lsp {
             description
               "State parameters of sub-TLV 8.";
 
-            leaf-list ipv4-neighbor-address {
+            leaf-list address {
               type inet:ipv4-address;
               description
                 "A single IPv4 address for a neighboring router on
@@ -266,7 +311,7 @@ submodule openconfig-isis-lsp {
             description
               "State parameters of sub-TLV 9.";
 
-            leaf max-link-bandwidth {
+            leaf bandwidth {
               type oc-types:ieeefloat32;
               units "bytes per second";
               description
@@ -296,7 +341,7 @@ submodule openconfig-isis-lsp {
             description
               "State parameters of sub-TLV 10.";
 
-            leaf max-reservable-link-bandwidth {
+            leaf bandwidth {
               type oc-types:ieeefloat32;
               units "bytes per second";
               description
@@ -351,14 +396,14 @@ submodule openconfig-isis-lsp {
 
               leaf priority {
                 type uint8 {
-                  range "0 .. 7";
+                  range "0..7";
                 }
                 description
                   "Setup priority level of 0 through 7 to be used by
                   Unreserved Bandwidth sub-TLV 11.";
               }
 
-              leaf unreserved-bandwidth {
+              leaf bandwidth {
                 type oc-types:ieeefloat32;
                 units "bytes per second";
                 description
@@ -392,7 +437,7 @@ submodule openconfig-isis-lsp {
             description
               "State parameters of sub-TLV 12.";
 
-            leaf-list ipv6-interface-address {
+            leaf-list address {
               type inet:ipv6-address;
               description
                 "Contains a 16-octet IPv6 address for the interface
@@ -419,7 +464,7 @@ submodule openconfig-isis-lsp {
             description
               "State parameters of sub-TLV 13.";
 
-            leaf-list ipv6-neighbor-address {
+            leaf-list address {
               type inet:ipv6-address;
               description
                 "Contains a 16-octet IPv6 address for a neighboring
@@ -473,7 +518,7 @@ submodule openconfig-isis-lsp {
             description
               "State parameters of sub-TLV 18.";
 
-            leaf te-default-metric {
+            leaf metric {
               type uint32;
               description
                 "This metric is administratively assigned and can be
@@ -543,7 +588,7 @@ submodule openconfig-isis-lsp {
             description
               "State parameters of sub-TLV 20.";
 
-            leaf-list link-protection-type {
+            leaf-list type {
               type enumeration {
                 enum EXTRA_TRAFFIC {
                   description
@@ -656,16 +701,17 @@ submodule openconfig-isis-lsp {
 
             container constraints {
               description
-                "Constraints contained within the Bandwidth Constraints sub-TLV";
+                "Constraints contained within the Bandwidth
+                Constraints sub-TLV";
 
               list constraint {
                 key "constraint-id";
 
                 description
-                  "List of the constraints within the Bandwidth Constraints
-                  sub-TLV. The BC0 level is indicated by the constraint-id
-                  leaf being set to 0, with BCN being indicated by constraint-id
-                  N.";
+                  "List of the constraints within the Bandwidth
+                  Constraints sub-TLV. The BC0 level is indicated by
+                  the constraint-id leaf being set to 0, with BCN
+                  being indicated by constraint-id N.";
 
                 leaf constraint-id {
                   type leafref {
@@ -715,7 +761,7 @@ submodule openconfig-isis-lsp {
 
             uses isis-lsdb-subtlv-type-state;
 
-            leaf unconstrained-lsp {
+            leaf count {
               type uint16;
               description
                 "Unconstrained TE LSP count(TE Label Switched Paths
@@ -730,7 +776,7 @@ submodule openconfig-isis-lsp {
         }
 
         container adjacency-sids {
-          when "../state/type = 'oc-isis-lsdb-types:IS_REACHABILITY_ADJ_SID'" {
+          when "../state/type =   'oc-isis-lsdb-types:IS_REACHABILITY_ADJ_SID'" {
             description
               "Only include the adjacency SIDs container when the
               sub-TLV type is 31";
@@ -1077,7 +1123,7 @@ submodule openconfig-isis-lsp {
               "State parameters of IS Extended Reachability sub-TLV
               37.";
 
-            leaf residual-bandwidth {
+            leaf bandwidth {
               type oc-types:ieeefloat32;
               units "bytes per second";
               description
@@ -1116,7 +1162,7 @@ submodule openconfig-isis-lsp {
 
             uses isis-lsdb-subtlv-type-state;
 
-            leaf available-bandwidth {
+            leaf bandwidth {
               type oc-types:ieeefloat32;
               units "bytes per second";
               description
@@ -1159,7 +1205,7 @@ submodule openconfig-isis-lsp {
 
             uses isis-lsdb-subtlv-type-state;
 
-            leaf utilized-bandwidth {
+            leaf bandwidth {
               type oc-types:ieeefloat32;
               units "bytes per second";
               description
@@ -1278,7 +1324,8 @@ submodule openconfig-isis-lsp {
         when "../state/type = " +
              "'oc-isis-lsdb-types:IP_REACHABILITY_TAG'" {
           description
-            "Only include the tag container when the sub-TLV is type 1.";
+            "Only include the tag container when the sub-TLV is type
+            1.";
         }
         description
           "This container defines sub-TLV 1.";
@@ -1307,7 +1354,8 @@ submodule openconfig-isis-lsp {
         when "../state/type = " +
              "'oc-isis-lsdb-types:IP_REACHABILITY_TAG64'" {
           description
-            "Only include the tag64 container when the sub-TLV is type 2.";
+            "Only include the tag64 container when the sub-TLV is type
+            2.";
         }
         description
           "This container defines sub-TLV 2.";
@@ -1336,7 +1384,8 @@ submodule openconfig-isis-lsp {
         when "../state/type = " +
              "'oc-isis-lsdb-types:IP_REACHABILITY_PREFIX_FLAGS'" {
           description
-            "Only include the flags container when the sub-TLV is type 4.";
+            "Only include the flags container when the sub-TLV is type
+            4.";
         }
         description
           "This container defines sub-TLV 4.";
@@ -1397,7 +1446,7 @@ submodule openconfig-isis-lsp {
 
             uses isis-lsdb-subtlv-type-state;
 
-            leaf ipv4-source-router-id {
+            leaf router-id {
               type inet:ipv4-address;
               description
                 "IPv4 Source router ID address. In cases where the
@@ -1433,7 +1482,7 @@ submodule openconfig-isis-lsp {
 
             uses isis-lsdb-subtlv-type-state;
 
-            leaf ipv6-source-router-id {
+            leaf router-id {
               type inet:ipv6-address;
               description
                 "IPv6 Source router ID address. In cases where the
@@ -1522,7 +1571,7 @@ submodule openconfig-isis-lsp {
                   N-Flag is set on Prefix-SIDs attached to a router
                   loopback address.";
               }
-              enum PHP {
+              enum NO_PHP {
                 description
                   "Penultimate-Hop-Popping flag. When set, then the
                   penultimate hop MUST NOT pop the Prefix-SID before
@@ -1587,7 +1636,7 @@ submodule openconfig-isis-lsp {
             "ISIS Default-Metric Flags.";
         }
 
-        leaf default-metric {
+        leaf metric {
           type oc-isis-types:narrow-metric;
           description
             "ISIS default metric value. This is a metric understood by
@@ -1816,7 +1865,7 @@ submodule openconfig-isis-lsp {
       description
         "State parameters of IPv6 prefix attributes";
 
-      uses ipv4-prefix-extended-params-state;
+      uses ipv6-prefix-extended-params-state;
     }
 
     uses isis-lsdb-prefix-state;
@@ -2126,7 +2175,7 @@ submodule openconfig-isis-lsp {
             description
               "State parameters of ISIS TLV 1.";
 
-            leaf-list area-address {
+            leaf-list address {
               type oc-isis-types:area-address;
               description
                 "Area adress(es) of the IS. Set of manual area
@@ -2151,19 +2200,26 @@ submodule openconfig-isis-lsp {
           }
 
           description
-            "This container defines TLV 14 - the LSP Buffer Size TLV";
+            "This container defines TLV 14 - the LSP Buffer Size
+            TLV.";
 
           container state {
             description
               "State parameters of TLV 14.";
 
-            leaf buffer-size {
+            leaf size {
               type uint16;
               units "bytes";
               description
                 "The maximum MTU that the advertising system can
                 receive, expressed in bytes.";
-              reference "ISO 10589";
+              reference
+               "ISO 10589 Intermediate System to Intermediate System
+               Intra- Domain Routeing Exchange Protocol for use in
+               Conjunction with the Protocol for Providing the
+               Connectionless-mode Network Service (ISO 8473 )
+               International Standard 10589: 2002, Second Edition,
+               2002. TLV 14.";
             }
           }
         }
@@ -2226,7 +2282,7 @@ submodule openconfig-isis-lsp {
             description
               "State parameters of ISIS TLV 132.";
 
-            leaf-list ipv4-interface-addresses {
+            leaf-list address {
               type inet:ipv4-address;
               description
                 "IPv4 address(es) of the interface corresponding to
@@ -2252,7 +2308,7 @@ submodule openconfig-isis-lsp {
             description
               "State parameters of ISIS TLV 232.";
 
-            leaf-list ipv6-interface-addresses {
+            leaf-list address {
               type inet:ipv6-address;
               description
                 "IPv6 interface addresses of the node.  MUST contain
@@ -2316,7 +2372,8 @@ submodule openconfig-isis-lsp {
                 a path that will be reachable from multiple hops away,
                 regardless of the state of the node's interfaces.";
               reference
-                "RFC6119: IPv6 Traffic Engineering in IS-IS. TLV 140.";
+                "RFC6119: IPv6 Traffic Engineering in IS-IS. TLV
+                140.";
             }
           }
         }
@@ -2336,9 +2393,10 @@ submodule openconfig-isis-lsp {
 
             description
               "A list of instance IDs received within TLV 7 within an
-              IS-IS LSP. In the case that more than one instance of TLV 7
-              is included in the LSP, the instance IDs specified within
-              the instances are concatenated within this list.";
+              IS-IS LSP. In the case that more than one instance of
+              TLV 7 is included in the LSP, the instance IDs specified
+              within the instances are concatenated within this
+              list.";
 
             leaf instance-id {
               type leafref {
@@ -2354,15 +2412,15 @@ submodule openconfig-isis-lsp {
               leaf instance-id {
                 type uint16;
                 description
-                  "An Instance Identifier (IID) to uniquely identify an
-                  IS-IS instance. When the IID = 0, the list of
+                  "An Instance Identifier (IID) to uniquely identify
+                  an IS-IS instance. When the IID = 0, the list of
                   supported ITIDs MUST NOT be present. An IID-TLV with
-                  IID = 0 MUST NOT appear in an SNP or LSP. When the TLV
-                  appears (with a non-zero IID) in an SNP or LSP,
+                  IID = 0 MUST NOT appear in an SNP or LSP. When the
+                  TLV appears (with a non-zero IID) in an SNP or LSP,
                   exactly one ITID. MUST be present indicating the
-                  topology with which the PDU is associated. If no ITIDs
-                  or multiple ITIDs are present or the IID is zero, then
-                  the PDU MUST be ignored.";
+                  topology with which the PDU is associated. If no
+                  ITIDs or multiple ITIDs are present or the IID is
+                  zero, then the PDU MUST be ignored.";
               }
 
               leaf-list topology-id {
@@ -2522,8 +2580,8 @@ submodule openconfig-isis-lsp {
                 type enumeration {
                   enum NA {
                     description
-                      "When set, the IPv6 neighbour address is included,
-                      whereas if unset, it is omitted";
+                      "When set, the IPv6 neighbour address is
+                      included, whereas if unset, it is omitted";
                   }
                 }
                 description
@@ -2600,7 +2658,7 @@ submodule openconfig-isis-lsp {
           description
             "This container defines router capabilities.";
 
-          list router-capability {
+          list capability {
             key "instance-number";
 
             description
@@ -2630,8 +2688,8 @@ submodule openconfig-isis-lsp {
                   "A unique instance number for the instance of the
                   router capabilities TLV. The instance number should
                   be autogenerated by the producer of the data and may
-                  be renumbered if the entire LSP contents are replaced
-                  in subsequent advertisements.";
+                  be renumbered if the entire LSP contents are
+                  replaced in subsequent advertisements.";
               }
 
               leaf router-id {
@@ -2706,61 +2764,45 @@ submodule openconfig-isis-lsp {
                     "draft-ietf-isis-segment-routing-extensions.
                      TLV 242, sub-TLV 19";
 
-                  list segment-routing-algorithm {
-                    key "algorithm";
-
-                    description
-                      "List of the segment routing algorithsm advertised within the TLV.";
-
-                    leaf algorithm {
-                      type leafref {
-                        path "../state/algorithm";
-                      }
-                      description
-                        "Reference to the SR algorithm that the subTLV
-                        describes.";
-                    }
-
                     container state {
                       description
                         "State parameters of sub-TLV 19 - Segment
                         Routing Algorithm.";
 
-                      leaf algorithm {
+                      leaf-list algorithm {
                         type enumeration {
                           enum SPF {
                             value 0;
                             description
-                              "Shortest Path First (SPF) algorithm based
-                              on link metric.  This is the well-known
-                              shortest path algorithm as computed by
-                              the IS-IS Decision process.  Consistent
-                              with the deployed practice for link-
-                              state protocols, algorithm 0 permits any
-                              node to overwrite the SPF
-                              path with a different path based on local
-                              policy.";
+                              "Shortest Path First (SPF) algorithm
+                              based on link metric.  This is the
+                              well-known shortest path algorithm as
+                              computed by the IS-IS Decision process.
+                              Consistent with the deployed practice
+                              for link-state protocols, algorithm 0
+                              permits any node to overwrite the SPF
+                              path with a different path based on
+                              local policy.";
                           }
                           enum STRICT_SPF {
                             value 1;
                             description
                               "Strict Shortest Path First (SPF)
                               algorithm based on link metric. The
-                              algorithm is identical to algorithm 0 but
-                              algorithm 1 requires that all nodes
-                              along the path will honor the SPF routing
-                              decision. Local policy MUST NOT alter the
-                              forwarding decision computed by algorithm
-                              1 at the node claiming to support
-                              algorithm 1.";
+                              algorithm is identical to algorithm 0
+                              but algorithm 1 requires that all nodes
+                              along the path will honor the SPF
+                              routing decision. Local policy MUST NOT
+                              alter the forwarding decision computed
+                              by algorithm 1 at the node claiming to
+                              support algorithm 1.";
                           }
                         }
                         description
-                          "The Segment Routing algorithm that is described
-                          by the TLV.";
+                          "The Segment Routing algorithm that is
+                          described by the TLV.";
                       }
                     }
-                  }
                 }
 
                 container segment-routing-capability {
@@ -2813,9 +2855,18 @@ submodule openconfig-isis-lsp {
                       capability sub-TLV";
 
                     list srgb-descriptor {
+                      key "range";
                       description
                         "Descriptor entry within the SR capabilty
                         sub-TLV";
+
+                      leaf range {
+                        type leafref {
+                          path "../state/range";
+                        }
+                        description
+                          "Reference to unique SRGB Descriptor.";
+                      }
 
                       container state {
                         description
@@ -2865,7 +2916,7 @@ submodule openconfig-isis-lsp {
             description
               "This container describes IS neighbors.";
 
-            list neighbors {
+            list neighbor {
               key "system-id";
               description
                 "IS reachability neighbor attributes.";
@@ -2903,7 +2954,7 @@ submodule openconfig-isis-lsp {
             description
               "This container describes IS prefixes.";
 
-            list prefixes {
+            list prefix {
               key "prefix";
 
               description
@@ -2942,7 +2993,7 @@ submodule openconfig-isis-lsp {
             description
               "This container describes IS neighbors.";
 
-            list prefixes {
+            list prefix {
               key "prefix";
 
               description
@@ -3026,7 +3077,7 @@ submodule openconfig-isis-lsp {
             description
               "This container describes IS neighbors.";
 
-            list neighbors {
+            list neighbor {
               key "system-id";
               description
                 "This list describes ISIS extended neigbors and
@@ -3118,7 +3169,7 @@ submodule openconfig-isis-lsp {
             description
               "This container describes IS prefixes.";
 
-            list prefixes {
+            list prefix {
               key "prefix";
 
               description
@@ -3129,8 +3180,8 @@ submodule openconfig-isis-lsp {
                   path "../state/prefix";
                 }
                 description
-                  "Reference to the IPv6 prefix that the TLV corresponds
-                  to.";
+                  "Reference to the IPv6 prefix that the TLV
+                  corresponds to.";
               }
 
               uses ipv6-prefix-extended-state;
@@ -3321,8 +3372,9 @@ submodule openconfig-isis-lsp {
                   path "../state/mt-id";
                 }
                 description
-                "       Reference to the topology that the neighbor is within.";
-              }
+                "Reference to the topology that the neighbor is
+                within.";               
+							}
 
               leaf system-id {
                 type leafref {
@@ -3368,7 +3420,8 @@ submodule openconfig-isis-lsp {
                   path "../state/mt-id";
                 }
                 description
-                  "Reference to the topology that the neighbor is within.";
+                  "Reference to the topology that the neighbor is
+                  within.";
               }
 
               leaf system-id {
@@ -3412,8 +3465,8 @@ submodule openconfig-isis-lsp {
                   path "../state/mt-id";
                 }
                 description
-                  "Reference to the topology ID of the topology that the
-                  prefix is within.";
+                  "Reference to the topology ID of the topology that
+                  the prefix is within.";
               }
 
               leaf prefix {
@@ -3421,8 +3474,8 @@ submodule openconfig-isis-lsp {
                   path "../state/prefix";
                 }
                 description
-                  "Reference to the prefix to which reachability is being
-                  advertised.";
+                  "Reference to the prefix to which reachability is
+                  being advertised.";
               }
 
               description
@@ -3465,7 +3518,8 @@ submodule openconfig-isis-lsp {
                   path "../state/prefix";
                 }
                 description
-                  "Reference to the IPv6 prefix described by the TLV.";
+                  "Reference to the IPv6 prefix described by the
+                  TLV.";
               }
 
               leaf mt-id {
@@ -3486,4 +3540,3 @@ submodule openconfig-isis-lsp {
     uses isis-lsdb-undefined-tlv;
   }
 }
-
