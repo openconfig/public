@@ -44,7 +44,13 @@ module openconfig-module-catalog {
     * implementations -- information about available module and/or
       bundle implementations and their status";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2017-05-01" {
+    description
+      "Fix to module dependency list";
+    reference "0.2.1";
+  }
 
   revision "2017-03-08" {
     description
@@ -58,11 +64,6 @@ module openconfig-module-catalog {
     reference "0.1.0";
   }
 
-  revision "2015-10-18" {
-    description
-      "Initial revision";
-    reference "TBD";
-  }
 
 
   // grouping statements
@@ -247,13 +248,13 @@ module openconfig-module-catalog {
 
 
     leaf-list required-module {
-      type leafref {
-        path "../../name";
-      }
+      type string;
       description
-        "List of references to modules that are imported by the
+        "List of names of modules that are imported by the
         current module.  This list should reflect all of the 'import'
-        statements in the module.";
+        statements in the module.  Release bundles should be used to
+        indicate which versions of the imported module are used
+        (or are compatible) with the current module";
     }
   }
 
