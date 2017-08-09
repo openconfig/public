@@ -9,8 +9,9 @@ module openconfig-spanning-tree {
 
   import openconfig-spanning-tree-types { prefix oc-stp-types; }
   import openconfig-interfaces { prefix oc-if; }
+  import openconfig-types { prefix oc-types; }
   import openconfig-vlan-types { prefix oc-vlan-types; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
 
 
@@ -25,7 +26,14 @@ module openconfig-spanning-tree {
     "This module defines configuration and operational state data
     for the spanning tree protocol.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2017-07-14" {
+    description
+      "Migrated to OpenConfig types; fixed missing applied state
+      in rapid-pvst";
+    reference "0.2.0";
+  }
 
   revision "2016-10-03" {
     description
@@ -79,7 +87,7 @@ module openconfig-spanning-tree {
     }
 
     leaf designated-root-address {
-      type yang:mac-address;
+      type oc-yang:mac-address;
       description
         "The bridge address of the bridge recorded as the
         root in the configuration BPDUs transmitted by the designated
@@ -104,7 +112,7 @@ module openconfig-spanning-tree {
     }
 
     leaf designated-bridge-address {
-      type yang:mac-address;
+      type oc-yang:mac-address;
       description
         "The bridge address of the bridge that this port considers
         to be the designated bridge for this port's segment.";
@@ -128,7 +136,7 @@ module openconfig-spanning-tree {
     }
 
     leaf forward-transisitions {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "The number of times this port has transitioned
         from the Learning state to the Forwarding state";
@@ -140,13 +148,13 @@ module openconfig-spanning-tree {
         "The BPDU packet transmition statistics";
 
       leaf bpdu-sent {
-        type yang:counter64;
+        type oc-yang:counter64;
         description
           "The number of BPDU packet sent";
       }
 
       leaf bpdu-received {
-        type yang:counter64;
+        type oc-yang:counter64;
         description
           "The number of BPDU packet received";
       }
@@ -245,7 +253,7 @@ module openconfig-spanning-tree {
       "Grouping for common STP operation data";
 
     leaf bridge-address {
-      type yang:mac-address;
+      type oc-yang:mac-address;
       description
         "A unique 48-bit Universally Administered MAC Address
         assigned to the bridge";
@@ -264,7 +272,7 @@ module openconfig-spanning-tree {
     }
 
     leaf designated-root-address {
-      type yang:mac-address;
+      type oc-yang:mac-address;
       description
         "The bridge address of the root of the spanning
         tree, as determined by the Spanning Tree Protocol,
@@ -301,7 +309,7 @@ module openconfig-spanning-tree {
     }
 
     leaf topology-changes {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "The total number of topology changes detected by
         this bridge since the management entity was last
@@ -311,11 +319,14 @@ module openconfig-spanning-tree {
     }
 
     leaf time-since-topology-change {
-      type yang:timestamp;
+      type oc-types:timeticks64;
       description
         "The time (in hundredths of a second) since the
         last time a topology change was detected by the
-        bridge entity";
+        bridge entity
+
+        The value is the timestamp in seconds relative to
+        the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
       reference
         "RFC4188 BRIDGE-MIB dot1dStpTimeSinceTopologyChange";
     }
@@ -374,6 +385,17 @@ module openconfig-spanning-tree {
     }
   }
 
+  grouping stp-rapid-pvst-config {
+    description
+      "Configuration parameters relating to rapid PVST";
+
+    leaf vlan-id {
+      type oc-vlan-types:vlan-id;
+      description
+        "Interface VLAN ID";
+    }
+  }
+
   grouping stp-rapid-pvst-top {
     description
       "Top grouping for rapid per vlan spanning tree configuration
@@ -388,7 +410,7 @@ module openconfig-spanning-tree {
         type leafref {
           path "../config/vlan-id";
         }
-	      description
+        description
           "Reference to the list key";
       }
 
@@ -396,22 +418,17 @@ module openconfig-spanning-tree {
       	description
       	  "Configuration data for each vlan";
 
-      	leaf vlan-id {
-      	  type oc-vlan-types:vlan-id;
-      	  description
-            "Interface VLAN id.";
-      	}
-
-	      uses stp-timer-config;
+        uses stp-rapid-pvst-config;
+        uses stp-timer-config;
         uses bridge-priority-config;
       }
 
       container state {
-	      config false;
-
+        config false;
         description
           "Operational data for each vlan";
 
+        uses stp-rapid-pvst-config;
         uses stp-timer-config;
         uses bridge-priority-config;
         uses stp-common-state;
