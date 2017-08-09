@@ -10,7 +10,7 @@ module openconfig-if-ethernet {
   // import some basic types
   import openconfig-interfaces { prefix oc-if; }
   import iana-if-type { prefix ift; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
 
   // meta
@@ -24,7 +24,15 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the IETF YANG
     model for interfaces described by RFC 7223";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "2.0.0";
+
+  revision "2017-07-14" {
+    description
+      "Added Ethernet/IP state data; Add dhcp-client;
+      migrate to OpenConfig types modules; Removed or
+      renamed opstate values";
+    reference "2.0.0";
+  }
 
   revision "2016-12-22" {
     description
@@ -100,7 +108,7 @@ module openconfig-if-ethernet {
     description "Configuration items for Ethernet interfaces";
 
     leaf mac-address {
-      type yang:mac-address;
+      type oc-yang:mac-address;
       description
         "Assigns a MAC address to the Ethernet interface.  If not
         specified, the corresponding operational state leaf is
@@ -174,25 +182,25 @@ module openconfig-if-ethernet {
     // ingress counters
 
     leaf in-mac-control-frames {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "MAC layer control frames received on the interface";
     }
 
     leaf in-mac-pause-frames {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "MAC layer PAUSE frames received on the interface";
     }
 
     leaf in-oversize-frames {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of oversize frames received on the interface";
     }
 
     leaf in-jabber-frames {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of jabber frames received on the
         interface.  Jabber frames are typically defined as oversize
@@ -202,19 +210,19 @@ module openconfig-if-ethernet {
     }
 
     leaf in-fragment-frames {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of fragment frames received on the interface.";
     }
 
     leaf in-8021q-frames {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of 802.1q tagged frames received on the interface";
     }
 
     leaf in-crc-errors {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of receive error events due to FCS/CRC check
         failure";
@@ -223,19 +231,19 @@ module openconfig-if-ethernet {
     // egress counters
 
     leaf out-mac-control-frames {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "MAC layer control frames sent on the interface";
     }
 
     leaf out-mac-pause-frames {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "MAC layer PAUSE frames sent on the interface";
     }
 
     leaf out-8021q-frames {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of 802.1q tagged frames sent on the interface";
     }
@@ -246,18 +254,10 @@ module openconfig-if-ethernet {
       "Grouping for defining Ethernet-specific operational state";
 
     leaf hw-mac-address {
-      type yang:mac-address;
+      type oc-yang:mac-address;
       description
         "Represenets the 'burned-in',  or system-assigned, MAC
         address for the Ethernet interface.";
-    }
-
-    leaf effective-speed {
-      type uint32;
-      units Mbps;
-      description
-        "Reports the effective speed of the interface, e.g., the
-        negotiated speed if auto-negotiate is enabled";
     }
 
     leaf negotiated-duplex-mode {
