@@ -32,7 +32,14 @@ module openconfig-aaa {
     Portions of this model reuse data definitions or structure from
     RFC 7317 - A YANG Data Model for System Management";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2017-07-06" {
+    description
+      "Move to oc-inet types, add IETF attribution, add RADIUS
+      counters, changed password leaf names to indicate hashed";
+    reference "0.2.0";
+  }
 
   revision "2017-01-29" {
     description
@@ -247,17 +254,17 @@ module openconfig-aaa {
 
     leaf admin-password {
       type string;
-      oc-ext:openconfig-encrypted-value;
+      oc-ext:openconfig-hashed-value;
       description
         "The admin/root password, supplied as a cleartext string.
-        The system should encrypt and only store the password as an
-        encrypted value.";
+        The system should hash and only store the password as a
+        hashed value.";
     }
 
-    leaf admin-password-encrypted {
+    leaf admin-password-hashed {
       type oc-aaa-types:crypt-password-type;
       description
-        "The admin/root password, supplied as an encrypted value
+        "The admin/root password, supplied as a hashed value
         using the notation described in the definition of the
         crypt-password-type.";
     }
@@ -315,16 +322,16 @@ module openconfig-aaa {
 
     leaf password {
       type string;
-      oc-ext:openconfig-encrypted-value;
+      oc-ext:openconfig-hashed-value;
       description
         "The user password, supplied as cleartext.  The system
-        must encrypt the value and only store the encrypted value.";
+        must hash the value and only store the hashed value.";
     }
 
-    leaf password-encrypted {
+    leaf password-hashed {
       type oc-aaa-types:crypt-password-type;
       description
-        "The user password, supplied as an encrypted value
+        "The user password, supplied as a hashed value
         using the notation described in the definition of the
         crypt-password-type.";
     }

@@ -8,7 +8,7 @@ module openconfig-system {
   prefix "oc-sys";
 
   // import some basic types
-  import ietf-inet-types { prefix inet; }
+  import openconfig-inet-types { prefix oc-inet; }
   import ietf-yang-types { prefix yang; }
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
@@ -30,11 +30,28 @@ module openconfig-system {
     "Model for managing system-wide services and functions on
     network devices.
 
-    This model leverages parts of the IETF system management model
-    described in RFC 7317 - A YANG Data Model for System
-    Management.";
+    Portions of this code were derived from IETF RFC 7317.
+    Please reproduce this note if possible.
 
-  oc-ext:openconfig-version "0.1.0";
+    IETF code is subject to the following copyright and license:
+    Copyright (c) IETF Trust and the persons identified as authors of
+    the code.
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, is permitted pursuant to, and subject to the license
+    terms contained in, the Simplified BSD License set forth in
+    Section 4.c of the IETF Trust's Legal Provisions Relating
+    to IETF Documents (http://trustee.ietf.org/license-info).";
+
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2017-07-06" {
+    description
+      "Move to oc-inet types, add IETF attribution, add RADIUS
+      counters, changed password leaf names to indicate hashed";
+    reference "0.2.0";
+  }
 
   revision "2017-01-29" {
     description
@@ -65,9 +82,7 @@ module openconfig-system {
   typedef timezone-name-type {
     type string;
     description
-      "[adapted from IETF system model RFC 7317]
-
-      A time zone name as used by the Time Zone Database,
+      "A time zone name as used by the Time Zone Database,
        sometimes referred to as the 'Olson Database'.
 
        The exact set of valid values is an implementation-specific
@@ -130,14 +145,14 @@ module openconfig-system {
     description "system-wide configuration parameters";
 
     leaf hostname {
-      type inet:domain-name;
+      type oc-inet:domain-name;
       description
         "The hostname of the device -- should be a single domain
         label, without the domain.";
     }
 
     leaf domain-name {
-      type inet:domain-name;
+      type oc-inet:domain-name;
       description
         "Specifies the domain name used to form fully qualified name
         for unqualified hostnames.";
@@ -167,9 +182,7 @@ module openconfig-system {
     leaf current-datetime {
         type yang:date-and-time;
         description
-          "[adapted from IETF system model RFC 7317]
-
-          The current system date and time.";
+          "The current system date and time.";
     }
 
     leaf boot-time {
@@ -186,12 +199,10 @@ module openconfig-system {
     description "DNS / resolver related configuration data";
 
     leaf-list search {
-      type inet:domain-name;
+      type oc-inet:domain-name;
       ordered-by user;
       description
-        "[adapted from IETF system model RFC 7317]
-
-        An ordered list of domains to search when resolving
+        "An ordered list of domains to search when resolving
         a host name.";
     }
   }
@@ -212,21 +223,17 @@ module openconfig-system {
     //on target devices.  It may be added back if and when needed.
 
     leaf address {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description
-        "[adapted from IETF system model RFC 7317]
-
-        The address of the DNS server, can be either IPv4
+        "The address of the DNS server, can be either IPv4
         or IPv6.";
     }
 
     leaf port {
-      type inet:port-number;
+      type oc-inet:port-number;
       default 53;
       description
-        "[adapted from IETF system model RFC 7317]
-
-        The port number of the DNS server.";
+        "The port number of the DNS server.";
     }
 
     //RFC 7317 includes resolver timeout and attempts options. These
@@ -251,13 +258,13 @@ module openconfig-system {
     }
 
     leaf-list ipv4-address {
-      type inet:ipv4-address;
+      type oc-inet:ipv4-address;
       description
         "List of IPv4 addressses for the host entry";
     }
 
     leaf-list ipv6-address {
-      type inet:ipv6-address;
+      type oc-inet:ipv6-address;
       description
         "List of IPv6 addresses for the host entry";
     }
@@ -328,9 +335,7 @@ module openconfig-system {
         key "address";
         ordered-by user;
         description
-          "[adapted from IETF system model RFC 7317]
-
-          List of the DNS servers that the resolver should query.
+          "List of the DNS servers that the resolver should query.
 
            When the resolver is invoked by a calling application, it
            sends the query to the first name server in this list.  If
@@ -414,20 +419,16 @@ module openconfig-system {
       "Configuration data for NTP servers";
 
     leaf address {
-      type inet:host;
+      type oc-inet:host;
       description
-        "[adapted from IETF system model RFC 7317]
-
-        The address or hostname of the NTP server.";
+        "The address or hostname of the NTP server.";
     }
 
     leaf port {
-      type inet:port-number;
+      type oc-inet:port-number;
       default 123;
       description
-        "[adapted from IETF system model RFC 7317]
-
-        The port number of the NTP server.";
+        "The port number of the NTP server.";
     }
 
     leaf version {
@@ -436,9 +437,7 @@ module openconfig-system {
       }
       default 4;
       description
-        "[adapted from IETF system model RFC 7317]
-
-        Version number to put in outgoing NTP packets";
+        "Version number to put in outgoing NTP packets";
     }
 
     leaf association-type {
@@ -466,26 +465,20 @@ module openconfig-system {
       }
       default SERVER;
       description
-        "[adapted from IETF system model RFC 7317]
-
-        The desired association type for this NTP server.";
+        "The desired association type for this NTP server.";
     }
     leaf iburst {
       type boolean;
       default false;
       description
-        "[adapted from IETF system model RFC 7317]
-
-        Indicates whether this server should enable burst
+        "Indicates whether this server should enable burst
         synchronization or not.";
     }
     leaf prefer {
       type boolean;
       default false;
       description
-        "[adapted from IETF system model RFC 7317]
-
-        Indicates whether this server should be preferred
+        "Indicates whether this server should be preferred
         or not.";
     }
   }
@@ -568,9 +561,7 @@ module openconfig-system {
       list server {
         key "address";
         description
-          "[adapted from IETF system model RFC 7317]
-
-          List of NTP servers to use for system clock
+          "List of NTP servers to use for system clock
           synchronization.  If '/system/ntp/enabled'
           is 'true', then the system will attempt to
           contact and utilize the specified NTP servers.";
@@ -688,19 +679,15 @@ module openconfig-system {
       type boolean;
       default false;
       description
-        "[adapted from IETF system model RFC 7317]
-
-        Enables the NTP protocol and indicates that the system should
+        "Enables the NTP protocol and indicates that the system should
         attempt to synchronize the system clock with an NTP server
         from the servers defined in the 'ntp/server' list.";
     }
 
     leaf ntp-source-address {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description
-        "[adapted from IETF system model RFC 7317]
-
-        Source address to use on outgoing NTP packets";
+        "Source address to use on outgoing NTP packets";
     }
 
     leaf enable-ntp-auth {
