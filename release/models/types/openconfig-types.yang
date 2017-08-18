@@ -21,7 +21,13 @@ module openconfig-types {
     are used across OpenConfig models. It can be imported by modules
     that make use of these types.";
 
-  oc-ext:openconfig-version "0.3.2";
+  oc-ext:openconfig-version "0.3.3";
+
+  revision "2017-08-16" {
+    description
+      "Apply fix for ieetfloat32 length parameter";
+    reference "0.3.3";
+  }
 
   revision "2017-01-13" {
     description
@@ -77,14 +83,14 @@ module openconfig-types {
 
   typedef ieeefloat32 {
     type binary {
-      length "32";
+      length "4";
     }
     description
       "An IEEE 32-bit floating point number. The format of this number
       is of the form:
         1-bit  sign
         8-bit  exponent
-        24-bit fraction
+        23-bit fraction
       The floating point value is calculated using:
         (-1)**S * 2**(Exponent-127) * (1+Fraction)";
   }
@@ -322,4 +328,5 @@ module openconfig-types {
     description
       "The 802.3 Ethernet address family";
   }
+
 }

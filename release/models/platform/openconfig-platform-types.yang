@@ -21,7 +21,13 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2017-08-16" {
+    description
+      "Added power state enumerated type";
+    reference "0.6.0";
+  }
 
   revision "2016-12-22" {
     description
@@ -165,5 +171,22 @@ module openconfig-platform-types {
       "Operating system running on a component";
   }
 
+  // typedef statements
+
+  typedef component-power-type {
+    type enumeration {
+      enum POWER_ENABLED {
+        description
+          "Enable power on the component";
+      }
+      enum POWER_DISABLED {
+        description
+          "Disable power on the component";
+      }
+    }
+    description
+      "A generic type reflecting whether a hardware component
+      is powered on or off";
+  }
 
 }

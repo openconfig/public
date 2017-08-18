@@ -18,23 +18,24 @@ module openconfig-extensions {
     "This module provides extensions to the YANG language to allow
     OpenConfig specific functionality and meta-data to be defined.";
 
+  revision "2017-04-11" {
+    description
+      "rename password type to 'hashed' and clarify description";
+    reference "0.3.0";
+  }
+
   revision "2017-01-29" {
     description
       "Added extension for annotating encrypted values.";
-    reference "TBD";
+    reference "0.2.0";
   }
 
   revision "2015-10-09" {
     description
       "Initial OpenConfig public release";
-    reference "TBD";
+    reference "0.1.0";
   }
 
-  revision "2015-10-05" {
-    description
-      "Initial revision";
-    reference "TBD";
-  }
 
   // extension statements
   extension openconfig-version {
@@ -74,16 +75,17 @@ module openconfig-extensions {
       The version number is stored in the module meta-data.";
   }
 
-  extension openconfig-encrypted-value {
+  extension openconfig-hashed-value {
     description
       "This extension provides an annotation on schema nodes to
       indicate that the corresponding value should be stored and
-      reported in encrypted form.
+      reported in hashed form.
 
-      Clients reading the configuration or applied configuration
-      for the node should expect to receive only the encrypted value.
-      This annotation may be used on nodes such as secure passwords
-      in which the device never reports a cleartext value, even
-      if the input is provided as cleartext.";
+      Hash algorithms are by definition not reversible. Clients
+      reading the configuration or applied configuration for the node
+      should expect to receive only the hashed value. Values written
+      in cleartext will be hashed. This annotation may be used on
+      nodes such as secure passwords in which the device never reports
+      a cleartext value, even if the input is provided as cleartext.";
   }
 }
