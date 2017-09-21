@@ -9,8 +9,8 @@ module openconfig-aaa {
 
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
-  import ietf-inet-types { prefix inet; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-yang-types { prefix oc-yang; }
   import openconfig-aaa-types { prefix oc-aaa-types; }
 
   include openconfig-aaa-tacacs;
@@ -32,7 +32,13 @@ module openconfig-aaa {
     Portions of this model reuse data definitions or structure from
     RFC 7317 - A YANG Data Model for System Management";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2017-09-18" {
+    description
+      "Updated to use OpenConfig types modules";
+    reference "0.3.0";
+  }
 
   revision "2017-07-06" {
     description
@@ -134,7 +140,7 @@ module openconfig-aaa {
 
 
     leaf address {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description "Address of the authentication server";
     }
 
@@ -152,52 +158,52 @@ module openconfig-aaa {
       "Common operational state data for AAA servers";
 
     leaf connection-opens {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of new connection requests sent to the server, e.g.
         socket open";
     }
 
     leaf connection-closes {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of connection close requests sent to the server, e.g.
         socket close";
     }
 
     leaf connection-aborts {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of aborted connections to the server.  These do
         not include connections that are close gracefully.";
     }
 
     leaf connection-failures {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of connection failures to the server";
     }
 
     leaf connection-timeouts {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of connection timeouts to the server";
     }
 
     leaf messages-sent {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of messages sent to the server";
     }
 
     leaf messages-received {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of messages received by the server";
     }
 
     leaf errors-received {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of error messages received from the server";
     }

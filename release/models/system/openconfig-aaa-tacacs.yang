@@ -7,7 +7,7 @@ submodule openconfig-aaa-tacacs {
   }
 
   // import some basic types
-  import ietf-inet-types { prefix inet; }
+  import openconfig-inet-types { prefix oc-inet; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-aaa-types { prefix oc-aaa-types; }
   import openconfig-types { prefix oc-types; }
@@ -25,7 +25,13 @@ submodule openconfig-aaa-tacacs {
     related to the TACACS+ protocol for authentication,
     authorization, and accounting.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2017-09-18" {
+    description
+      "Updated to use OpenConfig types modules";
+    reference "0.3.0";
+  }
 
   revision "2017-07-06" {
     description
@@ -66,7 +72,7 @@ submodule openconfig-aaa-tacacs {
       "Configuration data for a TACACS+ server";
 
     leaf port {
-      type inet:port-number;
+      type oc-inet:port-number;
       default 49;
       description
         "The port number on which to contact the TACACS server";
@@ -80,7 +86,7 @@ submodule openconfig-aaa-tacacs {
     }
 
     leaf source-address {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description
         "Source IP address to use in messages to the TACACS server";
     }

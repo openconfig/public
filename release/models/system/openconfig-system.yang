@@ -9,7 +9,7 @@ module openconfig-system {
 
   // import some basic types
   import openconfig-inet-types { prefix oc-inet; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-yang-types { prefix oc-yang; }
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-aaa { prefix oc-aaa; }
@@ -44,7 +44,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2017-09-18" {
+    description
+      "Updated to use OpenConfig types modules";
+    reference "0.3.0";
+  }
 
   revision "2017-07-06" {
     description
@@ -180,7 +186,7 @@ module openconfig-system {
       "Global operational state data for the system";
 
     leaf current-datetime {
-        type yang:date-and-time;
+        type oc-yang:date-and-time;
         description
           "The current system date and time.";
     }
@@ -705,7 +711,7 @@ module openconfig-system {
       "Operational state data for system-wide NTP operation.";
 
     leaf auth-mismatch {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Count of the number of NTP packets received that were not
         processed due to authentication mismatch.";

@@ -9,7 +9,7 @@ module openconfig-system-logging {
 
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
-  import ietf-inet-types { prefix inet; }
+  import openconfig-inet-types { prefix oc-inet; }
 
 
   // meta
@@ -23,7 +23,13 @@ module openconfig-system-logging {
     "This module defines configuration and operational state data
     for common logging facilities on network systems.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2017-09-18" {
+    description
+      "Updated to use OpenConfig types modules";
+    reference "0.3.0";
+  }
 
   revision "2017-07-06" {
     description
@@ -398,19 +404,19 @@ module openconfig-system-logging {
       "Configuration data for remote log servers";
 
     leaf host {
-      type inet:host;
+      type oc-inet:host;
       description
         "IP address or hostname of the remote log server";
     }
 
     leaf source-address {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description
         "Source IP address for packets to the log server";
     }
 
     leaf remote-port {
-      type inet:port-number;
+      type oc-inet:port-number;
       default 514;
       description
         "Sets the destination port number for syslog UDP messages to

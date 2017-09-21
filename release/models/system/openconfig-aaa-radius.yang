@@ -7,7 +7,7 @@ submodule openconfig-aaa-radius {
   }
 
   // import some basic types
-  import ietf-inet-types { prefix inet; }
+  import openconfig-inet-types { prefix oc-inet; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-aaa-types { prefix oc-aaa-types; }
   import openconfig-types { prefix oc-types; }
@@ -26,7 +26,13 @@ submodule openconfig-aaa-radius {
     related to the RADIUS protocol for authentication,
     authorization, and accounting.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2017-09-18" {
+    description
+      "Updated to use OpenConfig types modules";
+    reference "0.3.0";
+  }
 
   revision "2017-07-06" {
     description
@@ -66,14 +72,14 @@ submodule openconfig-aaa-radius {
       "Configuration data for a RADIUS server";
 
     leaf auth-port {
-      type inet:port-number;
+      type oc-inet:port-number;
       default 1812;
       description
         "Port number for authentication requests";
     }
 
     leaf acct-port {
-      type inet:port-number;
+      type oc-inet:port-number;
       default 1813;
       description
         "Port number for accounting requests";
@@ -87,7 +93,7 @@ submodule openconfig-aaa-radius {
     }
 
     leaf source-address {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description
         "Source IP address to use in messages to the RADIUS server";
     }
