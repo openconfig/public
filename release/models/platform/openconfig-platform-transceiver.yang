@@ -13,7 +13,7 @@ module openconfig-platform-transceiver {
   import openconfig-transport-types { prefix oc-opt-types; }
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-yang-types { prefix oc-yang; }
 
 
   // meta
@@ -34,7 +34,13 @@ module openconfig-platform-transceiver {
     module defines a concrete schema for the associated data for
     components with type=TRANSCEIVER.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2017-09-18" {
+    description
+      "Use openconfig-yang-types module";
+    reference "0.4.0";
+  }
 
   revision "2017-07-08" {
     description
@@ -391,7 +397,7 @@ module openconfig-platform-transceiver {
     }
 
     leaf date-code {
-      type yang:date-and-time;
+      type oc-yang:date-and-time;
       description
         "Representation of the transceiver date code, typically
         stored as YYMMDD.  The time portion of the value is
