@@ -29,6 +29,12 @@ module openconfig-system-wifi-ext {
 
   oc-ext:openconfig-version "0.1.0";
 
+  revision "2017-10-01" {
+    description
+      "Add country-code and hostname to MAC.";
+    reference "0.2.0";
+  }
+
   revision "2017-07-25" {
     description
       "Initial revision";
@@ -76,16 +82,39 @@ module openconfig-system-wifi-ext {
   }
 
   // Note, configuration of both AP & Controller system parameters, such as
-  // hostname & IP utilizes parent model (openconfig-system.yang)
-  grouping controller-aps-system-state {
+  // NTP & IP utilizes parent model (openconfig-system.yang)
+  grouping controller-aps-system-config {
     description
-      "Grouping for a controllers AP state data.";
+      "Grouping for Controller & AP system configuration.";
+
+    leaf mac {
+      type oc-yang:mac-address;
+      description
+        "MAC address of the AP primary Ethernet interface. If AP
+        has multiple Ethernet interfaces, this would be the MAC printed
+        on the unit label and referenced within the management system.
+        Vendors MUST reject attempts to configure this leaf.";
+    }
 
     leaf hostname {
       type oc-inet:domain-name;
       description
-        "Unqualified hostname of the Access Point.";
+        "Hostname of the Access Point.";
     }
+
+    leaf country-code {
+      type string {
+        pattern '[a-zA-Z]{2}';
+        }
+      description
+        "Country code where the AP operates in ISO 3166-1 alpha-2
+        representation";
+    }
+  }
+
+  grouping controller-aps-system-state {
+    description
+      "Grouping for a Controller & AP system state data.";
 
     leaf domain-name {
       type oc-inet:domain-name;
@@ -138,14 +167,6 @@ module openconfig-system-wifi-ext {
         "The IPv6 address of the Access Point.";
     }
 
-    leaf mac {
-      type oc-yang:mac-address;
-      description
-        "MAC address of the AP primary Ethernet interface. If AP
-        has multiple Ethernet interfaces, this would be the MAC printed
-        on the unit label.";
-    }
-
     leaf power-source {
       type enumeration {
       enum AT {
@@ -172,19 +193,23 @@ module openconfig-system-wifi-ext {
         "Top most container for joined-aps.";
 
       list joined-ap {
-        key "hostname";
-        config false;
+        key "mac";
         description
-          "All AP hostnames joined to this Controller, or cloud instance.
-          Note, this may also be useful for architectures which utilize
-          APs as virtual-controllers.";
+          "List of access points that have joined the controller.";
 
-        leaf hostname {
+        leaf mac {
           type leafref {
-            path "../state/hostname";
+            path "../config/mac";
           }
           description
-            "FQDN of the AP.";
+          "Reference to the MAC address list key.";
+        }
+
+        container config {
+          description
+            "Config container for Joined APs.";
+
+          uses controller-aps-system-config;
         }
 
         container state {
@@ -192,6 +217,7 @@ module openconfig-system-wifi-ext {
           description
             "State container for Joined APs.";
 
+          uses controller-aps-system-config;
           uses controller-aps-system-state;
         }
       }
@@ -232,7 +258,7 @@ module openconfig-system-wifi-ext {
         container state {
           config false;
           description
-            "State container for APs to Controllers.";
+            "State container for APs assigned to Controllers.";
 
           uses assigned-controllers-config;
         }
