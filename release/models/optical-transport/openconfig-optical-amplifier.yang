@@ -25,7 +25,20 @@ module openconfig-optical-amplifier {
     for optical amplifiers, deployed as part of a transport
     line system.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2017-10-02" {
+    description
+      "Add support for fiber type profile and physical component
+      association for amplifier gain blocks.";
+    reference "0.4.0";
+  }
+
+  revision "2017-09-08" {
+    description
+      "Correct bug with OSC interfaces";
+    reference "0.3.1";
+  }
 
   revision "2017-07-08" {
     description
@@ -132,6 +145,41 @@ module openconfig-optical-amplifier {
   }
 
 
+  identity FIBER_TYPE_PROFILE {
+    description
+      "Type definition for different profiles of fiber types";
+  }
+
+  identity DSF {
+      base FIBER_TYPE_PROFILE;
+      description
+        "Dispersion shifted fiber";
+  }
+
+  identity LEAF {
+      base FIBER_TYPE_PROFILE;
+      description
+        "Large effective area fiber";
+  }
+
+  identity SSMF {
+      base FIBER_TYPE_PROFILE;
+      description
+        "Standard single mode fiber";
+  }
+
+  identity TWC {
+      base FIBER_TYPE_PROFILE;
+      description
+        "True wave classic";
+  }
+
+  identity TWRS {
+      base FIBER_TYPE_PROFILE;
+      description
+        "True wave reduced slope";
+  }
+
   // grouping statements
 
   grouping optical-amplifier-config {
@@ -204,11 +252,34 @@ module openconfig-optical-amplifier {
         "Turns power on / off to the amplifiers gain module.";
     }
 
+    leaf fiber-type-profile {
+      type identityref {
+        base FIBER_TYPE_PROFILE;
+      }
+      description
+        "The fiber type profile specifies details about the
+        fiber type which are needed to accurately determine
+        the gain and perform efficient amplification. This is
+        only needed for Raman type amplifiers.";
+    }
+
   }
 
   grouping optical-amplifier-state {
     description
       "Operational state data for optical amplifiers";
+
+    leaf component {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
+      }
+      description
+        "Reference to the system-supplied physical component that
+        the amplifier gain block is contained within. Multiple
+        amplifier gain blocks may be contained within the same
+        physical component.";
+    }
 
     leaf ingress-port {
       type leafref {
