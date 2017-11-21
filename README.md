@@ -21,4 +21,4 @@ or by opening a GitHub issue.
 
 Please see the [OpenConfig web site](http://www.openconfig.net) for information
 for operators wishing to join OpenConfig, in particular the
-[FAQ for operators](http://www.openconfig.net/documents/faq-for-operators).
+[FAQ for operators](http://www.openconfig.net/docs/faq-for-operators/).
