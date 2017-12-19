@@ -62,7 +62,20 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2017-12-14" {
+    description
+      "Added anchor containers for component data, added new
+      component types";
+    reference "0.7.0";
+  }
+
+  revision "2017-08-16" {
+    description
+      "Added power state enumerated type";
+    reference "0.6.0";
+  }
 
   revision "2016-12-22" {
     description
@@ -303,6 +316,202 @@ module openconfig-platform {
     }
   }
 
+  grouping platform-anchors-top {
+    description
+      "This grouping is used to add containers for components that
+      are common across systems, but do not have a defined schema
+      within the openconfig-platform module.  Containers should be
+      added to this grouping for components that are expected to
+      exist in multiple systems, with corresponding modules
+      augmenting the config/state containers directly.";
+
+    container chassis {
+      description
+        "Data for chassis components";
+
+      container config {
+        description
+          "Configuration data for chassis components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for chassis components";
+      }
+    }
+
+// TODO(aashaikh): linecard container is already defined in
+// openconfig-platform-linecard; will move to this module
+// in future.
+  /*
+    container linecard {
+      description
+        "Data for linecard components";
+
+      container config {
+        description
+          "Configuration data for linecard components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for linecard components";
+      }
+    }
+  */
+
+    container port {
+      description
+        "Data for physical port components";
+
+      container config {
+        description
+          "Configuration data for physical port components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for physical port components";
+      }
+    }
+
+// TODO(aashaikh): transceiver container is already defined in
+// openconfig-platform-transceiver; will move to this module
+// in future.
+  /*
+    container transceiver {
+      description
+        "Data for transceiver components";
+
+      container config {
+        description
+          "Configuration data for transceiver components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for transceiver components";
+      }
+    }
+  */
+
+    container power-supply {
+      description
+        "Data for power supply components";
+
+      container config {
+        description
+          "Configuration data for power supply components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for power supply components";
+      }
+    }
+
+    container fan {
+      description
+        "Data for fan components";
+
+      container config {
+        description
+          "Configuration data for fan components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for fan components";
+      }
+    }
+
+    container fabric {
+      description
+        "Data for fabric components";
+
+      container config {
+        description
+          "Configuration data for fabric components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for fabric components";
+      }
+    }
+
+    container storage {
+      description
+        "Data for storage components";
+
+      container config {
+        description
+          "Configuration data for storage components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for storage components";
+      }
+    }
+
+    container cpu {
+      description
+        "Data for cpu components";
+
+      container config {
+        description
+          "Configuration data for cpu components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for cpu components";
+      }
+    }
+
+    container integrated-circuit {
+      description
+        "Data for chip components, such as ASIC, NPUs, etc.";
+
+      container config {
+        description
+          "Configuration data for chip components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for chip components";
+      }
+    }
+
+    container backplane {
+      description
+        "Data for backplane components";
+
+      container config {
+        description
+          "Configuration data for backplane components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for backplane components";
+      }
+    }
+  }
+
   grouping platform-component-top {
     description
       "Top-level grouping for components in the device inventory";
@@ -345,9 +554,11 @@ module openconfig-platform {
 
         uses platform-component-properties-top;
         uses platform-subcomponent-ref-top;
+        uses platform-anchors-top;
       }
     }
   }
+
 
   // data definition statements
 

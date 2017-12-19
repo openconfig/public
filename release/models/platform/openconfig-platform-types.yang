@@ -21,7 +21,14 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2017-12-14" {
+    description
+      "Added anchor containers for component data, added new
+      component types";
+    reference "0.7.0";
+  }
 
   revision "2017-08-16" {
     description
@@ -116,6 +123,13 @@ module openconfig-platform-types {
       contained in a chassis component";
   }
 
+  identity FABRIC {
+    base OPENCONFIG_HARDWARE_COMPONENT;
+    description
+      "Interconnect between ingress and egress ports on the
+      device (e.g., a crossbar switch).";
+  }
+
   identity POWER_SUPPLY {
     base OPENCONFIG_HARDWARE_COMPONENT;
     description
@@ -134,10 +148,11 @@ module openconfig-platform-types {
       "Physical sensor, e.g., a temperature sensor in a chassis";
   }
 
-  identity MODULE {
+  identity FRU {
     base OPENCONFIG_HARDWARE_COMPONENT;
     description
-      "Replaceable hardware module, e.g., a daughtercard";
+      "Replaceable hardware component that does not have a more
+      specific defined schema.";
   }
 
   identity LINECARD {
@@ -163,6 +178,20 @@ module openconfig-platform-types {
     base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Processing unit, e.g., a management processor";
+  }
+
+  identity STORAGE {
+    base OPENCONFIG_HARDWARE_COMPONENT;
+    description
+      "A storage subsystem on the device (disk, SSD, etc.)";
+  }
+
+  identity INTEGRATED_CIRCUIT {
+    base OPENCONFIG_HARDWARE_COMPONENT;
+    description
+      "A special purpose processing unit, typically for traffic
+      switching/forwarding (e.g., switching ASIC, NPU, forwarding
+      chip, etc.)";
   }
 
   identity OPERATING_SYSTEM {
