@@ -44,7 +44,13 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.0.0";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2017-12-21" {
+    description
+      "Added IPv6 router advertisement configuration.";
+    reference "2.1.0";
+  }
 
   revision "2017-07-14" {
     description
@@ -851,6 +857,36 @@ module openconfig-if-ip {
     }
   }
 
+  grouping ipv6-ra-config {
+    description
+      "Configuration parameters for IPv6 router advertisements.";
+
+    leaf interval {
+      type uint32;
+      units seconds;
+      description
+        "The interval between periodic router advertisement neighbor
+        discovery messages sent on this interface expressed in
+        seconds.";
+    }
+
+    leaf lifetime {
+      type uint32;
+      units seconds;
+      description
+        "The lifetime advertised in the router advertisement neighbor
+        discovery message on this interface.";
+    }
+
+    leaf suppress {
+      type boolean;
+      default false;
+      description
+        "When set to true, router advertisement neighbor discovery
+        messages are not transmitted on this interface.";
+    }
+  }
+
   grouping ipv4-top {
     description "Top-level configuration and state for IPv4
     interfaces";
@@ -1002,6 +1038,27 @@ module openconfig-if-ip {
             uses ipv6-address-config;
             uses ipv6-address-state;
           }
+        }
+      }
+
+      container router-advertisement {
+        description
+          "Configuration and operational state parameters relating to
+          router advertisements.";
+
+        container config {
+          description
+            "Configuration parameters relating to router advertisements
+            for IPv6.";
+          uses ipv6-ra-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to router
+             advertisements for IPv6.";
+          uses ipv6-ra-config;
         }
       }
 
