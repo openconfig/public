@@ -28,6 +28,13 @@ module openconfig-wifi-mac {
 
   oc-ext:openconfig-version "0.2.0";
 
+  revision "2017-12-21" {
+    description
+      "Add mobility-domain and move/create bssid-state list for 
+      counters.";
+    reference "0.2.0";
+  }
+
   revision "2017-07-25" {
     description
       "Initial revision";
@@ -179,6 +186,13 @@ module openconfig-wifi-mac {
       description
         "Enable/disable Dynamic VLAN Assignment,
         using 'Tunnel-Private-Group-Id' RADIUS attribute.";
+    }
+
+    leaf mobility-domain {
+      type string;
+      description
+        "Specify the mobility domain where PMK-R0 distribution will occur.
+        Specifically, which APs will recieve PMK-R0 if using 802.11r (FT)."; 
     }
 
     leaf dhcp-required {
@@ -431,13 +445,39 @@ module openconfig-wifi-mac {
     }
   }
 
-  grouping ssid-counters-state {
+  grouping bss-common-state {
     description
-      "SSID telemetry statistics.";
+      "Grouping for defining bss-specific operational state.";
+
+    leaf ess {
+      type leafref {
+        path "../../../../ssids/ssid/name";
+      }
+      description
+        "Name of the ESS this BSS is utilizing.";
+    }
+
+    leaf num-associated-clients {
+      type uint8;
+      description
+        "Number of associated STAs to this BSS.";
+    }
+  }
+
+  grouping bssid-counters-state {
+    description
+      "BSSID telemetry statistics.";
+
+    leaf bssid {
+      type oc-yang:mac-address;
+      description
+        "MAC of the BSS.";
+    }
 
     container counters {
+      config false;
       description
-        "A collection of 802.11-related statistics.";
+        "BSS Counters.";
 
       // Rx Counters
       leaf rx-mgmt {
@@ -454,8 +494,8 @@ module openconfig-wifi-mac {
 
       container rx-data-dist {
         description
-          "The distribution of Data frame sizes in bytes of successfully recieved
-          AMPDU, or MPDU for non-aggregated, frames.
+          "The distribution of Data frame sizes in bytes of successfully
+          recieved AMPDU, or MPDU for non-aggregated, frames.
           The distribution should characterize frame sizes starting at 64 bytes
           or less with the bin size doubling for each successive bin to a
           maximum of 1MB or larger, as represented in the following table:
@@ -941,12 +981,6 @@ module openconfig-wifi-mac {
         description
           "Bytes transmitted from QoS Data frames";
       }
-
-      leaf num-associated-clients {
-        type uint8;
-        description
-          "Number of associated STAs to this BSS.";
-      }
     }
   }
 
@@ -1364,6 +1398,39 @@ module openconfig-wifi-mac {
     }
   }
 
+  grouping bssid-counters-top {
+    description
+      "Top-level grouping for BSSID operational state data.";
+
+    container bssids {
+      description
+        "Top-level container for BSSID operational state data.";
+      list bssid {
+        key "bssid";
+        config false;
+        description
+          "List of BSSIDs.";
+        leaf bssid {
+          type leafref {
+            path "../state/bssid";
+          }
+          config false;
+          description
+            "The BSSID MAC address.";
+        }
+
+        container state {
+          config false;
+          description
+            "BSSID state data.";
+
+          uses bss-common-state;
+          uses bssid-counters-state;
+        }
+      }
+    }
+  }
+
   grouping ssid-top {
     description
       "Top-level grouping for ssid configuration and operational state data.";
@@ -1400,7 +1467,6 @@ module openconfig-wifi-mac {
 
           uses ssid-common-config;
           uses ssid-common-state;
-          uses ssid-counters-state;
         }
         uses wmm-top;
         uses dot11r-top;
@@ -1412,4 +1478,5 @@ module openconfig-wifi-mac {
     }
   }
   uses ssid-top;
+  uses bssid-counters-top;
 }
