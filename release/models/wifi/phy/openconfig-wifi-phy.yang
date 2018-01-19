@@ -25,7 +25,13 @@ module openconfig-wifi-phy {
   description
     "Model for managing PHY layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2017-12-21" {
+    description
+      "Add last-seen to neighbor-table.";
+    reference "0.2.0";
+  }
 
   revision "2017-11-06" {
     description
@@ -256,7 +262,7 @@ module openconfig-wifi-phy {
     }
   }
 
-  // neighbor BSSID | SSID | RSSI | Channel | Center Channel
+  // neighbor BSSID | SSID | RSSI | Channel | Center Channel | Last-seen
   grouping neighbor-list-state {
     description
       "Operational state data relating to neighboring
@@ -293,6 +299,16 @@ module openconfig-wifi-phy {
       description
         "The primary 20MHz channel, if the neighbor is operating on bonded
         channel.";
+    }
+
+    leaf last-seen {
+      type oc-types:timeticks64;
+      description
+        "Reports the time this reading was taken, indicating when this neighbor
+        was last seen. If a cache is used, it MUST be updated instantly when a
+        neighbor BSS changes channels, or a new BSS is seen. The value is the
+        timestamp in seconds relative to the Unix Epoch
+        (Jan 1, 1970 00:00:00 UTC).";
     }
   }
 
