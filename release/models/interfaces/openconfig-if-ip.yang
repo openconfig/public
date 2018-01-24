@@ -44,7 +44,13 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2018-01-05" {
+    description
+      "Add logical loopback to interface.";
+    reference "2.3.0";
+  }
 
   revision "2017-12-21" {
     description
@@ -887,6 +893,45 @@ module openconfig-if-ip {
     }
   }
 
+  grouping ipv4-proxy-arp-config {
+    description
+      "Configuration parameters for IPv4 proxy ARP";
+
+    leaf mode {
+      type enumeration {
+        enum DISABLE {
+          description
+            "The system should not respond to ARP requests that
+            do not specify an IP address configured on the local
+            subinterface as the target address.";
+        }
+        enum REMOTE_ONLY {
+          description
+            "The system responds to ARP requests only when the
+            sender and target IP addresses are in different
+            subnets.";
+        }
+        enum ALL {
+          description
+            "The system responds to ARP requests where the sender
+            and target IP addresses are in different subnets, as well
+            as those where they are in the same subnet.";
+        }
+      }
+      default "DISABLE";
+      description
+        "When set to a value other than DISABLE, the local system should
+        respond to ARP requests that are for target addresses other than
+        those that are configured on the local subinterface using its own
+        MAC address as the target hardware address. If the REMOTE_ONLY
+        value is specified, replies are only sent when the target address
+        falls outside the locally configured subnets on the interface,
+        whereas with the ALL value, all requests, regardless of their
+        target address are replied to.";
+      reference "RFC1027: Using ARP to Implement Transparent Subnet Gateways";
+    }
+  }
+
   grouping ipv4-top {
     description "Top-level configuration and state for IPv4
     interfaces";
@@ -906,7 +951,7 @@ module openconfig-if-ip {
 
           leaf ip {
             type leafref {
-              path "../oc-ip:config/oc-ip:ip";
+              path "../config/ip";
             }
             description "References the configured IP address";
           }
@@ -932,6 +977,27 @@ module openconfig-if-ip {
         }
       }
 
+      container proxy-arp {
+        description
+          "Configuration and operational state parameters
+          relating to proxy ARP. This functionality allows a
+          system to respond to ARP requests that are not
+          explicitly destined to the local system.";
+
+        container config {
+          description
+            "Configuration parameters for proxy ARP";
+          uses ipv4-proxy-arp-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters for proxy ARP";
+          uses ipv4-proxy-arp-config;
+        }
+      }
+
       container neighbors {
         description
           "Enclosing container for neighbor list";
@@ -949,7 +1015,7 @@ module openconfig-if-ip {
 
           leaf ip {
             type leafref  {
-              path "../oc-ip:config/oc-ip:ip";
+              path "../config/ip";
             }
             description "References the configured IP address";
           }
@@ -1014,7 +1080,7 @@ module openconfig-if-ip {
 
           leaf ip {
             type leafref {
-              path "../oc-ip:config/oc-ip:ip";
+              path "../config/ip";
             }
             description "References the configured IP address";
           }
@@ -1073,7 +1139,7 @@ module openconfig-if-ip {
 
           leaf ip {
             type leafref {
-              path "../oc-ip:config/oc-ip:ip";
+              path "../config/ip";
             }
             description
               "References the configured IP neighbor address";
@@ -1123,7 +1189,7 @@ module openconfig-if-ip {
   augment "/oc-if:interfaces/oc-if:interface/oc-if:subinterfaces/" +
     "oc-if:subinterface" {
     description
-      "IPv4 addr family configuration for
+      "IPv4 address family configuration for
       interfaces";
 
     uses ipv4-top;
@@ -1133,7 +1199,7 @@ module openconfig-if-ip {
   augment "/oc-if:interfaces/oc-if:interface/oc-if:subinterfaces/" +
     "oc-if:subinterface" {
     description
-      "IPv6 addr family configuration for
+      "IPv6 address family configuration for
       interfaces";
 
     uses ipv6-top;
@@ -1187,20 +1253,18 @@ module openconfig-if-ip {
 
   augment "/oc-if:interfaces/oc-if:interface/oc-vlan:routed-vlan" {
     description
-      "IPv4 addr family configuration for
+      "IPv4 address family configuration for
       interfaces";
 
     uses ipv4-top;
-
   }
 
   augment "/oc-if:interfaces/oc-if:interface/oc-vlan:routed-vlan" {
     description
-      "IPv6 addr family configuration for
+      "IPv6 address family configuration for
       interfaces";
 
     uses ipv6-top;
-
   }
 
   // VRRP for routed VLAN interfaces

@@ -5,8 +5,8 @@ submodule openconfig-pf-forwarding-policies {
 
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-packet-match { prefix "oc-pmatch"; }
-  import ietf-yang-types { prefix "yang"; }
-  import ietf-inet-types { prefix "inet"; }
+  import openconfig-yang-types { prefix "oc-yang"; }
+  import openconfig-inet-types { prefix "oc-inet"; }
 
   include openconfig-pf-path-groups;
 
@@ -93,7 +93,8 @@ submodule openconfig-pf-forwarding-policies {
 
             description
               "A match rule for the policy. In the case that multiple
-              criteria are specified within a single ";
+              criteria are specified within a single rule, all criteria
+              must be met for the rule to be applied to a packet.";
 
             leaf sequence-id {
               type leafref {
@@ -144,6 +145,7 @@ submodule openconfig-pf-forwarding-policies {
                 uses pf-forwarding-policy-action-config;
               }
 
+              uses pf-forwarding-policy-action-encapsulate-gre;
             }
           }
         }
@@ -179,13 +181,13 @@ submodule openconfig-pf-forwarding-policies {
       "Operational state parameters relating to a policy rule.";
 
     leaf matched-pkts {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of packets matched by the rule.";
     }
 
     leaf matched-octets {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Bytes matched by the rule.";
     }
@@ -253,12 +255,131 @@ submodule openconfig-pf-forwarding-policies {
     }
 
     leaf next-hop {
-      type inet:ip-address-no-zone;
+      type oc-inet:ip-address;
       description
         "When an IP next-hop is specified in the next-hop field,
         packets matching the match criteria for the forwarding rule
         should be forwarded to the next-hop IP address, bypassing any
         lookup on the local system.";
+    }
+  }
+
+  grouping pf-forwarding-policy-action-encapsulate-gre {
+    description
+      "Structural grouping covering the encapsulate-gre action of the
+      policy forwarding rule.";
+
+    container encapsulate-gre {
+      description
+        "Packets matching the policy rule should be GRE encapsulated
+        towards the set of targets defined within the target list. Where
+        more than one target is specified, or the target subnet expands
+        to more than one endpoint, packets should be load-balanced across
+        the destination addresses within the subnets.";
+
+      container config {
+        description
+          "Configuration parameters for the GRE encapsulation rules action.";
+        uses pf-forwarding-policy-action-gre-config;
+      }
+
+      container state {
+        description
+          "Operational state parameters for the GRE encapsulation rule
+          action.";
+        config false;
+        uses pf-forwarding-policy-action-gre-config;
+      }
+
+      container targets {
+        description
+          "Surrounding container for the list of GRE tunnel targets that
+          should be encapsulated towards.";
+
+        list target {
+          key "id";
+
+          leaf id {
+            type leafref {
+              path "../config/id";
+            }
+            description
+              "Reference to the unique identifier for the target.";
+          }
+
+          description
+            "Each target specified within this list should be treated as a
+            endpoint to which packets should be GRE encapsulated. Where the
+            set of destinations described within a single entry expands to
+            more than one destination IP address, packets should be load
+            shared across the destination using the local system's ECMP hashing
+            mechanisms.";
+
+          container config {
+            description
+              "Configuration parameters for the GRE target.";
+            uses pf-forwarding-policy-action-gre-target-config;
+          }
+
+          container state {
+            description
+              "Operational state parameters for the GRE target.";
+            config false;
+            uses pf-forwarding-policy-action-gre-target-config;
+          }
+        }
+      }
+    }
+  }
+
+  grouping pf-forwarding-policy-action-gre-config {
+    description
+      "Configuration parameters for the encapsulate-gre forwarding
+      policy action.";
+
+    leaf identifying-prefix {
+      type oc-inet:ip-prefix;
+      description
+        "An IP prefix that can be used to identify the group of
+         GRE endpoints that are being encapsulated towards. Systems
+         that require an IP identifier for the tunnel set
+         should use this prefix as the next-hop identifier.";
+    }
+  }
+
+  grouping pf-forwarding-policy-action-gre-target-config {
+    description
+      "Configuration parameters for each target of a GRE Encapsulation
+      rule";
+
+    leaf id {
+      type string;
+      description
+        "A unique identifier for the target.";
+    }
+
+    leaf source {
+      type oc-inet:ip-address;
+      description
+        "The source IP address that should be used when encapsulating
+        packets from the local system.";
+    }
+
+    leaf destination {
+      type oc-inet:ip-prefix;
+      description
+        "The set of destination addresses that should be encapsulated towards.
+        Where a subnet is specified, each address within the subnet should be
+        treated as an independent destination for encapsulated traffic. Packets
+        should be distributed with ECMP across the set of tunnel destination
+        addresses.";
+    }
+
+    leaf ip-ttl {
+      type uint8;
+      description
+        "The TTL that should be specified in the IP header of the GRE packet
+        encapsulating the packet matching the rule.";
     }
   }
 }

@@ -22,7 +22,13 @@ module openconfig-if-types {
     or logical interfaces, distinct from hardware ports (which are
     described by the OpenConfig platform model).";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2018-01-05" {
+    description
+      "Add tunnel types into the INTERFACE_TYPE identity.";
+    reference "0.2.0";
+  }
 
   revision "2016-11-14" {
     description
@@ -75,6 +81,18 @@ module openconfig-if-types {
     base INTERFACE_TYPE;
     description
       "SONET/SDH interface";
+  }
+
+  identity IF_TUNNEL_GRE4 {
+    base INTERFACE_TYPE;
+    description
+      "A GRE tunnel over IPv4 transport.";
+  }
+
+  identity IF_TUNNEL_GRE6 {
+    base INTERFACE_TYPE;
+    description
+      "A GRE tunnel over IPv6 transport.";
   }
 
 }

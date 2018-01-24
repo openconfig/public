@@ -50,7 +50,19 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2018-01-05" {
+    description
+      "Add logical loopback to interface.";
+    reference "2.3.0";
+  }
+
+  revision "2017-12-22" {
+    description
+      "Add IPv4 proxy ARP configuration.";
+    reference "2.2.0";
+  }
 
   revision "2017-12-21" {
     description
@@ -326,6 +338,15 @@ module openconfig-interfaces {
         for the physical interface.  If this is not set, the mtu is
         set to the operational default -- e.g., 1514 bytes on an
         Ethernet interface.";
+    }
+
+    leaf loopback-mode {
+      type boolean;
+      default false;
+      description
+        "When set to true, the interface is logically looped back,
+        such that packets that are forwarded via the interface
+        are received on the same interface.";
     }
 
     uses interface-common-config;
