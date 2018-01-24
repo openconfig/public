@@ -21,7 +21,13 @@ module openconfig-types {
     are used across OpenConfig models. It can be imported by modules
     that make use of these types.";
 
-  oc-ext:openconfig-version "0.3.3";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2018-01-16" {
+    description
+      "Add interval to min/max/avg stats; add percentage stat";
+    reference "0.4.0";
+  }
 
   revision "2017-08-16" {
     description
@@ -112,6 +118,27 @@ module openconfig-types {
       viewed by particular users.";
   }
 
+  typedef stat-interval {
+    type uint64;
+    units nanoseconds;
+    description
+      "A time interval over which a set of statistics is computed.
+      A common usage is to report the interval over which
+      avg/min/max stats are computed and reported.";
+  }
+
+  grouping stat-interval-state {
+    description
+      "Reusable leaf definition for stats computation interval";
+
+    leaf interval {
+      type oc-types:stat-interval;
+      description
+        "The time interval over which the min/max/average statistics
+        are computed by the system.";
+    }
+  }
+
   grouping avg-min-max-stats-precision1 {
     description
       "Common nodes for recording average, minimum, and
@@ -144,6 +171,8 @@ module openconfig-types {
         "The maximum value of the statitic over the sampling
         period";
     }
+
+    uses stat-interval-state;
   }
 
   grouping avg-min-max-instant-stats-precision1 {
@@ -206,6 +235,8 @@ module openconfig-types {
         "The maximum value of the statistic over the sampling
         period";
     }
+
+    uses stat-interval-state;
   }
 
   grouping avg-min-max-instant-stats-precision2-dBm {
@@ -252,6 +283,8 @@ module openconfig-types {
         "The maximum value of the statistic over the sampling
         period";
     }
+
+    uses stat-interval-state;
   }
 
   grouping avg-min-max-instant-stats-precision2-mA {
@@ -298,6 +331,42 @@ module openconfig-types {
         "The maximum value of the statistic over the sampling
         period";
     }
+
+    uses stat-interval-state;
+  }
+
+  grouping avg-min-max-instant-stats-pct {
+    description
+      "Common grouping for percentage statistics.";
+
+    leaf instant {
+      type oc-types:percentage;
+      description
+        "The instantaneous percentage value.";
+    }
+
+    leaf avg {
+      type oc-types:percentage;
+      description
+        "The arithmetic mean value of the percentage measure of the
+        statistic over the sampling period.";
+    }
+
+    leaf min {
+      type oc-types:percentage;
+      description
+        "The minimum value of the percentage measure of the
+        statistic over the sampling period";
+    }
+
+    leaf max {
+      type oc-types:percentage;
+      description
+        "The maximum value of the percentage measure of the
+        statistic over the sampling period";
+    }
+
+    uses stat-interval-state;
   }
 
   identity ADDRESS_FAMILY {

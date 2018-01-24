@@ -9,6 +9,7 @@ module openconfig-platform-transceiver {
 
   // import some basic types
   import openconfig-platform { prefix oc-platform; }
+  import openconfig-platform-port { prefix oc-port; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-transport-types { prefix oc-opt-types; }
   import openconfig-types { prefix oc-types; }
@@ -34,7 +35,13 @@ module openconfig-platform-transceiver {
     module defines a concrete schema for the associated data for
     components with type=TRANSCEIVER.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.4.1";
+
+  revision "2018-01-22" {
+    description
+      "Fixed physical-channel path reference";
+    reference "0.4.1";
+  }
 
   revision "2017-09-18" {
     description
@@ -472,7 +479,7 @@ module openconfig-platform-transceiver {
     leaf-list physical-channel {
       type leafref {
         path "/oc-platform:components/" +
-          "oc-platform:component[oc-platform:name=current()/../oc-platform:hardware-port]/" +
+          "oc-platform:component[oc-platform:name=current()/../oc-port:hardware-port]/" +
           "oc-transceiver:transceiver/" +
           "oc-transceiver:physical-channels/oc-transceiver:channel/" +
           "oc-transceiver:index";

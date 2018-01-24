@@ -7,6 +7,7 @@ module openconfig-platform-types {
 
   prefix "oc-platform-types";
 
+  import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
 
 
@@ -21,7 +22,13 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2018-01-16" {
+    description
+      "Added new per-component common data; add temp alarm";
+    reference "0.8.0";
+  }
 
   revision "2017-12-14" {
     description
@@ -87,6 +94,13 @@ module openconfig-platform-types {
       description
         "The maximum value of the statistic over the sampling
         period";
+    }
+
+    leaf interval {
+      type oc-types:stat-interval;
+      description
+        "The time interval over which the min/max/average statistics
+        are computed by the system.";
     }
   }
 
@@ -198,6 +212,30 @@ module openconfig-platform-types {
     base OPENCONFIG_SOFTWARE_COMPONENT;
     description
       "Operating system running on a component";
+  }
+
+
+  identity COMPONENT_OPER_STATUS {
+    description
+      "Current operational status of a platform component";
+  }
+
+  identity ACTIVE {
+    base COMPONENT_OPER_STATUS;
+    description
+      "Component is enabled and active (i.e., up)";
+  }
+
+  identity INACTIVE {
+    base COMPONENT_OPER_STATUS;
+    description
+      "Component is enabled but inactive (i.e., down)";
+  }
+
+  identity DISABLED {
+    base COMPONENT_OPER_STATUS;
+    description
+      "Component is administratively disabled.";
   }
 
   // typedef statements

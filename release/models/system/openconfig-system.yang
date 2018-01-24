@@ -43,7 +43,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2018-01-21" {
+    description
+      "Add cpu utilization data";
+    reference "0.5.0";
+  }
 
   revision "2017-12-15" {
     description
@@ -739,9 +745,7 @@ module openconfig-system {
       }
 
       container state {
-
         config false;
-
         description
           "Operational state data for NTP services.";
 
@@ -795,9 +799,7 @@ module openconfig-system {
       }
 
       container state {
-
         config false;
-
         description
           "Operational state data for system memory";
 
@@ -807,6 +809,121 @@ module openconfig-system {
     }
   }
 
+  grouping system-cpu-state {
+    description
+      "Operational state data for the system CPU(s)";
+
+    leaf index {
+      type union {
+        type enumeration {
+          enum ALL {
+            description
+              "Index value indicating all CPUs in the system";
+          }
+        }
+        type uint32;
+      }
+      description
+        "The CPU index for each processor core on the system.  On a
+        single-core system, the index should be zero.  The ALL
+        index signifies an aggregation of the CPU utilization
+        statistics over all cores in the system.";
+    }
+
+    container total {
+      description
+        "Total CPU utilization.";
+
+      uses oc-types:avg-min-max-instant-stats-pct;
+    }
+
+    container user {
+      description
+        "Percentage of CPU time spent running in user space.";
+
+      uses oc-types:avg-min-max-instant-stats-pct;
+    }
+
+    container kernel {
+      description
+        "Percentage of CPU time spent running in kernel space.";
+
+      uses oc-types:avg-min-max-instant-stats-pct;
+    }
+
+    container nice {
+      description
+        "Percentage of CPU time spent running low-priority (niced)
+        user processes.";
+
+      uses oc-types:avg-min-max-instant-stats-pct;
+    }
+
+    container idle {
+      description
+        "Percentage of CPU time spent idle.";
+
+      uses oc-types:avg-min-max-instant-stats-pct;
+    }
+
+    container wait {
+      description
+        "Percentage of CPU time spent waiting for I/O.";
+
+      uses oc-types:avg-min-max-instant-stats-pct;
+    }
+
+    container hardware-interrupt {
+      description
+        "Percentage of CPU time spent servicing hardware interrupts.";
+
+      uses oc-types:avg-min-max-instant-stats-pct;
+    }
+
+    container software-interrupt {
+      description
+        "Percentage of CPU time spent servicing software interrupts";
+
+      uses oc-types:avg-min-max-instant-stats-pct;
+    }
+  }
+
+  grouping system-cpu-top {
+    description
+      "Top-level grouping for system CPU data";
+
+    container cpus {
+      config false;
+      description
+        "Enclosing container for the list of CPU cores on the
+        system";
+
+      list cpu {
+        key "index";
+        description
+          "List of CPU cores on the system (including logical CPUs
+          on hyperthreaded systems), keyed by either a numerical
+          index, or the ALL value for an entry representing the
+          aggregation across all CPUs.";
+
+        leaf index {
+          type leafref {
+            path "../state/index";
+          }
+          description
+            "Reference to list key";
+        }
+
+        container state {
+
+          description
+            "Operational state data for the system CPU(s)";
+
+          uses system-cpu-state;
+        }
+      }
+    }
+  }
 
   grouping system-top {
     description
@@ -825,14 +942,11 @@ module openconfig-system {
       }
 
       container state {
-
         config false;
-
         description "Global operational state data for the system";
 
         uses system-global-config;
         uses system-global-state;
-
       }
 
       uses system-clock-top;
@@ -843,6 +957,7 @@ module openconfig-system {
       uses oc-log:logging-top;
       uses oc-aaa:aaa-top;
       uses system-memory-top;
+      uses system-cpu-top;
       uses oc-proc:procmon-processes-top;
       uses oc-alarms:alarms-top;
     }

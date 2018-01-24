@@ -8,8 +8,9 @@ module openconfig-platform {
   prefix "oc-platform";
 
   import openconfig-platform-types { prefix oc-platform-types; }
-  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-alarm-types { prefix oc-alarm-types; }
 
 
   // meta
@@ -62,7 +63,14 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2018-01-16" {
+    description
+      "Added new per-component common data; add temp alarm;
+      moved hardware-port reference to port model";
+    reference "0.8.0";
+  }
 
   revision "2017-12-14" {
     description
@@ -209,7 +217,7 @@ module openconfig-platform {
 
         container config {
           description
-            "Configuration data ";
+            "Configuration data for the subcomponent";
 
           uses platform-subcomponent-ref-config;
         }
@@ -219,7 +227,7 @@ module openconfig-platform {
           config false;
 
           description
-            "Operational state data ";
+            "Operational state data for the subcomponent";
 
           uses platform-subcomponent-ref-config;
           uses platform-subcomponent-ref-state;
@@ -279,11 +287,26 @@ module openconfig-platform {
         device vendor.";
     }
 
-    leaf version {
+    leaf hardware-version {
       type string;
       description
-        "System-defined version string for a hardware, firmware,
-        or software component.";
+        "For hardware components, this is the hardware revision of
+        the component.";
+    }
+
+    leaf firmware-version {
+      type string;
+      description
+        "For hardware components, this is the version of associated
+        firmware that is running on the component, if applicable.";
+    }
+
+    leaf software-version {
+      type string;
+      description
+        "For software components such as operating system or other
+        software module, this is the version of the currently
+        running software.";
     }
 
     leaf serial-no {
@@ -299,6 +322,65 @@ module openconfig-platform {
         be present in particular if the component is also an FRU
         (field replacable unit)";
     }
+
+    leaf oper-status {
+      type identityref {
+        base oc-platform-types:COMPONENT_OPER_STATUS;
+      }
+      description
+        "If applicable, this reports the current operational status
+        of the component.";
+    }
+  }
+
+  grouping platform-component-temp-alarm-state {
+    description
+      "Temperature alarm data for platform components";
+
+    // TODO(aashaikh): consider if these leaves could be in a
+    // reusable grouping (not temperature-specific); threshold
+    // may always need to be units specific.
+
+    leaf alarm-status {
+      type boolean;
+      description
+        "A value of true indicates the alarm has been raised or
+        asserted.  The value should be false when the alarm is
+        cleared.";
+    }
+
+    leaf alarm-threshold {
+      type uint32;
+      description
+        "The threshold value that was crossed for this alarm.";
+    }
+
+    leaf alarm-severity {
+      type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The severity of the current alarm.";
+    }
+  }
+
+  grouping platform-component-power-state {
+    description
+      "Power-related operational state for device components.";
+
+    leaf allocated-power {
+      type uint32;
+      units watts;
+      description
+        "Power allocated by the system for the component.";
+    }
+
+    leaf used-power {
+      type uint32;
+      units watts;
+      description
+        "Actual power used by the component.";
+    }
   }
 
   grouping platform-component-temp-state {
@@ -313,6 +395,56 @@ module openconfig-platform {
         to just supply the instant value";
 
       uses oc-platform-types:avg-min-max-instant-stats-precision1-celsius;
+      uses platform-component-temp-alarm-state;
+    }
+  }
+
+  grouping platform-component-memory-state {
+    description
+      "Per-component memory statistics";
+
+    container memory {
+      description
+        "For components that have associated memory, these values
+        report information about available and utilized memory.";
+
+      leaf available {
+        type uint64;
+        units bytes;
+        description
+          "The available memory physically installed, or logically
+          allocated to the component.";
+      }
+
+      // TODO(aashaikh): consider if this needs to be a
+      // min/max/avg statistic
+      leaf utilized {
+        type uint64;
+        units bytes;
+        description
+          "The memory currently in use by processes running on
+          the component, not considering reserved memory that is
+          not available for use.";
+      }
+    }
+  }
+
+  grouping platform-component-cpu-state {
+    description
+      "Per-component cpu statistics";
+
+    container cpu {
+      description
+        "For components that have an associated CPU, these values
+        report utilization information.";
+
+      container utilization {
+        description
+          "Statistics representing CPU utilization of the
+          component.";
+
+        uses oc-types:avg-min-max-instant-stats-pct;
+      }
     }
   }
 
@@ -550,6 +682,9 @@ module openconfig-platform {
           uses platform-component-config;
           uses platform-component-state;
           uses platform-component-temp-state;
+          uses platform-component-cpu-state;
+          uses platform-component-memory-state;
+          uses platform-component-power-state;
         }
 
         uses platform-component-properties-top;
@@ -567,21 +702,5 @@ module openconfig-platform {
 
   // augments
 
-  augment "/oc-if:interfaces/oc-if:interface/oc-if:state" {
-    //TODO: add 'when' or other condition to make sure this
-    //leafref points to a component of type PORT.
-    description
-      "Adds a reference from the base interface to the corresponding
-      port component in the device inventory.";
-
-    leaf hardware-port {
-      type leafref {
-        path "/oc-platform:components/oc-platform:component/" +
-          "oc-platform:name";
-      }
-      description
-        "References the hardware port in the device inventory";
-    }
-  }
 
 }
