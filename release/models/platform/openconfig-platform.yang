@@ -8,7 +8,6 @@ module openconfig-platform {
   prefix "oc-platform";
 
   import openconfig-platform-types { prefix oc-platform-types; }
-  import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-alarm-types { prefix oc-alarm-types; }
 
@@ -63,7 +62,16 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.9.0";
+
+  revision "2018-01-30" {
+    description
+      "Amended approach for modelling CPU - rather than having
+      a local CPU utilisation state variable, a component with
+      a CPU should create a subcomponent of type CPU to report
+      statistics.";
+    reference "0.9.0";
+  }
 
   revision "2018-01-16" {
     description
@@ -429,25 +437,6 @@ module openconfig-platform {
     }
   }
 
-  grouping platform-component-cpu-state {
-    description
-      "Per-component cpu statistics";
-
-    container cpu {
-      description
-        "For components that have an associated CPU, these values
-        report utilization information.";
-
-      container utilization {
-        description
-          "Statistics representing CPU utilization of the
-          component.";
-
-        uses oc-types:avg-min-max-instant-stats-pct;
-      }
-    }
-  }
-
   grouping platform-anchors-top {
     description
       "This grouping is used to add containers for components that
@@ -682,7 +671,6 @@ module openconfig-platform {
           uses platform-component-config;
           uses platform-component-state;
           uses platform-component-temp-state;
-          uses platform-component-cpu-state;
           uses platform-component-memory-state;
           uses platform-component-power-state;
         }
