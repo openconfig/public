@@ -152,4 +152,93 @@ module openconfig-rib-bgp-types {
     description
       "Route was rejected after apply import policies";
   }
+
+  identity TUNNEL_ENCAPSULATION_TYPE {
+    description
+      "Types of tunnel encapsulation, as described by the Tunnel
+      Encapsulation attribute";
+    reference
+      "RFC5512";
+    }
+
+    identity SRTE_POLICY_TUNNEL {
+      base TUNNEL_ENCAPSULATION_TYPE;
+      description
+        "Segment Routing Traffic Engineering Policy tunnel.";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity TUNNEL_ENCAPSULATION_SUBTLV_TYPE {
+      description
+        "SubTLVs of the Tunnel Encapsulation attribute";
+      reference
+        "RFC5512";
+    }
+
+    identity TUNNEL_REMOTE_ENDPOINT {
+      base TUNNEL_ENCAPSULATION_SUBTLV_TYPE;
+      description
+        "Remote endpoint of the tunnel.";
+      reference
+        "RFC5512";
+    }
+
+    identity TUNNEL_COLOR {
+      base TUNNEL_ENCAPSULATION_SUBTLV_TYPE;
+      description
+        "Colour of the tunnel";
+      reference
+        "RFC5512";
+    }
+
+    identity SRTE_PREFERENCE {
+      base TUNNEL_ENCAPSULATION_SUBTLV_TYPE;
+      description
+        "Preference of the SR-TE policy entry described by
+        the tunnel encapsulation attribute.";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity SRTE_BINDING_SID {
+      base TUNNEL_ENCAPSULATION_SUBTLV_TYPE;
+      description
+        "Binding SID to be used by the SR-TE policy described
+        by the tunnel encapsulation attribute.";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity SRTE_SEGMENT_LIST {
+      base TUNNEL_ENCAPSULATION_SUBTLV_TYPE;
+      description
+        "Segment lists to be used by the SR-TE policy described
+        by the tunnel encapsulation attribute.";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity SRTE_SEGMENT_LIST_SUBTLV {
+      description
+        "SubTLVs of the SR-TE Policy Segment List sub-TLV of the
+        Tunnel Encapsulation attribute.";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity SRTE_SEGMENT_LIST_WEIGHT {
+      base SRTE_SEGMENT_LIST_SUBTLV;
+      description
+        "Weight of the segment list within the SR-TE policy";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity SRTE_SEGMENT_LIST_SEGMENT {
+      base SRTE_SEGMENT_LIST_SUBTLV;
+      description
+        "An individual element within the SR-TE Policy Segment
+        List.";
+    }
 }

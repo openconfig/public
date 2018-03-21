@@ -24,7 +24,13 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "4.0.1";
+  oc-ext:openconfig-version "4.1.0";
+
+  revision "2018-03-20" {
+    description
+      "Added SR-TE policy SAFI";
+    reference "4.1.0";
+  }
 
   revision "2017-07-30" {
     description
@@ -109,6 +115,8 @@ submodule openconfig-bgp-common-multiprotocol {
     uses bgp-common-mp-l3vpn-ipv6-multicast-group;
     uses bgp-common-mp-l2vpn-vpls-group;
     uses bgp-common-mp-l2vpn-evpn-group;
+    uses bgp-common-mp-srte-policy-ipv4-group;
+    uses bgp-common-mp-srte-policy-ipv6-group;
   }
 
   // Groupings relating to each address family
@@ -396,6 +404,46 @@ submodule openconfig-bgp-common-multiprotocol {
     // placeholder -- specific configuration options that are
     // generic across L2VPN address families
     uses bgp-common-mp-all-afi-safi-common;
+  }
+
+  grouping bgp-common-mp-srte-policy-ipv4-group {
+    description
+      "Grouping for SR-TE for AFI 1";
+
+    container srte-policy-ipv4 {
+      when "../afi-safi-name = 'oc-bgp-types:SRTE_POLICY_IPV4'" {
+        description
+          "Only include this container when the address family is
+          specified to be SR-TE Policy SAFI for the IPv4 unicast
+          address family.";
+      }
+
+      description
+        "Configuration and operational state parameters relating to
+        the SR-TE Policy SAFI for IPv4 Unicast.";
+
+      uses bgp-common-mp-all-afi-safi-common;
+    }
+  }
+
+  grouping bgp-common-mp-srte-policy-ipv6-group {
+    description
+      "Grouping for SR-TE for AFI 2";
+
+    container srte-policy-ipv6 {
+      when "../afi-safi-name = 'oc-bgp-types:SRTE_POLICY_IPV6'" {
+        description
+          "Only include this container when the address family is
+          specified to be SR-TE Policy SAFI for the IPv6 unicast
+          address family.";
+      }
+
+      description
+        "Configuration and operational state parameters relating to
+        the SR-TE Policy SAFI for IPv6 Unicast.";
+
+      uses bgp-common-mp-all-afi-safi-common;
+    }
   }
 
   // Config groupings for common groups

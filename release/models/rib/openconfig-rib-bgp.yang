@@ -163,6 +163,32 @@ module openconfig-rib-bgp {
             uses ipv6-loc-rib-top;
             uses ipv6-adj-rib-top;
           }
+
+          container ipv4-srte-policy {
+            when "../afi-safi-name = 'oc-bgpt:SRTE_POLICY_IPV4'" {
+              description
+                "Include this container only for the IPv4 AFI, SR-TE Policy
+                SAFI.";
+            }
+            description
+              "Routing tables for the IPv4 Unicast, SR-TE Policy SAFI.";
+
+            uses ipvX-srte-policy-locrib-top;
+            uses ipvX-srte-policy-adjrib-top;
+          }
+
+          container ipv6-srte-policy {
+            when "../afi-safi-name = 'oc-bgpt:SRTE_POLICY_IPV6'" {
+              description
+                "Include this container only for the IPv6 AFI, SR-TE Policy
+                SAFI.";
+            }
+            description
+              "Routing tables for the IPv6 Unicast, SR-TE Policy SAFI.";
+
+            uses ipvX-srte-policy-locrib-top;
+            uses ipvX-srte-policy-adjrib-top;
+          }
         }
       }
     }
