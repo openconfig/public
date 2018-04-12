@@ -137,9 +137,10 @@ module openconfig-local-routing {
       type string;
       description
         "An user-specified identifier utilised to uniquely reference
-        the next-hop entry in the next-hop list. The value of this
-        index has no semantic meaning other than for referencing
-        the entry.";
+        the next-hop entry in the next-hop list. User must specify the index 
+	in specific format as below,
+	'next-hop-interface + next-hop-address',
+	For example index can be 'Eth1-1 + 1.1.1.1/32' "
     }
 
     leaf next-hop {
@@ -257,8 +258,9 @@ module openconfig-local-routing {
                 "A reference to the index of the current next-hop.
                 The index is intended to be a user-specified value
                 which can be used to reference the next-hop in
-                question, without any other semantics being
-                assigned to it.";
+                question, User must specify the index in a specific format as below
+		'next-hop-interface + next-hop-address'. For example,
+		index can be 'Eth1-1 + 1.1.1.1/32' ";
             }
 
             container config {
