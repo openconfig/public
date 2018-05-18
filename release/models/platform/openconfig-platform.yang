@@ -10,6 +10,7 @@ module openconfig-platform {
   import openconfig-platform-types { prefix oc-platform-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-alarm-types { prefix oc-alarm-types; }
+  import openconfig-yang-types { prefix oc-yang; }
 
 
   // meta
@@ -62,7 +63,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.9.0";
+  oc-ext:openconfig-version "0.10.0";
+
+  revision "2018-04-20" {
+      description
+        "Added new per-component state data: mfg-date and removable";
+      reference "0.10.0";
+    }
 
   revision "2018-01-30" {
     description
@@ -295,6 +302,13 @@ module openconfig-platform {
         device vendor.";
     }
 
+    leaf mfg-date {
+      type oc-yang:date;
+      description
+        "System-supplied representation of the component's
+        manufacturing date.";
+    }
+
     leaf hardware-version {
       type string;
       description
@@ -328,7 +342,14 @@ module openconfig-platform {
       description
         "System-assigned part number for the component.  This should
         be present in particular if the component is also an FRU
-        (field replacable unit)";
+        (field replaceable unit)";
+    }
+
+    leaf removable {
+      type boolean;
+      description
+        "If true, this component is removable or is a field
+        replaceable unit";
     }
 
     leaf oper-status {

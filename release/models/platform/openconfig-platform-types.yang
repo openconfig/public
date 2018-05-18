@@ -22,7 +22,15 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.9.0";
+
+  revision "2018-05-05" {
+    description
+      "Added min-max-time to
+      avg-min-max-instant-stats-precision1-celsius,
+      added new CONTROLLER_CARD identity";
+    reference "0.9.0";
+  }
 
   revision "2018-01-16" {
     description
@@ -50,6 +58,7 @@ module openconfig-platform-types {
   }
 
   // grouping statements
+
 
   grouping avg-min-max-instant-stats-precision1-celsius {
     description
@@ -96,12 +105,8 @@ module openconfig-platform-types {
         period";
     }
 
-    leaf interval {
-      type oc-types:stat-interval;
-      description
-        "The time interval over which the min/max/average statistics
-        are computed by the system.";
-    }
+    uses oc-types:stat-interval-state;
+    uses oc-types:min-max-time;
   }
 
   // identity statements
@@ -173,6 +178,13 @@ module openconfig-platform-types {
     base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Linecard component, typically inserted into a chassis slot";
+  }
+
+  identity CONTROLLER_CARD {
+    base OPENCONFIG_HARDWARE_COMPONENT;
+    description
+      "A type of linecard whose primary role is management or control
+       rather than data forwarding.";
   }
 
   identity PORT {
