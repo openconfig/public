@@ -32,7 +32,13 @@ module openconfig-aaa {
     Portions of this model reuse data definitions or structure from
     RFC 7317 - A YANG Data Model for System Management";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2018-04-12" {
+    description
+      "Add when conditions, correct identities";
+    reference "0.4.0";
+  }
 
   revision "2017-09-18" {
     description
@@ -247,8 +253,14 @@ module openconfig-aaa {
           uses aaa-server-config;
           uses aaa-server-state;
         }
-        uses aaa-tacacs-server-top;
-        uses aaa-radius-server-top;
+
+        uses aaa-tacacs-server-top {
+          when "../../config/type = 'oc-aaa-types:TACACS'";
+        }
+
+        uses aaa-radius-server-top {
+          when "../../config/type = 'oc-aaa-types:RADIUS'";
+        }
       }
     }
   }
@@ -422,9 +434,10 @@ module openconfig-aaa {
         //TODO:  in YANG 1.1 this should be converted to a leafref to
         //point to the server group name.
       }
+      ordered-by user;
       description
-        "The method used for AAA accounting for this event
-        type.  The method is defined by the destination for
+        "An ordered list of methods used for AAA accounting for this
+        event type.  The method is defined by the destination for
         accounting data, which may be specified as the group of
         all TACACS+/RADIUS servers, a defined server group, or
         the local system.";
@@ -568,6 +581,7 @@ module openconfig-aaa {
         }
         type string;
       }
+      ordered-by user;
       description
         "Ordered list of methods for authorizing commands.  The first
         method that provides a response (positive or negative) should
