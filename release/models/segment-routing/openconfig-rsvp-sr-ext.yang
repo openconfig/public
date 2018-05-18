@@ -22,7 +22,13 @@ module openconfig-rsvp-sr-ext {
     existing OpenConfig segment routing (SR) and RSVP-TE models
     where required.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision 2018-04-13 {
+    description
+      "Replace boolean with modes for measure-sr-traffic.";
+    reference "0.2.0";
+  }
 
   revision 2017-03-06 {
     description
@@ -56,16 +62,21 @@ module openconfig-rsvp-sr-ext {
       globally to the device.";
 
     leaf measure-sr-traffic {
-      type boolean;
+      type enumeration {
+         enum MEASURE_ONLY {
+           description
+             "Only measure the SR traffic being sent via an interface,
+             and do not flood it into the IGP.";
+         }
+         enum MEASURE_AND_FLOOD {
+            description
+              "Measure the SR traffic being sent via an interface and
+              flood it into the IGP.";
+         }
+      }
       description
-        "When this leaf is set to true, the local system should
-        measure the bandwidth utilisation of SR traffic on interfaces
-        for which TED entries are being generated.
-
-        In the case that this functionality is enabled, traffic
-        forwarded using LFIB entries that correspond to MPLS
-        labels which correspond to SR SIDs should be accounted
-        for.";
+        "Parameter enabling SR traffic measurement
+        and optional flooding into IGP.";
       reference
         "draft-sitaraman-sr-rsvp-coexistence-rec-01";
     }
