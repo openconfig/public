@@ -9,6 +9,7 @@ module openconfig-transport-types {
 
   import openconfig-platform-types { prefix oc-platform-types; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-types { prefix oc-types; }
 
   // meta
   organization "OpenConfig working group";
@@ -21,7 +22,13 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2018-05-16" {
+    description
+      "Added interval,min,max time to interval stats.";
+    reference "0.6.0";
+  }
 
   revision "2017-08-16" {
     description
@@ -93,7 +100,12 @@ module openconfig-transport-types {
     description
       "Common grouping for recording picosecond per nanometer
       values with 2 decimal precision. Values include the
-      instantaneous, average, minimum, and maximum statistics";
+      instantaneous, average, minimum, and maximum statistics.
+      Statistics are computed and reported based on a moving time
+      interval (e.g., the last 30s).  If supported by the device,
+      the time interval over which the statistics are computed, and
+      the times at which the minimum and maximum values occurred,
+      are also reported.";
 
     leaf instant {
       type decimal64 {
@@ -111,7 +123,7 @@ module openconfig-transport-types {
       units ps-nm;
       description
         "The arithmetic mean value of the statistic over the
-        sampling period.";
+        time interval.";
     }
 
     leaf min {
@@ -120,8 +132,7 @@ module openconfig-transport-types {
       }
       units ps-nm;
       description
-        "The minimum value of the statistic over the sampling
-        period";
+        "The minimum value of the statistic over the time interval.";
     }
 
     leaf max {
@@ -130,16 +141,23 @@ module openconfig-transport-types {
       }
       units ps-nm;
       description
-        "The maximum value of the statistic over the sampling
-        period";
+        "The maximum value of the statistic over the time interval.";
     }
+
+    uses oc-types:stat-interval-state;
+    uses oc-types:min-max-time;
   }
 
   grouping avg-min-max-instant-stats-precision2-ps {
     description
       "Common grouping for recording picosecond values with
-      2 decimal precision. Values include the instantaneous,
-      average, minimum, and maximum statistics";
+      2 decimal precision. Values include the
+      instantaneous, average, minimum, and maximum statistics.
+      Statistics are computed and reported based on a moving time
+      interval (e.g., the last 30s).  If supported by the device,
+      the time interval over which the statistics are computed, and
+      the times at which the minimum and maximum values occurred,
+      are also reported.";
 
     leaf instant {
       type decimal64 {
@@ -157,7 +175,7 @@ module openconfig-transport-types {
       units ps;
       description
         "The arithmetic mean value of the statistic over the
-        sampling period.";
+        time interval.";
     }
 
     leaf min {
@@ -166,8 +184,7 @@ module openconfig-transport-types {
       }
       units ps;
       description
-        "The minimum value of the statistic over the sampling
-        period";
+        "The minimum value of the statistic over the time interval.";
     }
 
     leaf max {
@@ -176,16 +193,23 @@ module openconfig-transport-types {
       }
       units ps;
       description
-        "The maximum value of the statistic over the sampling
-        period";
+        "The maximum value of the statistic over the time interval.";
     }
+
+    uses oc-types:stat-interval-state;
+    uses oc-types:min-max-time;
   }
 
   grouping avg-min-max-instant-stats-precision2-ps2 {
     description
       "Common grouping for recording picosecond^2 values with
-      2 decimal precision. Values include the instantaneous,
-      average, minimum, and maximum statistics";
+      2 decimal precision. Values include the
+      instantaneous, average, minimum, and maximum statistics.
+      Statistics are computed and reported based on a moving time
+      interval (e.g., the last 30s).  If supported by the device,
+      the time interval over which the statistics are computed, and
+      the times at which the minimum and maximum values occurred,
+      are also reported.";
 
     leaf instant {
       type decimal64 {
@@ -203,7 +227,7 @@ module openconfig-transport-types {
       units ps^2;
       description
         "The arithmetic mean value of the statistic over the
-        sampling period.";
+        time interval.";
     }
 
     leaf min {
@@ -212,8 +236,7 @@ module openconfig-transport-types {
       }
       units ps^2;
       description
-        "The minimum value of the statistic over the sampling
-        period";
+        "The minimum value of the statistic over the time interval.";
     }
 
     leaf max {
@@ -222,9 +245,12 @@ module openconfig-transport-types {
       }
       units ps^2;
       description
-        "The maximum value of the statistic over the sampling
-        period";
+        "The maximum value of the statistic over the time
+        interval.";
     }
+
+    uses oc-types:stat-interval-state;
+    uses oc-types:min-max-time;
   }
 
   grouping avg-min-max-instant-stats-precision18-ber {
@@ -234,7 +260,12 @@ module openconfig-transport-types {
       values as small as i x 10^-18 where i is an integer. Values
       smaller than this should be reported as 0 to inidicate error
       free or near error free performance. Values include the
-      instantaneous, average, minimum, and maximum statistics";
+      instantaneous, average, minimum, and maximum statistics.
+      Statistics are computed and reported based on a moving time
+      interval (e.g., the last 30s).  If supported by the device,
+      the time interval over which the statistics are computed, and
+      the times at which the minimum and maximum values occurred,
+      are also reported.";
 
     leaf instant {
       type decimal64 {
@@ -252,7 +283,7 @@ module openconfig-transport-types {
       units bit-errors-per-second;
       description
         "The arithmetic mean value of the statistic over the
-        sampling period.";
+        time interval.";
     }
 
     leaf min {
@@ -261,8 +292,8 @@ module openconfig-transport-types {
       }
       units bit-errors-per-second;
       description
-        "The minimum value of the statistic over the sampling
-        period";
+        "The minimum value of the statistic over the time
+        interval.";
     }
 
     leaf max {
@@ -271,9 +302,12 @@ module openconfig-transport-types {
       }
       units bit-errors-per-second;
       description
-        "The maximum value of the statistic over the sampling
-        period";
+        "The maximum value of the statistic over the time
+        interval.";
     }
+
+    uses oc-types:stat-interval-state;
+    uses oc-types:min-max-time;
   }
 
   // identity statements
