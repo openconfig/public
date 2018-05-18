@@ -23,7 +23,13 @@ module openconfig-packet-match-types {
     "This module defines common types for use in models requiring
     data definitions related to packet matches.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.0.1";
+
+  revision "2018-04-15" {
+    description
+        "Corrected description and range for ethertype typedef";
+    reference "1.0.1";
+  }
 
   revision "2017-05-26" {
     description
@@ -276,9 +282,7 @@ module openconfig-packet-match-types {
   typedef ethertype-type {
     type union {
       type uint16 {
-        //Note range can only be expressed in decimal
-        //but value is expected in hex notation.
-        range 1..65535;
+        range 1536..65535;
       }
       type identityref {
         base ETHERTYPE;
@@ -286,7 +290,7 @@ module openconfig-packet-match-types {
     }
     description
       "The Ethertype value may be expressed as a 16-bit number in
-      hexadecimal notation, or using a type defined by the
+      decimal notation, or using a type defined by the
       ETHERTYPE identity";
   }
 
