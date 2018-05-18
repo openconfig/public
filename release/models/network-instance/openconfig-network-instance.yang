@@ -27,6 +27,8 @@ module openconfig-network-instance {
   import openconfig-segment-routing { prefix "oc-sr"; }
   import openconfig-isis { prefix "oc-isis"; }
   import openconfig-aft { prefix "oc-aft"; }
+  import openconfig-pim { prefix "oc-pim"; }
+  import openconfig-igmp { prefix "oc-igmp"; }
 
   // include submodules
   include openconfig-network-instance-l2;
@@ -45,7 +47,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.9.0";
+  oc-ext:openconfig-version "0.10.0";
+
+  revision "2018-02-19" {
+    description
+      "Add PIM and IGMP to network instance";
+    reference "0.10.0";
+  }
 
   revision "2017-12-13" {
     description
@@ -674,6 +682,28 @@ module openconfig-network-instance {
               description
                 "Configuration and state parameters relating to Intermediate
                 System to Intermediate System (IS-IS).";
+            }
+
+            uses oc-pim:pim-top {
+              when "../config/identifier = 'PIM'" {
+                description
+                  "Include PIM configuration when the protocol is of type
+                  PIM";
+              }
+              description
+                "Configuration and state parameters relating to Protocol
+                Indepdendent Multicast (PIM).";
+            }
+
+            uses oc-igmp:igmp-top {
+              when "../config/identifier = 'IGMP'" {
+                description
+                  "Include IGMP configuration when the protocol is of type
+                  IGMP";
+              }
+              description
+                "Configuration and state parameters relating to the Internet
+                Group Management Protocol (IGMP).";
             }
           }
         }
