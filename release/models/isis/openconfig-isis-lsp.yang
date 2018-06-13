@@ -34,14 +34,17 @@ submodule openconfig-isis-lsp {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.3.3";
+  oc-ext:openconfig-version "0.4.0";
 
-  revision "2017-08-24" {
+  revision "2018-05-14" {
     description
-      "Minor formatting fixes.";
-    reference "0.3.3";
+      "Update LSDB model to correct Extended IS reach TLV
+      bug. This change is backwards incompatible due to
+      adding an additional level of hierarchy to support
+      multiple instances of the TLV.";
+    reference "0.4.0";
   }
-  
+
   revision "2017-07-26" {
     description
       "Update LSDB and fix bugs.";
@@ -1936,33 +1939,201 @@ submodule openconfig-isis-lsp {
     }
   }
 
-  grouping mt-isis-neighbor {
+  grouping isis-lsdb-common-extisreach-neighbors {
+    description
+      "Common structure for the Extended IS Reachability and IS
+      Reachability Neighbour attributes.";
+
+    container neighbors {
+      description
+        "This container describes IS neighbors.";
+
+      list neighbor {
+        key "system-id";
+        description
+          "This list describes ISIS extended neighbors and
+          reachability attributes.";
+
+        leaf system-id {
+          type leafref {
+            path "../state/system-id";
+          }
+          description
+            "Reference to the neighboring system's system ID.";
+        }
+
+        container state {
+          description
+            "State parameters corresponding to the extended
+            neighbour.";
+
+          leaf system-id {
+            type oc-isis-types:system-id;
+            description
+              "System-id of the neighbor.";
+          }
+        }
+
+        container instances {
+          description
+            "This list contains all instances of an adjacency
+            between the originating IS and the remote IS.
+            Multiple instances are used where there are
+            parallel adjacencies between two systems.";
+
+          list instance {
+            key "id";
+
+            description
+              "Instance of the TLV to the remote IS neighbor.";
+
+            leaf id {
+              type leafref {
+                path "../state/id";
+              }
+              description
+                "Reference to the unique identifier for
+                the instance of the extended IS
+                reachability sub-TLV.";
+            }
+
+            container state {
+              description
+                "State parameters of extended neighbor";
+
+              leaf id {
+                type uint64;
+                description
+                  "Unique identifier for the instance of the
+                  TLV for the IS neighbor. The instance
+                  ID is not required to be consistent across
+                  across readvertisements of the LSP.";
+              }
+
+              leaf metric {
+                type oc-isis-types:wide-metric;
+                description
+                  "Metric value.";
+              }
+            }
+            uses is-reachability-neighbor-state;
+          }
+        }
+      }
+    }
+  }
+
+  grouping isis-lsdb-mtis-common {
+    description
+      "Common grouping for structure used within the multi-topology IS
+      neighbour and multi-topology IS neighbour attribute TLVs.";
+
+    container neighbors {
+      description
+        "MT-IS neigbor attributes.";
+
+      list neighbor {
+        key "mt-id system-id";
+        description
+          "This container describes IS neighbors.";
+
+        leaf mt-id {
+          type leafref {
+            path "../state/mt-id";
+          }
+          description
+          "Reference to the topology that the neighbor is
+          within.";
+        }
+
+        leaf system-id {
+          type leafref {
+            path "../state/system-id";
+          }
+          description
+            "Reference to the System ID of the neighbor.";
+        }
+
+        container state {
+          description
+            "Operational state parameters related to the
+            MT ISN TLV.";
+
+          uses mt-isis-neighbor-state;
+        }
+
+        container instances {
+          description
+            "This list contains all instances of an adjacency
+            between the originating and remote IS. Multiple
+            instances are used to indicate where there are
+            parallel adjacencies between systems.";
+
+          list instance {
+            key "id";
+
+            description
+              "Instance of TLV-222 between the originating
+              and remote IS.";
+
+            leaf id {
+              type leafref {
+                path "../state/id";
+              }
+              description
+                "Reference to the unique identifier for the
+                instance of the multi-topology IS neighbor
+                TLV instance.";
+            }
+
+            uses mt-isis-neighbor-instance;
+          }
+        }
+      }
+    }
+  }
+
+  grouping mt-isis-neighbor-state {
+    description
+      "This grouping defines state parameters that are related to
+      each neighbour entry for the MT ISN TLV.";
+
+    leaf mt-id {
+      type uint16 {
+        range "0..4095";
+      }
+      description
+        "Identifier of a topology being announced.";
+    }
+
+    leaf system-id {
+      type oc-isis-types:system-id;
+      description
+        "System-id of the IS neighbor.";
+    }
+  }
+
+  grouping mt-isis-neighbor-instance {
     description
       "This grouping defines list of ISIS multi-topology neighbors for
-      extended ISIS LSP(multiple system IDs).";
+      extended ISIS LSP (multiple system IDs).";
 
      container state {
       description
         "State parameters of MT neighbor.";
 
-      leaf mt-id {
-        type uint16 {
-          range "0..4095";
-        }
-        description
-          "Identifier of a topology being announced.";
-      }
-
-      leaf system-id {
-        type oc-isis-types:system-id;
-        description
-          "System-id of the IS neighbor.";
-      }
-
       leaf metric {
         type oc-isis-types:wide-metric;
         description
           "ISIS metric value.";
+      }
+
+      leaf id {
+        type uint64;
+        description
+          "Unique identifier for the TLV instance for the
+          neighbor. The ID is not required to be consistent
+          across readvertisements of the LSP.";
       }
     }
     uses is-reachability-neighbor-state;
@@ -3079,42 +3250,7 @@ submodule openconfig-isis-lsp {
             "RFC5305: IS-IS Extensions for Traffic Engineering. TLV
             22.";
 
-          container neighbors {
-            description
-              "This container describes IS neighbors.";
-
-            list neighbor {
-              key "system-id";
-              description
-                "This list describes ISIS extended neigbors and
-                reachability attributes.";
-
-              leaf system-id {
-                type leafref {
-                  path "../state/system-id";
-                }
-                description
-                  "Reference to the neighboring system's system ID.";
-              }
-
-              container state {
-                description
-                  "State parameters of extended neighbor";
-
-                leaf system-id {
-                  type oc-isis-types:system-id;
-                  description
-                    "System-id of the neighbor.";
-                }
-                leaf metric {
-                  type oc-isis-types:wide-metric;
-                  description
-                    "Metric value.";
-                }
-              }
-              uses is-reachability-neighbor-state;
-            }
-          }
+          uses isis-lsdb-common-extisreach-neighbors;
         }
 
         container extended-ipv4-reachability {
@@ -3280,43 +3416,7 @@ submodule openconfig-isis-lsp {
             Space for IS-IS. TLV 23. It is identical in format  to the
             extended IS reachability TLV 22.";
 
-          container neighbors {
-            description
-              "This container describes IS neighbors.";
-
-            list neighbor {
-              key "system-id";
-
-              leaf system-id {
-                type leafref {
-                  path "../state/system-id";
-                }
-                description
-                  "Reference to the neighboring IS";
-              }
-
-              container state {
-                description
-                  "State parameters of extended neighbor.";
-
-                leaf system-id {
-                  type oc-isis-types:system-id;
-                  description
-                    "System-id of the neighbor.";
-                }
-                leaf metric {
-                  type oc-isis-types:wide-metric;
-                  description
-                    "Metric value.";
-                }
-              }
-              uses is-reachability-neighbor-state;
-
-              description
-                "This list defines ISIS extended reachability neighbor
-                attributes.";
-            }
-          }
+          uses isis-lsdb-common-extisreach-neighbors;
         }
 
         container is-alias-id {
@@ -3364,35 +3464,7 @@ submodule openconfig-isis-lsp {
             Intermediate System to Intermediate Systems (IS-ISs). TLV
             222.";
 
-          container neighbors {
-            description
-              "MT-IS neigbor attributes.";
-
-            list neighbor {
-              key "mt-id system-id";
-              description
-                "This container describes IS neighbors.";
-
-              leaf mt-id {
-                type leafref {
-                  path "../state/mt-id";
-                }
-                description
-                "Reference to the topology that the neighbor is
-                within.";
-							}
-
-              leaf system-id {
-                type leafref {
-                  path "../state/system-id";
-                }
-                description
-                  "Reference to the System ID of the neighbor.";
-              }
-
-              uses mt-isis-neighbor;
-            }
-          }
+          uses isis-lsdb-mtis-common;
         }
 
         container mt-isis-neighbor-attribute {
@@ -3412,35 +3484,7 @@ submodule openconfig-isis-lsp {
             Space for IS-IS. TLV 223. It is identical in format to the
             MT-ISN TLV 222.";
 
-          container neighbors {
-            description
-              "This container describes IS neighbors.";
-
-            list neighbor {
-              key "mt-id system-id";
-              description
-                "List of multi-topology neighbors.";
-
-              leaf mt-id {
-                type leafref {
-                  path "../state/mt-id";
-                }
-                description
-                  "Reference to the topology that the neighbor is
-                  within.";
-              }
-
-              leaf system-id {
-                type leafref {
-                  path "../state/system-id";
-                }
-                description
-                  "Reference to the system ID of the neighbor";
-              }
-
-              uses mt-isis-neighbor;
-            }
-          }
+          uses isis-lsdb-mtis-common;
         }
 
         container mt-ipv4-reachability {

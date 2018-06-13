@@ -55,12 +55,21 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "0.3.3";
+  oc-ext:openconfig-version "0.4.1";
 
-  revision "2017-08-24" {
+  revision "2018-06-05" {
     description
-      "Minor formatting fixes.";
-    reference "0.3.3";
+      "Fix bugs in when statements.";
+    reference "0.4.1";
+  }
+
+  revision "2018-05-14" {
+    description
+      "Update LSDB model to correct Extended IS reach TLV
+      bug. This change is backwards incompatible due to
+      adding an additional level of hierarchy to support
+      multiple instances of the TLV.";
+    reference "0.4.0";
   }
 
   revision "2017-07-26" {
@@ -318,7 +327,9 @@ module openconfig-isis {
           "This container defines ISIS authentication key configuration.";
 
         uses authentication-key-group-config {
-          when "../auth-type = KEY";
+          // TODO(aashaikh):  Add auth-type conditions after merge of
+          // auth models.
+          // when "../auth-type = 'KEY'";
         }
       }
 
@@ -328,13 +339,17 @@ module openconfig-isis {
           "This container defines ISIS authentication key state.";
 
         uses authentication-key-group-config {
-          when "../auth-type = KEY";
+          // TODO(aashaikh):  Add auth-type conditions after merge of
+          // auth models.
+          // when "../auth-type = 'KEY'";
         }
       }
     }
 
     uses keychain-base-group  {
-      when "../auth-type = KEY_CHAIN";
+      // TODO(aashaikh):  Add auth-type conditions after merge of
+      // auth models.
+      // when "../auth-type = 'KEY_CHAIN'";
     }
   }
 
@@ -385,7 +400,9 @@ module openconfig-isis {
           "This container defines ISIS authentication key configuration.";
 
         uses authentication-key-group-config {
-          when "../auth-type = KEY";
+          // TODO(aashaikh):  Add auth-type conditions after merge of
+          // auth models.
+          // when "../auth-type = 'KEY'";
         }
       }
 
@@ -395,13 +412,17 @@ module openconfig-isis {
           "This container defines ISIS authentication key state.";
 
         uses authentication-key-group-config {
-          when "../auth-type = KEY";
+          // TODO(aashaikh):  Add auth-type conditions after merge of
+          // auth models.
+          // when "../auth-type = 'KEY'";
         }
       }
     }
 
     uses keychain-base-group  {
-      when "../auth-type = KEY_CHAIN";
+      // TODO(aashaikh):  Add auth-type conditions after merge of
+      // auth models.
+      // when "../auth-type = 'KEY_CHAIN'";
     }
   }
 

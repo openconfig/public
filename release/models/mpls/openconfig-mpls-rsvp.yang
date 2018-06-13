@@ -28,7 +28,13 @@ module openconfig-mpls-rsvp {
      parameters and LSP-specific configuration for constrained-path
      LSPs";
 
-  oc-ext:openconfig-version "2.4.1";
+  oc-ext:openconfig-version "2.4.2";
+
+  revision "2018-06-05" {
+    description
+      "Fixed bugs in when statements on RSVP-TE attributes";
+    reference "2.4.2";
+  }
 
   revision "2017-08-24" {
     description
@@ -516,11 +522,10 @@ module openconfig-mpls-rsvp {
 
   grouping rsvp-p2p-tunnel-attributes_config {
     description
-      "properties of RSPP point-to-point paths";
+      "properties of RSVP point-to-point paths";
 
     leaf source {
-      when "/mpls/lsps/constrained-path/tunnel/config" +
-        "/signaling-protocol = 'PATH_SETUP_RSVP'" {
+      when "../signaling-protocol = 'PATH_SETUP_RSVP'" {
         description
           "When the signaling protocol is RSVP-TE ";
       }
@@ -530,8 +535,7 @@ module openconfig-mpls-rsvp {
     }
 
     leaf soft-preemption {
-      when "/mpls/lsps/constrained-path/tunnel/config" +
-        "/signaling-protocol = 'PATH_SETUP_RSVP'" {
+      when "../signaling-protocol = 'PATH_SETUP_RSVP'" {
         description
           "When the signaling protocol is RSVP-TE ";
       }
@@ -541,16 +545,16 @@ module openconfig-mpls-rsvp {
         "Enables RSVP soft-preemption on this LSP";
     }
 
-    uses rsvp-priorities_config;
+    uses rsvp-priorities-tunnel_config;
   }
 
-  grouping rsvp-priorities_config {
+  grouping rsvp-priorities-tunnel_config {
     description
-      "Configuration paramters related to RSVP-TE priorities";
+      "Configuration paramters related to RSVP-TE priorities for
+      an LSP tunnel";
 
     leaf setup-priority {
-      when "/mpls/lsps/constrained-path/tunnel/config" +
-        "/signaling-protocol = 'PATH_SETUP_RSVP'" {
+      when "../signaling-protocol = 'PATH_SETUP_RSVP'" {
         description
           "When the signaling protocol is RSVP-TE ";
       }
@@ -567,8 +571,49 @@ module openconfig-mpls-rsvp {
     }
 
     leaf hold-priority {
-      when "/mpls/lsps/constrained-path/tunnel/config" +
-        "/signaling-protocol = 'PATH_SETUP_RSVP'" {
+      when "../signaling-protocol = 'PATH_SETUP_RSVP'" {
+        description
+           "When the signaling protocol is RSVP-TE ";
+      }
+      type uint8 {
+        range 0..7;
+      }
+      default 0;
+      description
+        "preemption priority once the LSP is established,
+         lower is higher priority; default 0 indicates other LSPs
+         will not preempt the LSPs once established";
+      reference "RFC 3209 - RSVP-TE: Extensions to RSVP for
+        LSP Tunnels";
+    }
+  }
+
+  grouping rsvp-priorities-path_config {
+    description
+      "Configuration paramters related to RSVP-TE priorities on
+      a primary/secondary path associated with an LSP.";
+
+    leaf setup-priority {
+      when "../../../../../" +
+        "config/signaling-protocol = 'PATH_SETUP_RSVP'" {
+        description
+          "When the signaling protocol is RSVP-TE ";
+      }
+      type uint8 {
+        range 0..7;
+      }
+      default 7;
+      description
+        "RSVP-TE preemption priority during LSP setup, lower is
+         higher priority; default 7 indicates that LSP will not
+         preempt established LSPs during setup";
+      reference "RFC 3209 - RSVP-TE: Extensions to RSVP for
+         LSP Tunnels";
+    }
+
+    leaf hold-priority {
+      when "../../../../../" +
+        "config/signaling-protocol = 'PATH_SETUP_RSVP'" {
         description
            "When the signaling protocol is RSVP-TE ";
       }
@@ -589,11 +634,11 @@ module openconfig-mpls-rsvp {
     description
       "properties of RSPP point-to-point paths";
 
-    uses rsvp-priorities_config;
+    uses rsvp-priorities-path_config;
 
     leaf retry-timer {
-      when "/mpls/lsps/constrained-path/tunnel/config" +
-        "/signaling-protocol = 'PATH_SETUP_RSVP'" {
+      when "../../../../../" +
+        "config/signaling-protocol = 'PATH_SETUP_RSVP'" {
         description
         "When the signaling protocol is RSVP-TE ";
       }

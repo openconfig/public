@@ -26,7 +26,13 @@ module openconfig-vlan {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.0.0";
+  oc-ext:openconfig-version "3.0.1";
+
+  revision "2018-06-05" {
+    description
+      "Fix bugs in when statements.";
+    reference "3.0.1";
+  }
 
   revision "2018-02-14" {
     description
@@ -141,7 +147,7 @@ module openconfig-vlan {
     }
 
     leaf native-vlan {
-      when "interface-mode = 'TRUNK'" {
+      when "../interface-mode = 'TRUNK'" {
         description
           "Native VLAN is valid for trunk mode interfaces";
       }
@@ -155,7 +161,7 @@ module openconfig-vlan {
     }
 
     leaf access-vlan {
-      when "interface-mode = 'ACCESS'" {
+      when "../interface-mode = 'ACCESS'" {
         description
           "Access VLAN assigned to the interfaces";
       }
@@ -165,7 +171,7 @@ module openconfig-vlan {
     }
 
     leaf-list trunk-vlans {
-      when "interface-mode = 'TRUNK'" {
+      when "../interface-mode = 'TRUNK'" {
         description
           "Allowed VLANs may be specified for trunk mode
           interfaces.";
@@ -402,23 +408,13 @@ module openconfig-vlan {
     description
       "Adds VLAN settings to individual Ethernet interfaces";
 
-    uses vlan-switched-top {
-      when "oc-if:type = 'ift:ethernetCsmacd'" {
-      description
-        "Active when the interface is Ethernet";
-      }
-    }
+    uses vlan-switched-top;
   }
 
   augment "/oc-if:interfaces/oc-if:interface/oc-lag:aggregation" {
     description "Adds VLAN settings to a LAG interface";
 
-    uses vlan-switched-top {
-      when "oc-if:type = 'ift:ieee8023adLag'" {
-        description
-          "Active when the interface is a LAG";
-      }
-    }
+    uses vlan-switched-top;
   }
 
   augment "/oc-if:interfaces/oc-if:interface" {

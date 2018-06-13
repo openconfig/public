@@ -22,7 +22,13 @@ submodule openconfig-ospfv2-lsdb {
     "An OpenConfig model for the Open Shortest Path First (OSPF)
     version 2 link-state database (LSDB)";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.1.2";
+
+  revision "2018-06-05" {
+    description
+      "Bug fixes in when statements in lsdb";
+    reference "0.1.2";
+  }
 
   revision "2017-08-24" {
     description
@@ -2289,7 +2295,7 @@ submodule openconfig-ospfv2-lsdb {
               }
 
               uses ospfv2-lsdb-router-lsa-structure {
-                when "../../../state/type = 'ROUTER_LSA'" {
+                when "../../state/type = 'ROUTER_LSA'" {
                   description
                     "Include the router LSA hierarchy solely when
                     that LSA type is being described";
@@ -2297,7 +2303,7 @@ submodule openconfig-ospfv2-lsdb {
               }
 
               uses ospfv2-lsdb-network-lsa-structure {
-                when "../../../state/type = 'NETWORK_LSA'" {
+                when "../../state/type = 'NETWORK_LSA'" {
                   description
                     "Include the network LSA hierarchy solely when
                     that LSA type is being described";
@@ -2306,9 +2312,9 @@ submodule openconfig-ospfv2-lsdb {
 
               uses ospfv2-lsdb-summary-lsa-structure {
                 // rjs TODO: check this syntax
-                when "../../../state/type = " +
+                when "../../state/type = " +
                   "'SUMMARY_IP_NETWORK_LSA' or " +
-                  "../../../state/type = 'SUMMARY_ASBR_LSA'" {
+                  "../../state/type = 'SUMMARY_ASBR_LSA'" {
                   description
                     "Include the summary LSA hierarchy solely when
                     that LSA type is being described";
@@ -2316,7 +2322,7 @@ submodule openconfig-ospfv2-lsdb {
               }
 
               uses ospfv2-lsdb-asexternal-lsa-structure {
-                when "../../../state/type = 'AS_EXTERNAL_LSA'" {
+                when "../../state/type = 'AS_EXTERNAL_LSA'" {
                   description
                     "Include the AS external LSA hierarchy solely when
                     that LSA type is being described";
@@ -2324,7 +2330,7 @@ submodule openconfig-ospfv2-lsdb {
               }
 
               uses ospfv2-lsdb-nssa-external-lsa-structure {
-                when "../../../state/type = 'NSSA_AS_EXTERNAL_LSA'" {
+                when "../../state/type = 'NSSA_AS_EXTERNAL_LSA'" {
                   description
                     "Include the NSSA External LSA hierarchy solely
                     when that LSA type is being described";
@@ -2332,9 +2338,9 @@ submodule openconfig-ospfv2-lsdb {
               }
 
               uses ospfv2-lsdb-opaque-lsa-structure {
-                when "../../../state/type = 'OSPFV2_LINK_SCOPE_OPAQUE_LSA'
-                  or ../../../state/type = 'OSPFV2_AREA_SCOPE_OPAQUE_LSA'
-                  or ../../../state/type = 'OSPFV2_AS_SCOPE_OPAQUE_LSA'" {
+                when "../../state/type = 'OSPFV2_LINK_SCOPE_OPAQUE_LSA'
+                  or ../../state/type = 'OSPFV2_AREA_SCOPE_OPAQUE_LSA'
+                  or ../../state/type = 'OSPFV2_AS_SCOPE_OPAQUE_LSA'" {
                   description
                     "Include the Opaque LSA structure when type of entry
                     being described in an opaque LSA";
