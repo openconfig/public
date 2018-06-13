@@ -35,7 +35,15 @@ module openconfig-platform-transceiver {
     module defines a concrete schema for the associated data for
     components with type=TRANSCEIVER.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2018-05-15" {
+    description
+      "Remove internal-temp state leaf, since we prefer
+      the generic /components/component/state/temperature
+      container for temperature information.";
+    reference "0.5.0";
+  }
 
   revision "2018-01-22" {
     description
@@ -318,19 +326,6 @@ module openconfig-platform-transceiver {
       }
       description
         "Connector type used on this port";
-    }
-
-    leaf internal-temp {
-    // TODO: this should probably be removed if we add temperature
-    // as a top-level component property, i.e., transceiver temp
-    // should be reported there.
-      type int16 {
-        range -40..125;
-      }
-      description
-        "Internally measured temperature in degrees Celsius. MSA
-        valid range is between -40 and +125C. Accuracy shall be
-        better than +/- 3 degC over the whole temperature range.";
     }
 
     leaf vendor {

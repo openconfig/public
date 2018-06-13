@@ -63,13 +63,20 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.10.0";
+  oc-ext:openconfig-version "0.11.0";
+
+  revision "2018-06-03" {
+    description
+      "Added parent reference, empty flag and preconfiguration
+      for components";
+    reference "0.11.0";
+  }
 
   revision "2018-04-20" {
-      description
-        "Added new per-component state data: mfg-date and removable";
-      reference "0.10.0";
-    }
+    description
+      "Added new per-component state data: mfg-date and removable";
+    reference "0.10.0";
+  }
 
   revision "2018-01-30" {
     description
@@ -258,8 +265,10 @@ module openconfig-platform {
     leaf name {
       type string;
       description
-        "Device name for the component -- this will not be a
-        configurable parameter on many implementations";
+        "Device name for the component -- this may not be a
+        configurable parameter on many implementations.  Where
+        component preconfiguration is supported, for example,
+        the component name may be configurable.";
     }
   }
 
@@ -359,6 +368,28 @@ module openconfig-platform {
       description
         "If applicable, this reports the current operational status
         of the component.";
+    }
+
+    leaf empty {
+      type boolean;
+      default false;
+      description
+        "The empty leaf may be used by the device to indicate that a
+        component position exists but is not populated.  Using this
+        flag, it is possible for the management system to learn how
+        many positions are available (e.g., occupied vs. empty
+        linecard slots in a chassis).";
+    }
+
+    leaf parent {
+      type leafref {
+        path "../../config/name";
+      }
+      description
+        "Reference to the name of the parent component.  Note that
+        this reference must be kept synchronized with the
+        corresponding subcomponent reference from the parent
+        component.";
     }
   }
 
