@@ -47,7 +47,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.10.1";
+  oc-ext:openconfig-version "0.10.2";
+
+  revision "2018-06-22" {
+    description
+      "Fix typo in OSPF when statement";
+    reference "0.10.2";
+  }
 
   revision "2018-06-05" {
     description
@@ -672,7 +678,7 @@ module openconfig-network-instance {
             }
 
             uses oc-ospfv2:ospfv2-top {
-              when "config/identifier = 'OSPF2'" {
+              when "config/identifier = 'OSPF'" {
                 description
                   "Include OSPFv2 parameters only when the protocol
                   is of type OSPFv2";
