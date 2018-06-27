@@ -71,7 +71,13 @@ module openconfig-mpls {
                              +-------+
     ";
 
-  oc-ext:openconfig-version "2.4.2";
+  oc-ext:openconfig-version "2.5.0";
+
+  revision "2018-06-13" {
+    description
+      "Add ttl-propagation to global MPLS config";
+    reference "2.5.0";
+  }
 
   revision "2018-06-05" {
     description
@@ -481,6 +487,19 @@ module openconfig-mpls {
       description
         "The null-label type used, implicit or explicit";
     }
+
+    leaf ttl-propagation {
+      type boolean;
+      default true;
+      description
+        "Enables TTL propagation across the MPLS domain.
+        When ttl-propagation is set to true, the IP TTL
+        is copied into the MPLS header TTL when pushing
+        a label to an IP packet. If false, the IP TTL is
+        not copied into the MPLS header TTL and, therefore,
+        the IP TTL is not updated in the MPLS domain.";
+    }
+
   }
 
  grouping mpls-global-top {
