@@ -24,11 +24,18 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.4.0";
+  oc-ext:openconfig-version "2.5.0";
+
+  revision "2018-07-02" {
+    description
+      "Add new ethernet counters of in-undersize-frames,
+      in-crc-align-errors and the distribution container";
+    reference "2.5.0";
+  }
 
   revision "2018-04-10" {
     description
-      "Add identites for 2.5 and 5 Gbps.";
+      "Add identities for 2.5 and 5 Gbps.";
     reference "2.4.0";
   }
 
@@ -221,7 +228,22 @@ module openconfig-if-ethernet {
     leaf in-oversize-frames {
       type oc-yang:counter64;
       description
-        "Number of oversize frames received on the interface";
+        "The total number of frames received that were
+        longer than 1518 octets (excluding framing bits,
+        but including FCS octets) and were otherwise
+        well formed.";
+    }
+
+    leaf in-undersize-frames {
+      type oc-yang:counter64;
+      description
+        "The total number of frames received that were
+        less than 64 octets long (excluding framing bits,
+        but including FCS octets) and were otherwise well
+        formed.";
+      reference
+        "RFC 2819: Remote Network Monitoring MIB -
+        etherStatsUndersizePkts";
     }
 
     leaf in-jabber-frames {
@@ -237,7 +259,12 @@ module openconfig-if-ethernet {
     leaf in-fragment-frames {
       type oc-yang:counter64;
       description
-        "Number of fragment frames received on the interface.";
+        "The total number of frames received that were less than
+        64 octets in length (excluding framing bits but including
+        FCS octets) and had either a bad Frame Check Sequence
+        (FCS) with an integral number of octets (FCS Error) or a
+        bad FCS with a non-integral number of octets (Alignment
+        Error).";
     }
 
     leaf in-8021q-frames {
@@ -251,6 +278,21 @@ module openconfig-if-ethernet {
       description
         "Number of receive error events due to FCS/CRC check
         failure";
+    }
+
+    leaf in-crc-align-errors {
+      type oc-yang:counter64;
+      description
+        "The total number of frames received that
+        had a length (excluding framing bits, but
+        including FCS octets) of between 64 and 1518
+        octets, inclusive, but had either a bad
+        Frame Check Sequence (FCS) with an integral
+        number of octets (FCS Error) or a bad FCS with
+        a non-integral number of octets (Alignment Error)";
+      reference
+        "RFC 2819: Remote Network Monitoring MIB -
+        etherStatsCRCAlignErrors";
     }
 
     // egress counters
