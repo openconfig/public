@@ -1,0 +1,94 @@
+{
+  "interfaces": {
+    "interface": [
+      {
+        "config": {
+          "description": "ACCESS PORT",
+          "name": "g0/0/0",
+          "type": "ethernetCsmacd"
+        },
+        "ethernet": {
+          "switched-vlan": {
+            "config": {
+              "access-vlan": 1042,
+              "interface-mode": "ACCESS"
+            }
+          }
+        },
+        "name": "g0/0/0"
+      },
+      {
+        "config": {
+          "description": "TRUNK PORT",
+          "name": "g1/0/42",
+          "type": "ethernetCsmacd"
+        },
+        "ethernet": {
+          "switched-vlan": {
+            "config": {
+              "interface-mode": "TRUNK",
+              "trunk-vlans": [
+                2048,
+                2049
+              ]
+            }
+          }
+        },
+        "name": "g1/0/42"
+      }
+    ]
+  },
+  "network-instances": {
+    "network-instance": [
+      {
+        "config": {
+          "name": "DEFAULT"
+        },
+        "interfaces": {
+          "interface": [
+            {
+              "config": {
+                "id": "g0/0/0",
+                "interface": "g0/0/0"
+              },
+              "id": "g0/0/0"
+            },
+            {
+              "config": {
+                "id": "g1/0/42",
+                "interface": "g1/0/42"
+              },
+              "id": "g1/0/42"
+            }
+          ]
+        },
+        "name": "DEFAULT",
+        "vlans": {
+          "vlan": [
+            {
+              "config": {
+                "name": "RED",
+                "vlan-id": 1042
+              },
+              "vlan-id": 1042
+            },
+            {
+              "config": {
+                "name": "GREEN",
+                "vlan-id": 2048
+              },
+              "vlan-id": 2048
+            },
+            {
+              "config": {
+                "name": "ORANGE",
+                "vlan-id": 2049
+              },
+              "vlan-id": 2049
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
