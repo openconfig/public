@@ -22,7 +22,15 @@ module openconfig-telemetry {
     "Data model which creates the configuration for the telemetry
      systems and functions on the device.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2018-08-17" {
+    description
+      "Update telemetry model to comply with the OpenConfig
+      style for lists and their containers. Remove subscription
+      exclusions.";
+    reference "0.5.0";
+  }
 
   revision "2017-08-24" {
     description
@@ -71,12 +79,14 @@ module openconfig-telemetry {
               "Reference to the name or identifier of the
                sensor grouping";
           }
+
           container config {
             description
               "Configuration parameters relating to the
                telemetry sensor grouping";
             uses telemetry-sensor-group-config;
           }
+
           container state {
             config false;
             description
@@ -104,12 +114,14 @@ module openconfig-telemetry {
                 description
                   "Reference to the path of interest";
               }
+
               container config {
                 description
                   "Configuration parameters to configure a set
                    of data model paths as a sensor grouping";
                 uses telemetry-sensor-path-config;
               }
+
               container state {
                 config false;
                 description
@@ -221,7 +233,7 @@ module openconfig-telemetry {
           "This container holds information for both persistent
            and dynamic telemetry subscriptions.";
 
-        container persistent {
+        container persistent-subscriptions {
           description
             "This container holds information relating to persistent
              telemetry subscriptions. A persistent telemetry
@@ -229,17 +241,18 @@ module openconfig-telemetry {
              configuration, and is persistent across device restarts or
              other redundancy changes.";
 
-          list subscription {
-            key "subscription-name";
+          list persistent-subscription {
+            key "name";
+
             description
               "List of telemetry subscriptions. A telemetry
               subscription consists of a set of collection
               destinations, stream attributes, and associated paths to
               state information in the model (sensor data)";
 
-            leaf subscription-name {
+            leaf name {
               type leafref {
-                path "../config/subscription-name";
+                path "../config/name";
               }
               description
                 "Reference to the identifier of the subscription
@@ -387,7 +400,7 @@ module openconfig-telemetry {
           }
         }
 
-        container dynamic {
+        container dynamic-subscriptions {
           description
             "This container holds information relating to dynamic
             telemetry subscriptions. A dynamic subscription is
@@ -396,17 +409,18 @@ module openconfig-telemetry {
             reset or otherwise torn down.";
 
 
-          list subscription {
-            key "subscription-id";
+          list dynamic-subscription {
+            key "id";
+
             config false;
             description
               "List representation of telemetry subscriptions that
               are configured via an inline RPC, otherwise known
               as dynamic telemetry subscriptions.";
 
-            leaf subscription-id {
+            leaf id {
               type leafref {
-                path "../state/subscription-id";
+                path "../state/id";
               }
 
               description
@@ -580,7 +594,8 @@ module openconfig-telemetry {
     description
       "Configuration parameters relating to the telemetry
        subscription";
-    leaf subscription-id {
+
+    leaf id {
       type uint64;
       description
         "System generated identifer of the telemetry
@@ -595,7 +610,7 @@ module openconfig-telemetry {
        configured string value which uniquely identifies the
        subscription in the configuration database.";
 
-     leaf subscription-name {
+     leaf name {
        type string;
        description
          "User configured identifier of the telemetry
@@ -725,13 +740,6 @@ module openconfig-telemetry {
         description
           "The sensor path is a path to a portion of operational
           state of interest in the data model";
-      }
-      // This may not be needed. Decide on removal.
-      leaf sensor-exclude-filter {
-        type string;
-        description
-          "The exclude filter allows certain values of state to be
-          filtered out of the telemetry stream";
       }
     }
   }
