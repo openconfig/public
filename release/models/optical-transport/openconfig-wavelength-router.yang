@@ -9,9 +9,9 @@ module openconfig-wavelength-router {
 
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
-  import openconfig-types { prefix oc-types; }
-  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-platform { prefix oc-platform; }
   import openconfig-transport-types { prefix oc-opt-types; }
+  import openconfig-types { prefix oc-types; }
 
 
   // meta
@@ -31,7 +31,13 @@ module openconfig-wavelength-router {
     that can be set up to direct portions of the optical spectrum
     to the appropriate degrees.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.3.2";
+
+  revision "2018-07-17" {
+    description
+      "Correct bug so that source/dest ports are components";
+    reference "0.3.2";
+  }
 
   revision "2017-09-08" {
     description
@@ -67,9 +73,12 @@ module openconfig-wavelength-router {
       "Configuration data for a media channel source/dest port";
 
     leaf port-name {
-      type oc-if:base-interface-ref;
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
+      }
       description
-        "Reference to the corresponding node interface";
+        "Reference to the corresponding node port";
     }
   }
 

@@ -12,8 +12,10 @@ module openconfig-terminal-device {
   import openconfig-if-ethernet { prefix oc-eth; }
   import openconfig-platform { prefix oc-platform; }
   import openconfig-platform-transceiver { prefix oc-transceiver; }
+  import openconfig-lldp { prefix oc-lldp; }
   import openconfig-extensions { prefix oc-ext; }
   import ietf-yang-types { prefix yang; }
+  import openconfig-interfaces { prefix oc-if; }
 
 
   // meta
@@ -74,7 +76,27 @@ module openconfig-terminal-device {
     ports per linecard, separate linecards for client and line ports,
     etc.).";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.3.0";
+
+  revision "2018-07-30" {
+    description
+      "Adds lldp snooping config leaf and augmented it to oc-lldp";
+    reference "1.3.0";
+  }
+
+  revision "2018-07-26" {
+    description
+      "Adds OTN protocol counter stats of errored-blocks and
+       fec-uncorrectable-blocks, adds ethernet-config-ext grouping
+       and uses it to augment oc-eth";
+    reference "1.2.0";
+  }
+
+  revision "2018-07-17" {
+    description
+      "Adds testing enum to link-state";
+    reference "1.1.0";
+  }
 
   revision "2017-07-08" {
     description
@@ -212,10 +234,27 @@ module openconfig-terminal-device {
         interleaved parity) errors";
     }
 
+    leaf errored-blocks {
+      type yang:counter64;
+      description
+        "The number of errored blocks. Error detection codes are
+        capable to detect whether one or more errors have occurred
+        in a given sequence of bits – the block. It is normally not
+        possible to determine the exact number of errored bits within
+        the block.";
+      reference "ITU-T Rec. G.826";
+    }
+
+    leaf fec-uncorrectable-blocks {
+      type yang:counter64;
+      description
+        "The number of blocks that were uncorrectable by the FEC";
+    }
+
     leaf fec-uncorrectable-words {
       type yang:counter64;
       description
-        "The number words that were uncorrectable by the FEC";
+        "The number of words that were uncorrectable by the FEC";
     }
 
     leaf fec-corrected-bytes {
@@ -774,6 +813,11 @@ module openconfig-terminal-device {
           description
             "Logical channel is operationally down";
         }
+        enum TESTING {
+          description
+            "Logical channel is under test as a result of
+            enabling test-signal";
+        }
       }
       description
         "Link-state of the Ethernet protocol on the logical channel,
@@ -1073,6 +1117,74 @@ module openconfig-terminal-device {
     }
   }
 
+  grouping ethernet-config-ext {
+    description
+      "Extended ethernet config data on terminal device";
+
+    leaf client-fec {
+      type enumeration {
+        enum ENABLED {
+          description
+            "FEC is enabled";
+        }
+
+        enum DISABLED {
+          description
+            "FEC is disabled";
+        }
+
+        enum AUTO {
+          description
+            "System will automatically enable or disable FEC
+            according to the Ethernet compliance codes (PMD)
+            supported by transceivers";
+        }
+      }
+      default AUTO;
+      description
+        "Configure whether FEC will be manually or automatically
+        enabled or disabled on the client port";
+    }
+
+    leaf client-als {
+      type enumeration {
+        enum NONE {
+          description
+            "The client port will do nothing when a failure is
+            detected on the line port or the remote client port";
+        }
+        enum LASER_SHUTDOWN {
+          description
+            "The client port will shut down the laser to notify the
+            subtending Ethernet equipment of the failure detected on
+            the line port or the remote client port.";
+        }
+        enum ETHERNET {
+          description
+            "The client port will propagate the local fault or remote
+            fault signal to the subtending Ethernet equipment.";
+        }
+      }
+      default ETHERNET;
+      description
+        "Sets the client port behavior that defines if the actions
+        of automatic laser shutdown (als), ethernet fault
+        propagation, or nothing will be done upon the detection
+        of a failure on the line port or the upstream remote
+        client port.";
+    }
+
+    leaf als-delay {
+      type uint32;
+      units milliseconds;
+      default 0;
+      description
+        "The timer to delay the client-als actions on the client
+        port when a local or remote fault is detected on the line
+        port. The delay will only be valid when the client-als is
+        set to LASER_SHUTDOWN";
+    }
+  }
 
   grouping terminal-device-config {
     description
@@ -1118,6 +1230,29 @@ module openconfig-terminal-device {
     }
   }
 
+
+  grouping lldp-interface-config {
+    description
+      "Extension to the configuration data for LLDP on each
+      optical terminal interface";
+
+    leaf snooping {
+      type boolean;
+      default "false";
+      description
+        "If true, LLDP PDUs are only received and processed on
+        the interface, but are not originated by the local agent.
+        The PDUs are not dropped by the interface after processing,
+        but relayed to the downstream link layer neighbors.
+        If false, LLDP PDUs are both received and originated on the
+        interface. The snooping mode is valid only when LLDP is
+        enabled on the interface. The snooping mode is useful
+        when an interface does not want its link layer neighbors to
+        discover itself since, for example, it is a lower-layer
+        interface";
+    }
+  }
+
   // data definition statements
 
   uses terminal-device-top;
@@ -1138,4 +1273,21 @@ module openconfig-terminal-device {
     }
   }
 
+  augment "/oc-if:interfaces/oc-if:interface/oc-eth:ethernet" +
+    "/oc-eth:config" {
+    description
+      "Adds configuration data for client interfaces using Ethernet
+      framing";
+
+    uses ethernet-config-ext;
+  }
+
+  augment "/oc-lldp:lldp/oc-lldp:interfaces/oc-lldp:interface/" +
+    "oc-lldp:config" {
+    description
+      "Augment the lldp config data to support the snooping mode
+      for each optical terminal interface";
+
+    uses lldp-interface-config;
+  }
 }

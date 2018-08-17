@@ -14,6 +14,7 @@ module openconfig-transport-line-common {
   import openconfig-platform { prefix oc-platform; }
   import openconfig-types { prefix oc-types; }
   import openconfig-transport-types { prefix oc-opt-types; }
+  import openconfig-platform-transceiver { prefix oc-transceiver; }
 
 
   // meta
@@ -28,7 +29,20 @@ module openconfig-transport-line-common {
     models for optical transport line system elements, such as
     amplifiers and ROADMs (wavelength routers).";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.1";
+
+  revision "2018-07-17" {
+    description
+      "Remove leaf 'enabled' from osc-config";
+    reference "0.4.1";
+  }
+
+  revision "2018-05-08" {
+    description
+      "Added leaf 'enabled' to osc-config and
+      leaf 'output-frequency' to osc-state";
+    reference "0.4.0";
+  }
 
   revision "2017-09-08" {
     description
@@ -153,6 +167,8 @@ module openconfig-transport-line-common {
 
       uses oc-types:avg-min-max-instant-stats-precision2-mA;
     }
+
+    uses oc-transceiver:output-optical-frequency;
   }
 
 
