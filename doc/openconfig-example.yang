@@ -1,0 +1,317 @@
+module openconfig-example {
+
+  // OpenConfig models currently use YANG 1.0 (RFC 6020)
+  yang-version "1";
+
+  // Namespace -- generally add the module name after the .../yang/
+  // path component in the URI.
+  namespace "http://openconfig.net/yang/example";
+
+  // Use a prefix of the form oc-xxxxxx
+  prefix "oc-example";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+  // Additional general types modules you may need:
+  // import openconfig-types { prefix oc-types; }
+  // import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-yang-types { prefix oc-yang; }
+
+  // module metadata
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  // Max line length throughout the modules should be 70 cols.
+
+  // Formatting description statements: for consistency, the
+  // description text should start on the line following the
+  // 'description' keyword and be indented 2 spaces.
+  description
+    "This is an example to illustrate general structure of YANG
+    modules, and specifically constructs used in OpenConfig models.
+    It follows the OpenConfig style guide:
+      http://www.openconfig.net/docs/style-guide/
+
+    The top-level module description should explain the overall
+    function of the module.  If the model is comprised of multiple
+    modules or submodules, the top-level module should provide an
+    overview of the functionality.  Individual module files can then
+    include explanation of their specific role in the overall
+    model.";
+
+  // The openconfig-version statement indicates the semantic
+  // version of the module (see
+  // http://www.openconfig.net/docs/semver/).  Suggest to use
+  // 0.1.0 as the initial version number.
+  oc-ext:openconfig-version "0.1.0";
+
+  // The revision statement indicates the date the module is
+  // published;
+  revision "2017-02-10" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+  // Identities and typedefs may be defined in a separate types
+  // module if they are reusable by other models, or need to be
+  // referenced by entities outside of the module (this helps
+  // prevent circular import issues.  Type definitions may also
+  // be broken out if they are numerous and unwieldy to keep in
+  // the same module with data definitions.
+
+  // identity statements
+
+  identity BASE_IDENTITY {
+    description
+      "Base identity for example type";
+  }
+
+  identity DERIVED_A {
+    base BASE_IDENTITY;
+    description
+      "Derived type A";
+  }
+
+  identity DERIVED_B {
+    base BASE_IDENTITY;
+    description
+      "Derived type B";
+  }
+
+  // typedef statements
+
+  typedef new-type {
+    type union {
+      type string;
+      type uint32;
+    }
+    description
+      "This type may be a string or integer";
+  }
+
+  // grouping statements
+
+  // Groupings for a container -- 3 groupings, one for configuration
+  // variables, one for derived operational state variables, and
+  // one that defines the container structure, including the config
+  // and state subcontainers.  Note that that the config and state
+  // containers should contain only leaf or leaf-list nodes, no
+  // structural nodes such as other containers or lists.
+  grouping example-set-a-config {
+    description
+      "Configuration data for set-a";
+
+    leaf item-a {
+      type new-type;
+      description
+        "Item A may be specified as either a string (e.g., name)
+        or integer (e.g., index)";
+    }
+
+    leaf-list labels {
+      type uint32;
+      description
+        "List of labels used in set A";
+    }
+  }
+
+  grouping example-set-a-state {
+    description
+      "Operational state data for set-a";
+
+    leaf counter-a {
+      type oc-yang:counter64;
+      description
+        "Number of times A is invoked";
+    }
+  }
+
+  grouping example-set-a-top {
+    description
+      "Top-level grouping for set-a";
+
+    container data-set-a {
+      description
+        "Top-level container for set-a";
+
+      container config {
+        description
+          "Configuration data for set-a";
+
+        uses example-set-a-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for set-a";
+
+        uses example-set-a-config;
+        uses example-set-a-state;
+      }
+    }
+  }
+
+  // Groupings for a list -- 3 groupings, similar to above for
+  // container groupings.  The structural grouping contains the
+  // list definition (along with a key reference) and also an
+  // enclosing container for the list.
+  grouping example-entry-list-config {
+    description
+      "Configuration data for list of entries";
+
+    leaf index {
+      type uint32;
+      description
+        "The index of each entry in the list";
+    }
+
+    leaf flag {
+      type identityref {
+        base BASE_IDENTITY;
+      }
+      description
+        "This flag can take one one of several predefined
+        values";
+    }
+  }
+
+  grouping example-entry-list-state {
+    description
+      "Operational state data for list of entries";
+
+    leaf negotiated-flag {
+      type identityref {
+        base BASE_IDENTITY;
+      }
+      description
+        "The value of the flag as negotiated with the peer device.
+        This is defined as a derived operational state value
+        because it is never configured directly, but rather the
+        result of device behavior, protocol interaction, etc.";
+    }
+  }
+
+  grouping example-entry-list-top {
+    description
+      "Top-level grouping for the list of entries";
+
+    container entries {
+      description
+        "Enclosing container for list of entries";
+
+      // Note the enclosing container is generally named as the
+      // plural form of the list name.
+      list entry {
+        key "index";
+        description
+          "List of entries";
+
+        leaf index {
+          type leafref {
+            path "../config/index";
+          }
+          description
+            "Reference to list key";
+        }
+
+        container config {
+          description
+            "Configuration data for list of entries";
+
+          uses example-entry-list-config;
+        }
+
+        container state {
+
+          config false;
+
+          description
+            "Operational state data for list of entries";
+
+          uses example-entry-list-config;
+          uses example-entry-list-state;
+        }
+      }
+    }
+  }
+
+  grouping example-config {
+    description
+      "Configuration data for top-level example";
+
+    leaf enable {
+      type boolean;
+      // Where possible (i.e., based on a published standard,
+      // common operational practice, or common vendor
+      // implementation), it is often a good idea to define a
+      // default value for boolean leaves.
+      default false;
+      description
+        "Enables the example feature globally on the device";
+    }
+  }
+
+  grouping example-state {
+    description
+      "Operational state data for top-level example";
+
+    // Placeholder -- no currently defined global-level
+    // derived opstate values.
+  }
+
+  grouping example-top {
+    description
+      "Top-level grouping for top-level example";
+
+    container example {
+      description
+        "Top-level container for example data";
+
+      container config {
+        description
+          "Configuration data for top-level example";
+
+        uses example-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for top-level example";
+
+        uses example-config;
+        uses example-state;
+      }
+
+      // Instantiate groupings outside of the config/state
+      // containers
+      uses example-set-a-top;
+      uses example-entry-list-top;
+    }
+  }
+
+  // data definition statements
+
+  // If the module creates a top-level node in the schema
+  // (e.g., at root level), there should be an instantiation of the
+  // top-level '-top' grouping with a 'uses' statement.
+  uses example-top;
+
+  // augment statements
+
+  // If the module defines data that is added as an extension or
+  // additional data to another module, use an augment statement
+  // and instantiate the top-level grouping (or whichever grouping
+  // is to be added to the other module) with a 'uses' statement
+  // within the augment statement.
+
+}
