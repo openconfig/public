@@ -30,7 +30,20 @@ submodule openconfig-mpls-te {
     signaling protocol or mechanism (see related submodules for
     signaling protocol-specific configuration).";
 
-  oc-ext:openconfig-version "2.5.0";
+  oc-ext:openconfig-version "3.0.0";
+
+  revision "2018-07-02" {
+    description
+      "Add new RSVP-TE statistics, remove associated-rsvp-session
+      leaf. Remove use of date-and-time.";
+    reference "3.0.0";
+  }
+
+  revision "2018-06-16" {
+    description
+      "Included attributes for base LDP configuration.";
+     reference "2.6.0";
+  }
 
   revision "2018-06-13" {
     description
@@ -179,7 +192,7 @@ submodule openconfig-mpls-te {
 
   // grouping statements
 
-  grouping te-tunnel-reoptimize_config {
+  grouping te-tunnel-reoptimize-config {
     description
       "Definition for reoptimize timer configuration";
 
@@ -192,8 +205,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-
-  grouping te-lsp-auto-bandwidth_config {
+  grouping te-lsp-auto-bandwidth-config {
     description
       "Configuration parameters related to autobandwidth";
 
@@ -237,7 +249,20 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping te-lsp-overflow_config {
+  grouping te-lsp-auto-bandwidth-state {
+    description
+      "Operational state parameters relating to auto-bandwidth";
+
+    leaf interval-high-bw {
+      type oc-mplst:bandwidth-kbps;
+      description
+        "The maximum measured bandwidth during the current
+        auto-bandwidth adjust interval expressed in kilobits
+        per second.";
+    }
+  }
+
+  grouping te-lsp-overflow-config {
     description
      "configuration for mpls lsp bandwidth
       overflow adjustment";
@@ -266,7 +291,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping te-lsp-underflow_config {
+  grouping te-lsp-underflow-config {
     description
       "configuration for mpls lsp bandwidth
       underflow adjustment";
@@ -363,7 +388,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping te-tunnel-protection_config {
+  grouping te-tunnel-protection-config {
     description
      "Configuration parameters related to LSP
       protection";
@@ -419,7 +444,7 @@ submodule openconfig-mpls-te {
   }
 
   // Explicit paths config somewhat following the IETF model
-  grouping explicit-paths_top {
+  grouping explicit-paths-top {
     description
       "Top level global explicit path configuration
       grouping";
@@ -446,7 +471,7 @@ submodule openconfig-mpls-te {
             "Configuration parameters relating to named explicit
             paths";
           uses named-explicit-path-config;
-          uses oc-sr:sr-path-attributes_config;
+          uses oc-sr:sr-path-attributes-config;
         }
 
         container state {
@@ -455,7 +480,7 @@ submodule openconfig-mpls-te {
             "Operational state parameters relating to the named
             explicit paths";
           uses named-explicit-path-config;
-          uses oc-sr:sr-path-attributes_config;
+          uses oc-sr:sr-path-attributes-config;
         }
 
         container explicit-route-objects {
@@ -497,7 +522,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping mpls-te-srlg_config {
+  grouping mpls-te-srlg-config {
     description
       "Configuration of various attributes associated
       with the SRLG";
@@ -530,7 +555,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping mpls-te-srlg-members_config {
+  grouping mpls-te-srlg-members-config {
     description
       "Configuration of the membership of the SRLG";
 
@@ -573,14 +598,14 @@ submodule openconfig-mpls-te {
         container config {
           description
             "Configuration parameters related to the SRLG";
-          uses mpls-te-srlg_config;
+          uses mpls-te-srlg-config;
         }
 
         container state {
           config false;
           description
             "State parameters related to the SRLG";
-          uses mpls-te-srlg_config;
+          uses mpls-te-srlg-config;
         }
 
         container static-srlg-members {
@@ -613,7 +638,7 @@ submodule openconfig-mpls-te {
               description
                 "Configuration parameters relating to the
                 SRLG members";
-              uses mpls-te-srlg-members_config;
+              uses mpls-te-srlg-members-config;
             }
 
             container state {
@@ -621,7 +646,7 @@ submodule openconfig-mpls-te {
               description
                 "State parameters relating to the SRLG
                 members";
-              uses mpls-te-srlg-members_config;
+              uses mpls-te-srlg-members-config;
             }
           }
         }
@@ -629,7 +654,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping te-global-tunnel_config {
+  grouping te-global-tunnel-config {
     description
       "Configuration parameters relevant to a single
        traffic engineered tunnel.";
@@ -724,12 +749,12 @@ submodule openconfig-mpls-te {
         link, link-node or unprotected.";
     }
 
-    uses te-tunnel-reoptimize_config;
-    uses oc-rsvp:rsvp-p2p-tunnel-attributes_config;
+    uses te-tunnel-reoptimize-config;
+    uses oc-rsvp:rsvp-p2p-tunnel-attributes-config;
 
   }
 
-  grouping tunnel-p2p-attributes_config {
+  grouping tunnel-p2p-attributes-config {
     description
       "Configuration related to p2p LSPs";
     leaf destination {
@@ -739,24 +764,44 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping p2p-path_state {
+  grouping p2p-path-state {
     description
       "Operational state parameters for p2p paths";
 
-    leaf associated-rsvp-session {
+    leaf-list associated-rsvp-sessions {
       type leafref {
         path "../../../../../../../../../signaling-protocols/" +
              "rsvp-te/sessions/session/local-index";
       }
       description
         "If the signalling protocol specified for this path is
-        RSVP-TE, this leaf provides a reference to the associated
-        session within the RSVP-TE protocol sessions list, such
-        that details of the signaling can be retrieved.";
+        RSVP-TE, this leaf-list provides a reference to the associated
+        sessions within the RSVP-TE protocol sessions list, such
+        that details of the signaling can be retrieved. More than
+        one session may exist during re-signalling such as
+        make-before-break.";
+    }
+
+    leaf spf-metric {
+      type uint64;
+      description
+        "The IGP metric of the shortest path to the LSP destination.
+        This value is used to compare the current metric of the
+        constrained path to the shortest path that is available in
+        the network topology.";
+    }
+
+    leaf cspf-metric {
+      type uint64;
+      description
+        "The IGP metric of the path currently used by the LSP.
+        This value is used to represent the metric of the path
+        used by the LSP following the execution of the CSPF
+        algorithm and signalling of the LSP.";
     }
   }
 
-  grouping p2p-path_config {
+  grouping p2p-path-config {
     description
       "Configuration parameters for p2p paths";
 
@@ -839,11 +884,11 @@ submodule openconfig-mpls-te {
         number higher the preference";
     }
 
-    uses oc-rsvp:rsvp-p2p-path-attributes_config;
+    uses oc-rsvp:rsvp-p2p-path-attributes-config;
   }
 
 
-  grouping te-tunnel-p2p_top {
+  grouping te-tunnel-p2p-top {
     description
       "Top level grouping for p2p configuration";
 
@@ -858,23 +903,23 @@ submodule openconfig-mpls-te {
       container config {
        description
          "Configuration parameters for P2P LSPs";
-       uses tunnel-p2p-attributes_config;
+       uses tunnel-p2p-attributes-config;
       }
 
       container state {
        config false;
        description
          "State parameters for P2P LSPs";
-       uses tunnel-p2p-attributes_config;
+       uses tunnel-p2p-attributes-config;
       }
 
-      uses p2p-primary-paths_top;
-      uses p2p-secondary-paths_top;
+      uses p2p-primary-paths-top;
+      uses p2p-secondary-paths-top;
     }
   }
 
 
-  grouping te-tunnel_state {
+  grouping te-tunnel-state {
     description
       "Counters and statistical data relevent to a single
        tunnel.";
@@ -894,6 +939,15 @@ submodule openconfig-mpls-te {
       description
        "The lsp role at the current node, whether it is headend,
         transit or tailend.";
+    }
+
+    leaf auto-generated {
+      type boolean;
+      description
+        "If the LSP was auto-generated by the system this leaf
+        should be set to true. Examples of auto-generated LSPs
+        are dynamically created backup LSPs to meet a FRR
+        policy.";
     }
 
     container counters {
@@ -928,30 +982,41 @@ submodule openconfig-mpls-te {
       }
 
       leaf online-time {
-        type yang:date-and-time;
+        type oc-types:timeticks64;
         description
           "Indication of the time the label switched path
-           transitioned to an Oper Up or in-service state";
+           transitioned to an Oper Up or in-service state.
+
+           The value is the timestamp in nanoseconds relative to
+           the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
       }
 
       leaf current-path-time {
-        type yang:date-and-time;
+        type oc-types:timeticks64;
         description
           "Indicates the time the LSP switched onto its
-           current path. This is reset upon a LSP path
-           change.";
+           current path. The value is reset upon a LSP path
+           change. 
+
+           The value is the timestamp in nanoseconds relative to
+           the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+
       }
 
       leaf next-reoptimization-time {
-        type yang:date-and-time;
+        type oc-types:timeticks64;
         description
           "Indicates the next scheduled time the LSP
-           will be reoptimized.";
+           will be reoptimized. 
+
+           The value is the timestamp in nanoseconds relative to
+           the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+
       }
     }
   }
 
-  grouping te-tunnel-bandwidth_config {
+  grouping te-tunnel-bandwidth-config {
     description
       "Configuration parameters related to bandwidth for a tunnel";
 
@@ -976,7 +1041,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping te-tunnel-bandwidth_state {
+  grouping te-tunnel-bandwidth-state {
     description
       "Operational state parameters relating to bandwidth for a tunnel";
 
@@ -991,7 +1056,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping te-tunnel-bandwidth_top {
+  grouping te-tunnel-bandwidth-top {
     description
       "Top level grouping for specifying bandwidth for a tunnel";
 
@@ -1003,7 +1068,7 @@ submodule openconfig-mpls-te {
         description
           "Configuration parameters related to bandwidth on TE
           tunnels:";
-        uses te-tunnel-bandwidth_config;
+        uses te-tunnel-bandwidth-config;
       }
 
       container state {
@@ -1011,8 +1076,8 @@ submodule openconfig-mpls-te {
         description
           "State parameters related to bandwidth
           configuration of TE tunnels";
-        uses te-tunnel-bandwidth_config;
-        uses te-tunnel-bandwidth_state;
+        uses te-tunnel-bandwidth-config;
+        uses te-tunnel-bandwidth-state;
       }
 
       container auto-bandwidth {
@@ -1028,7 +1093,7 @@ submodule openconfig-mpls-te {
           description
             "Configuration parameters relating to MPLS
             auto-bandwidth on the tunnel.";
-          uses te-lsp-auto-bandwidth_config;
+          uses te-lsp-auto-bandwidth-config;
         }
 
         container state {
@@ -1036,7 +1101,8 @@ submodule openconfig-mpls-te {
           description
             "State parameters relating to MPLS
             auto-bandwidth on the tunnel.";
-          uses te-lsp-auto-bandwidth_config;
+          uses te-lsp-auto-bandwidth-config;
+          uses te-lsp-auto-bandwidth-state;
         }
 
         container overflow {
@@ -1048,7 +1114,7 @@ submodule openconfig-mpls-te {
             description
               "Config information for MPLS overflow bandwidth
               adjustment";
-            uses te-lsp-overflow_config;
+            uses te-lsp-overflow-config;
           }
 
           container state {
@@ -1056,7 +1122,7 @@ submodule openconfig-mpls-te {
             description
               "Config information for MPLS overflow bandwidth
               adjustment";
-            uses te-lsp-overflow_config;
+            uses te-lsp-overflow-config;
           }
         }
 
@@ -1069,7 +1135,7 @@ submodule openconfig-mpls-te {
             description
               "Config information for MPLS underflow bandwidth
               adjustment";
-            uses te-lsp-underflow_config;
+            uses te-lsp-underflow-config;
           }
 
           container state {
@@ -1077,7 +1143,7 @@ submodule openconfig-mpls-te {
             description
               "State information for MPLS underflow bandwidth
               adjustment";
-            uses te-lsp-underflow_config;
+            uses te-lsp-underflow-config;
           }
         }
       }
@@ -1121,7 +1187,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping p2p-primary-paths_top {
+  grouping p2p-primary-paths-top {
     description
       "Top level grouping for p2p primary paths";
 
@@ -1147,15 +1213,15 @@ submodule openconfig-mpls-te {
         container config {
          description
           "Configuration parameters related to paths";
-         uses p2p-path_config;
+         uses p2p-path-config;
         }
 
         container state {
           config false;
           description
             "State parameters related to paths";
-          uses p2p-path_config;
-          uses p2p-path_state;
+          uses p2p-path-config;
+          uses p2p-path-state;
         }
 
         container candidate-secondary-paths {
@@ -1214,7 +1280,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping p2p-secondary-paths_top {
+  grouping p2p-secondary-paths-top {
     description
       "Top level grouping for p2p secondary paths";
 
@@ -1240,15 +1306,15 @@ submodule openconfig-mpls-te {
         container config {
           description
             "Configuration parameters related to paths";
-          uses p2p-path_config;
+          uses p2p-path-config;
         }
 
         container state {
           config false;
           description
             "State parameters related to paths";
-          uses p2p-path_config;
-          uses p2p-path_state;
+          uses p2p-path-config;
+          uses p2p-path-state;
         }
 
         uses te-path-placement-constraints-top;
@@ -1256,7 +1322,7 @@ submodule openconfig-mpls-te {
     }
   }
 
-  grouping te-tunnels_top {
+  grouping te-tunnels-top {
     description
       "Top level grouping for TE tunnels";
 
@@ -1285,20 +1351,20 @@ submodule openconfig-mpls-te {
         container config {
           description
             "Configuration parameters related to TE tunnels:";
-          uses te-global-tunnel_config;
+          uses te-global-tunnel-config;
         }
 
         container state {
           config false;
           description
             "State parameters related to TE tunnels";
-          uses te-global-tunnel_config;
-          uses te-tunnel_state;
+          uses te-global-tunnel-config;
+          uses te-tunnel-state;
 
         }
 
-        uses te-tunnel-bandwidth_top;
-        uses te-tunnel-p2p_top;
+        uses te-tunnel-bandwidth-top;
+        uses te-tunnel-p2p-top;
         // TODO - add the p2mp configuration
       }
     }

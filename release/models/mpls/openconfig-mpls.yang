@@ -71,7 +71,21 @@ module openconfig-mpls {
                              +-------+
     ";
 
-  oc-ext:openconfig-version "2.5.0";
+
+  oc-ext:openconfig-version "3.0.0";
+
+  revision "2018-07-02" {
+    description
+      "Add new RSVP-TE statistics, remove associated-rsvp-session
+      leaf. Remove use of date-and-time.";
+    reference "3.0.0";
+  }
+
+  revision "2018-06-16" {
+    description
+      "Included attributes for base LDP configuration.";
+     reference "2.6.0";
+  }
 
   revision "2018-06-13" {
     description
@@ -130,7 +144,7 @@ module openconfig-mpls {
 
   // grouping statements
 
-  grouping mpls-admin-group_config {
+  grouping mpls-admin-group-config {
     description
       "configuration data for MPLS link admin groups";
 
@@ -180,20 +194,20 @@ module openconfig-mpls {
         container config {
           description
             "Configurable items for admin-groups";
-          uses mpls-admin-group_config;
+          uses mpls-admin-group-config;
         }
 
         container state {
           config false;
           description
             "Operational state for admin-groups";
-          uses mpls-admin-group_config;
+          uses mpls-admin-group-config;
         }
       }
     }
   }
 
-  grouping mpls-te-igp-flooding-bandwidth_config {
+  grouping mpls-te-igp-flooding-bandwidth-config {
     description
       "Configurable items for igp flooding bandwidth
       threshold configuration.";
@@ -341,19 +355,19 @@ module openconfig-mpls {
         description
           "Configuration parameters for TED
           update threshold ";
-        uses  mpls-te-igp-flooding-bandwidth_config;
+        uses  mpls-te-igp-flooding-bandwidth-config;
       }
       container state {
         config false;
         description
           "State parameters for TED update threshold ";
-        uses  mpls-te-igp-flooding-bandwidth_config;
+        uses  mpls-te-igp-flooding-bandwidth-config;
       }
     }
   }
 
 
-  grouping te-lsp-delay_config {
+  grouping te-lsp-delay-config {
     description
       "Group for the timers goerning the delay
       in installation and cleanup of TE LSPs";
@@ -398,14 +412,14 @@ module openconfig-mpls {
       container config {
         description
           "Configuration parameters related to TE interfaces:";
-        uses te-interface-attributes_config;
+        uses te-interface-attributes-config;
       }
 
       container state {
         config false;
         description
           "State parameters related to TE interfaces";
-        uses te-interface-attributes_config;
+        uses te-interface-attributes-config;
       }
 
       uses oc-if:interface-ref;
@@ -414,7 +428,7 @@ module openconfig-mpls {
     }
   }
 
-  grouping te-interface-attributes_config {
+  grouping te-interface-attributes-config {
     description
       "global level definitions for interfaces
       on which TE is run";
@@ -460,8 +474,8 @@ module openconfig-mpls {
           "Configuration parameters related
           to timers for TE LSPs";
 
-        uses te-lsp-delay_config;
-        uses te-tunnel-reoptimize_config;
+        uses te-lsp-delay-config;
+        uses te-tunnel-reoptimize-config;
       }
 
       container state {
@@ -469,13 +483,13 @@ module openconfig-mpls {
         description
           "State related to timers for TE LSPs";
 
-        uses te-lsp-delay_config;
-        uses te-tunnel-reoptimize_config;
+        uses te-lsp-delay-config;
+        uses te-tunnel-reoptimize-config;
       }
     }
   }
 
-  grouping mpls-global_config {
+  grouping mpls-global-config {
     description
       "Definition of global MPLS configuration parameters";
 
@@ -509,14 +523,14 @@ module openconfig-mpls {
       container config {
         description
           "Top level global MPLS configuration";
-        uses mpls-global_config;
+        uses mpls-global-config;
       }
 
       container state {
         config false;
         description
           "Top level global MPLS state";
-        uses mpls-global_config;
+        uses mpls-global-config;
       }
  }
 
@@ -700,8 +714,8 @@ module openconfig-mpls {
           description
             "traffic-engineered LSPs supporting different
             path computation and signaling methods";
-          uses explicit-paths_top;
-          uses te-tunnels_top;
+          uses explicit-paths-top;
+          uses te-tunnels-top;
         }
 
         container unconstrained-path {
@@ -723,8 +737,6 @@ module openconfig-mpls {
       }
     }
   }
-
-  uses mpls-top;
 
   // augment statements
 
