@@ -4,7 +4,6 @@ submodule openconfig-network-instance-l2 {
     prefix "oc-netinst";
   }
 
-
   // import some basic types
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-interfaces { prefix "oc-if"; }
@@ -22,7 +21,31 @@ submodule openconfig-network-instance-l2 {
     Layer 2 network instance configuration and operational state
     parameters.";
 
-  oc-ext:openconfig-version "0.9.0";
+  oc-ext:openconfig-version "0.11.0";
+
+  revision "2018-08-11" {
+    description
+      "Add vlan id as additional key in MAC table";
+    reference "0.11.0";
+  }
+
+  revision "2018-06-22" {
+    description
+      "Fix typo in OSPF when statement";
+    reference "0.10.2";
+  }
+
+  revision "2018-06-05" {
+    description
+      "Fix bugs in when statements";
+    reference "0.10.1";
+  }
+
+  revision "2018-02-19" {
+    description
+      "Add PIM and IGMP to network instance";
+    reference "0.10.0";
+  }
 
   revision "2017-12-13" {
     description
@@ -214,7 +237,8 @@ submodule openconfig-network-instance-l2 {
         path "../../../../../../vlans/vlan/config/vlan-id";
       }
       description
-        "VLAN from which this MAC address was received";
+        "VLAN on which the MAC address is present. The same MAC
+        address may be seen on multiple VLANs in some cases.";
     }
   }
 
@@ -263,7 +287,7 @@ submodule openconfig-network-instance-l2 {
           "Enclosing container for list of MAC table entries";
 
         list entry {
-          key "mac-address";
+          key "mac-address vlan";
           description
             "List of learned MAC addresses";
 
@@ -273,6 +297,14 @@ submodule openconfig-network-instance-l2 {
             }
             description
               "Reference to mac-address list key";
+          }
+
+          leaf vlan {
+            type leafref {
+              path "../config/vlan";
+            }
+            description
+              "Reference to vlan list key";
           }
 
           container config {
