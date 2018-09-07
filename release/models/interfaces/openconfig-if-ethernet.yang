@@ -24,7 +24,20 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.5.0";
+  oc-ext:openconfig-version "2.6.1";
+
+  revision "2018-09-04" {
+    description
+      "Remove in-crc-align-errors as it is a duplicate of
+      in-crc-errors";
+    reference "2.6.1";
+  }
+
+  revision "2018-08-28" {
+    description
+      "Add Ethernet counter in-block-errors";
+    reference "2.6.0";
+  }
 
   revision "2018-07-02" {
     description
@@ -276,13 +289,6 @@ module openconfig-if-ethernet {
     leaf in-crc-errors {
       type oc-yang:counter64;
       description
-        "Number of receive error events due to FCS/CRC check
-        failure";
-    }
-
-    leaf in-crc-align-errors {
-      type oc-yang:counter64;
-      description
         "The total number of frames received that
         had a length (excluding framing bits, but
         including FCS octets) of between 64 and 1518
@@ -293,6 +299,16 @@ module openconfig-if-ethernet {
       reference
         "RFC 2819: Remote Network Monitoring MIB -
         etherStatsCRCAlignErrors";
+    }
+
+    leaf in-block-errors {
+      type oc-yang:counter64;
+      description
+        "The number of received errored blocks. Error detection codes
+        are capable of detecting whether one or more errors have
+        occurred in a given sequence of bits – the block. It is
+        normally not possible to determine the exact number of errored
+        bits within the block";
     }
 
     // egress counters
