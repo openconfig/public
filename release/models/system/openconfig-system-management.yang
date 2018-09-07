@@ -22,7 +22,13 @@ module openconfig-system-management {
     "This module defines configuration and operational state data
     related to management services.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.1.1";
+
+  revision "2018-08-28" {
+    description
+      "Update description of the ANY enum.";
+    reference "0.1.1";
+  }
 
   revision "2018-07-26" {
     description
@@ -70,7 +76,11 @@ module openconfig-system-management {
       type union {
         type oc-inet:ip-address;
         type enumeration {
-          enum ANY;
+          enum ANY {
+            description
+             "The gRPC daemon should listen on any address
+              bound to an interface on the system.";
+          }
         }
       }
       description
