@@ -4,7 +4,7 @@ submodule openconfig-aft-mpls {
   }
 
   import openconfig-extensions { prefix "oc-ext"; }
-  import openconfig-mpls-types { prefix "oc-mpls-types"; }
+  import openconfig-mpls-types { prefix "oc-mplst"; }
 
   // Include common cross-AFT groupings from the common submodule.
   include openconfig-aft-common;
@@ -71,8 +71,6 @@ submodule openconfig-aft-mpls {
         uses aft-mpls-entry-config;
         uses aft-mpls-entry-state;
       }
-
-      uses aft-common-nhop-structural;
     }
   }
 
@@ -81,7 +79,7 @@ submodule openconfig-aft-mpls {
       "Configuration parameters for the MPLS entry.";
 
     leaf label {
-        type oc-mpls-types:mpls-label;
+        type oc-mplst:mpls-label;
         description
           "The top-most MPLS label that should be matched to
           utilise the AFT entry.";
@@ -92,5 +90,22 @@ submodule openconfig-aft-mpls {
     description
       "Operational state parameters for the MPLS entry.";
     uses aft-common-entry-state;
+
+    leaf-list popped-mpls-label-stack {
+      type oc-mplst:mpls-label;
+      description
+        "The MPLS label stack to be popped from the packet when
+        switched by the system. The stack is encoded as a leaf-list
+        such that the first entry is the label that is outer-most (i.e.,
+        furthest from the bottom of the stack).
+
+        If the local system pops the outer-most label 400, then the
+        value of this list is [400,]. If the local system removes two
+        labels, the outer-most being 500, and the second of which is
+        400, then the value of the list is [500, 400].
+
+        A swap operation is reflected by entries in the
+        popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
+    }
   }
 }
