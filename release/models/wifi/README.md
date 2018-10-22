@@ -23,10 +23,10 @@ The following models will be used for the various components that make up a WiFi
  All PHY layer configuration/state.
 
 ## openconfig-access-points.yang
- Top level WiFi model for a list of Access Points. This mostly imports the MAC 
-& PHY models, and includes additional State and Config container(s) which would 
-not be appropriate to fall within a particular SSID or Radio, such as BSSID 
-counters, System configuration, and assigned AP manager(s).
+ Top level WiFi model for a list of Access Points. This mostly imports the MAC,
+ PHY, and other models which are applicable to aggregating below the top-most 
+network element. In the case of WiFi, this top-most network element is the 
+Access Point.
 
 ## openconfig-ap-manager.yang
  Top level configuration and state data for a system which manages Access 
@@ -64,5 +64,51 @@ An oversimplified workflow is as follows:
 container 'provision-aps' is used for initial assignment of the friendly 
 ap-name to the factory issued MAC address. This is also where country-code is 
 assigned.
-* Day 2-n: The remaining configuration and state is done almost entirely 
+* Day 2+: The remaining configuration and state is done almost entirely 
 through the openconfig-access-points.yang model.
+
+## A note on BSSID Telemetry.
+Since the SSID of a particular radio may or may not be dual-band,
+and since the BSSIDs of a particular radio may not be known to
+ the operator, there must be a method for 'discovery'. As such, the "bssids"
+ container is a list with multiple keys. This allows the operator to utilize 
+paths in their GetRequest's, providing the flexibility to GET/Subscribe to
+ Telemetry for a particular BSSID, group of BSSID's, all BSSID's of a certain 
+radio, or simply discover which BSSID's a radio is broadcasting. See the
+ following examples, using gNMI:
+
+1)
+The following will return value of "num-associated-clients" for every Radio 
+(regardless of radio-id) which is broadcasting BSSID 00:11:22:33:44:55. If 
+there were TWO radio's, which both have BSSID 00:11:22:33:44:55 on them, then 
+the JSON being returned would include the 'num-associated-clients' of BOTH.
+
+`GetRequest "/access-points:access-points/access-point/ssids/ssid[name="SSID-1"]/bssids/bssid[bssid=00:11:22:33:44:55]/state/num-associated-clients"`
+
+Note, this GetRequest does not include the key for radio-id, which is the 
+same as "*" (See [gNMI Specification](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-path-conventions.md#paths-referencing-list-elements) for details).
+
+2)
+If we were ONLY interested in the telemetry of ONE of the BSSIDs on radio-id 0 
+(even if it is broadcast exists on two radio-id's) we would simply do:
+
+`GetRequest "/access-points:access-points/access-point/ssids/ssid[name="SSID-1"]/bssids/bssid[bssid=00:11:22:33:44:55]radio-id[radio-id=0]/state/num-associated-clients`
+
+3)
+If we wanted to "discover" what BSSID's are being broadcast by a particular AP,
+ for a particular SSID ("SSID-1") regardless of Radio ID, we would do:
+
+`GetRequest "/access-points:access-points/access-point/ssids/ssid[name="SSID-1"]/bssids/bssid[bssid=*]radio-id[radio-id=*]/state/bssid`
+This could be useful if you want to know the 5GHz BSSID of a dual-band SSID, 
+which you could then subsequently utilize to GET/Subscribe to only Telemetry 
+for that BSSID.
+
+4)
+Similiar to the above, if we wanted to "discover" what BSSID's are being
+ broadcast but only for a particular Radio ("1"), we would do:
+
+`GetRequest "/access-points:access-points/access-point/ssids/ssid[name="SSID-1"]/bssids/bssid[bssid=*]radio-id[radio-id=1]/state/bssid`
+
+This provides flexiility to GET/Subscribe to telemetry only for 5GHz BSSID's, 
+2.4GHz BSSID's, or both, because we (the operator) know which radio ID's we 
+assign to which radio's.
