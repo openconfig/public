@@ -8,7 +8,7 @@ module openconfig-bfd {
   prefix "oc-bfd";
 
   // import some basic types
-  import openconfig-extensions { prefix "ocext"; }
+  import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-types { prefix "oc-types"; }
   import openconfig-interfaces { prefix "oc-if"; }
   import openconfig-inet-types { prefix "oc-inet"; }
@@ -27,11 +27,11 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  ocext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.1.0";
 
-  revision "2017-11-17" {
+  revision "2018-11-21" {
     description
-      "Update version number for initial sharing.";
+      "Add OpenConfig module metadata extensions.";
     reference "0.1.0";
   }
 
@@ -46,6 +46,11 @@ module openconfig-bfd {
       "Initial revision";
     reference "0.0.1";
   }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
   typedef bfd-session-state {
     type enumeration {
