@@ -13,7 +13,6 @@ module openconfig-platform-port {
   import openconfig-if-ethernet { prefix oc-eth; }
   import openconfig-extensions { prefix oc-ext; }
 
-
   // meta
   organization "OpenConfig working group";
 
@@ -22,9 +21,22 @@ module openconfig-platform-port {
     www.openconfig.net";
 
   description
-    "This module defines data related to PORT components in the openconfig-platform model";
+    "This module defines data related to PORT components in the
+    openconfig-platform model";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.3.2";
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "0.3.2";
+  }
+
+  revision "2018-11-07" {
+    description
+      "Fixed error in when statement path";
+    reference "0.3.1";
+  }
 
   revision "2018-01-20" {
     description
@@ -43,6 +55,11 @@ module openconfig-platform-port {
       "Initial revision";
     reference "0.1.0";
   }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
   // extension statements
 
@@ -119,7 +136,7 @@ module openconfig-platform-port {
       "Adding port breakout data to physical platform data";
 
     uses port-breakout-top {
-      when "./state/type = 'PORT'" {
+      when "../oc-platform:state/oc-platform:type = 'PORT'" {
         description
           "This data is valid only for PORT components";
       }
