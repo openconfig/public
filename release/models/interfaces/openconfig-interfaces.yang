@@ -50,7 +50,13 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.4.0";
+  oc-ext:openconfig-version "2.4.1";
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "2.4.1";
+  }
 
   revision "2018-08-07" {
     description
@@ -109,6 +115,10 @@ module openconfig-interfaces {
     reference "1.1.0";
   }
 
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
   // typedef statements
 
@@ -187,6 +197,7 @@ module openconfig-interfaces {
       container config {
         description
           "Configured reference to interface / subinterface";
+        oc-ext:telemetry-on-change;
 
         uses interface-ref-common;
       }
@@ -415,6 +426,7 @@ module openconfig-interfaces {
       container config {
         description
           "Configuration data for interface hold-time settings.";
+        oc-ext:telemetry-on-change;
 
         uses interface-phys-holdtime-config;
       }
@@ -437,6 +449,8 @@ module openconfig-interfaces {
       "Operational state data (in addition to intended configuration)
       at the global level for this interface";
 
+    oc-ext:operational;
+
     leaf ifindex {
       type uint32;
       description
@@ -444,6 +458,7 @@ module openconfig-interfaces {
         ifIndex object in SNMP Interface MIB";
       reference
         "RFC 2863 - The Interfaces Group MIB";
+      oc-ext:telemetry-on-change;
     }
 
     leaf admin-status {
@@ -475,6 +490,7 @@ module openconfig-interfaces {
         disabling the interface.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifAdminStatus";
+      oc-ext:telemetry-on-change;
     }
 
     leaf oper-status {
@@ -526,6 +542,7 @@ module openconfig-interfaces {
          This leaf has the same semantics as ifOperStatus.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifOperStatus";
+      oc-ext:telemetry-on-change;
     }
 
     leaf last-change {
@@ -540,6 +557,7 @@ module openconfig-interfaces {
 
         The value is the timestamp in nanoseconds relative to
         the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+      oc-ext:telemetry-on-change;
     }
 
     leaf logical {
@@ -548,6 +566,7 @@ module openconfig-interfaces {
         "When set to true, the interface is a logical interface
         which does not have an associated physical port or
         channel on the system.";
+      oc-ext:telemetry-on-change;
     }
   }
 
@@ -561,6 +580,8 @@ module openconfig-interfaces {
       //that would appear for physical vs. subinterface or logical
       //interfaces.  For now, just replicating the full stats
       //grouping to both interface and subinterface.
+
+    oc-ext:operational;
 
     container counters {
       description
@@ -827,6 +848,7 @@ module openconfig-interfaces {
           "Number of times the interface state has transitioned
           between up and down since the time the device restarted
           or the last-clear time, whichever is most recent.";
+        oc-ext:telemetry-on-change;
       }
 
       leaf last-clear {
@@ -838,6 +860,7 @@ module openconfig-interfaces {
 
           The value is the timestamp in nanoseconds relative to
           the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+        oc-ext:telemetry-on-change;
       }
     }
   }
@@ -876,6 +899,7 @@ module openconfig-interfaces {
       container config {
         description
           "Configuration data for unnumbered interface";
+        oc-ext:telemetry-on-change;
 
         uses sub-unnumbered-config;
       }
@@ -917,6 +941,8 @@ module openconfig-interfaces {
     description
       "Operational state data for subinterfaces";
 
+    oc-ext:operational;
+
     leaf name {
       type string;
       description
@@ -924,6 +950,7 @@ module openconfig-interfaces {
         be a combination of the base interface name and the
         subinterface index, or some other convention used by the
         system.";
+      oc-ext:telemetry-on-change;
     }
 
     uses interface-common-state;
@@ -959,6 +986,7 @@ module openconfig-interfaces {
         container config {
           description
             "Configurable items at the subinterface level";
+          oc-ext:telemetry-on-change;
 
           uses subinterfaces-config;
         }
@@ -1012,6 +1040,7 @@ module openconfig-interfaces {
           description
             "Configurable items at the global, physical interface
             level";
+          oc-ext:telemetry-on-change;
 
           uses interface-phys-config;
         }
@@ -1034,6 +1063,5 @@ module openconfig-interfaces {
   }
 
   uses interfaces-top;
-
 
 }
