@@ -18,6 +18,12 @@ module openconfig-extensions {
     "This module provides extensions to the YANG language to allow
     OpenConfig specific functionality and meta-data to be defined.";
 
+  revision "2018-10-17" {
+    description
+      "Add extension for regular expression type.";
+    reference "0.4.0";
+  }
+
   revision "2017-04-11" {
     description
       "rename password type to 'hashed' and clarify description";
@@ -87,5 +93,83 @@ module openconfig-extensions {
       in cleartext will be hashed. This annotation may be used on
       nodes such as secure passwords in which the device never reports
       a cleartext value, even if the input is provided as cleartext.";
+  }
+
+  extension regexp-posix {
+     description
+      "This extension indicates that the regular expressions included
+      within the YANG module specified are conformant with the POSIX
+      regular expression format rather than the W3C standard that is
+      specified by RFC6020 and RFC7950.";
+  }
+
+  extension telemetry-on-change {
+    description
+      "The telemetry-on-change annotation is specified in the context
+      of a particular subtree (container, or list) or leaf within the
+      YANG schema. Where specified, it indicates that the value stored
+      by the nodes within the context change their value only in response
+      to an event occurring. The event may be local to the target, for
+      example - a configuration change, or external - such as the failure
+      of a link.
+
+      When a telemetry subscription allows the target to determine whether
+      to export the value of a leaf in a periodic or event-based fashion
+      (e.g., TARGET_DEFINED mode in gNMI), leaves marked as
+      telemetry-on-change should only be exported when they change,
+      i.e., event-based.";
+  }
+
+  extension telemetry-atomic {
+    description
+      "The telemetry-atomic annotation is specified in the context of
+      a subtree (containre, or list), and indicates that all nodes
+      within the subtree are always updated together within the data
+      model. For example, all elements under the subtree may be updated
+      as a result of a new alarm being raised, or the arrival of a new
+       protocol message.
+
+      Transport protocols may use the atomic specification to determine
+      optimisations for sending or storing the corresponding data.";
+  }
+
+  extension operational {
+    description
+      "The operational annotation is specified in the context of a
+      grouping, leaf, or leaf-list within a YANG module. It indicates
+      that the nodes within the context are derived state on the device.
+
+      OpenConfig data models divide nodes into the following three categories:
+
+       - intended configuration - these are leaves within a container named
+         'config', and are the writable configuration of a target.
+       - applied configuration - these are leaves within a container named
+         'state' and are the currently running value of the intended configuration.
+       - derived state - these are the values within the 'state' container which
+         are not part of the applied configuration of the device. Typically, they
+         represent state values reflecting underlying operational counters, or
+         protocol statuses.";
+  }
+
+  extension catalog-organization {
+    argument "org" {
+      yin-element false;
+    }
+    description
+      "This extension specifies the organization name that should be used within
+      the module catalogue on the device for the specified YANG module. It stores
+      a pithy string where the YANG organization statement may contain more
+      details.";
+  }
+
+  extension origin {
+    argument "origin" {
+      yin-element false;
+    }
+    description
+      "This extension specifies the name of the origin that the YANG module
+      falls within. This allows multiple overlapping schema trees to be used
+      on a single network element without requiring module based prefixing
+      of paths.";
   }
 }
