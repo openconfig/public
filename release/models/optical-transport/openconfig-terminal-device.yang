@@ -77,7 +77,21 @@ module openconfig-terminal-device {
     ports per linecard, separate linecards for client and line ports,
     etc.).";
 
-  oc-ext:openconfig-version "1.4.0";
+  oc-ext:openconfig-version "1.5.1";
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "1.5.1";
+  } 
+
+  revision "2018-10-23" {
+    description
+      "Adds support of logical-channel tributary slot allocation to
+       logical-channel-assignments with different channel speeds.
+       Enables logical channel mapping procedure specification.";
+    reference "1.5.0";
+  }
 
   revision "2018-08-28" {
     description
@@ -117,6 +131,10 @@ module openconfig-terminal-device {
     reference "0.4.0";
   }
 
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
   grouping terminal-input-optical-power {
     description
@@ -272,6 +290,17 @@ module openconfig-terminal-device {
         "Trail trace identifier (TTI) transmit message automatically
         created.  If true, then setting a custom transmit message
         would be invalid.";
+    }
+
+    leaf tributary-slot-granularity {
+      type identityref {
+        base oc-opt-types:TRIBUTARY_SLOT_GRANULARITY;
+      }
+      description
+        "Granularity value of OPUk or OPUCn tributary slots for OTN
+        signal allocation. The currently defined values follow the
+        existing ITU-T G.709 standard, which can be extended as
+        needed in future.";
     }
   }
 
@@ -637,9 +666,28 @@ module openconfig-terminal-device {
       units Gbps;
       description
         "Allocation of the logical client channel to the tributary
-        or sub-channel, expressed in Gbps";
+        or sub-channel, expressed in Gbps. Please note that if the
+        assignment is to an OTN logical channel, the allocation must
+        be an integer multiplication to tributary-slot-granularity
+        of the OTN logical channel.";
     }
 
+    leaf tributary-slot-index {
+      type int32;
+      description
+        "Indicates the first tributary slot index allocated to the
+        client signal or logical channel in the assignment. Valid
+        only when the assignment is to an OTN logical channel.";
+    }
+
+    leaf mapping {
+      type identityref {
+        base oc-opt-types:FRAME_MAPPING_PROTOCOL;
+      }
+      description
+        "Logical channel mapping procedure. Valid only when the
+        assignment is to an OTN logical channel.";
+    }
   }
 
   grouping terminal-logical-chan-assignment-state {

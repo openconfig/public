@@ -22,7 +22,20 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.1";
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "0.7.1";
+  }
+
+  revision "2018-10-23" {
+    description
+      "Added frame mapping protocols for logical channels assignments
+      and tributary slot granularity for OTN logical channels";
+    reference "0.7.0";
+  }
 
   revision "2018-05-16" {
     description
@@ -41,6 +54,11 @@ module openconfig-transport-types {
       "Fixes and additions for terminal optics model";
     reference "0.4.0";
   }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
   // typedef statements
 
@@ -92,6 +110,70 @@ module openconfig-transport-types {
     default NONE;
     description
       "Loopback modes for transponder logical channels";
+  }
+
+  identity FRAME_MAPPING_PROTOCOL {
+    description
+      "Base identity for frame mapping protocols that can be used
+      when mapping Ethernet, OTN or other client signals to OTN
+      logical channels.";
+  }
+
+  identity AMP {
+    base FRAME_MAPPING_PROTOCOL;
+    description "Asynchronous Mapping Procedure";
+  }
+
+  identity GMP {
+    base FRAME_MAPPING_PROTOCOL;
+    description "Generic Mapping Procedure";
+  }
+
+  identity BMP {
+    base FRAME_MAPPING_PROTOCOL;
+    description "Bit-synchronous Mapping Procedure";
+  }
+
+  identity CBR {
+    base FRAME_MAPPING_PROTOCOL;
+    description "Constant Bit Rate Mapping Procedure";
+  }
+
+  identity GFP_T {
+    base FRAME_MAPPING_PROTOCOL;
+    description "Transparent Generic Framing Protocol";
+  }
+
+  identity GFP_F {
+    base FRAME_MAPPING_PROTOCOL;
+    description "Framed-Mapped Generic Framing Protocol";
+  }
+
+  identity TRIBUTARY_SLOT_GRANULARITY {
+    description
+      "Base identity for tributary slot granularity for OTN
+      logical channels.";
+  }
+
+  identity TRIB_SLOT_1.25G {
+    base TRIBUTARY_SLOT_GRANULARITY;
+    description
+      "The tributary slot with a bandwidth of approximately 1.25 Gb/s
+      as defined in ITU-T G.709 standard.";
+  }
+
+  identity TRIB_SLOT_2.5G {
+    base TRIBUTARY_SLOT_GRANULARITY;
+    description
+      "The tributary slot with a bandwidth of approximately 2.5 Gb/s
+      as defined in ITU-T G.709 standard.";
+  }
+
+  identity TRIB_SLOT_5G {
+    base TRIBUTARY_SLOT_GRANULARITY;
+    description
+      "The tributary slot with a bandwidth of approximately 5 Gb/s
+      as defined in ITU-T G.709 standard.";
   }
 
   // grouping statements
@@ -803,6 +885,48 @@ module openconfig-transport-types {
     base TRIBUTARY_RATE_CLASS_TYPE;
     description
       "400G tributary signal rate";
+  }
+
+  identity TRIB_RATE_500G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "500G tributary signal rate";
+  }
+
+  identity TRIB_RATE_600G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "600G tributary signal rate";
+  }
+
+  identity TRIB_RATE_700G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "700G tributary signal rate";
+  }
+
+  identity TRIB_RATE_800G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "800G tributary signal rate";
+  }
+
+  identity TRIB_RATE_900G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "900G tributary signal rate";
+  }
+
+  identity TRIB_RATE_1000G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "1000G tributary signal rate";
+  }
+
+  identity TRIB_RATE_1100G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "1100G tributary signal rate";
   }
 
   identity LOGICAL_ELEMENT_PROTOCOL_TYPE {
