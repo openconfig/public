@@ -32,7 +32,13 @@ module openconfig-probes {
     However, the test preserves only a limited set of history
     items, whose length can be controlled using the history-size.";
 
-  oc-ext:openconfig-version "0.0.1";
+  oc-ext:openconfig-version "0.0.2";
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "0.0.2";
+  }
 
   revision "2017-09-05" {
     description
@@ -40,37 +46,40 @@ module openconfig-probes {
     reference "0.0.1";
   }
 
-grouping test-target {
-  description
-    "Groups the config and state containers
-     for an individual test.";
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
-  container target {
+  grouping test-target {
     description
-      "The target configuration of the test.
-       The nature of the target depends on the probe type:
-       for HTTP probes we need to provide an URL to poll,
-       while ICMP probes require an IP address to monitor.";
+      "Groups the config and state containers
+      for an individual test.";
 
-    container config {
+    container target {
       description
-        "Configuration data for the test target.";
+        "The target configuration of the test.
+        The nature of the target depends on the probe type:
+        for HTTP probes we need to provide an URL to poll,
+        while ICMP probes require an IP address to monitor.";
 
-      uses test-target-base;
+      container config {
+        description
+          "Configuration data for the test target.";
+
+        uses test-target-base;
+      }
+
+      container state {
+        config false;
+
+        description
+          "Operational data for the test target.";
+
+        uses test-target-base;
+      }
     }
-
-    container state {
-      config false;
-
-      description
-        "Operational data for the test target.";
-
-      uses test-target-base;
-    }
-
   }
-
-}
 
   grouping test-target-base {
     description
@@ -93,8 +102,7 @@ grouping test-target {
       description
         "Target URL to probe.";
     }
-
-}
+  }
 
   grouping probe-test-config-base {
     description
