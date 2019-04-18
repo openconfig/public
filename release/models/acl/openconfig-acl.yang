@@ -36,6 +36,12 @@ module openconfig-acl {
 
   oc-ext:openconfig-version "1.0.2";
 
+  revision "2019-04-18" {
+    description
+      "Fixed ACL_MIXED";
+    reference "1.0.2";
+  }
+
   revision "2018-11-21" {
     description
       "Add OpenConfig module metadata extensions.";
@@ -385,20 +391,23 @@ module openconfig-acl {
         }
 
         uses oc-match:ethernet-header-top {
-          when "../../config/type='ACL_L2'" {
+          when "../../config/type='oc-acl:ACL_L2' or " +
+            "../../config/type='oc-acl:ACL_MIXED'" {
             description
               "MAC-layer fields are valid when the ACL type is L2";
           }
         }
         uses oc-match:ipv4-protocol-fields-top {
-          when "../../config/type='ACL_IPV4'" {
+          when "../../config/type='oc-acl:ACL_IPV4' or " +
+            "../../config/type='oc-acl:ACL_MIXED'" {
             description
               "IPv4-layer fields are valid when the ACL type is
               IPv4";
           }
         }
         uses oc-match:ipv6-protocol-fields-top {
-          when "../../config/type='ACL_IPV6'" {
+          when "../../config/type='oc-acl:ACL_IPV6' or " +
+            "../../config/type='oc-acl:ACL_MIXED'" {
             description
               "IPv6-layer fields are valid when the ACL type is
               IPv6";
