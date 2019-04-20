@@ -21,7 +21,13 @@ module openconfig-vlan-types {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "3.1.0";
+
+  revision "2019-01-31" {
+    description
+      "Add TPID_ANY wildcard match and a QinQ list type.";
+    reference "3.1.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -63,8 +69,8 @@ module openconfig-vlan-types {
 
   identity TPID_TYPES {
     description
-      "Base identity for TPID values that can override the VLAN
-      ethertype value";
+      "Base identity for TPID values that can be matched or that override
+       the VLAN ethertype value";
   }
 
   identity TPID_0X8100 {
@@ -83,13 +89,23 @@ module openconfig-vlan-types {
   identity TPID_0X9100 {
     base TPID_TYPES;
     description
-      "Alternate TPID value";
+      "Alternate TPID value.";
   }
 
   identity TPID_0X9200 {
     base TPID_TYPES;
     description
-      "Alternate TPID value";
+      "Alternate TPID value.";
+  }
+
+  identity TPID_ANY {
+    base TPID_TYPES;
+    description
+      "A wildcard that matches any of the generally used TPID values
+       for singly- or multiply-tagged VLANs. Equivalent to matching
+       any of TPID_0X8100, TPID_0X88A8, TPID_0X9100 and TPID_0x9200.
+       This value is only applicable where the TPID of a packet is
+       being matched.";
   }
 
   // typedef statements
@@ -135,7 +151,7 @@ module openconfig-vlan-types {
       with the exception that y may be equal to a wildcard (*). In
       cases where y is set to the wildcard, this represents all inner
       VLAN identifiers where the outer VLAN identifier is equal to
-      x";
+      x.";
   }
 
   typedef qinq-id-range {
@@ -164,12 +180,12 @@ module openconfig-vlan-types {
     description
       "A type definition representing a range of double-tagged/QinQ
       VLAN identifiers. The format of a QinQ VLAN-ID range can be
-      specified in three formats. Where the range is outer VLAN IDs
+      specified in two formats. Where the range is outer VLAN IDs
       the range is specified as x..y.z. In this case outer VLAN
       identifiers meeting the criteria x <= outer-vlan-id <= y are
-      accepted iff the inner VLAN-ID is equal to y - or any inner-tag
-      if the wildcard is specified. Alternatively the range can be
-      specified as x.y..z. In this case only VLANs with an
+      accepted if and only if the inner VLAN-ID is equal to y - or
+      any inner-tag if the wildcard is specified. Alternatively the
+      ange can be specified as x.y..z. In this case only VLANs with an
       outer-vlan-id qual to x are accepted (x may again be the
       wildcard). Inner VLANs are accepted if they meet the inequality
       y <= inner-vlan-id <= z.";
@@ -202,5 +218,26 @@ module openconfig-vlan-types {
     description
       "Reference to a VLAN by name or id";
   }
+
+  typedef vlan-stack-action {
+    type enumeration {
+      enum PUSH {
+        description
+          "Push a VLAN onto the VLAN stack.";
+      }
+      enum POP {
+        description
+          "Pop a VLAN from the VLAN stack.";
+      }
+      enum SWAP {
+        description
+          "Swap the VLAN at the top of the VLAN stack.";
+      }
+      // TODO: add push-push, pop-pop, push-swap etc
+    }
+    description
+      "Operations that can be performed on a VLAN stack.";
+  }
+
 
 }
