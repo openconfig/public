@@ -63,7 +63,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.12.1";
+  oc-ext:openconfig-version "0.12.2";
+
+  revision "2019-04-16" {
+    description
+      "Fix bug in parent path reference";
+    reference "0.12.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -410,7 +416,7 @@ module openconfig-platform {
 
     leaf parent {
       type leafref {
-        path "../../config/name";
+        path "../../../component/config/name";
       }
       description
         "Reference to the name of the parent component.  Note that
