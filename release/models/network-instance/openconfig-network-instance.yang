@@ -47,7 +47,20 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.11.1";
+  oc-ext:openconfig-version "0.12.0";
+
+  revision "2019-04-16" {
+    description
+      "Move BGP RIB into the protocol/bgp container.";
+    reference "0.12.0";
+  }
+
+  revision "2019-02-03" {
+    description
+      "Expend netinst type description to link it to, for example, MPLS
+      service types.";
+    reference "0.11.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -974,7 +987,12 @@ module openconfig-network-instance {
       description
         "The type of network instance. The value of this leaf
         indicates the type of forwarding entries that should be
-        supported by this network instance";
+        supported by this network instance. Signalling protocols
+        also use the network instance type to infer the type of
+        service they advertise; for example MPLS signalling
+        for an L2VSI network instance would infer a VPLS service
+        whereas a type of L2PTP would infer a VPWS (pseudo-wire)
+        service";
     }
 
     leaf enabled {
