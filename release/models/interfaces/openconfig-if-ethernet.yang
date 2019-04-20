@@ -9,7 +9,7 @@ module openconfig-if-ethernet {
 
   // import some basic types
   import openconfig-interfaces { prefix oc-if; }
-  import iana-if-type { prefix ift; }
+  import iana-if-type { prefix ianaift; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
 
@@ -24,7 +24,13 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.6.2";
+  oc-ext:openconfig-version "2.7.2";
+
+  revision "2019-04-16" {
+    description
+      "Update import prefix for iana-if-type module";
+    reference "2.7.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -424,7 +430,7 @@ module openconfig-if-ethernet {
     interfaces model";
 
     uses ethernet-top {
-      when "oc-if:state/oc-if:type = 'ift:ethernetCsmacd'" {
+      when "oc-if:state/oc-if:type = 'ianaift:ethernetCsmacd'" {
       description "Additional interface configuration parameters when
       the interface type is Ethernet";
       }
