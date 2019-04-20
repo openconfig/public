@@ -67,7 +67,21 @@ module openconfig-rib-bgp {
     eligible for sending (advertising) to the neighbor after output
     policy rules have been applied.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2019-04-16" {
+    description
+      "Rename the top-level BGP RIB container's name
+      to RIB.";
+    reference "0.5.0";
+  }
+
+  revision "2019-02-27" {
+    description
+      "Remove top-level BGP RIB container, and update list
+      names to be compatible with path compression.";
+    reference "0.4.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -109,7 +123,7 @@ module openconfig-rib-bgp {
     description
       "Top-level grouping for the BGP RIB";
 
-    container bgp-rib {
+    container rib {
       config false;
       description
         "Top level container for BGP RIBs";
@@ -202,9 +216,6 @@ module openconfig-rib-bgp {
 
 
   // data definition statements
-
-  uses bgp-rib-top;
-
   // augment statements
 
 

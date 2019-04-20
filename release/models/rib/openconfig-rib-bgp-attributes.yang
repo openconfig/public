@@ -24,7 +24,21 @@ submodule openconfig-rib-bgp-attributes {
     attributes for use in BGP RIB tables.";
 
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2019-04-16" {
+    description
+      "Rename the top-level BGP RIB container's name
+      to RIB.";
+    reference "0.5.0";
+  }
+
+  revision "2019-02-27" {
+    description
+      "Remove top-level BGP RIB container, and update list
+      names to be compatible with path compression.";
+    reference "0.4.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -77,7 +91,7 @@ submodule openconfig-rib-bgp-attributes {
         RFC 6793 - BGP Support for Four-octet AS Number Space
         RFC 5065 - Autonomous System Confederations for BGP";
 
-      list segment {
+      list as-segment {
         description
           "Unkeyed list of AS PATH segments";
 
@@ -108,7 +122,7 @@ submodule openconfig-rib-bgp-attributes {
       reference
           "RFC 6793 - BGP Support for Four-octet AS Number Space";
 
-      list segment {
+      list as4-segment {
         description
           "Unkeyed list of AS PATH segments";
 
