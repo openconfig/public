@@ -9,6 +9,7 @@ module openconfig-bgp {
 
   // import some basic inet types
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-rib-bgp { prefix oc-bgprib; }
 
   // Include the OpenConfig BGP submodules
   // Common: defines the groupings that are common across more than
@@ -59,7 +60,13 @@ module openconfig-bgp {
           +-> [ optional pointer to peer-group ]
           +-> AFI / SAFI [ per-AFI overrides ]";
 
-  oc-ext:openconfig-version "5.0.2";
+  oc-ext:openconfig-version "5.1.0";
+
+  revision "2019-04-16" {
+    description
+      "Add BGP RIB to the top-level BGP container";
+    reference "5.1.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -158,6 +165,8 @@ module openconfig-bgp {
           "Configuration for BGP peer-groups";
         uses bgp-peer-group-list;
       }
+
+      uses oc-bgprib:bgp-rib-top;
     }
   }
 
