@@ -209,7 +209,7 @@ module openconfig-network-instance {
 
         uses l2ni-instance {
             when "config/type = 'L2VSI' or config/type = 'L2P2P'" +
-                 " or config/type = 'L2L3' or config/type = 'DEFAULT_INSTANCE'" {
+                 " or config/type = 'L2L3' or config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
                     description
                       "Layer 2 configuration parameters included when
                       a network instance is a Layer 2 instance or a
@@ -237,7 +237,7 @@ module openconfig-network-instance {
         }
 
         container encapsulation {
-          when "../config/type != 'DEFAULT_INSTANCE'" {
+          when "../config/type != 'oc-ni-types:DEFAULT_INSTANCE'" {
             description
               "Only allow the encapsulation of the instance to be
               set when the instance is not the default instance";
@@ -611,7 +611,7 @@ module openconfig-network-instance {
         }
 
         uses oc-mpls:mpls-top {
-          when "config/type = 'DEFAULT_INSTANCE'" {
+          when "config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
             description
               "MPLS configuration is only valid within the default
               network instance.";
@@ -619,7 +619,7 @@ module openconfig-network-instance {
         }
 
         uses oc-sr:sr-top {
-          when "config/type = 'DEFAULT_INSTANCE'" {
+          when "config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
             description
               "Segment routing configuration is only valid with the default
               network instance.";
