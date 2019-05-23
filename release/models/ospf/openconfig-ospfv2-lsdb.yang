@@ -24,6 +24,11 @@ submodule openconfig-ospfv2-lsdb {
 
   oc-ext:openconfig-version "0.1.3";
 
+  revision "2019-06-07" {
+    description
+      "Add prefixes to identity names in when statements.";
+  }
+
   revision "2018-11-21" {
     description
       "Add OpenConfig module metadata extensions.";
@@ -476,7 +481,7 @@ submodule openconfig-ospfv2-lsdb {
       }
 
       container traffic-engineering {
-        when "../state/type = 'TRAFFIC_ENGINEERING'" {
+        when "../state/type = 'oc-ospf-types:TRAFFIC_ENGINEERING'" {
           description
             "Include the traffic-engineering information when
             the Opaque LSA being described is a Traffic Engineering
@@ -502,7 +507,7 @@ submodule openconfig-ospfv2-lsdb {
             uses ospfv2-lsdb-common-unknown-tlv-structure;
 
             container router-address {
-              when "../state/type = 'TE_ROUTER_ADDRESS'" {
+              when "../state/type = 'oc-ospf-types:TE_ROUTER_ADDRESS'" {
                 description
                   "Include the router address container only when the type
                   of the TLV is Router Address";
@@ -519,7 +524,7 @@ submodule openconfig-ospfv2-lsdb {
             }
 
             container link {
-              when "../state/type = 'TE_ROUTER_LINK'" {
+              when "../state/type = 'oc-ospf-types:TE_ROUTER_LINK'" {
                 description
                   "Include the link container only when the type of the
                   TLV describes a traffic engineering link";
@@ -611,7 +616,7 @@ submodule openconfig-ospfv2-lsdb {
             }
 
             container node-attribute {
-              when "../state/type = 'TE_NODE_ATTRIBUTE'" {
+              when "../state/type = 'oc-ospf-types:TE_NODE_ATTRIBUTE'" {
                 description
                   "Include the node-attribute container only when the type of
                   the TLV describes a node attribute";
@@ -652,7 +657,7 @@ submodule openconfig-ospfv2-lsdb {
       } // traffic-engineering
 
       container grace-lsa {
-        when "../state/type = 'GRACE_LSA'" {
+        when "../state/type = 'oc-ospf-types:GRACE_LSA'" {
           description
             "Include the grace-lsa container when the opaque LSA is specified
             to be of that type.";
@@ -711,7 +716,7 @@ submodule openconfig-ospfv2-lsdb {
             uses ospfv2-lsdb-common-unknown-tlv-structure;
 
             container informational-capabilities {
-              when "../state/type = 'RI_INFORMATIONAL_CAPABILITIES'" {
+              when "../state/type = 'oc-ospf-types:RI_INFORMATIONAL_CAPABILITIES'" {
                 description
                   "Include the informational capabilities specification when
                   the TLV of the RI LSA is specified to be of this type";
@@ -731,7 +736,7 @@ submodule openconfig-ospfv2-lsdb {
             }
 
             container node-administrative-tags {
-              when "../state/type = 'RI_NODE_ADMIN_TAG'" {
+              when "../state/type = 'oc-ospf-types:RI_NODE_ADMIN_TAG'" {
                 description
                   "Include the node administrative tags specification when
                   the TLV of the RI LSA is specified to be of this type";
@@ -750,7 +755,7 @@ submodule openconfig-ospfv2-lsdb {
             }
 
             container segment-routing-algorithm {
-              when "../state/type = 'RI_SR_ALGORITHM'" {
+              when "../state/type = 'oc-ospf-types:RI_SR_ALGORITHM'" {
                 description
                   "Include the segment routing algorithm specific parameters when
                   the TLV of the RI LSA is specified to be of this type";
@@ -768,7 +773,7 @@ submodule openconfig-ospfv2-lsdb {
             }
 
             container segment-routing-sid-label-range {
-              when "../state/type = 'RI_SR_SID_LABEL_RANGE'" {
+              when "../state/type = 'oc-ospf-types:RI_SR_SID_LABEL_RANGE'" {
                 description
                   "Include the segment routing SID/Label range TLV specific state when
                   the TLV of the RI LSA is specified to be of this type";
@@ -815,7 +820,7 @@ submodule openconfig-ospfv2-lsdb {
       } // router-information
 
       container extended-prefix {
-        when "../state/type = 'OSPFV2_EXTENDED_PREFIX'" {
+        when "../state/type = 'oc-ospf-types:OSPFV2_EXTENDED_PREFIX'" {
           description
             "Include the extended-prefix container when the opaque LSA
             type is specified to be an extended prefix LSA";
@@ -850,7 +855,7 @@ submodule openconfig-ospfv2-lsdb {
             }
 
             container extended-prefix-range {
-              when "../state/type = 'EXTENDED_PREFIX_RANGE'" {
+              when "../state/type = 'oc-ospf-types:EXTENDED_PREFIX_RANGE'" {
                 description
                   "Include the prefix range sub-TLV when the type of the
                   sub-TLV is specified as such";
@@ -869,7 +874,7 @@ submodule openconfig-ospfv2-lsdb {
             }
 
             container prefix-sid {
-              when "../state/type = 'PREFIX_SID'" {
+              when "../state/type = 'oc-ospf-types:PREFIX_SID'" {
                 description
                   "Include parameters relating to the Prefix SID when the type
                   of the sub-TLV is indicated as such";
@@ -888,7 +893,7 @@ submodule openconfig-ospfv2-lsdb {
             } // prefix-sid
 
             container sid-label-binding {
-              when "../state/type = 'SID_LABEL_BINDING'" {
+              when "../state/type = 'oc-ospf-types:SID_LABEL_BINDING'" {
                 description
                   "Include parameters relating to the SID/Label binding sub-TLV
                   only when the type is indicated as such";
@@ -922,7 +927,7 @@ submodule openconfig-ospfv2-lsdb {
                   }
 
                   container sid-label-binding {
-                    when "../state/type = 'SID_LABEL_BINDING'" {
+                    when "../state/type = 'oc-ospf-types:SID_LABEL_BINDING'" {
                       description
                         "Include the SID/Label Binding sub-TLV parameters only
                         when the type is indicated as such";
@@ -941,7 +946,7 @@ submodule openconfig-ospfv2-lsdb {
                   } // sid-label-binding
 
                   container ero-metric {
-                    when "../state/type = 'ERO_METRIC'" {
+                    when "../state/type = 'oc-ospf-types:ERO_METRIC'" {
                       description
                         "Include the ERO Metric sub-TLV parameters only when
                         the type is indicated as such";
@@ -960,7 +965,7 @@ submodule openconfig-ospfv2-lsdb {
                   } // ero-metric
 
                   container ero-path {
-                    when "../state/type = 'ERO_PATH'" {
+                    when "../state/type = 'oc-ospf-types:ERO_PATH'" {
                       description
                         "Include the ERO Path sub-TLV parameters only when the
                         type is indicated as such";
@@ -987,7 +992,7 @@ submodule openconfig-ospfv2-lsdb {
                         }
 
                         container ipv4-segment {
-                          when "../state/type = 'IPV4_SEGMENT'" {
+                          when "../state/type = 'oc-ospf-types:IPV4_SEGMENT'" {
                             description
                               "Include the IPv4 segment only when the type is
                               indicated as such";
@@ -1004,7 +1009,7 @@ submodule openconfig-ospfv2-lsdb {
                         } // ipv4-segment
 
                         container unnumbered-hop {
-                          when "../state/type = 'UNNUMBERED_INTERFACE_SEGMENT'" {
+                          when "../state/type = 'oc-ospf-types:UNNUMBERED_INTERFACE_SEGMENT'" {
                             description
                               "Include the unnumbered segment only when the
                               type is indicated as such";
@@ -1064,7 +1069,7 @@ submodule openconfig-ospfv2-lsdb {
             uses ospfv2-lsdb-common-unknown-tlv-structure;
 
             container adjacency-sid {
-              when "../state/type = 'ADJACENCY_SID'" {
+              when "../state/type = 'oc-ospf-types:ADJACENCY_SID'" {
                 description
                   "Include the Adjacency SID parameters only when the type of
                   the sub-TLV is indicated as such";
@@ -2301,7 +2306,7 @@ submodule openconfig-ospfv2-lsdb {
               }
 
               uses ospfv2-lsdb-router-lsa-structure {
-                when "../../state/type = 'ROUTER_LSA'" {
+                when "../../state/type = 'oc-ospf-types:ROUTER_LSA'" {
                   description
                     "Include the router LSA hierarchy solely when
                     that LSA type is being described";
@@ -2309,7 +2314,7 @@ submodule openconfig-ospfv2-lsdb {
               }
 
               uses ospfv2-lsdb-network-lsa-structure {
-                when "../../state/type = 'NETWORK_LSA'" {
+                when "../../state/type = 'oc-ospf-types:NETWORK_LSA'" {
                   description
                     "Include the network LSA hierarchy solely when
                     that LSA type is being described";
@@ -2320,7 +2325,7 @@ submodule openconfig-ospfv2-lsdb {
                 // rjs TODO: check this syntax
                 when "../../state/type = " +
                   "'SUMMARY_IP_NETWORK_LSA' or " +
-                  "../../state/type = 'SUMMARY_ASBR_LSA'" {
+                  "../../state/type = 'oc-ospf-types:SUMMARY_ASBR_LSA'" {
                   description
                     "Include the summary LSA hierarchy solely when
                     that LSA type is being described";
@@ -2328,7 +2333,7 @@ submodule openconfig-ospfv2-lsdb {
               }
 
               uses ospfv2-lsdb-asexternal-lsa-structure {
-                when "../../state/type = 'AS_EXTERNAL_LSA'" {
+                when "../../state/type = 'oc-ospf-types:AS_EXTERNAL_LSA'" {
                   description
                     "Include the AS external LSA hierarchy solely when
                     that LSA type is being described";
@@ -2336,7 +2341,7 @@ submodule openconfig-ospfv2-lsdb {
               }
 
               uses ospfv2-lsdb-nssa-external-lsa-structure {
-                when "../../state/type = 'NSSA_AS_EXTERNAL_LSA'" {
+                when "../../state/type = 'oc-ospf-types:NSSA_AS_EXTERNAL_LSA'" {
                   description
                     "Include the NSSA External LSA hierarchy solely
                     when that LSA type is being described";
@@ -2344,9 +2349,9 @@ submodule openconfig-ospfv2-lsdb {
               }
 
               uses ospfv2-lsdb-opaque-lsa-structure {
-                when "../../state/type = 'OSPFV2_LINK_SCOPE_OPAQUE_LSA'
-                  or ../../state/type = 'OSPFV2_AREA_SCOPE_OPAQUE_LSA'
-                  or ../../state/type = 'OSPFV2_AS_SCOPE_OPAQUE_LSA'" {
+                when "../../state/type = 'oc-ospf-types:OSPFV2_LINK_SCOPE_OPAQUE_LSA'
+                  or ../../state/type = 'oc-ospf-types:OSPFV2_AREA_SCOPE_OPAQUE_LSA'
+                  or ../../state/type = 'oc-ospf-types:OSPFV2_AS_SCOPE_OPAQUE_LSA'" {
                   description
                     "Include the Opaque LSA structure when type of entry
                     being described in an opaque LSA";

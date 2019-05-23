@@ -79,6 +79,11 @@ module openconfig-terminal-device {
 
   oc-ext:openconfig-version "1.5.1";
 
+  revision "2019-06-07" {
+    description
+      "Add prefixes to identity names in when statements.";
+  }
+
   revision "2018-11-21" {
     description
       "Add OpenConfig module metadata extensions.";
@@ -994,14 +999,14 @@ module openconfig-terminal-device {
         }
 
         uses terminal-otn-protocol-top {
-          when "config/logical-channel-type = 'PROT_OTN'" {
+          when "config/logical-channel-type = 'oc-opt-types:PROT_OTN'" {
             description
               "Include the OTN protocol data only when the
               channel is using OTN framing.";
           }
         }
         uses terminal-ethernet-protocol-top {
-          when "config/logical-channel-type = 'PROT_ETHERNET'" {
+          when "config/logical-channel-type = 'oc-opt-types:PROT_ETHERNET'" {
             description
               "Include the Ethernet protocol statistics only when the
               protocol used by the link is Ethernet.";
@@ -1386,7 +1391,7 @@ module openconfig-terminal-device {
 
   augment "/oc-platform:components/oc-platform:component" {
     when "/oc-platform:components/oc-platform:component/" +
-      "oc-platform:state/oc-platform:type = 'OPTICAL_CHANNEL'" {
+      "oc-platform:state/oc-platform:type = 'oc-opt-types:OPTICAL_CHANNEL'" {
       description
         "Augment is active when component is of type
         OPTICAL_CHANNEL";

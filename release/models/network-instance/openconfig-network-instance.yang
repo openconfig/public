@@ -49,6 +49,11 @@ module openconfig-network-instance {
 
   oc-ext:openconfig-version "0.12.0";
 
+  revision "2019-05-24" {
+    description
+      "Add prefixes to identity names in when statements.";
+  }
+
   revision "2019-04-16" {
     description
       "Move BGP RIB into the protocol/bgp container.";
@@ -208,8 +213,9 @@ module openconfig-network-instance {
         }
 
         uses l2ni-instance {
-            when "config/type = 'L2VSI' or config/type = 'L2P2P'" +
-                 " or config/type = 'L2L3' or config/type = 'DEFAULT_INSTANCE'" {
+            when "config/type = 'oc-ni-types:L2VSI' or config/type = 'oc-ni-types:L2P2P'" +
+                 " or config/type = 'oc-ni-types:L2L3'" +
+                 " or config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
                     description
                       "Layer 2 configuration parameters included when
                       a network instance is a Layer 2 instance or a
@@ -237,7 +243,7 @@ module openconfig-network-instance {
         }
 
         container encapsulation {
-          when "../config/type != 'DEFAULT_INSTANCE'" {
+          when "../config/type != 'oc-ni-types:DEFAULT_INSTANCE'" {
             description
               "Only allow the encapsulation of the instance to be
               set when the instance is not the default instance";
@@ -254,8 +260,9 @@ module openconfig-network-instance {
             uses encapsulation-config;
 
             uses l2ni-encapsulation-config {
-              when "../../config/type = 'L2VSI' or ../../config/type = 'L2P2P'
-                      or ../../config/type = 'L2L3'" {
+              when "../../config/type = 'oc-ni-types:L2VSI'
+                      or ../../config/type = 'oc-ni-types:L2P2P'
+                      or ../../config/type = 'oc-ni-types:L2L3'" {
                         description
                           "Only allow L2 encapsulations to be set
                           when the instance is of a type that supports
@@ -272,8 +279,9 @@ module openconfig-network-instance {
             uses encapsulation-config;
 
             uses l2ni-encapsulation-config {
-              when "../../config/type = 'L2VSI' or ../../config/type = 'L2P2P'
-                      or ../../config/type = 'L2L3'" {
+              when "../../config/type = 'oc-ni-types:L2VSI'
+                      or ../../config/type = 'oc-ni-types:L2P2P'
+                      or ../../config/type = 'oc-ni-types:L2L3'" {
                         description
                           "Only allow L2 encapsulations to be set
                           when the instance is of a type that supports
@@ -393,7 +401,7 @@ module openconfig-network-instance {
         }
 
         uses oc-ni-l3:l3ni-route-limit-structural {
-          when "type = 'L3VRF' or type = 'L2L3'" {
+          when "type = 'oc-ni-types:L3VRF' or type = 'oc-ni-types:L2L3'" {
             description
               "Layer 3 VRF or L2/L3 instances can have route limits
               applied. This is not supported for the default instance.";
@@ -504,8 +512,8 @@ module openconfig-network-instance {
             }
 
             container endpoints {
-              when "../../../config/type = 'L2P2P' " +
-                 "or ../../../config/type = 'L2VSI'" {
+              when "../../../config/type = 'oc-ni-types:L2P2P' " +
+                 "or ../../../config/type = 'oc-ni-types:L2VSI'" {
                 description
                   "Configuration parameters to associate interfaces
                    into a common group for use in Layer 2 network
@@ -551,7 +559,7 @@ module openconfig-network-instance {
                 }
 
                 container local {
-                  when "../config/type = 'LOCAL'" {
+                  when "../config/type = 'oc-ni-types:LOCAL'" {
                     description
                       "Only include the local configuration when
                       the endpoint is specified to be local to
@@ -579,7 +587,7 @@ module openconfig-network-instance {
                 }
 
                 container remote {
-                  when "../config/type = 'REMOTE'" {
+                  when "../config/type = 'oc-ni-types:REMOTE'" {
                     description
                       "Only include the remote configuration when
                       the endpoint is specified to be remote to
@@ -611,7 +619,7 @@ module openconfig-network-instance {
         }
 
         uses oc-mpls:mpls-top {
-          when "config/type = 'DEFAULT_INSTANCE'" {
+          when "config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
             description
               "MPLS configuration is only valid within the default
               network instance.";
@@ -619,7 +627,7 @@ module openconfig-network-instance {
         }
 
         uses oc-sr:sr-top {
-          when "config/type = 'DEFAULT_INSTANCE'" {
+          when "config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
             description
               "Segment routing configuration is only valid with the default
               network instance.";
@@ -683,7 +691,7 @@ module openconfig-network-instance {
             }
 
             uses oc-loc-rt:local-static-top {
-              when "config/identifier = 'STATIC'" {
+              when "config/identifier = 'oc-pol-types:STATIC'" {
                 description
                   "Include static route parameters only when the
                   protocol is set to static";
@@ -694,7 +702,7 @@ module openconfig-network-instance {
             }
 
             uses oc-loc-rt:local-aggregate-top {
-              when "config/identifier = 'LOCAL_AGGREGATE'" {
+              when "config/identifier = 'oc-pol-types:LOCAL_AGGREGATE'" {
                 description
                   "Include aggregate route parameters only when the
                   protocol is set to aggregate";
@@ -705,7 +713,7 @@ module openconfig-network-instance {
             }
 
             uses oc-bgp:bgp-top {
-              when "config/identifier = 'BGP'" {
+              when "config/identifier = 'oc-pol-types:BGP'" {
                 description
                   "Include BGP parameters only when the protocol
                   is of type BGP";
@@ -716,7 +724,7 @@ module openconfig-network-instance {
             }
 
             uses oc-ospfv2:ospfv2-top {
-              when "config/identifier = 'OSPF'" {
+              when "config/identifier = 'oc-pol-types:OSPF'" {
                 description
                   "Include OSPFv2 parameters only when the protocol
                   is of type OSPFv2";
@@ -724,7 +732,7 @@ module openconfig-network-instance {
             }
 
             uses oc-isis:isis-top {
-              when "config/identifier = 'ISIS'" {
+              when "config/identifier = 'oc-pol-types:ISIS'" {
                 description
                   "Include IS-IS configuration when the protocol is of type
                   IS-IS";
@@ -735,7 +743,7 @@ module openconfig-network-instance {
             }
 
             uses oc-pim:pim-top {
-              when "config/identifier = 'PIM'" {
+              when "config/identifier = 'oc-pol-types:PIM'" {
                 description
                   "Include PIM configuration when the protocol is of type
                   PIM";
@@ -746,7 +754,7 @@ module openconfig-network-instance {
             }
 
             uses oc-igmp:igmp-top {
-              when "config/identifier = 'IGMP'" {
+              when "config/identifier = 'oc-pol-types:IGMP'" {
                 description
                   "Include IGMP configuration when the protocol is of type
                   IGMP";
@@ -766,7 +774,7 @@ module openconfig-network-instance {
       "Type dependent network instance configuration";
 
     uses oc-ni-l3:l3ni-instance-common-config {
-      when "type = 'L3VRF' or type = 'L2L3'" {
+      when "type = 'oc-ni-types:L3VRF' or type = 'oc-ni-types:L2L3'" {
         description
           "Layer 3 VRF configuration parameters included when a
           network instance is a L3VRF or combined L2L3 instance";
@@ -774,8 +782,8 @@ module openconfig-network-instance {
     }
 
     uses l2ni-instance-common-config {
-      when "type = 'L2VSI' or type = 'L2P2P'" +
-           " or type = 'L2L3'" {
+      when "type = 'oc-ni-types:L2VSI' or type = 'oc-ni-types:L2P2P'" +
+           " or type = 'oc-ni-types:L2L3'" {
               description
                 "Layer 2 configuration parameters included when
                 a network instance is a Layer 2 instance or a

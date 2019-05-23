@@ -15,6 +15,7 @@ module openconfig-transport-line-common {
   import openconfig-types { prefix oc-types; }
   import openconfig-transport-types { prefix oc-opt-types; }
   import openconfig-platform-transceiver { prefix oc-transceiver; }
+  import openconfig-platform-types { prefix oc-platform-types; }
 
 
   // meta
@@ -30,6 +31,11 @@ module openconfig-transport-line-common {
     amplifiers and ROADMs (wavelength routers).";
 
   oc-ext:openconfig-version "0.5.2";
+
+  revision "2019-06-07" {
+    description
+      "Add prefix to identity name in when statement.";
+  }
 
   revision "2019-04-16" {
     description
@@ -302,7 +308,7 @@ module openconfig-transport-line-common {
 
     uses transport-line-common-port-top {
       when "/oc-platform:components/oc-platform:component/" +
-        "oc-platform:state/oc-platform:type = 'PORT'" {
+        "oc-platform:state/oc-platform:type = 'oc-platform-types:PORT'" {
         description
           "Augment is active when component is of type
           PORT";

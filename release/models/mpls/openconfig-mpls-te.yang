@@ -31,6 +31,11 @@ submodule openconfig-mpls-te {
 
   oc-ext:openconfig-version "3.0.1";
 
+  revision "2019-06-07" {
+    description
+      "Add prefixes to identity names in when statements.";
+  }
+
   revision "2018-11-21" {
     description
       "Add OpenConfig module metadata extensions.";
@@ -828,7 +833,7 @@ submodule openconfig-mpls-te {
     }
 
     leaf use-cspf {
-      when "../path-computation-method = 'LOCALLY_COMPUTED'" {
+      when "../path-computation-method = 'oc-mplst:LOCALLY_COMPUTED'" {
         description
           "The use of cspf when the path-computation method is
            local computation";
@@ -839,7 +844,7 @@ submodule openconfig-mpls-te {
     }
 
     leaf cspf-tiebreaker {
-      when "../path-computation-method = 'LOCALLY_COMPUTED'" {
+      when "../path-computation-method = 'oc-mplst:LOCALLY_COMPUTED'" {
         description
           "The cspf tiebreaking method when the path is
            locally computed";
@@ -852,7 +857,7 @@ submodule openconfig-mpls-te {
 
 
     leaf path-computation-server {
-      when "../path-computation-method = 'EXTERNALLY_QUERIED'" {
+      when "../path-computation-method = 'oc-mplst:EXTERNALLY_QUERIED'" {
         description
           "The path-computation server when the path is
            externally queried";
@@ -864,7 +869,7 @@ submodule openconfig-mpls-te {
     }
 
     leaf explicit-path-name {
-      when "../path-computation-method = 'EXPLICITLY_DEFINED'" {
+      when "../path-computation-method = 'oc-mplst:EXPLICITLY_DEFINED'" {
         description
           "The name of the explicitly defined path used";
       }
@@ -898,7 +903,7 @@ submodule openconfig-mpls-te {
       "Top level grouping for p2p configuration";
 
     container p2p-tunnel-attributes {
-      when "../config/type = 'P2P'" {
+      when "../config/type = 'oc-mplst:P2P'" {
         description
          "Include this container for LSPs of type P2P";
       }
