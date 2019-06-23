@@ -47,7 +47,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.12.0";
+  oc-ext:openconfig-version "0.13.0";
+
+  revision "2019-05-14" {
+    description
+      "Added support for BGP signalled VPWS and VPLS.";
+    reference "0.13.0";
+  }
 
   revision "2019-04-16" {
     description
@@ -57,7 +63,7 @@ module openconfig-network-instance {
 
   revision "2019-02-03" {
     description
-      "Expend netinst type description to link it to, for example, MPLS
+      "Extend netinst type description to link it to, for example, MPLS
       service types.";
     reference "0.11.2";
   }
@@ -820,6 +826,31 @@ module openconfig-network-instance {
       to the current system";
 
       uses oc-if:interface-ref-common;
+
+    leaf site-id {
+      type uint16;
+      description
+        "The VE ID as defined in RFC4761 (VPLS) or CE ID as defined in
+        RFC6624 (l2vpn) to uniquely identify this endpoint (site) as part
+        of the BGP discovery of remote endpoints for layer 2 services.";
+      reference "RFC6624 Section 2.2.1, RFC4761 Section 3.2.2";
+    }
+
+    // TODO not seen this in configuration yet; is it managed by the
+    // PE router code?
+    leaf site-label-block-offset {
+      type uint16;
+      description
+        "The VPLS label block offset that is signaled with the 'site-id'.";
+      reference "RFC4761 Section 3.2.1 'VBO'";
+    }
+
+    leaf site-label-block-size {
+      type uint16;
+      description
+        "The VPLS label block size that is signaled with the 'site-id'.";
+      reference "RFC4761 Section 3.2.1 'VBS'";
+    }
   }
 
   grouping instance-endpoint-remote-config {
@@ -838,6 +869,14 @@ module openconfig-network-instance {
       description
         "The virtual-circuit identifier that identifies the
         connection at the remote end-point";
+    }
+
+    leaf site-id {
+      type uint16;
+      description
+        "Identifies remote sites. When BGP discovery is used this
+        is the customer edge identifier";
+      reference "RFC6624 Section 2.2.1";
     }
   }
 
