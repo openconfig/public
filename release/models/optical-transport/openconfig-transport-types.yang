@@ -22,7 +22,13 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.7.1";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2019-06-21" {
+    description
+      "Generalize and rename optical port type identity";
+    reference "0.8.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -953,6 +959,65 @@ module openconfig-transport-types {
       "Optical channels act as carriers for transport traffic
       directed over a line system.  They are represented as
       physical components in the physical inventory model.";
+  }
+
+  identity OPTICAL_PORT_TYPE {
+    description
+      "Type definition for optical transport port types";
+  }
+
+  identity INGRESS {
+    base OPTICAL_PORT_TYPE;
+    description
+      "Ingress port, corresponding to a signal entering
+      a line system device such as an amplifier or wavelength
+      router.";
+  }
+
+  identity EGRESS {
+    base OPTICAL_PORT_TYPE;
+    description
+      "Egress port, corresponding to a signal exiting
+      a line system device such as an amplifier or wavelength
+      router.";
+  }
+
+  identity ADD {
+    base OPTICAL_PORT_TYPE;
+    description
+      "Add port, corresponding to a signal injected
+      at a wavelength router.";
+  }
+
+  identity DROP {
+    base OPTICAL_PORT_TYPE;
+    description
+      "Drop port, corresponding to a signal dropped
+      at a wavelength router.";
+  }
+
+  identity MONITOR {
+    base OPTICAL_PORT_TYPE;
+    description
+      "Monitor port, corresponding to a signal used by an optical
+      channel monitor. This is used to represent the connection
+      that a channel monitor port is connected to, typically on a
+      line system device. This  connection may be via physical cable
+      and faceplate ports or internal to the device";
+  }
+
+  identity TERMINAL_CLIENT {
+    base OPTICAL_PORT_TYPE;
+    description
+      "Client-facing port on a terminal optics device (e.g.,
+      transponder or muxponder).";
+  }
+
+  identity TERMINAL_LINE {
+    base OPTICAL_PORT_TYPE;
+    description
+      "Line-facing port on a terminal optics device (e.g.,
+      transponder or muxponder).";
   }
 
 }

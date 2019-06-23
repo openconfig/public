@@ -29,9 +29,30 @@ module openconfig-wavelength-router {
     Nodes are modeled as a configurable switching element with
     ingress and egress ports, as well as a number of add/drop ports
     that can be set up to direct portions of the optical spectrum
-    to the appropriate degrees.";
+    to the appropriate degrees.
 
-  oc-ext:openconfig-version "0.3.3";
+    In relation to configuring power spectral densities (PSD), there
+    are two, non-overlapping, configuration possibilities that are
+    supported. One approach is to configure the PSD's on each media
+    channel. For noise-loaded wavelength routers, the PSD values
+    will be configured as a PSD profile over the full spectrum. For
+    noise-loaded wavelength routers, individual media channels will
+    not have their PSD values configured.";
+
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2019-06-03" {
+    description
+      "PSD profile top-level description and
+      port changed to a leafref.";
+    reference "0.5.0";
+  }
+
+  revision "2019-04-03" {
+    description
+      "Add port PSD profile modeling.";
+    reference "0.4.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -76,6 +97,71 @@ module openconfig-wavelength-router {
   oc-ext:origin "openconfig";
 
   // grouping statements
+
+  grouping port-psd-profile-state {
+    description
+      "Operational state data for a wavelength-router
+      port PSD profile";
+  }
+
+  grouping port-psd-profile-config {
+    description
+      "Configuration data for a wavelength-router port PSD profile";
+
+    leaf name {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
+      }
+      description
+        "Reference to system-supplied name of the wavelength-router
+	port component.";
+    }
+  }
+
+  grouping port-psd-profiles-top {
+    description
+      "Top-level grouping for the list of wavelength-router port
+      PSD profiles";
+
+    container port-psd-profiles {
+      description
+        "Enclosing container for wavelength-router port PSD profiles";
+
+      list port {
+        key "name";
+        description
+          "List of ports, keyed by port name";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "References the port name";
+        }
+
+        container config {
+          description
+            "Configuration data for each port";
+
+          uses port-psd-profile-config;
+        }
+
+        container state {
+
+          config false;
+
+          description
+            "Operational state data for each port PSD profile.";
+
+          uses port-psd-profile-config;
+          uses port-psd-profile-state;
+        }
+	uses psd-top;
+      }
+    }
+  }
 
   grouping media-channel-port-config {
     description
@@ -152,7 +238,7 @@ module openconfig-wavelength-router {
     }
   }
 
-  grouping media-channel-psd-config {
+  grouping psd-config {
     description
       "Configuration data for the media channel PSD";
 
@@ -183,14 +269,14 @@ module openconfig-wavelength-router {
     }
   }
 
-  grouping media-channel-psd-state {
+  grouping psd-state {
     description
-      "Operational state data for the media channel PSD";
+      "Operational state data for the PSD";
   }
 
-  grouping media-channel-psd-top {
+  grouping psd-top {
     description
-      "Top-level grouping ";
+      "Top-level grouping for power spectral density (PSD)";
 
     container psd-distribution {
       description
@@ -222,7 +308,7 @@ module openconfig-wavelength-router {
           description
             "Configuration data for PSD";
 
-          uses media-channel-psd-config;
+          uses psd-config;
         }
 
         container state {
@@ -232,8 +318,8 @@ module openconfig-wavelength-router {
           description
             "Operational state data for PSD";
 
-          uses media-channel-psd-config;
-          uses media-channel-psd-state;
+          uses psd-config;
+          uses psd-state;
         }
       }
     }
@@ -339,7 +425,7 @@ module openconfig-wavelength-router {
 
         uses media-channel-source-port-top;
         uses media-channel-dest-port-top;
-        uses media-channel-psd-top;
+        uses psd-top;
       }
     }
   }
@@ -353,6 +439,7 @@ module openconfig-wavelength-router {
         "Top-level container for wavelength router device";
 
       uses media-channel-top;
+      uses port-psd-profiles-top;
     }
   }
 
