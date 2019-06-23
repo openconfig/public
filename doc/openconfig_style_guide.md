@@ -3,7 +3,7 @@
 
 **Contributors:** Anees Shaikh, Rob Shakir, Kristian Larsson<br>
 **October 26, 2015**<br>
-*Updated: June 10, 2016*
+*Updated: June 2, 2019*
 
 
 ## Background
@@ -126,6 +126,15 @@ oc-ext:openconfig-version "0.4.0";
     reference "0.4.0";
   }
 ```
+
+Individual YANG modules are versioned independently -- the
+semantic version is generally incremented only when there is a
+change in the corresponding file.  Submodules, however, must have
+the same semantic version as their parent modules.  Further details on
+versioning rules are available in the definition of the
+`openconfig-version` extension in the `openconfig-extensions.yang`
+module.
+
 
 ## YANG style conventions
 Style conventions describe guidelines related to conventions used in writing

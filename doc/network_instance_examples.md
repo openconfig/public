@@ -318,7 +318,7 @@ This would be represented by the following JSON-serialised data instance:
                         # The simple L2 interface on the same interface does not
                         # use any 'access' or 'trunk' VLAN configuration, but rather
                         # specifies the VLAN that it matches. Mapping to the
-                        # network instance is done explicitly inside the network instance<
+                        # network instance is done explicitly inside the network instance.
                         #
                         "1042": {
                             "index": 1042,
