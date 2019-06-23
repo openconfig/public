@@ -27,7 +27,13 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.1.1";
+
+  revision "2019-06-02" {
+    description
+      "Fix detection multiplier to be 8-bit value";
+    reference "0.1.1";
+  }
 
   revision "2018-11-21" {
     description
@@ -198,7 +204,7 @@ module openconfig-bfd {
     // generally not configurable.
 
     leaf detection-multiplier {
-      type uint16 {
+      type uint8 {
         range "1..max";
       }
       description
