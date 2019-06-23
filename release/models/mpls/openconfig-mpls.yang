@@ -71,7 +71,13 @@ module openconfig-mpls {
                              +-------+
     ";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "3.1.0";
+
+  revision "2019-03-26" {
+    description
+      "Add Pseudowire encapsulation.";
+    reference "3.1.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -521,6 +527,14 @@ module openconfig-mpls {
         a label to an IP packet. If false, the IP TTL is
         not copied into the MPLS header TTL and, therefore,
         the IP TTL is not updated in the MPLS domain.";
+    }
+
+    leaf pw-encapsulation {
+      type identityref {
+        base oc-mplst:PSEUDOWIRE_ENCAPSULATION;
+      }
+      description
+        "The PDU type to use with pseudowires.";
     }
 
   }

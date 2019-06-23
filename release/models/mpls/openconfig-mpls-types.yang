@@ -19,7 +19,13 @@ module openconfig-mpls-types {
   description
     "General types for MPLS / TE data model";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "3.1.0";
+
+  revision "2019-03-26" {
+    description
+      "Add Pseudowire encapsulation.";
+    reference "3.1.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -306,6 +312,27 @@ module openconfig-mpls-types {
       "The metric for for the LSPs to which this identity refers is
       not specified explicitly - but rather inherited from the IGP
       cost directly";
+  }
+
+  // Note: The IANA PWE3 Types Registry has several more values than these
+  identity PSEUDOWIRE_ENCAPSULATION {
+    description
+      "Sets the PDU type of the PSEUDOWIRE Example in RFC4448. This value
+      should be enumerated from the IANA Pseudowire types registry";
+  }
+
+  identity PWE_ETHERNET_TAGGED_MODE {
+    base PSEUDOWIRE_ENCAPSULATION;
+    description
+      "Ethernet Tagged Mode RFC4448";
+    reference "IANA PWE3 0x0004";
+  }
+
+  identity PWE_ETHERNET_RAW_MODE {
+    base PSEUDOWIRE_ENCAPSULATION;
+    description
+      "Ethernet Raw Mode RFC4448";
+    reference "IANA PWE3 0x0005";
   }
 
   // typedef statements
