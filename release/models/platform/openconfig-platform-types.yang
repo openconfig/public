@@ -22,7 +22,13 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "0.10.1";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2019-06-03" {
+    description
+      "Add OpenConfig component operating system patch type.";
+    reference "1.0.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -243,6 +249,18 @@ module openconfig-platform-types {
       "Operating system running on a component";
   }
 
+  identity OPERATING_SYSTEM_UPDATE {
+    base OPENCONFIG_SOFTWARE_COMPONENT;
+    description
+      "An operating system update - which should be a subcomponent
+      of the `OPERATING_SYSTEM` running on a component. An update is
+      defined to be a set of software changes that are atomically
+      installed (and uninstalled) together. Multiple updates may be
+      present for the Operating System. A system should not list all
+      installed software packages using this type -- but rather
+      updates that are bundled together as a single installable
+      item";
+  }
 
   identity COMPONENT_OPER_STATUS {
     description
