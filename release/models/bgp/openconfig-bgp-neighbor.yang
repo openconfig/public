@@ -29,7 +29,14 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "5.1.0";
+  oc-ext:openconfig-version "5.2.0";
+
+  revision "2019-05-28" {
+    description
+      "Clarify prefix counter descriptions, add received-pre-policy
+      counter.";
+    reference "5.2.0";
+  }
 
   revision "2019-04-16" {
     description
@@ -501,20 +508,47 @@ submodule openconfig-bgp-neighbor {
       leaf received {
         type uint32;
         description
-          "The number of prefixes received from the neighbor";
+          "The number of prefixes that are received from the 
+          neighbor after applying any policies. This count is the 
+          number of prefixes present in the post-policy Adj-RIB-In 
+          for the neighbor";
+      }
+
+      leaf received-pre-policy {
+        type uint32;
+        description
+          "The number of prefixes that are received from the 
+          neighbor before applying any policies. This count is 
+          the number of prefixes present in the pre-policy 
+          Adj-RIB-In for the neighbor";
       }
 
       leaf sent {
         type uint32;
         description
-          "The number of prefixes advertised to the neighbor";
+          "The number of prefixes that are advertised to the 
+          neighbor after applying any policies. This count is 
+          the number of prefixes present in the post-policy 
+          Adj-RIB-Out for the neighbor";
       }
 
       leaf installed {
         type uint32;
         description
-          "The number of advertised prefixes installed in the
-          Loc-RIB";
+          "The number of prefices received from the neighbor that
+          are installed in the network instance RIB and actively used
+          for forwarding.
+
+          Routes that are actively used for forwarding are 
+           defined to be those that:
+           - are selected, after the application of policies, to be 
+             included in the Adj-RIB-In-Post, AND
+           - are selected by best path selection and hence installed
+             in the Loc-RIB (either as the only route, or as part of 
+             a multipath set, AND
+           - are selected, after the application of protocol 
+             preferences (e.g., administrative distance) as the 
+             route to be used by the system's RIB";
       }
     }
   }
@@ -711,6 +745,4 @@ submodule openconfig-bgp-neighbor {
     }
 
   }
-
-
 }
