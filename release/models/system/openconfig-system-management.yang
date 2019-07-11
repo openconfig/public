@@ -127,6 +127,77 @@ module openconfig-system-management {
     }
   }
 
+
+  grouping system-netconf-config {
+    description
+      "Configuration data for the netconf ptotocol";
+
+    leaf ssh {
+      type boolean;
+      default true;
+      description
+        "Enables the netconf protocol. The netconf is enabled by
+        default";
+    }
+
+    leaf port {
+      type uint16;
+      default 830;
+      description
+        "TCP port on which the netconf should listen(rfc6242)";
+    }
+
+    leaf session-absolute-timeout {
+      type uint32;
+      units minutes;
+      description
+        "Absolute timeout in minutes";
+    }
+
+    leaf session-idle-timeout {
+      type uint32;
+      units minutes;
+      description
+        "Idle timeout in minutes";
+    }
+
+    leaf session-limit {
+      type uint32;
+      default 50;
+      description
+        "Allowable parallel netconf-yang sessions";
+    }
+
+
+  grouping system-netconf-top {
+    description
+      "Top-level grouping for system netconf data";
+
+      container netconf {
+        description
+          "Top-level container for the netconf";
+
+      container config {
+        description
+          "Configuration data for the system netconf";
+
+        uses system-netconf-config;
+      }
+
+      container state {
+        config false;
+
+        description
+          "Operational state data for the system netconf";
+
+        uses system-netconf-config;
+      }
+    }
+  }
+
+
+
+
   // data definition statements
 
   // augment statements
