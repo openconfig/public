@@ -128,16 +128,32 @@ module openconfig-system-management {
   }
 
 
-  grouping system-netconf-config {
+  grouping system-netconf-server-config {
     description
-      "Configuration data for the netconf ptotocol";
+      "Configuration data for the netconf server/subsystem";
 
-    leaf ssh {
-      type boolean;
-      default true;
+    leaf netconf-transport-porotocol {
+      type enumeration {
+        enum SSH_v2 {
+          description
+            "Use SSH v2 only";
+        }
+        enum TCP {
+          description
+            "Use Transmission Control Protocol (TCP) only";
+        }
+        enum TLS {
+          description
+            "Use Transport Layer Security (TLS) only";
+        }
+        enum socket {
+          description
+            "Use socket connection only"
+      }
+      default SSH_v2;
       description
-        "Enables the netconf protocol. The netconf is enabled by
-        default";
+        "Enables the NETCONF server, using the SSHv2 transport. 
+        The NETCONF server is enabled by default."; 
     }
 
     leaf port {
@@ -149,14 +165,14 @@ module openconfig-system-management {
 
     leaf session-absolute-timeout {
       type uint32;
-      units minutes;
+      units seconds;
       description
         "Absolute timeout in minutes";
     }
 
     leaf session-idle-timeout {
       type uint32;
-      units minutes;
+      units seconds;
       description
         "Idle timeout in minutes";
     }
@@ -165,32 +181,32 @@ module openconfig-system-management {
       type uint32;
       default 50;
       description
-        "Allowable parallel netconf-yang sessions";
+        "Maximum number of concurrent netconf sessions";
     }
   }
 
-  grouping system-netconf-top {
+  grouping system-netconf-server-top {
     description
-      "Top-level grouping for system netconf data";
+      "Top-level grouping for netconf/NETCONF subsystem/server";
 
-      container netconf {
+      container netconf-server {
         description
-          "Top-level container for the netconf";
+          "Top-level container for netconf/NETCONF subsystem/server";
 
       container config {
         description
-          "Configuration data for the system netconf";
+          "Configuration data for netconf/NETCONF subsystem/server/";
 
-        uses system-netconf-config;
+        uses system-netconf-server-config;
       }
 
       container state {
         config false;
 
         description
-          "Operational state data for the system netconf";
+          "Operational state data for netconf/NETCONF subsystem/server";
 
-        uses system-netconf-config;
+        uses system-netconf-server-config;
       }
     }
   }
