@@ -22,7 +22,13 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.9.0";
+
+  revision "2019-06-27" {
+    description
+      "Add FIBER_JUMPER_TYPE identityref.";
+    reference "0.9.0";
+  }
 
   revision "2019-06-21" {
     description
@@ -959,6 +965,24 @@ module openconfig-transport-types {
       "Optical channels act as carriers for transport traffic
       directed over a line system.  They are represented as
       physical components in the physical inventory model.";
+  }
+
+  identity FIBER_JUMPER_TYPE {
+    description
+      "Types of fiber jumpers used for connecting device ports";
+  }
+
+  identity FIBER_JUMPER_SIMPLEX {
+    base FIBER_JUMPER_TYPE;
+    description
+      "Simplex fiber jumper";
+  }
+
+  identity FIBER_JUMPER_MULTI_FIBER_STRAND {
+    base FIBER_JUMPER_TYPE;
+    description
+      "One strand of a fiber jumper which contains multiple fibers
+      within it, such as an MPO based fiber jumper";
   }
 
   identity OPTICAL_PORT_TYPE {
