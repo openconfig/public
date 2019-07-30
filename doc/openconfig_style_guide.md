@@ -301,7 +301,7 @@ grouping interfaces-list-top
 
     container config {
 
-      uses interface-config;
+      uses interfaces-config;
     }
 
     ...
