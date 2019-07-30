@@ -43,7 +43,14 @@ module openconfig-mpls-ldp {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "3.0.2";
+
+  revision "2019-07-09" {
+    description
+      "Remove units for timeticks64 leaves, since the type
+      specifies the units.";
+    reference "3.0.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -362,9 +369,8 @@ module openconfig-mpls-ldp {
       type oc-types:timeticks64;
       description
         "Timestamp of the last time the interface counters
-        were cleared. The value is the timestamp in
-        nanoseconds relative to the Unix Epoch (Jan 1,
-        1970 00:00:00 UTC).";
+        were cleared expressed relative to the Unix Epoch
+        (January 1, 1970 00:00:00 UTC).";
     }
 
     leaf hello-received {

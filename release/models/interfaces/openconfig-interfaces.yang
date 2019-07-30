@@ -50,7 +50,14 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.4.1";
+  oc-ext:openconfig-version "2.4.2";
+
+  revision "2019-07-10" {
+    description
+      "Remove redundant nanosecond units statements to reflect
+      universal definition of timeticks64 type.";
+    reference "2.4.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -547,7 +554,6 @@ module openconfig-interfaces {
 
     leaf last-change {
       type oc-types:timeticks64;
-      units nanoseconds;
       description
         "This timestamp indicates the absolute time of the last
         state change of the interface (e.g., up-to-down transition).
@@ -853,7 +859,6 @@ module openconfig-interfaces {
 
       leaf last-clear {
         type oc-types:timeticks64;
-        units nanoseconds;
         description
           "Timestamp of the last time the interface counters were
           cleared.

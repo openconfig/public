@@ -45,7 +45,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2019-03-15" {
+    description
+      "Update boot time to be nanoseconds since epoch.";
+    reference "0.8.0";
+  }
 
   revision "2019-01-29" {
     description
@@ -229,9 +235,10 @@ module openconfig-system {
 
     leaf boot-time {
         type oc-types:timeticks64;
+        units "nanoseconds";
         description
           "This timestamp indicates the time that the system was last
-          restarted.  The value is the timestamp in seconds relative
+          restarted.  The value is the timestamp in nanoseconds relative
           to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
     }
 

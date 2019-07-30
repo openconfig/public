@@ -84,6 +84,15 @@ module openconfig-system-management {
         "The certificate ID to be used for authentication";
     }
 
+    leaf metadata-authentication {
+      type boolean;
+      default false;
+      description
+        "Enables gRPC METADATA authentication. See
+	 https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-authentication.md#credentials-and-authentication
+	 for more info.";
+    }
+
     leaf-list listen-addresses {
       type union {
         type oc-inet:ip-address;

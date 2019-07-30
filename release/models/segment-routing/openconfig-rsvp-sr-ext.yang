@@ -22,7 +22,13 @@ module openconfig-rsvp-sr-ext {
     existing OpenConfig segment routing (SR) and RSVP-TE models
     where required.";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2019-07-09" {
+    description
+      "Clarify the base for measurements using timeticks64.";
+    reference "0.3.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -345,7 +351,7 @@ module openconfig-rsvp-sr-ext {
       description
         "The time at which the last sample of bandwidth utilisation
         for both RSVP-TE and non-RSVP-TE traffic was taken. This value
-        is represented in nanoseconds since the Unix epoch.";
+        is relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
     }
 
     leaf last-sample-measured-rsvp-util {
@@ -374,7 +380,8 @@ module openconfig-rsvp-sr-ext {
       type oc-types:timeticks64;
       description
         "The time at which the last calculated value for bandwidth
-        utilisation was performed.";
+        utilisation was performed. The value is expressed relative
+        to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
     }
 
     leaf last-calculated-sr-utilisation {
@@ -389,9 +396,9 @@ module openconfig-rsvp-sr-ext {
     leaf last-flooded-time {
       type oc-types:timeticks64;
       description
-        "The time, expressed in nanoseconds since the epoch, at which
-        the bandwidth utilisation of non-RSVP-TE traffic resulted in
-        the value being flooded in the IGP. If the configuration of the
+        "The time, relative to the Unix Epoch (Jan 1 1970 00:00:00 UTC),
+        at which the bandwidth utilisation of non-RSVP-TE traffic resulted
+        in the value being flooded in the IGP. If the configuration of the
         local system specifies a 0% change requires flooding, this leaf
         will always reflect the value of the last-calculated-time. In
         systems that have suppression due to a >0% delta being required

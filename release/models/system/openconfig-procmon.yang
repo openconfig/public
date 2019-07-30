@@ -11,6 +11,7 @@ module openconfig-procmon {
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-types { prefix oc-types; }
+  import openconfig-yang-types { prefix oc-yang; }
 
 
   // meta
@@ -24,7 +25,16 @@ module openconfig-procmon {
     "This module provides data definitions for process health
     monitoring of one or more processes running on the system.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2019-03-15" {
+    description
+      "Update process start time to be an absolute timestamp,
+      ensure that the units for CPU time are expressed correctly.
+      Update cpu-usage leaves to commonly use counter64 for consumed
+      CPU time.";
+    reference "0.4.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -119,30 +129,25 @@ module openconfig-procmon {
     }
 
     leaf start-time {
-      type uint64;
-      units "ns";
+      type oc-types:timeticks64;
       description
         "The time at which this process started,
-        reported as nanoseconds since the UNIX epoch.  The
-        system must be synchronized such that the start-time
-        can be reported accurately, otherwise it should not be
-        reported.";
+        relative to the UNIX epoch.  The system must be
+        synchronized such that the start-time can be
+        reported accurately, otherwise it should not be reported.";
      }
 
-    leaf uptime {
-      type oc-types:timeticks64;
-      description
-        "Amount of time elapsed since this process started.";
-    }
-
     leaf cpu-usage-user {
-      type oc-types:timeticks64;
+      type oc-yang:counter64;
+      units "nanoseconds";
       description
-        "CPU time consumed by this process in user mode.";
+        "CPU time consumed by this process in user mode in
+        nanoseconds.";
     }
 
     leaf cpu-usage-system {
-      type oc-types:timeticks64;
+      type oc-yang:counter64;
+      units "nanoseconds";
       description
         "CPU time consumed by this process in kernel mode.";
     }
