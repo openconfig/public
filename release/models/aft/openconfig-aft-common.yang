@@ -22,7 +22,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "0.3.2";
+  oc-ext:openconfig-version "0.3.3";
+
+  revision "2019-08-01" {
+    description
+      "Add lsp-name leaf to AFT next-hop.";
+    reference "0.3.3";
+  }
 
   revision "2018-11-21" {
     description
@@ -195,6 +201,15 @@ submodule openconfig-aft-common {
       }
       description
         "The protocol from which the AFT entry was learned.";
+    }
+
+    leaf lsp-name {
+      type string;
+      description
+        "Where applicable, the protocol name for the next-hop labelled
+        forwarding entry. This leaf is applicable only to next-hops
+        who include MPLS label information, and its value typically
+        corresponds to the RSVP-TE LSP name.";
     }
   }
 
