@@ -131,12 +131,18 @@ module openconfig-system-management {
   grouping system-netconf-server-config {
     description
       "Configuration data for the netconf server/subsystem";
-
-    leaf netconf-transport-porotocol {
+    leaf enable {
+      type boolean;
+      default false;
+      description
+        "Enables the netconf server. The gRPC server is enabled by
+        default";
+    }
+    leaf transport-protocol {
       type enumeration {
-        enum SSH_v2 {
+        enum SSH_V2 {
           description
-            "Use SSH v2 only";
+            "Use SSH V2 only";
         }
         enum TCP {
           description
@@ -146,11 +152,11 @@ module openconfig-system-management {
           description
             "Use Transport Layer Security (TLS) only";
         }
-        enum socket {
+        enum SOCKET {
           description
             "Use socket connection only"
       }
-      default SSH_v2;
+      default SSH_V2;
       description
         "Enables the NETCONF server, using the SSHv2 transport. 
         The NETCONF server is enabled by default."; 
@@ -167,14 +173,14 @@ module openconfig-system-management {
       type uint32;
       units seconds;
       description
-        "Absolute timeout in minutes";
+        "Absolute timeout in seconds";
     }
 
     leaf session-idle-timeout {
       type uint32;
       units seconds;
       description
-        "Idle timeout in minutes";
+        "Idle timeout in seconds";
     }
 
     leaf session-limit {
