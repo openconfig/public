@@ -68,12 +68,6 @@ module openconfig-system-logging {
       "IETF RFC 5424 - The Syslog Protocol";
   }
 
-  identity ALL {
-    base SYSLOG_FACILITY;
-    description
-      "All supported facilities";
-  }
-
   identity KERNEL {
     base SYSLOG_FACILITY;
     description
@@ -299,8 +293,16 @@ module openconfig-system-logging {
       "Configuration data for logging selectors";
 
     leaf facility {
-      type identityref {
-        base SYSLOG_FACILITY;
+      type union {
+        type identityref {
+          base SYSLOG_FACILITY;
+        }
+        type enumeration {
+          enum ALL {
+            description
+              "All supported facilities";
+          }
+        }
       }
       description
         "Specifies the facility, or class of messages to log";
@@ -432,6 +434,14 @@ module openconfig-system-logging {
       description
         "Sets the destination port number for syslog UDP messages to
         the server.  The default for syslog is 514.";
+    }
+
+    leaf facility-override {
+      type identityref {
+        base SYSLOG_FACILITY;
+      }
+      description
+        "Override the syslog facility level to the log server";
     }
   }
 
