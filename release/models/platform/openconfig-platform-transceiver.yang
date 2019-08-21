@@ -40,6 +40,11 @@ module openconfig-platform-transceiver {
   oc-ext:openconfig-version "0.7.0";
 
 
+  revision "2019-06-07" {
+    description
+      "Add prefix to identity name in when statement.";
+  }
+
   revision "2018-11-25" {
     description
       "Add augment for leafref to transceiver component;
@@ -555,7 +560,7 @@ module openconfig-platform-transceiver {
 
     uses port-transceiver-top {
       when "current()/oc-platform:state/" +
-        "oc-platform:type = 'TRANSCEIVER'" {
+        "oc-platform:type = 'oc-platform-types:TRANSCEIVER'" {
         description
           "Augment is active when component is of type TRANSCEIVER";
       }
