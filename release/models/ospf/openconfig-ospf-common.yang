@@ -1,7 +1,7 @@
-submodule openconfig-ospfv2-common {
+submodule openconfig-ospf-common {
 
-  belongs-to openconfig-ospfv2 {
-    prefix "oc-ospfv2";
+  belongs-to openconfig-ospf {
+    prefix "oc-ospf";
   }
 
   import openconfig-extensions { prefix "oc-ext"; }
@@ -55,30 +55,7 @@ submodule openconfig-ospfv2-common {
     reference "0.0.1";
   }
 
-  grouping ospfv2-common-mpls-igp-ldp-sync-config {
-    description
-      "Configuration parameters used for OSPFv2 MPLS/IGP
-      synchronization";
-
-    leaf enabled {
-      type boolean;
-      description
-        "When this leaf is set to true, do not utilise this link for
-        forwarding via the IGP until such time as LDP adjacencies to
-        the neighbor(s) over the link are established.";
-    }
-
-    leaf post-session-up-delay {
-      type uint32;
-      units milliseconds;
-      description
-        "This leaf specifies a delay, expressed in units of milliseconds,
-        between the LDP session to the IGP neighbor being established, and
-        it being considered synchronized by the IGP.";
-    }
-  }
-
-  grouping ospfv2-common-timers {
+  grouping ospf-common-timers {
     description
       "Common definition of the type of timers that the OSPFv2 implementation
       uses";
@@ -100,4 +77,5 @@ submodule openconfig-ospfv2-common {
         "The timer mode that is utilised by the implementation.";
     }
   }
+
 }

@@ -22,7 +22,7 @@ module openconfig-network-instance {
   import openconfig-bgp { prefix "oc-bgp"; }
   import openconfig-mpls { prefix "oc-mpls"; }
   import openconfig-vlan { prefix "oc-vlan"; }
-  import openconfig-ospfv2 { prefix "oc-ospfv2"; }
+  import openconfig-ospf { prefix "oc-ospf"; }
   import openconfig-policy-forwarding { prefix "oc-pf"; }
   import openconfig-segment-routing { prefix "oc-sr"; }
   import openconfig-isis { prefix "oc-isis"; }
@@ -48,6 +48,12 @@ module openconfig-network-instance {
     instances are also supported.";
 
   oc-ext:openconfig-version "0.13.0";
+
+  revision "2019-07-30" {
+    description
+      "Added support for OSPFv3.";
+    reference "0.14.0";
+  }
 
   revision "2019-05-14" {
     description
@@ -721,11 +727,19 @@ module openconfig-network-instance {
                 Border Gateway Protocol (BGP)";
             }
 
-            uses oc-ospfv2:ospfv2-top {
+            uses oc-ospf:ospfv2-top {
               when "config/identifier = 'OSPF'" {
                 description
                   "Include OSPFv2 parameters only when the protocol
                   is of type OSPFv2";
+              }
+            }
+
+            uses oc-ospf:ospfv3-top {
+              when "config/identifier = 'OSPFv3'" {
+                description
+                  "Include OSPFv3 parameters only when the protocol
+                  is of type OSPFv3";
               }
             }
 

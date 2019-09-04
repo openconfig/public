@@ -1,15 +1,18 @@
-submodule openconfig-ospfv2-lsdb {
+module openconfig-ospfv2-lsdb {
 
-  belongs-to openconfig-ospfv2 {
-    prefix "oc-ospfv2";
-  }
+  // namespace
+  namespace "http://openconfig.net/yang/ospfv2/lsdb";
+
+  prefix "oc-niv2-lsdb";
 
   // import some basic types
   import ietf-yang-types { prefix "yang"; }
   import ietf-inet-types { prefix "inet"; }
   import openconfig-types { prefix "oc-types"; }
   import openconfig-extensions { prefix "oc-ext"; }
-  import openconfig-ospf-types { prefix "oc-ospf-types"; }
+  import openconfig-ospf-types { prefix "oc-ni-types"; }
+
+  import openconfig-network-instance { prefix "oc-ni"; }
 
   // meta
   organization "OpenConfig working group";
@@ -22,12 +25,12 @@ submodule openconfig-ospfv2-lsdb {
     "An OpenConfig model for the Open Shortest Path First (OSPF)
     version 2 link-state database (LSDB)";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.1.4";
 
-  revision "2019-07-09" {
+  revision "2018-11-21" {
     description
-      "Normalise all timeticks64 to be expressed in nanoseconds.";
-    reference "0.2.0";
+      "Separte ospfv2 lsdb between per-area and global.";
+    reference "0.1.4";
   }
 
   revision "2018-11-21" {
@@ -194,7 +197,7 @@ submodule openconfig-ospfv2-lsdb {
     }
 
     leaf metric {
-      type oc-ospf-types:ospf-metric;
+      type oc-ni-types:ospf-metric;
       description
         "The metric value to be used for the TOS specified. This value
         represents the cost of use of the link for the specific type
@@ -207,7 +210,7 @@ submodule openconfig-ospfv2-lsdb {
       "Re-usable specification of a segment routing SID";
 
     leaf sid-type {
-      type oc-ospf-types:sr-sid-type;
+      type oc-ni-types:sr-sid-type;
       description
         "The type of the value contained within the sub-TLV";
     }
@@ -225,7 +228,7 @@ submodule openconfig-ospfv2-lsdb {
       "Per-area operational state parameters for an OSPFv2 area";
 
     leaf identifier {
-      type oc-ospf-types:ospf-area-identifier;
+      type oc-ni-types:ospf-area-identifier;
       description
         "An identifier for the area, expressed as a dotted quad or
         an unsigned 32-bit integer";
@@ -238,7 +241,7 @@ submodule openconfig-ospfv2-lsdb {
 
     leaf type {
       type identityref {
-        base "oc-ospf-types:OSPF_LSA_TYPE";
+        base "oc-ni-types:OSPF_LSA_TYPE";
       }
       description
         "The type of LSA being described. The type of the LSA is
@@ -263,6 +266,8 @@ submodule openconfig-ospfv2-lsdb {
       description
         "The router ID of the router that originated the LSA";
     }
+
+    uses ospfv2-lsdb-area-lsa-type-state;
 
     leaf sequence-number {
       type int32;
@@ -1109,7 +1114,7 @@ submodule openconfig-ospfv2-lsdb {
 
     leaf type {
       type identityref {
-        base "oc-ospf-types:ROUTER_LSA_TYPES";
+        base "oc-ni-types:ROUTER_LSA_TYPES";
       }
       description
         "The sub-type of the Router LSA.";
@@ -1118,7 +1123,7 @@ submodule openconfig-ospfv2-lsdb {
     uses ospfv2-lsdb-common-link-specification;
 
     leaf metric {
-      type oc-ospf-types:ospf-metric;
+      type oc-ni-types:ospf-metric;
       description
         "The cost of utilising the link specified independent of TOS";
     }
@@ -1229,7 +1234,7 @@ submodule openconfig-ospfv2-lsdb {
     }
 
     leaf metric {
-      type oc-ospf-types:ospf-metric;
+      type oc-ni-types:ospf-metric;
       description
         "The cost to reach the external network specified. The exact
         interpretation of this cost is dependent on the type of
@@ -1298,7 +1303,7 @@ submodule openconfig-ospfv2-lsdb {
 
     leaf type {
       type identityref {
-        base "oc-ospf-types:OSPF_OPAQUE_LSA_TYPE";
+        base "oc-ni-types:OSPF_OPAQUE_LSA_TYPE";
       }
       description
         "The Opaque Type of the LSA. This value is used to
@@ -1312,7 +1317,7 @@ submodule openconfig-ospfv2-lsdb {
 
     leaf type {
       type identityref {
-        base "oc-ospf-types:OSPF_TE_LSA_TLV_TYPE";
+        base "oc-ni-types:OSPF_TE_LSA_TLV_TYPE";
       }
       description
         "The type of TLV within the Traffic Engineering LSA";
@@ -1333,7 +1338,7 @@ submodule openconfig-ospfv2-lsdb {
     leaf type {
       type union {
         type identityref {
-          base "oc-ospf-types:OSPF_TE_LINK_TLV_TYPE";
+          base "oc-ni-types:OSPF_TE_LINK_TLV_TYPE";
         }
         type enumeration {
           enum UNKNOWN {
@@ -1542,7 +1547,7 @@ submodule openconfig-ospfv2-lsdb {
     leaf type {
       type union {
         type identityref {
-          base "oc-ospf-types:TE_NODE_ATTRIBUTE_TLV_TYPE";
+          base "oc-ni-types:TE_NODE_ATTRIBUTE_TLV_TYPE";
         }
         type enumeration {
           enum UNKNOWN {
@@ -1604,7 +1609,7 @@ submodule openconfig-ospfv2-lsdb {
 
     leaf type {
       type identityref {
-        base "oc-ospf-types:GRACE_LSA_TLV_TYPES";
+        base "oc-ni-types:GRACE_LSA_TLV_TYPES";
       }
       description
         "The type of the sub-TLV received within the Grace LSA";
@@ -1685,7 +1690,7 @@ submodule openconfig-ospfv2-lsdb {
     leaf type {
       type union {
         type identityref {
-          base "oc-ospf-types:RI_LSA_TLV_TYPES";
+          base "oc-ni-types:RI_LSA_TLV_TYPES";
         }
         type enumeration {
           enum UNKNOWN {
@@ -1783,7 +1788,7 @@ submodule openconfig-ospfv2-lsdb {
 
     leaf-list supported-algorithms {
       type identityref {
-        base "oc-ospf-types:SR_ALGORITHM";
+        base "oc-ni-types:SR_ALGORITHM";
       }
       description
         "A list of the algorithms that are supported for segment routing
@@ -1799,7 +1804,7 @@ submodule openconfig-ospfv2-lsdb {
     leaf type {
       type union {
         type identityref {
-          base "oc-ospf-types:OSPF_RI_SR_SID_LABEL_TLV_TYPES";
+          base "oc-ni-types:OSPF_RI_SR_SID_LABEL_TLV_TYPES";
         }
         type enumeration {
           enum UNKNOWN {
@@ -1830,7 +1835,7 @@ submodule openconfig-ospfv2-lsdb {
       range TLV of the RI LSA";
 
     leaf entry-type {
-      type oc-ospf-types:sr-sid-type;
+      type oc-ni-types:sr-sid-type;
       description
         "The type of entry that is contained within the sub-TLV. The range may
         be represented as either a range of MPLS labels, or numeric segment
@@ -1923,7 +1928,7 @@ submodule openconfig-ospfv2-lsdb {
 
     leaf link-type {
       type identityref {
-        base "oc-ospf-types:OSPFV2_ROUTER_LINK_TYPE";
+        base "oc-ni-types:OSPFV2_ROUTER_LINK_TYPE";
       }
       description
         "The type of link with which extended attributes are associated";
@@ -1939,7 +1944,7 @@ submodule openconfig-ospfv2-lsdb {
 
     leaf type {
       type identityref {
-        base "oc-ospf-types:OSPFV2_EXTENDED_LINK_SUBTLV_TYPE";
+        base "oc-ni-types:OSPFV2_EXTENDED_LINK_SUBTLV_TYPE";
       }
       description
         "The type of the sub-TLV contained within the extended link TLV";
@@ -1952,7 +1957,7 @@ submodule openconfig-ospfv2-lsdb {
 
     leaf type {
       type identityref {
-        base "oc-ospf-types:OSPFV2_EXTENDED_PREFIX_SUBTLV_TYPE";
+        base "oc-ni-types:OSPFV2_EXTENDED_PREFIX_SUBTLV_TYPE";
       }
       description
         "The type of sub-TLV as indicated by the Extended Prefix LSA";
@@ -2115,7 +2120,7 @@ submodule openconfig-ospfv2-lsdb {
     leaf type {
       type identityref {
         base
-         "oc-ospf-types:OSPFV2_EXTENDED_PREFIX_SID_LABEL_BINDING_SUBTLV_TYPE";
+         "oc-ni-types:OSPFV2_EXTENDED_PREFIX_SID_LABEL_BINDING_SUBTLV_TYPE";
       }
       description
         "The type of sub-TLV that is being contained within the SID/Label
@@ -2151,7 +2156,7 @@ submodule openconfig-ospfv2-lsdb {
 
     leaf type {
       type identityref {
-        base "oc-ospf-types:OSPFV2_EXTPREFIX_BINDING_ERO_PATH_SEGMENT_TYPE";
+        base "oc-ni-types:OSPFV2_EXTPREFIX_BINDING_ERO_PATH_SEGMENT_TYPE";
       }
       description
         "The type of the segment being specified as part of the ERO";
@@ -2232,7 +2237,7 @@ submodule openconfig-ospfv2-lsdb {
     }
   }
 
-  grouping ospfv2-lsdb-structure {
+  grouping ospfv2-link-lsdb-structure {
     description
       "Structural grouping for per-area LSDB contents";
 
@@ -2285,7 +2290,7 @@ submodule openconfig-ospfv2-lsdb {
               the specified type received by the system";
 
             list lsa {
-              key "link-state-id";
+              key "link-state-id advertising-router type";
 
               description
                 "List of the LSAs of a specified type in the
@@ -2297,6 +2302,129 @@ submodule openconfig-ospfv2-lsdb {
                 }
                 description
                   "Reference to the Link State ID of the LSA";
+              }
+
+              leaf advertising-router {
+                type leafref {
+                  path "../state/advertising-router";
+                }
+
+                description
+                  "Reference to the router ID of the router that originated the LSA";
+              }
+
+              leaf type {
+                type leafref {
+                  path "../state/type";
+                }
+                description
+                  "Reference to the LSA type";
+              }
+
+              container state {
+                description
+                  "Operational state parameters relating to all
+                  LSA types";
+                uses ospfv2-lsdb-area-lsa-state;
+              }
+
+              uses ospfv2-lsdb-opaque-lsa-structure {
+                when "../../state/type = 'OSPFV2_LINK_SCOPE_OPAQUE_LSA'" {
+                  description
+                    "Include the Opaque LSA structure when type of entry
+                    being described in an opaque LSA";
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  grouping ospfv2-area-lsdb-structure {
+    description
+      "Structural grouping for per-area LSDB contents";
+
+    container lsdb {
+      // Top-level RO, if this were ever to become writeable then
+      // the state containers lower down need config false added
+      config false;
+      description
+        "The link-state database for the OSPFv2 area";
+
+      container state {
+        description
+          "Operational state parameters relating to the OSPFv2
+          area";
+
+        uses ospfv2-lsdb-area-state;
+      }
+
+      container lsa-types {
+        description
+          "Enclosing container for a list of LSA types that are
+          in the LSDB for the specified area";
+
+        list lsa-type {
+          key "type";
+
+          description
+            "List of LSA types in the LSDB for the specified
+            area";
+
+          leaf type {
+            type leafref {
+              path "../state/type";
+            }
+            description
+              "A reference for the LSA type being described within
+              the LSDB";
+          }
+
+          container state {
+            description
+              "Top-level operational state parameters relating to
+              an LSA within the area";
+            uses ospfv2-lsdb-area-lsa-type-state;
+          }
+
+          container lsas {
+            description
+              "Enclosing container for a list of the LSAs of
+              the specified type received by the system";
+
+            list lsa {
+              key "link-state-id advertising-router type";
+
+              description
+                "List of the LSAs of a specified type in the
+                LSDB for the specified area";
+
+              leaf link-state-id {
+                type leafref {
+                  path "../state/link-state-id";
+                }
+                description
+                  "Reference to the Link State ID of the LSA";
+              }
+
+              leaf advertising-router {
+                type leafref {
+                  path "../state/advertising-router";
+                }
+
+                description
+                  "Reference to the router ID of the router that originated the LSA";
+              }
+
+              leaf type {
+                type leafref {
+                  path "../state/type";
+                }
+                description
+                  "Reference to the LSA type";
               }
 
               container state {
@@ -2333,14 +2461,6 @@ submodule openconfig-ospfv2-lsdb {
                 }
               }
 
-              uses ospfv2-lsdb-asexternal-lsa-structure {
-                when "../../state/type = 'AS_EXTERNAL_LSA'" {
-                  description
-                    "Include the AS external LSA hierarchy solely when
-                    that LSA type is being described";
-                }
-              }
-
               uses ospfv2-lsdb-nssa-external-lsa-structure {
                 when "../../state/type = 'NSSA_AS_EXTERNAL_LSA'" {
                   description
@@ -2350,9 +2470,7 @@ submodule openconfig-ospfv2-lsdb {
               }
 
               uses ospfv2-lsdb-opaque-lsa-structure {
-                when "../../state/type = 'OSPFV2_LINK_SCOPE_OPAQUE_LSA'
-                  or ../../state/type = 'OSPFV2_AREA_SCOPE_OPAQUE_LSA'
-                  or ../../state/type = 'OSPFV2_AS_SCOPE_OPAQUE_LSA'" {
+                when "../../state/type = 'OSPFV2_AREA_SCOPE_OPAQUE_LSA'" {
                   description
                     "Include the Opaque LSA structure when type of entry
                     being described in an opaque LSA";
@@ -2364,4 +2482,146 @@ submodule openconfig-ospfv2-lsdb {
       }
     }
   }
+
+  grouping ospfv2-global-lsdb-structure {
+    description
+      "Structural grouping for per-area LSDB contents";
+
+    container lsdb {
+      // Top-level RO, if this were ever to become writeable then
+      // the state containers lower down need config false added
+      config false;
+      description
+        "The link-state database for the OSPFv2 area";
+
+      container state {
+        description
+          "Operational state parameters relating to the OSPFv2
+          area";
+
+        uses ospfv2-lsdb-area-state;
+      }
+
+      container lsa-types {
+        description
+          "Enclosing container for a list of LSA types that are
+          in the LSDB for the specified area";
+
+        list lsa-type {
+          key "type";
+
+          description
+            "List of LSA types in the LSDB for the specified
+            area";
+
+          leaf type {
+            type leafref {
+              path "../state/type";
+            }
+            description
+              "A reference for the LSA type being described within
+              the LSDB";
+          }
+
+          container state {
+            description
+              "Top-level operational state parameters relating to
+              an LSA within the area";
+            uses ospfv2-lsdb-area-lsa-type-state;
+          }
+
+          container lsas {
+            description
+              "Enclosing container for a list of the LSAs of
+              the specified type received by the system";
+
+            list lsa {
+              key "link-state-id advertising-router type";
+
+              description
+                "List of the LSAs of a specified type in the
+                LSDB for the specified area";
+
+              leaf link-state-id {
+                type leafref {
+                  path "../state/link-state-id";
+                }
+                description
+                  "Reference to the Link State ID of the LSA";
+              }
+
+              leaf advertising-router {
+                type leafref {
+                  path "../state/advertising-router";
+                }
+
+                description
+                  "Reference to the router ID of the router that originated the LSA";
+              }
+
+              leaf type {
+                type leafref {
+                  path "../state/type";
+                }
+                description
+                  "Reference to the LSA type";
+              }
+
+              container state {
+                description
+                  "Operational state parameters relating to all
+                  LSA types";
+                uses ospfv2-lsdb-area-lsa-state;
+              }
+
+              uses ospfv2-lsdb-asexternal-lsa-structure {
+                when "../../state/type = 'AS_EXTERNAL_LSA'" {
+                  description
+                    "Include the AS external LSA hierarchy solely when
+                    that LSA type is being described";
+                }
+              }
+
+              uses ospfv2-lsdb-opaque-lsa-structure {
+                when "../../state/type = 'OSPFV2_AS_SCOPE_OPAQUE_LSA'" {
+                  description
+                    "Include the Opaque LSA structure when type of entry
+                    being described in an opaque LSA";
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  // augment the groupings into ospfv2 model
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:protocols/oc-ni:protocol/oc-ni:ospf/" +
+          "oc-ni:global" {
+    description
+      "OSPFv2 gloabl LSA database";
+    uses ospfv2-global-lsdb-structure;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:protocols/oc-ni:protocol/oc-ni:ospf/" +
+          "oc-ni:areas/oc-ni:area" {
+    description
+      "OSPFv2 area LSA database";
+    uses ospfv2-area-lsdb-structure;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:protocols/oc-ni:protocol/oc-ni:ospf/" +
+          "oc-ni:areas/oc-ni:area/" +
+          "oc-ni:interfaces/oc-ni:interface" {
+    description
+      "OSPFv2 link LSA database";
+    uses ospfv2-link-lsdb-structure;
+  } 
+
+
 }

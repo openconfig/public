@@ -1,0 +1,73 @@
+submodule openconfig-ospfv3-area-interface {
+
+  belongs-to openconfig-ospf {
+    prefix "oc-ospf";
+  }
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-network-instance { prefix "oc-ni"; }
+
+  // include common submodule
+  include openconfig-ospf-common;
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This submodule provides OSPFv2 configuration and operational
+    state parameters that are specific to the area context";
+
+  oc-ext:openconfig-version "0.0.1";
+
+  revision "2019-08-16" {
+    description
+      "Initial revision";
+    reference "0.0.1";
+  }
+
+
+  grouping ospfv3-area-interface-config {
+    description
+      "Structural grouping for configuration and operational state
+      parameters that relate to an interface";
+
+    leaf instance-id {
+      type uint8;
+      default 0;
+      description
+        "The OSPF protocol instance associated with this OSPF interface.";
+    }
+
+    leaf interface-id {
+      type uint32;
+      description
+        "32-bit number uniquely identifying this interface among the
+         collection of this router's interface. If it is not specified, the
+         interface index can be used.";
+    }
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:protocols/oc-ni:protocol/oc-ni:ospfv3/" +
+          "oc-ni:areas/oc-ni:area/" +
+          "oc-ni:interfaces/oc-ni:interface/oc-ni:config" {
+    description
+      "OSPFv3 interface paramaters";
+    uses ospfv3-area-interface-config;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:protocols/oc-ni:protocol/oc-ni:ospfv3/" +
+          "oc-ni:areas/oc-ni:area/" +
+          "oc-ni:interfaces/oc-ni:interface/oc-ni:state" {
+    description
+      "OSPFv3 interface paramaters";
+    uses ospfv3-area-interface-config;
+  }
+
+
+}
