@@ -20,7 +20,13 @@ submodule openconfig-aft-ipv4 {
     "Submodule containing definitions of groupings for the abstract
     forwarding tables for IPv4.";
 
-  oc-ext:openconfig-version "0.3.3";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2019-09-15" {
+    description
+      "Change ipv4-unicast to read-only and remove config.";
+    reference "0.4.0";
+  }
 
   revision "2019-08-01" {
     description
@@ -52,6 +58,7 @@ submodule openconfig-aft-ipv4 {
       abstract forwarding table.";
 
     list ipv4-entry {
+      config false;
       key "prefix";
 
       description
@@ -60,18 +67,13 @@ submodule openconfig-aft-ipv4 {
         prefix.";
 
       leaf prefix {
+        config false;
         type leafref {
-          path "../config/prefix";
+          path "../state/prefix";
         }
         description
           "Reference to the IPv4 unicast destination prefix which
           must be matched to utilise the AFT entry.";
-      }
-
-      container config {
-        description
-          "Configuration parameters for the IPv4 unicast AFT entry.";
-        uses aft-ipv4-unicast-entry-config;
       }
 
       container state {
