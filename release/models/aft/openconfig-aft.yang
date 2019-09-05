@@ -40,7 +40,13 @@ module openconfig-aft {
     is referred to as an Abstract Forwarding Table (AFT), rather than
     the FIB.";
 
-  oc-ext:openconfig-version "0.3.3";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2019-09-05" {
+    description
+      "Change ipv4-unicast and ipv6-unicast to read-only.";
+    reference "0.4.0";
+  }
 
   revision "2019-08-01" {
     description
@@ -92,6 +98,7 @@ module openconfig-aft {
         forwarding entry.";
 
       container ipv4-unicast {
+        config false;
         description
           "The abstract forwarding table for IPv4 unicast. Entries
           within this table are uniquely keyed on the IPv4 unicast
@@ -106,6 +113,7 @@ module openconfig-aft {
       }
 
       container ipv6-unicast {
+        config false;
         description
           "The abstract forwarding table for IPv6 unicast. Entries
           within this table are uniquely keyed on the IPv6 unicast
