@@ -7,6 +7,7 @@ submodule openconfig-pf-forwarding-policies {
   import openconfig-packet-match { prefix "oc-pmatch"; }
   import openconfig-yang-types { prefix "oc-yang"; }
   import openconfig-inet-types { prefix "oc-inet"; }
+  import openconfig-segment-routing { prefix oc-sr; }
 
   include openconfig-pf-path-groups;
 
@@ -153,6 +154,51 @@ submodule openconfig-pf-forwarding-policies {
 
               uses pf-forwarding-policy-action-encapsulate-gre;
             }
+          }
+        }
+        
+        container policy-counters {
+          description
+            "This container defines state information for counters
+            per SR-TE policy.";
+
+          container state {
+            config false;
+            description
+              "State parameter for forwarding policy statistics.";
+            uses pf-policy-counters-state;
+          }
+          
+          container segment-list-counters {
+          description
+            "This container defines state information for counters
+            per segment-list.";
+
+          list segment-list-counter {
+            key "index";
+            config false;
+
+            description
+              "Counters for traffic forwarded on a segment list in
+              the local system.";
+
+            leaf index {
+              type leafref {
+                path "../state/index";
+              }
+              description
+                "Reference to the index leaf which is the key to the
+                list of segment-list.";
+            }
+
+            container state {
+              config false;
+              description
+                "Operational state relating to segment-list counters.";
+              uses pf-segment-list-counter-state;
+            }
+
+            uses pf-segment-list-sids;
           }
         }
       }
@@ -386,6 +432,96 @@ submodule openconfig-pf-forwarding-policies {
       description
         "The TTL that should be specified in the IP header of the GRE packet
         encapsulating the packet matching the rule.";
+    }
+  }
+  
+  grouping pf-policy-counters-state {
+    description
+      "Cumulative counters corresponding to forwarding policy.";
+
+    leaf out-pkts {
+      type oc-yang:counter64;
+      description
+        "The cumulative count of all packets transmitted by the local
+        system for this forwarding policy.";
+    }
+
+    leaf out-octets {
+      type oc-yang:counter64;
+      description
+        "The cumulative count of all bytes transmitted by the local
+        system for this forwarding policy.";
+    }
+  }
+  
+  grouping pf-segment-list-counter-state {
+    description
+      "Grouping that describes the counters corresponding to the segment-lists.";
+
+    leaf index {
+      type uint64;
+      description
+        "Unique integer identifying the segment list within the set of
+        segment lists of forwarding policy.";
+    }
+
+    leaf out-pkts {
+      type oc-yang:counter64;
+      description
+        "A commulative counter of the total packets transmitted on
+        segment list by the local system.";
+    }
+
+    leaf out-octets {
+      type oc-yang:counter64;
+      description
+        "A commulative counter of the total bytes transmitted on
+        segment list by the local system.";
+    }
+  }
+  
+  grouping pf-segment-list-sids {
+    description
+      "List of SIDs that makes up the segment list.";
+
+    container sids {
+      description
+        "Container for the list of SIDs that makes up the segment list.";
+
+      list sid {
+        key "index";
+
+        description
+          "List of SIDs that make up the segment list.";
+
+        leaf index {
+          type leafref {
+            path "../state/index";
+          }
+          description
+            "Reference to the index leaf which is the key to the list of sid.";
+        }
+
+        container state {
+          config false;
+
+          description
+            "State parameter for SID of the segment list.";
+
+          leaf index {
+            type uint64;
+            description
+              "The index of the SID within the segment list.";
+          }
+
+          leaf value {
+            type oc-sr:sr-sid-type;
+            description
+              "The value of the SID that is to be used. Specified as an MPLS
+              label or IPv6 address.";
+          }
+        }
+      }
     }
   }
 }
