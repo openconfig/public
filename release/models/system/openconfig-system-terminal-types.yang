@@ -1,0 +1,156 @@
+module openconfig-system-terminal-types {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/system/terminal/types";
+
+  prefix "oc-sys-term-types";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines types related to related to remote
+    terminal services such as ssh and telnet.";
+
+  oc-ext:openconfig-version "0.3.1";
+
+  revision "2019-09-25" {
+    description
+      "Initial public release";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // identity statements
+
+  // typedef statements
+  typedef ssh-cipher-suite {
+    type enumeration {
+      enum AES128_CBC {
+        description
+          "128-bit AES with Cipher Block Chaining";
+      }
+      enum AES192_CBC {
+        description
+          "192-bit AES with Cipher Block Chaining";
+      }
+      enum AES256_CBC {
+        description
+          "256-bit AES with Cipher Block Chaining";
+      }
+      enum "RIJNDAEL_CBC@LYSATOR.LIU.SE" {
+        description
+          "Rijndael/AES with Cipher Block Chaining";
+      }
+      enum AES128_CTR {
+        description
+          "128-bit AES with Counter Mode";
+      }
+      enum AES192_CTR {
+        description
+          "192-bit AES with Counter Mode";
+      }
+      enum AES256_CTR {
+        description
+          "256-bit AES with Counter Mode";
+      }
+      enum "AES128_GCM@OPENSSH.COM" {
+        description
+          "128-bit AES with Galois/Counter Mode";
+      }
+      enum "AES256_GCM@OPENSSH.COM" {
+        description
+          "256-bit AES with Galois/Counter Mode";
+      }
+      enum "CHACHA20_POLY1305@OPENSSH.COM" {
+        description
+          "ChaCha20 stream cipher and Poly1305 MAC";
+      }
+    }
+  }
+
+  typedef ssh-mac-suite {
+    type enumeration {
+      enum HMAC_SHA1 {
+        description
+          "Hash-based MAC using SHA1";
+      }
+      enum HMAC_SHA1_96 {
+        description
+          "96-bit Hash-based MAC using SHA1";
+      }
+      enum HMAC_SHA2_256 {
+        description
+          "256-bit Hash-based MAC using SHA2";
+      }
+      enum HMAC_SHA2_512 {
+        description
+          "512-bit Hash-based MAC using SHA2";
+      }
+      enum HMAC_MD5 {
+        description
+          "Hash-based MAC using MD5";
+      }
+      enum HMAC_MD5_96 {
+        description
+          "96-bit Hash-based MAC using MD5";
+      }
+      enum "UMAC_64@OPENSSH.COM" {
+        description
+          "64-bit Universal Hash-based MAC";
+      }
+      enum "UMAC_128@OPENSSH.COM" {
+        description
+          "128-bit Universal Hash-based MAC";
+      }
+      enum "HMAC_SHA1_ETM@OPENSSH.COM" {
+        description
+          "Hash-based MAC using SHA1 - Encrypt-then-MAC";
+      }
+      enum "HMAC_SHA1_96_ETM@OPENSSH.COM" {
+        description
+          "96-bit Hash-based MAC using SHA1 - Encrypt-then-MAC";
+      }
+      enum "HMAC_SHA2_256_ETM@OPENSSH.COM" {
+        description
+          "256-bit Hash-based MAC using SHA2 - Encrypt-then-MAC";
+      }
+      enum "HMAC_SHA2_512_ETM@OPENSSH.COM" {
+        description
+          "512-bit Hash-based MAC using SHA2 - Encrypt-then-MAC";
+      }
+      enum "HMAC_MD5_ETM@OPENSSH.COM" {
+        description
+          "Hash-based MAC using MD5 - Encrypt-then-MAC";
+      }
+      enum "HMAC_MD5_96_ETM@OPENSSH.COM" {
+        description
+          "96-bit Hash-based MAC using MD5 - Encrypt-then-MAC";
+      }
+      enum "UMAC_64_ETM@OPENSSH.COM" {
+        description
+          "64-bit Universal Hash-based MAC - Encrypt then MAC";
+      }
+      enum "UMAC_128_ETM@OPENSSH.COM" {
+        description
+          "128-bit Universal Hash-based MAC - Encrypt then MAC";
+      }
+    }
+  }
+
+  // grouping statements
+}

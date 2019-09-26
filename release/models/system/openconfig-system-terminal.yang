@@ -9,6 +9,9 @@ module openconfig-system-terminal {
 
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-system-terminal-types {
+    prefix oc-sys-term-types;
+  }
 
 
   // meta
@@ -152,6 +155,37 @@ module openconfig-system-terminal {
       default V2;
       description
         "Set the protocol version for SSH connections to the system";
+    }
+
+    leaf-list ciphers {
+      ordered-by user;
+      type oc-sys-term-types:ssh-cipher-suite;
+      default "CHACHA20_POLY1305@OPENSSH.COM";
+      default "AES128_CTR";
+      default "AES192_CTR";
+      default "AES256_CTR";
+      default "AES128_GCM@OPENSSH.COM";
+      default "AES256_GCM@OPENSSH.COM";
+      description
+        "Set the list of cipher suites allowed";
+    }
+
+    leaf-list macs {
+      ordered-by user;
+      type oc-sys-term-types:ssh-mac-suite;
+      default "UMAC_64_ETM@OPENSSH.COM";
+      default "UMAC_128_ETM@OPENSSH.COM";
+      default "HMAC_SHA2_256_ETM@OPENSSH.COM";
+      default "HMAC_SHA2_512_ETM@OPENSSH.COM";
+      default "HMAC_SHA1_ETM@OPENSSH.COM";
+      default "UMAC_64@OPENSSH.COM";
+      default "UMAC_128@OPENSSH.COM";
+      default "HMAC_SHA2_256";
+      default "HMAC_SHA2_512";
+      default "HMAC_SHA1";
+      description
+        "Specifies the available MAC (message authentication code)
+        algorithms";
     }
 
     uses system-terminal-common-config;
