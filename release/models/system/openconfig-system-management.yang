@@ -104,6 +104,10 @@ module openconfig-system-management {
           }
         }
       }
+      default "ANY";
+      must "(not(../listen-addresses = 'ANY' and count(../listen-addresses) > 1))" {
+        error-message "'ANY' and IP addresses are mutually exclusive";
+      }
       description
         "The IP addresses that the gRPC server should listen
         on. This may be an IPv4 or an IPv6 address";
