@@ -188,6 +188,26 @@ module openconfig-system-terminal {
         algorithms";
     }
 
+    leaf-list listen-addresses {
+      type union {
+        type oc-inet:ip-address;
+        type enumeration {
+          enum ANY {
+            description
+              "The SSH daemon should listen on any address
+              bound to an interface on the system.";
+          }
+        }
+      }
+      default "ANY";
+      must "(not(../listen-addresses = 'ANY' and count(../listen-addresses) > 1))" {
+        error-message "'ANY' and IP addresses are mutually exclusive";
+      }
+      description
+        "The IP addresses that the SSH server should listen
+        on.  This may be an IPv4, IPv6 address or 'ANY'";
+    }
+
     uses system-terminal-common-config;
   }
 
