@@ -24,7 +24,13 @@ submodule openconfig-qos-interfaces {
     configuration and operational state associated with
     interfaces.";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.2.2";
+
+  revision "2019-08-20" {
+    description
+      "Fix typo in classifiers container name";
+    reference "0.2.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -52,7 +58,7 @@ submodule openconfig-qos-interfaces {
     leaf id {
       type leafref {
         // Current location:
-        // /qos/interfaces/interface/input/classifers/classifier/
+        // /qos/interfaces/interface/input/classifiers/classifier/
         // terms/term/config/id
         path "../../../../../../../../../classifiers/" +
             "classifier[name=current()/../../../../config/name]/" +
@@ -135,7 +141,7 @@ submodule openconfig-qos-interfaces {
       "Top-level grouping for a QoS classifier associated with an
       interface";
 
-    container classifers {
+    container classifiers {
       description
         "Classifiers to be applied to the interface.";
 
@@ -156,14 +162,14 @@ submodule openconfig-qos-interfaces {
         container config {
           description
             "Configuration parameters for the list of classifiers.";
-          uses qos-interface-classifers-config;
+          uses qos-interface-classifiers-config;
         }
 
         container state {
           config false;
           description
             "Operational state parameters for the list of classifiers.";
-          uses qos-interface-classifers-config;
+          uses qos-interface-classifiers-config;
         }
 
         uses qos-interface-classifier-match-top;
@@ -171,7 +177,7 @@ submodule openconfig-qos-interfaces {
     }
   }
 
-  grouping qos-interface-classifers-config {
+  grouping qos-interface-classifiers-config {
     description
       "Configuration parameters for the list of classifiers";
 
