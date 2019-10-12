@@ -32,7 +32,13 @@ module openconfig-aaa {
     Portions of this model reuse data definitions or structure from
     RFC 7317 - A YANG Data Model for System Management";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.4.2";
+
+  revision "2019-08-20" {
+    description
+      "Fix identity prefixes and when statement paths";
+    reference "0.4.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -266,11 +272,11 @@ module openconfig-aaa {
         }
 
         uses aaa-tacacs-server-top {
-          when "../../config/type = 'oc-aaa-types:TACACS'";
+          when "../../../config/type = 'oc-aaa:TACACS'";
         }
 
         uses aaa-radius-server-top {
-          when "../../config/type = 'oc-aaa-types:RADIUS'";
+          when "../../../config/type = 'oc-aaa:RADIUS'";
         }
       }
     }
