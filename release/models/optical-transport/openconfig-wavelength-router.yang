@@ -39,7 +39,14 @@ module openconfig-wavelength-router {
     noise-loaded wavelength routers, individual media channels will
     not have their PSD values configured.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2019-09-20" {
+    description
+      "Add ASE related state and config. Also add a super channel
+      parent leaf";
+    reference "0.6.0";
+  }
 
   revision "2019-06-03" {
     description
@@ -95,6 +102,45 @@ module openconfig-wavelength-router {
   oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  // identity statements
+  identity ASE_CONTROL_MODE {
+    description
+      "The definition for different types of ASE control modes
+      on a media channel";
+  }
+
+  identity ASE_ENABLED {
+    base ASE_CONTROL_MODE;
+    description
+      "The media channel will immediately have ASE noise injected";
+  }
+
+  identity ASE_DISABLED {
+    base ASE_CONTROL_MODE;
+    description
+      "Removes any ASE noise injection that may be present on the
+      media channel";
+  }
+
+  identity AUTO_ASE_ON_FAILURE {
+    base ASE_CONTROL_MODE;
+    description
+      "The media channel will automatically be injected with noise
+      if the media channel PSD drops below the provided threshdold.
+      In this mode, at time of a failure, the media channel is
+      removed from the system and would need to be reconfigured to
+      restore traffic";
+  }
+
+  identity AUTO_ASE_FAILURE_AND_RESTORE {
+    base ASE_CONTROL_MODE;
+    description
+      "The media channel will automatically be injected with noise
+      if the media channel PSD drops below the provided threshold.
+      When the original signal is restored above the threshold the
+      ASE noise injection will be automatically removed";
+  }
 
   // grouping statements
 
@@ -358,9 +404,52 @@ module openconfig-wavelength-router {
     leaf admin-status {
       type oc-opt-types:admin-state-type;
       description
-          "Sets the admin status of the media channel";
+        "Sets the admin status of the media channel";
     }
 
+    leaf super-channel {
+      type boolean;
+      description
+        "True if the media channel is a super channel which
+        contains multiple media channels within it. The contained
+        media channels should fall within the boundaries of the
+        super channel. The device should raise an error if a media
+        channel crosses a super channel boundary. When using super
+        channels, PSD targets should be defined in either the:
+         - port-psd-profile for the port which matches the source
+           port of the media channel representing the super channel
+         - media channels that are contained within the super
+	   channel, but not on the super channel itself";
+    }
+
+    leaf super-channel-parent {
+      type leafref {
+        path "../../../channel/config/index";
+      }
+      description
+        "If the media channel is contained within a super channel this
+        would specify the index of the super channel parent";
+    }
+
+    leaf ase-control-mode {
+      type identityref {
+        base ASE_CONTROL_MODE;
+      }
+      description
+        "Sets the ASE control mode for the media channel.
+        The control mode defines the behavior of when and if
+        ASE noise is injected on the media channel";
+    }
+
+    leaf ase-injection-threshold {
+      type oc-types:ieeefloat32;
+      units "nW/MHz";
+      description
+        "Defines the power spectral density (PSD) threshold value
+        which would indicate that ASE noise should be injected on
+        the media channel. This is required if a threshold based
+        ase-control-mode is configured";
+    }
   }
 
   grouping media-channel-state {
@@ -380,6 +469,21 @@ module openconfig-wavelength-router {
       }
       description
         "Operational state of the media channel";
+    }
+
+    leaf ase-status {
+      type enumeration {
+        enum PRESENT {
+          description
+            "Media channel has injected ASE noise present";
+        }
+        enum NOT_PRESENT {
+          description
+            "Media channel does not have injected ASE noise present";
+        }
+      }
+      description
+        "Status of injected ASE noise on the media channel";
     }
 
   }
