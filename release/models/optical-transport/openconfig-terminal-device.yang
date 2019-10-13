@@ -15,7 +15,6 @@ module openconfig-terminal-device {
   import openconfig-lldp { prefix oc-lldp; }
   import openconfig-extensions { prefix oc-ext; }
   import ietf-yang-types { prefix yang; }
-  import openconfig-interfaces { prefix oc-if; }
   import openconfig-yang-types { prefix oc-yang; }
 
 
@@ -77,13 +76,34 @@ module openconfig-terminal-device {
     ports per linecard, separate linecards for client and line ports,
     etc.).";
 
-  oc-ext:openconfig-version "1.5.1";
+  oc-ext:openconfig-version "1.7.1";
+
+  revision "2019-10-12" {
+    description
+      "Fix when statement paths";
+    reference "1.7.1";
+  }
+
+  revision "2019-08-08" {
+    description
+      "Add ALS config to logical-channel/ethernet/config and remove
+       legacy interfaces augment for this config. Client FEC was
+       previosuly migrated to the components model and should not
+       be here anymore.";
+    reference "1.7.0";
+  }
+
+  revision "2019-07-26" {
+    description
+      "Add support for LLDP natively on logical-channels.";
+    reference "1.6.0";
+  }
 
   revision "2018-11-21" {
     description
       "Add OpenConfig module metadata extensions.";
     reference "1.5.1";
-  } 
+  }
 
   revision "2018-10-23" {
     description
@@ -157,7 +177,44 @@ module openconfig-terminal-device {
       "Configuration data for logical channels with Ethernet
       framing";
 
-    //TODO:currently a empty container
+    leaf client-als {
+      type enumeration {
+        enum NONE {
+          description
+            "The client port will do nothing when a failure is
+            detected on the line port or the remote client port";
+        }
+        enum LASER_SHUTDOWN {
+          description
+            "The client port will shut down the laser to notify the
+            subtending Ethernet equipment of the failure detected on
+            the line port or the remote client port.";
+        }
+        enum ETHERNET {
+          description
+            "The client port will propagate the local fault or remote
+            fault signal to the subtending Ethernet equipment.";
+        }
+      }
+      default ETHERNET;
+      description
+        "Sets the client port behavior that defines if the actions
+        of automatic laser shutdown (als), ethernet fault
+        propagation, or nothing will be done upon the detection
+        of a failure on the line port or the upstream remote
+        client port.";
+    }
+
+    leaf als-delay {
+      type uint32;
+      units milliseconds;
+      default 0;
+      description
+        "The timer to delay the client-als actions on the client
+        port when a local or remote fault is detected on the line
+        port. The delay will only be valid when the client-als is
+        set to LASER_SHUTDOWN";
+    }
   }
 
   grouping terminal-ethernet-protocol-state {
@@ -262,9 +319,127 @@ module openconfig-terminal-device {
           "Operational state data for Ethernet protocol framing
           on logical channels";
 
+        uses terminal-ethernet-protocol-config;
         uses terminal-ethernet-protocol-state;
       }
+
+      uses lldp-logical-channel-top;
     }
+  }
+
+  grouping lldp-logical-channel-top {
+    description
+      "Top-level grouping for LLDP data for a logical channel";
+
+    container lldp {
+      description
+        "LLDP data for logical channels";
+
+      container config {
+        description
+          "LLDP configuration data for logical channels";
+
+        uses lldp-logical-channel-config;
+      }
+
+      container state {
+        config false;
+        description
+          "LLDP operational state data for logical channels";
+
+        uses lldp-logical-channel-config;
+        uses oc-lldp:lldp-interface-state;
+      }
+
+      uses lldp-logical-channel-neighbor-top;
+    }
+  }
+
+  grouping lldp-logical-channel-config {
+    description
+      "Configuration data for LLDP for logical-channels";
+
+    leaf enabled {
+      type boolean;
+      default "false";
+      description
+        "Enable or disable the LLDP protocol on the logical channel.";
+    }
+
+    leaf snooping {
+      type boolean;
+      default "false";
+      description
+        "If true, LLDP PDUs are only received and processed on
+        the logical-channel, but are not originated by the local
+        agent. The PDUs are not dropped by the logical channel after
+        processing, but relayed to the downstream link layer
+        neighbors. The snooping mode is valid only when LLDP is
+        enabled on the logical channel. The snooping mode is useful
+        when a logical channel does not want its link layer neighbors
+        to discover itself since, for example, it is a lower-layer
+        logical channel.";
+    }
+  }
+
+  grouping lldp-logical-channel-neighbor-top {
+    description
+      "Top-level grouping for the LLDP neighbor list";
+
+    container neighbors {
+      config false;
+      description
+        "Enclosing container for list of LLDP neighbors on
+        a logical channel";
+
+      list neighbor {
+        key "id";
+        description
+          "List of LLDP neighbors. If the implementation only
+          supports one neighbor, this would always be a list with
+          one item. If the device and neighbor supported multiple
+          neighbors, which can be achieved via LLDP forwarding, then
+          this would be supported";
+        reference
+          "IEEE Std 802.1AB-2016, section 7.1, Destination address";
+
+        leaf id {
+          type leafref {
+            path "../state/id";
+          }
+          description
+            "System generated identifier for the neighbor on
+            the logical channel.";
+        }
+
+        container config {
+          description
+            "Configuration data ";
+
+          uses lldp-logical-channel-neighbor-config;
+        }
+
+        container state {
+
+          config false;
+
+          description
+            "Operational state data ";
+
+          uses oc-lldp:lldp-system-info-config;
+          uses oc-lldp:lldp-system-info-state;
+          uses oc-lldp:lldp-neighbor-config;
+          uses oc-lldp:lldp-neighbor-state;
+        }
+
+        uses oc-lldp:lldp-custom-tlv-top;
+      }
+    }
+  }
+
+  grouping lldp-logical-channel-neighbor-config {
+    description
+      "Configuration data for LLDP neighbors";
   }
 
   grouping terminal-otn-protocol-config {
@@ -994,14 +1169,14 @@ module openconfig-terminal-device {
         }
 
         uses terminal-otn-protocol-top {
-          when "config/logical-channel-type = 'PROT_OTN'" {
+          when "../config/logical-channel-type = 'PROT_OTN'" {
             description
               "Include the OTN protocol data only when the
               channel is using OTN framing.";
           }
         }
         uses terminal-ethernet-protocol-top {
-          when "config/logical-channel-type = 'PROT_ETHERNET'" {
+          when "../config/logical-channel-type = 'PROT_ETHERNET'" {
             description
               "Include the Ethernet protocol statistics only when the
               protocol used by the link is Ethernet.";
@@ -1242,75 +1417,6 @@ module openconfig-terminal-device {
     }
   }
 
-  grouping ethernet-config-ext {
-    description
-      "Extended ethernet config data on terminal device";
-
-    leaf client-fec {
-      type enumeration {
-        enum ENABLED {
-          description
-            "FEC is enabled";
-        }
-
-        enum DISABLED {
-          description
-            "FEC is disabled";
-        }
-
-        enum AUTO {
-          description
-            "System will automatically enable or disable FEC
-            according to the Ethernet compliance codes (PMD)
-            supported by transceivers";
-        }
-      }
-      default AUTO;
-      description
-        "Configure whether FEC will be manually or automatically
-        enabled or disabled on the client port";
-    }
-
-    leaf client-als {
-      type enumeration {
-        enum NONE {
-          description
-            "The client port will do nothing when a failure is
-            detected on the line port or the remote client port";
-        }
-        enum LASER_SHUTDOWN {
-          description
-            "The client port will shut down the laser to notify the
-            subtending Ethernet equipment of the failure detected on
-            the line port or the remote client port.";
-        }
-        enum ETHERNET {
-          description
-            "The client port will propagate the local fault or remote
-            fault signal to the subtending Ethernet equipment.";
-        }
-      }
-      default ETHERNET;
-      description
-        "Sets the client port behavior that defines if the actions
-        of automatic laser shutdown (als), ethernet fault
-        propagation, or nothing will be done upon the detection
-        of a failure on the line port or the upstream remote
-        client port.";
-    }
-
-    leaf als-delay {
-      type uint32;
-      units milliseconds;
-      default 0;
-      description
-        "The timer to delay the client-als actions on the client
-        port when a local or remote fault is detected on the line
-        port. The delay will only be valid when the client-als is
-        set to LASER_SHUTDOWN";
-    }
-  }
-
   grouping terminal-device-config {
     description
       "Configuration data for transport terminal devices at a
@@ -1355,29 +1461,6 @@ module openconfig-terminal-device {
     }
   }
 
-
-  grouping lldp-interface-config {
-    description
-      "Extension to the configuration data for LLDP on each
-      optical terminal interface";
-
-    leaf snooping {
-      type boolean;
-      default "false";
-      description
-        "If true, LLDP PDUs are only received and processed on
-        the interface, but are not originated by the local agent.
-        The PDUs are not dropped by the interface after processing,
-        but relayed to the downstream link layer neighbors.
-        If false, LLDP PDUs are both received and originated on the
-        interface. The snooping mode is valid only when LLDP is
-        enabled on the interface. The snooping mode is useful
-        when an interface does not want its link layer neighbors to
-        discover itself since, for example, it is a lower-layer
-        interface";
-    }
-  }
-
   // data definition statements
 
   uses terminal-device-top;
@@ -1396,23 +1479,5 @@ module openconfig-terminal-device {
 
     uses terminal-optical-channel-top {
     }
-  }
-
-  augment "/oc-if:interfaces/oc-if:interface/oc-eth:ethernet" +
-    "/oc-eth:config" {
-    description
-      "Adds configuration data for client interfaces using Ethernet
-      framing";
-
-    uses ethernet-config-ext;
-  }
-
-  augment "/oc-lldp:lldp/oc-lldp:interfaces/oc-lldp:interface/" +
-    "oc-lldp:config" {
-    description
-      "Augment the lldp config data to support the snooping mode
-      for each optical terminal interface";
-
-    uses lldp-interface-config;
   }
 }
