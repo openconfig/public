@@ -728,7 +728,7 @@ in/home/user/simple_client.py. We will go over the interesting bits here:
 ```
 import gnmi_pb2
 import gnmi_pb2_grpc
-import gprc
+import grpc
 ```
 Firstly, we are importing our protoc-generated code from the previous step. With
 our gNMI source imported, we set up the gNMI channel (which semantically is
@@ -813,7 +813,7 @@ notification {
   }
 }
 ```
-You just initiated a gNMI GetRequest, received a [GetRespone](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-path-conventions.md), and printed that response to the terminal
+You just initiated a gNMI GetRequest, received a [GetResponse](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-path-conventions.md), and printed that response to the terminal
 (stdout). The above is the protobuffer response. You can probably recognize the
 ‘json_val’ content. Later, we’ll turn this into JSON and Serialize it according
 to the same YANG model we used to generate the JSON.
