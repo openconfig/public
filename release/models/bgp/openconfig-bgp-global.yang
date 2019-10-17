@@ -117,6 +117,31 @@ submodule openconfig-bgp-global {
         "RFC4271 - A Border Gateway Protocol 4 (BGP-4),
         Section 4.2";
     }
+
+    leaf enabled {
+      type boolean;
+      default true;
+      description
+        "Whether BGP is enabled globally per instance.  When
+        the enabled leaf is set to false, the local system
+        should not initiate any connections to provisioned
+        neighbors or respond to TCP connection attempts from
+        neighbors.  If any BGP sessions are ESTABLISHED at the
+        time that this leaf is set to false, the BGP sessions
+        should be ceased.";
+    }
+
+    leaf admin-shutdown-message {
+      type string;
+      description
+        "Shutdown communication message - A UTF-8 encoded message
+        sent in a Cease NOTIFICATION message.  This message will
+        only be sent if populated prior to or in conjunction with
+        enabled set to false.";
+      reference
+        "RFC8203 - BGP Administrative Shutdown Communication,
+        Section 2";
+    }
   }
 
   grouping bgp-global-state {
