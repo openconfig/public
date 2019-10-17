@@ -230,6 +230,23 @@ module openconfig-inet-types {
       RFC 4001: Textual Conventions for Internet Network Addresses";
   }
 
+  typedef hostname {
+    type string {
+      length "1..255";
+      pattern
+        '(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*' +
+        '([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])';
+    }
+    description
+      "The hostname type represents a non FQDN and is for use
+       when the domain-name type is too loose with restrictions.
+       This type implements a stricter set of requirements on
+       valid names according to RFC952/RFC1123";
+    reference
+      "RFC952 - DoD Internet Host Table Specification
+       RFC1123 - Requirements for Internet Hosts, Section 2.1";
+  }
+
   typedef domain-name {
     type string {
       length "1..253";
