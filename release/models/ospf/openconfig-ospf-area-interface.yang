@@ -5,6 +5,7 @@ submodule openconfig-ospf-area-interface {
   }
 
   import ietf-yang-types { prefix "yang"; }
+  import ietf-inet-types { prefix "inet"; }
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-types { prefix "oc-types"; }
   import openconfig-interfaces { prefix "oc-if"; }
@@ -187,15 +188,48 @@ submodule openconfig-ospf-area-interface {
     }
   }
 
+  grouping ospf-area-interface-state {
+    description
+      "Operation state parameters of an OSPF interface";
+
+    // TODO: Add the Interface state-machine state
+
+    leaf dr-router-id {
+      type yang:dotted-quad;
+      description
+        "The router-id of the designated router for this interface.";
+    }
+
+    leaf dr-ip-address {
+      type inet:ip-address;
+      description
+        "The IP address of the designated router for this interface.";
+    }
+
+    leaf bdr-router-id {
+      type yang:dotted-quad;
+      description
+        "The router-id of the backup designated router for this
+        interface.";
+    }
+
+    leaf bdr-ip-address {
+      type inet:ip-address;
+      description
+        "The IP address of the backup designated router for this
+        interface.";
+    }
+  }
+
   grouping ospf-area-interface-neighbor-config {
     description
       "Configuration parameters relating to an individual neighbor
       system on an interface within an OSPF area";
 
-    leaf router-id {
-      type yang:dotted-quad;
+    leaf neighbor-ip-address {
+      type inet:ip-address;
       description
-        "The router ID of the remote system.";
+        "The IP address of the configured neighbor.";
     }
 
     leaf metric {
@@ -205,12 +239,39 @@ submodule openconfig-ospf-area-interface {
         over this interface. This configuration is only applicable
         for multiple-access networks";
     }
+
+    leaf poll-interval {
+      type uint16;
+      description
+        "Neighbor poll interval (seconds) for sending OSPF Hello
+        packets to discover the neighbor on NBMA networks. Refer
+        Appendix C.5 in RFC 2328.";
+    }
+
+    leaf priority {
+      type uint8;
+      default 1;
+      description
+        "The local system's priority to become the designated router";
+    }
   }
 
   grouping ospf-area-interface-neighbor-state {
     description
       "Operational state parameters relating an individual neighbor
       system on an interface within an OSPF area";
+
+    leaf neighbor-router-id {
+      type yang:dotted-quad;
+      description
+        "The router ID of the remote system.";
+    }
+
+    leaf neighbor-ip-address {
+      type inet:ip-address;
+      description
+        "The IP address of the remote system.";
+    }
 
     leaf priority {
       type uint8;
@@ -227,17 +288,30 @@ submodule openconfig-ospf-area-interface {
         the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
     }
 
-    leaf designated-router {
+    leaf dr-router-id {
       type yang:dotted-quad;
       description
-        "The designated router for the adjacency. This device
+        "The router ID of designated router for the adjacency. This device
         advertises the Network LSA for broadcast and NBMA networks.";
     }
 
-    leaf backup-designated-router {
+    leaf dr-ip-address {
+      type inet:ip-address;
+      description
+        "The IP address of designated router for the adjacency. This device
+        advertises the Network LSA for broadcast and NBMA networks.";
+    }
+
+    leaf bdr-router-id {
       type yang:dotted-quad;
       description
-        "The backup designated router for the adjacency.";
+        "The router ID of backup designated router for the adjacency.";
+    }
+
+    leaf bdr-ip-address {
+      type inet:ip-address;
+      description
+        "The IP address of backup designated router for the adjacency.";
     }
 
     leaf optional-capabilities {
@@ -339,6 +413,7 @@ submodule openconfig-ospf-area-interface {
             "Operational state parameters for the interface on which
             OSPF is enabled";
           uses ospf-area-interface-config;
+          uses ospf-area-interface-state;
         }
 
         uses oc-if:interface-ref;
@@ -385,24 +460,24 @@ submodule openconfig-ospf-area-interface {
           }
         }
 
-        container neighbors {
+        container static-neighbors {
           description
-            "Enclosing container for the list of neighbors that
-            an adjacency has been established with on the interface";
+            "Enclosing container for the list of statically
+            configured neighbors";
 
-          list neighbor {
-            key "router-id";
+          list static-neighbor {
+            key "neighbor-ip-address";
 
             description
-              "A neighbor with which an OSPF adjacency has been
-              established within this area";
+              "A neighbor which has been statically configured on
+              this router";
 
-            leaf router-id {
+            leaf neighbor-ip-address {
               type leafref {
-                path "../config/router-id";
+                path "../config/neighbor-ip-address";
               }
               description
-                "Reference to the router ID of the adjacent system";
+                "The IP address of the static neighbor.";
             }
 
             container config {
@@ -411,18 +486,39 @@ submodule openconfig-ospf-area-interface {
                 system";
               uses ospf-area-interface-neighbor-config;
             }
+          }
+        }
+
+        container neighbors {
+          config false;
+          description
+            "Enclosing container for the list of neighbors that
+            an adjacency has been established with on the interface";
+
+          list neighbor {
+            key "neighbor-router-id";
+
+            description
+              "A neighbor with which an OSPF adjacency has been
+              established within this area";
+
+            leaf neighbor-router-id {
+              type leafref {
+                path "../state/neighbor-router-id";
+              }
+              description
+                "The router ID of the remote system.";
+            }
 
             container state {
               config false;
               description
                 "Operational state parameters relating to the adjacent
                 system";
-              uses ospf-area-interface-neighbor-config;
               uses ospf-area-interface-neighbor-state;
             }
           }
         }
-
       }
     }
   }
