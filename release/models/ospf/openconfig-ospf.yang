@@ -1,11 +1,11 @@
-module openconfig-ospfv2 {
+module openconfig-ospf {
 
   yang-version "1";
 
   // namespace
-  namespace "http://openconfig.net/yang/ospfv2";
+  namespace "http://openconfig.net/yang/ospf";
 
-  prefix "oc-ospfv2";
+  prefix "oc-ospf";
 
   // import some basic types
   //import ietf-inet-types { prefix inet; }
@@ -13,15 +13,13 @@ module openconfig-ospfv2 {
 
   // Include submodules
   // Global:  All global context groupings;
-  include openconfig-ospfv2-global;
+  include openconfig-ospf-global;
   // Area:    Config/opstate for an area
-  include openconfig-ospfv2-area;
+  include openconfig-ospf-area;
   // Area Interface:  Config/opstate for an Interface
-  include openconfig-ospfv2-area-interface;
-  // LSDB: Operational state model covering the LSDB
-  include openconfig-ospfv2-lsdb;
+  include openconfig-ospf-area-interface;
   // Common:  Content included in >1 context
-  include openconfig-ospfv2-common;
+  include openconfig-ospf-common;
 
   // meta
   organization "OpenConfig working group";
@@ -34,7 +32,13 @@ module openconfig-ospfv2 {
     "An OpenConfig model for Open Shortest Path First (OSPF)
     version 2";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2019-11-15" {
+    description
+      "Change ospfv2 to ospf";
+    reference "0.2.1";
+  }
 
   revision "2019-07-09" {
     description
@@ -77,16 +81,17 @@ module openconfig-ospfv2 {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
-  grouping ospfv2-top {
+  grouping ospf-top {
     description
-      "Top-level OSPF configuration and operational state";
+      "Top-level OSPF configuration and operational state for
+       both OSPFv2 and OSPFv3";
 
     container ospfv2 {
       description
         "Top-level configuration and operational state for
         Open Shortest Path First (OSPF) v2";
 
-      uses ospfv2-global-structural;
+      uses ospf-global-structural;
 
       container areas {
         description
@@ -107,9 +112,10 @@ module openconfig-ospfv2 {
               "A reference to the identifier for the area.";
           }
 
-          uses ospfv2-area-structure;
+          uses ospf-area-structure;
         }
       }
     }
   }
+
 }

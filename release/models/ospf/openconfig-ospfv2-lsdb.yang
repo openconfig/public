@@ -1,7 +1,7 @@
 submodule openconfig-ospfv2-lsdb {
 
-  belongs-to openconfig-ospfv2 {
-    prefix "oc-ospfv2";
+  belongs-to openconfig-ospf {
+    prefix "oc-ospf";
   }
 
   // import some basic types
@@ -10,6 +10,7 @@ submodule openconfig-ospfv2-lsdb {
   import openconfig-types { prefix "oc-types"; }
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-ospf-types { prefix "oc-ospf-types"; }
+  import openconfig-network-instance { prefix "oc-ni"; }
 
   // meta
   organization "OpenConfig working group";
@@ -22,7 +23,13 @@ submodule openconfig-ospfv2-lsdb {
     "An OpenConfig model for the Open Shortest Path First (OSPF)
     version 2 link-state database (LSDB)";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2019-11-15" {
+    description
+      "Augment ospfv2-lsdb-structure under ospf/area.";
+    reference "0.2.1";
+  }
 
   revision "2019-07-09" {
     description
@@ -2364,4 +2371,13 @@ submodule openconfig-ospfv2-lsdb {
       }
     }
   }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:protocols/oc-ni:protocol/oc-ni:ospfv2/" +
+          "oc-ni:areas/oc-ni:area" {
+    description
+      "LSDB augmentation on OSPFv2 area";
+    uses ospfv2-lsdb-structure;
+  }
 }
+
