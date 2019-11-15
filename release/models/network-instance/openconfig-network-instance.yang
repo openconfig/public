@@ -22,7 +22,7 @@ module openconfig-network-instance {
   import openconfig-bgp { prefix "oc-bgp"; }
   import openconfig-mpls { prefix "oc-mpls"; }
   import openconfig-vlan { prefix "oc-vlan"; }
-  import openconfig-ospfv2 { prefix "oc-ospfv2"; }
+  import openconfig-ospf { prefix "oc-ospf"; }
   import openconfig-policy-forwarding { prefix "oc-pf"; }
   import openconfig-segment-routing { prefix "oc-sr"; }
   import openconfig-isis { prefix "oc-isis"; }
@@ -47,7 +47,14 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.13.0";
+  oc-ext:openconfig-version "0.13.1";
+
+  revision "2019-11-15" {
+    description
+      "Uses OSPF common model.";
+    reference "0.13.1";
+  }
+
 
   revision "2019-05-14" {
     description
@@ -721,7 +728,7 @@ module openconfig-network-instance {
                 Border Gateway Protocol (BGP)";
             }
 
-            uses oc-ospfv2:ospfv2-top {
+            uses oc-ospf:ospf-top {
               when "config/identifier = 'OSPF'" {
                 description
                   "Include OSPFv2 parameters only when the protocol
