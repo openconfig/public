@@ -22,7 +22,17 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "0.3.3";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2019-08-02" {
+    description
+      "Add installing protocol for IPv[46] unicast entries.
+      Add the ability to describe conditional next-hop groups
+      outside of the policy forwarding module to allow for efficient
+      handling of CBTS, where many prefixes may share the same next-hop
+      criteria.";
+    reference "0.4.0";
+  }
 
   revision "2019-08-01" {
     description
@@ -127,7 +137,7 @@ submodule openconfig-aft-common {
     // We are at $afi/$entry/state/next-hop-group
     leaf next-hop-group {
       type leafref {
-        path "../../../../next-hop-groups/next-hop-group/state/id";
+        path "../../../../next-hop-groups/next-hop-group/config/id";
       }
       description
         "A reference to the next-hop-group that is in use for the entry
@@ -195,6 +205,14 @@ submodule openconfig-aft-common {
         specified header type.";
     }
 
+    uses aft-common-install-protocol;
+  }
+
+  grouping aft-common-install-protocol {
+    description
+      "Grouping for a common reference to the protocol which
+      installed an entry.";
+
     leaf origin-protocol {
       type identityref {
         base "oc-pol-types:INSTALL_PROTOCOL_TYPE";
@@ -216,6 +234,8 @@ submodule openconfig-aft-common {
   grouping aft-common-ip-state {
     description
       "Common parameters across IP address families";
+
+    uses aft-common-install-protocol;
 
     leaf decapsulate-header {
       type oc-aftt:encapsulation-header-type;
@@ -253,12 +273,11 @@ submodule openconfig-aft-common {
           the backup next-hop-group (if specified) is used.";
 
         leaf id {
-          description
-            "A reference to a unique identifier for the next-hop-group.";
-
           type leafref {
             path "../config/id";
           }
+          description
+            "A reference to a unique identifier for the next-hop-group.";
         }
 
         container config {
@@ -289,12 +308,12 @@ submodule openconfig-aft-common {
               list.";
 
             leaf index {
-              description
-                "A reference to the index for the next-hop within the
-                the next-hop-group.";
               type leafref {
                 path "../config/index";
               }
+              description
+                "A reference to the index for the next-hop within the
+                the next-hop-group.";
             }
 
             container config {
@@ -311,6 +330,96 @@ submodule openconfig-aft-common {
                 within the next-hop-group.";
               uses aft-nhg-nh-config;
               uses aft-nhg-nh-state;
+            }
+          }
+        }
+
+        container conditional {
+          description
+            "When a system selects a next-hop-group based on conditions
+            in addition to those specified in the referencing table entries
+            (for example, DSCP is used in addition to the IPv4 destination
+            prefix), these conditions are specified in the conditions list.
+            Where such conditions exist, the next-hop-group MUST only 
+            specify next-hop-groups under the conditional list, and therefore
+            MUST NOT specify any corresponding next-hops. The
+            next-hop-groups that are referenced by any conditions MUST
+            reference only next-hops and therefore MUST NOT be conditional
+            themselves.";
+
+          list condition {
+            key "id";
+
+            description
+              "A conditional next-hop-group that is used by the AFT
+              entry. The conditions that are specified within the
+              group are logically ANDed together. If a condition
+              is a leaf-list field its contents are logically ORed.";
+
+            leaf id {
+              type leafref {
+                path "../config/id";
+              }
+              description
+                "A reference to the identifier for the condition.";
+            }
+
+            container config {
+              description
+                "Configuration parameters related to the conditional
+                next-hop selection.";
+
+              uses aft-nhg-conditional-config;
+            }
+
+            container state {
+              config false;
+              description
+                "Operational state parameters related to the conditional
+                next-hop selection.";
+              uses aft-nhg-conditional-config;
+              uses aft-nhg-conditional-state;
+            }
+
+            container input-interfaces {
+              description
+                "The set of input interfaces that are required to be matched for
+                the next-hop-group condition to be met. Each non-interface condition
+                is logically ANDed with each member of the list -- i.e., interfaces in
+                the list are logically ORed.
+
+                If the input-interface list is empty, the condition applies to ALL input
+                interfaces.";
+
+              list input-interface {
+                key "id";
+
+                description
+                  "The input interface that must be matched for the condition to be met.";
+
+                leaf id {
+                  type leafref {
+                    path "../config/id";
+                  }
+                  description
+                    "Reference to the unique ID assigned to the input interface within
+                    the conditions list.";
+                }
+
+                container config {
+                  description
+                    "Configuration parameters that relate to the input interface.";
+                  uses aft-nhg-conditional-interface-config;
+                }
+
+                container state {
+                  config false;
+                  description
+                    "Operational state parameters that relate to the input interface.";
+                  uses aft-nhg-conditional-interface-config;
+                  uses aft-nhg-conditional-interface-state;
+                }
+              }
             }
           }
         }
@@ -344,7 +453,6 @@ submodule openconfig-aft-common {
     leaf color {
       type uint64;
       description
-
         "An arbitrary colour that is used as an identifier for the next-hop
         group. Some next-hop resolutions may utilise the colour to select
         the particular next-hop-group that a routing entry should be resolved
@@ -364,7 +472,7 @@ submodule openconfig-aft-common {
     leaf backup-next-hop-group {
       // We are at afts/next-hop-groups/next-hop-group/config/backup-next-hop-group
       type leafref {
-        path "../../../next-hop-group/state/id";
+        path "../../../next-hop-group/config/id";
       }
       description
         "The backup next-hop-group for the current group. When all
@@ -402,5 +510,60 @@ submodule openconfig-aft-common {
         proportion of weight/(sum of weights of the next-hops within
         the next-hop group).";
     }
+  }
+
+  grouping aft-nhg-conditional-config {
+    description
+      "Configuration parameters relating to the conditional selection of
+      a next-hop group for an AFT entry.";
+
+    leaf id {
+      type uint64;
+      description
+        "A unique identifier for the conditional criteria.";
+    }
+  }
+
+  grouping aft-nhg-conditional-state {
+    description
+      "Operational state parameters relating to the conditional selection
+      of a next-hop group for an AFT entry.";
+
+    leaf-list dscp {
+      type oc-inet:dscp;
+      description
+        "A set of DSCP values that must be matched by an input packet for
+        the next-hop-group specified to be selected. A logical OR is applied
+        across the DSCP values.";
+    }
+
+    leaf next-hop-group {
+      type leafref {
+        // we are at afts/next-hop-groups/next-hop-group/conditions/condition/state/next-hop-group
+        path "../../../../../next-hop-group/config/id";
+      }
+      description
+        "The next-hop-group that is used by the system for packets that match
+        the criteria specified.";
+    }
+  }
+
+  grouping aft-nhg-conditional-interface-config {
+    description
+      "Configuration parameters relating to the input-interface condition for
+      a next-hop-group.";
+
+    leaf id {
+      type string;
+      description
+        "A unique reference for the input interface.";
+    }
+  }
+
+  grouping aft-nhg-conditional-interface-state {
+    description
+      "Operational state parameters relating to the input-interface condition
+      for a next-hop-group.";
+    uses oc-if:interface-ref-common;
   }
 }
