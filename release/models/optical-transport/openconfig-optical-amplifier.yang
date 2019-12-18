@@ -25,7 +25,13 @@ module openconfig-optical-amplifier {
     for optical amplifiers, deployed as part of a transport
     line system.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2019-12-06" {
+    description
+      "Add DYNAMIC_GAIN mode and related leaves.";
+    reference "0.5.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -146,15 +152,28 @@ module openconfig-optical-amplifier {
   identity CONSTANT_POWER {
       base OPTICAL_AMPLIFIER_MODE;
       description
-        "Constant power mode";
+        "Constant power mode. In constant power mode, the amplifier
+        will maintain a constant output power by adjusting the
+        amplifier gain and/or related variable optical attenuators";
   }
 
   identity CONSTANT_GAIN {
       base OPTICAL_AMPLIFIER_MODE;
       description
-        "Constant gain mode";
+        "Constant gain mode. In constant gain mode, the amplifier
+        will maintain a constant amplifier gain";
   }
 
+  identity DYNAMIC_GAIN {
+      base OPTICAL_AMPLIFIER_MODE;
+      description
+        "Dynamic gain mode. In dynamic gain mode, the amplifier will
+        automatically adjust gain to stay within parameters defined
+        by:
+        - target-gain
+        - min-gain
+        - max-gain";
+  }
 
   identity FIBER_TYPE_PROFILE {
     description
@@ -219,7 +238,36 @@ module openconfig-optical-amplifier {
       }
       units dB;
       description
-        "Positive gain applied by the amplifier.";
+        "Positive gain applied by the amplifier. This is used
+        when the amp-mode is in CONSTANT_GAIN or DYNAMIC_GAIN
+        mode to set the target gain that the amplifier should
+        achieve.";
+    }
+
+    leaf min-gain {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The minimum allowed gain of the amplifier. This is used
+        when the amp-mode is in CONSTANT_POWER or DYNAMIC_GAIN mode
+        to prevent the gain from dropping below a desired threshold.
+        If left empty, the platform will apply a minimum gain based
+        on hardware specifications.";
+    }
+
+    leaf max-gain {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The maximum allowed gain of the amplifier. This is used
+        when the amp-mode is in CONSTANT_POWER or DYNAMIC_GAIN mode
+        to prevent the gain from exceeding a desired threshold. If
+        left empty, the platform will apply a maximum gain based on
+        hardware specifications.";
     }
 
     leaf target-gain-tilt {
@@ -255,6 +303,17 @@ module openconfig-optical-amplifier {
       units dBm;
       description
         "Output optical power of the amplifier.";
+    }
+
+    leaf max-output-power {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The maximum optical output power of the amplifier. This
+        may be used to prevent the output power from exceeding a
+        desired threshold.";
     }
 
     leaf enabled {
