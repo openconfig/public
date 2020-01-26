@@ -12,6 +12,8 @@ module openconfig-segment-routing {
   import openconfig-interfaces { prefix "oc-if"; }
   import ietf-inet-types { prefix "inet"; }
   import ietf-yang-types { prefix "yang"; }
+  import openconfig-segment-routing-types { prefix "oc-srt"; }
+  import openconfig-srte-policy { prefix "oc-srte"; }
 
   // meta
   organization "OpenConfig working group";
@@ -33,7 +35,13 @@ module openconfig-segment-routing {
       - SR SID advertisements - instantiated within the relevant IGP.
       - SR-specific counters - instantied within the relevant dataplane.";
 
-  oc-ext:openconfig-version "0.0.4";
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2019-09-24" {
+    description
+      "Move SR types to a separate module and add a SR-TE policy module.";
+    reference "0.1.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -64,31 +72,6 @@ module openconfig-segment-routing {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
-  typedef sr-dataplane-type {
-    type enumeration {
-      enum MPLS {
-        description
-          "The entity uses MPLS labels as Segment Identifiers.";
-      }
-      enum IPV6 {
-        description
-          "The entity uses IPv6 prefixes as Segment Identifiers.";
-      }
-    }
-    description
-      "Types of data plane that can be used to instantiate a Segment
-      Routing block of SIDs.";
-  }
-
-  typedef sr-sid-type {
-    type union {
-      type oc-mpls-t:mpls-label;
-      type inet:ipv6-address-no-zone;
-    }
-    description
-      "The defined value of a segment identifier.";
-  }
-
   grouping srgb-config {
     description
       "Configuration parameters relating to the SRGB.";
@@ -101,7 +84,7 @@ module openconfig-segment-routing {
     }
 
     leaf dataplane-type {
-      type sr-dataplane-type;
+      type oc-srt:sr-dataplane-type;
       description
         "The dataplane being used to instantiate the SRGB. When MPLS is specified
         the set of MPLS label blocks that are defined in the mpls-label-blocks
@@ -170,7 +153,7 @@ module openconfig-segment-routing {
     }
 
     leaf dataplane-type {
-      type sr-dataplane-type;
+      type oc-srt:sr-dataplane-type;
       description
         "The dataplane that is to be used for the Segment Routing Local Block.
         When MPLS is specified, the local block corresponds to a block of MPLS
@@ -583,7 +566,7 @@ module openconfig-segment-routing {
     }
 
     leaf sid-id {
-      type sr-sid-type;
+      type oc-srt:sr-sid-type;
       description
         "The Segment Identifier to be used when advertising the IGP Prefix SID.";
     }
@@ -614,7 +597,7 @@ module openconfig-segment-routing {
 
     leaf sid-id {
       type union {
-        type sr-sid-type;
+        type oc-srt:sr-sid-type;
         type enumeration {
             enum DYNAMIC {
               description
@@ -667,7 +650,7 @@ module openconfig-segment-routing {
       interface";
 
     leaf allocated-dynamic-local {
-      type sr-sid-type;
+      type oc-srt:sr-sid-type;
       description
         "Where an Adjacency SID with a dynamic value is to be allocated by
         the system, this leaf reports to the value of the Adj-SID allocated
@@ -786,6 +769,8 @@ module openconfig-segment-routing {
         segment routing.";
 
       uses sr-structural;
+      uses oc-srte:oc-srte-policy-top;
+      uses oc-srte:oc-srte-segment-list-top;
     }
   }
 }

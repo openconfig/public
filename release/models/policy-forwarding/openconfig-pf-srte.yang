@@ -7,7 +7,7 @@ module openconfig-pf-srte {
   import openconfig-network-instance { prefix "oc-ni"; }
   import openconfig-mpls-types { prefix "oc-mplst"; }
   import openconfig-inet-types { prefix "oc-inet"; }
-  import openconfig-segment-routing { prefix "oc-sr"; }
+  import openconfig-segment-routing-types { prefix "oc-srt"; }
 
   organization
     "OpenConfig working group";
@@ -34,7 +34,13 @@ module openconfig-pf-srte {
     as SR segments. In addition, they may be used to expressed segments
     in the form of IPv6 addresses.";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2019-10-15" {
+    description
+      "Change imported segment-routing module.";
+    reference "0.2.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -244,7 +250,7 @@ module openconfig-pf-srte {
     }
 
     leaf value {
-      type oc-sr:sr-sid-type;
+      type oc-srt:sr-sid-type;
       description
         "The value of the SID that is to be used. Specified as an MPLS
         label or IPv6 address.";

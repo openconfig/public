@@ -22,7 +22,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.4.1";
+
+  revision "2019-11-07" {
+    description
+      "Move lsp-name leaf out of aft-common-entry-nexthop-state group.";
+    reference "0.4.1";
+  }
 
   revision "2019-08-02" {
     description
@@ -109,6 +115,7 @@ submodule openconfig-aft-common {
 
           uses aft-common-entry-nexthop-config;
           uses aft-common-entry-nexthop-state;
+          uses aft-labeled-entry-state;
         }
 
         uses oc-if:interface-ref;
@@ -143,6 +150,20 @@ submodule openconfig-aft-common {
         "A reference to the next-hop-group that is in use for the entry
         within the AFT. Traffic is distributed across the set of next-hops
         within the next-hop group according to the weight.";
+    }
+  }
+
+  grouping aft-labeled-entry-state {
+    description
+      "Operational state for LSP name in forwarding entry";
+
+    leaf lsp-name {
+      type string;
+      description
+        "Where applicable, the protocol name for the next-hop labelled
+        forwarding entry. This leaf is applicable only to next-hops
+        which include MPLS label information, and its value typically
+        corresponds to the RSVP-TE LSP name.";
     }
   }
 
@@ -221,14 +242,6 @@ submodule openconfig-aft-common {
         "The protocol from which the AFT entry was learned.";
     }
 
-    leaf lsp-name {
-      type string;
-      description
-        "Where applicable, the protocol name for the next-hop labelled
-        forwarding entry. This leaf is applicable only to next-hops
-        who include MPLS label information, and its value typically
-        corresponds to the RSVP-TE LSP name.";
-    }
   }
 
   grouping aft-common-ip-state {
@@ -340,7 +353,7 @@ submodule openconfig-aft-common {
             in addition to those specified in the referencing table entries
             (for example, DSCP is used in addition to the IPv4 destination
             prefix), these conditions are specified in the conditions list.
-            Where such conditions exist, the next-hop-group MUST only 
+            Where such conditions exist, the next-hop-group MUST only
             specify next-hop-groups under the conditional list, and therefore
             MUST NOT specify any corresponding next-hops. The
             next-hop-groups that are referenced by any conditions MUST

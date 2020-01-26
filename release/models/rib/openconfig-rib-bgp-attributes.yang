@@ -9,7 +9,7 @@ submodule openconfig-rib-bgp-attributes {
   import openconfig-bgp-types { prefix oc-bgpt; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-rib-bgp-types { prefix oc-bgprt; }
-  import openconfig-segment-routing { prefix oc-sr; }
+  import openconfig-segment-routing-types { prefix oc-srt; }
   import openconfig-inet-types { prefix oc-inet; }
 
   // meta
@@ -24,7 +24,13 @@ submodule openconfig-rib-bgp-attributes {
     attributes for use in BGP RIB tables.";
 
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2019-10-15" {
+    description
+      "Change imported segment-routing module.";
+    reference "0.7.0";
+  }
 
   revision "2019-04-25" {
     description
@@ -701,7 +707,7 @@ submodule openconfig-rib-bgp-attributes {
           "Only allow the binding SID to be specified when the sub-TLV
           is specified to be the of the relevant type.";
       }
-      type oc-sr:sr-sid-type;
+      type oc-srt:sr-sid-type;
       description
         "Binding SID associated with the SR-TE policy";
     }
@@ -810,7 +816,7 @@ submodule openconfig-rib-bgp-attributes {
     }
 
     leaf sid {
-      type oc-sr:sr-sid-type;
+      type oc-srt:sr-sid-type;
       description
         "SID value for the segment entry, specified as an MPLS label
         or IPv6 address.";
