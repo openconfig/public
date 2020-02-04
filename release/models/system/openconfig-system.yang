@@ -650,7 +650,7 @@ module openconfig-system {
     description
       "Configuration data ";
 
-    leaf key-id {
+    leaf id {
       type uint16;
       description
         "Integer identifier used by the client and server to
@@ -658,7 +658,7 @@ module openconfig-system {
         the same key id.";
     }
 
-    leaf key-type {
+    leaf type {
       type identityref {
         base NTP_AUTH_TYPE;
       }
@@ -666,7 +666,7 @@ module openconfig-system {
         "Encryption type used for the NTP authentication key";
     }
 
-    leaf key-value {
+    leaf value {
       type string;
       description
         "NTP authentication key value";
@@ -682,21 +682,21 @@ module openconfig-system {
     description
       "Top-level grouping for NTP auth key data";
 
-    container ntp-keys {
+    container authentication-keys {
       description
         "Enclosing container for list of NTP authentication keys";
 
-      list ntp-key {
-        key "key-id";
+      list authentication-key {
+        key "id";
         description
           "List of NTP authentication keys";
 
-        leaf key-id {
+        leaf id {
           type leafref {
-            path "../config/key-id";
+            path "../config/id";
           }
           description
-            "Reference to auth key-id list key";
+            "Reference to auth key id list key";
         }
 
         container config {
@@ -724,7 +724,7 @@ module openconfig-system {
     description
       "Configuration data for system-wide NTP operation.";
 
-    leaf enabled {
+    leaf enable {
       type boolean;
       default false;
       description
@@ -733,13 +733,13 @@ module openconfig-system {
         from the servers defined in the 'ntp/server' list.";
     }
 
-    leaf ntp-source-address {
+    leaf source-address {
       type oc-inet:ip-address;
       description
         "Source address to use on outgoing NTP packets";
     }
 
-    leaf enable-ntp-auth {
+    leaf authentication {
       type boolean;
       default false;
       description
