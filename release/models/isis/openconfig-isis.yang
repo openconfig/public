@@ -934,6 +934,38 @@ module openconfig-isis {
     //}
   }
 
+  grouping isis-mpls-config {
+    description
+      "This grouping defines MPLS-related features in IS-IS";
+
+    container mpls {
+      description
+        "Configuration and operational state relating to MPLS-related
+        features in IS-IS";
+
+      container igp-ldp-sync {
+        description
+          "Configuration and operational state relating to synchronisation
+          between the LDP and IS-IS";
+
+        container config {
+          description
+            "This container defines ISIS/IGP configuration.";
+
+          uses isis-ldp-igp-config;
+        }
+
+        container state {
+          config false;
+          description
+            "This container defines state information for ISIS/LDP Sync.";
+
+          uses isis-ldp-igp-config;
+        }
+      }
+    }
+  }
+
   grouping isis-global-base {
     description
       "This grouping describes ISIS Global router.";
@@ -1132,32 +1164,7 @@ module openconfig-isis {
       }
     }
 
-    container mpls {
-      description
-        "Configuration and operational state relating to MPLS-related
-        features in IS-IS";
-
-      container igp-ldp-sync {
-        description
-          "Configuration and operational state relating to synchronisation
-          between the LDP and IS-IS";
-
-        container config {
-          description
-            "This container defines ISIS/IGP configuration.";
-
-          uses isis-ldp-igp-config;
-        }
-
-        container state {
-          config false;
-          description
-            "This container defines state information for ISIS/LDP Sync.";
-
-          uses isis-ldp-igp-config;
-        }
-      }
-    }
+    uses isis-mpls-config;
 
     container igp-shortcuts {
       description
@@ -1218,6 +1225,7 @@ module openconfig-isis {
       }
 
       uses isis-interface-group;
+      uses isis-mpls-config;
       uses oc-if:interface-ref;
     }
   }
