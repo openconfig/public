@@ -8,7 +8,7 @@ submodule openconfig-isis-lsp {
   import openconfig-isis-types { prefix "oc-isis-types"; }
   import openconfig-isis-lsdb-types { prefix "oc-isis-lsdb-types"; }
   import openconfig-types { prefix "oc-types"; }
-  import openconfig-mpls-types { prefix "oc-mpls-types"; }
+  import openconfig-mpls-types { prefix "oc-mplst"; }
   // meta
   organization
     "OpenConfig working group";
@@ -34,7 +34,13 @@ submodule openconfig-isis-lsp {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.4.2";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2020-02-04" {
+    description
+      "Consistent prefix for openconfig-mpls-types.";
+    reference "0.5.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -3069,7 +3075,7 @@ submodule openconfig-isis-lsp {
                         }
 
                         leaf label {
-                          type oc-mpls-types:mpls-label;
+                          type oc-mplst:mpls-label;
                           description
                             "The first value of the SRGB when
                             expressed as an MPLS label.";

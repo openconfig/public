@@ -9,7 +9,7 @@ module openconfig-segment-routing-types {
 
   // import some basic types
   import openconfig-extensions { prefix "oc-ext"; }
-  import openconfig-mpls-types { prefix "oc-mpls-t"; }
+  import openconfig-mpls-types { prefix "oc-mplst"; }
   import openconfig-inet-types { prefix "oc-inet"; }
 
   // meta
@@ -22,7 +22,13 @@ module openconfig-segment-routing-types {
   description
     "Types associated with a network instance";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2020-02-04" {
+    description
+      "Consistent prefix for openconfig-mpls-types.";
+    reference "0.2.0";
+  }
 
   revision "2019-09-24" {
     description
@@ -48,7 +54,7 @@ module openconfig-segment-routing-types {
 
   typedef sr-sid-type {
     type union {
-      type oc-mpls-t:mpls-label;
+      type oc-mplst:mpls-label;
       type oc-inet:ipv6-address;
     }
     description

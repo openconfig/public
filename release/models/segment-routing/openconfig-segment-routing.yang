@@ -8,7 +8,7 @@ module openconfig-segment-routing {
 
   // import some basic types
   import openconfig-extensions { prefix "oc-ext"; }
-  import openconfig-mpls-types { prefix "oc-mpls-t"; }
+  import openconfig-mpls-types { prefix "oc-mplst"; }
   import openconfig-interfaces { prefix "oc-if"; }
   import ietf-inet-types { prefix "inet"; }
   import ietf-yang-types { prefix "yang"; }
@@ -35,7 +35,13 @@ module openconfig-segment-routing {
       - SR SID advertisements - instantiated within the relevant IGP.
       - SR-specific counters - instantied within the relevant dataplane.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2020-02-04" {
+    description
+      "Consistent prefix for openconfig-mpls-types.";
+    reference "0.2.0";
+  }
 
   revision "2019-09-24" {
     description
@@ -452,7 +458,7 @@ module openconfig-segment-routing {
       "Per-SID statistics leaves";
 
     leaf mpls-label {
-      type oc-mpls-t:mpls-label;
+      type oc-mplst:mpls-label;
       description
         "The MPLS label used for the segment identifier";
     }
