@@ -28,7 +28,13 @@ module openconfig-mpls-rsvp {
      parameters and LSP-specific configuration for constrained-path
      LSPs";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "3.0.2";
+
+  revision "2020-02-04" {
+    description
+      "Changed peak-data-rate leaf type to ieeefloat32 only.";
+    reference "3.0.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -889,15 +895,7 @@ module openconfig-mpls-rsvp {
             }
 
             leaf peak-data-rate {
-              type union {
-                type oc-types:ieeefloat32;
-                type enumeration {
-                  enum INFINITY {
-                    description
-                      "The head-end device has no maximum data rate.";
-                  }
-                }
-              }
+              type oc-types:ieeefloat32;
               units "bytes per second";
               description
                 "The maximum traffic generation rate that the head-end
