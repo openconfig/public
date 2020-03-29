@@ -24,7 +24,13 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.7.2";
+  oc-ext:openconfig-version "2.7.3";
+
+  revision "2020-03-29" {
+    description
+      "Added speeds - 200GB and 400GB";
+    reference "2.7.3";
+  }
 
   revision "2019-04-16" {
     description
@@ -151,7 +157,16 @@ module openconfig-if-ethernet {
     base ETHERNET_SPEED;
     description "100 Gbps Ethernet";
   }
-
+  
+  identity SPEED_200GB {
+    base ETHERNET_SPEED;
+    description "200 Gbps Ethernet";
+  }
+  
+  identity SPEED_400GB {
+    base ETHERNET_SPEED;
+    description "400 Gbps Ethernet";
+  } 
   identity SPEED_UNKNOWN {
     base ETHERNET_SPEED;
     description
