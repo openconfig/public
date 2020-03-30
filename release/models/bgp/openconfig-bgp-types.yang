@@ -25,7 +25,13 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "5.0.2";
+  oc-ext:openconfig-version "5.1.0";
+
+  revision "2020-03-24" {
+    description
+      "Add FlowSpec, BGP-LS and LSVR AFI-SAFI identities.";
+    reference "5.1.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -220,6 +226,44 @@ module openconfig-bgp-types {
       "Segment Routing Traffic Engineering (SRTE) Policy
       for IPv6 (AFI,SAFI = 2,73)";
   }
+
+  identity IPV4_FLOWSPEC {
+    base AFI_SAFI_TYPE;
+    description
+      "IPv4 dissemination of flow specification rules
+      (AFI,SAFI = 1,133)";
+    reference "RFC5575";
+  }
+
+  identity VPNV4_FLOWSPEC {
+    base AFI_SAFI_TYPE;
+    description
+      "IPv4 dissemination of flow specification rules
+      (AFI,SAFI = 1,134)";
+    reference "RFC5575";
+  }
+
+  identity LINKSTATE {
+    base AFI_SAFI_TYPE;
+    description
+      "BGP-LS (AFI,SAFI = 16388,71)";
+    reference "RFC7752";
+  }
+
+  identity LINKSTATE_VPN {
+    base AFI_SAFI_TYPE;
+    description
+      "BGP-LS-VPN (AFI,SAFI = 16388,72)";
+    reference "RFC7752";
+  }
+
+  identity LINKSTATE_SPF {
+    base AFI_SAFI_TYPE;
+    description
+      "BGP-LS SPF (AFI,SAFI = 16388,TBD)";
+    reference "draft-ietf-lsvr-bgp-spf";
+  }
+
 
   identity BGP_WELL_KNOWN_STD_COMMUNITY {
     description
