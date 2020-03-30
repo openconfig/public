@@ -207,7 +207,9 @@ below.
 
 `enum` values within an enumeration type should be UPPER_CASE_WITH_UNDERSCORES,
 keeping with conventions used for enumerated types in many programming
-languages.
+languages. They MUST begin with an alphanumeric character (A-Z or 0-9),
+optionally followed by a "_" or "." or additional alphanumeric characters
+(A-Z or 0-9).
 
 Example:
 ```
@@ -547,4 +549,3 @@ module openconfig- {
 
 }
 ```
-
