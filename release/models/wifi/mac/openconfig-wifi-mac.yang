@@ -26,7 +26,14 @@ module openconfig-wifi-mac {
   description
     "Model for managing MAC layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2018-12-19" {
+    description
+      "Frequency-specific data-rates, fix client connection-time,
+      fix client ipv6 addresses, remove mobility-domain.";
+    reference "0.4.0";
+  }
 
   revision "2018-07-16" {
     description
@@ -37,7 +44,7 @@ module openconfig-wifi-mac {
 
   revision "2017-12-21" {
     description
-      "Add mobility-domain and move/create bssid-state list for 
+      "Add mobility-domain and move/create bssid-state list for
       counters.";
     reference "0.2.0";
   }
@@ -101,21 +108,36 @@ module openconfig-wifi-mac {
         default is dual-band.";
     }
 
-    leaf-list basic-data-rates {
+    leaf-list basic-data-rates-2g {
       type identityref {
         base oc-wifi-types:DATA_RATE;
       }
       description
-        "Basic data-rates for the SSID.";
+        "2.4GHz Basic data-rates for the SSID.";
     }
 
-    leaf-list supported-data-rates {
+    leaf-list supported-data-rates-2g {
       type identityref {
         base oc-wifi-types:DATA_RATE;
       }
       description
-        "Supported data-rates for the SSID. This list should be
-        mutually exclusive with basic-data-rates.";
+        "2.4GHz Supported data-rates for the SSID.";
+    }
+
+    leaf-list basic-data-rates-5g {
+      type identityref {
+        base oc-wifi-types:DATA_RATE;
+      }
+      description
+        "5GHz Basic data-rates for the SSID.";
+    }
+
+    leaf-list supported-data-rates-5g {
+      type identityref {
+        base oc-wifi-types:DATA_RATE;
+      }
+      description
+        "5GHz Supported data-rates for the SSID.";
     }
     // MCS rates explicitly absent, as they are typically not pruned.
 
@@ -207,14 +229,6 @@ module openconfig-wifi-mac {
       description
         "Enable/disable Dynamic VLAN Assignment,
         using 'Tunnel-Private-Group-Id' RADIUS attribute.";
-    }
-
-    leaf mobility-domain {
-      type string;
-      description
-        "Specify the mobility domain where PMK-R0 distribution will
-        occur. Specifically, which APs will recieve PMK-R0 if using
-        802.11r (FT)."; 
     }
 
     leaf dhcp-required {
@@ -313,7 +327,9 @@ module openconfig-wifi-mac {
     leaf dot11r-domainid {
       type uint16;
       description
-        "Mobility Domain ID.";
+        "Specify the mobility domain id (MDID) where PMK-R0
+        distribution will occur. Specifically, which APs will recieve
+        PMK-R0 if using 802.11r (FT).";
     }
 
     leaf dot11r-method {
@@ -1100,10 +1116,12 @@ module openconfig-wifi-mac {
       }
 
       leaf connection-time {
-        type uint16;
-        units seconds;
+        type oc-types:timeticks64;
+        units nanoseconds;
         description
-          "Time, in seconds, since Client Association.";
+          "Reports the time of Client Association. The value is the
+          timestamp in nanoseconds relative to the Unix Epoch
+          (Jan 1, 1970 00:00:00 UTC).";
       }
 
       leaf username {
@@ -1120,16 +1138,16 @@ module openconfig-wifi-mac {
           or otherwise.";
       }
 
-      leaf ipv4-address {
+      leaf-list ipv4-address {
         type oc-inet:ipv4-address;
         description
-          "IPv4 address of the client.";
+          "IPv4 addresses of the client.";
       }
 
-      leaf ipv6-address {
+      leaf-list ipv6-addresses {
         type oc-inet:ipv6-address;
         description
-          "IPv6 address of the client.";
+          "IPv6 addresses of the client.";
       }
 
       leaf operating-system {
