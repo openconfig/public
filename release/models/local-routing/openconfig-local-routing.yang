@@ -42,7 +42,13 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "1.0.2";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2020-03-24" {
+    description
+      "Add a description statement to static routes.";
+    reference "1.1.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -115,6 +121,12 @@ module openconfig-local-routing {
         "Set a generic tag value on the route. This tag can be
         used for filtering routes that are distributed to other
         routing protocols.";
+    }
+
+    leaf description {
+      type string;
+      description
+        "An optional textual description for the route.";
     }
   }
 
