@@ -18,7 +18,13 @@ module openconfig-license {
     "This module defines configuration and operational
     state data for licenses.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2020-04-22" {
+    description
+      "Make license-data a union of a string or binary.";
+    reference "0.2.0";
+  }
 
   revision "2020-01-07" {
     description
@@ -44,10 +50,14 @@ module openconfig-license {
     }
 
     leaf license-data {
-      type binary;
+      type union {
+        type binary;
+        type string;
+      }
       description
-        "Optional value that can be used to provide the crypto data necessary
-         for activating a license. Can return empty when read.";
+        "The contents of the licence (if required) - which may be
+         supplied as a binary blob, or a simple string value. If this
+         value is considered sensitive, it may be read as an empty value.";
     }
 
     leaf active {
