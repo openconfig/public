@@ -38,7 +38,19 @@ module openconfig-srte-policy {
   reference
     "draft-ietf-spring-segment-routing-policy";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2020-05-01" {
+    description
+      "Fix consistency of per-policy counters.";
+    reference "0.2.1";
+  }
+
+  revision "2020-03-31" {
+    description
+      "Updated traffic counters on policy and segment-list levels.";
+    reference "0.2.0";
+  }
 
   revision "2019-09-24" {
     description
@@ -87,7 +99,19 @@ module openconfig-srte-policy {
           description
             "The operational state of parameters associated with
             SR-TE policies.";
+
           uses oc-srte-policy-state;
+
+          container counters {
+            description
+              "A collection of counters on the policy level. They
+              count the total traffic forwarded by the policy,
+              regardless of its installation source. The counters
+              should be persistent across policy state changes and
+              switches between active protocols.";
+
+              uses oc-srte-policy-counters;
+          }
         }
 
         uses oc-srte-candidate-path;
@@ -98,6 +122,7 @@ module openconfig-srte-policy {
   grouping oc-srte-policy-keys {
     description
       "Keys to identify a SR-TE policy.";
+
     leaf color {
       type uint32;
       description
@@ -168,7 +193,6 @@ module openconfig-srte-policy {
         "The number of transitions to active state for the policy.";
     }
 
-    uses oc-srte-policy-counters;
   }
 
   grouping oc-srte-policy-counters {
@@ -196,7 +220,8 @@ module openconfig-srte-policy {
       description
         "A cumulative counter of the incoming labeled packets steered
         to the SR-TE policy. Labeled packets carries an active SID
-        that matches the BSID associated to this policy.";
+        (top-most SID in the stack) that matches the BSID associated
+        to this policy.";
     }
 
     leaf in-labeled-octets {
@@ -204,8 +229,44 @@ module openconfig-srte-policy {
       description
         "A cumulative counter of the total bytes of incoming labeled
         traffic steered to the SR-TE policy. Labeled traffic carries
-        an active SID that matches the BSID associated to this
-        policy.";
+        an active SID (top-most SID in the stack) that matches the
+        BSID associated to this policy.";
+    }
+
+    leaf out-pkts {
+      type oc-yang:counter64;
+      description
+        "A cumulative counter of the outgoing packets after being
+        steered to the SR-TE policy. It includes both labeled and
+        unlabeled steered traffic.";
+    }
+
+    leaf out-octets {
+      type oc-yang:counter64;
+      description
+        "The cumulative counter of the total outgoing bytes after
+        being steered to the SR-TE policy. It includes both labeled
+        and unlabeled steered traffic. The counter should include the
+        segments pushed to packets.";
+    }
+
+    leaf out-labeled-pkts {
+      type oc-yang:counter64;
+      description
+        "A cumulative counter of the outgoing labeled packets after
+        being steered to the SR-TE policy. Labeled packets carries
+        an active SID (top-most SID in the stack) that matches the
+        BSID associated to this policy.";
+    }
+
+    leaf out-labeled-octets {
+      type oc-yang:counter64;
+      description
+        "A cumulative counter of the total bytes of outgoing labeled
+        traffic after being steered to the SR-TE policy. Labeled
+        traffic carries an active SID (top-most SID in the stack) that
+        matches the BSID associated to this policy. The counter should
+        include the segments pushed to packets.";
     }
   }
 
@@ -292,13 +353,100 @@ module openconfig-srte-policy {
                 "A reference to the segment-list that in use for the
                 candidate path.";
             }
+
             container state {
               config false;
               description
                 "Operational state parameters associated with a
                 segment-list in a SR-TE candidate paths.";
 
-              uses oc-srte-candidate-path-segment-list-state;
+              uses oc-srte-segment-list-state;
+
+              container counters {
+                description
+                  "The counters of traffic steered to the segment-list.";
+
+                uses oc-srte-segment-list-common-counters;
+              }
+            }
+
+            container sids {
+              description
+                "The list of SIDs that make up the segment list. The
+                order of the SIDs is specified by ordering the list
+                according to index, in ascending order. The network
+                device should consider the top-most SID the entry with
+                the lowest index.";
+
+              list sid {
+                key "index";
+
+                description
+                  "List of SIDs that make up the segment list. The segment
+                  list is formed by ordering the set of SIDs that are
+                  specified by their index in ascending numerical order.";
+
+                leaf index {
+                  type leafref {
+                    path "../state/index";
+                  }
+                  description
+                    "Reference to the SID's index within the segment list
+                    which acts as the key of the list.";
+                }
+
+                container state {
+                  config false;
+                  description
+                    "Operational state parameters relating to the SID within
+                    the segment list.";
+                  uses oc-srte-segment-list-sids-state;
+                }
+              }
+            }
+
+            container next-hops {
+              description
+                "The set of next-hops which the segment-list is resolved to.
+                Traffic steered to the segment-list should be forwarded over
+                them.";
+
+              list next-hop {
+                key "index";
+                description
+                  "A next-hop the segment list is resolved to.";
+
+                leaf index {
+                  type leafref {
+                    path "../state/index";
+                  }
+                  description
+                    "A reference to the nexthop index in the state.";
+                }
+
+                container state {
+                  config false;
+                  description "State parameters for the nexthop.";
+
+                  leaf index {
+                    type uint32;
+                    description
+                      "A unique index identifying the next-hop entry for the
+                      segment-list.";
+                  }
+
+                  uses oc-aft:aft-common-entry-nexthop-state;
+
+                  container counters {
+                    description
+                      "The counters of traffic steered to the segment-list on
+                      per next-hop basis.";
+                    uses oc-srte-segment-list-common-counters;
+                  }
+                }
+
+                uses oc-if:interface-ref-state;
+              }
             }
           }
         }
@@ -306,18 +454,15 @@ module openconfig-srte-policy {
     }
   }
 
-  grouping oc-srte-candidate-path-segment-list-state {
+  grouping oc-srte-segment-list-state {
     description
       "Operational state specific to a segment-list in a
       candidate-path.";
 
     leaf id {
-      type leafref {
-        path "../../../../../../../../segment-lists/segment-list/state/id";
-      }
+      type uint32;
       description
-        "A reference to the segment-list that in use for the
-        candidate path.";
+        "A unique id identifying the segment-list.";
     }
 
     leaf valid {
@@ -345,6 +490,7 @@ module openconfig-srte-policy {
         distributed across the set of segment-lists such that
         each list receives weight/(sum of all weights) traffic.";
     }
+
   }
 
   grouping oc-srte-candidate-path-state {
@@ -406,7 +552,7 @@ module openconfig-srte-policy {
     leaf enlp {
       type oc-srt:enlp-type;
       description
-        "ENLP(Explicit NULL Label Policy) indicates whether Explicit
+        "ENLP (Explicit NULL Label Policy) indicates whether Explicit
         NULL labels are to be pushed on unlabeled IP packets that are
         being steered into a given SR policy.";
       reference "draft-ietf-idr-segment-routing-te-policy";
@@ -445,147 +591,6 @@ module openconfig-srte-policy {
     }
   }
 
-  grouping oc-srte-segment-list-top {
-    description
-      "Top-level grouping used for SR-TE segment-lists states.";
-
-    container segment-lists {
-      config false;
-      description
-        "A collection of all segment-lists configured or received by
-        the device. Each segment-list is keyed as a unique id which
-        can be referenced by SR-TE candidate paths. The segment-list
-        referenced by the active candidate path should be used as
-        forwarding next-hops.";
-
-      list segment-list {
-        key "id";
-        description
-          "An individual segment list is identified by a unique id.";
-
-        leaf id {
-          type leafref {
-            path "../state/id";
-          }
-          description
-            "Reference to the id leaf which act as a key to the
-            segment-list list.";
-        }
-
-        container state {
-          config false;
-          description
-            "The counters of traffic steered to the segment-list on
-            per device basis. When a segment-list is shared by
-            multiple SR-TE policies, all traffic steered to the list
-            is counted.";
-
-          uses oc-srte-segment-list-state;
-        }
-
-        uses oc-srte-segment-list-te-policies-structural;
-        uses oc-srte-segment-list-next-hops-structural;
-        uses oc-srte-segment-list-sids-structural;
-      }
-    }
-  }
-
-  grouping oc-srte-segment-list-te-policies-structural {
-    description
-      "Common grouping for te-policies referencing the
-      segment-list.";
-    container te-policies {
-      description
-        "The set of policies referencing the segment-list.";
-      list te-policy {
-        key "endpoint color";
-        description
-          "An individual SR-TE policy referencing the segment-list.
-          Traffic counters are in the context of this policy.";
-
-        leaf color {
-          type leafref {
-            path "../state/color";
-          }
-          description
-            "A reference to the srte color in the state.";
-        }
-
-        leaf endpoint {
-          type leafref {
-            path "../state/endpoint";
-          }
-          description
-            "A reference to the srte endpoint in the state.";
-        }
-
-        container state {
-          config false;
-          description
-            "The counters of traffic steered to the segment-list on
-            per policy basis.";
-
-          uses oc-srte-policy-keys;
-          uses oc-srte-segment-list-common-counters;
-        }
-      }
-    }
-  }
-
-  grouping oc-srte-segment-list-next-hops-structural {
-    description
-      "Common grouping for next-hops which the segment-list is
-      resolved to.";
-    container next-hops {
-      description
-        "The set of next-hops which the segment-list is resolved to.
-        Traffic steered to the segment-list should be forwarded over
-        them.";
-      list next-hop {
-        key "index";
-        description
-          "A next-hop the segment list is resolved to.";
-
-        leaf index {
-          type leafref {
-            path "../state/index";
-          }
-          description
-            "A reference to the nexthop index in the state.";
-        }
-        container state {
-          config false;
-          description "Nexthop operational state and counters of
-          traffic steered to the segment-list on per next-hop
-          basis.";
-
-          leaf index {
-            type uint32;
-            description
-              "A unique index identifying the next-hop entry for the
-              segment-list.";
-          }
-
-          uses oc-aft:aft-common-entry-nexthop-state;
-          uses oc-srte-segment-list-common-counters;
-        }
-        uses oc-if:interface-ref-state;
-      }
-    }
-  }
-
-  grouping oc-srte-segment-list-state {
-    description
-      "Segment list operational states.";
-
-    leaf id {
-      type uint64;
-      description
-        "A unique identifier for the segment-list in the system.";
-    }
-    uses oc-srte-segment-list-common-counters;
-  }
-
   grouping oc-srte-segment-list-common-counters {
     description
       "A collection of traffic counters on the segment-list level.";
@@ -618,41 +623,6 @@ module openconfig-srte-policy {
       description
         "A cumulative counter of the total bytes of incoming labeled
         traffic steered to the segment list.";
-    }
-  }
-
-  grouping oc-srte-segment-list-sids-structural {
-    description "Common grouping for SIDs in the segment-list.";
-    container sids {
-      description
-        "Surrounding container for the list of SIDs that makes up the
-        segment list.";
-
-      list sid {
-        key "index";
-
-        description
-          "List of SIDs that make up the segment list. The segment
-          list is formed by ordering the set of SIDs that are
-          specified by their index in ascending numerical order.";
-
-        leaf index {
-          type leafref {
-            path "../state/index";
-          }
-          description
-            "Reference to the SID's index within the segment list
-            which acts as the key of the list.";
-        }
-
-        container state {
-          config false;
-          description
-            "Operational state parameters relating to the SID within
-            the segment list.";
-          uses oc-srte-segment-list-sids-state;
-        }
-      }
     }
   }
 
