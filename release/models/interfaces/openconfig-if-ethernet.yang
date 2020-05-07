@@ -24,7 +24,26 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.7.2";
+  oc-ext:openconfig-version "2.8.1";
+
+  revision "2020-05-06" {
+    description
+      "Minor formatting fix.";
+    reference "2.8.1";
+  }
+
+  revision "2020-05-06" {
+    description
+      "Add 200G, 400G, 600G and 800G Ethernet speeds.";
+    reference "2.8.0";
+  }
+
+  revision "2020-05-05" {
+    description
+      "Fix when statement checks to use rw paths when
+      from a rw context.";
+    reference "2.7.3";
+  }
 
   revision "2019-04-16" {
     description
@@ -150,6 +169,26 @@ module openconfig-if-ethernet {
   identity SPEED_100GB {
     base ETHERNET_SPEED;
     description "100 Gbps Ethernet";
+  }
+
+  identity SPEED_200GB {
+    base ETHERNET_SPEED;
+    description "200 Gbps Ethernet";
+  }
+
+  identity SPEED_400GB {
+    base ETHERNET_SPEED;
+    description "400 Gbps Ethernet";
+  }
+
+  identity SPEED_600GB {
+    base ETHERNET_SPEED;
+    description "600 Gbps Ethernet";
+  }
+
+  identity SPEED_800GB {
+    base ETHERNET_SPEED;
+    description "800 Gbps Ethernet";
   }
 
   identity SPEED_UNKNOWN {
@@ -430,7 +469,7 @@ module openconfig-if-ethernet {
     interfaces model";
 
     uses ethernet-top {
-      when "oc-if:state/oc-if:type = 'ianaift:ethernetCsmacd'" {
+      when "oc-if:config/oc-if:type = 'ianaift:ethernetCsmacd'" {
       description "Additional interface configuration parameters when
       the interface type is Ethernet";
       }

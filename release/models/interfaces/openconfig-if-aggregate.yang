@@ -24,7 +24,14 @@ module openconfig-if-aggregate {
   description
     "Model for managing aggregated (aka bundle, LAG) interfaces.";
 
-  oc-ext:openconfig-version "2.4.2";
+  oc-ext:openconfig-version "2.4.3";
+
+  revision "2020-05-01" {
+    description
+      "Update when statements to reference config nodes
+      from config true elements.";
+    reference "2.4.3";
+  }
 
   revision "2019-04-16" {
     description
@@ -207,8 +214,8 @@ module openconfig-if-aggregate {
     description "Adds LAG configuration to the interface module";
 
     uses aggregation-logical-top {
-      when "oc-if:state/oc-if:type = 'ianaift:ieee8023adLag' or " +
-        "oc-if:state/oc-if:type = 'oc-ift:IF_AGGREGATE'" {
+      when "oc-if:config/oc-if:type = 'ianaift:ieee8023adLag' or " +
+        "oc-if:config/oc-if:type = 'oc-ift:IF_AGGREGATE'" {
         description
           "active when the interface is set to type LAG";
       }
