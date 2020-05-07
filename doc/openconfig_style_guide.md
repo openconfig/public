@@ -276,12 +276,18 @@ list servers {
 }
 ```
 
-YANG requires leaf nodes that are list keys to be direct descendents of the `list`
-statement.  Since key leaf nodes must also be members of the list data, they will
-generally reside in a `config` or `state` container (see
-[Modeling operational state](#modeling-operational-state)).  Hence, the list key leaf
-nodes should be of type `leafref` with a `path` pointing to the corresponding "actual"
-leaf in the config or state container.
+YANG requires leaf nodes that are list keys to be direct descendants of the
+`list` statement.  Since key leaf nodes must also be members of the list data,
+they will generally reside in a `config` or `state` container (see [Modeling
+operational state](#modeling-operational-state)).  Hence, the list key leaf
+nodes should be of type `leafref` with a `path` pointing to the corresponding
+"actual" leaf in the config or state container.
+
+List keys must reference a direct child of the `config` or `state` container -
+rather than referencing descendends in the `state` container (structure is not
+allowed within the `config` container by other rules). That is to say a key
+`leafref` may have a path of `../state/foo` but is not allowed to have a path
+`../state/counters/foo`.
 
 ```
 grouping interfaces-config {
