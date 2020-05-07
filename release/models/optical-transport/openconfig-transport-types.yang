@@ -22,7 +22,19 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.9.0";
+  oc-ext:openconfig-version "0.11.0";
+
+  revision "2020-04-24" {
+    description
+      "Add 400G protocol and additional tributary half rates.";
+    reference "0.11.0";
+  }
+
+  revision "2020-04-22" {
+    description
+      "Add AOC and DAC connector identities.";
+    reference "0.10.0";
+  }
 
   revision "2019-06-27" {
     description
@@ -528,6 +540,11 @@ module openconfig-transport-types {
     description "ODU 4 protocol";
   }
 
+  identity PROT_400GE {
+    base TRIBUTARY_PROTOCOL_TYPE;
+    description "400G Ethernet protocol";
+  }
+
   identity TRANSCEIVER_FORM_FACTOR_TYPE {
     description
       "Base identity for identifying the type of pluggable optic
@@ -653,6 +670,18 @@ module openconfig-transport-types {
     description
       "MPO (multi-fiber push-on/pull-off) type fiber connector
       1x12 fibers";
+  }
+
+  identity AOC_CONNECTOR {
+    base FIBER_CONNECTOR_TYPE;
+    description
+      "AOC (active optical cable) type fiber connector";
+  }
+
+  identity DAC_CONNECTOR {
+    base FIBER_CONNECTOR_TYPE;
+    description
+      "DAC (direct attach copper) type fiber connector";
   }
 
   identity ETHERNET_PMD_TYPE {
@@ -893,10 +922,22 @@ module openconfig-transport-types {
       "300G tributary signal rate";
   }
 
+  identity TRIB_RATE_350G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "350G tributary signal rate";
+  }
+
   identity TRIB_RATE_400G {
     base TRIBUTARY_RATE_CLASS_TYPE;
     description
       "400G tributary signal rate";
+  }
+
+  identity TRIB_RATE_450G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "450G tributary signal rate";
   }
 
   identity TRIB_RATE_500G {
@@ -905,10 +946,22 @@ module openconfig-transport-types {
       "500G tributary signal rate";
   }
 
+  identity TRIB_RATE_550G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "550G tributary signal rate";
+  }
+
   identity TRIB_RATE_600G {
     base TRIBUTARY_RATE_CLASS_TYPE;
     description
       "600G tributary signal rate";
+  }
+
+  identity TRIB_RATE_650G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "650G tributary signal rate";
   }
 
   identity TRIB_RATE_700G {
@@ -917,10 +970,22 @@ module openconfig-transport-types {
       "700G tributary signal rate";
   }
 
+  identity TRIB_RATE_750G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "750G tributary signal rate";
+  }
+
   identity TRIB_RATE_800G {
     base TRIBUTARY_RATE_CLASS_TYPE;
     description
       "800G tributary signal rate";
+  }
+
+  identity TRIB_RATE_850G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "850G tributary signal rate";
   }
 
   identity TRIB_RATE_900G {
@@ -929,10 +994,22 @@ module openconfig-transport-types {
       "900G tributary signal rate";
   }
 
+  identity TRIB_RATE_950G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "950G tributary signal rate";
+  }
+
   identity TRIB_RATE_1000G {
     base TRIBUTARY_RATE_CLASS_TYPE;
     description
       "1000G tributary signal rate";
+  }
+
+  identity TRIB_RATE_1050G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "1050G tributary signal rate";
   }
 
   identity TRIB_RATE_1100G {
