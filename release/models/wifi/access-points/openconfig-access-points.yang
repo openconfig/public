@@ -13,6 +13,7 @@ module openconfig-access-points {
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-wifi-phy { prefix wifi-phy; }
   import openconfig-wifi-mac { prefix wifi-mac; }
+  import openconfig-ap-manager { prefix ap-manager; }
   import openconfig-system { prefix oc-sys; }
 
   // Meta
@@ -26,7 +27,13 @@ module openconfig-access-points {
     "This module defines the top level WiFi Configurations for a list of
     Access Points.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2020-04-28" {
+    description
+      "Change hostname to leaf-ref.";
+    reference "0.3.0";
+  }
 
   revision "2018-07-16" {
     description
@@ -132,6 +139,20 @@ module openconfig-access-points {
     }
   }
 
+  grouping access-points-common-config {
+    description
+      "Grouping for AP level State data.";
+
+    leaf hostname {
+      type leafref {
+        path "/ap-manager:provision-aps/ap-manager:provision-ap/" +
+        "ap-manager:config/ap-manager:hostname";
+      }
+      description
+        "Access Point FQDN.";
+    }
+  }
+
   grouping access-points-top {
     description
       "Top-level grouping for AP configuration & state data.";
@@ -148,9 +169,18 @@ module openconfig-access-points {
           list entry.";
 
         leaf hostname {
-          type oc-inet:domain-name;
+          type leafref {
+            path "../config/hostname";
+          }
+        description
+          "Access Point FQDN.";
+        }
+
+        container config {
           description
-            "AP FQDN";
+            "Config items at the global, Access Point level.";
+
+          uses access-points-common-config;
         }
 
         uses wifi-phy:radio-top;
