@@ -17,12 +17,19 @@ module openconfig-macsec {
     "This module defines configuration and state data for
      MACsec IEEE Std 802.1AE-2018.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
   oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
-  revision 2019-07-01 {
+  revision "2020-05-01" {
+    description
+      "Move identifiers for scsa-[tr]x out of
+      counters container.";
+    reference "0.2.0";
+  }
+
+  revision "2019-07-01" {
     description
       "Initial public revision";
     reference
@@ -309,9 +316,10 @@ module openconfig-macsec {
     }
   }
 
-  grouping macsec-scsa-tx-interface-stats {
+  grouping macsec-scsa-tx-interface-state {
     description
-      "TX Secure Channel and Secure Association Information";
+      "State leaves assigned with the TX Secure Channel and Secure
+      Association";
 
     leaf sci-tx {
       type oc-yang:hex-string {
@@ -321,6 +329,11 @@ module openconfig-macsec {
         "Secure Channel Identifier.
          Every Transmit Channel is uniquely identified using this field.";
     }
+  }
+
+  grouping macsec-scsa-tx-interface-stats {
+    description
+      "TX Secure Channel and Secure Association Information";
 
     leaf sc-auth-only {
       type oc-yang:counter64;
@@ -355,9 +368,10 @@ module openconfig-macsec {
     }
   }
 
-  grouping macsec-scsa-rx-interface-stats {
+  grouping macsec-scsa-rx-interface-state {
     description
-      "RX Secure Channel and Secure Association Information";
+      "State associated nwith RX Secure Channel and Secure Association
+      Information.";
 
     leaf sci-rx {
       type oc-yang:hex-string {
@@ -367,6 +381,11 @@ module openconfig-macsec {
         "Secure Channel Identifier.
          Every Receive Channel is uniquely identified using this field.";
     }
+  }
+
+  grouping macsec-scsa-rx-interface-stats {
+    description
+      "RX Secure Channel and Secure Association Information";
 
     leaf sc-invalid {
       type oc-yang:counter64;
@@ -465,7 +484,7 @@ module openconfig-macsec {
 
         leaf sci-tx {
           type leafref {
-            path "../state/counters/sci-tx";
+            path "../state/sci-tx";
           }
           description
             "TX Secure Channel and Secure Association Statistics";
@@ -474,6 +493,8 @@ module openconfig-macsec {
         container state {
           description
             "State container for macsec-scsa-tx-interface-stats";
+
+          uses macsec-scsa-tx-interface-state;
 
           container counters {
             description
@@ -499,7 +520,7 @@ module openconfig-macsec {
 
         leaf sci-rx {
           type leafref {
-            path "../state/counters/sci-rx";
+            path "../state/sci-rx";
           }
           description
             "RX Secure Channel and Secure Association Statistics";
@@ -508,6 +529,8 @@ module openconfig-macsec {
         container state {
           description
             "State container for macsec-scsa-rx-interface-stats";
+
+          uses macsec-scsa-rx-interface-state;
 
           container counters {
             description
