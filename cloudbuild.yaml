@@ -48,7 +48,8 @@ steps:
     git clone git@github.com:openconfig/models-ci.git /go/src/github.com/openconfig/models-ci
     cd /go/src/github.com/openconfig/models-ci
     # Modify the major version to update models-ci version.
-    branch=$(git tag -l 'v2*' | sort -V | tail -1)
+    #branch=$(git tag -l 'v2*' | sort -V | tail -1)
+    branch="support-forks"
     git checkout -b $branch
   volumes:
   - name: 'ssh'
@@ -79,7 +80,8 @@ steps:
   - >- # CI Configuration
     /go/bin/cmd_gen
     -modelRoot=$_MODEL_ROOT
-    -repo-slug=openconfig/public
+    -repo-slug=$_REPO_SLUG
+    -fork-repo-slug=$_HEAD_REPO_URL
     -commit-sha=$COMMIT_SHA
     -pr-number=$_PR_NUMBER
     -extra-pyang-versions=1.7.8,2.1.1
@@ -304,8 +306,8 @@ steps:
   id: 'compat-report'
 
 timeout: 600s
-options:
-  machineType: 'N1_HIGHCPU_8'
+#options:
+#  machineType: 'N1_HIGHCPU_8'
 
 secrets:
 - kmsKeyName: projects/disco-idea-817/locations/global/keyRings/keyring0/cryptoKeys/key0
