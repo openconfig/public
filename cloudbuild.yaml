@@ -138,31 +138,6 @@ steps:
   waitFor: ['regexp dep', 'validator prep']
   id: 'regexp'
 
-############### CONFD-BASIC ##############
-- name: gcr.io/cloud-builders/gsutil
-  args:
-  - cp
-  - gs://artifacts.disco-idea-817.appspot.com/confd/confd-basic-7.3.linux.x86_64.zip
-  - /workspace/confd.zip
-  waitFor: ['validator prep']
-  id: 'confd prep'
-- name: 'gcr.io/disco-idea-817/models-ci-image'
-  entrypoint: 'bash'
-  args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/confd/test.sh"]
-  secretEnv: ['GITHUB_ACCESS_TOKEN']
-  volumes:
-  - name: 'gopath'
-    path: /go
-  env:
-  - 'GOPATH=/go'
-  - '_PR_NUMBER=$_PR_NUMBER'
-  - '_MODEL_ROOT=$_MODEL_ROOT'
-  - 'COMMIT_SHA=$COMMIT_SHA'
-  - '_REPO_SLUG=$_REPO_SLUG'
-  - 'BRANCH_NAME=$BRANCH_NAME'
-  waitFor: ['confd prep']
-  id: 'confd'
-
 ############### YANGLINT ##############
 - name: gcr.io/cloud-builders/gsutil
   args: ['cp', 'gs://artifacts.disco-idea-817.appspot.com/libyang.deb', '/workspace/libyang.deb']
