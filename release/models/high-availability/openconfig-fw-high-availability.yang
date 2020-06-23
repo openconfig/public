@@ -1,0 +1,352 @@
+module openconfig-fw-high-availability {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/high-availability/oc-fw-ha";
+
+  // Assign this module a prefix to be used by other modules, when imported.
+  prefix "oc-fw-ha";
+
+  // Imports
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-fw-ha-link-monitoring { prefix oc-fw-ha-link-monitoring; }
+
+  // Meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Model used to configure & monitor firewall High Availability (HA)";
+
+  oc-ext:openconfig-version "0.0.1";
+
+  revision "2020-06-23" {
+    description
+      "Initial version";
+    reference "0.0.1";
+  }
+  
+  grouping control-link-config {
+    description
+      "HA Control link configuration parameters";
+    leaf control-link-interface {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description
+        "Specify which interface will be used to exchange HA control messages 
+        between peers";
+    }
+    
+    leaf control-link-port {
+      type oc-inet:port-number;
+      description
+        "Specify which port will be used to exchange control messages";
+    }
+    
+    leaf control-link-local-ipv4 {
+      type oc-inet:ipv4-address;
+      description
+        "Specify the peer ip address, if control link is utilizing Layer 3";
+    }
+    
+    leaf control-link-local-ipv4-mask {
+      type uint8 {
+        range "0..32";
+      }
+      description
+        "Specify the ipv4 mask of the contro link ipv4 address";
+    }
+    
+    leaf control-link-peer-ipv4 {
+      type oc-inet:ipv4-address;
+      description
+        "Specify the peer ip address, if control link is utilizing Layer 3";
+    }
+    
+    leaf backup-control-link-interface {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description
+        "Specify which interface will be used as a back up to exchange HA 
+        control messages between peers";
+    }
+    
+       
+    leaf backup-control-link-port {
+      type oc-inet:port-number;
+      description
+        "Specify which port will be used to exchange control messages on the 
+        backup control link";
+    }
+    
+    leaf backup-control-link-local-ipv4 {
+      type oc-inet:ipv4-address;
+      description
+        "Specify the peer ip address, if back up control link is utilizing 
+        Layer 3";
+    }
+    
+    leaf backup-control-link-local-ipv4-mask {
+      type uint8 {
+        range "0..32";
+      }
+      description
+        "Specify the ipv4 mask of the back up control link ipv4 address";
+    }
+    
+    leaf backup-control-link-peer-ipv4 {
+      type oc-inet:ipv4-address;
+      description
+        "Specify the peer ip address, if back up control link is utilizing 
+        Layer 3";
+    }
+  }
+
+  grouping data-link-config {
+      description
+        "HA data link configuration parameters";
+        
+    leaf data-link-interface {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description
+        "Specify which interface will be used to sync session tables, forwarding
+        tables, ARP tables, IPSEC SAs and any other messages that MUST be 
+        exchanged to facilitate seamless traffic handling in the face of a 
+        failover event";
+    }
+    
+    leaf data-link-port {
+      type oc-inet:port-number;
+      description
+        "Specify which port will be used to exchange data link messages";
+    }
+    
+    leaf data-link-local-ipv4 {
+      type oc-inet:ipv4-address;
+      description
+        "If data link is layer 3, specify the local unit's ip address";
+    }
+    
+    leaf data-link-local-ipv4-mask {
+      type uint8 {
+        range "0..32";
+      }
+      description
+        "Specify the ipv4 mask of the data link ipv4 address";
+    }    
+    
+    leaf data-link-peer-ipv4 {
+      type oc-inet:ipv4-address;
+      description
+        "If data link is layer 3, specify the peer's ip address";
+    }
+    
+    leaf backup-data-link-interface {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description
+        "Specify which interface will be used as a back up to sync session 
+        tables, forwarding tables, ARP tables, IPSEC SAs and any other messages 
+        that MUST be exchanged to facilitate seamless traffic handling in the 
+        face of a failover event";
+    }
+    
+    leaf backup-data-link-port {
+      type oc-inet:port-number;
+      description
+        "Specify which port will be used to exchange HA messages on the back up
+        data link";
+    }
+    
+    leaf backup-data-link-local-ipv4 {
+      type oc-inet:ipv4-address;
+      description
+        "If the back up data link is layer 3, specify it's ip address here";
+    }
+    
+    leaf backup-data-link-local-ipv4-mask {
+      type uint8 {
+        range "0..32";
+      }
+      description
+        "Specify the ipv4 mask of the backup data link ipv4 address";
+    }      
+    
+    leaf backup-data-link-peer-ipv4 {
+      type oc-inet:ipv4-address;
+      description
+        "If the back up data link is layer 3, specify the peer's ip address";
+    }
+  }
+  
+  grouping ha-timers-config {
+    description
+      "Used to specify various HA timers";
+      
+    leaf preempt-hold-timer {
+      type uint32;
+      units milliseconds;
+      default 600;
+      description
+        "Length of time a unit will wait before taking over the active role in a
+        HA pair";
+    }
+
+    leaf hello-interval {
+      type uint32;
+      units milliseconds;
+      description
+        "Interval between hello messages exchanged by the HA peers";
+    }
+  }
+  
+  grouping ha-role-config {
+      description
+        "Used to explicity assign the HA role of a unit in the cluster";
+        
+      leaf ha-role {
+        type enumeration {
+          enum PRIMARY {
+            description
+              "This is used to assign the ACTIVE duty in a HA pair. The active
+              unit handles all incoming traffic. This is the highest privileged 
+              role & takes precedence over all other configured roles when the
+              election for HA unit is performed";
+          }
+          enum SECONDARY {
+            description
+              "This is typically used to assign the PASSIVE duty in a HA pair.
+              This is the second highest privileged role behind PRIMARY and 
+              ahead of TERTIARY. If a unit is configured with the SECONDARY 
+              ha-role, it will concede the ACTIVE duties to a unit with 
+              PRIMARY config while winning the ACTIVE duties against a unit
+              with TERTIARY config";
+          }
+          enum TERTIARY {
+            description
+              "This is typically used to demote a unit performing ACTIVE duty
+              in a HA pair. This ha-role will concede ACTIVE duty to both
+              PRIMARY and SECONDARY ha-roles";
+          }
+          enum SUSPENDED {
+            description
+              "This is used to suspend a unit from the HA cluster. A firewall
+              with this ha-role configured, MUST NOT participate in handling
+              traffic in the HA cluster";
+          }
+        }
+        description
+          "Configurable HA roles";
+      }
+    }
+    
+  grouping ha-parameters-config {
+    description
+        "All parameters needed to bootstrap a HA cluster";
+    
+    leaf ha-mode {
+        type enumeration {
+          enum active-passive {
+            description
+              "This is used to specify the active/passive mode of HA operation.
+              In this scenario there are only ever two firewalls in the cluster.
+              The active firewall serves as the 'primary' handling the traffic
+              & the passive firewalls acts as a 'backup' ready to take over if 
+              the 'active' unit fails";
+          }
+        }
+        description
+          "Configurable HA modes. Future HA modes supported by the model must be
+          added here";
+      }
+    
+    leaf ha-key {
+      type string;
+        description
+          "Specify the HA key used to encrypt & authenticate HA messages between
+          the peers";
+    }
+    
+    leaf ha-group-id {
+      type uint32;
+      description
+        "The high availbility group id for a unit. This value MUST match across
+        both units participating in a HA cluster";
+    }
+    
+    leaf ha-device-id {
+      type uint8;
+        description
+          "Specify the unique HA Device ID to identify the ";
+    }
+    
+    leaf preempt {
+      type boolean;
+      description
+        "When set to true the firewall forces reelection of the active role 
+        after joining the cluster";
+      }
+    
+    leaf priority {
+      type uint32;
+      description
+        "This leaf MUST ONLY BE USED until the ha-roles leaf is not supported.
+        The long term aim is to do away with the priority config as it can be
+        interpreted differently by various vendors";
+    }
+    
+    uses control-link-config;
+    uses data-link-config;
+    uses ha-timers-config;
+    uses ha-role-config;
+   }
+  
+  grouping ha-configuration-top {
+    description
+        "Top level grouping for HA configuration and operational state data";
+      
+      list ha-groups {
+        key "ha-group-id";
+        description
+          "HA group id used to create a logical HA group";
+        
+        leaf ha-group-id {
+          type leafref {
+            path "../config/ha-group-id";
+          }
+          description
+          "References the group id key.";
+          }
+        
+        container config {
+          description
+            "Config container for HA parameters";
+          
+          uses ha-parameters-config;
+        }
+        
+        container state {
+          config false;
+          description
+            "State container for HA parameters";
+          uses ha-parameters-config;
+        }
+        
+        uses oc-fw-ha-link-monitoring:interface-monitoring-top;
+        uses oc-fw-ha-link-monitoring:interface-group-top;
+        uses oc-fw-ha-link-monitoring:global-health-top;  
+      }
+  }
+  uses ha-configuration-top;
+}

@@ -1,0 +1,288 @@
+module openconfig-fw-ha-link-monitoring {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/high-availability/openconfig-fw-ha-link-monitoring";
+
+  // Assign this module a prefix to be used by other modules, when imported.
+  prefix "oc-fw-ha-link-monitoring";
+
+  // Imports
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-interfaces { prefix oc-if; }
+
+  // Meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Model used to setup link monitoring for firewall HA cluster";
+
+  oc-ext:openconfig-version "0.0.1";
+
+  revision "2020-06-23" {
+    description
+      "Initial version";
+    reference "0.0.1";
+  }
+
+  grouping interface-group-config {
+    description
+      "Parameters to bundle monitored interfaces together";
+    
+    leaf group-id {
+      type uint32;
+        description
+        "Used to assign a unique id to an interface group";
+    }
+        
+    leaf group-logic {
+      type enumeration {
+        enum ANY {
+          description
+            "Group status is DOWN if the status of ANY interface within the 
+            group is down.";
+        }
+        enum ALL {
+          description
+            "Group status is DOWN if the status of ALL interfaces within the 
+            group are down.";
+        }
+      }
+      description
+        "Determines how status of interfaces is combined to determine the
+        status of the group that they are a member of";
+    }
+    
+  }
+
+  grouping interface-group-state {
+    description
+      "State data associated with the interface groups";
+ 
+    leaf group-status {
+      type enumeration {
+        enum UP {
+          description
+            "Group status is UP";
+        }
+        enum DOWN {
+          description
+            "Group status is DOWN";
+        }
+      }
+      description
+        "The status of this interface group";
+    }
+  }
+
+  grouping interface-monitoring-config {
+    description
+      "Configuraion parameters used to setup interface monitoring on a firewall
+      for influencing HA role election";
+    
+    leaf interface-name {
+     type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description
+        "Name of the interface to be monitored.";
+    }
+    
+    leaf interface-group {
+      type uint32;
+      description
+        "Interface group id which this interface is a part of";
+    }
+    
+    leaf polling-interval {
+      type uint32;
+      units milliseconds;
+      description
+        "Determines how often the status of the interface is checked";
+    }
+  }
+
+  grouping interface-monitoring-state {
+    description
+      "Grouping used to determine the state data associated with monitored 
+      interfaces";
+    
+    leaf interface-status {
+      type enumeration {
+          enum UP {
+            description
+              "Interface is UP";
+          }
+          enum DOWN {
+            description
+              "Interface is DOWN";
+          }
+    }
+    description
+      "Defines the status of a monitored interfaces. It is set to UP if 
+      the interface can pass traffic and DOWN if the interface can not pass 
+      traffic. The actual status of the interface will match one of the values 
+      in the oper-status leaf in the oc-if model. However, for the purpose of 
+      this model we will consolidate those  values into an UP or DOWN category 
+      based on the interface's ability to pass traffic";
+   }
+  }
+  
+  grouping global-health-config {
+    description
+      "Configuration parameters used to drive the decision criteria to determine
+      the global health of the interface monitoring state machine. The global
+      health is a derivative of the status of the individual interface groups";
+    
+    leaf global_health_logic {
+      type enumeration {
+        enum ANY {
+          description
+            "Global health is DOWN if status of ANY of the configured 
+            interface-groups is DOWN";
+        }
+        enum ALL {
+          description
+            "Global health is DOWN if status of ALL of the configured 
+             interface-groups is DOWN";
+        }
+      }
+    description
+      "List of global health values associated with the interface monitoring 
+      state machine";
+    }
+  }
+
+  grouping global-health-state {
+    description
+      "State parameters associated with the global health of the interface 
+      monitoring state machine";
+    
+    leaf global_health_status {
+      type enumeration {
+        enum UP {
+        description
+          "Global interface monitoring status is UP";     
+        }
+        enum DOWN {
+        description
+          "Global interface monitoring status is DOWN";
+        }
+      }
+    description
+      "Global interface monitoring status values";
+    }
+  }
+  
+
+  grouping interface-monitoring-top {
+    description
+      "Top level grouping for monitored firewall interfaces";
+      
+    container monitored-interfaces {
+      description
+        "Top level container for monitored firewall interfaces";
+
+      list interface-names {
+        key "interface-name";
+        description
+           "List of interfaces being monitored by the firewall";
+        leaf interface-name {
+          type leafref {
+            path "../config/interface-name";
+          }
+          description
+          "Reference to the interface being monitored";
+        }
+        
+        container config {
+          description
+            "Configuration parameters for the monitored interface";
+          uses interface-monitoring-config;
+        }
+        
+        container state {
+          config false;
+          description
+            "State container for monitored interfaces";
+          uses interface-monitoring-config;
+          uses interface-monitoring-state;
+        }
+      }
+    }
+  }
+
+  grouping interface-group-top {
+    description
+      "Top level grouping for monitored interface-groups";
+    container monitored-groups {
+      description
+        "Top level container for monitored interface groups";
+
+      list interface-groups {
+        key "interface-group";
+        description
+          "List of interface groups being monitored";
+
+        leaf interface-group {
+          type leafref {
+            path "../config/group-id";
+          }
+          description
+          "Reference to the group-id key used to bundle interfaces in a logical 
+          group";
+        }
+        
+        container config {
+          description
+            "Configuration parameters for the interface-groups";
+          uses interface-group-config;
+        }
+        
+        container state {
+          config false;
+          description
+            "State container for monitored interface-groups.";
+          uses interface-group-config;
+          uses interface-group-state;
+        }
+      }
+    }
+  }
+
+  grouping global-health-top {
+    description
+      "Top level container for global interface monitoring. This global
+       value is driven from the status of individual interface groups. The
+       decision is based on a configurable ANY or AND logic applied to 
+       the interface-group statuses";
+    
+    container global-health {
+      description
+        "Top most container for global interface monitoring";
+      
+      container config {
+        description
+          "Config container for global interface monitoring";
+        uses global-health-config;
+      }
+      
+      container state {
+        config false;
+        description
+          "State container for global interface monitoring";
+        uses global-health-config;
+        uses global-health-state;
+      }   
+    }
+  }
+  
+ uses interface-monitoring-top;
+ uses interface-group-top;
+ uses global-health-top;
+ }
