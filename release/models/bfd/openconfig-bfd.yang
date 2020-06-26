@@ -15,6 +15,7 @@ module openconfig-bfd {
   import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-network-instance { prefix "oc-ni"; }
   import openconfig-policy-types { prefix "oc-pol-types"; }
+  import ietf-inet-types { prefix "ietf-if"; }
 
   // meta
   organization "OpenConfig working group";
@@ -27,7 +28,15 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2020-05-08" {
+    description
+      "Ensure that when statements reference only read-write leaves
+      from read-write contexts.
+      Add ietf-inet-types LAG type to conditions for micro-bfd.";
+    reference "0.2.1";
+  }
 
   revision "2019-10-25" {
     description
@@ -507,7 +516,10 @@ module openconfig-bfd {
     container micro-bfd-sessions {
       when "/oc-if:interfaces/oc-if:interface" +
           "[oc-if:name=current()/../interface-ref/config/interface]/" +
-          "oc-if:state/oc-if:type = 'oc-ift:IF_AGGREGATE'" {
+          "oc-if:config/oc-if:type = 'oc-ift:IF_AGGREGATE' or " +
+          "/oc-if:interfaces/oc-if:interface" +
+          "[oc-if:name=current()/../interface-ref/config/interface]/" +
+          "oc-if:config/oc-if:type = 'ietf-if:ieee8023adLag'" {
         description
           "Include per-member link BFD only when the type of
           interface is a link aggregate.";

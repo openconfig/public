@@ -23,7 +23,14 @@ module openconfig-platform-linecard {
     "This module defines data related to LINECARD components in
     the openconfig-platform model";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.1.2";
+
+  revision "2020-05-10" {
+    description
+      "Remove when statement that references read-only entity from
+      a read-write context.";
+    reference "0.1.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -110,15 +117,10 @@ module openconfig-platform-linecard {
 
   augment "/oc-platform:components/oc-platform:component" {
     description
-      "Adding linecard data to physical inventory";
+      "Adding linecard data to physical inventory. This subtree
+      is only valid when the type of the component is LINECARD.";
 
-    uses linecard-top {
-      when "current()/oc-platform:state/" +
-        "oc-platform:type = 'LINECARD'" {
-        description
-          "Augment is active when component is of type LINECARD";
-      }
-    }
+    uses linecard-top;
   }
 
   // rpc statements
