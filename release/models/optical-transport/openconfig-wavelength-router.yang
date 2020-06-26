@@ -41,7 +41,13 @@ module openconfig-wavelength-router {
          target spectrum power profile over the full spectrum instead
          of individual media channels.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2020-06-03" {
+    description
+      "Add attenutation-control-mode to media channel config";
+    reference "0.8.0";
+  }
 
   revision "2019-10-24" {
     description
@@ -113,6 +119,31 @@ module openconfig-wavelength-router {
   oc-ext:origin "openconfig";
 
   // identity statements
+  identity ATTENUATION_CONTROL_MODE {
+    description
+      "The definition for different types of attenutation control
+      modes on a media channel";
+  }
+
+  identity ATTENUATION_FIXED_LOSS {
+    base ATTENUATION_CONTROL_MODE;
+    description
+      "The attenuation applied across a media channel will be
+      calculated based on the target input and output powers as well
+      as the internal losses of the wavelength router. The target
+      power levels are configured using port-spectrum-power-profiles
+      of the two ports";
+  }
+
+  identity ATTENUATION_DYNAMIC_LOSS {
+    base ATTENUATION_CONTROL_MODE;
+    description
+      "The attenuation applied across a media channel is dynamically
+      controlled by the device by attempting to meet the target output
+      power as defined in the output port's
+      port-spectrum-power-profile";
+  }
+
   identity ASE_CONTROL_MODE {
     description
       "The definition for different types of ASE control modes
@@ -464,6 +495,16 @@ module openconfig-wavelength-router {
         indicate that ASE noise should be injected on the media
         channel. This is required if a threshold based
         ase-control-mode is configured";
+    }
+
+    leaf attenuation-control-mode {
+      type identityref {
+        base ATTENUATION_CONTROL_MODE;
+      }
+      description
+        "Sets the attenuation control mode for the media channel.
+        The control mode defines the behavior of how the attenuation
+        across a media channel is set";
     }
   }
 
