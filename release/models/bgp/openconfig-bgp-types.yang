@@ -25,7 +25,13 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "5.1.0";
+  oc-ext:openconfig-version "5.2.0";
+
+  revision "2020-06-17" {
+    description
+      "Add RFC5549 capability identity.";
+    reference "5.2.0";
+  }
 
   revision "2020-03-24" {
     description
@@ -136,6 +142,13 @@ module openconfig-bgp-types {
     description
       "BGP add-paths";
     reference "draft-ietf-idr-add-paths";
+  }
+
+  identity EXTENDED_NEXTHOP_ENCODING {
+    base BGP_CAPABILITY;
+    description
+      "BGP Extended Next Hop Encoding functionality";
+    reference "RFC5549";
   }
 
   identity AFI_SAFI_TYPE {

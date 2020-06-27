@@ -105,6 +105,24 @@ module openconfig-extensions {
       specified by RFC6020 and RFC7950.";
   }
 
+  extension posix-pattern {
+    argument "pattern" {
+      yin-element false;
+    }
+    description
+      "Provides a POSIX ERE regular expression pattern statement as an
+      alternative to YANG regular expresssions based on XML Schema Datatypes.
+      It is used the same way as the standard YANG pattern statement defined in
+      RFC6020 and RFC7950, but takes an argument that is a POSIX ERE regular
+      expression string.
+
+      If present, any posix-pattern statement should have a corresponding
+      pattern statement that provides equivalent behavior.";
+    reference
+      "POSIX Extended Regular Expressions (ERE) Specification:
+      https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html#tag_09_04";
+  }
+
   extension telemetry-on-change {
     description
       "The telemetry-on-change annotation is specified in the context

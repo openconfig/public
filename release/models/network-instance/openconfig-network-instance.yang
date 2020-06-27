@@ -46,7 +46,14 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.13.2";
+  oc-ext:openconfig-version "0.14.0";
+
+  revision "2020-06-20" {
+    description
+      "Add support for toggling metric propagation
+      when using table-connections.";
+    reference "0.14.0";
+  }
 
   revision "2019-11-28" {
     description
@@ -1013,6 +1020,20 @@ module openconfig-network-instance {
       }
       description
         "The destination protocol for the table connection";
+    }
+
+    leaf disable-metric-propagation {
+      type boolean;
+      default false;
+      description
+        "By default a system may reflect the metric specified in
+        the destination protocol according to that which is set in
+        the source protocol. For example:
+         - IS-IS metric may be reflected in BGP MED (and vice versa)
+         - OSPF metric may be reflected in the BGP MED (and vice versa)
+        When this leaf is set to true, this reflection behaviour MUST be
+        disabled, and rather the metric must be set to the default value,
+        or explicitly set by policy.";
     }
 
     uses oc-rpol:apply-policy-import-config;
