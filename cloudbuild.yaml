@@ -72,6 +72,17 @@ steps:
   - 'GOPATH=/go'
   dir: '/go/src/github.com/openconfig/models-ci'
   id: 'models-ci dep'
+# FIXME: sanity check
+- name: 'gcr.io/cloud-builders/go:debian'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    cat /go/src/github.com/openconfig/models-ci/cmd_gen/main.go
+  volumes:
+  - name: 'gopath'
+    path: /go
+  id: 'sanity'
 # Generate validator scripts
 - name: 'gcr.io/cloud-builders/go:debian'
   entrypoint: 'bash'
