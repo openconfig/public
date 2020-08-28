@@ -18,7 +18,13 @@ module openconfig-openflow-types {
     "This module defines types related to the Openflow configuration
     and operational state model.";
 
-  oc-ext:openconfig-version "0.1.2";
+  oc-ext:openconfig-version "0.1.3";
+
+  revision "2020-06-30" {
+    description
+      "Add OpenConfig POSIX pattern extensions.";
+    reference "0.1.3";
+  }
 
   revision "2018-11-21" {
     description
@@ -92,6 +98,7 @@ module openconfig-openflow-types {
   typedef datapath-id {
     type string {
       pattern '^[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){7}$';
+      oc-ext:posix-pattern '^[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){7}$';
     }
     description
         "The datapath-id type represents an OpenFlow
