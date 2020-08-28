@@ -48,9 +48,8 @@ steps:
     git clone git@github.com:openconfig/models-ci.git /go/src/github.com/openconfig/models-ci
     cd /go/src/github.com/openconfig/models-ci
     # Modify the major version to update models-ci version.
-    # FIXME(wenovus): uncomment: branch=$(git tag -l 'v2*' | sort -V | tail -1)
-    # git checkout -b $branch
-    git checkout origin/push-test
+    branch=$(git tag -l 'v3*' | sort -V | tail -1)
+    git checkout -b $branch
   volumes:
   - name: 'ssh'
     path: /root/.ssh
@@ -72,17 +71,6 @@ steps:
   - 'GOPATH=/go'
   dir: '/go/src/github.com/openconfig/models-ci'
   id: 'models-ci dep'
-# FIXME: sanity check
-- name: 'gcr.io/cloud-builders/go:debian'
-  entrypoint: 'bash'
-  args:
-  - '-c'
-  - |
-    cat /go/src/github.com/openconfig/models-ci/cmd_gen/main.go
-  volumes:
-  - name: 'gopath'
-    path: /go
-  id: 'sanity'
 # Generate validator scripts
 - name: 'gcr.io/cloud-builders/go:debian'
   entrypoint: 'bash'
