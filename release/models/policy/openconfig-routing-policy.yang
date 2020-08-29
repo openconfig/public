@@ -77,7 +77,20 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
-  oc-ext:openconfig-version "3.1.1";
+  oc-ext:openconfig-version "3.2.1";
+
+  revision "2020-06-30" {
+    description
+      "Add OpenConfig POSIX pattern extensions.";
+    reference "3.2.1";
+  }
+
+  revision "2020-04-02" {
+    description
+      "Add generic set-tag operation back to support local and IGP
+      tagged routes.";
+    reference "3.2.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -255,6 +268,7 @@ module openconfig-routing-policy {
     leaf masklength-range {
       type string {
         pattern '^([0-9]+\.\.[0-9]+)|exact$';
+        oc-ext:posix-pattern '^([0-9]+\.\.[0-9]+)|exact$';
       }
       description
         "Defines a range for the masklength, or 'exact' if
@@ -804,8 +818,6 @@ module openconfig-routing-policy {
       "Operational state data for policy statements";
   }
 
-
-
   grouping policy-actions-config {
     description
       "Configuration data for policy actions";
@@ -816,6 +828,148 @@ module openconfig-routing-policy {
   grouping policy-actions-state {
     description
       "Operational state data for policy actions";
+  }
+
+  grouping policy-actions-tag-set {
+    description
+      "Protocol agnostic tag specification.";
+
+    container set-tag {
+      description
+        "Policy actions associated with setting tags for a particular
+        route. A tag is an abstract entity which can be mapped to underlying
+        protocol attributes where applicable.";
+
+      container config {
+        description
+          "Configuration of tag application";
+        uses action-tag-set-config;
+      }
+
+      container state {
+        description
+          "Operational state related to tag application.";
+        config false;
+        uses action-tag-set-config;
+      }
+
+      container inline {
+        description
+          "The tags specified in this container are set on a route using
+          the values directly. It is applicable when the mode of application
+          is explicitly specified as INLINE.";
+
+        when "../config/mode = 'INLINE'" {
+          description
+            "In-line configuration is only relevant when the action's set-tag
+            mode is specified explicitly to be INLINE.";
+        }
+
+        container config {
+          description
+            "Configuration values related to in-line tag specification.";
+          uses action-tag-set-inline-config;
+        }
+
+        container state {
+          description
+            "Operational state related to in-line tag specification.";
+          config false;
+          uses action-tag-set-inline-config;
+        }
+      }
+
+      container reference {
+        description
+          "This container is applicable when the mode of application is explicitly
+          specified to as REFERENCE. The tags set on a route are those that are
+          specified within the tag-set";
+
+        when "../config/mode = 'REFERENCE'" {
+          description
+            "Reference configuration is only relevant when the action's set-tag
+            mode is specified explicitly to be REFERENCE.";
+        }
+
+        container config {
+          description
+            "Configuration values related to specifying a tag-set to be applied to
+            a route.";
+          uses action-tag-set-reference-config;
+        }
+
+        container state {
+          description
+            "Operational state related to specifying a tag-set to be applied to a
+            route.";
+          config false;
+          uses action-tag-set-reference-config;
+        }
+      }
+    }
+  }
+
+  grouping action-tag-set-config {
+    description
+      "Configuration leaves for setting a tag applicable to both inline and
+      reference modes.";
+
+    leaf mode {
+      type enumeration {
+        enum INLINE {
+          description
+            "Use an in-line specified list of tags";
+        }
+        enum REFERENCE {
+          description
+            "Use a reference to a defined tag-set.";
+        }
+      }
+      description
+        "This leaf controls the source of the tags that are set as a result
+        of the action. In the case that the INLINE value is specified, the
+        list of tags specified within the action is applied to matching prefixes.
+        In the case that the REFERENCE value is specified, a pre-defined set of
+        tags is utilised.";
+    }
+  }
+
+  grouping action-tag-set-inline-config {
+    description
+      "Configuration leaves for setting a tag within an action using an in-line
+      specified set of tags.";
+
+    leaf-list tag {
+      type oc-pol-types:tag-type;
+      description
+        "Set one or more tags for prefixes that match the specified condition(s)
+        using the specified tag values. When a tag is set it MUST be possible to
+        match the value set in subsequent policies on the local device. Where the
+        protocol that is carrying the prefix has a tag field (OSPF, and IS-IS in
+        particular) the tag MUST be set in the corresponding protocol advertisements
+        of the prefix.";
+    }
+  }
+
+  grouping action-tag-set-reference-config {
+    description
+      "Configuration leaves for setting a tag within an action using a set of
+      tags that is specified in a defined-set.";
+
+    leaf tag-set {
+      type leafref {
+        // we are at
+        // /routing-policy/policy-definitions/policy-definition/statements/statements/statement/action/set-tag/reference/config/tag-set
+        path "../../../../../../../../../defined-sets/tag-sets/tag-set/config/name";
+      }
+      description
+        "Use the referenced tag-set to set tags on the prefixes that match the
+        specified conditions. When a tag is set it MUST be possible to match the
+        value set in subsequent policies on the local device. where the protocol that
+        is carrying the prefix has a tag field (OSPF, and IS-IS for in particular)
+        the tag MUST be set in the corresponding protocol advertisements of the
+        prefix.";
+    }
   }
 
   grouping policy-actions-top {
@@ -843,6 +997,8 @@ module openconfig-routing-policy {
         uses policy-actions-config;
         uses policy-actions-state;
       }
+
+      uses policy-actions-tag-set;
     }
   }
 

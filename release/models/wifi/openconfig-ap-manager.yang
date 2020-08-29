@@ -25,7 +25,14 @@ module openconfig-ap-manager {
     "This module defines the top level configuration and state data for a
     system which manages Access Points.";
 
-  oc-ext:openconfig-version "0.1.2";
+  oc-ext:openconfig-version "0.1.3";
+
+  revision "2020-06-30" {
+    description
+      "Add OpenConfig POSIX pattern extensions and add anchors for country-code
+      pattern.";
+    reference "0.1.3";
+  }
 
   revision "2020-03-24" {
     description
@@ -66,7 +73,8 @@ module openconfig-ap-manager {
 
     leaf country-code {
       type string {
-        pattern '[A-Z]{2}';
+        pattern '^[A-Z]{2}$';
+        oc-ext:posix-pattern '^[A-Z]{2}$';
       }
       description
         "Country code where the AP operates in ISO 3166-1 alpha-2
