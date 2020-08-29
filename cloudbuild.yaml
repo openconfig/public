@@ -1,0 +1,291 @@
+steps:
+############### GET CI REPO ###############
+# Decrypt the file containing the key
+steps:
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+  - kms
+  - decrypt
+  - --ciphertext-file=id_rsa.enc
+  - --plaintext-file=/root/.ssh/id_rsa
+  - --location=global
+  - --keyring=keyring0
+  - --key=key0
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+# Set up git with key and domain
+- name: 'gcr.io/cloud-builders/git'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    chmod 600 /root/.ssh/id_rsa
+    cat <<EOF >/root/.ssh/config
+    Hostname github.com
+    IdentityFile /root/.ssh/id_rsa
+    EOF
+    mv known_hosts /root/.ssh/known_hosts
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+
+############### COMMON PREP ###############
+# Create GOPATH
+- name: 'gcr.io/cloud-builders/go:debian'
+  entrypoint: 'bash'
+  args: ['-c', 'mkdir -p /go/src/github.com/openconfig']
+  volumes:
+  - name: 'gopath'
+    path: /go
+  id: 'go path creation'
+# Clone CI repository
+- name: 'gcr.io/cloud-builders/go:debian'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    git clone git@github.com:openconfig/models-ci.git /go/src/github.com/openconfig/models-ci
+    cd /go/src/github.com/openconfig/models-ci
+    # Modify the major version to update models-ci version.
+    branch=$(git tag -l 'v3*' | sort -V | tail -1)
+    git checkout -b $branch
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+  - name: 'gopath'
+    path: /go
+  id: 'models-ci clone'
+# Get CI script dependencies
+- name: 'gcr.io/cloud-builders/go:debian'
+  args: 
+  - 'install'
+  - './cmd_gen'
+  - './post_results'
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+  - name: 'gopath'
+    path: /go
+  env:
+  - 'GOPATH=/go'
+  dir: '/go/src/github.com/openconfig/models-ci'
+  id: 'models-ci dep'
+# Generate validator scripts
+- name: 'gcr.io/cloud-builders/go:debian'
+  entrypoint: 'bash'
+  args:
+  - -c
+  - >- # CI Configuration
+    /go/bin/cmd_gen
+    -modelRoot=$_MODEL_ROOT
+    -repo-slug=$_REPO_SLUG
+    -pr-head-repo-url=$_HEAD_REPO_URL
+    -commit-sha=$COMMIT_SHA
+    -pr-number=$_PR_NUMBER
+    -skipped-validators=confd
+    -extra-pyang-versions=1.7.8,2.1.1
+    -compat-report=yanglint
+    -branch=$BRANCH_NAME
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  env:
+  - 'GOPATH=/go'
+  volumes:
+  - name: 'gopath'
+    path: /go
+  id: 'validator prep'
+
+############### REGEXP TESTS ###############
+# Put regex test files in correct gopath
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args: 
+  - -c
+  - >-
+    mv
+    /go/src/github.com/openconfig/models-ci/validators/regexp/go/src/*
+    /go/src
+  volumes:
+  - name: 'gopath'
+    path: /go
+  waitFor: ['models-ci dep']
+  id: 'regexp prep'
+# Get go source and test dependencies
+- name: 'gcr.io/cloud-builders/go:debian'
+  args: ['get', '-t', './...']
+  volumes:
+  - name: 'gopath'
+    path: /go
+  env:
+  - 'GOPATH=/go'
+  dir: '/go/src/gotests'
+  waitFor: ['regexp prep']
+  id: 'regexp dep'
+- name: 'gcr.io/cloud-builders/go:debian'
+  entrypoint: 'bash'
+  args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/regexp/test.sh"]
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  env:
+  - 'GOPATH=/go'
+  - 'OCDIR=$_MODEL_ROOT'
+  - '_PR_NUMBER=$_PR_NUMBER'
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - '_MODEL_ROOT=$_MODEL_ROOT'
+  - '_REPO_SLUG=$_REPO_SLUG'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  volumes:
+  - name: 'gopath'
+    path: /go
+  waitFor: ['regexp dep', 'validator prep']
+  id: 'regexp'
+
+############### YANGLINT ##############
+- name: gcr.io/cloud-builders/gsutil
+  args: ['cp', 'gs://artifacts.disco-idea-817.appspot.com/libyang.deb', '/workspace/libyang.deb']
+  waitFor: ['validator prep']
+  id: 'yanglint prep'
+- name: 'gcr.io/disco-idea-817/models-ci-image'
+  entrypoint: 'bash'
+  args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/yanglint/test.sh"]
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  volumes:
+  - name: 'gopath'
+    path: /go
+  env:
+  - 'GOPATH=/go'
+  - '_PR_NUMBER=$_PR_NUMBER'
+  - '_MODEL_ROOT=$_MODEL_ROOT'
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - '_REPO_SLUG=$_REPO_SLUG'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  waitFor: ['yanglint prep']
+  id: 'yanglint'
+
+############### MISC-CHECKS ###############
+- name: 'gcr.io/cloud-builders/go:debian'
+  entrypoint: 'bash'
+  args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/misc-checks/test.sh"]
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+  - name: 'gopath'
+    path: /go
+  env:
+  - 'GOPATH=/go'
+  - '_PR_NUMBER=$_PR_NUMBER'
+  - '_MODEL_ROOT=$_MODEL_ROOT'
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - '_REPO_SLUG=$_REPO_SLUG'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  waitFor: ['validator prep']
+  id: 'misc-checks'
+
+############### OC-PYANG ###############
+- name: 'gcr.io/disco-idea-817/models-ci-image'
+  entrypoint: 'bash'
+  args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/oc-pyang/test.sh']
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  env:
+  - 'GOPATH=/go'
+  - '_PR_NUMBER=$_PR_NUMBER'
+  - '_MODEL_ROOT=$_MODEL_ROOT'
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - '_REPO_SLUG=$_REPO_SLUG'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  volumes:
+  - name: 'gopath'
+    path: /go
+  waitFor: ['validator prep']
+  id: 'oc-pyang'
+
+############### GOYANG/YGOT ###############
+- name: 'gcr.io/cloud-builders/go:debian'
+  args: ['get', 'github.com/openconfig/ygot/generator']
+  volumes:
+  - name: 'gopath'
+    path: /go
+  env:
+  - 'GOPATH=/go'
+  - 'GO111MODULE=on'
+  waitFor: ['go path creation']
+  id: 'goyang-ygot prep'
+- name: 'gcr.io/disco-idea-817/models-ci-image'
+  entrypoint: 'bash'
+  args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/goyang-ygot/test.sh"]
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  volumes:
+  - name: 'gopath'
+    path: /go
+  env:
+  - 'GOPATH=/go'
+  - '_PR_NUMBER=$_PR_NUMBER'
+  - '_MODEL_ROOT=$_MODEL_ROOT'
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - '_REPO_SLUG=$_REPO_SLUG'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  waitFor: ['validator prep', 'goyang-ygot prep', 'oc-pyang']
+  id: 'goyang-ygot'
+
+############### PYANG ###############
+- name: 'gcr.io/disco-idea-817/models-ci-image'
+  entrypoint: 'bash'
+  args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/pyang/test.sh']
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  env:
+  - 'GOPATH=/go'
+  - '_PR_NUMBER=$_PR_NUMBER'
+  - '_MODEL_ROOT=$_MODEL_ROOT'
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - '_REPO_SLUG=$_REPO_SLUG'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  volumes:
+  - name: 'gopath'
+    path: /go
+  waitFor: ['validator prep', 'oc-pyang']
+  id: 'pyang'
+
+############### PYANGBIND ###############
+- name: 'gcr.io/disco-idea-817/models-ci-image'
+  entrypoint: 'bash'
+  args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/pyangbind/test.sh']
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  env:
+  - 'GOPATH=/go'
+  - '_PR_NUMBER=$_PR_NUMBER'
+  - '_MODEL_ROOT=$_MODEL_ROOT'
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - '_REPO_SLUG=$_REPO_SLUG'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  volumes:
+  - name: 'gopath'
+    path: /go
+  waitFor: ['validator prep', 'oc-pyang']
+  id: 'pyangbind'
+
+############### COMPATIBILITY REPORT ###############
+- name: 'gcr.io/disco-idea-817/models-ci-image'
+  entrypoint: 'bash'
+  args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/compat_report.sh']
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  env:
+  - 'GOPATH=/go'
+  - '_PR_NUMBER=$_PR_NUMBER'
+  - '_MODEL_ROOT=$_MODEL_ROOT'
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - '_REPO_SLUG=$_REPO_SLUG'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  volumes:
+  - name: 'gopath'
+    path: /go
+  id: 'compat-report'
+
+timeout: 600s
+options:
+  machineType: 'N1_HIGHCPU_8'
+
+secrets:
+- kmsKeyName: projects/disco-idea-817/locations/global/keyRings/keyring0/cryptoKeys/key0
+  secretEnv:
+    # This is the encrypted version of the token
+    GITHUB_ACCESS_TOKEN: 'CiQAvY6emySnH0uiC+j45bH769zWF6mdGTvMXmm4lGTQdbzdtHASUQACTwBYZxvznQFpTzk0iCipCKbpFLUmmamZyDavj1DpSEg6fwjf9UyW6PykVS44PBbLbTSxvUevFRFfHml4q01W/mfRZk+144898pnXhq/7tQ=='
