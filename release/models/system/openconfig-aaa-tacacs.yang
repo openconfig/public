@@ -25,7 +25,13 @@ submodule openconfig-aaa-tacacs {
     related to the TACACS+ protocol for authentication,
     authorization, and accounting.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2020-07-30" {
+    description
+      "Add secret-key-hashed.";
+    reference "0.5.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -88,6 +94,13 @@ submodule openconfig-aaa-tacacs {
       type oc-types:routing-password;
       description
         "The unencrypted shared key used between the authentication
+        server and the device.";
+    }
+
+    leaf secret-key-hashed {
+      type oc-aaa-types:crypt-password-type;
+      description
+        "The hashed shared key used between the authentication
         server and the device.";
     }
 
