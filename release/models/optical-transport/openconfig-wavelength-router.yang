@@ -41,7 +41,13 @@ module openconfig-wavelength-router {
          target spectrum power profile over the full spectrum instead
          of individual media channels.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2020-08-28" {
+    description
+      "Add ase-injection-delta-threshold leaf.";
+    reference "1.0.0";
+  }
 
   revision "2020-06-03" {
     description
@@ -481,20 +487,53 @@ module openconfig-wavelength-router {
       }
       description
         "Sets the ASE control mode for the media channel.
-        The control mode defines the behavior of when and if
-        ASE noise is injected on the media channel";
+        The control mode defines if and when ASE noise is injected
+        on the media channel";
+    }
+
+    leaf ase-injection-mode {
+      type enumeration {
+        enum MODE_THRESHOLD {
+          description
+            "When set ASE noise will be injected when a defined
+            threshold is crossed.";
+        }
+	enum MODE_DELTA {
+          description
+            "When set ASE noise will be injected when a defined
+            delta in optical power occurs.";
+        }
+      }
+      description
+        "When specified, defines the mode used to determine whether
+        ASE noise should be injected on the media channel.";
     }
 
     leaf ase-injection-threshold {
       type decimal64 {
         fraction-digits 2;
       }
+      when "../ase-injection-mode = 'MODE_THRESHOLD'";
       units dBm;
       description
-        "Defines the optical power threshold value which would
-        indicate that ASE noise should be injected on the media
-        channel. This is required if a threshold based
-        ase-control-mode is configured";
+        "Defines the optical power threshold value below which ASE
+        noise should be injected on the media channel. This or
+        ase-injection-delta is required if an ase-control-mode is
+        configured";
+    }
+
+    leaf ase-injection-delta {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      when "../ase-injection-mode = 'MODE_DELTA'";
+      units dB;
+      description
+        "Defines the optical power loss from the configured spectrum
+        power profile, which would indicate that ASE noise should be
+        injected on the media channel. This or
+        ase-injection-threshold is required if an ase-control-mode
+        is configured";
     }
 
     leaf attenuation-control-mode {
