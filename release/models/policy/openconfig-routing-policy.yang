@@ -77,7 +77,13 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
-  oc-ext:openconfig-version "3.2.1";
+  oc-ext:openconfig-version "3.2.2";
+
+  revision "2020-08-18" {
+    description
+      "Fix regex anchors for masklength-range's pattern statement.";
+    reference "3.2.2";
+  }
 
   revision "2020-06-30" {
     description
@@ -267,8 +273,8 @@ module openconfig-routing-policy {
 
     leaf masklength-range {
       type string {
-        pattern '^([0-9]+\.\.[0-9]+)|exact$';
-        oc-ext:posix-pattern '^([0-9]+\.\.[0-9]+)|exact$';
+        pattern '^(([0-9]+\.\.[0-9]+)|exact)$';
+        oc-ext:posix-pattern '^(([0-9]+\.\.[0-9]+)|exact)$';
       }
       description
         "Defines a range for the masklength, or 'exact' if
