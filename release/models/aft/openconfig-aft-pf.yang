@@ -28,7 +28,16 @@ submodule openconfig-aft-pf {
     fields other than the destination address that is used in
     other forwarding tables.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2020-09-09" {
+    description
+      "Remove leafs that are not used as keys from config containers as
+      AFT model is ready-only.
+      * next-hop/interface-ref/config.
+      * all leafs under policy-forwarding-entry/config except index.";
+    reference "0.5.0";
+  }
 
   revision "2019-11-07" {
     description
@@ -126,6 +135,12 @@ submodule openconfig-aft-pf {
         "An arbitrary 64-bit index identifying the policy forwarding
         AFT entry.";
     }
+  }
+
+  grouping aft-pf-entry-state {
+    description
+      "Operational state parameters for the Policy Forwarding
+      AFT entry.";
 
     leaf ip-prefix {
       type oc-inet:ip-prefix;
@@ -189,12 +204,7 @@ submodule openconfig-aft-pf {
         "The value of the destination port field of the transport
         header that is to be matched by the AFT entry.";
     }
-  }
 
-  grouping aft-pf-entry-state {
-    description
-      "Operational state parameters for the Policy Forwarding
-      AFT entry.";
     uses aft-common-entry-state;
   }
 }

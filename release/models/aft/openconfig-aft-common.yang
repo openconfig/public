@@ -22,7 +22,16 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2020-09-09" {
+    description
+      "Remove leafs that are not used as keys from config containers as
+      AFT model is ready-only.
+      * next-hop/interface-ref/config.
+      * all leafs under policy-forwarding-entry/config except index.";
+    reference "0.5.0";
+  }
 
   revision "2019-11-07" {
     description
@@ -118,7 +127,7 @@ submodule openconfig-aft-common {
           uses aft-labeled-entry-state;
         }
 
-        uses oc-if:interface-ref;
+        uses oc-if:interface-ref-state;
       }
     }
   }
