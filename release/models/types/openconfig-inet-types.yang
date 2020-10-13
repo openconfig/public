@@ -31,7 +31,13 @@ module openconfig-inet-types {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.3.4";
+  oc-ext:openconfig-version "0.3.5";
+
+  revision "2020-10-12" {
+    description
+      "Fix anchors for domain-name pattern.";
+    reference "0.3.5";
+  }
 
   revision "2020-06-30" {
     description
@@ -287,13 +293,13 @@ module openconfig-inet-types {
     type string {
       length "1..253";
       pattern
-        '^((([a-zA-Z0-9_]([a-zA-Z0-9\-_]){0,61})?[a-zA-Z0-9]\.)*' +
+        '^(((([a-zA-Z0-9_]([a-zA-Z0-9\-_]){0,61})?[a-zA-Z0-9]\.)*' +
         '([a-zA-Z0-9_]([a-zA-Z0-9\-_]){0,61})?[a-zA-Z0-9]\.?)'    +
-        '|\.$';
+        '|\.)$';
       oc-ext:posix-pattern
-        '^((([a-zA-Z0-9_]([a-zA-Z0-9\-_]){0,61})?[a-zA-Z0-9]\.)*' +
+        '^(((([a-zA-Z0-9_]([a-zA-Z0-9\-_]){0,61})?[a-zA-Z0-9]\.)*' +
         '([a-zA-Z0-9_]([a-zA-Z0-9\-_]){0,61})?[a-zA-Z0-9]\.?)'    +
-        '|\.$';
+        '|\.)$';
     }
     description
       "The domain-name type represents a DNS domain name.
