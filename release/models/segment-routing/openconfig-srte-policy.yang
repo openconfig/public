@@ -38,7 +38,14 @@ module openconfig-srte-policy {
   reference
     "draft-ietf-spring-segment-routing-policy";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.2.2";
+
+  revision "2020-11-06" {
+    description
+      "Update segment-lists nexthop state container to use index leaf
+      from aft-common-entry-nexthop-state.";
+    reference "0.2.2";
+  }
 
   revision "2020-05-01" {
     description
@@ -427,13 +434,6 @@ module openconfig-srte-policy {
                 container state {
                   config false;
                   description "State parameters for the nexthop.";
-
-                  leaf index {
-                    type uint32;
-                    description
-                      "A unique index identifying the next-hop entry for the
-                      segment-list.";
-                  }
 
                   uses oc-aft:aft-common-entry-nexthop-state;
 

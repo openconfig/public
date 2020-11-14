@@ -28,7 +28,13 @@ submodule openconfig-aft-pf {
     fields other than the destination address that is used in
     other forwarding tables.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2020-11-06" {
+    description
+      "Make AFT model read only.";
+    reference "0.6.0";
+  }
 
   revision "2020-09-09" {
     description
@@ -99,18 +105,11 @@ submodule openconfig-aft-pf {
 
       leaf index {
         type leafref {
-          path "../config/index";
+          path "../state/index";
         }
         description
           "Reference to the arbitary index for the policy forwarding
           AFT entry.";
-      }
-
-      container config {
-        description
-          "Configuration parameters for the Policy forwarding
-          AFT entry.";
-        uses aft-pf-entry-config;
       }
 
       container state {
@@ -118,15 +117,14 @@ submodule openconfig-aft-pf {
         description
           "Operational state parameters for the Policy Forwarding
           AFT entry.";
-        uses aft-pf-entry-config;
         uses aft-pf-entry-state;
       }
     }
   }
 
-  grouping aft-pf-entry-config {
+  grouping aft-pf-entry-state {
     description
-      "Configuration parameters for the Policy Forwarding
+      "Operational state parameters for the Policy Forwarding
       AFT entry.";
 
     leaf index {
@@ -135,12 +133,6 @@ submodule openconfig-aft-pf {
         "An arbitrary 64-bit index identifying the policy forwarding
         AFT entry.";
     }
-  }
-
-  grouping aft-pf-entry-state {
-    description
-      "Operational state parameters for the Policy Forwarding
-      AFT entry.";
 
     leaf ip-prefix {
       type oc-inet:ip-prefix;

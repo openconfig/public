@@ -20,7 +20,13 @@ submodule openconfig-aft-ethernet {
     "Submodule containing definitions of groupings for the abstract
     forwarding tables for Ethernet.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2020-11-06" {
+    description
+      "Make AFT model read-only.";
+    reference "0.6.0";
+  }
 
   revision "2020-09-09" {
     description
@@ -86,17 +92,11 @@ submodule openconfig-aft-ethernet {
 
       leaf mac-address {
         type leafref {
-          path "../config/mac-address";
+          path "../state/mac-address";
         }
         description
           "Reference to the outer MAC address matched by the
           entry.";
-      }
-
-      container config {
-        description
-          "Configuration parameters for the Ethernet AFT entry.";
-        uses aft-ethernet-entry-config;
       }
 
       container state {
@@ -104,15 +104,14 @@ submodule openconfig-aft-ethernet {
         description
           "Operational state parameters for the Ethernet AFT
           entry.";
-        uses aft-ethernet-entry-config;
         uses aft-ethernet-entry-state;
       }
     }
   }
 
-  grouping aft-ethernet-entry-config {
+  grouping aft-ethernet-entry-state {
     description
-      "Configuration parameters for the Ethernet AFT entry.";
+      "Operational state parameters for the Ethernet AFT entry.";
 
     leaf mac-address {
         type oc-yang:mac-address;
@@ -120,11 +119,7 @@ submodule openconfig-aft-ethernet {
           "The outer MAC address of the Ethernet frame that must
           be matched for the AFT entry to be utilised.";
     }
-  }
 
-  grouping aft-ethernet-entry-state {
-    description
-      "Operational state parameters for the Ethernet AFT entry.";
     uses aft-common-entry-state;
   }
 }

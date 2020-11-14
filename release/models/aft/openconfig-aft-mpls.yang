@@ -21,7 +21,13 @@ submodule openconfig-aft-mpls {
     "Submodule containing definitions of groupings for the abstract
     forwarding table for MPLS label forwarding.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2020-11-06" {
+    description
+      "Make AFT model read-only.";
+    reference "0.6.0";
+  }
 
   revision "2020-09-09" {
     description
@@ -87,17 +93,11 @@ submodule openconfig-aft-mpls {
 
       leaf label {
         type leafref {
-          path "../config/label";
+          path "../state/label";
         }
         description
           "Reference to the top-most MPLS label matched by the
           entry.";
-      }
-
-      container config {
-        description
-          "Configuration parameters for the MPLS AFT entry.";
-        uses aft-mpls-entry-config;
       }
 
       container state {
@@ -105,27 +105,22 @@ submodule openconfig-aft-mpls {
         description
           "Operational state parameters for the MPLS AFT
           entry.";
-        uses aft-mpls-entry-config;
         uses aft-mpls-entry-state;
       }
-    }
-  }
-
-  grouping aft-mpls-entry-config {
-    description
-      "Configuration parameters for the MPLS entry.";
-
-    leaf label {
-        type oc-mplst:mpls-label;
-        description
-          "The top-most MPLS label that should be matched to
-          utilise the AFT entry.";
     }
   }
 
   grouping aft-mpls-entry-state {
     description
       "Operational state parameters for the MPLS entry.";
+
+    leaf label {
+      type oc-mplst:mpls-label;
+      description
+        "The top-most MPLS label that should be matched to
+        utilise the AFT entry.";
+    }
+
     uses aft-common-entry-state;
 
     leaf-list popped-mpls-label-stack {
