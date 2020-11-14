@@ -23,7 +23,13 @@ module openconfig-packet-match-types {
     "This module defines common types for use in models requiring
     data definitions related to packet matches.";
 
-  oc-ext:openconfig-version "1.0.3";
+  oc-ext:openconfig-version "1.0.4";
+
+  revision "2020-10-20" {
+    description
+      "Fix pattern regex for port-num-range.";
+    reference "1.0.4";
+  }
 
   revision "2020-06-30" {
     description
@@ -264,12 +270,14 @@ module openconfig-packet-match-types {
   typedef port-num-range {
     type union {
       type string {
-        pattern '^(6[0-5][0-5][0-3][0-5]|[0-5]?[0-9]?[0-9]?[0-9]?' +
-          '[0-9]?)\.\.(6[0-5][0-5][0-3][0-5]|[0-5]?[0-9]?[0-9]?' +
-          '[0-9]?[0-9]?)$';
-        oc-ext:posix-pattern '^(6[0-5][0-5][0-3][0-5]|[0-5]?[0-9]?[0-9]?[0-9]?' +
-          '[0-9]?)\.\.(6[0-5][0-5][0-3][0-5]|[0-5]?[0-9]?[0-9]?' +
-          '[0-9]?[0-9]?)$';
+        pattern '^(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|' +
+          '6[0-4][0-9]{3}|[0-5][0-9]{4}|[0-9]{1,4})\.\.' +
+          '(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|' +
+          '6[0-4][0-9]{3}|[0-5][0-9]{4}|[0-9]{1,4})$';
+        oc-ext:posix-pattern '^(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|' +
+          '6[0-4][0-9]{3}|[0-5][0-9]{4}|[0-9]{1,4})\.\.' +
+          '(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|' +
+          '6[0-4][0-9]{3}|[0-5][0-9]{4}|[0-9]{1,4})$';
       }
       type oc-inet:port-number;
       type enumeration {
