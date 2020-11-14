@@ -329,6 +329,12 @@ container interfaces {
 }
 ```
 
+Lists without keys must not be used unless the `openconfig-extensions`
+`atomic` extension is set for the list's surrounding container. Some transport
+protocols (e.g., gNMI) do not have a mechanism to refer to individual elements
+within a list with no key, and this ensures that telemetry updates for such
+lists include all elements, rather than partial updates being sent. 
+
 ### `presence`
 
 Use of `presence` containers should be avoided.
