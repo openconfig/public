@@ -25,7 +25,14 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "5.2.1";
+  oc-ext:openconfig-version "5.2.2";
+
+  revision "2020-10-14" {
+    description
+      "Add RFC4684 BGP Constrained Route Distribution
+      (AFI, SAFI : 1,132)";
+    reference "5.2.2";
+  }
 
   revision "2020-06-30" {
     description
@@ -283,6 +290,13 @@ module openconfig-bgp-types {
     reference "draft-ietf-lsvr-bgp-spf";
   }
 
+  identity RT_CONSTRAINT {
+    base AFI_SAFI_TYPE;
+    description
+      "BGP Constrained Route Distribution for MPLS VPN 
+      (AFI,SAFI = 1,132)";
+    reference "RFC4684";
+  }
 
   identity BGP_WELL_KNOWN_STD_COMMUNITY {
     description

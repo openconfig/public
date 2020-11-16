@@ -24,7 +24,13 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "6.0.0";
+  oc-ext:openconfig-version "6.0.1";
+
+  revision "2020-10-14" {
+    description
+      "Add RFC 4684 - BGP RTC Address Family support";
+    reference "6.0.1";
+  }
 
   revision "2019-07-10" {
     description
@@ -154,6 +160,7 @@ submodule openconfig-bgp-common-multiprotocol {
     uses bgp-common-mp-l2vpn-evpn-group;
     uses bgp-common-mp-srte-policy-ipv4-group;
     uses bgp-common-mp-srte-policy-ipv6-group;
+    uses bgp-common-mp-rt-constraint-group;
   }
 
   // Groupings relating to each address family
@@ -362,6 +369,26 @@ submodule openconfig-bgp-common-multiprotocol {
     }
   }
 
+  grouping bgp-common-mp-rt-constraint-group {
+    description
+      "Group for BGP RT Constraint configuration options";
+
+    container rt-constraint {
+      when "../afi-safi-name = 'oc-bgp-types:RT_CONSTRAINT'" {
+        description
+          "Include this container for BGP RTC specific
+          configuration - RFC 4684";
+      }
+
+      description "BGP RTC configuration options";
+
+      // include common RTC options
+      uses bgp-common-mp-rt-constraint-common;
+
+      // placeholder for BGP RTC specific configuration options
+    }
+  }
+
   // Common groupings across multiple AFI,SAFIs
   grouping bgp-common-mp-all-afi-safi-common {
     description
@@ -441,6 +468,31 @@ submodule openconfig-bgp-common-multiprotocol {
     // placeholder -- specific configuration options that are
     // generic across L2VPN address families
     uses bgp-common-mp-all-afi-safi-common;
+  }
+
+  grouping bgp-common-mp-rt-constraint-common {
+    description
+      "Common configuration applied across RTC address
+      families";
+
+    // placeholder -- specific configuration options that are
+    // generic across RTC address families
+    uses bgp-common-mp-all-afi-safi-common;
+
+    // configuration options that are specific to IPv[46] unicast
+    container config {
+      description
+        "Configuration parameters for common RTC
+        AFI-SAFI options";
+      uses bgp-common-mp-rtc-common-config;
+    }
+    container state {
+      config false;
+      description
+        "State information for common RTC
+        parameters";
+      uses bgp-common-mp-rtc-common-config;
+    }
   }
 
   grouping bgp-common-mp-srte-policy-ipv4-group {
@@ -532,6 +584,19 @@ submodule openconfig-bgp-common-multiprotocol {
     description
       "Common configuration parameters for IPv4 and IPv6 Unicast
       address families";
+
+    leaf send-default-route {
+      type boolean;
+      default "false";
+      description
+        "If set to true, send the default-route to the neighbour(s)";
+    }
+  }
+
+  grouping bgp-common-mp-rtc-common-config {
+    description
+      "Common configuration parameters for RTC
+      address family";
 
     leaf send-default-route {
       type boolean;
