@@ -1,0 +1,297 @@
+module openconfig-synce-types {
+
+    yang-version 1.1;
+
+    namespace   "http://openconfig.net/yang/openconfig-synce-types";
+
+    prefix "oc-synce-types";
+
+    // meta
+    organization
+      "OpenConfig working group";
+
+    contact
+      "OpenConfig working group
+      www.openconfig.net ";
+
+    description
+       "The aim of Synchronous Ethernet is to provide a synchronization
+        signal to those network resources that may eventually require
+        such a type of signal. The Synchronous Ethernet signal transmitted
+        over the Ethernet physical layer should be traceable to an external
+        clock, ideally a master and unique clock for the whole network.
+        Applications include cellular networks, access technologies such as
+        Ethernet passive optical network, and applications such as IPTV or VoIP.";
+
+    revision "2020-12-08" {
+        description
+          "Initial revision of SyncE model.";
+        reference "0.1.0";
+    }
+
+    typedef  SYNCE_HOLDOVER_T {
+        type enumeration {
+            enum holdover {
+                value 1;
+                description "enable synce holdover (default 10 min)";
+            }
+        }
+        description "type definition for SYNCE_HOLDOVER_T";
+    }
+
+    typedef  SYNCE_EXTERNAL_INTERFACE_T {
+        type enumeration {
+            enum gps {
+                value 1;
+                description "GPS interface as input-source";
+            }
+            enum 10mhz-in {
+                value 2;
+                description "10MHZ interface as input-source";
+            }
+            enum ptp {
+                value 3;
+                description "PTP interface as input-source";
+            }
+            enum bits-t1 {
+                value 4;
+                description "BITS-T1 interface as input-source";
+            }
+            enum bits-e1 {
+                value 5;
+                description "BITS-E1 interface as input-source";
+            }
+        }
+        description "type definition for SYNCE_EXTERNAL_INTERFACE_T";
+    }
+
+    typedef  SYNCE_SYNC_OPTION_T {
+        type enumeration {
+            enum 1 {
+                value 1;
+                description "Networks optimized for the 2048 kbit/s hierarchy ";
+            }
+            enum 2 {
+                value 2;
+                description "Networks optimized for the 1544 kbit/s hierarchy that
+                             includes the rates 1544 kbit/s 6312 kbit/s and 44 736 kbit/s";
+            }
+        }
+        description "type definition for SYNCE_SYNC_OPTION_T";
+    }
+
+    typedef  SYNCE_CLK_SELECTION_MODE_T {
+        type enumeration {
+            enum ql-enabled {
+                value 1;
+                description "Use the quality level as a criteria when selecting a clock ";
+            }
+            enum ql-disabled {
+                value 2;
+                description "Do not use the quality level as a criteria when selecting a clock";
+            }
+        }
+        description "type definition for SYNCE_CLK_SELECTION_MODE_T";
+    }
+
+    typedef  SYNCE_AUTONEG_MODE_T {
+        type enumeration {
+            enum master {
+                value 1;
+                description "Configure 1000Base-T mode to master";
+            }
+            enum slave {
+                value 2;
+                description "Configure 1000Base-T mode to slave";
+            }
+        }
+        description "type definition for SYNCE_AUTONEG_MODE_T";
+    }
+
+    typedef  SYNCE_MODE_OPTION_T {
+        type enumeration {
+            enum synchronous {
+                value 1;
+                description "Configure the interface to synchronous mode";
+            }
+            enum non-synchronous {
+                value 2;
+                description "Configure the interface to non-synchronous mode";
+            }
+        }
+        description "type definition for SYNCE_MODE_OPTION_T";
+    }
+
+    typedef  SYNCE_SOURCE_SELECT_T {
+        type enumeration {
+            enum force {
+                value 1;
+                description "Forcefully select a synchronization source";
+            }
+            enum manual {
+                value 2;
+                description "manually select a synchronization source";
+            }
+        }
+        description "type definition for SYNCE_SOURCE_SELECT_T";
+    }
+
+    typedef  SYNCE_SIGNAL_FAIL_T {
+        type enumeration {
+            enum active {
+                value 1;
+                description "set to true";
+            }
+            enum non-active {
+                value 2;
+                description "set to false";
+            }
+        }
+        description "type definition for SYNCE_SIGNAL_FAIL_T";
+    }
+
+    typedef  SYNCE_DEBUG_T {
+        type bits {
+            bit event {
+                position 0;
+                description "event debugs";
+            }
+            bit recvd {
+                position 1;
+                description "rx debugs";
+            }
+            bit trans {
+                position 2;
+                description "tx debugs";
+            }
+        }
+        description "type definition for SYNCE_DEBUG_T";
+    }
+
+    typedef  SYNCE_IS_SRC_SELECTED_T {
+        type enumeration {
+            enum No {
+                value 0;
+                description "Src is not seleceted";
+            }
+            enum Yes {
+                value 1;
+                description "Src is seleceted";
+            }
+        }
+        description "type definition for SYNCE_IS_SRC_SELECTED_T";
+    }
+
+    typedef  SYNCE_IS_SF_T {
+        type enumeration {
+            enum No {
+                value 0;
+                description "Interface is not in Signal Fail condition";
+            }
+            enum Yes {
+                value 1;
+                description "Interface is in Signal Fail condition";
+            }
+        }
+        description "type definition for SYNCE_IS_SF_T";
+    }
+
+    typedef  SYNCE_EXTERNAL_CMDS_T {
+        type enumeration {
+            enum None {
+                value 0;
+                description "No external commands configured";
+            }
+            enum Lockout {
+                value 1;
+                description "Lockout external command configured";
+            }
+            enum Force {
+                value 2;
+                description "Force switch external command configured";
+            }
+            enum Manual {
+                value 3;
+                description "Manual switch external command configured";
+            }
+        }
+        description "type definition for SYNCE_EXTERNAL_CMDS_T";
+    }
+
+    typedef  SYNCE_IS_TIMER_RUNNING_T {
+        type enumeration {
+            enum Not-Running {
+                value 0;
+                description "Interface is not in Signal Fail condition";
+            }
+            enum Running {
+                value 1;
+                description "Interface is in Signal Fail condition";
+            }
+        }
+        description "type definition for SYNCE_IS_TIMER_RUNNING_T";
+    }
+
+    typedef  SYNCE_CLOCK_STATE_T {
+        type enumeration {
+            enum Not-Applicable {
+                value 0;
+                description "N/A";
+            }
+            enum Free-run {
+                value 1;
+                description "Clk is in Free-run state";
+            }
+            enum Holdover {
+                value 2;
+                description "Clk is in Holdover state";
+            }
+            enum Locked {
+                value 3;
+                description "Clk is in Locked state";
+            }
+        }
+        description "type definition for SYNCE_CLOCK_STATE_T";
+    }
+
+    typedef  SYNCE_ESMC_STATE_T {
+        type enumeration {
+            enum Idle {
+                value 0;
+                description "ESMC state is idle";
+            }
+            enum Start {
+                value 1;
+                description "ESMC state is Start";
+            }
+            enum OK {
+                value 2;
+                description "ESMC state is OK";
+            }
+            enum Failed {
+                value 3;
+                description "ESMC state is Failed";
+            }
+            enum Not-Applicable {
+                value 4;
+                description "ESMC state Not-Applicable";
+            }
+        }
+        description "type definition for SYNCE_ESMC_STATE_T";
+    }
+
+    typedef  SYNCE_LINK_STATE_T {
+        type enumeration {
+            enum up {
+                value 1;
+                description "Synce Interface is up";
+            }
+            enum down {
+                value 2;
+                description "Synce Interface is down";
+            }
+        }
+        description "type definition for SYNCE_LINK_STATE_T";
+    }
+
+}
