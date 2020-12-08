@@ -430,15 +430,13 @@ module openconfig-synce {
                 "Top level container for interfaces, including configuration and state data";
 
             list interface {
-            when " /ipi-synce:synce/ipi-synce:globals/ipi-synce:config ";
+            when " /oc-synce:synce/oc-synce:globals/oc-synce:config ";
                 key "name";
                 description
                     "SyncE interface related operations";
                 leaf name  {
-                    type  leafref {
-                        path  "/ipi-interface:interfaces/ipi-interface:interface/ipi-interface:name";
-                    }
-                    description "";
+                    type  oc-if:base-interface-ref;
+                    description "Port name";
                 } // END of name definition.
 
                 container config {
@@ -462,7 +460,7 @@ module openconfig-synce {
             "synce external interface parameters";
 
         list external-interfaces {
-        when " /ipi-synce:synce/ipi-synce:globals/ipi-synce:config ";
+        when " /oc-synce:synce/oc-synce:globals/oc-synce:config ";
             key "external-synce-interface";
             description
                 "External SyncE interface related operations";
