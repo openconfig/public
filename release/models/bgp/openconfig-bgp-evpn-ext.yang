@@ -1,0 +1,749 @@
+module openconfig-bgp-evpn-ext {
+
+  yang-version "1";
+
+  namespace "http://openconfig.net/yang/bgp-evpn/extension";
+
+  prefix "oc-bgp-evpn-ext";
+
+  import openconfig-network-instance { prefix oc-netinst; }
+  import openconfig-network-instance-types { prefix "oc-ni-types"; }
+  import openconfig-bgp-types { prefix oc-bgp-types; }
+  import openconfig-rib-bgp { prefix oc-rib-bgp; }
+  import openconfig-bgp-ext { prefix oc-bgp-ext; }
+  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-extensions { prefix oc-ext; }
+
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Model for managing BGP EVPN config.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision 2019-10-03 {
+    description
+      "Initial augment file.";
+    reference "0.1.0";
+  }
+
+  grouping bgp-evpn-ext-l2vpn-evpn-vni-common-config {
+
+    description 
+      "Grouping for data common to EVPN global and VNI configs";
+
+    leaf advertise-default-gw {
+      type boolean;
+      description
+        "If set to true, advertise default gateway";
+    }
+
+    leaf advertise-svi-ip {
+      type boolean;
+      description
+        "If set to true, advertise SVI MACIP routes";
+    }
+
+    leaf route-distinguisher {
+      type oc-ni-types:route-distinguisher;
+      description
+        "The route distinguisher that should be used for the local
+        VRF or VSI instance when it is signalled via BGP.";
+    }
+
+    leaf-list import-rts {
+      type string;
+      description 
+        "Route-targets to be imported";
+    }
+
+    leaf-list export-rts {
+      type string;
+      description 
+        "Route-targets to be exported";
+    }
+  }
+
+  grouping bgp-evpn-ext-l2vpn-evpn-vni-config {
+
+    description
+      "Configuration parameters relating to evpn";
+
+    leaf vni-number {
+      type uint32 {
+        range "1..16777215";
+      }
+      description
+        "VNI number";
+    }
+
+    uses bgp-evpn-ext-l2vpn-evpn-vni-common-config;
+
+  }
+
+  grouping bgp-evpn-ext-l2vpn-evpn-vni-state {
+
+    description 
+      "Grouping for operational state data for a VNI";
+
+    leaf type {
+      type string;
+      description 
+        "Holds info whether the VNI is L2 or L3";
+    }
+
+    leaf is-live {
+      type boolean;
+      description 
+        "true, if VNI is programmed";
+    }
+
+    leaf originator {
+      type string;
+      description 
+        "IP address of the originator";
+    }
+
+    leaf mcast-group {
+      type string;
+      description 
+        "Multicast-group";
+    }
+
+    leaf advertise-gw-mac {
+      type boolean;
+      description 
+        "true, if Gateway MAC is advertised";
+    }
+
+    leaf router-mac {
+      type string;
+      description
+        "Router MAC associated with the VNI";
+    }
+    
+  }
+
+  grouping bgp-evpn-ext-l2vpn-evpn-list {
+    
+    description
+      "List of VNIs in EVPN";
+
+    list vni {
+      key "vni-number";
+
+      description
+        "VNI configuration available for the
+        EVPN";
+
+      leaf vni-number {
+        type leafref {
+          path "../config/vni-number";
+        }
+        description
+          "VNI number";
+      }
+
+      container config {
+        
+        description 
+          "Configuration data for a VNI";
+        
+        uses bgp-evpn-ext-l2vpn-evpn-vni-config;
+
+      }
+
+      container state {
+
+        config false;
+        description 
+          "Operational state data for a VNI";
+        
+        uses bgp-evpn-ext-l2vpn-evpn-vni-config;
+        uses bgp-evpn-ext-l2vpn-evpn-vni-state;
+
+      } 
+    }//end list
+  }
+
+  grouping bgp-evpn-ext-vnis-top {
+
+    description 
+      "Top level grouping for list of VNIs";
+
+    container vnis {
+
+      description
+        "VNI configuration";
+
+      uses bgp-evpn-ext-l2vpn-evpn-list;
+
+    }
+  }
+
+  grouping bgp-evpn-ext-default-originate-config {
+
+    description 
+      "Grouping for default originate configuration";
+    
+    leaf ipv4 {
+      type boolean;
+      description 
+        "enable IPv4 default route origination";
+    }
+      
+    leaf ipv6 {
+      type boolean;
+      description 
+        "enable IPv6 default route origination";
+    }
+  }
+
+  grouping bgp-evpn-ext-default-originate-top {
+
+    description 
+      "Top level grouping for default originate";
+    
+    container default-originate {
+      
+      description 
+        "Specify whether to originate default routes";
+      
+      container config {
+
+        description 
+          "configuration data for default originate";
+        
+        uses bgp-evpn-ext-default-originate-config;
+      }
+
+      container state {
+
+        config false;
+        description 
+          "operational state data for default originate";
+
+        uses bgp-evpn-ext-default-originate-config;
+      }   
+    }
+  }
+
+  grouping bgp-evpn-ext-dup-addr-detection-config {
+    
+    description 
+      "Grouping for duplicate address detection configuration";
+    
+    leaf enabled {
+      type boolean;
+      description 
+        "Specify whether duplicate address detection is enabled";
+    }
+
+    leaf max-moves {
+      type uint32;
+      description 
+        "Specify maximum allowed moves before address declared as duplicate";
+    }
+
+    leaf time {
+      type uint32;
+      description 
+        "Dulplicate address detection time";
+    }
+
+    leaf freeze {
+      type union {
+        type uint32;
+        type string;
+      }
+      description 
+        "Duplicate address detection freeze, time (30-3600) or permanent";
+    }
+  }
+
+  grouping bgp-evpn-ext-dup-addr-detection-top {
+
+    description
+      "Top level grouping for duplicate address detection";
+
+    container dup-addr-detection {
+
+      description 
+        "Specify duplicate address detection parameters";
+
+      container config {
+
+        description
+          "Configuration data for duplicate address detection";
+
+        uses bgp-evpn-ext-dup-addr-detection-config;
+      }
+
+      container state {
+
+        config false;
+        description 
+          "Operational state data for duplicate address detection";
+
+        uses bgp-evpn-ext-dup-addr-detection-config;
+      } 
+    }
+  }
+
+  grouping bgp-evpn-ext-config {
+
+    description
+      "Grouping for configuration data for top level L2vpn evpn address-family";
+
+    leaf advertise-all-vni {
+      type boolean;
+      description 
+        "Advertise all VNIs";
+    }
+
+    leaf-list advertise-list {
+      type identityref {
+        base oc-bgp-types:AFI_SAFI_TYPE;
+      }
+      description 
+        "AFI,SAFI";
+    }
+
+    leaf autort {
+      type enumeration {
+        enum RFC8365_COMPATIBLE {
+          description 
+            "Automatic route-target deduction following RFC 8365";
+        }
+      }
+      description 
+        "Enable automatic derivation of route-target";
+    }
+
+    uses bgp-evpn-ext-l2vpn-evpn-vni-common-config;
+  }
+
+  grouping bgp-evpn-ext-top {
+
+    description
+      "Top level grouping for BGP L2vpn Evpn address-family";
+
+    container config {
+
+      description
+        "Configuration data for BGP L2vpn Evpn address-family";
+    
+      uses bgp-evpn-ext-config;
+    }
+
+    uses bgp-evpn-ext-vnis-top;
+    uses bgp-evpn-ext-default-originate-top;
+    uses bgp-evpn-ext-dup-addr-detection-top;
+
+    container state {
+      
+      config false;
+      description
+        "Operational state data BGP L2vpn Evpn address-family";
+      
+      uses bgp-evpn-ext-config;
+    }
+  }
+
+  // augment statements
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol"
+  +"/oc-netinst:bgp/oc-netinst:global/oc-netinst:afi-safis/oc-netinst:afi-safi/oc-netinst:l2vpn-evpn" {
+
+    description 
+      "Augments BGP l2vpn evpn address-family container";
+
+    uses bgp-evpn-ext-top;
+
+  }//end augment
+
+  grouping bgp-evpn-ext-loc-rib-key-refs {
+    description
+      "Key references to support operational state structure for
+      the BGP Adj-RIB tables";
+
+    leaf route-distinguisher {
+      type leafref {
+        path "../state/route-distinguisher";
+      }
+      description
+        "Reference to the route-distinguisher list key";
+    }
+
+    leaf prefix {
+      type leafref {
+        path "../state/prefix";
+      }
+      description
+        "Reference to the prefix list key";
+    }
+
+    leaf origin {
+      type leafref {
+        path "../state/origin";
+      }
+      description
+        "Reference to the origin list key";
+    }
+
+    leaf path-id {
+      type leafref {
+        path "../state/path-id";
+      }
+      description
+        "Reference to the path-id list key";
+    }
+
+  }
+
+  grouping bgp-evpn-ext-adj-rib-key-refs {
+    description
+      "Key references to support operational state structure for
+      the BGP Adj-RIB tables";
+
+    leaf route-distinguisher {
+      type leafref {
+        path "../state/route-distinguisher";
+      }
+      description
+        "Reference to the route-distinguisher list key";
+    }
+
+    leaf prefix {
+      type leafref {
+        path "../state/prefix";
+      }
+      description
+        "Reference to the prefix list key";
+    }
+
+    leaf path-id {
+      type leafref {
+        path "../state/path-id";
+      }
+      description
+        "Reference to the path-id list key";
+    }
+
+  }
+
+
+  grouping bgp-evpn-ext-adj-rib-common {
+    description
+      "Common structural grouping for each EVPN adj-RIB table";
+
+    uses oc-rib-bgp:bgp-common-table-attrs-top;
+
+    container routes {
+      config false;
+      description
+        "Enclosing container for list of routes in the routing
+        table.";
+
+      list route {
+        key "route-distinguisher prefix path-id";
+
+        description
+          "List of routes in the table, keyed by the route
+          distinguisher and route prefix.";
+
+        uses bgp-evpn-ext-adj-rib-key-refs;
+
+        container state {
+          description
+            "Operational state data for BGP Adj-RIB entries";
+
+          leaf prefix {
+            type string;
+            description
+              "The EVPN prefix string corresponding to the route";
+          }
+
+          leaf route-distinguisher {
+            type string;
+            description
+              "Route distinguisher for the prefix";
+          }
+
+          uses oc-rib-bgp:bgp-adj-rib-attr-state;
+          uses oc-rib-bgp:bgp-adj-rib-common-attr-refs;
+          uses oc-rib-bgp:bgp-common-route-annotations-state;
+        }
+
+        uses oc-rib-bgp:bgp-unknown-attr-top;
+
+      }
+    }
+  }
+
+  grouping bgp-evpn-ext-loc-rib-top {
+    description
+      "Top-level grouping for EVPN routing tables";
+
+    container loc-rib {
+      config false;
+      description
+        "Container for the EVPN BGP LOC-RIB data";
+
+      uses oc-rib-bgp:bgp-common-table-attrs-top;
+
+      container routes {
+        description
+          "Enclosing container for list of routes in the routing
+          table.";
+
+        list route {
+          key "route-distinguisher prefix origin path-id";
+
+          description
+            "List of routes in the table, keyed by the route
+            distinguisher and route prefix.";
+
+          uses bgp-evpn-ext-loc-rib-key-refs;
+
+          container state {
+            description
+              "Operational state data for route entries in the
+              BGP LOC-RIB";
+
+            leaf prefix {
+              type string;
+              description
+                "The EVPN prefix string corresponding to the route";
+            }
+
+            leaf route-distinguisher {
+              type string;
+              description
+                "Route distinguisher for the prefix";
+            }
+
+            uses oc-rib-bgp:bgp-loc-rib-common-keys;
+            uses oc-rib-bgp:bgp-loc-rib-common-attr-refs;
+            uses oc-rib-bgp:bgp-loc-rib-attr-state;
+            uses oc-rib-bgp:bgp-common-route-annotations-state;
+            uses oc-rib-bgp:bgp-loc-rib-route-annotations-state;
+
+           }
+
+           uses oc-rib-bgp:bgp-unknown-attr-top;
+
+        }
+      }
+    }
+  }
+
+  grouping bgp-evpn-ext-adj-rib-top {
+    description
+      "Top-level grouping for Adj-RIB table";
+
+    container neighbors {
+      config false;
+      description
+        "Enclosing container for neighbor list";
+
+      list neighbor {
+        key "neighbor-address";
+        description
+          "List of neighbors (peers) of the local BGP speaker";
+
+        leaf neighbor-address {
+          type leafref {
+            path "../state/neighbor-address";
+          }
+          description
+            "Reference to the list key";
+        }
+
+        container state {
+          description
+            "Operational state for each neighbor BGP Adj-RIB";
+
+          leaf neighbor-address {
+            type oc-inet:ip-address;
+            description
+              "IP address of the BGP neighbor or peer";
+          }
+        }
+
+        container adj-rib-in-pre {
+          description
+            "Per-neighbor table containing the NLRI updates
+            received from the neighbor before any local input
+            policy rules or filters have been applied.  This can
+            be considered the 'raw' updates from the neighbor.";
+
+          uses bgp-evpn-ext-adj-rib-common;
+
+        }
+
+        container adj-rib-out-post {
+          description
+            "Per-neighbor table containing paths eligble for
+            sending (advertising) to the neighbor after output
+            policy rules have been applied";
+
+          uses bgp-evpn-ext-adj-rib-common;
+
+        }
+      }
+    }
+  }
+
+  grouping bgp-evpn-ext-loc-rib-attr-state {
+
+    description
+      "EVPN Specific local RIB attributes";
+
+    leaf tag {
+      type string;
+      description
+        "EVPN Route tag";
+    }
+
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol"
+  +"/oc-netinst:bgp/oc-netinst:rib/oc-netinst:afi-safis/oc-netinst:afi-safi" {
+
+    description
+      "Augments BGP rib table for L2vpn Evpn address family";
+
+    container l2vpn-evpn {
+      when "../oc-netinst:afi-safi-name = 'oc-bgp-types:L2VPN_EVPN'" {
+        description
+          "Include this container only for the L2VPN AFI, EVPN
+          SAFI.";
+      }
+      description
+        "Routing tables for the L2VPN, EVPN SAFI.";
+
+      uses bgp-evpn-ext-loc-rib-top;
+      uses bgp-evpn-ext-adj-rib-top;
+
+    }
+  }//augment
+
+  augment /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:rib/oc-netinst:afi-safis/oc-netinst:afi-safi/oc-bgp-evpn-ext:l2vpn-evpn/oc-bgp-evpn-ext:loc-rib/oc-bgp-evpn-ext:routes/oc-bgp-evpn-ext:route {
+      description
+        "BGP local rib extensions for l2vpn evpn address family";
+      uses oc-bgp-ext:bgp-ext-attr-sets-state;
+  }
+
+  augment /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:rib/oc-netinst:afi-safis/oc-netinst:afi-safi/oc-bgp-evpn-ext:l2vpn-evpn/oc-bgp-evpn-ext:neighbors/oc-bgp-evpn-ext:neighbor/oc-bgp-evpn-ext:adj-rib-in-pre/oc-bgp-evpn-ext:routes/oc-bgp-evpn-ext:route {
+      description
+        "BGP rib extensions for l2vpn evpn address family specific to received routes pre-processing from neighbors";
+      uses oc-bgp-ext:bgp-ext-attr-sets-state;
+  }
+ 
+  augment /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:rib/oc-netinst:afi-safis/oc-netinst:afi-safi/oc-bgp-evpn-ext:l2vpn-evpn/oc-bgp-evpn-ext:neighbors/oc-bgp-evpn-ext:neighbor/oc-bgp-evpn-ext:adj-rib-out-post/oc-bgp-evpn-ext:routes/oc-bgp-evpn-ext:route {
+      description
+        "BGP rib extensions for l2vpn evpn address family specific to received routes post-processing from neighbors";
+      uses oc-bgp-ext:bgp-ext-attr-sets-state;
+  }
+
+  augment /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:rib/oc-netinst:afi-safis/oc-netinst:afi-safi/oc-bgp-evpn-ext:l2vpn-evpn/oc-bgp-evpn-ext:loc-rib/oc-bgp-evpn-ext:routes/oc-bgp-evpn-ext:route/oc-bgp-evpn-ext:attr-sets {
+      description
+        "BGP local rib attr-sets extensions for l2vpn evpn address family";
+      uses bgp-evpn-ext-loc-rib-attr-state;
+  }
+
+  // Temp deviation for community Open PR: Start
+  //https://github.com/openconfig/public/pull/270
+  typedef route-distinguisher {
+    type union {
+      // type 0: <2-byte administrator>:<4-byte assigned number>
+      //         <0-65535>:<0-4294967295>
+      type string {
+        pattern 
+          '^(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|'
+          + '6[0-4][0-9]{3}|[0-5][0-9]{4}|[1-9][0-9]{0,3}|0):'
+          + '(429496729[0-5]|42949672[0-8][0-9]|'
+          + '4294967[0-1][0-9]{2}|429496[0-6][0-9]{3}|'
+          + '42949[0-5][0-9]{4}|4294[0-8][0-9]{5}|'
+          + '429[0-3][0-9]{6}|42[0-8][0-9]{7}|'
+          + '4[0-1][0-9]{8}|[1-9][0-9]{0,8}|0)$';
+      }
+      // type 1: <ip-address>:<2-byte assigned number>
+      //         <ipv4>:<0-65535>
+      type string {
+        pattern
+          '^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+          +  '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]):'
+          +  '(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|'
+          +  '6[0-4][0-9]{3}|[0-5][0-9]{4}|[1-9][0-9]{0,3}|0)$';
+      }
+      // type 2: <4-byte as-number>:<2-byte assigned number>
+      //         <0-4294967295>:<0-65535>
+      type string {
+        pattern
+          '^(429496729[0-5]|42949672[0-8][0-9]|'
+          + '4294967[0-1][0-9]{2}|429496[0-6][0-9]{3}|'
+          + '42949[0-5][0-9]{4}|4294[0-8][0-9]{5}|'
+          + '429[0-3][0-9]{6}|42[0-8][0-9]{7}|'
+          + '4[0-1][0-9]{8}|[1-9][0-9]{0,8}|0):'
+          +  '(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|'
+          +  '6[0-4][0-9]{3}|[0-5][0-9]{4}|[1-9][0-9]{0,3}|0)$';
+      }
+    }
+    description "A route distinguisher value";
+    reference "RFC4364";
+  }
+
+  deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:global/oc-netinst:afi-safis/oc-netinst:afi-safi/oc-netinst:l2vpn-evpn/oc-bgp-evpn-ext:config/oc-bgp-evpn-ext:route-distinguisher {
+    deviate replace {
+      type route-distinguisher;
+    }
+  }
+
+  deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:global/oc-netinst:afi-safis/oc-netinst:afi-safi/oc-netinst:l2vpn-evpn/oc-bgp-evpn-ext:vnis/oc-bgp-evpn-ext:vni/oc-bgp-evpn-ext:config/oc-bgp-evpn-ext:route-distinguisher {
+    deviate replace {
+      type route-distinguisher;
+    }
+  }
+  // Temp deviation for community Open PR: End
+
+  /*deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:global/oc-netinst:afi-safis/oc-netinst:afi-safi/oc-netinst:l2vpn-evpn/oc-bgp-evpn-ext:vpn-target/oc-bgp-evpn-ext:route-target {
+    deviate replace {
+      type string{
+        pattern 
+          '((6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0)'
+        + ':(429496729[0-5]|42949672[0-8][0-9]|4294967[01][0-9]{2}|429496[0-6][0-9]{3}|42949[0-5][0-9]{4}'
+        + '|4294[0-8][0-9]{5}|429[0-3][0-9]{6}|42[0-8][0-9]{7}|4[01][0-9]{8}|[1-3][0-9]{9}|[1-9][0-9]{0,8}|0)'
+        + '|'
+        + '((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))'
+        + ':(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0)'
+        + '|(429496729[0-5]|42949672[0-8][0-9]|4294967[01][0-9]{2}|429496[0-6][0-9]{3}|42949[0-5][0-9]{4}'
+        + '|4294[0-8][0-9]{5}|429[0-3][0-9]{6}|42[0-8][0-9]{7}|4[01][0-9]{8}|[1-3][0-9]{9}|[1-9][0-9]{0,8}|0)'
+        + ':(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))';
+      }
+    }
+  } 
+
+  deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:global/oc-netinst:afi-safis/oc-netinst:afi-safi/oc-netinst:l2vpn-evpn/oc-bgp-evpn-ext:vnis/oc-bgp-evpn-ext:vni/oc-bgp-evpn-ext:vpn-target/oc-bgp-evpn-ext:route-target {
+    deviate replace {
+      type string{
+        pattern 
+          '((6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0)'
+        + ':(429496729[0-5]|42949672[0-8][0-9]|4294967[01][0-9]{2}|429496[0-6][0-9]{3}|42949[0-5][0-9]{4}'
+        + '|4294[0-8][0-9]{5}|429[0-3][0-9]{6}|42[0-8][0-9]{7}|4[01][0-9]{8}|[1-3][0-9]{9}|[1-9][0-9]{0,8}|0)'
+        + '|'
+        + '((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))'
+        + ':(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0)'
+        + '|(429496729[0-5]|42949672[0-8][0-9]|4294967[01][0-9]{2}|429496[0-6][0-9]{3}|42949[0-5][0-9]{4}'
+        + '|4294[0-8][0-9]{5}|429[0-3][0-9]{6}|42[0-8][0-9]{7}|4[01][0-9]{8}|[1-3][0-9]{9}|[1-9][0-9]{0,8}|0)'
+        + ':(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))';
+      }
+    }
+  }*/   
+
+}//end module
