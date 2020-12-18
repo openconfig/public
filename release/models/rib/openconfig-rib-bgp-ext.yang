@@ -3,13 +3,19 @@ module openconfig-rib-bgp-ext {
   yang-version "1";
 
   // namespace
-  namespace "http://openconfig.net/yang/rib/bgp-ext";
+  namespace "http://openconfig.net/yang/rib-bgp/extension";
 
   prefix "oc-bgprib-ext";
 
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-rib-bgp-types { prefix oc-bgpribt; }
   import openconfig-network-instance { prefix oc-ni; }
+  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-rib-bgp { prefix oc-rib-bgp; }
+  import openconfig-policy-types { prefix oc-pol-types; }
+  import openconfig-bgp-ext { prefix oc-bgp-ext; }
+  import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-bgp-evpn-ext { prefix oc-bgp-evpn-ext; }
 
   organization "OpenConfig working group";
 
@@ -23,7 +29,14 @@ module openconfig-rib-bgp-ext {
     are not currently supported in a majority of BGP
     implementations.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2020-12-16" {
+    description
+      "Added extended annotations for Loc-RIB for IPv4, IPv6 and
+      EVPN address families.";
+    reference "0.7.0";
+  }
 
   revision "2019-04-25" {
     description
@@ -69,7 +82,7 @@ module openconfig-rib-bgp-ext {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
-  grouping rib-ext-route-annotations {
+  grouping rib-bgp-ext-route-annotations-state {
     description
       "Extended annotations for routes in the routing tables";
 
@@ -96,7 +109,7 @@ module openconfig-rib-bgp-ext {
       description
         "Add extended annotations to the Loc-RIB for IPv4";
 
-      uses rib-ext-route-annotations;
+      uses rib-bgp-ext-route-annotations-state;
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/" +
@@ -107,7 +120,7 @@ module openconfig-rib-bgp-ext {
       description
         "Add extended annotations to the Loc-RIB for IPv6";
 
-      uses rib-ext-route-annotations;
+      uses rib-bgp-ext-route-annotations-state;
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/" +
@@ -120,7 +133,7 @@ module openconfig-rib-bgp-ext {
       description
         "Add extended annotations to Adj-RIB for IPv4";
 
-      uses rib-ext-route-annotations;
+      uses rib-bgp-ext-route-annotations-state;
   }
 
   augment
@@ -134,7 +147,7 @@ module openconfig-rib-bgp-ext {
       description
         "Add extended annotations to Adj-RIB for IPv4";
 
-      uses rib-ext-route-annotations;
+      uses rib-bgp-ext-route-annotations-state;
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/" +
@@ -147,7 +160,7 @@ module openconfig-rib-bgp-ext {
       description
         "Add extended annotations to Adj-RIB for IPv4";
 
-      uses rib-ext-route-annotations;
+      uses rib-bgp-ext-route-annotations;
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/" +
@@ -160,7 +173,7 @@ module openconfig-rib-bgp-ext {
       description
         "Add extended annotations to Adj-RIB for IPv4";
 
-      uses rib-ext-route-annotations;
+      uses rib-bgp-ext-route-annotations-state;
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/" +
@@ -173,7 +186,7 @@ module openconfig-rib-bgp-ext {
       description
         "Add extended annotations to Adj-RIB for IPv6";
 
-      uses rib-ext-route-annotations;
+      uses rib-bgp-ext-route-annotations-state;
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/" +
@@ -186,7 +199,7 @@ module openconfig-rib-bgp-ext {
       description
         "Add extended annotations to Adj-RIB for IPv6";
 
-      uses rib-ext-route-annotations;
+      uses rib-bgp-ext-route-annotations-state;
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/" +
@@ -199,7 +212,7 @@ module openconfig-rib-bgp-ext {
       description
         "Add extended annotations to Adj-RIB for IPv6";
 
-      uses rib-ext-route-annotations;
+      uses rib-bgp-ext-route-annotations-state;
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/" +
@@ -212,7 +225,254 @@ module openconfig-rib-bgp-ext {
       description
         "Add extended annotations to Adj-RIB for IPv6";
 
-      uses rib-ext-route-annotations;
+      uses rib-bgp-ext-route-annotations-state;
+  }
+
+  grouping rib-bgp-ext-prefix-paths-top {
+    description
+      "Top-level grouping for IPv4 routing tables for prefix";
+
+    container loc-rib-prefix-paths {
+      config false;
+      description
+        "Container for the IPv4 BGP LOC-RIB data for prefix";
+
+      container paths {
+        description
+          "Enclosing container for list of routes in the routing
+          table.";
+
+        list path {
+          key "origin path-id";
+
+          description
+            "List of routes in the table, keyed by the route
+            prefix, the route origin, and path-id.  The route
+            origin can be either the neighbor address from which
+            the route was learned, or the source protocol that
+            injected the route.  The path-id distinguishes routes
+            for the same prefix received from a neighbor (e.g.,
+            if add-paths is eanbled).";
+
+          leaf origin {
+              type leafref {
+                  path "../state/origin";
+              }
+              description
+                  "Reference to the origin list key";
+          }
+
+          leaf path-id {
+              type leafref {
+                  path "../state/path-id";
+              }
+              description
+                  "Reference to the path-id list key";
+          }
+
+          container state {
+            description
+              "Operational state data for route entries in the
+              BGP LOC-RIB";
+
+            leaf origin {
+                type union {
+                    type oc-inet:ip-address;
+                    type identityref {
+                        base oc-pol-types:INSTALL_PROTOCOL_TYPE;
+                    }
+                }
+                description
+                    "Indicates the origin of the route.  If the route is learned
+                    from a neighbor, this value is the neighbor address.  If
+                    the route was injected or redistributed from another
+                    protocol, the origin indicates the source protocol for the
+                    route.";
+            }
+
+            leaf path-id {
+                type uint32;
+                default 0;
+                description
+                    "If the route is learned from a neighbor, the path-id
+                    corresponds to the path-id for the route in the
+                    corresponding adj-rib-in-post table.  If the route is
+                    injected from another protocol, or the neighbor does not
+                    support BGP add-paths, the path-id should be set
+                    to zero, also the default value.";
+            }
+
+            leaf remote-router-id {
+                type oc-yang:dotted-quad;
+                description
+                    "A identifier for the remote network instance - typically
+                    used within associated routing protocols or signalling
+                    routing information in another network instance";
+            }
+
+            leaf best-path {
+                type boolean;
+                description
+                    "Current path was selected as the best path.";
+            }
+
+            uses rib-bgp-ext-route-annotations-state;
+            uses oc-rib-bgp:bgp-loc-rib-attr-state;
+            uses oc-rib-bgp:bgp-common-route-annotations-state;
+            uses oc-rib-bgp:bgp-loc-rib-route-annotations-state;
+          }
+          uses oc-rib-bgp:bgp-unknown-attr-top;
+          uses oc-bgp-ext:bgp-ext-attr-sets-state;
+        }
+      }
+    }
+  }
+
+  grouping rib-bgp-ext-ipv4-loc-rib-prefix-top {
+    description
+      "Top-level grouping for IPv4 routing tables for prefix";
+
+    container loc-rib-prefix {
+      config false;
+      description
+        "Container for the IPv4 BGP LOC-RIB data for prefix";
+
+      uses oc-rib-bgp:bgp-common-table-attrs-top;
+
+      container routes {
+        description
+          "Enclosing container for list of routes in the routing
+          table.";
+
+        list route {
+          key "prefix";
+
+          description
+            "List of routes in the table, keyed by the route
+            prefix, the route origin, and path-id.  The route
+            origin can be either the neighbor address from which
+            the route was learned, or the source protocol that
+            injected the route.  The path-id distinguishes routes
+            for the same prefix received from a neighbor (e.g.,
+            if add-paths is eanbled).";
+
+          leaf prefix {
+              type leafref {
+                  path "../state/prefix";
+              }
+              description
+                  "Reference to the prefix list key";
+          }
+
+          container state {
+            description
+              "Operational state data for route entries in the
+              BGP LOC-RIB";
+
+            leaf prefix {
+              type oc-inet:ipv4-prefix;
+              description
+                "The IPv4 prefix corresponding to the route";
+            }
+          }
+          uses rib-bgp-ext-prefix-paths-top;
+        }
+      }
+    }
+  }
+
+  grouping rib-bgp-ext-ipv6-loc-rib-prefix-top {
+    description
+      "Top-level grouping for IPv6 routing tables for prefix";
+
+    container loc-rib-prefix {
+      config false;
+      description
+        "Container for the IPv6 BGP LOC-RIB data for prefix";
+
+      uses oc-rib-bgp:bgp-common-table-attrs-top;
+
+      container routes {
+        description
+          "Enclosing container for list of routes in the routing
+          table.";
+
+        list route {
+          key "prefix";
+
+          description
+            "List of routes in the table, keyed by the route
+            prefix, the route origin, and path-id.  The route
+            origin can be either the neighbor address from which
+            the route was learned, or the source protocol that
+            injected the route.  The path-id distinguishes routes
+            for the same prefix received from a neighbor (e.g.,
+            if add-paths is eanbled).";
+
+          leaf prefix {
+              type leafref {
+                  path "../state/prefix";
+              }
+              description
+                  "Reference to the prefix list key";
+          }
+
+          container state {
+            description
+              "Operational state data for route entries in the
+              BGP LOC-RIB";
+
+            leaf prefix {
+              type oc-inet:ipv6-prefix;
+              description
+                "The IPv6 prefix corresponding to the route";
+            }
+          }
+          uses rib-bgp-ext-prefix-paths-top;
+        }
+      }
+    }
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+    "oc-ni:protocols/oc-ni:protocol/" +
+    "oc-ni:bgp/oc-ni:rib/oc-ni:afi-safis/" +
+    "oc-ni:afi-safi/oc-ni:ipv4-unicast" {
+      description
+        "Add extended annotations for prefix based Loc-RIB for IPv4";
+
+      uses rib-bgp-ext-ipv4-loc-rib-prefix-top;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+    "oc-ni:protocols/oc-ni:protocol/" +
+    "oc-ni:bgp/oc-ni:rib/oc-ni:afi-safis/" +
+    "oc-ni:afi-safi/oc-ni:ipv6-unicast" {
+      description
+        "Add extended annotations for prefix based Loc-RIB for IPv6";
+
+      uses rib-bgp-ext-ipv6-loc-rib-prefix-top;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+    "oc-ni:protocols/oc-ni:protocol/" +
+    "oc-ni:bgp/oc-ni:rib/oc-ni:afi-safis/" +
+    "oc-ni:afi-safi/oc-bgp-evpn-ext:l2vpn-evpn/oc-bgp-evpn-ext:loc-rib/" +
+    "oc-bgp-evpn-ext:routes/oc-bgp-evpn-ext:route/oc-bgp-evpn-ext:state" {
+      description
+        "Add best-path field to the Loc-RIB for EVPN";
+
+      leaf best-path {
+        type boolean;
+        description
+          "Current path was selected as the best path.";
+      }
+
+      leaf weight {
+        type uint16;
+        description
+          "Weight of the path.";
+      }
   }
 
 }
