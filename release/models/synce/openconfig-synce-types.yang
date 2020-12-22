@@ -2,7 +2,7 @@ module openconfig-synce-types {
 
     yang-version 1.1;
 
-    namespace   "http://openconfig.net/yang/openconfig-synce-types";
+    namespace "http://openconfig.net/yang/openconfig-synce-types";
 
     prefix "oc-synce-types";
 
@@ -12,34 +12,17 @@ module openconfig-synce-types {
 
     contact
       "OpenConfig working group
-      www.openconfig.net ";
+       www.openconfig.net";
 
     description
-       "The aim of Synchronous Ethernet is to provide a synchronization
-        signal to those network resources that may eventually require
-        such a type of signal. The Synchronous Ethernet signal transmitted
-        over the Ethernet physical layer should be traceable to an external
-        clock, ideally a master and unique clock for the whole network.
-        Applications include cellular networks, access technologies such as
-        Ethernet passive optical network, and applications such as IPTV or VoIP.";
+        "Typedefs for Synce module";
 
-    revision "2020-12-08" {
-        description
-          "Initial revision of SyncE model.";
+    revision "2020-12-20" {
+        description "Initial Version";
         reference "0.1.0";
     }
 
-    typedef  SYNCE_HOLDOVER_T {
-        type enumeration {
-            enum holdover {
-                value 1;
-                description "enable synce holdover (default 10 min)";
-            }
-        }
-        description "type definition for SYNCE_HOLDOVER_T";
-    }
-
-    typedef  SYNCE_EXTERNAL_INTERFACE_T {
+    typedef synce-external-interface-t {
         type enumeration {
             enum gps {
                 value 1;
@@ -62,10 +45,10 @@ module openconfig-synce-types {
                 description "BITS-E1 interface as input-source";
             }
         }
-        description "type definition for SYNCE_EXTERNAL_INTERFACE_T";
+        description "type definition for synce-external-interface-t";
     }
 
-    typedef  SYNCE_SYNC_OPTION_T {
+    typedef synce-sync-option-t {
         type enumeration {
             enum 1 {
                 value 1;
@@ -73,14 +56,13 @@ module openconfig-synce-types {
             }
             enum 2 {
                 value 2;
-                description "Networks optimized for the 1544 kbit/s hierarchy that
-                             includes the rates 1544 kbit/s 6312 kbit/s and 44 736 kbit/s";
+                description "Networks optimized for the 1544 kbit/s hierarchy that includes the rates 1544 kbit/s 6312 kbit/s and 44 736 kbit/s ";
             }
         }
-        description "type definition for SYNCE_SYNC_OPTION_T";
+        description "type definition for synce-sync-option-t";
     }
 
-    typedef  SYNCE_CLK_SELECTION_MODE_T {
+    typedef synce-clk-selection-mode-t {
         type enumeration {
             enum ql-enabled {
                 value 1;
@@ -91,10 +73,10 @@ module openconfig-synce-types {
                 description "Do not use the quality level as a criteria when selecting a clock";
             }
         }
-        description "type definition for SYNCE_CLK_SELECTION_MODE_T";
+        description "type definition for synce-clk-selection-mode-t";
     }
 
-    typedef  SYNCE_AUTONEG_MODE_T {
+    typedef synce-autoneg-mode-t {
         type enumeration {
             enum master {
                 value 1;
@@ -105,10 +87,10 @@ module openconfig-synce-types {
                 description "Configure 1000Base-T mode to slave";
             }
         }
-        description "type definition for SYNCE_AUTONEG_MODE_T";
+        description "type definition for synce-autoneg-mode-t";
     }
 
-    typedef  SYNCE_MODE_OPTION_T {
+    typedef synce-mode-option-t {
         type enumeration {
             enum synchronous {
                 value 1;
@@ -119,10 +101,10 @@ module openconfig-synce-types {
                 description "Configure the interface to non-synchronous mode";
             }
         }
-        description "type definition for SYNCE_MODE_OPTION_T";
+        description "type definition for synce-mode-option-t";
     }
 
-    typedef  SYNCE_SOURCE_SELECT_T {
+    typedef synce-source-select-t {
         type enumeration {
             enum force {
                 value 1;
@@ -133,10 +115,10 @@ module openconfig-synce-types {
                 description "manually select a synchronization source";
             }
         }
-        description "type definition for SYNCE_SOURCE_SELECT_T";
+        description "type definition for synce-source-select-t";
     }
 
-    typedef  SYNCE_SIGNAL_FAIL_T {
+    typedef synce-signal-fail-t {
         type enumeration {
             enum active {
                 value 1;
@@ -147,10 +129,10 @@ module openconfig-synce-types {
                 description "set to false";
             }
         }
-        description "type definition for SYNCE_SIGNAL_FAIL_T";
+        description "type definition for synce-signal-fail-t";
     }
 
-    typedef  SYNCE_DEBUG_T {
+    typedef synce-debug-t {
         type bits {
             bit event {
                 position 0;
@@ -165,10 +147,10 @@ module openconfig-synce-types {
                 description "tx debugs";
             }
         }
-        description "type definition for SYNCE_DEBUG_T";
+        description "type definition for synce-debug-t";
     }
 
-    typedef  SYNCE_IS_SRC_SELECTED_T {
+    typedef synce-is-src-selected-t {
         type enumeration {
             enum No {
                 value 0;
@@ -179,10 +161,10 @@ module openconfig-synce-types {
                 description "Src is seleceted";
             }
         }
-        description "type definition for SYNCE_IS_SRC_SELECTED_T";
+        description "type definition for synce-is-src-selected-t";
     }
 
-    typedef  SYNCE_IS_SF_T {
+    typedef synce-is-sf-t {
         type enumeration {
             enum No {
                 value 0;
@@ -193,10 +175,10 @@ module openconfig-synce-types {
                 description "Interface is in Signal Fail condition";
             }
         }
-        description "type definition for SYNCE_IS_SF_T";
+        description "type definition for synce-is-sf-t";
     }
 
-    typedef  SYNCE_EXTERNAL_CMDS_T {
+    typedef synce-external-cmds-t {
         type enumeration {
             enum None {
                 value 0;
@@ -215,10 +197,10 @@ module openconfig-synce-types {
                 description "Manual switch external command configured";
             }
         }
-        description "type definition for SYNCE_EXTERNAL_CMDS_T";
+        description "type definition for synce-external-cmds-t";
     }
 
-    typedef  SYNCE_IS_TIMER_RUNNING_T {
+    typedef synce-is-timer-running-t {
         type enumeration {
             enum Not-Running {
                 value 0;
@@ -229,10 +211,10 @@ module openconfig-synce-types {
                 description "Interface is in Signal Fail condition";
             }
         }
-        description "type definition for SYNCE_IS_TIMER_RUNNING_T";
+        description "type definition for synce-is-timer-running-t";
     }
 
-    typedef  SYNCE_CLOCK_STATE_T {
+    typedef synce-clock-state-t {
         type enumeration {
             enum Not-Applicable {
                 value 0;
@@ -251,10 +233,10 @@ module openconfig-synce-types {
                 description "Clk is in Locked state";
             }
         }
-        description "type definition for SYNCE_CLOCK_STATE_T";
+        description "type definition for synce-clock-state-t";
     }
 
-    typedef  SYNCE_ESMC_STATE_T {
+    typedef synce-esmc-state-t {
         type enumeration {
             enum Idle {
                 value 0;
@@ -277,10 +259,10 @@ module openconfig-synce-types {
                 description "ESMC state Not-Applicable";
             }
         }
-        description "type definition for SYNCE_ESMC_STATE_T";
+        description "type definition for synce-esmc-state-t";
     }
 
-    typedef  SYNCE_LINK_STATE_T {
+    typedef synce-link-state-t {
         type enumeration {
             enum up {
                 value 1;
@@ -291,7 +273,7 @@ module openconfig-synce-types {
                 description "Synce Interface is down";
             }
         }
-        description "type definition for SYNCE_LINK_STATE_T";
+        description "type definition for synce-link-state-t";
     }
 
 }
