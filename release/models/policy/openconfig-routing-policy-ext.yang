@@ -1,0 +1,426 @@
+module openconfig-routing-policy-ext {
+
+    yang-version "1";
+
+    // namespace
+    namespace "http://openconfig.net/yang/routing-policy/extension";
+
+    prefix "oc-rpol-ext";
+
+    // import some basic types
+    import openconfig-routing-policy { prefix oc-rpol; }
+    import openconfig-bgp-policy { prefix oc-bgp-pol; }
+    import openconfig-inet-types { prefix oc-inet; }
+    import openconfig-network-instance { prefix oc-netinst; }
+    import openconfig-extensions { prefix oc-ext; }
+    import openconfig-bgp-types { prefix oc-bgp-type; }
+
+    organization
+      "OpenConfig Working Group";
+
+    contact
+      "OpenConfig Working Group
+      www.openconfig.net";
+
+    description
+        "This module describes a YANG model for routing policy
+        configuration extensions.";
+
+    oc-ext:openconfig-version "0.1.4";
+
+    revision "2020-09-11" {
+        description
+            "Added Sequence number support for IP Prefix list.";
+        reference "0.1.4";
+    }
+
+    revision "2020-09-01" {
+        description
+            "Added the ipv6 prefix set in routing policy conditions.";
+        reference "0.1.3";
+    }
+
+    revision "2020-06-23" {
+        description
+            "Added the set community option additive.";
+        reference "0.1.2";
+    }
+
+    revision "2020-05-13" {
+        description
+            "Replaced the type of match tag and set med to uint32.";
+        reference "0.1.1";
+    }
+
+    revision "2019-11-11" {
+        description
+            "Add OpenConfig unsupported attributes.";
+        reference "0.1.0";
+    }
+
+    identity ADDITIVE {
+        base "oc-bgp-type:BGP_WELL_KNOWN_STD_COMMUNITY";
+        description
+            "Internal type to append the communities for route advertisement.";
+    }
+
+    typedef routing-policy-ext-action-type {
+        type enumeration {
+            enum PERMIT {
+                description "Permit action.";
+            }
+            enum DENY {
+                description "Deny action.";
+            }
+        }
+        description
+            "Routing policy action type permit or deny";
+    }
+
+    identity ROUTEMAP_SET_METRIC_TYPE {
+        description
+            "Type used to specify route metric value to be set in
+             a policy chain.";
+    }
+
+    identity METRIC_SET_VALUE {
+        base "ROUTEMAP_SET_METRIC_TYPE";
+        description
+          "Set a specified metric value.";
+    }
+
+    identity METRIC_ADD_VALUE {
+        base "ROUTEMAP_SET_METRIC_TYPE";
+         description
+            "Add a specified metric value from current
+             set value of metric.";
+    }
+
+    identity METRIC_SUBTRACT_VALUE {
+        base "ROUTEMAP_SET_METRIC_TYPE";
+        description
+            "Subtract a specified metric value from current
+             set value of metric.";
+    }
+
+    identity METRIC_SET_RTT {
+        base "ROUTEMAP_SET_METRIC_TYPE";
+        description
+            "Add round trip time value as metric.";
+    }
+
+    identity METRIC_ADD_RTT {
+        base "ROUTEMAP_SET_METRIC_TYPE";
+        description
+            "Add round trip time value from current
+             set value of metric.";
+    }
+
+    identity METRIC_SUBTRACT_RTT {
+        base "ROUTEMAP_SET_METRIC_TYPE";
+        description
+            "Subtract round trip time value from current
+             set value of metric.";
+    }
+
+    grouping routing-policy-ext-asn-list-val-config {
+        description
+            "Configuration data for ASN numbers";
+         leaf asn-list{
+           type string;
+           description
+                "Comma separated list of asn numbers";
+            
+      }
+    }
+
+    grouping routing-policy-ext-action-config {
+        description
+            "Configuration data for action type";
+        leaf action {
+            type oc-rpol-ext:routing-policy-ext-action-type;
+            description
+                "Select the action, accept or reject.";
+        }
+    }
+
+    grouping routing-policy-ext-metric-action-config {
+        description
+            "Metric action to be set for the policy.";
+
+        leaf action {
+            type identityref {
+                base "ROUTEMAP_SET_METRIC_TYPE";
+            }
+            description
+                "Metric set action type for the the policy.";
+        }
+
+        leaf metric {
+             when "../action = 'METRIC_SET_VALUE' " +
+                  "or ../action = 'METRIC_ADD_VALUE' " +
+                  "or ../action = 'METRIC_SUBTRACT_VALUE'";
+
+             type uint32 {
+                 range "0..4294967295";
+             }
+             description
+                 "Metric value to be set for the policy.
+                  Specified only when action is for set metric or
+                  add metric or subtract metric.";
+        }
+    }
+
+    grouping routing-policy-ext-metric-action {
+        description
+            "Definitions for metric set";
+
+        container metric-action {
+            description
+                "Set metric actions for the routing policy";
+
+            container config {
+                description
+                    "Configuration data for metric set policy actions";
+
+                uses routing-policy-ext-metric-action-config;
+            }
+
+            container state {
+                config false;
+                description
+                    "Operational state data for metric set policy actions";
+
+                uses routing-policy-ext-metric-action-config;
+            }
+        }
+    }
+
+
+    grouping routing-policy-ext-neighbor-set-config {
+        description
+            "Configuration data for neighbor set definitions";
+
+        leaf-list address {
+            type union {
+                type oc-inet:ip-address;
+
+                // TODO: in YANG 1.1, unions support leafref types which
+                // should be used here to reference a configured interface by
+                // name
+                // type leafref {
+                //    path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+                // }
+                type string;
+            }
+            description
+                "List of IP addresses or interfaces in the neighbor set";
+        }
+    }
+
+    grouping routing-policy-ext-tag-set-config {
+        description
+            "Configuration data for tag set definitions.";
+
+        leaf-list tag-value {
+            type uint32;
+            description
+                "Value of the tag set member";
+        }
+    }
+
+    grouping routing-policy-ext-prefix-set-config {
+        description
+            "Configuration data for ipv6 prefix set definitions.";
+
+        leaf ipv6-prefix-set {
+            type leafref {
+                path "/oc-rpol:routing-policy/oc-rpol:defined-sets/oc-rpol:prefix-sets/oc-rpol:prefix-set/oc-rpol:config/oc-rpol:name";
+            }
+            description
+                "Leaf reference of the ipv6 prefix set name";
+        }
+    }
+
+
+    grouping routing-policy-ext-match-network-instance-config {
+        description
+            "Configuration data for match network instance.";
+
+        leaf name {
+            type leafref {
+                path "/oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:config/oc-netinst:name";
+            }
+            description
+                "An operator-assigned unique name for the forwarding
+                instance";
+        }
+    }
+
+    grouping routing-policy-ext-match-src-network-instance-top {
+        description
+            "Configuration data for source VRF match definitions.";
+
+        container match-src-network-instance {
+            description
+                "Source network instance match configuration";
+            container config {
+                description
+                    "Configuration parameters relating to source network instance";
+                uses routing-policy-ext-match-network-instance-config;
+            }
+            container state {
+                config false;
+                description
+                    "Operational state parameters relating to source network instance";
+                uses routing-policy-ext-match-network-instance-config;
+            }
+        }
+    }
+
+    grouping routing-policy-ext-prefix-config {
+        description
+            "Configuration data for prefix definitions";
+
+        leaf sequence-number {
+            type uint32 {
+                range "1..4294967295";
+            }
+            description
+                "The sequence number determines the order in which prefix-list entries are applied. It must be unique
+                 for each prefix in a prefix-list. Target devices should apply the prefixes in ascending order determined
+                 by sequence no (low to high), rather than relying only on order in the list.";
+        }
+
+        uses oc-rpol:prefix-config;
+        uses routing-policy-ext-action-config;
+    }
+
+    grouping routing-policy-ext-prefix-state {
+        description
+            "Operational state data for prefix definitions";
+    }
+
+    grouping routing-policy-ext-prefix-top {
+        description
+            "Top-level grouping for prefixes in a prefix list";
+
+        container prefixes-ext {
+            description
+                "Enclosing container for the list of prefixes in a policy prefix list";
+
+            list prefix {
+                key "sequence-number ip-prefix masklength-range";
+                description
+                    "List of prefixes in the prefix set";
+
+                leaf sequence-number {
+                    type leafref {
+                        path "../config/sequence-number";
+                    }
+                    description
+                        "Reference to the sequence-number.";
+                }
+
+                leaf ip-prefix {
+                    type leafref {
+                        path "../config/ip-prefix";
+                    }
+                    description
+                        "Reference to the ip-prefix.";
+                }
+
+                leaf masklength-range {
+                    type leafref {
+                        path "../config/masklength-range";
+                    }
+                    description
+                        "Reference to the masklength-range.";
+                }
+
+                container config {
+                    description
+                        "Configuration data for prefix definition";
+
+                    uses routing-policy-ext-prefix-config;
+                }
+
+                container state {
+                    config false;
+
+                    description
+                        "Operational state data for prefix definition";
+
+                    uses routing-policy-ext-prefix-config;
+                    uses routing-policy-ext-prefix-state;
+                }
+            }
+        }
+    }
+
+    augment /oc-rpol:routing-policy/oc-rpol:policy-definitions/oc-rpol:policy-definition/oc-rpol:statements/oc-rpol:statement/oc-rpol:actions{
+      description
+          "Policy definition extensions for setting metric actions";
+        uses routing-policy-ext-metric-action;
+    }
+
+    augment /oc-rpol:routing-policy/oc-rpol:policy-definitions/oc-rpol:policy-definition/oc-rpol:statements/oc-rpol:statement/oc-rpol:actions/oc-bgp-pol:bgp-actions/oc-bgp-pol:set-as-path-prepend/oc-bgp-pol:config {
+      description
+          "Policy definition extensions for BGP AS-PATH prepend configs";
+        uses routing-policy-ext-asn-list-val-config;
+   }
+ 
+    augment /oc-rpol:routing-policy/oc-rpol:policy-definitions/oc-rpol:policy-definition/oc-rpol:statements/oc-rpol:statement/oc-rpol:actions/oc-bgp-pol:bgp-actions/oc-bgp-pol:set-as-path-prepend/oc-bgp-pol:state {
+      description
+          "Policy definition extensions for BGP AS-PATH prepend configs";
+        uses routing-policy-ext-asn-list-val-config;
+   }
+
+    augment /oc-rpol:routing-policy/oc-rpol:policy-definitions/oc-rpol:policy-definition/oc-rpol:statements/oc-rpol:statement/oc-rpol:conditions {
+      description
+          "Policy definition extensions for conditions";
+        uses routing-policy-ext-match-src-network-instance-top;
+    }
+
+    augment /oc-rpol:routing-policy/oc-rpol:policy-definitions/oc-rpol:policy-definition/oc-rpol:statements/oc-rpol:statement/oc-rpol:conditions/oc-rpol:match-neighbor-set/oc-rpol:config {
+      description
+          "Policy definition extensions for neighbor match configs";
+        uses routing-policy-ext-neighbor-set-config;
+    }
+    
+    augment /oc-rpol:routing-policy/oc-rpol:policy-definitions/oc-rpol:policy-definition/oc-rpol:statements/oc-rpol:statement/oc-rpol:conditions/oc-rpol:match-neighbor-set/oc-rpol:state {
+      description
+          "Policy definition extensions for neighbor match configs";
+        uses routing-policy-ext-neighbor-set-config;
+    }
+   
+    augment /oc-rpol:routing-policy/oc-rpol:policy-definitions/oc-rpol:policy-definition/oc-rpol:statements/oc-rpol:statement/oc-rpol:conditions/oc-rpol:match-tag-set/oc-rpol:config {
+      description
+          "Policy definition extensions for tag match configs";
+        uses routing-policy-ext-tag-set-config;
+    }
+    
+    augment /oc-rpol:routing-policy/oc-rpol:policy-definitions/oc-rpol:policy-definition/oc-rpol:statements/oc-rpol:statement/oc-rpol:conditions/oc-rpol:match-tag-set/oc-rpol:state{
+      description
+          "Policy definition extensions for tag match configs";
+        uses routing-policy-ext-tag-set-config;
+    }
+  
+    augment /oc-rpol:routing-policy/oc-rpol:policy-definitions/oc-rpol:policy-definition/oc-rpol:statements/oc-rpol:statement/oc-rpol:conditions/oc-rpol:match-prefix-set/oc-rpol:config {
+      description
+          "Policy definition extensions for prefix match configs";
+        uses routing-policy-ext-prefix-set-config;
+    }
+    
+    augment /oc-rpol:routing-policy/oc-rpol:policy-definitions/oc-rpol:policy-definition/oc-rpol:statements/oc-rpol:statement/oc-rpol:conditions/oc-rpol:match-prefix-set/oc-rpol:state{
+      description
+          "Policy definition extensions for prefix match configs";
+        uses routing-policy-ext-prefix-set-config;
+    }
+
+    augment /oc-rpol:routing-policy/oc-rpol:defined-sets/oc-rpol:prefix-sets/oc-rpol:prefix-set {
+      description
+          "IP prefix set extensions";
+        uses routing-policy-ext-prefix-top;
+    }
+}
