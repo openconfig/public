@@ -19,7 +19,6 @@ module openconfig-bgp-ext {
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-bfd { prefix oc-bfd; }
   import openconfig-extensions { prefix oc-ext; }
-  import sonic-codegen { prefix sonic-codegen; } 
 
   organization
       "OpenConfig working group";
@@ -1453,28 +1452,32 @@ module openconfig-bgp-ext {
   }
   
   deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:neighbors/oc-netinst:neighbor/oc-netinst:config/oc-netinst:neighbor-address {
-      sonic-codegen:lint-ignore "Deviated to support BGP unnumbered use-case"; 
+      description
+          "Deviated to support BGP unnumbered use-case";
       deviate replace {
           type bgp-neighbor;
       }
   }
  
   deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:neighbors/oc-netinst:neighbor/oc-netinst:state/oc-netinst:neighbor-address {
-      sonic-codegen:lint-ignore "Deviated to support BGP unnumbered use-case"; 
+      description
+          "Deviated to support BGP unnumbered use-case";
       deviate replace {
           type bgp-neighbor;
       }
   }
 
   deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:rib/oc-netinst:afi-safis/oc-netinst:afi-safi/oc-netinst:ipv4-unicast/oc-netinst:neighbors/oc-netinst:neighbor/oc-netinst:state/oc-netinst:neighbor-address {
-      sonic-codegen:lint-ignore "Deviated to support BGP unnumbered use-case"; 
+      description
+          "Deviated to support BGP unnumbered use-case";
       deviate replace {
           type bgp-neighbor;
       }
   }
 
   deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:rib/oc-netinst:afi-safis/oc-netinst:afi-safi/oc-netinst:ipv6-unicast/oc-netinst:neighbors/oc-netinst:neighbor/oc-netinst:state/oc-netinst:neighbor-address {
-      sonic-codegen:lint-ignore "Deviated to support BGP unnumbered use-case"; 
+      description
+          "Deviated to support BGP unnumbered use-case";
       deviate replace {
           type bgp-neighbor;
       }
@@ -1812,49 +1815,56 @@ augment /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:pro
   }
 
   deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:neighbors/oc-netinst:neighbor/oc-netinst:timers/oc-netinst:config/oc-netinst:hold-time {
-      sonic-codegen:lint-ignore "Deviated to be aligned with other vendors."; 
+      description
+          "Deviated to be aligned with other vendors.";
       deviate replace {
           default 180;
       }
   }
 
   deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:peer-groups/oc-netinst:peer-group/oc-netinst:timers/oc-netinst:config/oc-netinst:hold-time {
-      sonic-codegen:lint-ignore "Deviated to be aligned with other vendors."; 
+      description
+          "Deviated to be aligned with other vendors.";
       deviate replace {
           default 180;
       }
   }
 
   deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:neighbors/oc-netinst:neighbor/oc-netinst:timers/oc-netinst:config/oc-netinst:keepalive-interval {
-      sonic-codegen:lint-ignore "Deviated to be aligned with other vendors."; 
+      description
+          "Deviated to be aligned with other vendors.";
       deviate replace {
           default 60;
       }
   }
 
   deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:peer-groups/oc-netinst:peer-group/oc-netinst:timers/oc-netinst:config/oc-netinst:keepalive-interval {
-      sonic-codegen:lint-ignore "Deviated to be aligned with other vendors."; 
+      description
+          "Deviated to be aligned with other vendors.";
       deviate replace {
           default 60;
       }
   }
 
   deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:neighbors/oc-netinst:neighbor/oc-netinst:timers/oc-netinst:config/oc-netinst:minimum-advertisement-interval {
-      sonic-codegen:lint-ignore "Deviated to be aligned with other vendors.";
+      description
+          "Deviated to be aligned with other vendors.";
       deviate replace {
           default 0;
       }
   }
 
   deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:peer-groups/oc-netinst:peer-group/oc-netinst:timers/oc-netinst:config/oc-netinst:minimum-advertisement-interval {
-      sonic-codegen:lint-ignore "Deviated to be aligned with other vendors.";
+      description
+          "Deviated to be aligned with other vendors.";
       deviate replace {
           default 0;
       }
   }
 
   deviation /oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:global/oc-netinst:route-selection-options/oc-netinst:config/oc-netinst:external-compare-router-id {
-      sonic-codegen:lint-ignore "Deviated to be aligned with other vendors.";
+      description
+          "Deviated to be aligned with other vendors.";
       deviate replace {
           default "false";
       }
