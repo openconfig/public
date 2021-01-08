@@ -17,10 +17,16 @@ module openconfig-macsec {
     "This module defines configuration and state data for
      MACsec IEEE Std 802.1AE-2018.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.2.1";
   oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2021-01-08" {
+    description
+      "Add security-policy modes (shoud/must-secure) in MKA config.";
+    reference "0.2.1";
+  }
 
   revision "2020-05-01" {
     description
@@ -601,6 +607,24 @@ module openconfig-macsec {
       type string;
       description
         "Name of the MKA policy.";
+    }
+
+   leaf security-policy {
+      type enumeration {
+        enum SHOULD_SECURE {
+          description 
+            "Allows unencrypted traffic to flow until MKA session is
+             secured. After the MKA session is secured, Should-Secure
+             policy imposes only encrypted traffic to flow.";
+        }
+        enum MUST_SECURE {
+          description 
+            "Allows only MACsec encrypted traffic to flow. 
+             Until MKA session is not secured, traffic will be dropped.";
+        }
+      }
+      description
+        "MKA Security Policy to use";
     }
 
     leaf key-server-priority {
