@@ -43,7 +43,13 @@ module openconfig-mpls-ldp {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.0.2";
+  oc-ext:openconfig-version "3.1.0";
+
+  revision "2020-01-09" {
+    description
+      "Added session-state leaf";`
+    reference "3.0.3";
+  }
 
   revision "2019-07-09" {
     description
@@ -131,6 +137,31 @@ module openconfig-mpls-ldp {
   oc-ext:origin "openconfig";
 
   // typedef statements
+
+  typedef mpls-ldp-session-state {
+    type enumeration {
+      enum NON-EXISTENT {
+        description "LDP session state: NON EXISTENT.";
+      }
+      enum INITIALIZED {
+        description "LDP session state: INITIALIZED.";
+      }
+      enum OPENREC {
+        description "LDP session state: OPENREC.";
+      }
+      enum OPENSENT {
+        description "LDP session state: OPENSENT.";
+      }
+      enum OPERATIONAL {
+        description "LDP session state: OPERATIONAL.";
+      }
+
+    }
+    description
+     "enumerated type for specifying LDP session state";
+    reference
+     "RFC5036, Sec. 2.5.4.";
+  }
 
   typedef mpls-ldp-adjacency-type {
     type enumeration {
@@ -252,6 +283,7 @@ module openconfig-mpls-ldp {
           description
             "Neighbor state attributes.";
           uses mpls-ldp-neighbor-config;
+          uses mpls-ldp-neighbor-state;
         }
 
         container hello-adjacencies {
@@ -334,6 +366,20 @@ module openconfig-mpls-ldp {
       type uint16;
       description
         "Label space ID of the neighbor.";
+    }
+
+  }
+
+  grouping mpls-ldp-neighbor-state {
+    description
+      "Grouping containing operational attributes for LDP neighbors.";
+
+    leaf session-state {
+      type oc-ldp:mpls-ldp-session-state;
+      description
+        "Operational status of the LDP session,
+        based on the state machine for session
+        negotiation behavior";
     }
 
   }
