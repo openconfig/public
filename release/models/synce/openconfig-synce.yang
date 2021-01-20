@@ -428,7 +428,7 @@ module openconfig-synce {
                         data";
 
             list interface {
-            when " /oc-synce:synce/oc-synce:globals/oc-synce:config ";
+            when "../../globals/config";
                 key "name";
                 description
                     "SyncE interface related operations";
@@ -458,7 +458,7 @@ module openconfig-synce {
             "synce external interface parameters";
 
         list external-interfaces {
-        when " /oc-synce:synce/oc-synce:globals/oc-synce:config ";
+        when "../globals/config";
             key "external-synce-interface";
             description
                 "External SyncE interface related operations";
@@ -507,28 +507,6 @@ module openconfig-synce {
                 mandatory true;
                 description "Name of the interface to clear counters for. Specify NULL to clear
                             counters for all interfaces";
-            }
-        }
-    }
-
-    rpc synce-debug-on {
-        description "turn on  transmission ,reception ,event  debugging";
-        input  {
-            leaf debug-options  {
-                type oc-synce-types:synce-debug-t;
-                mandatory true;
-                description "Debugging functions";
-            }
-        }
-    }
-
-    rpc synce-debug-off {
-        description "turn off transmission ,reception ,event  debugging";
-        input  {
-            leaf debug-options  {
-                type oc-synce-types:synce-debug-t;
-                mandatory true;
-                description "Debugging functions";
             }
         }
     }
