@@ -150,6 +150,12 @@ module openconfig-synce {
     grouping synce-interface-config {
         description
             "synce configuration interface parameters";
+
+        leaf name  {
+           type oc-if:base-interface-ref;
+           description "Port name";
+        } // END of name definition.
+
         leaf enable  {
             type empty;
             mandatory true;
@@ -433,7 +439,9 @@ module openconfig-synce {
                 description
                     "SyncE interface related operations";
                 leaf name  {
-                    type oc-if:base-interface-ref;
+                    type leafref {
+                      path "../config/name";
+                    }
                     description "Port name";
                 } // END of name definition.
 
