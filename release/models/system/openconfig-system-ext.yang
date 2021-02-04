@@ -1,0 +1,95 @@
+module openconfig-system-ext {
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/system/ext";
+
+  prefix "oc-sys-ext";
+
+  // import some basic types
+  import openconfig-system { prefix oc-sys; }
+  import openconfig-extensions { prefix oc-ext; }
+
+  // meta
+  organization "Infinera Corporation";
+
+  contact
+    "ASadasivarao@infinera.com";
+
+  description
+    "This modules extends the openconfig-system YANG module
+	 with a limited set of attributes.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2020-09-03" {
+    description
+      "Initial version. Adding system load average related 
+	   attributes";
+    reference "0.1.0";
+  }
+  
+  grouping system-load-average-config {
+    description "Configuration data for load average.";
+  }
+  
+  grouping system-load-average-state {
+    description "Operational state data for load average.";
+	
+	leaf load-average-1min {
+	  type decimal64 {
+	    fraction-digits 2;
+		range "0.0..max";
+	  }
+	  
+	  description "The 1-minute system load average.";
+	}
+	
+	leaf load-average-5min {
+	  type decimal64 {
+	    fraction-digits 2;
+		range "0.0..max";
+	  }
+	  
+	  description "The 5-minute system load average.";
+	}
+	
+	leaf load-average-15min {
+	  type decimal64 {
+	    fraction-digits 2;
+		range "0.0..max";
+	  }
+	  
+	  description "The 15-minute system load average.";
+	}
+  }
+  
+  grouping system-load-average-top {
+	description "Top-level grouping for sytem load average data.";
+	
+	container load-average {
+	  description "Top-level container for system load average.";
+	  
+	  container config {
+	    description "Configuration data for system load average.";
+		
+		uses system-load-average-config;
+	  }
+
+	  container state {
+	    description "Operational state data for system load average.";
+		config false;
+		
+		uses system-load-average-state;
+	  }
+	}
+  }
+  
+  // augment statements
+  
+  augment "/oc-sys:system" {
+    description "Adding extensions to the system module.";
+	
+	uses system-load-average-top;
+  }
+}
