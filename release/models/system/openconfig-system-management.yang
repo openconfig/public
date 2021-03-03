@@ -151,6 +151,97 @@ module openconfig-system-management {
     }
   }
 
+
+  grouping system-netconf-server-config {
+    description
+      "Configuration data for the netconf server/subsystem";
+    leaf enable {
+      type boolean;
+      default false;
+      description
+        "Enables the netconf server";
+    }
+
+    leaf transport-protocol {
+      type enumeration {
+        enum SSH_V2 {
+          description
+            "Use SSH V2 only";
+        }
+        enum TCP {
+          description
+            "Use Transmission Control Protocol (TCP) only";
+        }
+        enum TLS {
+          description
+            "Use Transport Layer Security (TLS) only";
+        }
+        enum SOCKET {
+          description
+            "Use socket connection only"
+      }
+      default SSH_V2;
+      description
+        "Enables the NETCONF server, using the SSHv2 transport."; 
+      }
+    }
+
+    leaf port {
+      type oc-inet:port-number;
+      description
+        "TCP port on which the netconf should listen";
+    }
+
+    leaf session-absolute-timeout {
+      type uint32;
+      units seconds;
+      description
+        "Absolute timeout in seconds";
+    }
+
+    leaf session-idle-timeout {
+      type uint32;
+      units seconds;
+      description
+        "Idle timeout in seconds";
+    }
+
+    leaf session-limit {
+      type uint32;
+      description
+        "Maximum number of concurrent netconf sessions";
+    }
+  }
+
+  grouping system-netconf-server-top {
+    description
+      "Top-level grouping for netconf/NETCONF subsystem/server";
+
+      container netconf-server {
+        description
+          "Top-level container for netconf/NETCONF subsystem/server";
+
+      container config {
+        description
+          "Configuration data for netconf/NETCONF subsystem/server/";
+
+        uses system-netconf-server-config;
+      }
+
+      container state {
+        config false;
+
+        description
+          "Operational state data for netconf/NETCONF subsystem/server";
+
+        uses system-netconf-server-config;
+      }
+    }
+  }
+
+
+
+
   // data definition statements
 
   // augment statements
