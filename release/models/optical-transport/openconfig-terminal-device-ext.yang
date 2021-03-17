@@ -1,0 +1,56 @@
+module openconfig-terminal-device-ext {
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/terminal-device/ext";
+
+  prefix "oc-opt-term-ext";
+
+  // import some basic types
+  
+  import openconfig-platform { prefix oc-platform; }
+  import openconfig-types { prefix oc-types; }
+  import openconfig-terminal-device { prefix oc-opt-term; }
+  import openconfig-extensions { prefix oc-ext; }
+
+  // meta
+  organization "Infinera Corporation";
+
+  contact
+    "ASadasivarao@infinera.com";
+
+  description
+    "This modules extends the openconfig-system YANG module
+         with a limited set of attributes.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2021-02-01" {
+    description
+      "Initial version. Adding SNR parameters to
+	  optical channels of a terminal device.";
+    reference "0.1.0";
+  }
+
+  grouping terminal-optical-channel-multi-stats {
+    description "Multi-value statistics containers for optical channels
+	(e.g., max, min, avg, instant)";
+	
+	container snr {
+      description
+        "Signal to noise ratio measured in dB on the
+		optical channel (optical carrier) supported
+		by the Layer 1 transponder terminal device.";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dB;
+    } 
+  }
+
+  // augment statements
+
+  augment "/oc-platform:components/oc-platform:component/oc-opt-term:optical-channel/oc-opt-term:state" {
+    description "Adding extensions for optical channel SNR.";
+
+        uses terminal-optical-channel-multi-stats;
+  }
+}
