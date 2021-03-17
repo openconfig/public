@@ -114,25 +114,18 @@ module openconfig-vlan {
 
     // Private VLAN
     leaf private-vlan-type {
-      type enumeration {
-        enum PRIMARY {
-          description "Configure the VLAN as a primary private VLAN";
-        }
-        enum ISOLATED {
-          description "Configure the VLAN as an isolated private VLAN";
-        }
-        enum COMMUNITY {
-          description "Configure the VLAN as a community private VLAN";
-        }
-      }
+      type oc-vlan-types:private-vlan-type;
       description "Private VLAN type";
-   }
-
+    }
   }
 
   // Associate private VLAN to secondary VLAN
   grouping private-vlan-association {
-    description "Mapping primary to secondary vlan ";
+    description "Mapping primary to secondary vlan.
+                 Implementations are expected to return error 
+                 if the associated secondary VLAN(s) is other than 
+                 community or isolated VLAN.";
+
 
     leaf-list community-vlan-ids {
       type oc-vlan-types:vlan-id;
