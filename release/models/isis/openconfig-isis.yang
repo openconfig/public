@@ -16,6 +16,7 @@ module openconfig-isis {
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-interfaces { prefix "oc-if"; }
   import openconfig-segment-routing { prefix "oc-sr"; }
+  import openconfig-bfd { prefix "oc-bfd"; }
   // TODO(robjs): Import authentication and keychain following merge of these
   // modules.
   //import openconfig-authentication-types { prefix "oc-auth-types"; }
@@ -55,7 +56,13 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.6.1";
+
+  revision "2021-03-17" {
+    description
+      "Add bfd support without augmentation.";
+    reference "0.6.1";
+  }
 
   revision "2020-03-24" {
     description
@@ -224,25 +231,6 @@ module openconfig-isis {
         "When set to true, the functionality within which this leaf is
         defined is enabled, when set to false it is explicitly disabled.";
     }
-  }
-
-  grouping isis-bfd-config {
-    description
-      "This grouping defines Bidirectionl-Forwarding-Detection
-      configuration.";
-
-    //There is also BFD state under adjacency
-    leaf bfd-tlv {
-      type boolean;
-      description
-        "When set to true, BFD TLV is used. This enables support for the IS-IS
-        BFD TLV options, which specify that a BFD session must be established
-        before an IS-IS adjacency can transition to the established state.
-        This option should be enabled on all IS-IS neighbors on a shared
-        interface.";
-      reference "RFC6213. TLV 148";
-    }
-    reference "RFC5880: Bidirectional Forwarding Detection (BFD).";
   }
 
   grouping isis-authentication-check-config {
@@ -1314,8 +1302,8 @@ module openconfig-isis {
       }
     }
 
+    uses oc-bfd:bfd-enable;
     container bfd {
-      //TODO(bogdanov): Integrate BFD model/module
       description
         "This container defines BFD.";
 
@@ -1335,6 +1323,26 @@ module openconfig-isis {
       }
     }
   }
+
+  grouping isis-bfd-config {
+    description
+      "This grouping defines Bidirectionl-Forwarding-Detection
+      configuration.";
+
+    //There is also BFD state under adjacency
+    leaf bfd-tlv {
+      type boolean;
+      description
+        "When set to true, BFD TLV is used. This enables support for the IS-IS
+        BFD TLV options, which specify that a BFD session must be established
+        before an IS-IS adjacency can transition to the established state.
+        This option should be enabled on all IS-IS neighbors on a shared
+        interface.";
+      reference "RFC6213. TLV 148";
+    }
+    reference "RFC5880: Bidirectional Forwarding Detection (BFD).";
+  }
+
 
   grouping isis-levels {
     description

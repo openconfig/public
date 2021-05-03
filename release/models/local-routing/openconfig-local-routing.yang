@@ -12,6 +12,7 @@ module openconfig-local-routing {
   import openconfig-policy-types { prefix oc-pt; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-interfaces { prefix oc-if; }
+  import openconfig-bfd { prefix oc-bfd; }
 
   // meta
   organization "OpenConfig working group";
@@ -42,7 +43,13 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2020-03-24" {
+    description
+      "Add bfd support without augmentation.";
+    reference "1.2.0";
+  }
 
   revision "2020-03-24" {
     description
@@ -301,6 +308,7 @@ module openconfig-local-routing {
               uses local-static-nexthop-state;
             }
 
+            uses oc-bfd:bfd-enable;
             uses oc-if:interface-ref;
           }
         }
