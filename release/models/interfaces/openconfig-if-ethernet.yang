@@ -24,7 +24,13 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.8.1";
+  oc-ext:openconfig-version "2.9.0";
+
+  revision "2021-03-30" {
+    description
+      "Add counter for drops due to oversized frames.";
+    reference "2.9.0";
+  }
 
   revision "2020-05-06" {
     description
@@ -364,6 +370,14 @@ module openconfig-if-ethernet {
         occurred in a given sequence of bits – the block. It is
         normally not possible to determine the exact number of errored
         bits within the block";
+    }
+
+    leaf in-maxsize-exceeded {
+      type oc-yang:counter64;
+      description
+        "The total number frames received that are well-formed but
+        dropped due to exceeding the maximum frame size on the interface
+        (e.g., MTU or MRU)";
     }
 
     // egress counters
