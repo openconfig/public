@@ -22,7 +22,13 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.13.0";
+  oc-ext:openconfig-version "0.14.0";
+
+  revision "2021-03-22" {
+    description
+      "Add client mapping mode identityref.";
+    reference "0.14.0";
+  }
 
   revision "2021-02-26" {
     description
@@ -1260,4 +1266,70 @@ module openconfig-transport-types {
       transponder or muxponder).";
   }
 
+  identity CLIENT_MAPPING_MODE {
+    description
+      "Type definition for optical transport client mapping modes.";
+  }
+
+  identity MODE_1X100G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "1 x 100G client mapping mode.";
+  }
+
+  identity MODE_1X200G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "1 x 200G client mapping mode.";
+  }
+
+  identity MODE_1X400G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "1 x 400G client mapping mode.";
+  }
+
+  identity MODE_2X100G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "2 x 100G client mapping mode.";
+  }
+
+  identity MODE_2X200G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "2 x 200G client mapping mode.";
+  }
+
+  identity MODE_3X100G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "3 x 100G client mapping mode.";
+  }
+
+  identity MODE_4X100G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "4 x 100G client mapping mode.";
+  }
+
+  identity TRANSCEIVER_MODULE_FUNCTIONAL_TYPE {
+    description
+      "Type definition for transceiver module functional types.";
+  }
+
+  identity TYPE_STANDARD_OPTIC {
+    base TRANSCEIVER_MODULE_FUNCTIONAL_TYPE;
+    description
+      "Standard optic using a grey wavelength (i.e. 1310, 1550, etc.)
+      and on-off-keying (OOK) modulation.";
+  }
+
+  identity TYPE_DIGITAL_COHERENT_OPTIC {
+    base TRANSCEIVER_MODULE_FUNCTIONAL_TYPE;
+    description
+      "Digital coherent module which transmits a phase / amplitude
+      modulated signal and uses a digital signal processor to receive
+      and decode the received signal.";
+  }
 }
