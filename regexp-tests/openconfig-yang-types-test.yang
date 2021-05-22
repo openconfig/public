@@ -1,0 +1,124 @@
+module openconfig-yang-types-test {
+  prefix "oc-yang-t";
+  namespace "urn:openconfig-yang-types-test";
+
+  import pattern-test { prefix "pt"; }
+  import openconfig-yang-types { prefix "oc-yang"; }
+
+  leaf hex-string {
+    type oc-yang:hex-string;
+    pt:pattern-test-pass "00000";
+    pt:pattern-test-pass "fffff";
+    pt:pattern-test-pass "FFFFF";
+    pt:pattern-test-pass "0123456789abcdefABCDEF";
+    pt:pattern-test-pass "FEDCBAfedcba9876543210";
+    pt:pattern-test-fail "g";
+    pt:pattern-test-fail "G";
+    pt:pattern-test-fail "0123456789abcdefABCDEFG";
+    pt:pattern-test-fail "FEDCBAgfedcba9876543210";
+  }
+  leaf dotted-quad {
+    type oc-yang:dotted-quad;
+    pt:pattern-test-pass "0.0.0.0";
+    pt:pattern-test-pass "255.255.255.255";
+    pt:pattern-test-pass "249.249.249.249";
+    pt:pattern-test-pass "8.8.8.8";
+    pt:pattern-test-pass "42.42.42.42";
+    pt:pattern-test-pass "192.168.10.249";
+    pt:pattern-test-fail ".255.255.255.255";
+    pt:pattern-test-fail "255.255.255.255.";
+    pt:pattern-test-fail "01.0.0.0";
+    pt:pattern-test-fail "0.01.0.0";
+    pt:pattern-test-fail "0.0.01.0";
+    pt:pattern-test-fail "0.0.0.01";
+    pt:pattern-test-fail "011.024.0.0";
+    pt:pattern-test-fail "256.255.255.255";
+    pt:pattern-test-fail "255.256.255.255";
+    pt:pattern-test-fail "255.255.256.255";
+    pt:pattern-test-fail "255.255.255.256";
+    pt:pattern-test-fail "a.8.8.8";
+    pt:pattern-test-fail "8.a.8.8";
+    pt:pattern-test-fail "8.8.a.8";
+    pt:pattern-test-fail "8.8.8.a";
+    pt:pattern-test-fail "300.0.0.0";
+    pt:pattern-test-fail "0.300.0.0";
+    pt:pattern-test-fail "0.0.300.0";
+    pt:pattern-test-fail "0.0.0.300";
+  }
+  leaf date-and-time {
+    type oc-yang:date-and-time;
+    pt:pattern-test-pass "0000-01-01T00:00:00Z";
+    pt:pattern-test-pass "9999-12-31T23:59:59Z";
+    pt:pattern-test-pass "1985-04-12T23:20:50.52Z";
+    pt:pattern-test-pass "2001-04-12T23:20:50.42424242Z";
+    pt:pattern-test-pass "1996-12-19T16:39:57-08:00";
+    pt:pattern-test-pass "2006-12-20T00:39:57Z";
+    pt:pattern-test-pass "1937-01-01T12:00:27.87+00:20";
+    // Out of range tests.
+    pt:pattern-test-fail "0000-00-01T00:00:00Z";
+    pt:pattern-test-fail "0000-13-01T00:00:00Z";
+    pt:pattern-test-fail "0000-20-01T00:00:00Z";
+    pt:pattern-test-fail "0000-01-00T00:00:00Z";
+    pt:pattern-test-fail "0000-01-32T00:00:00Z";
+    pt:pattern-test-fail "0000-01-40T00:00:00Z";
+    pt:pattern-test-fail "0000-01-01T24:00:00Z";
+    pt:pattern-test-fail "0000-01-01T30:00:00Z";
+    pt:pattern-test-fail "0000-01-01T00:60:00Z";
+    pt:pattern-test-fail "0000-01-01T00:00:61Z";
+    pt:pattern-test-fail "0000-01-01T00:00:70Z";
+    // + tests.
+    pt:pattern-test-fail "0000-01-01T00:00:00Z+";
+    pt:pattern-test-pass "0000-01-01T00:00:00+00:00";
+    pt:pattern-test-fail "0000-01-01T00:00:00+24:00";
+    pt:pattern-test-fail "0000-01-01T00:00:00+30:00";
+    pt:pattern-test-fail "0000-01-01T00:00:00+00:60";
+    // - tests.
+    pt:pattern-test-fail "0000-01-01T00:00:00Z-";
+    pt:pattern-test-pass "0000-01-01T00:00:00-00:00";
+    pt:pattern-test-fail "0000-01-01T00:00:00-24:00";
+    pt:pattern-test-fail "0000-01-01T00:00:00-30:00";
+    pt:pattern-test-fail "0000-01-01T00:00:00-00:60";
+    // Leap second tests.
+    pt:pattern-test-pass "1990-12-31T23:59:60Z";
+    pt:pattern-test-pass "1990-12-31T15:59:60-08:00";
+    pt:pattern-test-fail "1990-12-31T15:59:61-08:00";
+    pt:pattern-test-fail "1990-12-31T15:59:70-08:00";
+  }
+  leaf date {
+    type oc-yang:date;
+    pt:pattern-test-pass "0000-01-01";
+    pt:pattern-test-pass "9999-12-31";
+    pt:pattern-test-pass "1985-04-12";
+    pt:pattern-test-pass "2001-04-12";
+    pt:pattern-test-pass "1996-12-19";
+    pt:pattern-test-pass "2006-12-20";
+    pt:pattern-test-pass "1937-01-01";
+    // Out of range tests.
+    pt:pattern-test-fail "0000-00-01";
+    pt:pattern-test-fail "0000-01-00";
+    pt:pattern-test-fail "0000-13-01";
+    pt:pattern-test-fail "0000-20-01";
+    pt:pattern-test-fail "0000-33-01";
+    pt:pattern-test-fail "0000-01-32";
+    pt:pattern-test-fail "0000-01-40";
+  }
+  leaf phys-address {
+    type oc-yang:phys-address;
+    pt:pattern-test-pass "00:00:00:00:00:00:00:00:00";
+    pt:pattern-test-pass "ff:0F:f0:ff:FF:ff:00:ff:ff";
+    pt:pattern-test-pass "aA:bB:Cc:Dd:eE:fF:01:23:45:67:89:93";
+    pt:pattern-test-fail "FFFFFFFF";
+    pt:pattern-test-fail "FF::";
+    pt:pattern-test-fail "a:b:c:d:e:0";
+  }
+  leaf mac-address {
+    type oc-yang:mac-address;
+    pt:pattern-test-pass "00:00:00:00:00:00";
+    pt:pattern-test-pass "ff:0F:f0:ff:FF:ff";
+    pt:pattern-test-pass "aA:bB:Cc:Dd:eE:fF";
+    pt:pattern-test-pass "01:23:45:67:89:aB";
+    pt:pattern-test-fail "FFFFFFFF";
+    pt:pattern-test-fail "FF::";
+    pt:pattern-test-fail "a:b:c:d:e:0";
+  }
+}
