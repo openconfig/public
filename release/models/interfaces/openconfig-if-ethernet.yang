@@ -24,8 +24,16 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.9.0";
+  oc-ext:openconfig-version "2.10.0";
 
+  revision "2021-05-17" {
+    description
+      "Add ethernet counters: in-carrier-errors, 
+      in-interrupted-tx, in-late-collision, in-mac-errors-rx,
+      in-single-collision, in-symbol-error and out-mac-errors-tx";
+    reference "2.10.0";
+  }
+  
   revision "2021-03-30" {
     description
       "Add counter for drops due to oversized frames.";
@@ -372,6 +380,78 @@ module openconfig-if-ethernet {
         bits within the block";
     }
 
+    leaf in-carrier-errors {
+      type oc-yang:counter64;
+      description
+        "The number of received errored frames due to a carrier issue.
+        The value refers to MIB counter for 
+        dot3StatsCarrierSenseErrors
+        oid=1.3.6.1.2.1.10.7.2.1.11";
+      reference 
+        "RFC 1643 Definitions of Managed
+        Objects for the Ethernet-like Interface Types.";
+    }
+
+    leaf in-interrupted-tx {
+      type oc-yang:counter64;
+      description
+        "The number of received errored frames due to interrupted
+        transmission issue. The value refers to MIB counter for 
+        dot3StatsDeferredTransmissions
+        oid=1.3.6.1.2.1.10.7.2.1.7";
+      reference 
+        "RFC 1643 Definitions of Managed
+        Objects for the Ethernet-like Interface Types.";      
+    }
+
+    leaf in-late-collision {
+      type oc-yang:counter64;
+      description
+        "The number of received errored frames due to late collision
+        issue. The value refers to MIB counter for 
+        dot3StatsLateCollisions
+        oid=1.3.6.1.2.1.10.7.2.1.8";
+      reference 
+        "RFC 1643 Definitions of Managed
+        Objects for the Ethernet-like Interface Types.";
+    }
+
+    leaf in-mac-errors-rx {
+      type oc-yang:counter64;
+      description
+        "The number of received errored frames due to MAC errors
+        received. The value refers to MIB counter for 
+        dot3StatsInternalMacReceiveErrors
+        oid=1.3.6.1.2.1.10.7.2.1.16";
+      reference 
+        "RFC 1643 Definitions of Managed
+        Objects for the Ethernet-like Interface Types.";
+    }
+
+    leaf in-single-collision {
+      type oc-yang:counter64;
+      description
+        "The number of received errored frames due to single collision
+        issue. The value refers to MIB counter for 
+        dot3StatsSingleCollisionFrames
+        oid=1.3.6.1.2.1.10.7.2.1.4";
+      reference 
+        "RFC 1643 Definitions of Managed
+        Objects for the Ethernet-like Interface Types.";
+     }
+
+    leaf in-symbol-error {
+      type oc-yang:counter64;
+      description
+        "The number of received errored frames due to symbol error.
+        The value refers to MIB counter for 
+        in-symbol-error
+        oid=1.3.6.1.2.1.10.7.2.1.18";
+      reference 
+        "RFC 1643 Definitions of Managed
+        Objects for the Ethernet-like Interface Types.";
+    }
+    
     leaf in-maxsize-exceeded {
       type oc-yang:counter64;
       description
@@ -399,6 +479,19 @@ module openconfig-if-ethernet {
       description
         "Number of 802.1q tagged frames sent on the interface";
     }
+
+     leaf out-mac-errors-tx {
+      type oc-yang:counter64;
+      description
+        "The number of sent errored frames due to MAC errors
+         transmitted. The value refers to MIB counter for 
+         dot3StatsInternalMacTransmitErrors
+         oid=1.3.6.1.2.1.10.7.2.1.10";
+      reference 
+        "RFC 1643 Definitions of Managed
+        Objects for the Ethernet-like Interface Types.";
+     }
+     
   }
 
   grouping ethernet-interface-state {
@@ -408,7 +501,7 @@ module openconfig-if-ethernet {
     leaf hw-mac-address {
       type oc-yang:mac-address;
       description
-        "Represenets the 'burned-in',  or system-assigned, MAC
+        "Represenets the 'burned-in', or system-assigned, MAC
         address for the Ethernet interface.";
     }
 
