@@ -12,6 +12,7 @@ module openconfig-packet-match {
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-packet-match-types { prefix oc-pkt-match-types; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-mpls-types { prefix oc-mpls; }
 
   // meta
   organization "OpenConfig working group";
@@ -26,7 +27,13 @@ module openconfig-packet-match {
     field is omitted from a match expression, the effect is a
     wildcard ('any') for that field.";
 
-  oc-ext:openconfig-version "1.1.1";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2021-03-17" {
+    description
+      "Add MPLS filter Support.";
+      reference "1.2.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -161,12 +168,48 @@ module openconfig-packet-match {
       MPLS header fields.";
 
     leaf traffic-class {
-      type uint8 {
-        range "0..7";
-      }
+      type oc-mpls:mpls-tc;
       description
         "The value of the MPLS traffic class (TC) bits,
         formerly known as the EXP bits.";
+    }
+
+    leaf start-label-value {
+      type oc-mpls:mpls-label;
+      description 
+        "Match MPLS label value on the MPLS header.
+        The usage of this field indicated the upper 
+        range value in the top of the stack.
+        The range that is used is inclusive. The match that 
+        is done for a particular received pkt_label is: 
+        start-label-value <= pkt_label <= end-label-value. 
+        The 20-bit label value in an MPLS label 
+        stack as specified in RFC 3032.  
+        This label value does not include the
+        encodings of Traffic Class and TTL.";
+      }
+    
+    leaf end-label-value {
+      type oc-mpls:mpls-label;
+      description 
+        "Match MPLS label value on the MPLS header.
+        The usage of this field indicated the upper 
+        range value in the top of the stack. 
+        The range that is used is inclusive. The match that 
+        is done for a particular received pkt_label is: 
+        start-label-value <= pkt_label <= end-label-value. 
+        The 20-bit label value in an MPLS label 
+        stack as specified in RFC 3032.  
+        This label value does not include the
+        encodings of Traffic Class and TTL.";
+      }
+    
+    leaf ttl-value {
+      type uint8;
+      description 
+        "Time-to-live MPLS packet value match.";
+      reference
+        "RFC 3032: MPLS Label Stack Encoding.";
     }
   }
 
