@@ -19,7 +19,13 @@ module openconfig-network-instance-types {
   description
     "Types associated with a network instance";
 
-  oc-ext:openconfig-version "0.9.0";
+  oc-ext:openconfig-version "0.9.1";
+
+  revision "2021-05-21" {
+    description
+      "Add support for evpn";
+    reference "0.9.1";
+  }
 
   revision "2021-03-03" {
     description
@@ -154,9 +160,9 @@ module openconfig-network-instance-types {
   identity L2L3 {
     base NETWORK_INSTANCE_TYPE;
     description
-      "A private Layer 2 and Layer 2 forwarding instance";
+      "A private Layer 2 and Layer 3 forwarding instance";
   }
-
+  
   identity ENDPOINT_TYPE {
     description
       "Specification of the type of endpoint that is being associated
@@ -166,7 +172,9 @@ module openconfig-network-instance-types {
   identity LOCAL {
     base ENDPOINT_TYPE;
     description
-      "A local interface which is being associated with the endpoint";
+      "A local interface which is being associated with the endpoint.
+      In addition, the LOCAL endpoint can be used with the VXLAN 
+      attributes to define a VXLAN tunnel end-point interface.";
   }
 
   identity REMOTE {
