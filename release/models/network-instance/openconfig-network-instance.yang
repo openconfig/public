@@ -28,6 +28,7 @@ module openconfig-network-instance {
   import openconfig-aft { prefix "oc-aft"; }
   import openconfig-pim { prefix "oc-pim"; }
   import openconfig-igmp { prefix "oc-igmp"; }
+  import openconfig-evpn { prefix "oc-evpn"; }
 
   // include submodules
   include openconfig-network-instance-l2;
@@ -46,7 +47,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.14.0";
+  oc-ext:openconfig-version "0.15.0";
+
+  revision "2021-01-25" {
+    description
+      "Add support for evpn";
+    reference "0.15.0";
+  }
 
   revision "2020-06-20" {
     description
@@ -232,12 +239,14 @@ module openconfig-network-instance {
         }
 
         uses l2ni-instance {
-            when "./config/type = 'L2VSI' or ./config/type = 'L2P2P'" +
-                 " or ./config/type = 'L2L3' or ./config/type = 'DEFAULT_INSTANCE'" {
-                    description
-                      "Layer 2 configuration parameters included when
-                      a network instance is a Layer 2 instance or a
-                      combined L2L3 instance";
+            when "./config/type = 'L2VSI' 
+                  or ./config/type = 'L2P2P' 
+                  or ./config/type = 'L2L3' 
+                  or ./config/type = 'DEFAULT_INSTANCE'" {
+                  description
+                    "Layer 2 configuration parameters included when
+                    a network instance is a Layer 2 instance or a
+                    combined L2L3 instance";
             }
         }
 
@@ -260,6 +269,19 @@ module openconfig-network-instance {
           uses network-instance-state;
         }
 
+        container evpn {
+          when "./config/type = 'L2VSI' 
+                or ./config/type = 'L3VRF'" {
+           description
+             "EVPN container should be included for L2 and L3 NIs";
+         }
+         description
+           "Configuration of parameters for EVPN related bridge domains
+           (MAC VRFs) and layer3 VRFs (IP VRFs)";
+          uses oc-evpn:evpn-config-top;
+          uses oc-evpn:evpn-ethernet-segment-top;
+        }
+
         container encapsulation {
           when "../config/type != 'DEFAULT_INSTANCE'" {
             description
@@ -278,8 +300,8 @@ module openconfig-network-instance {
             uses encapsulation-config;
 
             uses l2ni-encapsulation-config {
-              when "../../config/type = 'L2VSI' or ../../config/type = 'L2P2P'
-                      or ../../config/type = 'L2L3'" {
+              when "./config/type = 'L2VSI' or ./config/type = 'L2P2P'
+                      or ./config/type = 'L2L3'" {
                         description
                           "Only allow L2 encapsulations to be set
                           when the instance is of a type that supports
@@ -296,8 +318,8 @@ module openconfig-network-instance {
             uses encapsulation-config;
 
             uses l2ni-encapsulation-config {
-              when "../../config/type = 'L2VSI' or ../../config/type = 'L2P2P'
-                      or ../../config/type = 'L2L3'" {
+              when "./config/type = 'L2VSI' or ./config/type = 'L2P2P'
+                      or ./config/type = 'L2L3'" {
                         description
                           "Only allow L2 encapsulations to be set
                           when the instance is of a type that supports
@@ -313,6 +335,7 @@ module openconfig-network-instance {
             to and exported from this instance";
 
           uses oc-rpol:apply-policy-group;
+          uses oc-evpn:evpn-import-export-policy-top;
         }
 
         container table-connections {
@@ -629,6 +652,17 @@ module openconfig-network-instance {
                     uses instance-endpoint-remote-config;
                   }
                 }
+                container vxlan {
+                    when "../config/type = 'VXLAN'" {
+                      description
+                        "Only include the vxlan configuration when
+                        the endpoint is specified to be vxlan";
+                    }
+                    description
+                      "Configuration and operational state parameters
+                      relating to a VXLAN tunnel end-point interface";
+                    uses oc-evpn:evpn-overlays-grp-top; 
+                }
               }
             }
           }
@@ -779,6 +813,7 @@ module openconfig-network-instance {
                 "Configuration and state parameters relating to the Internet
                 Group Management Protocol (IGMP).";
             }
+            
           }
         }
       }
@@ -976,6 +1011,39 @@ module openconfig-network-instance {
         enabled should be imported. If the value of this leaf-list
         is specified then the association MUST only be made for
         those address families that are included in the list.";
+    }
+
+    leaf mac-pinning {
+      type boolean;
+      description
+        "Enable (TRUE) or disable (FALSE). There are scenarios in which 
+        it is desired to configure some MAC addresses as static so 
+        that they are not subjected to MAC moves. If you enable MAC pinning 
+        on a CE interface, that MAC address cannot be moved to any 
+        other CE interface";
+      reference
+        "RFC 7432: BGP MPLS-Based Ethernet VPN";
+    }
+
+    leaf irb-anycast-gateway {
+      type enumeration {
+        enum DISTRIBUTED_SYMETRIC {
+          description "Distributed anycast gateway";
+        }
+        enum DISTRIBUTED_ASYMETRIC {
+          description "Distributed asymetric anycast gateway";
+        }
+        enum HYBRID {
+          description "Hybrid anycast gateway";
+        }
+        enum CENTRALIZED {
+          description "Centralized anycast gateway";
+        }
+      }
+      description 
+        "Associate VLAN SVI with anycast Gateway.
+        The SVI is the layer3 interface for the mac-vrf 
+        when the SVI is being used as the first hop default gw.";
     }
   }
 
@@ -1188,6 +1256,5 @@ module openconfig-network-instance {
         in the network instance";
     }
   }
-
   uses network-instance-top;
 }
