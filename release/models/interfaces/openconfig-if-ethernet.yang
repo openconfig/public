@@ -24,7 +24,13 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.10.0";
+  oc-ext:openconfig-version "2.11.0";
+
+  revision "2021-06-09" {
+    description
+      "Add support for standalone link training.";
+    reference "2.11.0";
+  }
 
   revision "2021-05-17" {
     description
@@ -239,6 +245,24 @@ module openconfig-if-ethernet {
         manually.";
       reference
         "IEEE 802.3-2012 auto-negotiation transmission parameters";
+    }
+
+    leaf standalone-link-training {
+      type boolean;
+      default false;
+      description
+        "Link training is automatic tuning of the SerDes transmit and 
+        receive parameters to ensure an optimal connection over copper
+        links. It is normally run as part of the auto negotiation 
+        sequence as specified in IEEE 802.3 Clause 73.
+        
+        Standalone link training is used when full auto negotiation is
+        not desired on an Ethernet link but link training is needed. 
+        It is configured by setting the standalone-link-training leaf 
+        to TRUE and augo-negotiate leaf to FALSE.
+        
+        Note: If auto-negotiate is true, then the value of standalone 
+        link training leaf will be ignored.";
     }
 
     leaf duplex-mode {
