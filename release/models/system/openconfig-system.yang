@@ -14,7 +14,6 @@ module openconfig-system {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-aaa { prefix oc-aaa; }
   import openconfig-system-logging { prefix oc-log; }
-  import openconfig-system-management { prefix oc-sys-mgmt; }
   import openconfig-system-terminal { prefix oc-sys-term; }
   import openconfig-procmon { prefix oc-proc; }
   import openconfig-alarms { prefix oc-alarms; }
@@ -46,7 +45,14 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.9.1";
+  oc-ext:openconfig-version "0.10.0";
+  
+  revision "2020-04-13" {
+    description
+      "Remove the existing grpc-service, and add a new list
+      of the gRPC servers in a new module.";
+    reference "0.10.0";
+  }
 
   revision "2020-03-25" {
     description
@@ -998,7 +1004,6 @@ module openconfig-system {
       uses system-clock-top;
       uses system-dns-top;
       uses system-ntp-top;
-      uses oc-sys-mgmt:system-grpc-server-top;
       uses oc-sys-term:system-ssh-server-top;
       uses oc-sys-term:system-telnet-server-top;
       uses oc-log:logging-top;
