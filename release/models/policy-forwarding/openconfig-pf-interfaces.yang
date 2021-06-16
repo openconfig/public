@@ -19,7 +19,14 @@ submodule openconfig-pf-interfaces {
     "This submodule contains groupings related to the association
     between interfaces and policy forwarding rules.";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2021-05-19" {
+    description
+      "Add a VRF selection policy type, and means to apply the
+      policy.";
+    reference "0.3.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -111,8 +118,7 @@ submodule openconfig-pf-interfaces {
         // We are at /network-instances/network-instance/
         // policy-forwarding/interfaces/interface/config/
         // apply-forwarding-policy
-        path "../../../../policies/policy/" +
-             "config/policy-id";
+        path "../../../../policies/policy/config/policy-id";
       }
       description
         "The policy to be applied on the interface. Packets ingress on
@@ -122,6 +128,22 @@ submodule openconfig-pf-interfaces {
         applied. These policies should be applied following quality of
         service classification, and ACL actions if such entities are
         referenced by the corresponding interface.";
+    }
+
+    leaf apply-vrf-selection-policy {
+      type leafref {
+        // We are at /network-instances/network-instance/
+        // policy-forwarding/interfaces/interface/config/
+        // apply-vrf-selection-policy
+        path "../../../../policies/policy/config/policy-id";
+      }
+      description
+        "Apply the specific VRF selection policy on the interface. The referenced policy
+        MUST be of type VRF_SELECTION_POLICY. The VRF selection policy may coexist with
+        a policy-forwarding policy.
+
+        The policy specified in this leaf is used to specifically choose the L3VRF network
+        instance that is used for specific input criteria of packets.";
     }
   }
 }
