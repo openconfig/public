@@ -27,7 +27,13 @@ module openconfig-packet-match {
     field is omitted from a match expression, the effect is a
     wildcard ('any') for that field.";
 
-  oc-ext:openconfig-version "1.2.0";
+  oc-ext:openconfig-version "1.3.0";
+
+  revision "2021-05-19" {
+    description
+      "Add the ability to match multiple DSCPs in a rule.";
+    reference "1.3.0";
+  }
 
   revision "2021-03-17" {
     description
@@ -221,6 +227,15 @@ module openconfig-packet-match {
       type oc-inet:dscp;
       description
         "Value of diffserv codepoint.";
+    }
+
+    leaf-list dscp-set {
+      type oc-inet:dscp;
+      description
+        "A list of DSCP values to be matched for incoming packets. AN OR match should
+        be performed, such that a packet must match one of the values defined in this
+        list. If the field is left empty then any DSCP value matches unless the 'dscp'
+        leaf is specified. It is not valid to specify both 'dscp' and 'dscp-set together.'";
     }
 
     leaf protocol {
