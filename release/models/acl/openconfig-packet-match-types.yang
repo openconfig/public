@@ -23,9 +23,15 @@ module openconfig-packet-match-types {
     "This module defines common types for use in models requiring
     data definitions related to packet matches.";
 
-  oc-ext:openconfig-version "1.2.0";
+  oc-ext:openconfig-version "1.3.0";
 
-    revision "2021-03-17" {
+  revision "2021-05-19" {
+    description
+      "Add IP-in-IP protocol.";
+    reference "1.3.0";
+  }
+  
+  revision "2021-03-17" {
     description
       "Add MPLS filter Support.";
       reference "1.2.0";
@@ -218,7 +224,13 @@ module openconfig-packet-match-types {
       "Layer Two Tunneling Protocol v.3 (115)";
   }
 
-
+  identity IP_IN_IP {
+    base IP_PROTOCOL;
+    description
+      "IP-in-IP tunneling (4)";
+    reference
+      "RFC2003: IP Encapsulation within IP";
+  }
 
   identity TCP_FLAGS {
     description
