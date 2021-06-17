@@ -249,6 +249,23 @@ module openconfig-system-logging {
       "Directs log messages to a remote syslog server";
   }
 
+  identity LOG_TIMESTAMP_FORMAT {
+    description
+      "Base identity for logging timestamp formats";
+  }
+
+  identity TRADITIONAL {
+    base LOG_TIMESTAMP_FORMAT;
+    description
+      "RFC3164 Traditional timestamp format";
+  }
+
+  identity PRECISION {
+    base LOG_TIMESTAMP_FORMAT;
+    description
+      "RFC3339 High precision timestamp format";
+  }
+
   // typedef statements
 
     typedef syslog-severity {
@@ -435,6 +452,21 @@ module openconfig-system-logging {
     }
   }
 
+  grouping logging-config {
+    description
+      "Configuration data for global log options";
+
+    leaf timestamp-format {
+      type identityref {
+        base LOG_TIMESTAMP_FORMAT;
+      }
+      default TRADITIONAL;
+      description
+        "Timestamp format to be used on log messages for all
+        local/remote destinations.";
+    }
+  }
+
   grouping logging-remote-state {
     description
       "Operational state data for remote log servers";
@@ -490,6 +522,23 @@ module openconfig-system-logging {
     container logging {
       description
         "Top-level container for data related to logging / syslog";
+
+      container config {
+        description
+          "Configuration data for global log options";
+
+        uses logging-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for global log options";
+
+        uses logging-config;
+      }
 
       uses logging-console-top;
       uses logging-remote-top;
