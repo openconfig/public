@@ -106,6 +106,36 @@ module openconfig-vlan {
       description "Admin state of the VLAN";
     }
 
+    // Private VLAN
+    leaf private-vlan-type {
+      type enumeration {
+        enum PRIMARY {
+          description "Configure the VLAN as a primary private VLAN";
+        }
+        enum ISOLATED {
+          description "Configure the VLAN as an isolated private VLAN";
+        }
+        enum COMMUNITY {
+          description "Configure the VLAN as a community private VLAN";
+        }
+      }
+      description "Private VLAN type";
+   }
+
+  }
+
+  // Associate private VLAN to secondary VLAN
+  grouping private-vlan-association {
+    description "Mapping primary to secondary vlan ";
+
+    leaf-list community-vlan-ids {
+      type oc-vlan-types:vlan-id;
+      description "Associate community vlan to this primary vlan";
+    }
+    leaf-list isolated-vlan-ids {
+      type oc-vlan-types:vlan-id;
+      description "Associate isolated vlans to this primary vlan";
+    }
   }
 
   grouping vlan-state {
@@ -169,6 +199,17 @@ module openconfig-vlan {
         VLANs";
     }
 
+    // TODO: Add restriction that promiscuous mode is valid
+    //  only for primary vlan, host mode is valid only
+    //  for secondary vlan
+    leaf interface-private-vlan-mode {
+      type oc-vlan-types:private-vlan-mode-type;
+      description
+        "Set the interface to host or promiscuous mode for
+         private VLANs";
+    }
+
+
     leaf native-vlan {
       when "../interface-mode = 'TRUNK'" {
         description
@@ -210,6 +251,8 @@ module openconfig-vlan {
         x..y, where x<y - ranges are assumed to be inclusive (such
         that the VLAN range is x <= range <= y.";
     }
+
+    uses private-vlan-association;
   }
 
   grouping vlan-switched-state {
@@ -826,6 +869,7 @@ module openconfig-vlan {
           description "Configuration parameters for VLANs";
 
           uses vlan-config;
+          uses private-vlan-association;
         }
 
         container state {
