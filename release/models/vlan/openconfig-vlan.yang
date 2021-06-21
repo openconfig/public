@@ -26,7 +26,13 @@ module openconfig-vlan {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.2.0";
+  oc-ext:openconfig-version "3.2.1";
+
+  revision "2020-11-04" {
+    description
+      "Openconfig model for PVLAN";
+    reference "3.2.1";
+  }
 
   revision "2019-04-16" {
     description
@@ -106,6 +112,29 @@ module openconfig-vlan {
       description "Admin state of the VLAN";
     }
 
+    // Private VLAN
+    leaf private-vlan-type {
+      type oc-vlan-types:private-vlan-type;
+      description "Private VLAN type";
+    }
+  }
+
+  // Associate private VLAN to secondary VLAN
+  grouping private-vlan-association {
+    description "Mapping primary to secondary vlan.
+                 Implementations are expected to return error 
+                 if the associated secondary VLAN(s) is other than 
+                 community or isolated VLAN.";
+
+
+    leaf-list community-vlan-ids {
+      type oc-vlan-types:vlan-id;
+      description "Associate community vlan to this primary vlan";
+    }
+    leaf-list isolated-vlan-ids {
+      type oc-vlan-types:vlan-id;
+      description "Associate isolated vlans to this primary vlan";
+    }
   }
 
   grouping vlan-state {
@@ -169,6 +198,17 @@ module openconfig-vlan {
         VLANs";
     }
 
+    // TODO: Add restriction that promiscuous mode is valid
+    //  only for primary vlan, host mode is valid only
+    //  for secondary vlan
+    leaf interface-private-vlan-mode {
+      type oc-vlan-types:private-vlan-mode-type;
+      description
+        "Set the interface to host or promiscuous mode for
+         private VLANs";
+    }
+
+
     leaf native-vlan {
       when "../interface-mode = 'TRUNK'" {
         description
@@ -210,6 +250,8 @@ module openconfig-vlan {
         x..y, where x<y - ranges are assumed to be inclusive (such
         that the VLAN range is x <= range <= y.";
     }
+
+    uses private-vlan-association;
   }
 
   grouping vlan-switched-state {
@@ -826,6 +868,7 @@ module openconfig-vlan {
           description "Configuration parameters for VLANs";
 
           uses vlan-config;
+          uses private-vlan-association;
         }
 
         container state {

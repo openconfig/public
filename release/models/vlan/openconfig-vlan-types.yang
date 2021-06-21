@@ -21,7 +21,13 @@ module openconfig-vlan-types {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.1.1";
+  oc-ext:openconfig-version "3.1.2";
+
+  revision "2020-11-04" {
+    description
+      "Add OpenConfig PVLAN types.";
+    reference "3.1.2";
+  }
 
   revision "2020-06-30" {
     description
@@ -232,6 +238,36 @@ module openconfig-vlan-types {
     description
       "VLAN interface mode (trunk or access)";
   }
+
+  typedef private-vlan-mode-type {
+    type enumeration {
+      enum HOST {
+        description "Private VLAN host mode";
+      }
+      enum PROMISCUOUS {
+        description "Private VLAN promiscuous mode";
+      }
+    }
+    description
+      "Private VLAN interface mode (host or promiscuous)";
+  }
+
+    // Private VLAN
+  typedef private-vlan-type {
+      type enumeration {
+        enum PRIMARY { 
+          description "Primary private VLAN";
+        }
+        enum ISOLATED {
+          description "Isolated private VLAN";
+        }
+        enum COMMUNITY {
+          description "Community private VLAN";
+        }
+      }
+      description "Private VLAN type";
+   }
+
 
   typedef vlan-ref {
     type union {
