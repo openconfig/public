@@ -110,6 +110,23 @@ module openconfig-if-aggregate {
       defined and managed";
   }
 
+  typedef lacp-fallback-type {
+    type enumeration {
+      enum INDIVIDUAL {
+        description
+          "Fallback to individual ports.  All LAG members
+           will be forwarding when all the members stop
+           receiving LACP PDUs";
+      }
+      enum STATIC {
+        description
+          "Fallback to static LAG mode";
+      }
+    }
+    description
+      "Type to define the LACP fallback mode";
+  }
+
   // grouping statements
 
 
@@ -159,6 +176,62 @@ module openconfig-if-aggregate {
     }
   }
 
+  grouping aggregation-fallback-config {
+    description
+      "Configuration data for LACP fallback";
+
+    leaf mode {
+      type lacp-fallback-type;
+      description
+        "LACP fallback mode type";
+    }
+
+    leaf timeout {
+      type uint16;
+      description
+        "LACP fallback timeout";
+    }
+  }
+
+  grouping aggregation-fallback-top {
+    description
+      "Top-level data definitions for LACP fallback";
+
+    container fallback {
+      description
+        "Top-level container for LACP fallback settings";
+
+      container config {
+        description
+          "Configuration data for LACP fallback settings";
+
+        uses aggregation-fallback-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for LACP fallback";
+
+        uses aggregation-fallback-config;
+      }
+    }
+  }
+
+  grouping aggregation-lacp-top {
+    description
+      "Top-level grouping for LACP specific aggregation
+       definitions";
+
+    container lacp {
+      description
+        "Top-level container for LACP specific aggregation
+         definitions";
+
+      uses aggregation-fallback-top;
+    }
+  }
+
   grouping aggregation-logical-top {
     description "Top-level data definitions for LAGs";
 
@@ -187,6 +260,8 @@ module openconfig-if-aggregate {
         uses aggregation-logical-state;
 
       }
+
+      uses aggregation-lacp-top;
     }
   }
 
