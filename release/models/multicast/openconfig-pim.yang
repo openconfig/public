@@ -27,7 +27,13 @@ module openconfig-pim {
   description
     "An OpenConfig model for Protocol Independent Multicast (PIM).";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.4.2";
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "0.4.2";
+  }
 
   revision "2021-04-21" {
     description
@@ -37,10 +43,10 @@ module openconfig-pim {
 
   revision "2021-04-21" {
     description
-      "Allow to limit the maximum number of groups to join 
+      "Allow to limit the maximum number of groups to join
       via PIM protocol. It can be configured at two levels,
       depending on hardware implementation:
-      1. Network-instance level, the limit will apply 
+      1. Network-instance level, the limit will apply
       to all PIM sessions/joins ending in that network-instance.
       2. Interface level, the limit would be discriminated per interface.";
     reference "0.4.0";
@@ -187,8 +193,8 @@ module openconfig-pim {
     leaf maximum-groups {
       type uint32;
       description
-        "Limit the number of (S, G) and (*, G) PIM 
-        entries accepted on the interface. 
+        "Limit the number of (S, G) and (*, G) PIM
+        entries accepted on the interface.
         This feature depends on hardware implementation.";
     }
   }
@@ -324,16 +330,16 @@ module openconfig-pim {
     }
   }
 
-  
+
   grouping pim-global-config {
     description
       "Configuration data for PIM.";
     leaf maximum-groups {
       type uint32;
       description
-         "Limit the number of accepted (S, G) and (*, G) 
+         "Limit the number of accepted (S, G) and (*, G)
          PIM join states on the network-instance.";
-    }   
+    }
   }
 
   grouping pim-global-state {
@@ -456,7 +462,7 @@ module openconfig-pim {
       uses pim-global-config;
       uses pim-global-state;
     }
-    
+
     container ssm {
       description
         "Source specific multicast (SSM).";
