@@ -47,7 +47,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.15.0";
+  oc-ext:openconfig-version "0.15.1";
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "0.15.1";
+  }
 
   revision "2021-01-25" {
     description
@@ -239,9 +245,9 @@ module openconfig-network-instance {
         }
 
         uses l2ni-instance {
-            when "./config/type = 'L2VSI' 
-                  or ./config/type = 'L2P2P' 
-                  or ./config/type = 'L2L3' 
+            when "./config/type = 'L2VSI'
+                  or ./config/type = 'L2P2P'
+                  or ./config/type = 'L2L3'
                   or ./config/type = 'DEFAULT_INSTANCE'" {
                   description
                     "Layer 2 configuration parameters included when
@@ -270,7 +276,7 @@ module openconfig-network-instance {
         }
 
         container evpn {
-          when "./config/type = 'L2VSI' 
+          when "./config/type = 'L2VSI'
                 or ./config/type = 'L3VRF'" {
            description
              "EVPN container should be included for L2 and L3 NIs";
@@ -661,7 +667,7 @@ module openconfig-network-instance {
                     description
                       "Configuration and operational state parameters
                       relating to a VXLAN tunnel end-point interface";
-                    uses oc-evpn:evpn-overlays-grp-top; 
+                    uses oc-evpn:evpn-overlays-grp-top;
                 }
               }
             }
@@ -813,7 +819,7 @@ module openconfig-network-instance {
                 "Configuration and state parameters relating to the Internet
                 Group Management Protocol (IGMP).";
             }
-            
+
           }
         }
       }
@@ -1016,10 +1022,10 @@ module openconfig-network-instance {
     leaf mac-pinning {
       type boolean;
       description
-        "Enable (TRUE) or disable (FALSE). There are scenarios in which 
-        it is desired to configure some MAC addresses as static so 
-        that they are not subjected to MAC moves. If you enable MAC pinning 
-        on a CE interface, that MAC address cannot be moved to any 
+        "Enable (TRUE) or disable (FALSE). There are scenarios in which
+        it is desired to configure some MAC addresses as static so
+        that they are not subjected to MAC moves. If you enable MAC pinning
+        on a CE interface, that MAC address cannot be moved to any
         other CE interface";
       reference
         "RFC 7432: BGP MPLS-Based Ethernet VPN";
@@ -1040,9 +1046,9 @@ module openconfig-network-instance {
           description "Centralized anycast gateway";
         }
       }
-      description 
+      description
         "Associate VLAN SVI with anycast Gateway.
-        The SVI is the layer3 interface for the mac-vrf 
+        The SVI is the layer3 interface for the mac-vrf
         when the SVI is being used as the first hop default gw.";
     }
   }
