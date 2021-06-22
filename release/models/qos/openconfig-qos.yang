@@ -13,6 +13,7 @@ module openconfig-qos {
   // include submodules
   include openconfig-qos-interfaces;
   include openconfig-qos-elements;
+  include openconfig-qos-mem-mgmt;
 
 
   // meta
@@ -26,7 +27,14 @@ module openconfig-qos {
     "This module defines configuration and operational state data
     related to network quality-of-service.";
 
-  oc-ext:openconfig-version "0.2.3";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2021-04-28" {
+    description
+      "Revision updating buffer management and queue management
+      configuration.";
+    reference "0.3.0";
+  }
 
   revision "2019-11-28" {
     description
@@ -97,6 +105,8 @@ module openconfig-qos {
       uses qos-forwarding-group-top;
       uses qos-queue-top;
       uses qos-scheduler-top;
+      uses qos-buffer-profile-top;
+      uses qos-mem-mgmt-profile-top;
     }
   }
 
