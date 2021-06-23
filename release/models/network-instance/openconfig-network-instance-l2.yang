@@ -424,9 +424,34 @@ submodule openconfig-network-instance-l2 {
             }
 
             container state {
+              config false;
               description
-                "Operational state data for MAC table object entry";
+                "Operational state data for L2RIB MAC table object entry";
               uses l2ni-l2rib-mac-table-state;
+            }
+
+            container producers {
+              description "Source producers for each MAC Table entry";
+              list producer {
+                key "producer";
+                description
+                  "List of producers for each MAC table entry";
+
+                leaf producer {
+                  type leafref {
+                    path "../state/producer";
+                  }
+                  description
+                    "Reference to producer list key";
+                }
+
+                container state {
+                  config false;
+                  description "State container for L2RIB MAC Table Entries";
+                  uses l2ni-l2rib-common-producer-state;
+                  uses l2ni-l2rib-mac-table-producer-state;
+                }
+              }
             }
 
             uses l2ni-l2rib-common-next-hop-state;
@@ -471,9 +496,33 @@ submodule openconfig-network-instance-l2 {
             }
 
             container state {
+              config false;
               description
-                "Operational state data for MAC-IP table object entry";
+                "Operational state data for L2RIB MAC-IP table object entry";
               uses l2ni-l2rib-mac-ip-table-state;
+            }
+
+            container producers {
+              description "Source producers for each MAC-IP Table entry";
+              list producer {
+                key "producer";
+                description
+                  "List of producers for each MAC-IP table entry";
+
+                leaf producer {
+                  type leafref {
+                    path "../state/producer";
+                  }
+                  description
+                    "Reference to producer list key";
+                }
+
+                container state {
+                  config false;
+                  description "State container for L2RIB MAC Table Entries";
+                  uses l2ni-l2rib-common-producer-state;
+                }
+              }
             }
 
             uses l2ni-l2rib-common-next-hop-state;
@@ -484,26 +533,8 @@ submodule openconfig-network-instance-l2 {
   }
 
   grouping l2ni-l2rib-mac-table-state {
-    description "L2RIB Mac Table Oper State Grouping";
+    description "L2RIB MAC Table Oper State Grouping";
     uses l2ni-l2rib-common-state;
-    list producer {
-      key "producer";
-      description
-        "List of producers for each MAC table entry";
-
-      leaf producer {
-        type leafref {
-          path "../state/producer";
-        }
-        description
-          "Reference to producer list key";
-      }
-
-      container state {
-        uses l2ni-l2rib-common-producer-state;
-        uses l2ni-l2rib-mac-table-producer-state;
-      }
-    }
   }
 
   grouping l2ni-l2rib-mac-ip-table-state {
@@ -518,24 +549,6 @@ submodule openconfig-network-instance-l2 {
     leaf l3-vni {
       type oc-evpn-types:evi-id;
       description "Layer3 VNI used for inter-subnet routing";
-    }
-
-    list producer {
-      key "producer";
-      description
-        "List of producers for each mac-ip table entry";
-
-      leaf producer {
-        type leafref {
-          path "../state/producer";
-        }
-        description
-          "Reference to producer list key";
-      }
-
-      container state {
-        uses l2ni-l2rib-common-producer-state;
-      }
     }
   }
 
@@ -592,11 +605,11 @@ submodule openconfig-network-instance-l2 {
 
     leaf mobility-state {
       type enumeration {
-        enum frozen {
+        enum FROZEN {
           description
             "Permanently frozen mac-address";
         }
-        enum duplicate {
+        enum DUPLICATE {
           description
             "Duplicate mac-address";
         }
@@ -642,6 +655,8 @@ submodule openconfig-network-instance-l2 {
              MAC or MAC-IP entry";
         }
         container state {
+          description "State container for common next-hop attributes";
+          config false;
           leaf index {
             type uint64;
             description "A unique entry for the next-hop.";
