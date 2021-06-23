@@ -209,6 +209,33 @@ module openconfig-if-ip {
           Internet Protocol (IP)";
       }
 
+      leaf in-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of packets, delivered by this sub-layer to a
+          higher (sub-)layer, that were addressed to a multicast
+          address at this sub-layer.  For a MAC-layer protocol,
+          this includes both Group and Functional addresses.
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB -
+                     ifHCInMulticastPkts";
+      }
+
+      leaf in-multicast-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of octets received in input IP
+           multicast packets for the specified address
+           family, including those received in error.";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
+
       leaf in-error-pkts {
         // TODO: this counter combines several error conditions --
         // could consider breaking them out to separate leaf nodes
@@ -278,6 +305,37 @@ module openconfig-if-ip {
         description
           "The total number of octets in IP packets for the
           specified address family that the device
+          supplied to the lower layers for transmission.  This
+          includes packets generated locally and those forwarded by
+          the device.";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
+
+      leaf out-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of packets that higher-level protocols
+          requested be transmitted, and that were addressed to a
+          multicast address at this sub-layer, including those
+          that were discarded or not sent.  For a MAC-layer
+          protocol, this includes both Group and Functional
+          addresses.
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB -
+                     ifHCOutMulticastPkts";
+      }
+
+      leaf out-multicast-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of octets in IP multicast
+          packets for the specified address family that the device
           supplied to the lower layers for transmission.  This
           includes packets generated locally and those forwarded by
           the device.";
