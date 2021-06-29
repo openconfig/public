@@ -12,6 +12,7 @@ module openconfig-evpn {
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
+  import ietf-yang-types { prefix yang; }
 
   // meta
   organization
@@ -39,13 +40,31 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2021-06-28" {
+   description
+     "Add vxlan endpoint oper data";
+   reference   "0.3.0";
+  }
 
   revision "2021-06-11" {
    description
      "Structural update for arp-proxy and
      nd-proxy.";
    reference "0.2.0";
+  }
+
+  revision "2021-06-28" {
+   description
+     "Add vxlan endpoint oper data";
+   reference   "0.2.0";
+  }
+
+  revision "2020-11-24" {
+   description
+     "Initial revision";
+   reference   "0.1.0";
   }
 
   revision "2020-11-24" {
@@ -1061,5 +1080,165 @@ module openconfig-evpn {
 
       uses evpn-vxlan-parameters-config;
     }
+
+    container endpoint-peers {
+      description "Overlay endpoint peers oper data";
+      config false;
+
+      list endpoint-peer {
+        key "peer-address";
+          description "Overlay endpoint peers oper data";
+
+        leaf peer-address {
+        type leafref{
+          path '../state/peer-address';
+        }
+        description "overlay endpoint peer ip address";
+        }
+        container state {
+         config false;
+         description
+           "State parameters relating to the overlay tunnel endpoints
+           of the network instance";
+           uses evpn-endpoint-peer-state;
+        }
+      }
+    }
+
+    container endpoint-vnis {
+      description "Overlay endpoint peers oper data";
+      config false;
+
+      list endpoint-vni {
+        key "vni";
+        description "Overlay endpoint evis oper data";
+
+        leaf vni {
+          type leafref{
+            path '../state/vni';
+            }
+            description "VNI Identifier";
+        }
+        container state {
+          config false;
+           description
+             "State parameters relating to the overlay tunnel endpoints
+             of the network instance";
+             uses evpn-endpoint-vni-state;
+        }
+      }
+    }
   }
+
+  grouping evpn-endpoint-peer-state {
+    description
+    "Grouping for VXLAN EVPN Overlay endpoint oper data";
+    leaf peer-address {
+      type oc-inet:ip-address;
+      description "VXLAN EVPN Overlay endpoint peer ip address";
+    }
+    leaf peer-state {
+      type enumeration {
+        enum UP {
+          description "VXLAN EVPN Overlay peer state is UP";
+        }
+        enum DOWN {
+          description "VXLAN EVPN Overlay peer state is DOWN";
+        }
+      }
+      description "VXLAN EVPN Overlay peer state";
+    }
+    leaf uptime {
+      type yang:timestamp;
+      description "VXLAN EVPN Overlay Peer Uptime";
+    }
+    leaf control-plane-vnis {
+      type string;
+      description "VNIs learned over the control-plane";
+    }
+    leaf router-mac {
+      type oc-yang:mac-address;
+      description "Peer Router mac-address";
+    }
+  }
+
+  grouping evpn-endpoint-vni-state {
+    description "Grouping for VXLAN EVPN Overlay endpoint to vni mapping data";
+    leaf vni {
+      type oc-evpn-types:evi-id;
+      description "VNI Identifier";
+    }
+    leaf multidestination-traffic {
+      type union {
+        type oc-inet:ip-address;
+        type enumeration {
+          enum STATIC_INGRESS_REPLICATION {
+            description
+              "Static ingress replication mode.";
+          }
+          enum BGP {
+            description
+              "BGP EVPN ingress replication mode. It includes the ability to
+              signal a P2MP LSP for the EVPN Inclusive Provider Tunnel
+              for BUM traffic";
+          }
+        }
+      }
+      description
+        "The data plane for overlays needs to handle the transport of
+         multidestination traffic. Multidestination traffic is typically
+         referred to as “BUM,” which stands for broadcast, unknown unicast,
+         or multicast. The two most common methods that can accommodate this
+         replication and transport in the underlay are IP multicast and
+         ingress replication
+         (also called head-end replication or unicast mode).";
+    }
+    leaf learning-mode {
+      type oc-evpn-types:learning-mode;
+      description "Learning mode";
+    }
+    leaf vni-type {
+      type enumeration {
+        enum L2 {
+          description "L2 VNI Type";
+        }
+        enum L3 {
+          description "L3 VNI Type";
+        }
+      }
+      description "VNI Type";
+    }
+    leaf vni-state {
+        type enumeration {
+          enum UP {
+            description "VNI state is UP";
+          }
+          enum DOWN {
+            description "VNI state is DOWN";
+          }
+        }
+        description "L2/3 VNI State";
+      }
+    leaf svi-state {
+        type enumeration {
+          enum UP {
+            description "SVI state is UP";
+          }
+          enum DOWN {
+            description "SVI state is DOWN";
+          }
+        }
+        description "SVI State used for VLAN to L3 VNI mapping";
+      }
+    leaf bridge-domain {
+        type uint32;
+        description "VLAN or BD that maps to this L2 VNI";
+      }
+
+    leaf l3-vrf-name {
+        type string;
+        description "VRF routing instance that maps to this L3 VNI";
+      }
+    }
+
 }
