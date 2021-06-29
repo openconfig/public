@@ -23,7 +23,29 @@ module openconfig-packet-match-types {
     "This module defines common types for use in models requiring
     data definitions related to packet matches.";
 
-  oc-ext:openconfig-version "1.0.4";
+  oc-ext:openconfig-version "1.3.0";
+
+  revision "2021-05-19" {
+    description
+      "Add IP-in-IP protocol.";
+    reference "1.3.0";
+  }
+  
+  revision "2021-03-17" {
+    description
+      "Add MPLS filter Support.";
+      reference "1.2.0";
+  }
+
+  revision "2021-01-07" {
+    description
+      "Remove module extension oc-ext:regexp-posix by making pattern regexes
+      conform to RFC7950.
+
+      Types impacted:
+      - port-num-range";
+    reference "1.1.0";
+  }
 
   revision "2020-10-20" {
     description
@@ -68,7 +90,6 @@ module openconfig-packet-match-types {
   }
 
   // OpenConfig specific extensions for module metadata.
-  oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
@@ -203,7 +224,13 @@ module openconfig-packet-match-types {
       "Layer Two Tunneling Protocol v.3 (115)";
   }
 
-
+  identity IP_IN_IP {
+    base IP_PROTOCOL;
+    description
+      "IP-in-IP tunneling (4)";
+    reference
+      "RFC2003: IP Encapsulation within IP";
+  }
 
   identity TCP_FLAGS {
     description
@@ -270,10 +297,10 @@ module openconfig-packet-match-types {
   typedef port-num-range {
     type union {
       type string {
-        pattern '^(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|' +
+        pattern '(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|' +
           '6[0-4][0-9]{3}|[0-5][0-9]{4}|[0-9]{1,4})\.\.' +
           '(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|' +
-          '6[0-4][0-9]{3}|[0-5][0-9]{4}|[0-9]{1,4})$';
+          '6[0-4][0-9]{3}|[0-5][0-9]{4}|[0-9]{1,4})';
         oc-ext:posix-pattern '^(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|' +
           '6[0-4][0-9]{3}|[0-5][0-9]{4}|[0-9]{1,4})\.\.' +
           '(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|' +

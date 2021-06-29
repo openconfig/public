@@ -21,7 +21,14 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2021-05-19" {
+    description
+      "Add a VRF selection policy type, and means to apply the
+      policy.";
+    reference "0.3.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -168,6 +175,27 @@ submodule openconfig-pf-forwarding-policies {
       description
         "A unique name identifying the forwarding policy. This name is
         used when applying the policy to a particular interface.";
+    }
+
+    leaf type {
+      type enumeration {
+        enum PBR_POLICY {
+          description
+            "The policy reflects a policy-based routing policy that supports generic
+            PBR actions.";
+        }
+        enum VRF_SELECTION_POLICY {
+          description
+            "The policy is used only to classify incoming packets into corresponding
+            network instances.";
+        }
+      }
+      default PBR_POLICY;
+      description
+        "The type of the policy. By default policies are generally usable for policy-based
+        routing, and have no restrictions on their implementation. Where there are alternate
+        policy types, this leaf specifies that a policy is expected to conform with a subset
+        of the functionality as described in the specified type.";
     }
   }
 

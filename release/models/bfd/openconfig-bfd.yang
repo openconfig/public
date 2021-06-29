@@ -13,7 +13,6 @@ module openconfig-bfd {
   import openconfig-interfaces { prefix "oc-if"; }
   import openconfig-if-types { prefix "oc-ift"; }
   import openconfig-inet-types { prefix "oc-inet"; }
-  import openconfig-network-instance { prefix "oc-ni"; }
   import openconfig-policy-types { prefix "oc-pol-types"; }
   import ietf-inet-types { prefix "ietf-if"; }
 
@@ -28,7 +27,14 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.2.2";
+
+  revision "2021-03-17" {
+    description
+      "Remove augments from bfd module.
+       Add bfd support directly on the protocols";
+    reference "0.2.2";
+  }  
 
   revision "2020-05-08" {
     description
@@ -719,43 +725,10 @@ module openconfig-bfd {
           "Operational state parameters relating to enabing BFD.";
 
         uses enable-bfd-config;
-        uses enable-bfd-state;
+        //uses enable-bfd-state;
       }
     }
   }
-
-  // rjs - TODO - should these be specified within each model? The
-  // answer here is probably yes, since otherwise openconfig
-  // network-instance ends up with a circular reference.
-  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
-          "oc-ni:protocols/oc-ni:protocol/oc-ni:bgp/" +
-          "oc-ni:neighbors/oc-ni:neighbor" {
-    description
-      "Augment the BGP routing protocol to add a link to BFD for
-      neighbour detection.";
-
-    uses bfd-enable;
-  }
-
-  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
-          "oc-ni:protocols/oc-ni:protocol/oc-ni:bgp/" +
-          "oc-ni:peer-groups/oc-ni:peer-group" {
-    description
-      "Augment the BGP routing protocol to add a link to BFD for
-      neighbor detection when specified within a peer-group.";
-
-    uses bfd-enable;
-  }
-
-  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
-          "oc-ni:protocols/oc-ni:protocol/oc-ni:static-routes/" +
-          "oc-ni:static/oc-ni:next-hops/oc-ni:next-hop" {
-    description
-      "Augment the static route configuration to allow a next-hop
-      to be tracked by BFD.";
-
-    uses bfd-enable;
-  }
-
+  
   uses bfd-top;
 }

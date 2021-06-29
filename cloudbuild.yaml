@@ -48,8 +48,8 @@ steps:
     git clone git@github.com:openconfig/models-ci.git /go/src/github.com/openconfig/models-ci
     cd /go/src/github.com/openconfig/models-ci
     # Modify the major version to update models-ci version.
-    branch=$(git tag -l 'v3*' | sort -V | tail -1)
-    git checkout -b $branch
+    branch=$(git tag -l 'v5*' | sort -V | tail -1)
+    git checkout $branch
   volumes:
   - name: 'ssh'
     path: /root/.ssh
@@ -59,7 +59,7 @@ steps:
 # Get CI script dependencies
 - name: 'gcr.io/cloud-builders/go:debian'
   args: 
-  - 'install'
+  - 'get'
   - './cmd_gen'
   - './post_results'
   volumes:
@@ -84,7 +84,7 @@ steps:
     -commit-sha=$COMMIT_SHA
     -pr-number=$_PR_NUMBER
     -skipped-validators=confd
-    -extra-pyang-versions=1.7.8,2.1.1
+    -extra-pyang-versions=2.2.1
     -compat-report=yanglint
     -branch=$BRANCH_NAME
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -96,38 +96,41 @@ steps:
   id: 'validator prep'
 
 ############### REGEXP TESTS ###############
-# Put regex test files in correct gopath
-- name: 'gcr.io/cloud-builders/gcloud'
+# Clone CI repository
+- name: 'gcr.io/cloud-builders/go:debian'
   entrypoint: 'bash'
-  args: 
-  - -c
-  - >-
-    mv
-    /go/src/github.com/openconfig/models-ci/validators/regexp/go/src/*
-    /go/src
+  args:
+  - '-c'
+  - |
+    git clone git@github.com:openconfig/pattern-regex-tests.git /go/src/github.com/openconfig/pattern-regex-tests
+    cd /go/src/github.com/openconfig/pattern-regex-tests
+    # Modify the major version to update regexp version.
+    branch=$(git tag -l 'v2.0*' | sort -V | tail -1)
+    git checkout $branch
   volumes:
+  - name: 'ssh'
+    path: /root/.ssh
   - name: 'gopath'
     path: /go
-  waitFor: ['models-ci dep']
-  id: 'regexp prep'
-# Get go source and test dependencies
+  waitFor: ['validator prep']
+  id: 'regexp clone'
+# Get regexp dependencies
 - name: 'gcr.io/cloud-builders/go:debian'
-  args: ['get', '-t', './...']
+  args: ['get', './...']
   volumes:
   - name: 'gopath'
     path: /go
   env:
   - 'GOPATH=/go'
-  dir: '/go/src/gotests'
-  waitFor: ['regexp prep']
+  dir: '/go/src/github.com/openconfig/pattern-regex-tests'
+  waitFor: ['regexp clone']
   id: 'regexp dep'
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'gcr.io/disco-idea-817/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/regexp/test.sh"]
   secretEnv: ['GITHUB_ACCESS_TOKEN']
   env:
   - 'GOPATH=/go'
-  - 'OCDIR=$_MODEL_ROOT'
   - '_PR_NUMBER=$_PR_NUMBER'
   - 'COMMIT_SHA=$COMMIT_SHA'
   - '_MODEL_ROOT=$_MODEL_ROOT'
@@ -136,7 +139,7 @@ steps:
   volumes:
   - name: 'gopath'
     path: /go
-  waitFor: ['regexp dep', 'validator prep']
+  waitFor: ['regexp dep']
   id: 'regexp'
 
 ############### YANGLINT ##############
@@ -282,10 +285,11 @@ steps:
 
 timeout: 600s
 options:
-  machineType: 'N1_HIGHCPU_8'
+  machineType: 'E2_HIGHCPU_32'
 
-secrets:
-- kmsKeyName: projects/disco-idea-817/locations/global/keyRings/keyring0/cryptoKeys/key0
-  secretEnv:
-    # This is the encrypted version of the token
-    GITHUB_ACCESS_TOKEN: 'CiQAvY6emySnH0uiC+j45bH769zWF6mdGTvMXmm4lGTQdbzdtHASUQACTwBYZxvznQFpTzk0iCipCKbpFLUmmamZyDavj1DpSEg6fwjf9UyW6PykVS44PBbLbTSxvUevFRFfHml4q01W/mfRZk+144898pnXhq/7tQ=='
+availableSecrets:
+  inline:
+  - kmsKeyName: projects/disco-idea-817/locations/global/keyRings/keyring0/cryptoKeys/key0
+    envMap:
+      # This is the encrypted version of the token.
+      GITHUB_ACCESS_TOKEN: 'CiQAvY6emxdh1dn1h9yW/IXSsGQE8l2L39zL8zT8lugxP4zsxBcSUQACTwBYgV0FHz18eP4bqQP6v9Co5ScbuOY24VgquPjtjGumwmdo68/Mn6P6uNn2DOUULvnHfOdpSG865RPGlVSM7kCo5n5tR2e9oskvYfMFWA=='

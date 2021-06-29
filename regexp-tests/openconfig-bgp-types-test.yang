@@ -1,0 +1,73 @@
+module openconfig-bgp-types-test {
+  prefix "rt";
+  namespace "urn:openconfig-bgp-types-test";
+
+  import pattern-test { prefix "pt"; }
+  import openconfig-bgp-types { prefix "ocbgpt"; }
+
+  leaf bgp-std-community {
+    type ocbgpt:bgp-std-community-type;
+    pt:pattern-test-pass "15169:42";
+    pt:pattern-test-pass "6643:21438";
+    pt:pattern-test-pass "29636:4444";
+    pt:pattern-test-pass "65535:65535";
+    pt:pattern-test-pass "0:0";
+    pt:pattern-test-fail "65536:1";
+    pt:pattern-test-fail "1:65536";
+    pt:pattern-test-fail "425353:comm";
+  }
+  leaf bgp-ext-community {
+    type ocbgpt:bgp-ext-community-type;
+    // Type 1 extended communities (2b AS: 4b integer)
+    pt:pattern-test-pass "29636:10";
+    pt:pattern-test-pass "5413:4294967295";
+    pt:pattern-test-pass "4445:0";
+    pt:pattern-test-fail "1273:4294967296";
+    pt:pattern-test-pass "2856:400";
+    pt:pattern-test-fail "5400:invalid";
+    pt:pattern-test-fail "i6643:10";
+    pt:pattern-test-pass "15169:22432";
+    // Type 2 extended communities: (4b IP: 2b integer)
+    pt:pattern-test-fail "1.1.1.1:4294967296";
+    pt:pattern-test-fail "1.2.3.4.5:10";
+    pt:pattern-test-pass "82.42.12.35:65535";
+    pt:pattern-test-fail "82.42.12.35:66536";
+    pt:pattern-test-fail "254.254.256.254:10";
+    pt:pattern-test-pass "0.0.0.0:200";
+    pt:pattern-test-fail "leading192.0.2.1:65535";
+    // 4b AS : 2b integer
+    pt:pattern-test-fail "4294967296:65535";
+    pt:pattern-test-pass "4294967295:65535";
+    pt:pattern-test-pass "0:65535";
+    pt:pattern-test-pass "4294967295:0";
+    pt:pattern-test-fail "4294967296:0";
+    // Route Target Type 1 - route-target:<2b AS>:<4b local>
+    pt:pattern-test-fail "route-target:64";
+    pt:pattern-test-pass "route-target:65535:10";
+    pt:pattern-test-fail "route-TARGET:65535:10";
+    pt:pattern-test-fail "route-target:15169:4294967296";
+    pt:pattern-test-pass "route-target:15169:4294967295";
+    // Route Target Type 2 - route-target:<ipv4>:<2b local>
+    pt:pattern-test-fail "route-target:256.0.2.36:10";
+    pt:pattern-test-pass "route-target:192.0.2.1:10";
+    pt:pattern-test-fail "route-target:192.0.2.1:65536";
+    // Route Target w/ 4B AS:<2b local>
+    pt:pattern-test-pass "route-target:4294967295:10";
+    pt:pattern-test-fail "route-target:4294967296:10";
+    pt:pattern-test-pass "route-target:5413:65535";
+    // Route Origin Type 1 - route-target:<2b AS>:<4b local>
+    pt:pattern-test-fail "route-origin:53";
+    pt:pattern-test-pass "route-origin:65535:10";
+    pt:pattern-test-fail "route-ORIGINTRAIL:65535:10";
+    pt:pattern-test-fail "route-origin:15169:4294967296";
+    pt:pattern-test-pass "route-origin:15169:4294967295";
+    // Route Origin Type 2 - route-target:<ipv4>:<2b local>
+    pt:pattern-test-fail "route-origin:512.0.2.36:10";
+    pt:pattern-test-pass "route-origin:10.18.253.24:10";
+    pt:pattern-test-fail "route-origin:192.168.1.1:65536";
+    // Route Origin w/ 4B AS:<2b local>
+    pt:pattern-test-pass "route-origin:4294967295:5353";
+    pt:pattern-test-fail "route-origin:4294967296:9009";
+    pt:pattern-test-pass "route-origin:5413:65535";
+  }
+}

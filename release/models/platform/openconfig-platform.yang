@@ -63,7 +63,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.12.2";
+  oc-ext:openconfig-version "0.13.0";
+
+  revision "2021-01-18" {
+    description
+      "Add container for software module component";
+    reference "0.13.0";
+  }
 
   revision "2019-04-16" {
     description
@@ -714,6 +720,23 @@ module openconfig-platform {
         config false;
         description
           "Operational state data for backplane components";
+      }
+    }
+
+    container software-module {
+      description
+        "Data for software module components, i.e., for components
+        with type=SOFTWARE_MODULE";
+
+      container config {
+        description
+          "Configuration data for software module components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for software module components";
       }
     }
   }

@@ -22,7 +22,19 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.12.0";
+  oc-ext:openconfig-version "0.14.0";
+
+  revision "2021-03-22" {
+    description
+      "Add client mapping mode identityref.";
+    reference "0.14.0";
+  }
+
+  revision "2021-02-26" {
+    description
+      "Additional PMD types, form factors, and protocol types.";
+    reference "0.13.0";
+  }
 
   revision "2020-08-12" {
     description
@@ -551,6 +563,21 @@ module openconfig-transport-types {
     description "400G Ethernet protocol";
   }
 
+  identity PROT_OTSIG {
+    base TRIBUTARY_PROTOCOL_TYPE;
+    description "Optical tributary signal group protocol";
+  }
+
+  identity PROT_ODUFLEX_CBR {
+    base TRIBUTARY_PROTOCOL_TYPE;
+    description "ODU Flex with CBR protocol";
+  }
+
+  identity PROT_ODUFLEX_GFP {
+    base TRIBUTARY_PROTOCOL_TYPE;
+    description "ODU Flex with GFP protocol";
+  }
+
   identity TRANSCEIVER_FORM_FACTOR_TYPE {
     description
       "Base identity for identifying the type of pluggable optic
@@ -607,6 +634,21 @@ module openconfig-transport-types {
       channels";
   }
 
+  identity QSFP56_DD_TYPE1 {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP DD pluggable optic with support for up to 8x56G physical
+      channels. Type 1 uses eight optical and electrical signals.";
+  }
+
+  identity QSFP56_DD_TYPE2 {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP DD pluggable optic with support for up to 4x112G physical
+      channels. Type 2 uses four optical and eight electrical
+      signals.";
+  }
+
   identity CPAK {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
     description
@@ -639,6 +681,13 @@ module openconfig-transport-types {
     description
       "10 Gigabit small form factor pluggable transceiver supporting
       10 GbE using a XAUI inerface and 4 data channels.";
+  }
+
+  identity OSFP {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "Octal small form factor pluggable transceiver supporting
+      400 Gb/s.";
   }
 
   identity NON_PLUGGABLE {
@@ -803,6 +852,36 @@ module openconfig-transport-types {
   identity ETH_100GBASE_CR4 {
     base ETHERNET_PMD_TYPE;
     description "Ethernet compliance code: 100GBASE_CR4";
+  }
+
+  identity ETH_100GBASE_FR {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 100GBASE_FR";
+  }
+
+  identity ETH_400GBASE_ZR {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 400GBASE_ZR";
+  }
+
+  identity ETH_400GBASE_LR4 {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 400GBASE_LR4";
+  }
+
+  identity ETH_400GBASE_FR4 {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 400GBASE_FR4";
+  }
+
+  identity ETH_400GBASE_LR8 {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 400GBASE_LR8";
+  }
+
+  identity ETH_400GBASE_DR4 {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 400GBASE_DR4";
   }
 
   identity ETH_UNDEFINED {
@@ -1187,4 +1266,70 @@ module openconfig-transport-types {
       transponder or muxponder).";
   }
 
+  identity CLIENT_MAPPING_MODE {
+    description
+      "Type definition for optical transport client mapping modes.";
+  }
+
+  identity MODE_1X100G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "1 x 100G client mapping mode.";
+  }
+
+  identity MODE_1X200G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "1 x 200G client mapping mode.";
+  }
+
+  identity MODE_1X400G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "1 x 400G client mapping mode.";
+  }
+
+  identity MODE_2X100G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "2 x 100G client mapping mode.";
+  }
+
+  identity MODE_2X200G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "2 x 200G client mapping mode.";
+  }
+
+  identity MODE_3X100G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "3 x 100G client mapping mode.";
+  }
+
+  identity MODE_4X100G {
+    base CLIENT_MAPPING_MODE;
+    description
+      "4 x 100G client mapping mode.";
+  }
+
+  identity TRANSCEIVER_MODULE_FUNCTIONAL_TYPE {
+    description
+      "Type definition for transceiver module functional types.";
+  }
+
+  identity TYPE_STANDARD_OPTIC {
+    base TRANSCEIVER_MODULE_FUNCTIONAL_TYPE;
+    description
+      "Standard optic using a grey wavelength (i.e. 1310, 1550, etc.)
+      and on-off-keying (OOK) modulation.";
+  }
+
+  identity TYPE_DIGITAL_COHERENT_OPTIC {
+    base TRANSCEIVER_MODULE_FUNCTIONAL_TYPE;
+    description
+      "Digital coherent module which transmits a phase / amplitude
+      modulated signal and uses a digital signal processor to receive
+      and decode the received signal.";
+  }
 }

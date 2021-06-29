@@ -10,6 +10,7 @@ submodule openconfig-bgp-neighbor {
   import openconfig-bgp-types { prefix oc-bgp-types; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-bfd { prefix oc-bfd; }
 
   // Include the common submodule
   include openconfig-bgp-common;
@@ -29,7 +30,13 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "6.0.0";
+  oc-ext:openconfig-version "6.1.0";
+
+  revision "2021-03-17" {
+    description
+      "Add bfd support without augmentation.";
+    reference "6.1.0";
+  }
 
   revision "2019-07-10" {
     description
@@ -748,6 +755,7 @@ submodule openconfig-bgp-neighbor {
       }
 
       uses bgp-neighbor-base;
+      uses oc-bfd:bfd-enable;
     }
 
   }
