@@ -1,0 +1,1249 @@
+module openconfig-ptp {
+
+    yang-version 1.1;
+
+    namespace "http://openconfig.net/yang/openconfig-ptp";
+
+    prefix "oc-ptp";
+
+    import openconfig-extensions {
+       prefix oc-ext;
+    }
+
+    import ietf-yang-types {
+        prefix yang;
+    }
+
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    import openconfig-ptp-types {
+        prefix oc-ptp-types;
+    }
+
+    // meta
+    organization
+      "OpenConfig working group";
+
+    contact
+      "OpenConfig working group
+      www.openconfig.net ";
+
+    description
+       "The Precision Time Protocol (PTP) is a protocol used to synchronize clocks
+        throughout a computer network. On a local area network, it achieves clock
+        accuracy in the sub-microsecond range, making it suitable for measurement
+        and control systems. PTP is currently employed to synchronize financial
+        transactions, mobile phone tower transmissions, sub-sea acoustic arrays,
+        and networks that require precise timing but lack access to satellite
+        navigation signals.";
+
+    oc-ext:openconfig-version "0.1.0";
+
+    revision "2020-12-20" {
+        description
+          "Initial revision of PTP model.";
+        reference "0.1.0";
+    }
+
+    grouping end-to-end-transparent-clock-top {
+        description
+            "Grouping for ptp end to end profile";
+        container end-to-end-profile {
+            description
+                "PTP end to end profile configuration";
+            container config {
+                description
+                    "Configuration data";
+                uses end-to-end-transparent-clock-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses end-to-end-transparent-clock-config;
+            } // END of state-container definition.
+        } // END of end-to-end-profile-container definition.
+    } // END of end-to-end-transparent-clock-top definition.
+    grouping end-to-end-transparent-clock-config {
+        description
+            "Grouping for ptp end to end profile";
+        leaf transparent-clock  {
+            type empty;
+            description "PTP clock profile to End-To-End transparent clock";
+        } // END of transparent-clock definition.
+
+    } // END of end-to-end-transparent-clock-config definition.
+    grouping ptp-instance-top {
+        description
+            "Grouping for ptp instance configuration";
+
+        list ptp-instance {
+            key "instance-type";
+            max-elements 1;
+            description
+                "PTP instance list";
+            leaf instance-type {
+                type leafref {
+                    path  "../config/instance-type";
+                }
+                description "PTP instance type";
+            } // END of instance-type definition.
+
+            container config {
+                description
+                    "Configuration data";
+                uses ptp-instance-base-config;
+            } // END of config-container definition.
+            uses ptp-port-data-set-top;
+            uses ptp-time-of-day-top;
+            uses ptp-default-data-set-top;
+            uses ptp-servo-top;
+            uses ptp-current-data-set-top;
+            uses ptp-parent-data-set-top;
+            uses ptp-time-properties-top;
+            uses ptp-statistics-top;
+        } // End of ptp-instance-list
+    } // END of ptp-instance-top definition.
+    grouping ptp-instance-base-config {
+        description
+            "Grouping for ptp instance configuration";
+        leaf instance-type {
+            type oc-ptp-types:ptp-instance-t;
+            default "CLOCK";
+            description "PTP instance type";
+        } // END of instance-type definition.
+
+        leaf profile  {
+            type oc-ptp-types:ptp-profile-t;
+            mandatory true;
+            description "Select PTP clock profile, g8275.1, g8275.2 or default";
+        } // END of profile definition.
+
+    } // END of ptp-instance-base-config definition.
+    grouping ptp-debug-top {
+        description
+            "Grouping for ptp debug configuration";
+        container debug {
+            description
+                "Debugging functions";
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-debug-terminal-state;
+            } // END of state-container definition.
+        } // END of debug-container definition.
+    } // END of ptp-debug-top definition.
+    grouping ptp-debug-terminal-state {
+        description
+            "Grouping for ptp debug terminal state";
+        leaf debug-terminal  {
+            type empty;
+            description "This attribute indicates the terminal ptp debug operational state.";
+        } // END of debug-terminal definition.
+
+    } // END of ptp-debug-terminal-state definition.
+    grouping ptp-port-data-set-top {
+        description
+            "Grouping for ptp port data set configuration";
+
+        list port {
+            key "port-number";
+            description
+                "List of port data sets of the clock";
+            leaf port-number  {
+                type leafref {
+                    path  "../config/port-number";
+                }
+                description "PTP port clock number";
+            } // END of port-number definition.
+
+            container config {
+                description
+                    "Configuration data";
+                uses ptp-port-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-port-config;
+                uses ptp-port-variables-state;
+                uses ptp-clock-identity-state;
+            } // END of state-container definition.
+            uses ptp-port-data-set-clock-quality-top;
+            uses ptp-asymmetry-delay-top;
+            uses ptp-network-interface-top;
+            uses ptp-port-statistics-top;
+        } // End of port-list
+    } // END of ptp-port-data-set-top definition.
+    grouping ptp-port-config {
+        description
+            "Grouping for ptp port configuration";
+        leaf port-number  {
+            type uint16 {
+                 range "1..31"  {
+                    description "Port number range (default is 1)";
+                 }
+            }
+            default "1";
+            description "PTP port clock number";
+        } // END of port-number definition.
+
+        leaf local-priority  {
+            type uint8 {
+                 range "1..255"  {
+                    description "Local priority range (default is 128)";
+                 }
+            }
+            default "128";
+            description "The local priority attribute of the PTP port clock";
+        } // END of local-priority definition.
+
+        leaf description  {
+            type string {
+                length "1..64";
+            }
+            description "This parameter is used to set port clock description";
+        } // END of description definition.
+
+        leaf transport-type {
+            type oc-ptp-types:ptp-encap-type-t;
+            description "Set transport type";
+        } // END of transport-type definition.
+
+        leaf master-clock-source-ipv4-address  {
+            type inet:ipv4-address;
+            description "Set master clock ipv4 source address";
+        } // END of master-clock-source-ipv4-address definition.
+
+        leaf master-clock-source-ipv6-address  {
+            type inet:ipv6-address;
+            description "Set master clock ipv6 source address";
+        } // END of master-clock-source-ipv6-address definition.
+
+        leaf source-ipv6-link-local-address  {
+            type empty;
+            description "When set the clock source addrress is a linklocal address";
+        } // END of source-ipv6-link-local-address definition.
+
+        leaf log-min-delay-req-interval  {
+            type int8 {
+                 range "-7..5"  {
+                    description "log-min-delay-req-interval range (-7 to 0) def -6 for g8275.2 and
+                            range (0 to 5) def 0 for default profile";
+                 }
+            }
+            default "-6";
+            description "The base-two logarithm of the minDelayReqInterval (the minimum
+                        permitted mean time interval between successive Delay-Req messages)";
+        } // END of log-min-delay-req-interval definition.
+
+        leaf log-announce-interval  {
+            type int8 {
+                 range "-3..4"  {
+                    description "log-announce-interval range (-3 to 0) def -3 for g8275.2 and range (0
+                            to 4) def 1 for default profile";
+                 }
+            }
+            default "-3";
+            description "The base-two logarithm of the mean announceInterval (mean time
+                        interval between successive Announce messages)";
+        } // END of log-announce-interval definition.
+
+        leaf announce-receipt-timeout  {
+            type uint8 {
+                 range "2..10"  {
+                    description "announce-receipt-timeout range (default is 3)";
+                 }
+            }
+            default "3";
+            description "The number of announceInterval that have to pass without receipt of an
+                        Announce message before the occurrence of the event
+                        ANNOUNCE-RECEIPT-TIMEOUT- EXPIRES";
+        } // END of announce-receipt-timeout definition.
+
+        leaf log-sync-interval  {
+            type int8 {
+                 range "-7..1"  {
+                    description "log-sync-interval range (-7 to 0) def -6 for g8275.2 and range (-1 to
+                            1) def 0 for default profile";
+                 }
+            }
+            default "-6";
+            description "The base-two logarithm of the mean SyncInterval for multicast messages";
+        } // END of log-sync-interval definition.
+
+        leaf time-to-live  {
+            type uint8 {
+                 range "1..255"  {
+                    description "Setting ttl value (default is 64)";
+                 }
+            }
+            default "64";
+            description "The ttl value for clock-port";
+        } // END of time-to-live definition.
+
+        leaf ip-dscp  {
+            type uint8 {
+                 range "0..63"  {
+                    description "Setting dscp value (default is 56)";
+                 }
+            }
+            default "56";
+            description "The ip-dscp value for clock-port";
+        } // END of ip-dscp definition.
+
+        leaf unicast-grant-duration  {
+            type uint16 {
+                 range "60..1000"  {
+                    description "Unicast-grant-duration value (default is 300)";
+                 }
+            }
+            default "300";
+            description "Unicast grant duration field in signalling messages";
+        } // END of unicast-grant-duration definition.
+
+        leaf delay-mechanism  {
+            type oc-ptp-types:ptp-delay-mechanism-t;
+            default "E2E";
+            description "The propagation delay measuring option used by the port in computing
+                        meanPathDelay";
+        } // END of delay-mechanism definition.
+
+        leaf version-number  {
+            type int8;
+            default "2";
+            description "The PTP version in use on the port";
+        } // END of version-number definition.
+
+        leaf master-only  {
+            type empty;
+            description "When set the port is a master-only port";
+        } // END of master-only definition.
+
+        leaf grandmaster-priority-2  {
+            type uint8 {
+                 range "0..255"  {
+                    description "Priority2 range (default is 128)";
+                 }
+            }
+            default "128";
+            description "The priority2 denotes priority2 attribute of grandmaster clock";
+        } // END of grandmaster-priority-2 definition.
+
+    } // END of ptp-port-config definition.
+    grouping ptp-port-variables-state {
+        description
+            "Grouping for ptp port variables";
+        leaf port-state  {
+            type oc-ptp-types:ptp-port-state-t;
+            description "Current state associated with the port";
+        } // END of port-state definition.
+
+        leaf peer-mean-path-delay  {
+            type oc-ptp-types:ptp-time-interval-t;
+            description "Peer Mean path delay";
+        } // END of peer-mean-path-delay definition.
+
+        leaf signal-fail  {
+            type boolean;
+            description "signal fail info of PTP port";
+        } // END of signal-fail definition.
+
+    } // END of ptp-port-variables-state definition.
+    grouping ptp-clock-identity-state {
+        description
+            "Grouping for ptp clock identity states";
+        leaf clock-identity  {
+            type string {
+                length "1..max";
+                pattern "[^?' =,>|]+";
+            }
+            description "The clock identity of the local clock";
+        } // END of clock-identity definition.
+
+    } // END of ptp-clock-identity-state definition.
+    grouping ptp-port-statistics-top {
+        description
+            "Grouping for ptp statistics";
+        container statistics {
+            description
+                "Set of PTP statistics parameters";
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-port-statistics-state;
+            } // END of state-container definition.
+        } // END of statistics-container definition.
+    } // END of ptp-port-statistics-top definition.
+    grouping ptp-port-statistics-state {
+        description
+            "Grouping for ptp port statistics";
+        leaf packets-transmitted  {
+            type yang:counter32;
+            description "PTP port packets transmitted";
+        } // END of packets-transmitted definition.
+
+        leaf packets-received  {
+            type yang:counter32;
+            description "PTP port packets received";
+        } // END of packets-received definition.
+
+        leaf packets-discarded  {
+            type yang:counter32;
+            description "PTP port packets discarded";
+        } // END of packets-discarded definition.
+
+    } // END of ptp-port-statistics-state definition.
+    grouping ptp-port-data-set-clock-quality-top {
+        description
+            "Grouping for ptp clock configuration";
+        container clock-quality {
+            description
+                "Port clock quality parameters";
+            container config {
+                description
+                    "Configuration data";
+                uses ptp-port-data-set-clock-quality-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-port-data-set-clock-quality-config;
+            } // END of state-container definition.
+        } // END of clock-quality-container definition.
+    } // END of ptp-port-data-set-clock-quality-top definition.
+    grouping ptp-port-data-set-clock-quality-config {
+        description
+            "Grouping for ptp clock configuration";
+        leaf clock-class  {
+            type uint8 {
+                 range "0..255"  {
+                    description "Clock class range (default is 6)";
+                 }
+            }
+            default "6";
+            description "The clock-class denotes the traceability of the time or frequency
+                        distributed by the clock";
+        } // END of clock-class definition.
+
+        leaf clock-accuracy  {
+            type uint8 {
+                 range "0..255"  {
+                    description "Clock accuracy range (default is 33)";
+                 }
+            }
+            default "33";
+            description "The clock-accuracy indicates the expected accuracy of the clock";
+        } // END of clock-accuracy definition.
+
+        leaf offset-scaled-log-variance  {
+            type uint16 {
+                 range "0..65535"  {
+                    description "Offset log variance range (default is 20061)";
+                 }
+            }
+            default "20061";
+            description "The offset-scaled-log-variance provides an estimate of the variations
+                        of the clock from a linear timescale when it is not synchronized to
+                        another clock using the protocol";
+        } // END of offset-scaled-log-variance definition.
+
+    } // END of ptp-port-data-set-clock-quality-config definition.
+    grouping ptp-asymmetry-delay-top {
+        description
+            "Grouping to asymmetry delay configuration";
+        container asymmetry-delay {
+            description
+                "PTP asymetry delay parameters";
+            container config {
+                description
+                    "Configuration data";
+                uses ptp-asymmetry-delay-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-asymmetry-delay-config;
+            } // END of state-container definition.
+        } // END of asymmetry-delay-container definition.
+    } // END of ptp-asymmetry-delay-top definition.
+    grouping ptp-asymmetry-delay-config {
+        description
+            "Grouping to asymmetry delay configuration";
+        leaf delay-asymmetry-msec  {
+            type int8 {
+                 range "-100..100"  {
+                    description "Value of latency in msec";
+                 }
+            }
+            mandatory true;
+            description "Set delay-asymmetry in milliseconds";
+        } // END of delay-asymmetry-msec definition.
+
+        leaf delay-asymmetry-nsec  {
+            type int32 {
+                 range "-1000000..1000000"  {
+                    description "Value of latency in nsec";
+                 }
+            }
+            mandatory true;
+            description "Set delay-asymmetry in nanoseconds";
+        } // END of delay-asymmetry-nsec definition.
+
+    } // END of ptp-asymmetry-delay-config definition.
+    grouping ptp-network-interface-top {
+        description
+            "Grouping for ptp network interface configuration";
+
+        list network-interface {
+            key "network-interface";
+            max-elements 1;
+            description
+                "PTP network-interface parameters";
+            leaf network-interface  {
+                type leafref {
+                    path  "../config/network-interface";
+                }
+                description "Reference to the configured underlying interface that is used by this
+                            PTP Port";
+            } // END of network-interface definition.
+
+            container config {
+                description
+                    "Configuration data";
+                uses ptp-network-interface-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-network-interface-config;
+            } // END of state-container definition.
+        } // End of network-interface-list
+    } // END of ptp-network-interface-top definition.
+    grouping ptp-network-interface-config {
+        description
+            "Grouping for ptp network interface configuration";
+        leaf network-interface  {
+            type oc-ptp-types:ptp-network-interface-t;
+            description "Reference to the configured underlying interface that is used by this
+                        PTP Port";
+        } // END of network-interface definition.
+
+        leaf vlan-id  {
+            type uint16 {
+                 range "1..4094"  {
+                    description "VLAN ID 1-4094";
+                 }
+            }
+            description "Reference to the configured underlying interface that is used by this
+                        PTP Port";
+        } // END of vlan-id definition.
+
+        leaf vlan-physical-interface-name  {
+            type string;
+            description "Reference to the configured underlying interface that is used by this
+                        vlan interface PTP Port";
+        } // END of vlan-physical-interface-name definition.
+
+    } // END of ptp-network-interface-config definition.
+    grouping ptp-time-of-day-top {
+        description
+            "Grouping for ptp time of day configuration";
+        container time-of-day {
+            description
+                "PTP time of day parameters";
+            container config {
+                description
+                    "Configuration data";
+                uses ptp-time-of-day-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-time-of-day-config;
+            } // END of state-container definition.
+        } // END of time-of-day-container definition.
+    } // END of ptp-time-of-day-top definition.
+    grouping ptp-time-of-day-config {
+        description
+            "Grouping for ptp time of day configuration";
+        leaf io-type {
+            type oc-ptp-types:ptp-clock-io-type-t;
+            description "Type of tod input/output";
+        } // END of io-type definition.
+
+    } // END of ptp-time-of-day-config definition.
+    grouping ptp-default-data-set-top {
+        description
+            "Grouping for ptp default data set configuration";
+        container default-data-set {
+            description
+                "The default data set of the clock";
+            container config {
+                description
+                    "Configuration data";
+                uses ptp-default-data-set-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-default-data-set-config;
+                uses ptp-clock-identity-state;
+            } // END of state-container definition.
+            uses ptp-servo-history-top;
+            uses ptp-default-data-set-clock-quality-top;
+            uses ptp-gps-offset-top;
+        } // END of default-data-set-container definition.
+    } // END of ptp-default-data-set-top definition.
+    grouping ptp-default-data-set-config {
+        description
+            "Grouping for ptp default data set configuration";
+        leaf domain  {
+            type uint8 {
+                 range "0..127"  {
+                    description "Domain number range (24-43) for g8275.1 and (44-63) for g8275.2 and
+                            (0-127) for default";
+                 }
+            }
+            default "24";
+            description "The domain number of the current domain";
+        } // END of domain definition.
+
+        leaf external-clock-holdover-duration  {
+            type uint16 {
+                 range "0..1440"  {
+                    description "clock holdover range (0-1440) in minutes";
+                 }
+            }
+            default "120";
+            description "External clock holdover duration";
+        } // END of external-clock-holdover-duration definition.
+
+        leaf ptsf-wtr-duration  {
+            type uint16 {
+                 range "1..1440"  {
+                    description "clock ptsf wait-to-restore duration range (1-1440) in minutes";
+                 }
+            }
+            default "5";
+            description "External clock holdover duration";
+        } // END of ptsf-wtr-duration definition.
+
+        leaf reserved-vlan-base  {
+            type uint16 {
+                 range "1..4064"  {
+                    description "Base vlan ID";
+                 }
+            }
+            default "4064";
+            description "Reserved vlan base index";
+        } // END of reserved-vlan-base definition.
+
+        leaf two-step  {
+            type empty;
+            description "two step";
+        } // END of two-step definition.
+
+        leaf number-ports  {
+            type uint8 {
+                 range "1..31"  {
+                    description "Number ports range (default is 1)";
+                 }
+            }
+            default "1";
+            description "Number of ports";
+        } // END of number-ports definition.
+
+        leaf pps-pulse-offset  {
+            type int16 {
+                 range "-2048..2048"  {
+                    description "Offset value in range. Default is 0";
+                 }
+            }
+            default "0";
+            description "1pps Out Pulse Offset in nanoseconds";
+        } // END of pps-pulse-offset definition.
+
+        leaf pps-in-smx-tod-type {
+            type oc-ptp-types:ptp-1pss-in-smx-tod-type-t;
+            default "TOD";
+            description "1pps in SMX tod type";
+        } // END of pps-in-smx-tod-type definition.
+
+        leaf priority-1  {
+            type uint8;
+            default "128";
+            description "The priority1 attribute of the local clock";
+        } // END of priority-1 definition.
+
+        leaf priority-2  {
+            when " not(/oc-ptp:ptp/oc-ptp:ptp-instance/oc-ptp:default-data-set/oc-ptp:config/oc-ptp:slave-only) ";
+            type uint8 {
+                 range "0..255"  {
+                    description "Priority2 range (default is 128)";
+                 }
+            }
+            default "128";
+            description "The priority2 attribute of the local clock";
+        } // END of priority-2 definition.
+
+        leaf slave-only  {
+            type empty;
+            description "When set the clock is a slave-only clock";
+        } // END of slave-only definition.
+
+        leaf local-priority  {
+            type uint8 {
+                 range "1..255"  {
+                    description "Local priority range (default is 128)";
+                 }
+            }
+            default "128";
+            description "The local priority attribute of the local clock";
+        } // END of local-priority definition.
+
+        leaf max-steps-removed  {
+            type uint8 {
+                 range "1..255"  {
+                    description "Max steps removed range (default is 255)";
+                 }
+            }
+            default "255";
+            description "The maximum number of communication paths between the local clock and
+                        the grandmaster clock";
+        } // END of max-steps-removed definition.
+
+    } // END of ptp-default-data-set-config definition.
+    grouping ptp-servo-history-top {
+        description
+            "Grouping for ptp servo-history configuration";
+        container servo-history {
+            description
+                "PTP servo-history parameters";
+            container config {
+                description
+                    "Configuration data";
+                uses ptp-servo-history-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "Operational data";
+                uses ptp-servo-history-config;
+            } // END of state-container definition.
+        } // END of servo-history-container definition.
+    } // END of ptp-servo-history-top definition.
+    grouping ptp-servo-history-config {
+        description
+            "Grouping for servo history configuration";
+        leaf servo-history-enabled  {
+            type empty;
+            mandatory true;
+            description "PTP servo history";
+        } // END of servo-history-enabled definition.
+
+        leaf servo-history-interval  {
+            type uint8 {
+                 range "1..60"  {
+                    description "Enable servo-history in interval of 1-60 mins (default 15 mins)";
+                 }
+            }
+            mandatory true;
+            description "PTP servo history interval";
+        } // END of servo-history-interval definition.
+
+    } // END of ptp-servo-history-config definition.
+    grouping ptp-default-data-set-clock-quality-top {
+        description
+            "Grouping for ptp clock configuration";
+        container clock-quality {
+            description
+                "PTP clock quality parameters";
+            container config {
+                description
+                    "Configuration data";
+                uses ptp-default-data-set-clock-quality-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-default-data-set-clock-quality-config;
+            } // END of state-container definition.
+        } // END of clock-quality-container definition.
+    } // END of ptp-default-data-set-clock-quality-top definition.
+    grouping ptp-default-data-set-clock-quality-config {
+        description
+            "Grouping for ptp clock quality configuration";
+        leaf clock-class  {
+            when " not(/oc-ptp:ptp/oc-ptp:ptp-instance/oc-ptp:default-data-set/oc-ptp:config/oc-ptp:slave-only) ";
+            type uint8 {
+                 range "0..255"  {
+                    description "Clock class range (default is 248)";
+                 }
+            }
+            default "248";
+            description "The clock-class denotes the traceability of the time or frequency
+                        distributed by the clock";
+        } // END of clock-class definition.
+
+        leaf clock-accuracy  {
+            type uint8 {
+                 range "0..255"  {
+                    description "Clock accuracy range (default is 254)";
+                 }
+            }
+            default "254";
+            description "The clock-accuracy indicates the expected accuracy of the clock";
+        } // END of clock-accuracy definition.
+
+        leaf offset-scaled-log-variance  {
+            type uint16 {
+                 range "0..65535"  {
+                    description "Offset log variance range (default is 65535)";
+                 }
+            }
+            default "65535";
+            description "The offset-scaled-log-variance provides an estimate of the variations
+                        of the clock from a linear timescale when it is not synchronized to
+                        another clock using the protocol";
+        } // END of offset-scaled-log-variance definition.
+
+    } // END of ptp-default-data-set-clock-quality-config definition.
+    grouping ptp-gps-offset-top {
+        description
+            "Grouping for ptp gps offset configuration";
+        container gps-offset {
+            description
+                "Container for GPS offset";
+            container config {
+                description
+                    "Configuration data";
+                uses ptp-gps-offset-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-gps-offset-config;
+            } // END of state-container definition.
+        } // END of gps-offset-container definition.
+    } // END of ptp-gps-offset-top definition.
+    grouping ptp-gps-offset-config {
+        description
+            "Grouping for ptp gps offset configuration";
+        leaf offset-seconds  {
+            type int8 {
+                 range "-100..100"  {
+                    description "Offset value";
+                 }
+            }
+            mandatory true;
+            description "GPS offset in sec";
+        } // END of offset-seconds definition.
+
+        leaf offset-nano-seconds  {
+            type int16 {
+                 range "-2048..2048"  {
+                    description "Offset value";
+                 }
+            }
+            mandatory true;
+            description "GPS offset in ns";
+        } // END of offset-nano-seconds definition.
+
+    } // END of ptp-gps-offset-config definition.
+    grouping ptp-servo-top {
+        description
+            "Grouping for ptp servo state";
+        container ptp-servo {
+            description
+                "PTP servo state parameters";
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-servo-state;
+            } // END of state-container definition.
+        } // END of ptp-servo-container definition.
+    } // END of ptp-servo-top definition.
+    grouping ptp-servo-state {
+        description
+            "Grouping for ptp servo states";
+        leaf config-state  {
+            type oc-ptp-types:ptp-config-state-t;
+            description "PTP servo config";
+        } // END of config-state definition.
+
+        leaf previous-state  {
+            type oc-ptp-types:ptp-servo-state-t;
+            description "Previous PTP servo state";
+        } // END of previous-state definition.
+
+        leaf current-state  {
+            type oc-ptp-types:ptp-servo-state-t;
+            description "Current PTP servo state";
+        } // END of current-state definition.
+
+        leaf duration  {
+            type yang:date-and-time {
+                pattern "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[\\+\\-]\\d{2}:\\d{2})";
+                }
+                description "PTP servo state Duration";
+            } // END of duration definition.
+
+            leaf apts-mode  {
+                type oc-ptp-types:ptp-servo-apts-mode-t;
+                description "PTP servo APTS mode";
+            } // END of apts-mode definition.
+
+            leaf freq-correction  {
+                type decimal64 {
+                     fraction-digits 3;                }
+                description "PTP servo freq correction";
+            } // END of freq-correction definition.
+
+            leaf phase-correction  {
+                type decimal64 {
+                     fraction-digits 3;                }
+                description "PTP servo phase correction";
+            } // END of phase-correction definition.
+
+            leaf offset-from-master  {
+                type decimal64 {
+                     fraction-digits 3;                }
+                description "PTP offset from master";
+            } // END of offset-from-master definition.
+
+            leaf sync-packet-rate  {
+                type uint32;
+                description "Sync Packet Rate";
+            } // END of sync-packet-rate definition.
+
+            leaf delay-packet-rate  {
+                type uint32;
+                description "Delay Packet Rate";
+            } // END of delay-packet-rate definition.
+
+    } // END of ptp-servo-state definition.
+    grouping ptp-current-data-set-top {
+        description
+            "PTP current data set states";
+        container current-data-set {
+            description
+                "PTP current data set state parameters";
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-current-data-set-state;
+            } // END of state-container definition.
+        } // END of current-data-set-container definition.
+    } // END of ptp-current-data-set-top definition.
+    grouping ptp-current-data-set-state {
+        description
+            "Grouping for ptp current data set state";
+        leaf steps-removed  {
+            type uint8;
+            default "0";
+            description "The number of communication paths traversed between the local clock
+                        and the grandmaster clock";
+        } // END of steps-removed definition.
+
+        leaf offset-from-master  {
+            type oc-ptp-types:ptp-time-interval-t;
+            description "The current value of the time difference between a master and a slave
+                        clock as computed by the slave";
+        } // END of offset-from-master definition.
+
+        leaf offset-from-master-in-nsec  {
+            type decimal64 {
+                 fraction-digits 3;            }
+            description "The current value of the time difference between a master and a slave
+                        clock as computed by the slave";
+        } // END of offset-from-master-in-nsec definition.
+
+        leaf mean-path-delay  {
+            type oc-ptp-types:ptp-time-interval-t;
+            description "The current value of the mean propagation time between a master and a
+                        slave clock as computed by the slave";
+        } // END of mean-path-delay definition.
+
+    } // END of ptp-current-data-set-state definition.
+    grouping ptp-parent-data-set-top {
+        description
+            "Grouping for PTP parent data set";
+        container parent-data-set {
+            description
+                "PTP parent data set parameters";
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-parent-data-set-state;
+            } // END of state-container definition.
+            uses ptp-parent-port-identity-top;
+            uses ptp-grandmaster-clock-quality-top;
+        } // END of parent-data-set-container definition.
+    } // END of ptp-parent-data-set-top definition.
+    grouping ptp-parent-data-set-state {
+        description
+            "Grouping for ptp parent state";
+        leaf parent-stats-enabled  {
+            type boolean;
+            description "Parent stats";
+        } // END of parent-stats-enabled definition.
+
+        leaf parent-offset-scaled-log-variance  {
+            type uint16;
+            description "Parent Offset Scaled Log Variance";
+        } // END of parent-offset-scaled-log-variance definition.
+
+        leaf parent-phase-change-rate  {
+            type uint32;
+            description "Parent Phase Change Rate";
+        } // END of parent-phase-change-rate definition.
+
+        leaf grandmaster-identity  {
+            type oc-ptp-types:ptp-clock-identity-t;
+            description "The clockIdentity attribute of the grandmaster clock";
+        } // END of grandmaster-identity definition.
+
+        leaf grandmaster-priority-1  {
+            type uint8;
+            description "The priority1 attribute of the grandmaster clock";
+        } // END of grandmaster-priority-1 definition.
+
+        leaf grandmaster-priority-2  {
+            type uint8;
+            description "The priority2 attribute of the grandmaster clock";
+        } // END of grandmaster-priority-2 definition.
+
+        container port-identity {
+            description
+                "PTP port identity parameters";
+            uses ptp-port-identity-state;
+        } // END of port-identity-container definition.
+        container grandmaster-clock-quality {
+            description
+                "Grandmaster clock quality parameters";
+            uses ptp-grandmaster-clock-quality-state;
+        } // END of grandmaster-clock-quality-container definition.
+    } // END of ptp-parent-data-set-state definition.
+    grouping ptp-parent-port-identity-top {
+        description
+            "Grouping for ptp parent port identity";
+        container port-identity-parameters {
+            description
+                "PTP port identity parameters";
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-port-identity-state;
+            } // END of state-container definition.
+        } // END of port-identity-container definition.
+    } // END of ptp-parent-port-identity-top definition.
+    grouping ptp-port-identity-state {
+        description
+            "Grouping for ptp parent port identity state";
+        leaf clock-identity  {
+            type string {
+                length "1..max";
+                pattern "[^?' =,>|]+";
+            }
+            description "Identity of the clock";
+        } // END of clock-identity definition.
+
+        leaf port-number  {
+            type uint16;
+            description "Port number";
+        } // END of port-number definition.
+
+    } // END of ptp-port-identity-state definition.
+    grouping ptp-grandmaster-clock-quality-top {
+        description
+            "Grouping for ptp grandmaster clock quality states";
+        container grandmaster-clock-quality-parameters {
+            description
+                "Grandmaster clock quality parameters";
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-grandmaster-clock-quality-state;
+            } // END of state-container definition.
+        } // END of grandmaster-clock-quality-container definition.
+    } // END of ptp-grandmaster-clock-quality-top definition.
+    grouping ptp-grandmaster-clock-quality-state {
+        description
+            "Grouping for ptp grandmaster clock quality state";
+        leaf clock-class  {
+            type uint8;
+            description "The clockClass denotes the traceability of the time or frequency
+                        distributed by the clock";
+        } // END of clock-class definition.
+
+        leaf clock-accuracy  {
+            type uint8;
+            description "The clockAccuracy indicates the expected accuracy of the clock";
+        } // END of clock-accuracy definition.
+
+        leaf offset-scaled-log-variance  {
+            type uint16;
+            description "The offsetScaledLogVariance provides an estimate of the variations of
+                        the clock from a linear timescale when it is not synchronized to
+                        another clock using the protocol";
+        } // END of offset-scaled-log-variance definition.
+
+    } // END of ptp-grandmaster-clock-quality-state definition.
+    grouping ptp-time-properties-top {
+        description
+            "PTP time properties states";
+        container time-properties {
+            description
+                "Time properties parameters";
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-time-properties-state;
+            } // END of state-container definition.
+        } // END of time-properties-container definition.
+    } // END of ptp-time-properties-top definition.
+    grouping ptp-time-properties-state {
+        description
+            "Grouping for ptp time properties state";
+        leaf current-utc-offset-valid  {
+            type boolean;
+            description "When set, the current UTC offset is valid";
+        } // END of current-utc-offset-valid definition.
+
+        leaf current-utc-offset  {
+            type int16;
+            description "The offset between TAI and UTC when the epoch of the PTP system is the
+                        PTP epoch, i.e., when ptp-timescale is TRUE; otherwise, the value has
+                        no meaning";
+        } // END of current-utc-offset definition.
+
+        leaf leap59  {
+            type empty;
+            description "When set, the last minute of the current UTC day contains 59 seconds";
+        } // END of leap59 definition.
+
+        leaf leap61  {
+            type empty;
+            description "When set, the last minute of the current UTC day contains 61 seconds";
+        } // END of leap61 definition.
+
+        leaf time-traceable  {
+            type empty;
+            description "When set, the timescale and the currentUtcOffset are traceable to a
+                        primary reference";
+        } // END of time-traceable definition.
+
+        leaf frequency-traceable  {
+            type empty;
+            description "When set, the frequency determining the timescale is traceable to a
+                        primary reference";
+        } // END of frequency-traceable definition.
+
+        leaf ptp-timescale  {
+            type empty;
+            description "When set, the clock timescale of the grandmaster clock is PTP;
+                        otherwise, the timescale is ARB (arbitrary)";
+        } // END of ptp-timescale definition.
+
+        leaf time-source  {
+            type oc-ptp-types:ptp-time-source-t;
+            description "The source of time used by the grandmaster clock";
+        } // END of time-source definition.
+
+        leaf ptp-time-of-day  {
+            type string {
+                length "1..max";
+                pattern "[^?' =,>|]+";
+            }
+            description "PTP time of day expressed as Coordinated Universal Time (UTC)";
+        } // END of ptp-time-of-day definition.
+
+    } // END of ptp-time-properties-state definition.
+    grouping ptp-statistics-top {
+        description
+            "Grouping for PTP statistics";
+        container statistics {
+            description
+                "PTP statistics parameters";
+            container state {
+                config false;
+                description
+                    "Operational state data";
+                uses ptp-statistics-state;
+            } // END of state-container definition.
+        } // END of statistics-container definition.
+    } // END of ptp-statistics-top definition.
+    grouping ptp-statistics-state {
+        description
+            "Grouping for ptp statistics state";
+        leaf packets-transmitted  {
+            type yang:counter32;
+            description "PTP packets transmitted";
+        } // END of packets-transmitted definition.
+
+        leaf packets-received  {
+            type yang:counter32;
+            description "PTP packets received";
+        } // END of packets-received definition.
+
+        leaf packets-discarded  {
+            type yang:counter32;
+            description "PTP packets discarded";
+        } // END of packets-discarded definition.
+
+        leaf ipv4-packets-received  {
+            type yang:counter32;
+            description "PTP IPv4 packets received";
+        } // END of ipv4-packets-received definition.
+
+        leaf ipv6-packets-received  {
+            type yang:counter32;
+            description "PTP IPv6 packets received";
+        } // END of ipv6-packets-received definition.
+
+        leaf l2-packets-received  {
+            type yang:counter32;
+            description "PTP L2 packets received";
+        } // END of l2-packets-received definition.
+
+        leaf rx-queue-overflows  {
+            type yang:counter32;
+            description "PTP RX queue overflows";
+        } // END of rx-queue-overflows definition.
+
+    } // END of ptp-statistics-state definition.
+
+    grouping  ptp-grouping {
+    description
+        "PTP clock";
+    container ptp {
+        description
+            "PTP clock";
+        uses end-to-end-transparent-clock-top;
+        uses ptp-instance-top;
+        uses ptp-debug-top;
+    } // END of ptp-container definition.
+    } // END of ptp-grouping definition.
+
+    uses ptp-grouping;
+
+}
