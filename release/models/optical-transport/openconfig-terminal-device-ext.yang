@@ -8,10 +8,12 @@ module openconfig-terminal-device-ext {
 
   // import some basic types
   
-  import openconfig-platform { prefix oc-platform; }
-  import openconfig-types { prefix oc-types; }
-  import openconfig-terminal-device { prefix oc-opt-term; }
-  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-platform             { prefix oc-platform;   }
+  import openconfig-types                { prefix oc-types;      }
+  import openconfig-terminal-device      { prefix oc-opt-term;   }
+  import openconfig-transport-types-ext  { prefix opt-types-ext; }
+  import openconfig-yang-types           { prefix oc-yang-types; }
+  import openconfig-extensions           { prefix oc-ext;        }
 
   // meta
   organization "Infinera Corporation";
@@ -20,8 +22,8 @@ module openconfig-terminal-device-ext {
     "ASadasivarao@infinera.com";
 
   description
-    "This modules extends the openconfig-system YANG module
-         with a limited set of attributes.";
+    "This modules extends the openconfig-terminal-device YANG 
+     module with a limited set of attributes.";
 
   oc-ext:openconfig-version "0.1.0";
 
@@ -31,6 +33,11 @@ module openconfig-terminal-device-ext {
 	  optical channels of a terminal device.";
     reference "0.1.0";
   }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "infinera";
+  oc-ext:origin "openconfig";
 
   grouping terminal-optical-channel-multi-stats {
     description "Multi-value statistics containers for optical channels
@@ -46,11 +53,75 @@ module openconfig-terminal-device-ext {
     } 
   }
 
+  grouping state-of-polarization-parameters-top {
+    description "";
+    uses state-of-polarization-parameters-state;
+  }
+
+  grouping state-of-polarization-parameters-state {
+    description "State parameters (including PM data) associated with SoP.";
+    list sop-data {
+      key "timestamp";
+      max-elements 250;
+
+      leaf timestamp {
+        type oc-yang-types:date-and-time;
+        description 
+          "The local timestamp at which the per-subcarrier
+           SoP data was sampled and collected.";
+      }
+
+      list sop-sample {
+        key "subcarrier-id";
+        max-elements 8; // Maximum number of sub-carriers per optical channel
+
+        leaf subcarrier-id {
+          type uint8 {
+            range "0..7";
+          }
+          description "An ID to identify each subcarrier within an optical channel.";
+        }
+
+        container stokes-vector {
+          leaf s1 {
+            type opt-types-ext:stokes-vector-data;
+          }
+
+          leaf s2 {
+            type opt-types-ext:stokes-vector-data;
+          }
+
+          leaf s3 {
+            type opt-types-ext:stokes-vector-data;
+          }
+        }
+
+        container jones-matrix {
+          leaf x {
+            type opt-types-ext:jones-matrix-data;
+          }
+
+          leaf y {
+            type opt-types-ext:jones-matrix-data;
+          }
+        }
+
+        leaf rate {
+          type opt-types-ext:sop-rate-data;
+        }
+      }
+    }
+  }
+
   // augment statements
 
   augment "/oc-platform:components/oc-platform:component/oc-opt-term:optical-channel/oc-opt-term:state" {
     description "Adding extensions for optical channel SNR.";
+    uses terminal-optical-channel-multi-stats;
+  }
 
-        uses terminal-optical-channel-multi-stats;
+  augment "/oc-platform:components/oc-platform:component/oc-opt-term:optical-channel/oc-opt-term:state" {
+    description "Adding extensions for state-of-polarization data for an optical channel.";
+    uses state-of-polarization-parameters-top;
   }
 }

@@ -1,0 +1,63 @@
+module openconfig-transport-types-ext {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/transport-types/ext";
+
+  prefix "oc-opt-types-ext";
+
+  import openconfig-extensions { prefix oc-ext; }
+
+  // meta
+  contact
+    "ASadasivarao@infinera.com";
+
+  description
+    "This modules extends the openconfig-transport-types 
+     YANG module with a limited set of new types.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2021-06-29" {
+    description
+      "Initial version. Adding SNR parameters to
+	  optical channels of a terminal device.";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "infinera";
+  oc-ext:origin "openconfig";
+
+  // typedef statements
+
+  typedef stokes-vector-data {
+    type decimal64 {
+      fraction-digits 8;
+    }
+    units "n/a"; // Unitless
+    description
+      "Type for Stokes vector data points.";
+  }
+
+  typedef jones-matrix-data {
+    type decimal64 {
+      fraction-digits 8;
+    }
+    units "n/a"; // Unitless
+    description
+      "Type for Jones matrix data points.";
+  }
+
+  typedef sop-rate-data {
+    type decimal64 {
+      fraction-digits 8;
+      range "0..400";
+    }
+    units "rad/s"; // Radians/second
+    description
+      "Type for SoP rate data.";
+  }
+}
