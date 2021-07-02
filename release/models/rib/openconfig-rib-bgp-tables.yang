@@ -9,6 +9,10 @@ submodule openconfig-rib-bgp-tables {
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-policy-types { prefix oc-pol-types; }
+  import ietf-yang-types { prefix yang; }
+
+  import openconfig-network-instance-types { prefix oc-ni-types; }
+  import openconfig-evpn-types { prefix oc-evpn-types; }
 
   include openconfig-rib-bgp-attributes;
   include openconfig-rib-bgp-shared-attributes;
@@ -25,7 +29,13 @@ submodule openconfig-rib-bgp-tables {
     "This submodule contains structural data definitions for
     BGP routing tables.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2021-06-21" {
+    description
+      "Add L2VPN-EVPN BGP RIB Support";
+    reference "0.8.0";
+  }
 
   revision "2019-10-15" {
     description
@@ -306,6 +316,639 @@ submodule openconfig-rib-bgp-tables {
           }
 
           uses bgp-unknown-attr-top;
+        }
+      }
+    }
+  }
+
+  grouping l2vpn-evpn-loc-rib-top {
+    description
+      "Top-level grouping for l2vpn evpn routing tables";
+
+    container loc-rib {
+      config false;
+      description
+        "Container for the l2vpn evpn BGP LOC-RIB data";
+
+      uses bgp-common-table-attrs-top;
+
+      container routes {
+        description
+          "Enclosing container for list of routes in the routing
+          table.";
+
+        list route-distinguisher {
+          description "List of route distinguishers";
+          key "route-distinguisher";
+
+          leaf route-distinguisher {
+            type leafref {
+              path "../state/route-distinguisher";
+            }
+            description
+              "Reference to the rd list key";
+          }
+
+          container state {
+            description "Top level containern for l2vpn evpn RDs";
+            leaf route-distinguisher {
+              type oc-ni-types:route-distinguisher;
+              description
+                "The route distinguisher";
+            }
+          }
+          uses bgp-evpn-type-one-state;
+          uses bgp-evpn-type-two-state;
+          uses bgp-evpn-type-three-state;
+          uses bgp-evpn-type-four-state;
+          uses bgp-evpn-type-five-state;
+        }
+      }
+    }
+  }
+
+  grouping bgp-loc-rib-l2vpn-evpn-attr-refs {
+    description
+      "Definitions of common references to attribute sets for
+      multiple AFI-SAFIs for LOC-RIB tables";
+
+    leaf attr-index {
+      type leafref {
+        path "../../../../../../../../../../../../attr-sets/attr-set/" +
+          "state/index";
+      }
+      description
+        "Reference to the common attribute group for the
+        route";
+    }
+
+    leaf community-index {
+      type leafref {
+        path "../../../../../../../../../../../../communities/community/" +
+          "state/index";
+      }
+      description
+        "Reference to the community attribute for the route";
+    }
+
+    leaf ext-community-index {
+      type leafref {
+        path "../../../../../../../../../../../../ext-communities/" +
+          "ext-community/state/index";
+      }
+      description
+        "Reference to the extended community attribute for the
+        route";
+    }
+  }
+
+  grouping bgp-evpn-route-path-state {
+    description
+      "BGP l2vpn evpn route-type path state info grouping";
+
+    container paths {
+      description "List of BGP paths attributes for this route";
+      list path {
+        description "List of paths";
+        key "peer-ip peer-path-id";
+
+        leaf peer-ip {
+          type leafref {
+            path "../state/peer-ip";
+          }
+          description
+            "Reference to the peer-ip key";
+        }
+
+        leaf peer-path-id {
+          type leafref {
+            path "../state/peer-path-id";
+          }
+          description
+            "Reference to the peer-path-id key";
+        }
+
+        container state {
+          description "BGP path attributes for this route";
+
+          leaf peer-ip {
+            type oc-inet:ip-address;
+            description "Peer IP information";
+          }
+          leaf peer-path-id {
+            type uint32;
+            description "Peer path identifier";
+          }
+          leaf-list advertised-to-peer {
+            type oc-inet:ip-address;
+            description "List of peers to which this path is advertised";
+          }
+          leaf label {
+            type string;
+            description "Label info";
+          }
+          leaf label2 {
+            type string;
+            description "Label2 info";
+          }
+          leaf bestpath {
+            type boolean;
+            description "Marked as bestpath";
+          }
+          leaf multipath {
+            type boolean;
+            description "Marked as multipath";
+          }
+          leaf backup {
+            type boolean;
+            description "Marked as backup";
+          }
+          leaf source-route-distinguisher {
+            type oc-ni-types:route-distinguisher;
+            description
+              "The source route distinguisher";
+          }
+          uses bgp-loc-rib-l2vpn-evpn-attr-refs;
+        }
+      }
+    }
+  }
+
+  grouping bgp-evpn-type-one-key-refs {
+    description
+      "Key references to support operational state structure for
+      BGP EVPN type 1 routes";
+
+      leaf esi {
+        type leafref {
+          path "../state/esi";
+        }
+        description
+          "Reference to the esi list key";
+      }
+
+      leaf ethernet-tag {
+        type leafref {
+          path "../state/ethernet-tag";
+        }
+        description
+          "Reference to the esi list key";
+      }
+  }
+
+  grouping bgp-evpn-type-one-state {
+    description "Grouping for type one l2vpn evpn routes";
+    container type-one-ethernet-auto-discovery {
+      description "Top level container for type one l2vpn evpn routes";
+      list type-one-route {
+        key "esi ethernet-tag";
+        description
+          "List of evpn ethernet auto discovery routes";
+
+        uses bgp-evpn-type-one-key-refs;
+
+        container state {
+          description
+            "Operational state data for type1 evpn route entries
+            in the BGP LOC-RIB";
+
+          leaf esi {
+            type oc-evpn-types:esi;
+            description
+              "The ethernet segment identifier for the route";
+          }
+
+          leaf ethernet-tag {
+            type oc-evpn-types:ethernet-tag;
+            description
+              "The ethernet tag for the route";
+          }
+
+          uses bgp-loc-rib-attr-state;
+          uses bgp-common-route-annotations-state;
+          uses bgp-loc-rib-route-annotations-state;
+         }
+
+         uses bgp-evpn-route-path-state;
+         uses bgp-unknown-attr-top;
+      }
+    }
+  }
+
+  grouping bgp-evpn-type-two-key-refs {
+    description
+      "Key references to support operational state structure for
+      BGP EVPN type 2 routes";
+
+      leaf esi {
+        type leafref {
+          path "../state/esi";
+        }
+        description
+          "Reference to the esi list key";
+      }
+
+      leaf ethernet-tag {
+        type leafref {
+          path "../state/ethernet-tag";
+        }
+        description
+          "Reference to the esi list key";
+      }
+
+      leaf mac-address {
+        type leafref {
+          path "../state/mac-address";
+        }
+        description
+          "Reference to the mac-address list key";
+      }
+
+      leaf mac-length {
+        type leafref {
+          path "../state/mac-length";
+        }
+        description
+          "Reference to the mac-length list key";
+      }
+
+      leaf ip-prefix {
+        type leafref {
+          path "../state/ip-prefix";
+        }
+        description
+          "Reference to the ip-prefix list key";
+      }
+
+      leaf ip-length {
+        type leafref {
+          path "../state/ip-length";
+        }
+        description
+          "Reference to the ip-length list key";
+      }
+  }
+
+  grouping bgp-evpn-type-two-state {
+    description "Grouping for type two l2vpn evpn routes";
+    container type-two-mac-ip-advertisement {
+      description "Top level container for type two l2vpn evpn routes";
+      list type-two-route {
+        key "esi ethernet-tag mac-address mac-length ip-prefix ip-length";
+        description
+          "List of evpn mac/ip advertisement routes";
+
+        uses bgp-evpn-type-two-key-refs;
+
+        container state {
+          description
+            "Operational state data for type2 evpn route entries
+            in the BGP LOC-RIB";
+
+          leaf esi {
+            type oc-evpn-types:esi;
+            description
+              "The ethernet segment identifier for the route";
+          }
+
+          leaf ethernet-tag {
+            type oc-evpn-types:ethernet-tag;
+            description
+              "The ethernet tag for the route";
+          }
+
+          leaf mac-address {
+            type yang:mac-address;
+            description
+              "The mac-address for the route";
+          }
+
+          leaf mac-length {
+            type uint32;
+            description
+              "The mac-address length for the route";
+          }
+
+          leaf ip-prefix {
+            type oc-inet:ip-prefix;
+            description
+              "The ip-prefix for the route";
+          }
+
+          leaf ip-length {
+            type uint32;
+            description
+              "The ip-prefix length for the route";
+          }
+
+          uses bgp-loc-rib-attr-state;
+          uses bgp-common-route-annotations-state;
+          uses bgp-loc-rib-route-annotations-state;
+         }
+
+         uses bgp-evpn-route-path-state;
+         uses bgp-unknown-attr-top;
+      }
+    }
+  }
+
+  grouping bgp-evpn-type-three-key-refs {
+    description
+      "Key references to support operational state structure for
+      BGP EVPN type 3 routes";
+
+      leaf ethernet-tag {
+        type leafref {
+          path "../state/ethernet-tag";
+        }
+        description
+          "Reference to the esi list key";
+      }
+
+      leaf originating-router-ip {
+        type leafref {
+          path "../state/originating-router-ip";
+        }
+        description
+          "Reference to the originating-router-ip list key";
+      }
+
+      leaf originator-ip-length {
+        type leafref {
+          path "../state/originator-ip-length";
+        }
+        description
+          "Reference to the originating router ip length list key";
+      }
+  }
+
+  grouping bgp-evpn-type-three-state {
+    description "Grouping for type three l2vpn evpn routes";
+    container type-three-inclusive-multicast-ethernet-tag {
+      description "Top level container for type three l2vpn evpn routes";
+
+      list type-three-route {
+        key "ethernet-tag originating-router-ip originator-ip-length";
+        description
+          "List of evpn inclusive multicast ethernet tag routes";
+
+        uses bgp-evpn-type-three-key-refs;
+
+        container state {
+          description
+            "Operational state data for type3 evpn route entries
+            in the BGP LOC-RIB";
+
+          leaf ethernet-tag {
+            type oc-evpn-types:ethernet-tag;
+            description
+              "The ethernet tag for the route";
+          }
+
+          leaf originating-router-ip {
+            type oc-inet:ip-prefix;
+            description
+              "The originating router ip";
+          }
+
+          leaf originator-ip-length {
+            type uint32;
+            description
+              "The ip-prefix length for the route";
+          }
+
+          uses bgp-loc-rib-attr-state;
+          uses bgp-common-route-annotations-state;
+          uses bgp-loc-rib-route-annotations-state;
+         }
+
+         uses bgp-evpn-route-path-state;
+         uses bgp-unknown-attr-top;
+      }
+    }
+  }
+
+  grouping bgp-evpn-type-four-key-refs {
+    description
+      "Key references to support operational state structure for
+      BGP EVPN type 4 routes";
+
+      leaf esi {
+        type leafref {
+          path "../state/esi";
+        }
+        description
+          "Reference to the esi list key";
+      }
+
+      leaf originating-router-ip {
+        type leafref {
+          path "../state/originating-router-ip";
+        }
+        description
+          "Reference to the ip-prefix list key";
+      }
+
+      leaf originator-ip-length {
+        type leafref {
+          path "../state/originator-ip-length";
+        }
+        description
+          "Reference to the ip-length list key";
+      }
+  }
+
+  grouping bgp-evpn-type-four-state {
+    description "Grouping for type four l2vpn evpn routes";
+    container type-four-ethernet-segment {
+      description "Top level container for type four l2vpn evpn routes";
+
+      list type-four-route {
+        key "esi originating-router-ip originator-ip-length";
+        description
+          "List of evpn ethernet segment routes";
+
+        uses bgp-evpn-type-four-key-refs;
+
+        container state {
+          description
+            "Operational state data for type4 evpn route entries
+            in the BGP LOC-RIB";
+
+          leaf esi {
+            type oc-evpn-types:esi;
+            description
+              "The ethernet segment identifier for the route";
+          }
+
+          leaf originating-router-ip {
+            type oc-inet:ip-prefix;
+            description
+              "The originating router ip";
+          }
+
+          leaf originator-ip-length {
+            type uint32;
+            description
+              "The originating router ip length";
+          }
+
+          uses bgp-loc-rib-attr-state;
+          uses bgp-common-route-annotations-state;
+          uses bgp-loc-rib-route-annotations-state;
+
+         }
+
+         uses bgp-evpn-route-path-state;
+         uses bgp-unknown-attr-top;
+      }
+    }
+  }
+
+  grouping bgp-evpn-type-five-key-refs {
+    description
+      "Key references to support operational state structure for
+      BGP EVPN type 5 routes";
+
+      leaf ip-prefix {
+        type leafref {
+          path "../state/ip-prefix";
+        }
+        description
+          "Reference to the ip-prefix list key";
+      }
+
+      leaf ip-length {
+        type leafref {
+          path "../state/ip-length";
+        }
+        description
+          "Reference to the ip-length list key";
+      }
+
+      leaf ethernet-tag {
+        type leafref {
+          path "../state/ethernet-tag";
+        }
+        description
+          "Reference to the ethernet-tag list key";
+      }
+  }
+
+  grouping bgp-evpn-type-five-state {
+    description "Grouping for type five l2vpn evpn routes";
+    container type-five-ip-prefix {
+      description "Top level container for type five l2vpn evpn routes";
+      list type-five-route {
+        key "ip-prefix ip-length ethernet-tag";
+        description
+          "List of evpn ip prefix routes";
+
+        uses bgp-evpn-type-five-key-refs;
+
+        container state {
+          description
+            "Operational state data for type5 evpn route entries
+            in the BGP LOC-RIB";
+
+          leaf ip-prefix {
+            type oc-inet:ip-prefix;
+            description
+              "The ip-prefix for the route";
+          }
+
+          leaf ip-length {
+            type string;
+            description
+              "The ip-prefix length for the route";
+          }
+
+          leaf ethernet-tag {
+            type oc-evpn-types:ethernet-tag;
+            description
+              "The ethernet tag for the route";
+          }
+
+          uses bgp-loc-rib-attr-state;
+          uses bgp-common-route-annotations-state;
+          uses bgp-loc-rib-route-annotations-state;
+         }
+
+         uses bgp-evpn-route-path-state;
+         uses bgp-unknown-attr-top;
+      }
+    }
+  }
+
+  grouping l2vpn-evpn-adj-rib-top {
+    description
+      "Top-level grouping for L2VPN-EVPN Adj-RIB table";
+
+    container neighbors {
+      config false;
+      description
+        "Enclosing container for neighbor list";
+
+      list neighbor {
+        key "neighbor-address";
+        description
+          "List of neighbors (peers) of the local BGP speaker";
+
+        leaf neighbor-address {
+          type leafref {
+            path "../state/neighbor-address";
+          }
+          description
+            "Reference to the list key";
+        }
+
+        container state {
+          description
+            "Operational state for each neighbor BGP Adj-RIB";
+
+          leaf neighbor-address {
+            type oc-inet:ip-address;
+            description
+              "IP address of the BGP neighbor or peer";
+          }
+        }
+
+        container adj-rib-in-pre {
+          description
+            "Per-neighbor table containing the NLRI updates
+            received from the neighbor before any local input
+            policy rules or filters have been applied.  This can
+            be considered the 'raw' updates from the neighbor.";
+
+          /* uses ipv4-adj-rib-common; */
+
+        }
+
+        container adj-rib-in-post {
+          description
+            "Per-neighbor table containing the paths received from
+            the neighbor that are eligible for best-path selection
+            after local input policy rules have been applied.";
+
+          /* uses ipv4-adj-rib-in-post; */
+        }
+
+        container adj-rib-out-pre {
+          description
+            "Per-neighbor table containing paths eligble for
+            sending (advertising) to the neighbor before output
+            policy rules have been applied";
+
+          /* uses ipv4-adj-rib-common; */
+        }
+
+        container adj-rib-out-post {
+          description
+            "Per-neighbor table containing paths eligble for
+            sending (advertising) to the neighbor after output
+            policy rules have been applied";
+
+          /* uses ipv4-adj-rib-common; */
         }
       }
     }
