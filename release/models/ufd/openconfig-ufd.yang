@@ -1,0 +1,236 @@
+module openconfig-ufd {
+
+  yang-version 1;
+
+  namespace "http://openconfig.net/yang/ufd";
+
+  prefix oc-ufd;
+
+  // necessary imports
+  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-inet-types { prefix oc-inet; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group 
+    www.openconfig.net";
+
+  description
+    "An Openconfig model for Up-link Failure Detection (UFD)
+    configuration and operational state.";
+
+  revision 2019-10-22 {
+    description
+      "Initial version";
+  }
+
+  // UFD group status
+  typedef ufd-group-status {
+    type enumeration {
+      enum UP {
+        description
+          "Upstream interfaces up";
+        value 1;
+      }
+      enum DOWN {
+        description
+          "Upstream interfaces down";
+        value 2;
+      }
+      enum ERROR {
+        description
+          "Disabled or misconfigured";
+        value 3;
+      }
+    }
+    description
+      "Different states the UFD group could be in.";
+  }
+
+  grouping ufd-group-config {
+    description
+      "Configuration data for UFD group";
+
+    leaf group-identifier {
+      description
+        "UFD group identifier";
+      type uint8 {
+        range "1..32";
+      }
+    }
+
+    leaf group-name {
+      description
+        "UFD group name";
+      type string ;
+    }
+
+    leaf enable {
+      description
+        "Enable status of the UFD group";
+      type boolean;
+    }
+
+    leaf defer-timer {
+      description
+        "Time in seconds to disable the downstream interfaces after the upstream
+         interfaces go down";
+      type uint8 {
+        range "1..120";
+      }
+    }
+  }
+
+
+  grouping uplink-interface-config {
+    description 
+      "Configuration associated with an uplink interface";
+
+    leaf interface-name {
+      description
+        "Reference to the interface";
+      type oc-if:base-interface-ref;
+		}
+  }
+
+  grouping downlink-interface-config {
+    description 
+      "Configuration associated with a downlink interface";
+
+    leaf interface-name {
+      description
+        "Reference to the interface";
+      type oc-if:base-interface-ref;
+		}
+  }
+
+  grouping uplink-interface-list {
+    description 
+      "List of uplink interfaces associated with an UFD group";
+
+    list uplink-interface {
+      key "interface-name";
+      description
+        "list of interfaces that form the uplink interface set";
+
+      leaf interface-name {
+        description
+          "Reference to the interface which is part of this list";
+        type leafref {
+          path "../config/interface-name";
+        }
+      }
+	  
+      container config {
+        uses uplink-interface-config;
+      }
+	   
+      container state {
+        config false;
+        uses uplink-interface-config;
+      }
+    }
+  }
+
+
+  grouping downlink-interface-list {
+    description
+      "List of downlink interfaces associated with an UFD group";
+
+    list downlink-interface {
+      key "interface-name";
+      description
+        "list of interfaces that form the downlink interface set";
+
+      leaf interface-name {
+        description
+          "Reference to the interface which is part of this list";
+        type leafref {
+          path "../config/interface-name";
+        }
+      }
+	  
+	    container config {
+        uses downlink-interface-config;
+	    }
+	   
+	    container state {
+        uses downlink-interface-config;
+        config false;
+      }
+    }
+  }
+
+
+  grouping ufd-group-state {
+    description
+      "State information for UFD group";
+
+    leaf group-status {
+      description
+        "The state of the UFD group";
+      type ufd-group-status;
+    }
+  }
+
+  grouping ufd-group-structure {
+    description
+      "Structural grouping of config and state realted to a single
+       UFD group";
+    container config {
+      uses ufd-group-config;
+    }
+
+    container state {
+      config false;
+      uses ufd-group-config;
+      uses ufd-group-state;
+    }
+
+    container uplink-interfaces {
+      description 
+        "Uplink interfaces associated with this UFD group";
+
+      uses uplink-interface-list;
+
+    }
+
+    container downlink-interfaces {
+      description 
+        "Downlink interfaces associated with this UFD group";
+
+      uses downlink-interface-list;
+    }
+  }
+
+  grouping ufd-top {
+    description
+      "Top-level UFD container for UFD configuration and state management";
+
+	  container ufd {
+      description
+        "Top-level configuration and state management for UFD";
+
+      container ufd-groups {
+        description
+          "Configuration and operational states relating to an UFD group";
+
+        list ufd-group {
+          key "group-identifier";
+
+          leaf group-identifier {
+            type leafref {
+              path "../config/group-identifier";
+            }
+          }
+
+          uses ufd-group-structure;
+        }
+      }
+    }
+  }
+
+  uses ufd-top;
+}
