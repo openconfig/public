@@ -10,6 +10,7 @@ module openconfig-if-ethernet {
   // import some basic types
   import openconfig-interfaces { prefix oc-if; }
   import iana-if-type { prefix ianaift; }
+  import openconfig-platform-types { prefix oc-platform-types; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
 
@@ -24,11 +25,17 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.11.1";
+  oc-ext:openconfig-version "2.12.0";
+
+  revision "2021-07-07" {
+    description
+      "Add support for configuring fec-mode per interface.";
+    reference "2.12.0";
+  }
 
   revision "2021-06-16" {
     description
-      "Remove trailing whitespace";
+      "Remove trailing whitespace.";
     reference "2.11.1";
   }
 
@@ -141,6 +148,44 @@ module openconfig-if-ethernet {
   oc-ext:origin "openconfig";
 
   // identity statements
+  identity INTERFACE_FEC {
+    description
+      "Base type to specify FEC modes that can be configured on the interface.
+       These are FEC modes defined for applying to logical interfaces and their
+       underlying electrical channels.";
+  }
+
+  identity FEC_FC {
+    base INTERFACE_FEC;
+    description
+      "Firecode is used for channels with NRZ modulation and speeds less than 100G.
+      This FEC is designed to comply with the IEEE 802.3, Clause 74.";
+  }
+
+  identity FEC_RS528 {
+    base INTERFACE_FEC;
+    description
+      "RS528 is used for channels with NRZ modulation. This FEC is designed to
+      comply with IEEE 802.3, Clause 91.";
+  }
+
+  identity FEC_RS544 {
+    base INTERFACE_FEC;
+    description
+      "RS544 is used for channels with PAM4 modulation.";
+  }
+
+  identity FEC_RS544_2X_INTERLEAVE {
+    base INTERFACE_FEC;
+    description
+      "RS544-2x-interleave is used for channels with PAM4 modulation.";
+  }
+
+  identity FEC_DISABLED {
+    base INTERFACE_FEC;
+    description
+      "FEC is administratively disabled.";
+  }
 
   identity ETHERNET_SPEED {
     description "base type to specify available Ethernet link
@@ -316,6 +361,15 @@ module openconfig-if-ethernet {
         flow control mode is negotiated with the peer interface.";
       reference
         "IEEE 802.3x";
+    }
+
+    leaf fec-mode {
+      type identityref {
+        base INTERFACE_FEC;
+      }
+      description
+        "The FEC mode applied to the physical channels associated with
+        the interface.";
     }
   }
 
@@ -564,9 +618,7 @@ module openconfig-if-ethernet {
       description "Ethernet interface counters";
 
       uses ethernet-interface-state-counters;
-
     }
-
   }
 
   // data definition statements
