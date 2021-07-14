@@ -45,7 +45,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.10.1";
+  oc-ext:openconfig-version "0.11.1";
+
+  revision "2021-06-28" {
+    description
+      "Adding system memory error counters.";
+    reference "0.11.1";
+  }
 
   revision "2021-06-16" {
     description
@@ -841,6 +847,33 @@ module openconfig-system {
     }
   }
 
+  grouping system-memory-error-counters {
+    description
+      "Counters for system memory errors.";
+
+    leaf correctable-ecc-errors {
+      type uint64;
+      description
+        "Count of correctable ECC errors. Systems with ECC memory
+        are capable of correcting Single-bit ECC errors.";
+    }
+
+    leaf uncorrectable-ecc-errors {
+      type uint64;
+      description
+        "Count of uncorrectable ECC errors. Systems with ECC
+        memory are capable of detecting multi-bit ECC errors,
+        but cannot correct them.";
+    }
+
+    leaf total-ecc-errors {
+      type uint64;
+      description
+        "Count of total ECC errors, this includes both correctable
+        and uncorrectable ECC errors.";
+    }
+  }
+
   grouping system-memory-top {
     description
       "Top-level grouping for system memory data definitions";
@@ -860,6 +893,12 @@ module openconfig-system {
         config false;
         description
           "Operational state data for system memory";
+
+        container counters {
+          description
+            "Counters for tracking system memory errors";
+            uses system-memory-error-counters;
+        }
 
         uses system-memory-config;
         uses system-memory-state;
