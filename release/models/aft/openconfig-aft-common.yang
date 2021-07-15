@@ -120,6 +120,16 @@ submodule openconfig-aft-common {
             "Operational state parameters relating to the AFT
             next-hop entry";
 
+          leaf config-nh-index {
+            type uint64;
+            description
+              "In some systems it may not be possible to retain the
+              nexthop index configured by a client. This will help
+              the client in creating an association/mapping between
+              original index pushed by the client and the index
+              extracted as a key in next-hop AFT list.";
+          }
+
           uses aft-common-entry-nexthop-state;
           uses aft-labeled-entry-state;
         }
@@ -297,6 +307,17 @@ submodule openconfig-aft-common {
           config false;
           description
             "Operational state parameters relating to next-hop-groups.";
+
+          leaf config-nhg-id {
+            type uint64;
+            description
+              "In some systems it may not be possible to retain the
+              nexthop-group id configured by a client. This will help
+              the client in creating an association/mapping between
+              original id pushed by the client and the id extracted
+              as a key in next-hop-group AFT list.";
+          }
+
           uses aft-nhg-state;
         }
 
