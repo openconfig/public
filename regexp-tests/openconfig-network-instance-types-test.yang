@@ -1,0 +1,90 @@
+module openconfig-network-instance-types-test {
+  prefix "rt";
+  namespace "urn:openconfig-network-instance-types-test";
+
+  import pattern-test { prefix "pt"; }
+  import openconfig-network-instance-types { prefix "oc-ni-types"; }
+
+  leaf route-distinguisher {
+    type oc-ni-types:route-distinguisher;
+    // type 0: <2-byte administrator>:<4-byte assigned number>
+    //         <0-65535>:<0-4294967295>
+    pt:pattern-test-pass "0:4294967295";
+    pt:pattern-test-pass "99:4294967295";
+    pt:pattern-test-pass "999:999999999";
+    pt:pattern-test-pass "9999:99999999";
+    pt:pattern-test-pass "65535:0";
+    pt:pattern-test-pass "59999:65536";
+    pt:pattern-test-pass "64999:4294967289";
+    pt:pattern-test-pass "65499:4294967199";
+    pt:pattern-test-pass "65529:4294966999";
+    pt:pattern-test-pass "65529:4294959999";
+    pt:pattern-test-pass "65535:4294899999";
+    pt:pattern-test-pass "65535:4293999999";
+    pt:pattern-test-pass "65535:4289999999";
+    pt:pattern-test-pass "65535:4199999999";
+    pt:pattern-test-pass "65535:3999999999";
+    pt:pattern-test-fail "0:4294967296";
+    pt:pattern-test-fail "65536:777777";
+    pt:pattern-test-fail "65540:777777";
+    pt:pattern-test-fail "65600:777777";
+    pt:pattern-test-fail "66000:777777";
+    pt:pattern-test-fail "70000:777777";
+    pt:pattern-test-fail "42:4294967395";
+    pt:pattern-test-fail "42:4294968295";
+    pt:pattern-test-fail "42:4294977295";
+    pt:pattern-test-fail "42:4295067295";
+    pt:pattern-test-fail "42:4304967295";
+    pt:pattern-test-fail "42:5000000000";
+    pt:pattern-test-fail "42:02";
+    pt:pattern-test-fail "042:2";
+    // type 1: <ip-address>:<2-byte assigned number>
+    //         <ipv4>:<0-65535>
+    pt:pattern-test-pass "255.255.255.255:0";
+    pt:pattern-test-pass "255.255.255.255:99";
+    pt:pattern-test-pass "1.1.1.1:59999";
+    pt:pattern-test-pass "1.1.1.1:64999";
+    pt:pattern-test-pass "1.1.1.1:65499";
+    pt:pattern-test-pass "1.1.1.1:65529";
+    pt:pattern-test-pass "0.0.0.0:65535";
+    pt:pattern-test-fail "1.1.1.1:65536";
+    pt:pattern-test-fail "1.1.1.1:65540";
+    pt:pattern-test-fail "1.1.1.1:65600";
+    pt:pattern-test-fail "1.1.1.1:66000";
+    pt:pattern-test-fail "1.1.1.1:70000";
+    pt:pattern-test-fail "256.255.255.255:99";
+    pt:pattern-test-fail "1.1.1.256:99";
+    pt:pattern-test-fail "256.1.1.1%eth0:99";
+    // type 2: <4-byte as-number>:<2-byte assigned number>
+    //         <0-4294967295>:<0-65535>
+    pt:pattern-test-pass "4294967295:0";
+    pt:pattern-test-pass "4294967295:99";
+    pt:pattern-test-pass "999999999:999";
+    pt:pattern-test-pass "99999999:9999";
+    pt:pattern-test-pass "0:65535";
+    pt:pattern-test-pass "65536:59999";
+    pt:pattern-test-pass "4294967289:64999";
+    pt:pattern-test-pass "4294967199:65499";
+    pt:pattern-test-pass "4294966999:65529";
+    pt:pattern-test-pass "4294959999:65529";
+    pt:pattern-test-pass "4294899999:65535";
+    pt:pattern-test-pass "4293999999:65535";
+    pt:pattern-test-pass "4289999999:65535";
+    pt:pattern-test-pass "4199999999:65535";
+    pt:pattern-test-pass "3999999999:65535";
+    pt:pattern-test-fail "4294967296:0";
+    pt:pattern-test-fail "777777:65536";
+    pt:pattern-test-fail "777777:65540";
+    pt:pattern-test-fail "777777:65600";
+    pt:pattern-test-fail "777777:66000";
+    pt:pattern-test-fail "777777:70000";
+    pt:pattern-test-fail "4294967395:42";
+    pt:pattern-test-fail "4294968295:42";
+    pt:pattern-test-fail "4294977295:42";
+    pt:pattern-test-fail "4295067295:42";
+    pt:pattern-test-fail "4304967295:42";
+    pt:pattern-test-fail "5000000000:42";
+    pt:pattern-test-fail "42:02";
+    pt:pattern-test-fail "042:2";
+  }
+}

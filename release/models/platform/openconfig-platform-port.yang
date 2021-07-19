@@ -24,7 +24,13 @@ module openconfig-platform-port {
     "This module defines data related to PORT components in the
     openconfig-platform model";
 
-  oc-ext:openconfig-version "0.3.3";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2021-04-22" {
+    description
+      "Adding support for flexible port breakout.";
+    reference "0.4.0";
+  }
 
   revision "2020-05-06" {
     description
@@ -78,57 +84,111 @@ module openconfig-platform-port {
 
   // grouping statements
 
-  grouping port-breakout-config {
+  grouping group-config {
     description
-      "Configuration data for the port breakout mode";
+      "Configuration data for the breakout group.";
 
-    leaf num-channels {
+    leaf index {
       type uint8;
       description
-        "Sets the number of channels to 'breakout' on a port
-        capable of channelization";
+        "Each index specifies breakouts that are identical in
+        terms of speed and the number of physical channels."; 
+    }
+    
+    leaf num-breakouts {
+      type uint8;
+      description
+        "Sets the number of interfaces using this breakout group.";
     }
 
-    leaf channel-speed {
+    leaf breakout-speed {
       type identityref {
         base oc-eth:ETHERNET_SPEED;
       }
       description
-        "Sets the channel speed on each channel -- the
-        supported values are defined by the
-        ETHERNET_SPEED identity";
+        "Speed of interfaces in this breakout group, supported 
+        values are defined by the ETHERNET_SPEED identity.";
+    }
+    
+    leaf num-physical-channels {
+      type uint8;
+      description
+        "Sets the number of lanes or physical channels assigned
+        to the interfaces in this breakout group. This leaf need
+        not be set if there is only one breakout group where all
+        the interfaces are of equal speed and have equal number
+        of physical channels";
     }
   }
 
-  grouping port-breakout-state {
+  grouping group-state {
     description
-      "Operational state data for the port breakout mode ";
+      "Operational state data for the port breakout group.";
   }
 
   grouping port-breakout-top {
     description
-      "Top-level grouping for port breakout data";
+      "Top-level grouping for port breakout data.";
 
     container breakout-mode {
       description
-        "Top-level container for port breakout data";
+        "Top-level container for port breakout-mode data.";
 
-      container config {
+      container groups {
         description
-          "Configuration data for port breakout";
+          "Top level container for breakout groups data.
+          
+           When a device has the capability to break a port into 
+           interfaces of different speeds and different number of 
+           physical channels, it can breakout a 400G OSFP port with 
+           8 physical channels (with support for 25G NRZ, 50G PAM4 
+           and 100G PAM4) in the following configuration: 
+           
+           100G + 100G + 200G -> 1 interface with 2 physical channels
+           and 1 interface with 4 physical channels and 1 interface with
+           2 physical channels. With this configuration the interface in 
+           1st breakout group would use 50G PAM4 modulation, interface 
+           in 2nd breakout group would use 25G NRZ modulation and the  
+           interface in 3rd breakout group would use 100G PAM4 modulation
+           This configuration would result in 3 entries in the breakout
+           groups list. 
+           
+           When a device does not have the capability to break a port 
+           into interfaces of different speeds and different number of 
+           physical channels, it would breakout a 400G OSFP port with 
+           8 physical channels in the following configuration:
+           
+           50G -> 8 interfaces with 1 physical channel each, this would 
+           result in 1 entry in the breakout groups list.";
 
-        uses port-breakout-config;
-      }
+           list group {
+             key "index";
+             description
+               "List of breakout groups.";
+          
+             leaf index {
+               type leafref {
+               path "../config/index";
+             }
+             description
+               "Index of the breakout group entry in the breakout groups list.";
+           }
+               
+           container config {
+             description
+               "Configuration data for breakout group.";
+             uses group-config;
+           }
 
-      container state {
+           container state {
+             config false;
+             description
+               "Operational state data for breakout group.";
 
-        config false;
-
-        description
-          "Operational state data for port breakout";
-
-        uses port-breakout-config;
-        uses port-breakout-state;
+             uses group-config;
+             uses group-state;
+          }
+        }
       }
     }
   }

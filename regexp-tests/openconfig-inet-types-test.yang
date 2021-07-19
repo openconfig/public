@@ -1,0 +1,80 @@
+module openconfig-inet-types-test {
+  prefix "ocinet-t";
+  namespace "urn:openconfig-inet-types-test";
+
+  import pattern-test { prefix "pt"; }
+  import openconfig-inet-types { prefix "ocinet"; }
+
+  leaf ipv4-address {
+    type ocinet:ipv4-address;
+    pt:pattern-test-pass "255.255.255.255";
+    pt:pattern-test-pass "0.0.0.0";
+    pt:pattern-test-pass "1.1.1.1";
+    pt:pattern-test-fail "256.255.255.255";
+    pt:pattern-test-fail "1.1.1.256";
+    pt:pattern-test-fail "256.1.1.1%eth0";
+  }
+  leaf ipv4-address-zoned {
+    type ocinet:ipv4-address-zoned;
+    pt:pattern-test-pass "255.1.1.1%eth0";
+    pt:pattern-test-pass "255.255.255.255%eth1";
+    pt:pattern-test-pass "0.0.0.0%PoRt3";
+    pt:pattern-test-pass "1.1.1.1%FOX10_mouse5";
+    pt:pattern-test-fail "255.1.1.1%";
+    pt:pattern-test-fail "255.255.255.255";
+    pt:pattern-test-fail "0.0.0.0";
+    pt:pattern-test-fail "1.1.1.1";
+    pt:pattern-test-fail "256.255.255.255";
+    pt:pattern-test-fail "1.1.1.256";
+    pt:pattern-test-fail "256.1.1.1%eth0";
+  }
+  leaf ip-address {
+    type ocinet:ip-address;
+    pt:pattern-test-pass "255.255.255.255";
+    pt:pattern-test-pass "2001:db8::1";
+    pt:pattern-test-fail "invalid-data";
+    pt:pattern-test-pass "::1";
+  }
+  leaf ipv6-address {
+    type ocinet:ipv6-address;
+    pt:pattern-test-pass "2620::1000:3202:23e:e1ff:fec7:7112";
+    pt:pattern-test-pass "fe80::23e:e1ff:fec7:7112";
+    pt:pattern-test-fail "fe80::23e:NOTVALID:fec7:7112";
+    pt:pattern-test-fail "FFFF::NOTE::FFFF";
+    pt:pattern-test-fail "FFFF::1::42";
+  }
+  leaf ipv4-prefix {
+    type ocinet:ipv4-prefix;
+    pt:pattern-test-pass "0.0.0.0/0";
+    pt:pattern-test-pass "255.255.255.255/32";
+    pt:pattern-test-fail "256.0.0.0/31";
+    pt:pattern-test-pass "1.2.3.0/24";
+    pt:pattern-test-fail "1.2.3.4/33";
+  }
+  leaf ipv6-prefix {
+    type ocinet:ipv6-prefix;
+    pt:pattern-test-pass "::/0";
+    pt:pattern-test-pass "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF/128";
+    pt:pattern-test-fail "FFFF:FFFF:FFFF:NOTVALID:FFFF:FFFF:FFFF:FFFF/64";
+    pt:pattern-test-pass "2001:DB8::/32";
+    pt:pattern-test-fail "2001:4C20::/129";
+  }
+  leaf ip-prefix {
+    type ocinet:ip-prefix;
+    pt:pattern-test-pass "0.0.0.0/0";
+    pt:pattern-test-pass "192.0.2.1/32";
+    pt:pattern-test-fail "192.0.2.2/33";
+    pt:pattern-test-pass "FE80::CAFE/128";
+    pt:pattern-test-fail "FE81::CAFE:DEAD:BEEF/129";
+  }
+  leaf domain-name {
+    type ocinet:domain-name;
+    pt:pattern-test-pass "ambroseesorbma";
+    pt:pattern-test-fail "ambrose esorbma";
+    pt:pattern-test-pass "claire.";
+    pt:pattern-test-fail "~~~-+=.";
+    pt:pattern-test-fail "ambrose esorbma";
+    pt:pattern-test-pass "012345678901234567890123456789012345678901234567890123456789012.";
+    pt:pattern-test-fail "0123456789012345678901234567890123456789012345678901234567890123";
+  }
+}

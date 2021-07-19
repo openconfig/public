@@ -22,8 +22,14 @@ module openconfig-spanning-tree-types {
     "This module defines types related to the
     spanning-tree protocol model.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
 
+  revision "2021-02-19" {
+    description
+      "Correct range for bridge priority type.";
+    reference "0.4.0";
+  }
+  
   revision "2019-11-28" {
     description
       "Correct revision statement date for v0.3.0";
@@ -192,11 +198,15 @@ module openconfig-spanning-tree-types {
   // typedef statements
 
   typedef stp-bridge-priority-type {
-    type uint32 {
-      range 1..611440;
+    type uint16 {
+      range 0..61440;
     }
+    default 32768;
     description
-      "The manageable component of the Bridge Identifier";
+      "The manageable component of the Bridge Identifier.  The bridge priority
+      determines which bridge is selected as the root bridge (lowest priority
+      value is selected as root).  Valid values are in the range 0 through
+      61440, in steps of 4096.";
     reference "IEEE 802.1D 17.13.7 Bridge Identifier Priority";
   }
 

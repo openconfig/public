@@ -10,6 +10,7 @@ module openconfig-terminal-device {
   import openconfig-types { prefix oc-types; }
   import openconfig-transport-types { prefix oc-opt-types; }
   import openconfig-if-ethernet { prefix oc-eth; }
+  import openconfig-interfaces { prefix oc-if; }
   import openconfig-platform { prefix oc-platform; }
   import openconfig-platform-transceiver { prefix oc-transceiver; }
   import openconfig-lldp { prefix oc-lldp; }
@@ -76,7 +77,14 @@ module openconfig-terminal-device {
     ports per linecard, separate linecards for client and line ports,
     etc.).";
 
-  oc-ext:openconfig-version "1.7.3";
+  oc-ext:openconfig-version "1.8.0";
+
+  revision "2021-02-23" {
+    description
+      "Small additions to support ZR transceivers. Adds a new
+      ingress type of interface and a client mapping mode leaf.";
+    reference "1.8.0";
+  }
 
   revision "2020-05-09" {
     description
@@ -980,6 +988,17 @@ module openconfig-terminal-device {
         all physical channels in the transceiver are assumed to be
         mapped to the logical channel.";
     }
+
+    leaf interface {
+      type oc-if:base-interface-ref;
+      description
+        "Reference to the interface carrying the input signal
+        for the logical channel. The ingress will specify an interface
+        in the case of a transceiver being utilized directly in a
+        router and bypassing a dedicated terminal device. When
+        specified, the other leaves in the ingress config must be
+        empty.";
+    }
   }
 
   grouping terminal-logical-channel-ingress-state {
@@ -995,7 +1014,7 @@ module openconfig-terminal-device {
       description
         "Top-level container for specifying references to the
         source of signal for the logical channel, either a
-        transceiver or individual physical channels";
+        transceiver, individual physical channels, or an interface";
 
       container config {
         description
@@ -1108,6 +1127,23 @@ module openconfig-terminal-device {
       description
         "When enabled the logical channel's DSP will generate a pseudo
         randmon bit stream (PRBS) which can be used during testing.";
+    }
+
+    leaf client-mapping-mode {
+      type identityref {
+        base oc-opt-types:CLIENT_MAPPING_MODE;
+      }
+      description
+        "The client side mapping mode internal to the device that
+        specifies the number of client electrical interfaces and
+        the data rate of each client electrical interface. For
+        example, a ZR+ transceiver with an optical line rate of 400G
+        could be configured to break out into four 100G client
+        signals which might connect to an interface or a
+        physical-channel. This would be configured on the aggregate
+        logical channel as MODE_4X100G. This is only valid on the
+        aggregate logical channel that is connected directly to the
+        optical-channel.";
     }
   }
 

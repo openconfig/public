@@ -1,0 +1,29 @@
+module openconfig-packet-match-types-test {
+  prefix "openconfig-packet-match-types-test";
+  namespace "urn:openconfig-packet-match-types-test";
+
+  import pattern-test { prefix "pt"; }
+  import openconfig-packet-match-types { prefix "oc-pkt-match-types"; }
+
+  leaf port-num-range {
+    type oc-pkt-match-types:port-num-range;
+    pt:pattern-test-pass "0..0";
+    pt:pattern-test-pass "00000..00000";
+    pt:pattern-test-pass "00..00";
+    pt:pattern-test-pass "01..01";
+    pt:pattern-test-pass "0..65535";
+    pt:pattern-test-pass "01111..09999";
+    pt:pattern-test-pass "9999..59999";
+    pt:pattern-test-pass "60536..60999";
+    pt:pattern-test-pass "60999..61999";
+    pt:pattern-test-pass "62999..63999";
+    pt:pattern-test-pass "64999..65535";
+    pt:pattern-test-fail "65535..66646";
+    pt:pattern-test-fail "65535..65536";
+    pt:pattern-test-fail "65535..65545";
+    pt:pattern-test-fail "65535..65635";
+    pt:pattern-test-fail "66535..65535";
+    pt:pattern-test-fail "66999..67890";
+    pt:pattern-test-fail "70000..70000";
+  }
+}

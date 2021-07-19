@@ -35,9 +35,43 @@ module openconfig-platform-transceiver {
     In the platform model, a component of type=TRANSCEIVER is
     expected to be a subcomponent of a PORT component.  This
     module defines a concrete schema for the associated data for
-    components with type=TRANSCEIVER.";
+    components with type=TRANSCEIVER.
 
-  oc-ext:openconfig-version "0.7.1";
+    A transceiver will always contain physical-channel(s), however
+    when a line side optical-channel is present (i.e. ZR+ optics)
+    the physical-channel will reference its optical-channel.
+    In this case, the optical-channels components must be
+    subcomponents of the transceiver. The relationship between the
+    physical-channel and the optical-channel allows for multiple
+    optical-channels to be associated with a transceiver in addition
+    to ensuring certain leaves (i.e. output-power) are not duplicated
+    in multiple components.
+
+    If a transceiver contains a digital signal processor (DSP), such
+    as with ZR+ optics, the modeling will utilize hierarchical
+    components as follows:
+    PORT --> TRANSCEIVER --> OPTICAL_CHANNEL(s)
+    The signal will then traverse through a series of
+    terminal-device/logical-channels as required. The first
+    logical-channel connected to the OPTICAL_CHANNEL will utilize the
+    assignment/optical-channel leaf to create the relationship. At the
+    conclusion of the series of logical-channels, the logical-channel
+    will be associated to its host / client side based on:
+    * If the TRANSCEIVER is directly within a router or switch, then
+      it will use the logical-channel ingress leaf to specify the
+      interface it is associated with.
+    * If the TRANSCEIVER is within a dedicated terminal (Layer 1)
+      device, then it will use the logical-channel ingress leaf to
+      specify a physical-channel within a TRANSCEIVER component
+      (i.e. gray optic) that it is associated with.";
+
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2021-02-23" {
+    description
+      "Add leafref to an optical channel from a physical channel.";
+    reference "0.8.0";
+  }
 
   revision "2020-05-06" {
     description
@@ -192,6 +226,19 @@ module openconfig-platform-transceiver {
         client port";
     }
 
+    leaf associated-optical-channel {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
+      }
+      description
+        "A physical channel may reference an optical channel
+        component. If the physical channel does make this optional
+        reference, then a limited set of leaves will apply within
+        the physical channel to avoid duplication within the optical
+        channel.";
+    }
+
     leaf description {
       type string;
       description
@@ -204,6 +251,24 @@ module openconfig-platform-transceiver {
         "Enable (true) or disable (false) the transmit label for the
         channel";
     }
+
+    uses physical-channel-config-extended {
+      when "../../../config/module-functional-type = 'oc-opt-types:TYPE_STANDARD_OPTIC'" {
+        description
+          "When the physical channel is of TYPE_STANDARD_OPTIC, the
+          extended config will be used";
+      }
+    }
+  }
+
+  grouping physical-channel-config-extended {
+    description
+      "Extended configuration data for physical client channels
+      for applications where the full physical channel config and
+      state are used. In some cases, such as when the physical
+      channel has a leafref to an optical channel component and the
+      module-functional-type is TYPE_DIGITAL_COHERENT_OPTIC this
+      grouping will NOT be used.";
 
     leaf target-output-power {
       type decimal64 {
@@ -218,7 +283,28 @@ module openconfig-platform-transceiver {
 
   grouping physical-channel-state {
     description
-      "Operational state data for client channels.";
+      "Operational state data for client channels. In some cases,
+      such as when the physical channel has a leafref to an optical
+      channel component and the module-functional-type is
+      TYPE_DIGITAL_COHERENT_OPTIC this grouping will NOT be used.";
+
+    uses physical-channel-state-extended {
+      when "../../../state/module-functional-type = 'oc-opt-types:TYPE_STANDARD_OPTIC'" {
+        description
+          "When the physical channel is of TYPE_STANDARD_OPTIC, the
+          extended state will be used";
+      }
+    }
+  }
+
+  grouping physical-channel-state-extended {
+    description
+      "Extended operational state data for physical client channels
+      for applications where the full physical channel config and
+      state are used. In some cases, such as when the physical
+      channel has a leafref to an optical channel component and the
+      module-functional-type is TYPE_DIGITAL_COHERENT_OPTIC this
+      grouping will NOT be used.";
 
     uses output-optical-frequency;
     uses optical-power-state;
@@ -325,6 +411,17 @@ module openconfig-platform-transceiver {
         "The FEC mode indicates the mode of operation for the
         transceiver's FEC. This defines typical operational modes
         and does not aim to specify more granular FEC capabilities.";
+    }
+
+    leaf module-functional-type {
+      type identityref {
+        base oc-opt-types:TRANSCEIVER_MODULE_FUNCTIONAL_TYPE;
+      }
+      description
+        "Indicates the module functional type which represents the
+        functional capability of the transceiver. For example, this
+        would specify the module is a digital coherent optic or a
+        standard grey optic that performs on-off keying.";
     }
   }
 
