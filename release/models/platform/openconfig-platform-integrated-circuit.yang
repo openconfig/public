@@ -20,7 +20,13 @@ module openconfig-platform-integrated-circuit {
     These components are generically forwarding NPUs or ASICs within
     the system for which configuration or state is applicable.";
 
-  oc-ext:openconfig-version "0.1.2";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2021-07-08" {
+    description
+      "Adding integrated circuit memory parity error counters.";
+    reference "0.2.0";
+  }
 
   revision "2021-06-21" {
     description
@@ -98,9 +104,54 @@ module openconfig-platform-integrated-circuit {
     }
   }
 
+  grouping integrated-circuit-memory {
+    description
+      "Structural grouping for integrated circuit memory.";
+
+    container memory {
+      description
+        "Container for integrated circuit memory.";
+
+      container state {
+        config false;
+        description
+          "Operational state parameters relating to integrated circuit memory.";
+
+        uses integrated-circuit-memory-state;
+      }
+    }
+  }
+
+  grouping integrated-circuit-memory-state {
+    description
+      "Counters that correspond to parity errors in integrated circuit memory";
+
+    leaf corrected-parity-errors {
+      type uint64;
+      description
+        "Number of corrected parity errors. Single bit ECC errors can be
+        detected and corrected by most integrated circuits.";
+    }
+
+    leaf uncorrected-parity-errors {
+      type uint64;
+      description
+        "Number of uncorrected parity errors. Multi-bit ECC errors can be
+        detected but cannot be corrected by most integrated circuits.";
+    }
+
+    leaf total-parity-errors {
+      type uint64;
+      description
+        "Total number of parity errors. This includes both the corrected and
+        uncorrected parity errors.";
+    }
+  }
+
   augment "/oc-platform:components/oc-platform:component/oc-platform:integrated-circuit" {
     description
-      "Augment integrated circuit components with backplane-facing capacity.";
+      "Augment integrated circuit components with backplane-facing capacity and memory errors.";
     uses backplane-facing-capacity-structural;
+    uses integrated-circuit-memory;
   }
 }
