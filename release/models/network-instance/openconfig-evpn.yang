@@ -39,23 +39,22 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.2.0";
 
-  revision "2021-06-16" {
-    description
-      "Remove trailing whitespace";
-    reference "0.1.1";
+  revision "2021-06-11" {
+   description
+     "Structural update for arp-proxy and
+     nd-proxy.";
+   reference "0.2.0";
   }
 
   revision "2020-11-24" {
    description
-     "Initial revision";
-   reference   "0.1.0";
+     "Initial revision.";
+   reference "0.1.0";
   }
 
-
   /* Groupings */
-
 
   /* Groupings related to Ethernet-Segment Configuration*/
 
@@ -358,21 +357,61 @@ module openconfig-evpn {
 
   /* Groupings related to the Layer 2 forwarding (aka MAC-VRF)*/
 
-  grouping evpn-mac-vrf-config {
+  grouping evpn-arp-proxy-top {
     description
-      "Configuration data related to mac-vrf";
+      "Top Container related to ARP-Proxy";
 
-    leaf anycast-gateway-mac {
-      type oc-yang:mac-address;
+    container arp-proxy {
       description
-        "Configure the anycast gateway MAC address that all VTEPs
-        use for the network instance. When a VM sends an Address
-        Resolution Protocol (ARP) request for the anycast gateway
-        IP address in a VXLAN virtual network, the VTEP responds
-        with the configured anycast MAC address.";
-    }
+        "Top Container related to ARP-Proxy";
 
-    leaf arp-proxy {
+      container config {
+        description
+          "Configuration data related to ARP-Proxy.";
+
+        uses evpn-arp-proxy-config;
+      }
+
+      container state {
+        config false;
+        description
+          "State data related to ARP-Proxy.";
+
+        uses evpn-arp-proxy-config;
+      }
+    }
+  }
+
+  grouping evpn-nd-proxy-top {
+    description
+      "Top Container related to ND-Proxy";
+
+    container nd-proxy {
+      description
+        "Top Container related to ND-Proxy.";
+
+      container config {
+        description
+          "Configuration data related to ND-Proxy.";
+
+        uses evpn-nd-proxy-config;
+      }
+
+      container state {
+        config false;
+        description
+          "State data related to ND-Proxy.";
+
+        uses evpn-nd-proxy-config;
+      }
+    }
+  }
+
+  grouping evpn-arp-proxy-config {
+    description
+      "Configuration data related to ARP-Proxy";
+
+    leaf enable {
       type boolean;
       default false;
       description
@@ -398,7 +437,33 @@ module openconfig-evpn {
         RFC 7432: BGP MPLS-Based Ethernet VPN";
     }
 
-    leaf nd-proxy {
+    leaf ip-mobility-threshold {
+      type uint16;
+      description
+        "Enable (TRUE) or disable (FALSE). It is possible for a given host
+        or end-station (as defined by its IP address) to move from one
+        Ethernet segment to another. The number of IP mobility events that
+        are detected for a given IP address within the detection-threshold
+        before it is identified as a duplicate IP address.
+        Once the detection threshold is reached, updates for the IP address
+        are suppressed.";
+    }
+
+    leaf duplicate-ip-detection-interval {
+      type uint16;
+      description
+        "The time interval used in detecting a duplicate IP address.
+        Duplicate ip detection number of host moves
+        allowed within interval period";
+    }
+  }
+
+  grouping evpn-nd-proxy-config {
+    description
+      "Configuration data related to Neighbor Discovery (ND)
+        proxy";
+
+    leaf enable {
       type boolean;
       default false;
       description
@@ -420,6 +485,41 @@ module openconfig-evpn {
         technique used to reduce the amount of NDP Packets
         flooding within individual VXLAN segments, that is between
         VMs connected to the same logical switch.";
+    }
+
+    leaf ip-mobility-threshold {
+      type uint16;
+      description
+        "Enable (TRUE) or disable (FALSE). It is possible for a given host
+        or end-station (as defined by its IP address) to move from one
+        Ethernet segment to another. The number of IP mobility events that
+        are detected for a given IP address within the detection-threshold
+        before it is identified as a duplicate IP address.
+        Once the detection threshold is reached, updates for the IP address
+        are suppressed.";
+    }
+
+    leaf duplicate-ip-detection-interval {
+      type uint16;
+      description
+        "The time interval used in detecting a duplicate IP address.
+        Duplicate ip detection number of host moves
+        allowed within interval period";
+    }
+  }
+
+  grouping evpn-mac-vrf-config {
+    description
+      "Configuration data related to mac-vrf";
+
+    leaf anycast-gateway-mac {
+      type oc-yang:mac-address;
+      description
+        "Configure the anycast gateway MAC address that all VTEPs
+        use for the network instance. When a VM sends an Address
+        Resolution Protocol (ARP) request for the anycast gateway
+        IP address in a VXLAN virtual network, the VTEP responds
+        with the configured anycast MAC address.";
     }
 
     leaf flood-unknown-unicast-supression {
@@ -702,7 +802,6 @@ module openconfig-evpn {
     }
   }
 
-
   grouping evpn-evi-overlay-config {
     description
       "Parameters related the configuration of Network Virtualization Overlay Solution
@@ -711,8 +810,8 @@ module openconfig-evpn {
     leaf vni {
       type oc-evpn-types:vni-id;
       description
-        "Virtual Network Identifier (VNI)
-        associated to the EVI";
+        "Virtual Network Identifier (VNI) associated to the EVI. This VNI is used for
+        ingress and egress in the VXLAN domain.";
     }
 
     leaf overlay-endpoint-network-instance {
@@ -739,6 +838,18 @@ module openconfig-evpn {
       description
         "Enable or Disable the BGP control plane to be
         used to exchange  updates from the NVE interface";
+    }
+
+    leaf multicast-group {
+     type oc-inet:ip-address;
+     description
+       "Multicast group address for BUM traffic";
+    }
+
+    leaf multicast-mask {
+      type oc-inet:ip-address;
+      description
+        "Multicast group address mask";
     }
   }
 
