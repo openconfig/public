@@ -26,7 +26,13 @@ module openconfig-igmp {
   description
     "An OpenConfig model for Internet Group Management Protocol (IGMP).";
 
-   oc-ext:openconfig-version "0.2.0";
+   oc-ext:openconfig-version "0.3.0";
+
+  revision "2021-05-17" {
+    description
+      "Add Static Mapping for IGMP at interface.";
+    reference "0.3.0";
+  }
 
   revision "2019-07-09" {
     description
@@ -184,6 +190,62 @@ module openconfig-igmp {
     }
   }
 
+  grouping igmp-static-config {
+    description
+      "IGMP membership static configuration.";
+
+    leaf static-group {
+      type inet:ipv4-address;
+      description
+        "Multicast address.";
+    }
+
+    leaf source {
+      type inet:ipv4-address;
+      description
+        "Source address of multicast.";
+    }
+  }
+
+  grouping igmp-static-top {
+    description
+      "Top Container for the static IGMP membership.";
+
+      container static-membership-groups {
+      description
+        "List of IGMP Membership information.";
+
+      list static-groups {
+        key "static-group";
+        description
+          "Multicast group membership.";
+
+        leaf static-group {
+          type leafref {
+            path "../config/static-group";
+          }
+          description
+            "Multicast address.";
+        }
+
+        container config {
+          description
+            "Multicast group membership.";
+
+          uses igmp-static-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Multicast group membership.";
+
+          uses igmp-static-config;
+        }
+      }
+    }
+  }
+
   grouping igmp-snooping-structural {
     description
       "IGMP membership information determined through snooping.";
@@ -270,6 +332,7 @@ module openconfig-igmp {
 
         uses igmp-interface-counters;
         uses igmp-snooping-structural;
+        uses igmp-static-top;
         uses oc-if:interface-ref;
       }
     }
