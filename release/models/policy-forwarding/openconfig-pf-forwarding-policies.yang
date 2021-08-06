@@ -253,12 +253,9 @@ submodule openconfig-pf-forwarding-policies {
 
     leaf network-instance {
       type leafref {
-
-        // We are at:
-        // $NIROOT/policy-forwarding/policies/
-        // policy/rules/rule/action/config/
-        // network-instance
-        path "../../../../../../../../config/name";
+        // this must be an absolute reference to allow another NHG to be
+        // referenced.
+        path "/network-instances/network-instance/config/name";
       }
       description
         "When this leaf is set, packets matching the match criteria
