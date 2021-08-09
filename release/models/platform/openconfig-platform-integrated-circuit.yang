@@ -20,7 +20,13 @@ module openconfig-platform-integrated-circuit {
     These components are generically forwarding NPUs or ASICs within
     the system for which configuration or state is applicable.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2021-08-09" {
+    description
+      "Amendments to platform capacity model.";
+    reference "0.2.0";
+  }
 
   revision "2021-05-16" {
     description
@@ -39,7 +45,7 @@ module openconfig-platform-integrated-circuit {
     container backplane-facing-capacity {
       description
         "This container allows a particular INTEGRATED_CIRCUIT to report its
-        available backplane-facing bandwidth. Wheere an integrated circuit is connected
+        available backplane-facing bandwidth. Where an integrated circuit is connected
         by one or more links to the system's backplane, the capacity is the total cross-
         sectional bandwidfth available from the input ports of the integrated circuit
         across the fabric. The capacity should also reflect the operational status of
@@ -68,20 +74,32 @@ module openconfig-platform-integrated-circuit {
       oc-ext:telemetry-on-change;
     }
 
+    leaf total-operational-capacity {
+      type uint64;
+      units "bits per second";
+      description
+        "Total backplane-facing capacity that is currently available based
+        on the active links";
+    }
+
     leaf consumed-capacity {
       type uint64;
       units "bits per second";
       description
         "Backplane-facing capacity that is consumed by front-panel ports that are connected
-        to the integrated circuit.";
+        to the integrated circuit and are operationally up.";
       oc-ext:telemetry-on-change;
     }
 
     leaf available-pct {
-      type oc-types:percentage;
+      type uint16;
+      units "percent";
       description
         "Percentage of the total backplane-facing capacity that is currently available to the front
-        panel ports taking into account failures and/or degradation within the system.";
+        panel ports taking into account failures and/or degradation within the system
+
+        In the case that there is more backplane-facing capacity available than the front-panel
+        ports consume, this value may be greater than 100%.";
       oc-ext:telemetry-on-change;
     }
   }
