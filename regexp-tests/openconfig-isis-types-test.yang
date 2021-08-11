@@ -1,0 +1,26 @@
+module openconfig-isis-types-test {
+  prefix "rt";
+  namespace "urn:openconfig-isis-types-test";
+
+  import pattern-test { prefix "pt"; }
+  import openconfig-isis-types { prefix "ocist"; }
+
+  leaf isis-net {
+    type ocist:net;
+    pt:pattern-test-pass "49.1270.0000.0001.00";
+    pt:pattern-test-pass "49.0001.1270.0000.0001.00";
+    pt:pattern-test-pass "49.0001.AE12.DEAD.BEEF.0000.0000.0000.0000.0000.9A";
+    pt:pattern-test-fail "490.0001.1270.0000.0001.00";
+    pt:pattern-test-fail "49.0001.1270.0.0001.1";
+    pt:pattern-test-fail "49.0001.1270.00";
+    pt:pattern-test-fail "49.0001.1270.0000.000X.00";
+  }
+  leaf isis-area-address {
+    type ocist:area-address;
+    pt:pattern-test-pass "49";
+    pt:pattern-test-pass "49.0001";
+    pt:pattern-test-pass "49.ABCD.abcd.Ef09";
+    pt:pattern-test-fail "49.0001.";
+    pt:pattern-test-fail "49.0001.0002.0003.0004";
+  }
+}
