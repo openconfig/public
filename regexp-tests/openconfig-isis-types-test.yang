@@ -15,6 +15,7 @@ module openconfig-isis-types-test {
     pt:pattern-test-fail "49.0001.1270.00";
     pt:pattern-test-fail "49.0001.1270.0000.000X.00";
   }
+
   leaf isis-area-address {
     type ocist:area-address;
     pt:pattern-test-pass "49";
@@ -22,5 +23,23 @@ module openconfig-isis-types-test {
     pt:pattern-test-pass "49.ABCD.abcd.Ef09";
     pt:pattern-test-fail "49.0001.";
     pt:pattern-test-fail "49.0001.0002.0003.0004";
+  }
+
+  leaf isis-system-id {
+    type ocist:system-id;
+    pt:pattern-test-pass "0123.4567.89aB";
+    pt:pattern-test-pass "ABCD.abcd.efEF";
+    pt:pattern-test-fail "ABCD.abcd.efgG";
+    pt:pattern-test-fail "0001.0002.0003.0004";
+    pt:pattern-test-fail "0001.0002";
+  }
+
+  leaf isis-lsp-id {
+    type ocist:lsp-id;
+    pt:pattern-test-pass "0123.4567.89aB.00-00";
+    pt:pattern-test-pass "ABCD.abcd.efEF.67-89";
+    pt:pattern-test-fail "ABCD.abcd.efEF";
+    pt:pattern-test-fail "0001.0002.0003.ae-1f";
+    pt:pattern-test-fail "0001.0002.00-00";
   }
 }
