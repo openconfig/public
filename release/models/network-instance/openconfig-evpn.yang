@@ -1170,13 +1170,15 @@ module openconfig-evpn {
     }
     leaf multidestination-traffic {
       type union {
-        type oc-inet:ip-address;
+        type oc-inet:ip-address {
+          description "Multicast address used for BUM traffic";
+        }
         type enumeration {
           enum STATIC_INGRESS_REPLICATION {
             description
               "Static ingress replication mode.";
           }
-          enum BGP {
+          enum BGP_INGRESS_REPLICATION {
             description
               "BGP EVPN ingress replication mode. It includes the ability to
               signal a P2MP LSP for the EVPN Inclusive Provider Tunnel
