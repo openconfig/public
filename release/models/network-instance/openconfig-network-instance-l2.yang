@@ -492,7 +492,7 @@ submodule openconfig-network-instance-l2 {
               type leafref {
                 path "../state/host-ip";
               }
-                description "Leafref host-ip for the MAC-IP table entry";
+              description "IP address of the Customer Edge device";
             }
 
             container state {
@@ -543,7 +543,9 @@ submodule openconfig-network-instance-l2 {
 
     leaf host-ip {
       type inet:ip-address;
-      description "Host IP address for the L2RIB MAC-IP entry";
+      description
+        "Host IP address of the CE device for the L2RIB MAC-IP entry";
+      reference "RFC7432: BGP MPLS-Based Ethernet VPN";
     }
 
     leaf l3-vni {
@@ -616,6 +618,7 @@ submodule openconfig-network-instance-l2 {
       }
       description
         "Indicates if learned MAC address is duplicate or frozen";
+      reference "draft-ietf-bess-evpn-irb-extended-mobility-05"
     }
 
     leaf esi {
@@ -633,7 +636,7 @@ submodule openconfig-network-instance-l2 {
       type leafref {
         path "../../../../next-hops/next-hop/index";
       }
-        description "Leafref host-ip for the MAC-IP table entry";
+      description "Leafref next-hop for the MAC-IP table entry";
     }
   }
 
