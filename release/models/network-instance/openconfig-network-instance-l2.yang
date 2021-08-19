@@ -453,11 +453,9 @@ submodule openconfig-network-instance-l2 {
                 }
               }
             }
-
-            uses l2ni-l2rib-common-next-hop-state;
           }
         }
-
+        uses l2ni-l2rib-common-next-hop-state;
       }
 
       container mac-ip-table {
@@ -524,10 +522,9 @@ submodule openconfig-network-instance-l2 {
                 }
               }
             }
-
-            uses l2ni-l2rib-common-next-hop-state;
           }
         }
+        uses l2ni-l2rib-common-next-hop-state;
       }
     }
   }
@@ -550,7 +547,13 @@ submodule openconfig-network-instance-l2 {
 
     leaf l3-vni {
       type oc-evpn-types:evi-id;
-      description "Layer3 VNI used for inter-subnet routing";
+      description
+        "Symmetric IRB uses the same forwarding semantics when routing
+         between IP subnets with VRF Lite or MPLS L3VPNs. With symmetric IRB,
+         all traffic egressing and returning from a VTEP uses the same VNI.
+         Specifically, the same Layer 3 VNI (L3VNI) associated with the VRF
+         is used for all routed traffic. Layer3 VNI used for inter-subnet
+         routing";
     }
   }
 
@@ -623,7 +626,7 @@ submodule openconfig-network-instance-l2 {
 
     leaf esi {
       type oc-evpn-types:esi;
-      description "Ethernet Segment Identifier";
+      description "Ethernet Segment Identifier for local and remote routes";
     }
 
     leaf sticky {
@@ -634,7 +637,7 @@ submodule openconfig-network-instance-l2 {
 
     leaf next-hop {
       type leafref {
-        path "../../../../next-hops/next-hop/index";
+        path "../../../../../../next-hops/next-hop/index";
       }
       description "Leafref next-hop for the MAC-IP table entry";
     }
