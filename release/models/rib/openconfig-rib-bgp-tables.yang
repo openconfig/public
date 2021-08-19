@@ -354,7 +354,7 @@ submodule openconfig-rib-bgp-tables {
             leaf route-distinguisher {
               type oc-ni-types:route-distinguisher;
               description
-                "The route distinguisher";
+                "Route distinguisher for local and remote l2vpn evpn routes";
             }
           }
           uses bgp-evpn-type-one-state;
@@ -445,11 +445,14 @@ submodule openconfig-rib-bgp-tables {
           }
           leaf label {
             type string;
-            description "Label info";
+            description 
+              "MPLS Label field used for route attributes";
+            reference "RFC7432: BGP MPLS-Based Ethernet VPN";
           }
           leaf label2 {
             type string;
-            description "Label2 info";
+            description "MPLS Label2 field used for route attributes";
+            reference "RFC7432: BGP MPLS-Based Ethernet VPN";
           }
           leaf bestpath {
             type boolean;
@@ -515,7 +518,7 @@ submodule openconfig-rib-bgp-tables {
           leaf esi {
             type oc-evpn-types:esi;
             description
-              "The ethernet segment identifier for the route";
+              "The ethernet segment identifier for local and remote routes";
           }
 
           leaf ethernet-tag {
