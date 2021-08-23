@@ -25,7 +25,13 @@ submodule openconfig-qos-interfaces {
     configuration and operational state associated with
     interfaces.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2021-04-28" {
+    description
+      "Updating memory management profile to queue management profile.";
+    reference "0.4.0";
+  }
 
   revision "2021-04-28" {
     description
@@ -250,17 +256,15 @@ submodule openconfig-qos-interfaces {
       "Configuration parameters for per-queue per-interface, applying
       only to the root.";
 
-    leaf memory-management-profile {
+    leaf queue-management-profile {
       type leafref {
-        // we are at /qos/interfaces/interface/{input,output}/queues/queue/config/memory-management-profile
-        path "../../../../../../../memory-management-profiles/" +
-             "memory-management-profile/config/name";
+        // we are at /qos/interfaces/interface/{input,output}/queues/queue/config/queue-management-profile
+        path "../../../../../../../queue-management-profiles/" +
+             "queue-management-profile/config/name";
       }
       description
-        "The memory management profile that is to be used for the queue
-        on the interface. The memory management profile specifies how
-        the system manages the memory that is allocated to the queue through
-        a buffer allocation profile.
+        "The queue management profile that is to be used for the queue
+        on the interface.
 
         For example, the system may use a profile which specifies that
         WRED curves are used for setting an ECN mark in the IP header

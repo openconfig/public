@@ -18,18 +18,24 @@ submodule openconfig-qos-mem-mgmt {
 
   description
     "This submodule defines configuration and operational state
-    data associated related to memory management features of QoS
+    data associated related to queue management features of QoS
     particularly:
 
     - buffer-allocation-profiles: these profiles are applied on
       a per-interface basis, and determine how memory is to be managed
       across the queues that are instantiated on the system.
 
-    - memory-management-profiles: these profiles are applied on a per-interface
-      per-queue basis, and determine how memory is to be managed within
+    - queue-management-profiles: these profiles are applied on a per-interface
+      per-queue basis, and determine how packets are marked/dropped within
       the queue instantiation.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2021-08-28" {
+    description
+      "Revision updating memory management profile WRED and RED configuration.";
+    reference "0.5.0";
+  }
 
   revision "2021-06-28" {
     description
@@ -222,74 +228,185 @@ submodule openconfig-qos-mem-mgmt {
     }
   }
 
-  grouping qos-memory-management-profile-config {
+  grouping qos-queue-management-profile-config {
     description
-      "Configuration parameters for memory management profiles.";
+      "Configuration parameters for queue management profiles.";
 
     leaf name {
       type string;
       description
-        "Unique string name used for the memory management profile.";
+        "Unique string name used for the queue management profile.";
     }
   }
 
-  grouping qos-mem-mgmt-profile-top {
+  grouping qos-queue-management-profile-red-wred-common-config {
     description
-      "Grouping containing memory management profiles for queues.";
+      "Common configuration parameters for red and wred.";
 
-    container memory-management-profiles {
+    leaf min-threshold {
+      type uint64;
+      units bytes;
+      description
+        "The mininum threshold parameter for a RED-managed queue. When the
+        average queue length is less than minth, all packets are admitted
+        to the queue.";
+    }
+
+    leaf max-threshold {
+      type uint64;
+      units bytes;
+      description
+        "The maximum threshold parameter for a RED-managed queue. When the
+        average queue length exceeds the maxth value, all packets are
+        dropped (or marked if ECN is enabled).";
+    }
+
+    leaf enable-ecn {
+      type boolean;
+      default false;
+      description
+        "When this leaf is true and the number of packets in the queue
+        is between the minimum threshold and the maximum threshold, if
+        the ECN field on the packet indicates that the endpoints are ECN
+        capable (that is, the ECT bit is set to 1 and the CE bit is set
+        to 0, or the ECT bit is set to 0 and the CE bit is set to 1) and
+        the WRED algorithm determines that the packet should have been
+        dropped based on the drop probability, the ECT and CE bits for
+        the packet are changed to 1, and the packet is transmitted.";
+    }
+
+    leaf drop {
+      type boolean;
+      default false;
+      description
+        "When this leaf is true and the packet and if the ECN field in
+        the packet indicates that the endpoints are not ECN capable and
+        the and the WRED algorithm determines that the packet should
+        have been dropped based on the drop probability, the packet
+        is dropped.";
+    }
+  }
+
+  grouping qos-queue-management-profile-wred-config {
+    description
+      "Configuration parameters for wred buffer allocation.";
+
+    leaf weight {
+      type uint32;
+      description
+        "The average queue size depends on the previous average as well as
+         the current size of the queue.
+
+        average queue size = (previous average queue size)*(1-2^{-n})+
+                             (current queue size)*(2^{-n})
+
+        where n is the user-configurable exponential weight factor.
+
+        The previous average is more important for high values of n. Peaks
+        and lows in queue size are smoothed by a high value. For low values
+        of n, the average queue size is close to the current queue size.";
+    }
+
+    leaf max-drop-probability-percent {
+      type oc-types:percentage;
+      description
+        "If the queue depth is between min and max threshold then this
+        the probability with which packets are dropped or marked.";
+    }
+  }
+
+  grouping qos-queue-mgmt-profile-top {
+    description
+      "Grouping containing queue management profiles for queues.";
+
+    container queue-management-profiles {
       description
         "Surrounding container for the list of configured
-        memory management profiles.";
+        queue management profiles.";
 
-      list memory-management-profile {
+      list queue-management-profile {
         key "name";
 
         description
-          "A memory management profile within the OpenConfig QoS model
-          specifies how memory is to be managed for a particular instance
-          of a queue on a particular interface. The parameters that are
-          specified determine how the memory that is allocated through
-          a buffer-allocation-policy to a particular queue is handled -
-          for example, whether RED, or WRED is applied to manage the
-          queue's occupancy.";
+          "A queue management profile within the OpenConfig QoS model
+          specifies how packets are ECN marked/dropped for a particular
+          instance of a queue on a particular interface. for example,
+          whether RED, or WRED is applied to manage the queue's occupancy.";
 
         leaf name {
           type leafref {
             path "../config/name";
           }
           description
-            "Reference to the unique name used to reference the memory
+            "Reference to the unique name used to reference the queue
             management profile";
         }
 
         container config {
           description
-            "Configuration parameters relating to the memory
+            "Configuration parameters relating to the queue
             management profile.";
-          uses qos-memory-management-profile-config;
+          uses qos-queue-management-profile-config;
         }
 
         container state {
           config false;
           description
-            "Operational state parameters relating to the memory
+            "Operational state parameters relating to the queue
             management profile.";
-          uses qos-memory-management-profile-config;
+          uses qos-queue-management-profile-config;
         }
 
         container wred {
           description
-            "Configuration and operational state parameters
-            relating to Weighted Random Early Detection (WRED).";
-          // TODO(openconfig-ops): fill out wred parameters.
+            "Configuration and operational state parameters relating to
+            Weighted Random Early Detection (WRED).";
+
+          container uniform {
+            description
+              "Uniform WRED parameters. These parameters are applied to all the
+              traffic coming into system.";
+
+            container config {
+              description
+                "Configuration parameters relating to the WRED.";
+              uses qos-queue-management-profile-red-wred-common-config;
+              uses qos-queue-management-profile-wred-config;
+            }
+
+            container state {
+              config false;
+              description
+                "Operational state parameters relating to the WRED.";
+              uses qos-queue-management-profile-red-wred-common-config;
+              uses qos-queue-management-profile-wred-config;
+            }
+          }
         }
 
         container red {
           description
             "Configuration and operational state parameters
             relating to Random Early Detection (RED).";
-          // TODO(openconfig-ops): fill out red parameters.
+
+          container uniform {
+            description
+              "Uniform RED parameters. These parameters are applied to all
+              the traffic coming into system.";
+
+            container config {
+              description
+                "Configuration parameters relating to the RED.";
+              uses qos-queue-management-profile-red-wred-common-config;
+            }
+
+            container state {
+              config false;
+              description
+                "Operational state parameters relating to the RED.";
+              uses qos-queue-management-profile-red-wred-common-config;
+            }
+          }
         }
       }
     }
