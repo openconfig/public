@@ -25,7 +25,12 @@ module openconfig-terminal-device-ext {
     "This modules extends the openconfig-terminal-device YANG 
      module with a limited set of attributes.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2021-06-30" {
+    description "Addition of state of polarization data nodes";
+    reference "0.2.0";
+  }
 
   revision "2021-02-01" {
     description
@@ -43,9 +48,9 @@ module openconfig-terminal-device-ext {
     description "Multi-value statistics containers for optical channels
 	(e.g., max, min, avg, instant)";
 	
-	container snr {
-      description
-        "Signal to noise ratio measured in dB on the
+      container snr {
+          description
+                "Signal to noise ratio measured in dB on the
 		optical channel (optical carrier) supported
 		by the Layer 1 transponder terminal device.";
 
@@ -53,9 +58,27 @@ module openconfig-terminal-device-ext {
     } 
   }
 
-  grouping state-of-polarization-parameters-top {
-    description "";
-    uses state-of-polarization-parameters-state;
+  grouping state-of-polarization-parameters-config {
+    description "Configuration parameters assocaited with SoP.";
+
+    leaf sop-data-collection {
+      description "Enables per-optical channel collection of SoP data.";
+      type boolean;
+      default false;
+    }
+
+    leaf sop-sampling-interval {
+      when "../sop-data-collection = 'true'";
+      
+      type uint32 {
+        range "10..500"; 
+      }
+      default 500;
+      units "milliseconds";
+      description "If SoP collection is enabled, this attribute 
+                  indicates the sampling interval (i.e., sampling
+                  of the SoP data done by the DSP.";
+    }
   }
 
   grouping state-of-polarization-parameters-state {
@@ -120,8 +143,13 @@ module openconfig-terminal-device-ext {
     uses terminal-optical-channel-multi-stats;
   }
 
+  augment "/oc-platform:components/oc-platform:component/oc-opt-term:optical-channel/oc-opt-term:config" {
+    description "Adding extensions for state-of-polarization configuration data for an optical channel.";
+    uses state-of-polarization-parameters-config;
+  }
+
   augment "/oc-platform:components/oc-platform:component/oc-opt-term:optical-channel/oc-opt-term:state" {
-    description "Adding extensions for state-of-polarization data for an optical channel.";
-    uses state-of-polarization-parameters-top;
+    description "Adding extensions for state-of-polarization PM data for an optical channel.";
+    uses state-of-polarization-parameters-state;
   }
 }
