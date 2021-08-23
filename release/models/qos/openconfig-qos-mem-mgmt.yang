@@ -5,6 +5,8 @@ submodule openconfig-qos-mem-mgmt {
   }
 
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-types { prefix oc-types; }
+
   include openconfig-qos-elements;
 
   organization
@@ -27,13 +29,40 @@ submodule openconfig-qos-mem-mgmt {
       per-queue basis, and determine how memory is to be managed within
       the queue instantiation.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2021-06-28" {
+    description
+      "Adding buffer carving policies per interface per queue.";
+    reference "0.4.0";
+  }
 
   revision "2021-04-28" {
     description
       "Revision updating buffer management and queue management
       configuration.";
     reference "0.3.0";
+  }
+
+  identity SHARED_BUFFER_LIMIT_TYPE {
+    description
+      "Base identity for supported shared buffer limit types.";
+  }
+
+  identity STATIC {
+    base SHARED_BUFFER_LIMIT_TYPE;
+    description
+      "The maximum buffer space that the queue is allowed to use from the shared
+       buffer is specified as a static-limit which is expressed in bytes.";
+  }
+
+  identity DYNAMIC_BASED_ON_SCALING_FACTOR {
+    base SHARED_BUFFER_LIMIT_TYPE;
+    description
+      "The maximum buffer space that the queue is allowed to use from the shared
+       buffer is dynamically determined based on the current usage pattern of the
+       shared buffer and a dynamic-limit which is expressed as a scaling factor
+       on the free space in the shared buffer.";
   }
 
   grouping qos-buffer-profile-top {
@@ -145,8 +174,52 @@ submodule openconfig-qos-mem-mgmt {
         "Reference to the queue being referenced within the buffer allocation profile.";
     }
 
-    // TODO(openconfig-ops): fill out parameters that relate to a specific queue within the
-    // allocation profile (e.g., min-memory = 5MB ...)
+    leaf dedicated-buffer {
+      type uint64;
+      units bytes;
+      description
+        "This is the dedicated buffer that is carved for the queue, this is the minimum
+        number of bytes reserved for this queue.";
+    }
+
+    leaf use-shared-buffer {
+      type boolean;
+      description
+        "If the flag is true, then the queue is allowed to use buffers from shared pool
+        in additional to the dedicated buffers assigned for this queue.";
+    }
+
+    leaf shared-buffer-limit-type {
+      type identityref {
+        base SHARED_BUFFER_LIMIT_TYPE;
+      }
+      description
+        "The type of limit used to specify the amount of buffer space that the queue
+        is allowed to use from the shared pool.";
+    }
+
+    leaf static-shared-buffer-limit {
+      type uint32;
+      units bytes;
+      description
+        "If the shared-buffer-limit-type is STATIC, then static-shared-buffer-limit is
+        the maximum number of bytes that the queue is allowed to use from the shared
+        pool.";
+    }
+
+    leaf dynamic-limit-scaling-factor {
+      type int32;
+      description
+        "If shared-buffer-limit-type is DYNAMIC_BASED_ON_SCALING_FACTOR, the scaling
+        factor and the current free space in the shared pool is used to determine the
+        maximum buffer sapce from the shared pool that the queue is allowed to use.
+
+        Example: If a queue is using 79MB and the other queues are using 11MB, the
+        free buffer is 10MB. If the configured scaling factor is 3 for the queue, the
+        maximum buffer space from the shared pool that the queue is allowed to use is
+        calculated as (free buffer * 2^scaling factor) ie. 10MB*2^3 = 80MB. Since the
+        current usage is 79MB which is < 80MB, the packet is queued.";
+    }
   }
 
   grouping qos-memory-management-profile-config {
