@@ -62,22 +62,19 @@ module openconfig-terminal-device-ext {
     description "Configuration parameters assocaited with SoP.";
 
     leaf sop-data-collection {
-      description "Enables per-optical channel collection of SoP data.";
-      type boolean;
-      default false;
-    }
-
-    leaf sop-sampling-interval {
-      when "../sop-data-collection = 'true'";
-      
-      type uint32 {
-        range "10..500"; 
-      }
-      default 500;
-      units "milliseconds";
-      description "If SoP collection is enabled, this attribute 
+      description "Enables per-optical channel collection of SoP data.
+                  If SoP collection is enabled, this attribute 
                   indicates the sampling interval (i.e., sampling
-                  of the SoP data done by the DSP.";
+                  of the SoP data done by the DSP.)";
+
+      type union {
+          type boolean;
+          type uint16 {
+              range "10..500";
+          }
+      }
+      default false;
+      units "milliseconds";
     }
   }
 
