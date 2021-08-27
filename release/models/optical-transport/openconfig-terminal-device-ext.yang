@@ -80,14 +80,12 @@ module openconfig-terminal-device-ext {
   grouping state-of-polarization-parameters-state {
     description "State parameters (including PM data) associated with SoP.";
     list sop-data {
-      key "timestamp";
+      key "sample-id";
       max-elements 250;
 
-      leaf timestamp {
-        type oc-yang-types:date-and-time;
-        description 
-          "The local timestamp at which the per-subcarrier
-           SoP data was sampled and collected.";
+      leaf sample-id {
+        type uint8;
+        description "An identifier for the sample instance."; 
       }
 
       list sop-sample {
@@ -127,6 +125,13 @@ module openconfig-terminal-device-ext {
 
         leaf rate {
           type opt-types-ext:sop-rate-data;
+        }
+        
+        leaf timestamp {
+          type oc-yang-types:date-and-time;
+          description 
+              "The local timestamp at which the per-subcarrier
+               SoP data was sampled and collected.";
         }
       }
     }
