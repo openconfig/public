@@ -22,7 +22,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2021-07-15" {
+    description
+      "NHG-ID and NH-ID space management.";
+    reference "0.7.0";
+  }
 
   revision "2020-11-06" {
     description
@@ -183,6 +189,21 @@ submodule openconfig-aft-common {
         "A unique entry for the next-hop.";
     }
 
+    leaf programmed-index {
+      type uint64;
+      description
+        "In some routing protocols, or route injection mechanisms it
+        is possible to set the index of the next-hop via configuration
+        or the protocol itself. In some systems it may not be possible
+        to maintain the index provided by an external client when
+        advertising the same entry via telemetry.
+
+        This leaf reflects the configured or client-supplied index of
+        the next-hop. This allows a client to create an assocation or
+        mapping back to the original index pushed by the client, and
+        the ID used as a key in the next-hop AFT list.";
+    }
+
     leaf ip-address {
       type oc-inet:ip-address;
       description
@@ -297,6 +318,7 @@ submodule openconfig-aft-common {
           config false;
           description
             "Operational state parameters relating to next-hop-groups.";
+
           uses aft-nhg-state;
         }
 
@@ -425,6 +447,24 @@ submodule openconfig-aft-common {
         identifier. If the identifier of the next-hop-group
         is changed, all AFT entries that reference it must
         also be updated.";
+    }
+
+    leaf programmed-id {
+      type uint64;
+      description
+        "In some routing protocols or route injection mechanisms it
+        is possible to supply the ID of the next-hop-group via
+        configuration or the protocol itself. In some systems, it
+        may not be possible to use this same ID when returning the
+        NHG via telemetry.
+
+        This leaf reflects the ID of the next-hop group that was
+        used by the original programming mechanism.
+
+        This leaf allows a client to create an association between
+        a programmed next-hop's original ID, and the ID that is
+        extracted via telemetry as a key in the next-hop-group AFT
+        list.";
     }
 
     leaf color {
