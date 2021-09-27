@@ -31,7 +31,16 @@ module openconfig-inet-types {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.4.1";
+
+  revision "2021-07-14" {
+    description
+      "Use auto-generated regex for ipv4 pattern statements:
+      - ipv4-address
+      - ipv4-address-zoned
+      - ipv4-prefix";
+    reference "0.4.1";
+  }
 
   revision "2021-01-07" {
     description
@@ -109,12 +118,12 @@ module openconfig-inet-types {
 
   typedef ipv4-address {
     type string {
-      pattern '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|'        +
-              '25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4]'  +
-              '[0-9]|25[0-5])';
-      oc-ext:posix-pattern '^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|'        +
-              '25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4]'  +
-              '[0-9]|25[0-5])$';
+      pattern
+        '([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\.([0-9]|'
+        + '[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])){3}';
+      oc-ext:posix-pattern
+        '^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\.([0-9]|'
+        + '[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])){3})$';
     }
     description
       "An IPv4 address in dotted quad notation using the default
@@ -123,12 +132,12 @@ module openconfig-inet-types {
 
   typedef ipv4-address-zoned {
     type string {
-      pattern '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|'        +
-              '25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4]'  +
-              '[0-9]|25[0-5])(%[a-zA-Z0-9_]+)';
-      oc-ext:posix-pattern '^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|'        +
-              '25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4]'  +
-              '[0-9]|25[0-5])(%[a-zA-Z0-9_]+)$';
+      pattern
+        '([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\.([0-9]|'
+        + '[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])){3}(%[a-zA-Z0-9_]+)';
+      oc-ext:posix-pattern
+        '^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\.([0-9]|'
+        + '[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])){3}(%[a-zA-Z0-9_]+))$';
     }
     description
       "An IPv4 address in dotted quad notation.  This type allows
@@ -210,12 +219,14 @@ module openconfig-inet-types {
 
   typedef ipv4-prefix {
     type string {
-      pattern '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|'       +
-              '25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4]' +
-              '[0-9]|25[0-5])/(([0-9])|([1-2][0-9])|(3[0-2]))';
-      oc-ext:posix-pattern '^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|'       +
-              '25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4]' +
-              '[0-9]|25[0-5])/(([0-9])|([1-2][0-9])|(3[0-2]))$';
+      pattern
+        '([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\.([0-9]|'
+        + '[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])){3}/([0-9]|[12][0-9]|'
+        + '3[0-2])';
+      oc-ext:posix-pattern
+        '^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\.([0-9]|'
+        + '[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])){3}/([0-9]|[12][0-9]|'
+        + '3[0-2]))$';
     }
     description
       "An IPv4 prefix represented in dotted quad notation followed by
