@@ -1,0 +1,41 @@
+name: YAML Lint
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: yaml-lint individual specs
+      uses: ibiqlik/action-yamllint@v3
+      with:
+        file_or_dir: yang
+        no_warnings: true
+        config_data: |
+          extends: default
+          rules:
+            line-length:
+              level: warning
+
+    - name: Concatenate spec files
+      run: bash scripts/create_concatenated_spec_file.sh
+
+    - name: yaml-lint concatenated spec
+      uses: ibiqlik/action-yamllint@v3
+      with:
+        file_or_dir: concatenated_spec_file.yml
+        no_warnings: true
+        config_data: |
+          extends: default
+          rules:
+            line-length:
+              level: warning
