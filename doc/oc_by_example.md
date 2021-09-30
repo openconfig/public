@@ -260,7 +260,7 @@ the gNMI specification. For now all you need to understand is that gRPC
 connections such as this here are what’s occurring at the lower level.
 
 Extra credit; change the Rx packet value to a string, and see what happens.
-**Why does it fai?**
+**Why does it fail?**
 
 Leave these containers running for Lesson 2.
 
@@ -564,7 +564,8 @@ def CreateConfigs():
   int_conf = configs.interfaces
   int_conf.config.enabled = True
 ```
-Here we are assigning the imported bindings to a variable named ‘configs’.We use
+Here we are assigning the imported bindings to a variable named ‘configs’.
+We use
 that inside the CreateConfigs function by assigning the ‘interfaces’ Class to
 the variable "int_conf" (recall the “container interfaces” in the YANG model we
   wrote earlier). We can now manipulate this configs object, by setting config
