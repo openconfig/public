@@ -8,6 +8,7 @@ module openconfig-p4rt {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-platform { prefix oc-platform; }
+  import openconfig-system-grpc { prefix oc-grpc; }
 
   organization
     "OpenConfig Working Group";
@@ -25,12 +26,24 @@ module openconfig-p4rt {
     The P4RT protocol specification is linkde from https://p4.org/specs/
     under the P4Runtime heading.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision 2021-07-20 {
+    description
+      "Add identity for P4RT as a gRPC service.";
+    reference "0.2.0";
+  }
 
   revision 2021-04-06 {
     description
       "Initial revision.";
     reference "0.1.0";
+  }
+
+  identity P4RT {
+    base "oc-grpc:GRPC_SERVICE";
+    description
+      "P4RT: P4 Runtime (P4RT) Service.";
   }
 
   grouping p4rt-interface-config {

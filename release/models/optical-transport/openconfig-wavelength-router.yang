@@ -41,7 +41,13 @@ module openconfig-wavelength-router {
          target spectrum power profile over the full spectrum instead
          of individual media channels.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2021-07-26" {
+    description
+      "Add dynamic loss damped mode.";
+    reference "1.1.0";
+  }
 
   revision "2020-08-28" {
     description
@@ -148,6 +154,18 @@ module openconfig-wavelength-router {
       controlled by the device by attempting to meet the target output
       power as defined in the output port's
       port-spectrum-power-profile";
+  }
+
+  identity ATTENUATION_DYNAMIC_LOSS_DAMPED {
+    base ATTENUATION_CONTROL_MODE;
+    description
+      "The attenuation applied across a media channel is dynamically
+      controlled by the device by attempting to meet the target output
+      power as defined in the output port's
+      port-spectrum-power-profile. In this mode, convergence to the
+      target output power occurs gradually to minimize any power
+      oscillations across the line system. These changes will happen
+      within the order of minutes";
   }
 
   identity ASE_CONTROL_MODE {

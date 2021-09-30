@@ -10,6 +10,7 @@ submodule openconfig-qos-interfaces {
   import openconfig-yang-types { prefix oc-yang; }
 
   include openconfig-qos-elements;
+  include openconfig-qos-mem-mgmt;
 
   // meta
   organization
@@ -17,14 +18,27 @@ submodule openconfig-qos-interfaces {
 
   contact
     "OpenConfig working group
-    netopenconfig@googlegroups.com";
+     www.openconfig.net";
 
   description
     "This submodule defines data related to quality-of-service
     configuration and operational state associated with
     interfaces.";
 
-  oc-ext:openconfig-version "0.2.3";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2021-04-28" {
+    description
+      "Updating memory management profile to queue management profile.";
+    reference "0.4.0";
+  }
+
+  revision "2021-04-28" {
+    description
+      "Revision updating buffer management and queue management
+      configuration.";
+    reference "0.3.0";
+  }
 
   revision "2019-11-28" {
     description
@@ -56,9 +70,9 @@ submodule openconfig-qos-interfaces {
     reference "0.1.0";
   }
 
-  grouping qos-interface-classifier-match-config {
+  grouping qos-interface-classifier-match-state {
     description
-      "Configuration data for match terms in the classifier
+      "Operational state data for match terms in the classifier
       associated with an interface";
 
     leaf id {
@@ -74,12 +88,6 @@ submodule openconfig-qos-interfaces {
       description
         "Reference to match terms in the classifier";
     }
-  }
-
-  grouping qos-interface-classifier-match-state {
-    description
-      "Operational state data for match terms in the classifier
-      associated with an interface";
 
     leaf matched-packets {
       type oc-yang:counter64;
@@ -109,24 +117,18 @@ submodule openconfig-qos-interfaces {
 
       list term {
         key "id";
+        config false;
+
         description
           "List of match terms in the classifier associated with the
           interface";
 
         leaf id {
           type leafref {
-            path "../config/id";
+            path "../state/id";
           }
           description
             "Reference to match term id list key";
-        }
-
-        container config {
-          description
-            "Configuration data for match terms in the classifier
-            associated with an interface";
-
-          uses qos-interface-classifier-match-config;
         }
 
         container state {
@@ -135,7 +137,6 @@ submodule openconfig-qos-interfaces {
             "Operational state data for match terms in the classifier
             associated with an interface";
 
-          uses qos-interface-classifier-match-config;
           uses qos-interface-classifier-match-state;
         }
       }
@@ -201,18 +202,26 @@ submodule openconfig-qos-interfaces {
     leaf type {
       type enumeration {
         enum IPV4 {
-          description
-            "Classifier matches IPv4 packets.";
           value 4;
+          description
+            "Classifier matches IPv4 Unicast packets.";
         }
         enum IPV6 {
-          description
-            "Classifier matches IPv6 packets.";
           value 6;
+          description
+            "Classifier matches IPv6 Unicast packets.";
         }
         enum MPLS {
           description
             "Classifier matches MPLS packets.";
+        }
+        enum IPV4_MULTICAST {
+          description
+            "Classifier matches IPv4 Multicast packets.";
+        }
+        enum IPV6_MULTICAST {
+          description
+            "Classifier matches IPv6 Multicast packets.";
         }
       }
       description
@@ -222,8 +231,8 @@ submodule openconfig-qos-interfaces {
 
   grouping qos-interface-queue-config {
     description
-      "Configuration data for the queue associated with the
-      interface";
+      "Configuration data for queues associated with the
+      interface, this is re-used across input/output queues.";
 
     leaf name {
       // TODO(robjs): Previously we proposed that the queue name here is
@@ -239,6 +248,33 @@ submodule openconfig-qos-interfaces {
         by the system based on default queues that are instantiated
         by a hardware component, or are assumed to be default on
         the system.";
+    }
+  }
+
+  grouping qos-interface-queue-root-config {
+    description
+      "Configuration parameters for per-queue per-interface, applying
+      only to the root.";
+
+    leaf queue-management-profile {
+      type leafref {
+        // we are at /qos/interfaces/interface/{input,output}/queues/queue/config/queue-management-profile
+        path "../../../../../../../queue-management-profiles/" +
+             "queue-management-profile/config/name";
+      }
+      description
+        "The queue management profile that is to be used for the queue
+        on the interface.
+
+        For example, the system may use a profile which specifies that
+        WRED curves are used for setting an ECN mark in the IP header
+        instead of dropping a packet in order to signal impending
+        congestion and for determining when there is sufficient
+        congestion to tail drop packets.
+
+        A single profile is available per queue - which applies to all packets
+        that are enqueued to the specified queue, whether they are unicast or
+        multicast.";
     }
   }
 
@@ -322,6 +358,56 @@ submodule openconfig-qos-interfaces {
             interface";
 
           uses qos-interface-queue-config;
+          uses qos-interface-queue-state;
+        }
+      }
+    }
+  }
+
+  grouping qos-interface-queue-root-top {
+    description
+      "Top-level grouping for the queue associated with the
+      interface - used only for /qos/interfaces/interface rather
+      than in multiple contexts.";
+
+    container queues {
+      description
+        "Surrounding container for a list of queues that are
+        instantiated on an interface.";
+
+      list queue {
+        key "name";
+
+        description
+          "Top-level container for the queue associated with this
+          interface";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the name of the queue
+            instantiated on the interface.";
+        }
+
+        container config {
+          description
+            "Configuration data for the queue associated with the
+            interface";
+
+          uses qos-interface-queue-config;
+          uses qos-interface-queue-root-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for the queue associated with the
+            interface";
+
+          uses qos-interface-queue-config;
+          uses qos-interface-queue-root-config;
           uses qos-interface-queue-state;
         }
       }
@@ -548,6 +634,75 @@ submodule openconfig-qos-interfaces {
   grouping qos-interface-input-config {
     description
       "Configuration data for QoS on ingress interface";
+
+    leaf buffer-allocation-profile {
+      type leafref {
+        // we are at
+        // /qos/interfaces/interface/input/config/buffer-allocation-profile
+        path "../../../../../buffer-allocation-profiles/"  +
+             "buffer-allocation-profile/config/name";
+      }
+      description
+        "The buffer allocation profile that is to be used for the interface.
+        This profile specifies how memory that is available to the interface
+        should be allocated amongst the queues that are instantiated on the
+        interface.
+
+        This reference specifies the policy that should be used for memory
+        allocated to the input (rx) queueing.
+
+        This leaf is used in deployment cases where the operator or system
+        requires common allocation profiles covering unicast and multicast
+        packets.";
+    }
+
+    leaf multicast-buffer-allocation-profile {
+      type leafref {
+        // we are at
+        // /qos/interfaces/interface/input/config/multicast-buffer-allocation-profile
+        path "../../../../../buffer-allocation-profiles/"  +
+             "buffer-allocation-profile/config/name";
+      }
+      description
+        "The buffer allocation profile that is to be used for the interface.
+        This profile specifies how memory that is available to the interface
+        should be allocated amongst the queues that are instantiated on the
+        interface.
+
+        This reference specifies the policy that should be used for memory
+        allocated to the output (tx) queueing.
+
+        This buffer allocation profile applies to only multicast packets on
+        the interface - if specified, the unicast-buffer-allocation-profile
+        governs the allocation profile used for memory dedicated to unicast.
+        If a system does not support, or an operator does not require separate
+        buffer-allocation-profiles, this is specified by use of the
+        buffer-allocation-profile leaf.";
+    }
+
+    leaf unicast-buffer-allocation-profile {
+      type leafref {
+        // we are at
+        // /qos/interfaces/interface/input/config/unicast-buffer-allocation-profile
+        path "../../../../../buffer-allocation-profiles/"  +
+             "buffer-allocation-profile/config/name";
+      }
+      description
+        "The buffer allocation profile that is to be used for the interface.
+        This profile specifies how memory that is available to the interface
+        should be allocated amongst the queues that are instantiated on the
+        interface.
+
+        This reference specifies the policy that should be used for memory
+        allocated to the output (tx) queueing.
+
+        This buffer allocation profile applies to only unicast packets on
+        the interface - if specified, the multicast-buffer-allocation-profile
+        governs the allocation profile used for memory dedicated to multicast.
+        If a system does not support, or an operator does not require separate
+        buffer-allocation-profiles, this is specified by use of the
+        buffer-allocation-profile leaf.";
+    }
   }
 
   grouping qos-interface-input-state {
@@ -581,7 +736,7 @@ submodule openconfig-qos-interfaces {
       }
 
       uses qos-interface-classifier-top;
-      uses qos-interface-queue-top;
+      uses qos-interface-queue-root-top;
       uses qos-interface-scheduler-top;
       uses qos-interface-voqs-top;
     }
@@ -590,6 +745,75 @@ submodule openconfig-qos-interfaces {
   grouping qos-interface-output-config {
     description
       "Configuration data for QoS on the egress interface";
+
+    leaf buffer-allocation-profile {
+      type leafref {
+        // we are at
+        // /qos/interfaces/interface/output/config/buffer-allocation-profile
+        path "../../../../../buffer-allocation-profiles/"  +
+             "buffer-allocation-profile/config/name";
+      }
+      description
+        "The buffer allocation profile that is to be used for the interface.
+        This profile specifies how memory that is available to the interface
+        should be allocated amongst the queues that are instantiated on the
+        interface.
+
+        This reference specifies the policy that should be used for memory
+        allocated to the output (tx) queueing.
+
+        This leaf is used in deployment cases where the operator or system
+        requires common allocation profiles covering unicast and multicast
+        packets.";
+    }
+
+    leaf multicast-buffer-allocation-profile {
+      type leafref {
+        // we are at
+        // /qos/interfaces/interface/output/config/buffer-allocation-profile
+        path "../../../../../buffer-allocation-profiles/"  +
+             "buffer-allocation-profile/config/name";
+      }
+      description
+        "The buffer allocation profile that is to be used for the interface.
+        This profile specifies how memory that is available to the interface
+        should be allocated amongst the queues that are instantiated on the
+        interface.
+
+        This reference specifies the policy that should be used for memory
+        allocated to the output (tx) queueing.
+
+        This buffer allocation profile applies to only multicast packets on
+        the interface - if specified, the unicast-buffer-allocation-profile
+        governs the allocation profile used for memory dedicated to unicast.
+        If a system does not support, or an operator does not require separate
+        buffer-allocation-profiles, this is specified by use of the
+        buffer-allocation-profile leaf.";
+    }
+
+    leaf unicast-buffer-allocation-profile {
+      type leafref {
+        // we are at
+        // /qos/interfaces/interface/output/config/buffer-allocation-profile
+        path "../../../../../buffer-allocation-profiles/"  +
+             "buffer-allocation-profile/config/name";
+      }
+      description
+        "The buffer allocation profile that is to be used for the interface.
+        This profile specifies how memory that is available to the interface
+        should be allocated amongst the queues that are instantiated on the
+        interface.
+
+        This reference specifies the policy that should be used for memory
+        allocated to the output (tx) queueing.
+
+        This buffer allocation profile applies to only unicast packets on
+        the interface - if specified, the multicast-buffer-allocation-profile
+        governs the allocation profile used for memory dedicated to multicast.
+        If a system does not support, or an operator does not require separate
+        buffer-allocation-profiles, this is specified by use of the
+        buffer-allocation-profile leaf.";
+    }
   }
 
   grouping qos-interface-output-state {
@@ -624,7 +848,7 @@ submodule openconfig-qos-interfaces {
 
       uses oc-if:interface-ref;
       uses qos-interface-classifier-top;
-      uses qos-interface-queue-top;
+      uses qos-interface-queue-root-top;
       uses qos-interface-scheduler-top;
     }
   }
@@ -670,7 +894,6 @@ submodule openconfig-qos-interfaces {
         uses oc-if:interface-ref;
         uses qos-interface-input-top;
         uses qos-interface-output-top;
-
       }
     }
   }

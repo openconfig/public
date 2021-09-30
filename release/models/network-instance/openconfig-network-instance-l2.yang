@@ -24,11 +24,18 @@ submodule openconfig-network-instance-l2 {
     Layer 2 network instance configuration and operational state
     parameters.";
 
-  oc-ext:openconfig-version "0.16.0";
+  oc-ext:openconfig-version "0.17.0";
 
   revision "2021-06-21" {
     description
       "Add support for l2rib state data";
+    reference "0.17.0";
+  }
+
+  revision "2021-06-11" {
+    description
+      "Structural update for arp-proxy and
+      proxy-nd.";
     reference "0.16.0";
   }
 
@@ -189,6 +196,8 @@ submodule openconfig-network-instance-l2 {
 
        uses l2ni-mac-table-top;
        uses oc-evpn:evpn-mac-mobility-top;
+       uses oc-evpn:evpn-arp-proxy-top;
+       uses oc-evpn:evpn-nd-proxy-top;
        uses l2ni-l2rib-top;
     }
   }

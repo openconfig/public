@@ -10,6 +10,7 @@ module openconfig-if-ethernet {
   // import some basic types
   import openconfig-interfaces { prefix oc-if; }
   import iana-if-type { prefix ianaift; }
+  import openconfig-platform-types { prefix oc-platform-types; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
 
@@ -24,7 +25,19 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.11.0";
+  oc-ext:openconfig-version "2.12.0";
+
+  revision "2021-07-07" {
+    description
+      "Add support for configuring fec-mode per interface.";
+    reference "2.12.0";
+  }
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace.";
+    reference "2.11.1";
+  }
 
   revision "2021-06-09" {
     description
@@ -34,12 +47,12 @@ module openconfig-if-ethernet {
 
   revision "2021-05-17" {
     description
-      "Add ethernet counters: in-carrier-errors, 
+      "Add ethernet counters: in-carrier-errors,
       in-interrupted-tx, in-late-collision, in-mac-errors-rx,
       in-single-collision, in-symbol-error and out-mac-errors-tx";
     reference "2.10.0";
   }
-  
+
   revision "2021-03-30" {
     description
       "Add counter for drops due to oversized frames.";
@@ -135,6 +148,44 @@ module openconfig-if-ethernet {
   oc-ext:origin "openconfig";
 
   // identity statements
+  identity INTERFACE_FEC {
+    description
+      "Base type to specify FEC modes that can be configured on the interface.
+       These are FEC modes defined for applying to logical interfaces and their
+       underlying electrical channels.";
+  }
+
+  identity FEC_FC {
+    base INTERFACE_FEC;
+    description
+      "Firecode is used for channels with NRZ modulation and speeds less than 100G.
+      This FEC is designed to comply with the IEEE 802.3, Clause 74.";
+  }
+
+  identity FEC_RS528 {
+    base INTERFACE_FEC;
+    description
+      "RS528 is used for channels with NRZ modulation. This FEC is designed to
+      comply with IEEE 802.3, Clause 91.";
+  }
+
+  identity FEC_RS544 {
+    base INTERFACE_FEC;
+    description
+      "RS544 is used for channels with PAM4 modulation.";
+  }
+
+  identity FEC_RS544_2X_INTERLEAVE {
+    base INTERFACE_FEC;
+    description
+      "RS544-2x-interleave is used for channels with PAM4 modulation.";
+  }
+
+  identity FEC_DISABLED {
+    base INTERFACE_FEC;
+    description
+      "FEC is administratively disabled.";
+  }
 
   identity ETHERNET_SPEED {
     description "base type to specify available Ethernet link
@@ -251,17 +302,17 @@ module openconfig-if-ethernet {
       type boolean;
       default false;
       description
-        "Link training is automatic tuning of the SerDes transmit and 
+        "Link training is automatic tuning of the SerDes transmit and
         receive parameters to ensure an optimal connection over copper
-        links. It is normally run as part of the auto negotiation 
+        links. It is normally run as part of the auto negotiation
         sequence as specified in IEEE 802.3 Clause 73.
-        
+
         Standalone link training is used when full auto negotiation is
-        not desired on an Ethernet link but link training is needed. 
-        It is configured by setting the standalone-link-training leaf 
+        not desired on an Ethernet link but link training is needed.
+        It is configured by setting the standalone-link-training leaf
         to TRUE and augo-negotiate leaf to FALSE.
-        
-        Note: If auto-negotiate is true, then the value of standalone 
+
+        Note: If auto-negotiate is true, then the value of standalone
         link training leaf will be ignored.";
     }
 
@@ -310,6 +361,15 @@ module openconfig-if-ethernet {
         flow control mode is negotiated with the peer interface.";
       reference
         "IEEE 802.3x";
+    }
+
+    leaf fec-mode {
+      type identityref {
+        base INTERFACE_FEC;
+      }
+      description
+        "The FEC mode applied to the physical channels associated with
+        the interface.";
     }
   }
 
@@ -408,10 +468,10 @@ module openconfig-if-ethernet {
       type oc-yang:counter64;
       description
         "The number of received errored frames due to a carrier issue.
-        The value refers to MIB counter for 
+        The value refers to MIB counter for
         dot3StatsCarrierSenseErrors
         oid=1.3.6.1.2.1.10.7.2.1.11";
-      reference 
+      reference
         "RFC 1643 Definitions of Managed
         Objects for the Ethernet-like Interface Types.";
     }
@@ -420,22 +480,22 @@ module openconfig-if-ethernet {
       type oc-yang:counter64;
       description
         "The number of received errored frames due to interrupted
-        transmission issue. The value refers to MIB counter for 
+        transmission issue. The value refers to MIB counter for
         dot3StatsDeferredTransmissions
         oid=1.3.6.1.2.1.10.7.2.1.7";
-      reference 
+      reference
         "RFC 1643 Definitions of Managed
-        Objects for the Ethernet-like Interface Types.";      
+        Objects for the Ethernet-like Interface Types.";
     }
 
     leaf in-late-collision {
       type oc-yang:counter64;
       description
         "The number of received errored frames due to late collision
-        issue. The value refers to MIB counter for 
+        issue. The value refers to MIB counter for
         dot3StatsLateCollisions
         oid=1.3.6.1.2.1.10.7.2.1.8";
-      reference 
+      reference
         "RFC 1643 Definitions of Managed
         Objects for the Ethernet-like Interface Types.";
     }
@@ -444,10 +504,10 @@ module openconfig-if-ethernet {
       type oc-yang:counter64;
       description
         "The number of received errored frames due to MAC errors
-        received. The value refers to MIB counter for 
+        received. The value refers to MIB counter for
         dot3StatsInternalMacReceiveErrors
         oid=1.3.6.1.2.1.10.7.2.1.16";
-      reference 
+      reference
         "RFC 1643 Definitions of Managed
         Objects for the Ethernet-like Interface Types.";
     }
@@ -456,10 +516,10 @@ module openconfig-if-ethernet {
       type oc-yang:counter64;
       description
         "The number of received errored frames due to single collision
-        issue. The value refers to MIB counter for 
+        issue. The value refers to MIB counter for
         dot3StatsSingleCollisionFrames
         oid=1.3.6.1.2.1.10.7.2.1.4";
-      reference 
+      reference
         "RFC 1643 Definitions of Managed
         Objects for the Ethernet-like Interface Types.";
      }
@@ -468,14 +528,14 @@ module openconfig-if-ethernet {
       type oc-yang:counter64;
       description
         "The number of received errored frames due to symbol error.
-        The value refers to MIB counter for 
+        The value refers to MIB counter for
         in-symbol-error
         oid=1.3.6.1.2.1.10.7.2.1.18";
-      reference 
+      reference
         "RFC 1643 Definitions of Managed
         Objects for the Ethernet-like Interface Types.";
     }
-    
+
     leaf in-maxsize-exceeded {
       type oc-yang:counter64;
       description
@@ -508,14 +568,14 @@ module openconfig-if-ethernet {
       type oc-yang:counter64;
       description
         "The number of sent errored frames due to MAC errors
-         transmitted. The value refers to MIB counter for 
+         transmitted. The value refers to MIB counter for
          dot3StatsInternalMacTransmitErrors
          oid=1.3.6.1.2.1.10.7.2.1.10";
-      reference 
+      reference
         "RFC 1643 Definitions of Managed
         Objects for the Ethernet-like Interface Types.";
      }
-     
+
   }
 
   grouping ethernet-interface-state {
@@ -558,9 +618,7 @@ module openconfig-if-ethernet {
       description "Ethernet interface counters";
 
       uses ethernet-interface-state-counters;
-
     }
-
   }
 
   // data definition statements
