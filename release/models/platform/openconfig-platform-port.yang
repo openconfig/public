@@ -24,7 +24,13 @@ module openconfig-platform-port {
     "This module defines data related to PORT components in the
     openconfig-platform model";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.4.2";
+
+  revision "2021-10-01" {
+    description
+      "Fix indentation for 'list group'";
+    reference "0.4.2";
+  }
 
   revision "2021-06-16" {
     description
@@ -167,32 +173,32 @@ module openconfig-platform-port {
            50G -> 8 interfaces with 1 physical channel each, this would
            result in 1 entry in the breakout groups list.";
 
-           list group {
-             key "index";
-             description
-               "List of breakout groups.";
+        list group {
+          key "index";
+          description
+            "List of breakout groups.";
 
-             leaf index {
-               type leafref {
-               path "../config/index";
-             }
-             description
-               "Index of the breakout group entry in the breakout groups list.";
-           }
+          leaf index {
+            type leafref {
+              path "../config/index";
+            }
+            description
+              "Index of the breakout group entry in the breakout groups list.";
+          }
 
-           container config {
-             description
-               "Configuration data for breakout group.";
-             uses group-config;
-           }
+          container config {
+            description
+              "Configuration data for breakout group.";
+            uses group-config;
+          }
 
-           container state {
-             config false;
-             description
-               "Operational state data for breakout group.";
+          container state {
+            config false;
+            description
+              "Operational state data for breakout group.";
 
-             uses group-config;
-             uses group-state;
+            uses group-config;
+            uses group-state;
           }
         }
       }
