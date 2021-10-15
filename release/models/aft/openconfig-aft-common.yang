@@ -22,7 +22,15 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2021-08-06" {
+    description
+      "Add references to the network instance within which to resolve
+      a next-hop-group; fix defect where NHG could not be an ID defined
+      outside the current NI; add metadata; add IP-in-IP encap.";
+    reference "0.8.0";
+  }
 
   revision "2021-07-15" {
     description
@@ -130,6 +138,19 @@ submodule openconfig-aft-common {
           uses aft-labeled-entry-state;
         }
 
+        container ip-in-ip {
+          description
+            "When specified, the packet has an IP-in-IP header applied to it before
+            forwarding to the specified next-hop.";
+
+          container state {
+            config false;
+            description
+              "State parameters relating to IP-in-IP encapsulation.";
+            uses aft-common-entry-nexthop-ipip-state;
+          }
+        }
+
         uses oc-if:interface-ref-state;
       }
     }
@@ -153,15 +174,39 @@ submodule openconfig-aft-common {
          based on the AFT entry";
     }
 
-    // We are at $afi/$entry/state/next-hop-group
+    // This leafref needs to refer to any network-instance on the system
+    // hence must be absolute. This change means that this module cannot
+    // be used outside of the network instance model without changes being
+    // made to it.
     leaf next-hop-group {
       type leafref {
-        path "../../../../next-hop-groups/next-hop-group/state/id";
+        path "/network-instances/network-instance/afts/" +
+              "next-hop-groups/next-hop-group/state/id";
       }
       description
         "A reference to the next-hop-group that is in use for the entry
         within the AFT. Traffic is distributed across the set of next-hops
         within the next-hop group according to the weight.";
+    }
+
+    leaf next-hop-group-network-instance {
+      type leafref {
+        path "/network-instances/network-instance/config/name";
+      }
+      description
+        "The network instance to look up the next-hop-group in.  If
+         unspecified, the next hop group is in the local network
+         instance.  The referenced network-instance must be an existing
+         network instance on the device and have corresponding entries
+         in the /network-instances/network-instance list.";
+    }
+
+    leaf entry-metadata {
+      type binary {
+        length "0..8"; // 0 to 8 bytes
+      }
+      description
+        "Metadata persistently stored with the entry.";
     }
   }
 
@@ -248,6 +293,23 @@ submodule openconfig-aft-common {
     }
 
     uses aft-common-install-protocol;
+  }
+
+  grouping aft-common-entry-nexthop-ipip-state {
+    description
+      "IP-in-IP encapsulation applied on a next-hop";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "Source IP address to use for the encapsulated packet.";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address to use for the encapsulated packet.";
+    }
   }
 
   grouping aft-common-install-protocol {
