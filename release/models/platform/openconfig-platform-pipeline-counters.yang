@@ -72,7 +72,8 @@ module openconfig-platform-pipeline-counters {
   revision "2020-10-16" {
     description
       "Update pipeline error counters to allow for multiple errors
-      per block.";
+      per block.
+      Add alarms for lookup utilisation and lookup next-hop utilisation.";
     reference "0.2.0";
   }
 
@@ -482,6 +483,15 @@ module openconfig-platform-pipeline-counters {
         "The integrated-circuit lookup subsystem block utilization percentage.";
     }
 
+    leaf lookup-utilization-alarm {
+      type boolean;
+      description
+        "The integrated-circuit lookup subsystem has exceeded the threshold that
+        is set for it by the system. In the case of configurable threshold values
+        the threshold value is set within the /system/thresholds hierarchy with
+        the IC_LOOKUP_MEMORY threshold type.";
+    }
+
     uses pipeline-packets-common;
 
     leaf lookup-memory {
@@ -510,6 +520,15 @@ module openconfig-platform-pipeline-counters {
       units bytes;
       description
         "The amount of nexthops memory used in the lookup subsystem.";
+    }
+
+    leaf nexthop-memory-alarm {
+      type boolean;
+      description
+        "The integrated-circuit lookup system's next-hop memory has exceeded the
+        threshold that is set for it by the system. In the case of configurable
+        threshold values, the threshold value is set within the /system/thresholds
+        hierarchy with the IC_LOOKUP_NEXTHOP threshold type.";
     }
 
     leaf acl-memory-total-entries {

@@ -46,7 +46,14 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.13.0";
+  oc-ext:openconfig-version "0.14.0";
+
+  revision "2021-10-16" {
+    description
+      "Add a threshold configuration container to allow for thresholds
+      to be generically set across elements of the system.";
+    reference "0.14.0";
+  }
 
   revision "2021-07-20" {
     description
@@ -1122,6 +1129,79 @@ module openconfig-system {
     }
   }
 
+  grouping thresholds-top {
+    description
+      "Grouping containing top-level configuration of thresholds
+      in the system.";
+
+    container thresholds {
+      description
+        "Surrounding container for the thresholds that are configured on
+        the system.";
+
+      list threshold {
+        key "type";
+
+        description
+          "A threshold that is configured against a particular type of
+          parameters on the system. The type of threshold is uniquely
+          identified by an enumerated value that stores a subset of known
+          resources that should be alerted on.";
+
+        leaf type {
+          type leafref {
+            path "../config/type";
+          }
+          description
+            "A reference to the type of the threshold.";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to a threshold on the system.";
+          uses threshold-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to a threshold on the system.";
+          uses threshold-config;
+        }
+      }
+    }
+  }
+
+  grouping threshold-config {
+    description
+      "Configuration parameters relating to a particular threshold on the system.";
+
+    leaf type {
+      type enumeration {
+        enum IC_LOOKUP_MEMORY {
+          description
+            "The threshold relates to the integrated circuit lookup subsystem's memory.
+            The parameters specified here apply to the lookup memory data reported by
+            each INTEGRATED_CIRCUIT component within the /components/component hierarchy.";
+        }
+        enum IC_LOOKUP_NEXTHOP {
+          description
+            "The threshold reates to the integrated circuit lookup subsystem's next-hop
+            memory. The parameters specified here apply to the next-hop memory data reported
+            by each INTEGRATED_CIRCUIT component within the /components/component hierarchy.";
+        }
+      }
+      description
+        "The type of the threshold that is being applied.";
+    }
+
+    leaf percentage {
+      type oc-types:percentage;
+      description
+        "The percentage at which the threshold is triggered.";
+    }
+  }
+
   grouping system-top {
     description
       "Top level system data containers";
@@ -1159,6 +1239,7 @@ module openconfig-system {
       uses oc-alarms:alarms-top;
       uses oc-messages:messages-top;
       uses oc-license:license-top;
+      uses thresholds-top;
     }
   }
 
