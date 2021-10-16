@@ -534,6 +534,86 @@ module openconfig-platform {
     }
   }
 
+  grouping platform-health-top {
+    description
+      "Grouping containing health-related parameters.";
+
+    container health {
+      description
+        "The health of the component. The paramaters within this
+        container indicate the status of the component beyond whether
+        it is operationally up or down. When a signal is received
+        that a component is in an unhealth state the gNOI.Healthz
+        service can be used to retrieve further diagnostic information
+        relating to the component.
+
+        The contents of this directory relate only to the specific
+        component that it is associated with. In the case that child
+        components become unhealthy and this causes a parent component
+        to be unhealthy, the new unhealthy status should be reported at
+        both components, such that an interested system can take the
+        relevant actions (e.g., retrieve the Healthz output, or
+        apply mitigation actions)."
+      reference
+        "https://https://github.com/openconfig/gnoi/tree/master/healthz"
+
+      container state {
+        config false;
+        description
+          "Operational state parameters relating to component health.";
+        uses platform-health-state;
+      }
+    }
+  }
+
+  grouping platform-health-state {
+    description
+      "Operational state parmaeters relating to a platform component's
+      health.";
+
+    leaf status {
+      type enumeration {
+        enum HEALTHY {
+          description
+            "The component is in a HEALTHY state, and is operating
+            within the expected parameters.";
+        }
+        enum DEGRADED {
+          description
+            "The component is in a degraded state. That is to say that
+            it has not completely failed, but failures have occurred that
+            either reduce its ability to perform, or may cause it to reach
+            an unhealthy state should further failures occur.
+
+            An example of a degraded state may be a fan tray which has only
+            a subset of the fans it contains having failed.";
+        }
+        enum FAILED {
+          description
+            "The component is in a failed state, it is unhealthy and not
+            performing the function expected of it.";
+        }
+      }
+      description
+        "The status of the component, indicating its current health.";
+    }
+
+    leaf last-unhealthy {
+      type oc-types:timeticks64;
+      description
+        "The time at which the component as last observed to be unhealthy
+        represented as nanoseconds since the Unix epoch. Unhealthy is defined
+        as the component being in a DEGRADED or FAILED state.";
+    }
+
+    leaf unhealthy-count {
+      type uint64;
+      description
+        "The number of status checks that have determined this component
+        to be in an unhealthy (DEGRADED or FAILED) state.";
+    }
+  }
+
   grouping pcie-uncorrectable-errors {
     description
       "PCIe uncorrectable error statistics.";
@@ -1026,6 +1106,7 @@ module openconfig-platform {
         uses platform-component-properties-top;
         uses platform-subcomponent-ref-top;
         uses platform-anchors-top;
+        uses platform-health-top;
       }
     }
   }
