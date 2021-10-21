@@ -7,7 +7,9 @@ module openconfig-optical-amplifier {
 
   prefix "oc-opt-amp";
 
+  import openconfig-platform { prefix oc-platform; }
   import openconfig-transport-line-common { prefix oc-line-com; }
+  import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
 
 
@@ -23,7 +25,44 @@ module openconfig-optical-amplifier {
     for optical amplifiers, deployed as part of a transport
     line system.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2019-12-06" {
+    description
+      "Add DYNAMIC_GAIN mode and related leaves.";
+    reference "0.5.0";
+  }
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "0.4.1";
+  }
+
+  revision "2017-10-02" {
+    description
+      "Add support for fiber type profile and physical component
+      association for amplifier gain blocks.";
+    reference "0.4.0";
+  }
+
+  revision "2017-09-08" {
+    description
+      "Correct bug with OSC interfaces";
+    reference "0.3.1";
+  }
+
+  revision "2017-07-08" {
+    description
+      "Add monitor port type and refs to hw ports, ";
+    reference "0.3.0";
+  }
+
+  revision "2017-03-28" {
+    description
+      "Added min/max/avg stats, status for media channels, OCM, APS";
+    reference "0.2.0";
+  }
 
   revision "2016-03-31" {
     description
@@ -31,11 +70,11 @@ module openconfig-optical-amplifier {
     reference "0.1.0";
   }
 
-  revision "2015-12-11" {
-    description
-      "Initial revision";
-    reference "TBD";
-  }
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
 
   // extension statements
 
@@ -113,15 +152,63 @@ module openconfig-optical-amplifier {
   identity CONSTANT_POWER {
       base OPTICAL_AMPLIFIER_MODE;
       description
-        "Constant power mode";
+        "Constant power mode. In constant power mode, the amplifier
+        will maintain a constant output power by adjusting the
+        amplifier gain and/or related variable optical attenuators";
   }
 
   identity CONSTANT_GAIN {
       base OPTICAL_AMPLIFIER_MODE;
       description
-        "Constant gain mode";
+        "Constant gain mode. In constant gain mode, the amplifier
+        will maintain a constant amplifier gain";
   }
 
+  identity DYNAMIC_GAIN {
+      base OPTICAL_AMPLIFIER_MODE;
+      description
+        "Dynamic gain mode. In dynamic gain mode, the amplifier will
+        automatically adjust gain to stay within parameters defined
+        by:
+        - target-gain
+        - min-gain
+        - max-gain";
+  }
+
+  identity FIBER_TYPE_PROFILE {
+    description
+      "Type definition for different profiles of fiber types";
+  }
+
+  identity DSF {
+      base FIBER_TYPE_PROFILE;
+      description
+        "Dispersion shifted fiber";
+  }
+
+  identity LEAF {
+      base FIBER_TYPE_PROFILE;
+      description
+        "Large effective area fiber";
+  }
+
+  identity SSMF {
+      base FIBER_TYPE_PROFILE;
+      description
+        "Standard single mode fiber";
+  }
+
+  identity TWC {
+      base FIBER_TYPE_PROFILE;
+      description
+        "True wave classic";
+  }
+
+  identity TWRS {
+      base FIBER_TYPE_PROFILE;
+      description
+        "True wave reduced slope";
+  }
 
   // grouping statements
 
@@ -151,7 +238,36 @@ module openconfig-optical-amplifier {
       }
       units dB;
       description
-        "Positive gain applied by the amplifier.";
+        "Positive gain applied by the amplifier. This is used
+        when the amp-mode is in CONSTANT_GAIN or DYNAMIC_GAIN
+        mode to set the target gain that the amplifier should
+        achieve.";
+    }
+
+    leaf min-gain {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The minimum allowed gain of the amplifier. This is used
+        when the amp-mode is in CONSTANT_POWER or DYNAMIC_GAIN mode
+        to prevent the gain from dropping below a desired threshold.
+        If left empty, the platform will apply a minimum gain based
+        on hardware specifications.";
+    }
+
+    leaf max-gain {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The maximum allowed gain of the amplifier. This is used
+        when the amp-mode is in CONSTANT_POWER or DYNAMIC_GAIN mode
+        to prevent the gain from exceeding a desired threshold. If
+        left empty, the platform will apply a maximum gain based on
+        hardware specifications.";
     }
 
     leaf target-gain-tilt {
@@ -180,7 +296,7 @@ module openconfig-optical-amplifier {
         "The operating mode of the amplifier";
     }
 
-    leaf output-power {
+    leaf target-output-power {
       type decimal64 {
         fraction-digits 2;
       }
@@ -189,38 +305,166 @@ module openconfig-optical-amplifier {
         "Output optical power of the amplifier.";
     }
 
+    leaf max-output-power {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The maximum optical output power of the amplifier. This
+        may be used to prevent the output power from exceeding a
+        desired threshold.";
+    }
+
+    leaf enabled {
+      type boolean;
+      description
+        "Turns power on / off to the amplifiers gain module.";
+    }
+
+    leaf fiber-type-profile {
+      type identityref {
+        base FIBER_TYPE_PROFILE;
+      }
+      description
+        "The fiber type profile specifies details about the
+        fiber type which are needed to accurately determine
+        the gain and perform efficient amplification. This is
+        only needed for Raman type amplifiers.";
+    }
+
   }
 
   grouping optical-amplifier-state {
     description
       "Operational state data for optical amplifiers";
 
-    leaf actual-gain {
-      type decimal64 {
-        fraction-digits 2;
-        range 0..max;
+    leaf component {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
       }
-      units dB;
       description
-        "Actual gain applied by the amplifier.";
+        "Reference to the system-supplied physical component that
+        the amplifier gain block is contained within. Multiple
+        amplifier gain blocks may be contained within the same
+        physical component.";
     }
 
-    leaf actual-gain-tilt {
-      type decimal64 {
-        fraction-digits 2;
+    leaf ingress-port {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
       }
-      units dB;
       description
-        "The actual gain tilt.";
+        "Reference to system-supplied name of the amplifier ingress
+        port. This leaf is only valid for ports of type INGRESS.";
     }
 
-    leaf input-power {
-      type decimal64 {
-        fraction-digits 2;
+    leaf egress-port {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+          "oc-platform:name";
       }
-      units dBm;
       description
-        "Input optical power of the amplifier.";
+        "Reference to system-supplied name of the amplifier egress
+        port. This leaf is only valid for ports of type EGRESS.";
+    }
+
+    container actual-gain {
+      description
+        "The actual gain applied by the amplifier in units of
+        0.01dB. If avg/min/max statistics are not supported,
+        just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dB;
+    }
+
+    container actual-gain-tilt {
+      description
+        "The actual tilt applied by the amplifier in units of
+        0.01dB. If avg/min/max statistics are not supported,
+        just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dB;
+    }
+
+    container input-power-total {
+      description
+        "The total input optical power of this port in units
+        of 0.01dBm. If avg/min/max statistics are not supported,
+        just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+    }
+
+    container input-power-c-band {
+      description
+        "The C band (consisting of approximately 191 to 195 THz or
+        1530nm to 1565 nm) input optical power of this port in units
+        of 0.01dBm. If avg/min/max statistics are not supported,
+        just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+    }
+
+    container input-power-l-band {
+      description
+        "The L band (consisting of approximately 184 to 191 THz or
+        1565 to 1625 nm) input optical power of this port in units
+        of 0.01dBm. If avg/min/max statistics are not supported,
+        just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+    }
+
+    container output-power-total {
+      description
+        "The total output optical power of this port in units
+        of 0.01dBm. If avg/min/max statistics are not supported,
+        just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+    }
+
+    container output-power-c-band {
+      description
+        "The C band (consisting of approximately 191 to 195 THz or
+        1530nm to 1565 nm)output optical power of this port in units
+        of 0.01dBm. If avg/min/max statistics are not supported,
+        just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+    }
+
+    container output-power-l-band {
+      description
+        "The L band (consisting of approximately 184 to 191 THz or
+        1565 to 1625 nm)output optical power of this port in units
+        of 0.01dBm. If avg/min/max statistics are not supported,
+        just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+    }
+
+    container laser-bias-current {
+      description
+        "The current applied by the system to the transmit laser to
+        achieve the output power. The current is expressed in mA
+        with up to two decimal precision. If avg/min/max statistics
+        are not supported, just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-mA;
+    }
+
+    container optical-return-loss {
+      description
+        "The optical return loss (ORL) is the ratio of the light
+        reflected back into the port to the light launched out of
+        the port. ORL is in units of 0.01dBm. If avg/min/max
+        statistics are not supported, just supply the instant value";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
     }
   }
 
@@ -228,43 +472,67 @@ module openconfig-optical-amplifier {
     description
       "Top-level grouping for optical amplifier data";
 
-    container optical-amplifiers {
+    container optical-amplifier {
       description
-        "Enclosing container for list of amplifiers";
+        "Enclosing container for amplifiers and supervisory channels";
 
-      list amplifier {
-        key "name";
+      container amplifiers {
         description
-          "List of optical amplifiers present in the device";
+          "Enclosing container for list of amplifiers";
 
-        leaf name {
-          type leafref {
-            path "../config/name";
+        list amplifier {
+          key "name";
+          description
+            "List of optical amplifiers present in the device";
+
+          leaf name {
+            type leafref {
+              path "../config/name";
+            }
+            description
+              "Reference to the name of the amplifier";
           }
-          description
-            "Reference to the name of the amplifier";
-        }
 
-        container config {
-          description
-            "Configuration data for the amplifier";
+          container config {
+            description
+              "Configuration data for the amplifier";
 
-          uses optical-amplifier-config;
-        }
+            uses optical-amplifier-config;
+          }
 
-        container state {
+          container state {
 
-          config false;
+            config false;
 
-          description
-            "Operational state data for the amplifier";
+            description
+              "Operational state data for the amplifier";
 
-          uses optical-amplifier-config;
-          uses optical-amplifier-state;
+            uses optical-amplifier-config;
+            uses optical-amplifier-state;
+          }
         }
       }
 
-      uses oc-line-com:optical-osc-top;
+      container supervisory-channels {
+        description
+          "Enclosing container for list of supervisory channels";
+
+        list supervisory-channel {
+          key "interface";
+          description
+            "List of supervisory channels";
+
+          leaf interface {
+            type leafref {
+              path "../config/interface";
+            }
+            description
+              "Reference to the interface of the supervisory channel";
+          }
+
+          uses oc-line-com:optical-osc-top;
+        }
+      }
     }
   }
 

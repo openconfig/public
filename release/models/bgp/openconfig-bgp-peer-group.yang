@@ -6,6 +6,7 @@ submodule openconfig-bgp-peer-group {
 
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-routing-policy { prefix oc-rpol; }
+  import openconfig-bfd { prefix oc-bfd; }
 
   // Include the common submodule
   include openconfig-bgp-common;
@@ -24,7 +25,76 @@ submodule openconfig-bgp-peer-group {
     "This sub-module contains groupings that are specific to the
     peer-group context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "2.1.1";
+  oc-ext:openconfig-version "6.1.1";
+
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "6.1.1";
+  }
+
+  revision "2021-03-17" {
+    description
+      "Add bfd support without augmentation.";
+    reference "6.1.0";
+  }
+
+  revision "2019-07-10" {
+    description
+      "Normalise timestamp units to nanoseconds.";
+    reference "6.0.0";
+  }
+
+  revision "2019-05-28" {
+    description
+      "Clarify prefix counter descriptions, add received-pre-policy
+      counter.";
+    reference "5.2.0";
+  }
+
+  revision "2019-04-16" {
+    description
+      "Add BGP RIB to the top-level BGP container";
+    reference "5.1.0";
+  }
+
+  revision "2018-08-20" {
+    description
+      "Correct description of AFI-SAFI enabled leaf.";
+    reference "5.0.1";
+  }
+
+  revision "2018-04-11" {
+    description
+      "Correct naming of BGP maximum prefix warning percentage leaf.";
+    reference "5.0.0";
+  }
+
+  revision "2018-03-20" {
+    description
+      "Added SR-TE policy SAFI";
+    reference "4.1.0";
+  }
+
+  revision "2017-07-10" {
+    description
+      "Add error notifications; moved add-paths config; add AS
+      prepend policy features; removed unneeded config leaves";
+    reference "4.0.0";
+  }
+
+  revision "2017-02-02" {
+    description
+      "Bugfix to remove remaining global-level policy data";
+    reference "3.0.1";
+  }
+
+  revision "2017-01-26" {
+    description
+      "Add dynamic neighbor support, migrate to OpenConfig types";
+    reference "3.0.0";
+  }
 
   revision "2016-06-21" {
     description
@@ -93,7 +163,7 @@ submodule openconfig-bgp-peer-group {
         }
       }
 
-      uses bgp-common-route-selection-options;
+      uses bgp-common-structure-neighbor-group-add-paths;
       uses bgp-common-global-group-use-multiple-paths;
       uses bgp-common-mp-all-afi-safi-list-contents;
     }
@@ -197,7 +267,6 @@ submodule openconfig-bgp-peer-group {
     uses bgp-common-structure-neighbor-group-ebgp-multihop;
     uses bgp-common-structure-neighbor-group-route-reflector;
     uses bgp-common-structure-neighbor-group-as-path-options;
-    uses bgp-common-structure-neighbor-group-add-paths;
     uses bgp-common-global-group-use-multiple-paths;
     uses oc-rpol:apply-policy-group;
 
@@ -229,6 +298,7 @@ submodule openconfig-bgp-peer-group {
       }
 
       uses bgp-peer-group-base;
+      uses oc-bfd:bfd-enable;
     }
   }
 

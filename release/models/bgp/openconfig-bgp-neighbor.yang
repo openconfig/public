@@ -8,8 +8,9 @@ submodule openconfig-bgp-neighbor {
   import openconfig-routing-policy { prefix oc-rpol; }
   import openconfig-types { prefix oc-types; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
-  import ietf-inet-types { prefix inet; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-bfd { prefix oc-bfd; }
 
   // Include the common submodule
   include openconfig-bgp-common;
@@ -29,7 +30,81 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "2.1.1";
+  oc-ext:openconfig-version "6.1.0";
+
+  revision "2021-03-17" {
+    description
+      "Add bfd support without augmentation.";
+    reference "6.1.0";
+  }
+
+  revision "2019-07-10" {
+    description
+      "Normalise timestamp units to nanoseconds.";
+    reference "6.0.0";
+  }
+
+  revision "2019-05-28" {
+    description
+      "Clarify prefix counter descriptions, add received-pre-policy
+      counter.";
+    reference "5.2.0";
+  }
+
+  revision "2019-04-16" {
+    description
+      "Add BGP RIB to the top-level BGP container";
+    reference "5.1.0";
+  }
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "5.0.2";
+  }
+
+  revision "2018-08-20" {
+    description
+      "Correct description of AFI-SAFI enabled leaf.";
+    reference "5.0.1";
+  }
+
+  revision "2018-04-11" {
+    description
+      "Correct naming of BGP maximum prefix warning percentage leaf.";
+    reference "5.0.0";
+  }
+
+  revision "2018-03-20" {
+    description
+      "Added SR-TE policy SAFI";
+    reference "4.1.0";
+  }
+
+  revision "2017-07-30" {
+    description
+      "Clarification of add-paths send-max leaf";
+    reference "4.0.1";
+  }
+
+  revision "2017-07-10" {
+    description
+      "Add error notifications; moved add-paths config; add AS
+      prepend policy features; removed unneeded config leaves";
+    reference "4.0.0";
+  }
+
+  revision "2017-02-02" {
+    description
+      "Bugfix to remove remaining global-level policy data";
+    reference "3.0.1";
+  }
+
+  revision "2017-01-26" {
+    description
+      "Add dynamic neighbor support, migrate to OpenConfig types";
+    reference "3.0.0";
+  }
 
   revision "2016-06-21" {
     description
@@ -52,7 +127,7 @@ submodule openconfig-bgp-neighbor {
     }
 
     leaf neighbor-address {
-        type inet:ip-address;
+        type oc-inet:ip-address;
         description
           "Address of the BGP peer, either in IPv4 or IPv6";
     }
@@ -158,7 +233,7 @@ submodule openconfig-bgp-neighbor {
       description
         "This timestamp indicates the time that the
         BGP session last transitioned in or out of the Established
-        state.  The value is the timestamp in seconds relative to
+        state.  The value is the timestamp in nanoseconds relative to
         the Unix Epoch (Jan 1, 1970 00:00:00 UTC).
 
         The BGP session uptime can be computed by clients as the
@@ -168,7 +243,7 @@ submodule openconfig-bgp-neighbor {
     }
 
     leaf established-transitions {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Number of transitions to the Established state for
         the neighbor session.  This value is analogous to the
@@ -209,6 +284,15 @@ submodule openconfig-bgp-neighbor {
         BGP neighbor";
       uses bgp-neighbor-queue-counters-state;
     }
+
+    leaf dynamically-configured {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, the peer was configured dynamically
+        due to an inbound connection request from a specified source prefix
+        within a dynamic-neighbor-prefix.";
+    }
   }
 
   grouping bgp-neighbor-counters-message-types-state {
@@ -228,6 +312,38 @@ submodule openconfig-bgp-neighbor {
       description
         "Number of BGP NOTIFICATION messages indicating an
         error condition has occurred exchanged.";
+    }
+
+    leaf last-notification-time {
+      type oc-types:timeticks64;
+      description
+        "This timestamp indicates the time that a NOTIFICATION
+        message was sent or received on the peering session
+        (based on whether this leaf is associated with
+        sent or received messages).
+
+        The value is the timestamp in nanoseconds relative to
+        the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+    }
+
+    leaf last-notification-error-code {
+      type identityref {
+        base oc-bgp-types:BGP_ERROR_CODE;
+      }
+      description
+        "Indicates the last BGP error sent or received on the peering
+        session (based on whether this leaf is associated with
+        sent or received messages).";
+    }
+
+    leaf last-notification-error-subcode {
+      type identityref {
+        base oc-bgp-types:BGP_ERROR_SUBCODE;
+      }
+      description
+        "Indicates the last BGP error subcode sent or received on
+        the peering session (based on whether this leaf is associated
+        with sent or received messages)";
     }
   }
 
@@ -256,21 +372,21 @@ submodule openconfig-bgp-neighbor {
       used for the BGP session";
 
     leaf local-port {
-      type inet:port-number;
+      type oc-inet:port-number;
       description
         "Local TCP port being used for the TCP session supporting
         the BGP session";
     }
 
     leaf remote-address {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description
         "Remote address to which the BGP session has been
         established";
     }
 
     leaf remote-port {
-      type inet:port-number;
+      type oc-inet:port-number;
       description
         "Remote port being used by the peer for the TCP session
         supporting the BGP session";
@@ -405,20 +521,47 @@ submodule openconfig-bgp-neighbor {
       leaf received {
         type uint32;
         description
-          "The number of prefixes received from the neighbor";
+          "The number of prefixes that are received from the
+          neighbor after applying any policies. This count is the
+          number of prefixes present in the post-policy Adj-RIB-In
+          for the neighbor";
+      }
+
+      leaf received-pre-policy {
+        type uint32;
+        description
+          "The number of prefixes that are received from the
+          neighbor before applying any policies. This count is
+          the number of prefixes present in the pre-policy
+          Adj-RIB-In for the neighbor";
       }
 
       leaf sent {
         type uint32;
         description
-          "The number of prefixes advertised to the neighbor";
+          "The number of prefixes that are advertised to the
+          neighbor after applying any policies. This count is
+          the number of prefixes present in the post-policy
+          Adj-RIB-Out for the neighbor";
       }
 
       leaf installed {
         type uint32;
         description
-          "The number of advertised prefixes installed in the
-          Loc-RIB";
+          "The number of prefices received from the neighbor that
+          are installed in the network instance RIB and actively used
+          for forwarding.
+
+          Routes that are actively used for forwarding are
+           defined to be those that:
+           - are selected, after the application of policies, to be
+             included in the Adj-RIB-In-Post, AND
+           - are selected by best path selection and hence installed
+             in the Loc-RIB (either as the only route, or as part of
+             a multipath set, AND
+           - are selected, after the application of protocol
+             preferences (e.g., administrative distance) as the
+             route to be used by the system's RIB";
       }
     }
   }
@@ -475,6 +618,7 @@ submodule openconfig-bgp-neighbor {
         }
       }
 
+      uses bgp-common-structure-neighbor-group-add-paths;
       uses bgp-common-mp-all-afi-safi-list-contents;
       uses bgp-neighbor-use-multiple-paths;
     }
@@ -580,7 +724,6 @@ submodule openconfig-bgp-neighbor {
     uses bgp-common-structure-neighbor-group-ebgp-multihop;
     uses bgp-common-structure-neighbor-group-route-reflector;
     uses bgp-common-structure-neighbor-group-as-path-options;
-    uses bgp-common-structure-neighbor-group-add-paths;
     uses bgp-neighbor-use-multiple-paths;
     uses oc-rpol:apply-policy-group;
 
@@ -612,9 +755,8 @@ submodule openconfig-bgp-neighbor {
       }
 
       uses bgp-neighbor-base;
+      uses oc-bfd:bfd-enable;
     }
 
   }
-
-
 }

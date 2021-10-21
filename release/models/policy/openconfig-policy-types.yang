@@ -24,13 +24,39 @@ module openconfig-policy-types {
     policy.  It can be imported by modules that contain protocol-
     specific policy conditions and actions.";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "3.1.1";
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "3.1.1";
+  }
+
+  revision "2018-06-05" {
+    description
+      "Add PIM, IGMP to INSTALL_PROTOCOL_TYPES identity";
+    reference "3.1.0";
+  }
+
+  revision "2017-07-14" {
+    description
+      "Replace policy choice node/type with policy-result
+      enumeration;simplified defined set naming;removed generic
+      IGP actions; migrate to OpenConfig types; added mode for
+      prefix sets";
+    reference "3.0.0";
+  }
 
   revision "2016-05-12" {
     description
       "OpenConfig public release";
     reference "2.0.1";
   }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
   // identity statements
 
@@ -133,46 +159,73 @@ module openconfig-policy-types {
 
   identity INSTALL_PROTOCOL_TYPE {
     description
-      "Base type for protocols which can install prefixes into the
-      RIB";
+      "Base type for routing protocols, including those which may
+      install prefixes into the RIB";
   }
 
   identity BGP {
     base INSTALL_PROTOCOL_TYPE;
-    description "BGP";
-    reference "RFC 4271";
+    description
+      "BGP";
+    reference
+      "RFC 4271";
   }
 
   identity ISIS {
     base INSTALL_PROTOCOL_TYPE;
-    description "IS-IS";
-    reference "ISO/IEC 10589";
+    description
+      "IS-IS";
+    reference
+      "ISO/IEC 10589";
   }
 
   identity OSPF {
     base INSTALL_PROTOCOL_TYPE;
-    description "OSPFv2";
-    reference "RFC 2328";
+    description
+      "OSPFv2";
+    reference
+      "RFC 2328";
   }
 
   identity OSPF3 {
     base INSTALL_PROTOCOL_TYPE;
-    description "OSPFv3";
-    reference "RFC 5340";
+    description
+      "OSPFv3";
+    reference
+      "RFC 5340";
   }
 
   identity STATIC {
     base INSTALL_PROTOCOL_TYPE;
-    description "Locally-installed static route";
+    description
+      "Locally-installed static route";
   }
 
   identity DIRECTLY_CONNECTED {
     base INSTALL_PROTOCOL_TYPE;
-    description "A directly connected route";
+    description
+      "A directly connected route";
   }
 
   identity LOCAL_AGGREGATE {
     base INSTALL_PROTOCOL_TYPE;
-    description "Locally defined aggregate route";
+    description
+      "Locally defined aggregate route";
+  }
+
+  identity PIM {
+    base INSTALL_PROTOCOL_TYPE;
+    description
+      "Protocol Independent Multicast";
+    reference
+      "RFC 7761";
+  }
+
+  identity IGMP {
+    base INSTALL_PROTOCOL_TYPE;
+    description
+      "Internet Group Management Protocol";
+    reference
+      "RFC 3376";
   }
 }

@@ -19,13 +19,44 @@ module openconfig-rib-bgp-types {
     "Defines identity and type defintions associated with
     the OpenConfig BGP RIB modules";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2019-03-14" {
+    description
+      "Update last-modified timestamp to be expressed as nanoseconds
+      since the Unix epoch.";
+    reference "0.5.0";
+  }
+
+  revision "2019-02-27" {
+    description
+      "Remove top-level BGP RIB container, and update list
+      names to be compatible with path compression.";
+    reference "0.4.0";
+  }
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "0.3.1";
+  }
+
+  revision "2016-10-17" {
+    description
+      "OpenConfig BGP RIB refactor";
+    reference "0.3.0";
+  }
 
   revision "2016-04-11" {
     description
       "OpenConfig public release";
     reference "0.2.0";
   }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
   identity INVALID_ROUTE_REASON {
     description
@@ -146,4 +177,93 @@ module openconfig-rib-bgp-types {
     description
       "Route was rejected after apply import policies";
   }
+
+  identity TUNNEL_ENCAPSULATION_TYPE {
+    description
+      "Types of tunnel encapsulation, as described by the Tunnel
+      Encapsulation attribute";
+    reference
+      "RFC5512";
+    }
+
+    identity SRTE_POLICY_TUNNEL {
+      base TUNNEL_ENCAPSULATION_TYPE;
+      description
+        "Segment Routing Traffic Engineering Policy tunnel.";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity TUNNEL_ENCAPSULATION_SUBTLV_TYPE {
+      description
+        "SubTLVs of the Tunnel Encapsulation attribute";
+      reference
+        "RFC5512";
+    }
+
+    identity TUNNEL_REMOTE_ENDPOINT {
+      base TUNNEL_ENCAPSULATION_SUBTLV_TYPE;
+      description
+        "Remote endpoint of the tunnel.";
+      reference
+        "RFC5512";
+    }
+
+    identity TUNNEL_COLOR {
+      base TUNNEL_ENCAPSULATION_SUBTLV_TYPE;
+      description
+        "Colour of the tunnel";
+      reference
+        "RFC5512";
+    }
+
+    identity SRTE_PREFERENCE {
+      base TUNNEL_ENCAPSULATION_SUBTLV_TYPE;
+      description
+        "Preference of the SR-TE policy entry described by
+        the tunnel encapsulation attribute.";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity SRTE_BINDING_SID {
+      base TUNNEL_ENCAPSULATION_SUBTLV_TYPE;
+      description
+        "Binding SID to be used by the SR-TE policy described
+        by the tunnel encapsulation attribute.";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity SRTE_SEGMENT_LIST {
+      base TUNNEL_ENCAPSULATION_SUBTLV_TYPE;
+      description
+        "Segment lists to be used by the SR-TE policy described
+        by the tunnel encapsulation attribute.";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity SRTE_SEGMENT_LIST_SUBTLV {
+      description
+        "SubTLVs of the SR-TE Policy Segment List sub-TLV of the
+        Tunnel Encapsulation attribute.";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity SRTE_SEGMENT_LIST_WEIGHT {
+      base SRTE_SEGMENT_LIST_SUBTLV;
+      description
+        "Weight of the segment list within the SR-TE policy";
+      reference
+        "draft-previdi-idr-segment-routing-te-policy";
+    }
+
+    identity SRTE_SEGMENT_LIST_SEGMENT {
+      base SRTE_SEGMENT_LIST_SUBTLV;
+      description
+        "An individual element within the SR-TE Policy Segment
+        List.";
+    }
 }

@@ -3,7 +3,7 @@
 
 **Contributors:** Anees Shaikh, Rob Shakir, Kristian Larsson<br>
 **October 26, 2015**<br>
-*Updated: January  20, 2016*
+*Updated: June 2, 2019*
 
 
 ## Background
@@ -27,6 +27,7 @@ and released soon.
   - [Module template](#module-template)
   - [Modeling operational state](#modeling-operational-state)
   - [Top-level data nodes vs. groupings](#top-level-data-nodes-vs-groupings)
+  - [Module version](#module-version)
 - [YANG style conventions](#yang-style-conventions)
   - [Naming](#naming)
     - [Module naming](#module-naming)
@@ -40,6 +41,7 @@ and released soon.
     - [Enumerations](#enumerations)
     - [Identities](#identities)
 - [YANG language usage](#yang-language-usage)
+  - [`list`](#list)
   - [`presence`](#presence)
   - [`feature` and `if-feature`](#feature-and-if-feature)
   - [`choice`](#choice)
@@ -104,6 +106,36 @@ then instantiate it once in the module with a `uses` statement.
 This allows maximum reuse of data definitions across models, and also makes it
 easier to compose models using simple imports.
 
+Modules should generally have a single `xxx-top` grouping that allows it to be
+instantiated in other modules.  This top-level grouping should not have any
+self-augmentations.
+
+### Module version
+
+Every module must have an `openconfig-version` statement indicating its
+semantic version number.  This statement is a YANG extension defined in the
+openconfig-extensions module.  The YANG revision statement should reference
+semantic version.
+
+```
+oc-ext:openconfig-version "0.4.0";
+
+  revision "2016-05-31" {
+    description
+      "Public release";
+    reference "0.4.0";
+  }
+```
+
+Individual YANG modules are versioned independently -- the
+semantic version is generally incremented only when there is a
+change in the corresponding file.  Submodules, however, must have
+the same semantic version as their parent modules.  Further details on
+versioning rules are available in the definition of the
+`openconfig-version` extension in the `openconfig-extensions.yang`
+module.
+
+
 ## YANG style conventions
 Style conventions describe guidelines related to conventions used in writing
 YANG modules.
@@ -149,7 +181,9 @@ Each module requires a `prefix` statement with a prefix that other dependent
 modules will use (also used in path references within the same module). Prefixes
 should be short and clear, with abbreviations as appropriate.
 
-Examples: `oc-types`, `oclldp`, `ocif`
+Module prefixes should be of the form `oc-xxx[-yyy]`
+
+Examples: `oc-types`, `oc-lldp`, `oc-if-ethernet`
 
 ### Path references
 
@@ -173,7 +207,9 @@ below.
 
 `enum` values within an enumeration type should be UPPER_CASE_WITH_UNDERSCORES,
 keeping with conventions used for enumerated types in many programming
-languages.
+languages. They MUST begin with an alphanumeric character (A-Z or 0-9),
+optionally followed by a "_" or "." or additional alphanumeric characters
+(A-Z or 0-9).
 
 Example:
 ```
@@ -225,6 +261,80 @@ identity LC_CONNECTOR {
 Language rules describe guidelines on use of specific YANG language statements,
 including how modules should be structured and parsed.
 
+### `list`
+
+YANG list keys should be quoted:
+```
+list interfaces {
+  key "name";
+  ...
+}
+
+list servers {
+  key "address port";
+  ...
+}
+```
+
+YANG requires leaf nodes that are list keys to be direct descendants of the
+`list` statement.  Since key leaf nodes must also be members of the list data,
+they will generally reside in a `config` or `state` container (see [Modeling
+operational state](#modeling-operational-state)).  Hence, the list key leaf
+nodes should be of type `leafref` with a `path` pointing to the corresponding
+"actual" leaf in the config or state container.
+
+List keys must reference a direct child of the `config` or `state` container -
+rather than referencing descendends in the `state` container (structure is not
+allowed within the `config` container by other rules). That is to say a key
+`leafref` may have a path of `../state/foo` but is not allowed to have a path
+`../state/counters/foo`.
+
+```
+grouping interfaces-config {
+
+  leaf name {
+    ...
+  }
+}
+
+grouping interfaces-list-top
+  list interface {
+    key "name";
+
+    leaf name {
+      type leafref {
+        path "../config/name";
+      }
+    }
+
+    container config {
+
+      uses interfaces-config;
+    }
+
+    ...
+  }
+}
+```
+
+Lists should have an enclosing container with no other data nodes inside
+it.
+
+```
+container interfaces {
+
+  list interface {
+    ...
+  }
+}
+```
+
+Lists without keys must not be used unless the `openconfig-extensions`
+`atomic` extension is set for the list's surrounding container. Some transport
+protocols (e.g., gNMI) do not have a mechanism to refer to individual elements
+within a list with no key, and this ensures that telemetry updates for such
+lists include all elements, rather than partial updates being sent. 
+
 ### `presence`
 
 Use of `presence` containers should be avoided.
@@ -270,6 +380,7 @@ choice bandwidth {
   case explicit {
     leaf bw-value {
       type uint32;
+    }
   }
   case auto {
     leaf min {
@@ -450,4 +561,3 @@ module openconfig- {
 
 }
 ```
-

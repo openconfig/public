@@ -11,11 +11,11 @@ module openconfig-mpls {
   // import some basic types
   import openconfig-mpls-types { prefix oc-mplst; }
   import openconfig-mpls-rsvp { prefix oc-rsvp; }
-  import openconfig-mpls-sr { prefix oc-sr; }
   import openconfig-mpls-ldp { prefix oc-ldp; }
   import openconfig-types { prefix oc-types; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-segment-routing { prefix oc-sr; }
 
   // include submodules
   include openconfig-mpls-te;
@@ -71,18 +71,107 @@ module openconfig-mpls {
                              +-------+
     ";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "3.2.1";
 
-  revision "2016-03-25" {
+  revision "2021-06-16" {
     description
-      "Public release of MPLS models";
-    reference "1.0.0";
+      "Remove trailing whitespace";
+    reference "3.2.1";
   }
 
+  revision "2021-03-24" {
+    description
+      "Add Metric bounds constraints for LSPs.";
+    reference "3.2.0";
+  }
+
+  revision "2019-03-26" {
+    description
+      "Add Pseudowire encapsulation.";
+    reference "3.1.0";
+  }
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "3.0.1";
+  }
+
+  revision "2018-07-02" {
+    description
+      "Add new RSVP-TE statistics, remove associated-rsvp-session
+      leaf. Remove use of date-and-time.";
+    reference "3.0.0";
+  }
+
+  revision "2018-06-16" {
+    description
+      "Included attributes for base LDP configuration.";
+     reference "2.6.0";
+  }
+
+  revision "2018-06-13" {
+    description
+      "Add ttl-propagation to global MPLS config";
+    reference "2.5.0";
+  }
+
+  revision "2018-06-05" {
+    description
+      "Fixed bugs in when statements on RSVP-TE attributes";
+    reference "2.4.2";
+  }
+
+  revision "2017-08-24" {
+    description
+      "Minor formatting fixes.";
+    reference "2.4.1";
+  }
+
+  revision "2017-06-21" {
+    description
+      "Add TC bits typedef.";
+    reference "2.4.0";
+  }
+
+  revision "2017-03-22" {
+    description
+      "Add RSVP calculated-absolute-subscription-bw";
+    reference "2.3.0";
+  }
+
+  revision "2017-01-26" {
+    description
+      "Add RSVP Tspec, clarify units for RSVP, remove unused LDP";
+    reference "2.2.0";
+  }
+
+  revision "2016-12-15" {
+    description
+      "Add additional MPLS parameters";
+    reference "2.1.0";
+  }
+
+  revision "2016-09-01" {
+    description
+      "Revisions based on implementation feedback";
+    reference "2.0.0";
+  }
+
+  revision "2016-08-08" {
+    description
+      "Public release of MPLS models";
+    reference "1.0.1";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
   // grouping statements
 
-  grouping mpls-admin-group_config {
+  grouping mpls-admin-group-config {
     description
       "configuration data for MPLS link admin groups";
 
@@ -117,7 +206,7 @@ module openconfig-mpls {
         and state";
 
       list admin-group {
-        key admin-group-name;
+        key "admin-group-name";
         description
           "configuration of value to name mapping
           for mpls affinities/admin-groups";
@@ -132,20 +221,20 @@ module openconfig-mpls {
         container config {
           description
             "Configurable items for admin-groups";
-          uses mpls-admin-group_config;
+          uses mpls-admin-group-config;
         }
 
         container state {
           config false;
           description
             "Operational state for admin-groups";
-          uses mpls-admin-group_config;
+          uses mpls-admin-group-config;
         }
       }
     }
   }
 
-  grouping mpls-te-igp-flooding-bandwidth_config {
+  grouping mpls-te-igp-flooding-bandwidth-config {
     description
       "Configurable items for igp flooding bandwidth
       threshold configuration.";
@@ -293,19 +382,19 @@ module openconfig-mpls {
         description
           "Configuration parameters for TED
           update threshold ";
-        uses  mpls-te-igp-flooding-bandwidth_config;
+        uses  mpls-te-igp-flooding-bandwidth-config;
       }
       container state {
         config false;
         description
           "State parameters for TED update threshold ";
-        uses  mpls-te-igp-flooding-bandwidth_config;
+        uses  mpls-te-igp-flooding-bandwidth-config;
       }
     }
   }
 
 
-  grouping te-lsp-delay_config {
+  grouping te-lsp-delay-config {
     description
       "Group for the timers goerning the delay
       in installation and cleanup of TE LSPs";
@@ -335,7 +424,7 @@ module openconfig-mpls {
       for TE interfaces.";
 
     list interface {
-      key interface-id;
+      key "interface-id";
       description
         "List of TE interfaces";
 
@@ -350,14 +439,14 @@ module openconfig-mpls {
       container config {
         description
           "Configuration parameters related to TE interfaces:";
-        uses te-interface-attributes_config;
+        uses te-interface-attributes-config;
       }
 
       container state {
         config false;
         description
           "State parameters related to TE interfaces";
-        uses te-interface-attributes_config;
+        uses te-interface-attributes-config;
       }
 
       uses oc-if:interface-ref;
@@ -366,7 +455,7 @@ module openconfig-mpls {
     }
   }
 
-  grouping te-interface-attributes_config {
+  grouping te-interface-attributes-config {
     description
       "global level definitions for interfaces
       on which TE is run";
@@ -412,8 +501,8 @@ module openconfig-mpls {
           "Configuration parameters related
           to timers for TE LSPs";
 
-        uses te-lsp-delay_config;
-	      uses te-tunnel-reoptimize_config;
+        uses te-lsp-delay-config;
+        uses te-tunnel-reoptimize-config;
       }
 
       container state {
@@ -421,13 +510,13 @@ module openconfig-mpls {
         description
           "State related to timers for TE LSPs";
 
-        uses te-lsp-delay_config;
-        uses te-tunnel-reoptimize_config;
+        uses te-lsp-delay-config;
+        uses te-tunnel-reoptimize-config;
       }
     }
   }
 
-  grouping mpls-global_config {
+  grouping mpls-global-config {
     description
       "Definition of global MPLS configuration parameters";
 
@@ -439,6 +528,27 @@ module openconfig-mpls {
       description
         "The null-label type used, implicit or explicit";
     }
+
+    leaf ttl-propagation {
+      type boolean;
+      default true;
+      description
+        "Enables TTL propagation across the MPLS domain.
+        When ttl-propagation is set to true, the IP TTL
+        is copied into the MPLS header TTL when pushing
+        a label to an IP packet. If false, the IP TTL is
+        not copied into the MPLS header TTL and, therefore,
+        the IP TTL is not updated in the MPLS domain.";
+    }
+
+    leaf pw-encapsulation {
+      type identityref {
+        base oc-mplst:PSEUDOWIRE_ENCAPSULATION;
+      }
+      description
+        "The PDU type to use with pseudowires.";
+    }
+
   }
 
  grouping mpls-global-top {
@@ -446,16 +556,16 @@ module openconfig-mpls {
       "Top level grouping for global MPLS configuration ";
 
       container config {
-	      description
+        description
           "Top level global MPLS configuration";
-	      uses mpls-global_config;
+        uses mpls-global-config;
       }
 
       container state {
         config false;
         description
           "Top level global MPLS state";
-        uses mpls-global_config;
+        uses mpls-global-config;
       }
  }
 
@@ -467,17 +577,17 @@ module openconfig-mpls {
       description
         "Parameters related to MPLS interfaces";
       list interface {
-        key interface-id;
+        key "interface-id";
         description
           "List of TE interfaces";
 
-	      leaf interface-id {
-	        type leafref {
-	          path "../config/interface-id";
-	        }
-	        description
+        leaf interface-id {
+          type leafref {
+            path "../config/interface-id";
+          }
+          description
             "Reference to the interface id list key";
-    	  }
+        }
 
         container config {
           description
@@ -512,16 +622,86 @@ module openconfig-mpls {
       type boolean;
       default false;
       description
-        "Enable MPLS forwarding on this interfacek";
+        "Enable MPLS forwarding on this interface";
     }
   }
 
+  grouping mpls-label-block-config {
+    description
+      "Configuration parameters relating to an MPLS label block.";
 
-grouping mpls-top {
-  description
-    "Top level grouping for MPLS configuration and state";
+    leaf local-id {
+      type string;
+      description
+        "A local identifier for the global label block allocation.";
+    }
 
-  container mpls {
+    leaf lower-bound {
+      type oc-mplst:mpls-label;
+      description
+        "Lower bound of the global label block. The block is defined to include
+        this label.";
+    }
+
+    leaf upper-bound {
+      type oc-mplst:mpls-label;
+      description
+        "Upper bound for the global label block. The block is defined to include
+        this label.";
+    }
+  }
+
+  grouping mpls-label-blocks-top {
+    description
+      "Top-level configuration and operational state parameters corresponding
+      to reserved label blocks.";
+
+    container reserved-label-blocks {
+      description
+        "A range of labels starting with the start-label and up-to and including
+        the end label that should be allocated as reserved. These labels should
+        not be utilised by any dynamic label allocation on the local system unless
+        the allocating protocol is explicitly configured to specify that
+        allocation of labels should be out of the label block specified.";
+
+      list reserved-label-block {
+        key "local-id";
+
+        description
+          "A range of labels starting with the start-label up to and including
+          the end label that should be allocated for use by a specific protocol.";
+
+        leaf local-id {
+          type leafref {
+            path "../config/local-id";
+          }
+          description
+            "A reference to a unique local identifier for this label block.";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the label block.";
+
+          uses mpls-label-block-config;
+        }
+
+        container state {
+          config false;
+          description
+            "State parameters relating to the label block.";
+
+          uses mpls-label-block-config;
+        }
+      }
+    }
+  }
+
+  grouping mpls-top {
+    description
+      "Top level grouping for MPLS configuration and state";
+
+    container mpls {
       description
         "Anchor point for mpls configuration and operational
         data";
@@ -534,6 +714,7 @@ grouping mpls-top {
         entropy label supportmay be added here";
        uses mpls-global-top;
        uses mpls-interfaces-top;
+       uses mpls-label-blocks-top;
       }
 
       container te-global-attributes {
@@ -556,8 +737,8 @@ grouping mpls-top {
           "top-level signaling protocol configuration";
 
         uses oc-rsvp:rsvp-global;
-        uses oc-sr:sr-global;
         uses oc-ldp:ldp-global;
+        uses oc-sr:sr-mpls-top;
       }
 
       container lsps {
@@ -568,8 +749,8 @@ grouping mpls-top {
           description
             "traffic-engineered LSPs supporting different
             path computation and signaling methods";
-  	      uses explicit-paths_top;
-          uses te-tunnels_top;
+          uses explicit-paths-top;
+          uses te-tunnels-top;
         }
 
         container unconstrained-path {
@@ -591,8 +772,6 @@ grouping mpls-top {
       }
     }
   }
-
-  uses mpls-top;
 
   // augment statements
 

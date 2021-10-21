@@ -8,7 +8,6 @@ module openconfig-network-instance {
   prefix "oc-netinst";
 
   // import some basic types
-  //import ietf-inet-types { prefix inet; }
   import ietf-yang-types { prefix "yang"; }
   import ietf-inet-types { prefix "inet"; }
   import openconfig-network-instance-types { prefix "oc-ni-types"; }
@@ -16,13 +15,23 @@ module openconfig-network-instance {
   import openconfig-routing-policy { prefix "oc-rpol"; }
   import openconfig-local-routing { prefix "oc-loc-rt"; }
   import openconfig-interfaces { prefix "oc-if"; }
-  import openconfig-extensions { prefix "ocext"; }
-  import openconfig-network-instance-l2 { prefix "oc-ni-l2"; }
+  import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-network-instance-l3 { prefix "oc-ni-l3"; }
   import openconfig-types { prefix "oc-types"; }
   import openconfig-bgp { prefix "oc-bgp"; }
   import openconfig-mpls { prefix "oc-mpls"; }
   import openconfig-vlan { prefix "oc-vlan"; }
+  import openconfig-ospfv2 { prefix "oc-ospfv2"; }
+  import openconfig-policy-forwarding { prefix "oc-pf"; }
+  import openconfig-segment-routing { prefix "oc-sr"; }
+  import openconfig-isis { prefix "oc-isis"; }
+  import openconfig-aft { prefix "oc-aft"; }
+  import openconfig-pim { prefix "oc-pim"; }
+  import openconfig-igmp { prefix "oc-igmp"; }
+  import openconfig-evpn { prefix "oc-evpn"; }
+
+  // include submodules
+  include openconfig-network-instance-l2;
 
   // meta
   organization "OpenConfig working group";
@@ -38,7 +47,154 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  ocext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.16.1";
+
+  revision "2021-07-22" {
+    description
+      "Add prefix to qualify when statements";
+    reference "0.16.1";
+  }
+
+  revision "2021-06-11" {
+    description
+      "Structural update for arp-proxy and
+      proxy-nd.";
+    reference "0.16.0";
+  }
+
+  revision "2021-01-25" {
+    description
+      "Add support for evpn";
+    reference "0.15.0";
+  }
+
+  revision "2020-06-20" {
+    description
+      "Add support for toggling metric propagation
+      when using table-connections.";
+    reference "0.14.0";
+  }
+
+  revision "2019-11-28" {
+    description
+      "Revert fixes for paths in when statements";
+    reference "0.13.2";
+  }
+
+  revision "2019-06-11" {
+    description
+      "Fixed paths in when statements";
+    reference "0.13.1";
+  }
+
+  revision "2019-05-14" {
+    description
+      "Added support for BGP signalled VPWS and VPLS.";
+    reference "0.13.0";
+  }
+
+  revision "2019-04-16" {
+    description
+      "Move BGP RIB into the protocol/bgp container.";
+    reference "0.12.0";
+  }
+
+  revision "2019-02-03" {
+    description
+      "Extend netinst type description to link it to, for example, MPLS
+      service types.";
+    reference "0.11.2";
+  }
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "0.11.1";
+  }
+
+  revision "2018-08-11" {
+    description
+      "Add vlan id as additional key in MAC table";
+    reference "0.11.0";
+  }
+
+  revision "2018-06-22" {
+    description
+      "Fix typo in OSPF when statement";
+    reference "0.10.2";
+  }
+
+  revision "2018-06-05" {
+    description
+      "Fix bugs in when statements";
+    reference "0.10.1";
+  }
+
+  revision "2018-02-19" {
+    description
+      "Add PIM and IGMP to network instance";
+    reference "0.10.0";
+  }
+
+  revision "2017-12-13" {
+    description
+      "Fix incorrect constraint on SR and MPLS containers";
+    reference "0.9.0";
+  }
+
+  revision "2017-08-24" {
+    description
+      "Minor formatting fixes";
+    reference "0.8.1";
+  }
+
+  revision "2017-02-28" {
+    description
+      "Add OSPFv2 to network instance";
+    reference "0.8.0";
+  }
+
+  revision "2017-01-26" {
+    description
+      "Add policy forwarding to network instance";
+    reference "0.7.0";
+  }
+
+  revision "2017-01-13" {
+    description
+      "Add AFT to the network instance";
+    reference "0.6.0";
+  }
+
+  revision "2016-12-15" {
+    description
+      "Add segment routing to network instance";
+    reference "0.5.0";
+  }
+
+  revision "2016-11-10" {
+    description
+      "Add IS-IS to OpenConfig network instance";
+    reference "0.4.1";
+  }
+
+  revision "2016-10-12" {
+    description
+      "Update table connections";
+    reference "0.4.0";
+  }
+
+  revision "2016-09-28" {
+    description
+      "Change L2 instance to submodule; add MAC table";
+    reference "0.3.0";
+  }
+
+  revision "2016-08-11" {
+    description
+      "Resolve repeated container names in routing protocols";
+    reference "0.2.3";
+  }
 
   revision "2016-07-08" {
     description
@@ -58,37 +214,52 @@ module openconfig-network-instance {
     reference "0.1.0";
   }
 
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  typedef network-instance-ref {
+    type leafref {
+      path "/network-instances/network-instance/config/name";
+    }
+    description
+      "A re-usable type that can be referenced within other
+       modules that references a network instance.";
+  }
+
   grouping network-instance-top {
     description
       "Top-level grouping containing a list of network instances.";
 
-  	container network-instances {
+    container network-instances {
       description
         "The L2, L3, or L2+L3 forwarding instances that are
         configured on the local system";
 
-  		list network-instance {
-  			key "name";
+      list network-instance {
+        key "name";
 
         description
           "Network instances configured on the local system";
 
-  			leaf name {
-  				type leafref {
-  					path "../config/name";
-  				}
-  				description
-  					"A unique name identifying the network instance";
-  			}
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "A unique name identifying the network instance";
+        }
 
-
-        uses oc-ni-l2:l2ni-instance {
-            when "../type = 'L2VSI' or ../type = 'L2P2P'" +
-                 " or ../type = 'L2L3'" {
-                    description
-                      "Layer 2 configuration parameters included when
-                      a network instance is a Layer 2 instance or a
-                      combined L2L3 instance";
+        uses l2ni-instance {
+            when "./config/type = 'oc-ni-types:L2VSI'
+                  or ./config/type = 'oc-ni-types:L2P2P'
+                  or ./config/type = 'oc-ni-types:L2L3'
+                  or ./config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
+                  description
+                    "Layer 2 configuration parameters included when
+                    a network instance is a Layer 2 instance or a
+                    combined L2L3 instance";
             }
         }
 
@@ -111,8 +282,21 @@ module openconfig-network-instance {
           uses network-instance-state;
         }
 
+        container evpn {
+          when "./config/type = 'oc-ni-types:L2VSI'
+                or ./config/type = 'oc-ni-types:L3VRF'" {
+           description
+             "EVPN container should be included for L2 and L3 NIs";
+         }
+         description
+           "Configuration of parameters for EVPN related bridge domains
+           (MAC VRFs) and layer3 VRFs (IP VRFs)";
+          uses oc-evpn:evpn-config-top;
+          uses oc-evpn:evpn-ethernet-segment-top;
+        }
+
         container encapsulation {
-          when "../config/type != 'DEFAULT_INSTANCE'" {
+          when "../config/type != 'oc-ni-types:DEFAULT_INSTANCE'" {
             description
               "Only allow the encapsulation of the instance to be
               set when the instance is not the default instance";
@@ -128,9 +312,9 @@ module openconfig-network-instance {
 
             uses encapsulation-config;
 
-            uses oc-ni-l2:l2ni-encapsulation-config {
-              when "../../../type = 'L2VSI' or ../../../type = 'L2P2P'
-                      or ../../../type = 'L2L3'" {
+            uses l2ni-encapsulation-config {
+              when "./config/type = 'oc-ni-types:L2VSI' or ./config/type = 'oc-ni-types:L2P2P'
+                      or ./config/type = 'oc-ni-types:L2L3'" {
                         description
                           "Only allow L2 encapsulations to be set
                           when the instance is of a type that supports
@@ -145,8 +329,17 @@ module openconfig-network-instance {
               "State parameters relating to the encapsulation of
               the network instance";
             uses encapsulation-config;
-          }
 
+            uses l2ni-encapsulation-config {
+              when "./config/type = 'oc-ni-types:L2VSI' or ./config/type = 'oc-ni-types:L2P2P'
+                      or ./config/type = 'oc-ni-types:L2L3'" {
+                        description
+                          "Only allow L2 encapsulations to be set
+                          when the instance is of a type that supports
+                          L2";
+              }
+            }
+          }
         }
 
         container inter-instance-policies {
@@ -155,6 +348,7 @@ module openconfig-network-instance {
             to and exported from this instance";
 
           uses oc-rpol:apply-policy-group;
+          uses oc-evpn:evpn-import-export-policy-top;
         }
 
         container table-connections {
@@ -163,29 +357,43 @@ module openconfig-network-instance {
             between tables";
 
           list table-connection {
-            key "src-table dst-table";
+            key "src-protocol dst-protocol address-family";
 
             description
               "A list of connections between pairs of routing or
               forwarding tables, the leaking of entries between
-              which is specified by the import and export policy";
+              which is specified by the import policy.
 
-            leaf src-table {
+              A connection connecting a source table to a destination
+              table implies that routes that match the policy specified
+              for the connection are available for the destination
+              protocol to advertise, or match within its policies.";
+
+            leaf src-protocol {
               type leafref {
-                path "../config/src-table";
+                path "../config/src-protocol";
               }
               description
-                "The name of the table which should be utilised
-                as the source of forwarding or routing information";
+                "The name of the protocol associated with the table
+                which should be utilised as the source of forwarding
+                or routing information";
             }
 
-            leaf dst-table {
+            leaf dst-protocol {
               type leafref {
-                path "../config/dst-table";
+                path "../config/dst-protocol";
               }
               description
                 "The table to which routing entries should be
                 exported";
+            }
+
+            leaf address-family {
+              type leafref {
+                path "../config/address-family";
+              }
+              description
+                "The address family associated with the connection";
             }
 
             container config {
@@ -244,37 +452,64 @@ module openconfig-network-instance {
           }
         }
 
+        uses oc-ni-l3:l3ni-route-limit-structural {
+          when "./config/type = 'L3VRF' or ./config/type = 'L2L3'" {
+            description
+              "Layer 3 VRF or L2/L3 instances can have route limits
+              applied. This is not supported for the default instance.";
+          }
+        }
+
         container tables {
           description
             "The routing tables that are managed by this network
             instance";
 
           list table {
-            key "table-name";
+            key "protocol address-family";
 
             description
               "A network instance manages one or more forwarding or
-              routing tables. These may reflect the Layer 2
-              forwarding information base, the Layer 3 routing
-              information base of the MPLS LFIB. Protocols may be
-              explictly associated with a particular table into
-              which they populate entries. Multiple protocols may
-              install entries into a single table, or there may be a
-              1:1 relationship between a routing protocol and a
-              table. The 'table-connections' construct is used to
-              specify how entries are propagated between tables.";
+              routing tables. These may reflect a Layer 2 forwarding
+              information base, a Layer 3 routing table, or an MPLS
+              LFIB.
 
-            leaf table-name {
+              The table populated by a protocol within an instance is
+              identified by the protocol identifier (e.g., BGP, IS-IS)
+              and the address family (e.g., IPv4, IPv6) supported by
+              that protocol. Multiple instances of the same protocol
+              populate a single table -- such that
+              a single IS-IS or OSPF IPv4 table exists per network
+              instance.
+
+              An implementation is expected to create entries within
+              this list when the relevant protocol context is enabled.
+              i.e., when a BGP instance is created with IPv4 and IPv6
+              address families enabled, the protocol=BGP,
+              address-family=IPv4 table is created by the system.";
+
+            leaf protocol {
               type leafref {
-                path "../config/table-name";
+                path "../config/protocol";
               }
               description
-                "A name for the table";
+                "A reference to the protocol that populates
+                the table";
+            }
+
+            leaf address-family {
+              type leafref {
+                path "../config/address-family";
+              }
+              description
+                "A reference to the address-family that the
+                table represents";
             }
 
             container config {
               description
-                "Configuration parameters related to the table";
+                "Configuration parameters relating to the
+                table";
               uses table-config;
             }
 
@@ -329,8 +564,8 @@ module openconfig-network-instance {
             }
 
             container endpoints {
-              when "../config/type = 'L2P2P' " +
-                 "or ../config/type = 'L2VSI'" {
+              when "../../../config/type = 'oc-ni-types:L2P2P' " +
+                 "or ../../../config/type = 'oc-ni-types:L2VSI'" {
                 description
                   "Configuration parameters to associate interfaces
                    into a common group for use in Layer 2 network
@@ -430,20 +665,43 @@ module openconfig-network-instance {
                     uses instance-endpoint-remote-config;
                   }
                 }
+                container vxlan {
+                    when "../config/type = 'VXLAN'" {
+                      description
+                        "Only include the vxlan configuration when
+                        the endpoint is specified to be vxlan";
+                    }
+                    description
+                      "Configuration and operational state parameters
+                      relating to a VXLAN tunnel end-point interface";
+                    uses oc-evpn:evpn-overlays-grp-top;
+                }
               }
             }
           }
         }
 
         uses oc-mpls:mpls-top {
-          when "../config/type = 'DEFAULT'" {
+          when "./config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
             description
               "MPLS configuration is only valid within the default
-              network instance";
+              network instance.";
+          }
+        }
+
+        uses oc-sr:sr-top {
+          when "./config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
+            description
+              "Segment routing configuration is only valid with the default
+              network instance.";
           }
         }
 
         uses oc-vlan:vlan-top;
+
+        uses oc-pf:policy-forwarding-top;
+
+        uses oc-aft:aft-top;
 
         container protocols {
           description
@@ -495,10 +753,8 @@ module openconfig-network-instance {
               uses protocols-state;
             }
 
-            uses protocols-target-table;
-
-            container static {
-              when "../config/identifier = 'STATIC'" {
+            uses oc-loc-rt:local-static-top {
+              when "./config/identifier = 'STATIC'" {
                 description
                   "Include static route parameters only when the
                   protocol is set to static";
@@ -506,11 +762,10 @@ module openconfig-network-instance {
               description
                 "Configuration and state parameters relating to
                 static routes";
-              uses oc-loc-rt:local-static-top;
             }
 
-            container aggregate {
-              when "../config/identifier = 'LOCAL-AGGREGATE'" {
+            uses oc-loc-rt:local-aggregate-top {
+              when "./config/identifier = 'LOCAL_AGGREGATE'" {
                 description
                   "Include aggregate route parameters only when the
                   protocol is set to aggregate";
@@ -518,11 +773,10 @@ module openconfig-network-instance {
               description
                 "Configuration and state parameters relating to
                 locally generated aggregate routes";
-              uses oc-loc-rt:local-aggregate-top;
             }
 
-            container bgp {
-              when "../config/identifier = 'BGP'" {
+            uses oc-bgp:bgp-top {
+              when "./config/identifier = 'BGP'" {
                 description
                   "Include BGP parameters only when the protocol
                   is of type BGP";
@@ -530,13 +784,53 @@ module openconfig-network-instance {
               description
                 "Configuration and state parameters relating to
                 Border Gateway Protocol (BGP)";
-              uses oc-bgp:bgp-top;
+            }
+
+            uses oc-ospfv2:ospfv2-top {
+              when "./config/identifier = 'OSPF'" {
+                description
+                  "Include OSPFv2 parameters only when the protocol
+                  is of type OSPFv2";
+              }
+            }
+
+            uses oc-isis:isis-top {
+              when "./config/identifier = 'ISIS'" {
+                description
+                  "Include IS-IS configuration when the protocol is of type
+                  IS-IS";
+              }
+              description
+                "Configuration and state parameters relating to Intermediate
+                System to Intermediate System (IS-IS).";
+            }
+
+            uses oc-pim:pim-top {
+              when "./config/identifier = 'PIM'" {
+                description
+                  "Include PIM configuration when the protocol is of type
+                  PIM";
+              }
+              description
+                "Configuration and state parameters relating to Protocol
+                Indepdendent Multicast (PIM).";
+            }
+
+            uses oc-igmp:igmp-top {
+              when "./config/identifier = 'IGMP'" {
+                description
+                  "Include IGMP configuration when the protocol is of type
+                  IGMP";
+              }
+              description
+                "Configuration and state parameters relating to the Internet
+                Group Management Protocol (IGMP).";
             }
 
           }
         }
-  		}
-  	}
+      }
+    }
   }
 
   grouping network-instance-type-dependent-config {
@@ -544,20 +838,20 @@ module openconfig-network-instance {
       "Type dependent network instance configuration";
 
     uses oc-ni-l3:l3ni-instance-common-config {
-      when "../type = 'L3VRF' or ../type = 'L2L3'" {
+      when "./type = 'oc-ni-types:L3VRF' or ./type = 'oc-ni-types:L2L3'" {
         description
           "Layer 3 VRF configuration parameters included when a
           network instance is a L3VRF or combined L2L3 instance";
       }
     }
 
-    uses oc-ni-l2:l2ni-instance-common-config {
-      when "../type = 'L2VSI' or ../type = 'L2P2P'" +
-           " or ../type = 'L2L3'" {
-              description
-                "Layer 2 configuration parameters included when
-                a network instance is a Layer 2 instance or a
-                combined L2L3 instance";
+    uses l2ni-instance-common-config {
+      when "./type = 'oc-ni-types:L2VSI' or ./type = 'oc-ni-types:L2P2P'" +
+           " or ./type = 'oc-ni-types:L2L3'" {
+            description
+              "Layer 2 configuration parameters included when
+              a network instance is a Layer 2 instance or a
+              combined L2L3 instance";
       }
     }
   }
@@ -598,6 +892,31 @@ module openconfig-network-instance {
       to the current system";
 
       uses oc-if:interface-ref-common;
+
+    leaf site-id {
+      type uint16;
+      description
+        "The VE ID as defined in RFC4761 (VPLS) or CE ID as defined in
+        RFC6624 (l2vpn) to uniquely identify this endpoint (site) as part
+        of the BGP discovery of remote endpoints for layer 2 services.";
+      reference "RFC6624 Section 2.2.1, RFC4761 Section 3.2.2";
+    }
+
+    // TODO not seen this in configuration yet; is it managed by the
+    // PE router code?
+    leaf site-label-block-offset {
+      type uint16;
+      description
+        "The VPLS label block offset that is signaled with the 'site-id'.";
+      reference "RFC4761 Section 3.2.1 'VBO'";
+    }
+
+    leaf site-label-block-size {
+      type uint16;
+      description
+        "The VPLS label block size that is signaled with the 'site-id'.";
+      reference "RFC4761 Section 3.2.1 'VBS'";
+    }
   }
 
   grouping instance-endpoint-remote-config {
@@ -616,6 +935,14 @@ module openconfig-network-instance {
       description
         "The virtual-circuit identifier that identifies the
         connection at the remote end-point";
+    }
+
+    leaf site-id {
+      type uint16;
+      description
+        "Identifies remote sites. When BGP discovery is used this
+        is the customer edge identifier";
+      reference "RFC6624 Section 2.2.1";
     }
   }
 
@@ -651,13 +978,23 @@ module openconfig-network-instance {
 
   grouping table-config {
     description
-      "Configuration parameters relating to a L2/L2.5/L3 table that
-      exists within the network instance";
+      "Config parameters relating to an L2/L2.5/L3 table that exists
+      within a network instance";
 
-    leaf table-name {
-      type string;
+    leaf protocol {
+      type leafref {
+        path "../../../../protocols/protocol/config/identifier";
+      }
       description
-        "A human-readable name for the table";
+        "Reference to the protocol that the table is associated with.";
+    }
+
+    leaf address-family {
+      type identityref {
+        base oc-types:ADDRESS_FAMILY;
+      }
+      description
+        "The address family (IPv4, IPv6) of the table's entries";
     }
   }
 
@@ -688,6 +1025,39 @@ module openconfig-network-instance {
         is specified then the association MUST only be made for
         those address families that are included in the list.";
     }
+
+    leaf mac-pinning {
+      type boolean;
+      description
+        "Enable (TRUE) or disable (FALSE). There are scenarios in which
+        it is desired to configure some MAC addresses as static so
+        that they are not subjected to MAC moves. If you enable MAC pinning
+        on a CE interface, that MAC address cannot be moved to any
+        other CE interface";
+      reference
+        "RFC 7432: BGP MPLS-Based Ethernet VPN";
+    }
+
+    leaf irb-anycast-gateway {
+      type enumeration {
+        enum DISTRIBUTED_SYMETRIC {
+          description "Distributed anycast gateway";
+        }
+        enum DISTRIBUTED_ASYMETRIC {
+          description "Distributed asymetric anycast gateway";
+        }
+        enum HYBRID {
+          description "Hybrid anycast gateway";
+        }
+        enum CENTRALIZED {
+          description "Centralized anycast gateway";
+        }
+      }
+      description
+        "Associate VLAN SVI with anycast Gateway.
+        The SVI is the layer3 interface for the mac-vrf
+        when the SVI is being used as the first hop default gw.";
+    }
   }
 
   grouping instance-interfaces-state {
@@ -696,35 +1066,55 @@ module openconfig-network-instance {
       associated with this network instance";
   }
 
-  grouping table-state {
-    description
-      "State parameters relating to a table - this may be
-      utilised to store generic structure for retrieving the contents
-      of a RIB, FIB or LFIB";
-    // placeholder
-  }
-
   grouping inter-table-policies-config {
     description
       "Configuration entries that relate to how RIB or FIB entries
       are propagated between tables within the same network
       instance";
 
-    leaf src-table {
+    leaf src-protocol {
       type leafref {
         // we are at table-connections/table-connection/config/.
-        path "../../../../tables/table/table-name";
+        path "../../../../tables/table/config/protocol";
       }
       description
         "The source protocol for the table connection";
     }
 
-    leaf dst-table {
+    leaf address-family {
       type leafref {
-        path "../../../../tables/table/table-name";
+        // we are at table-connections/table-connection/config/.
+        path "../../../../tables/" +
+          "table[protocol=current()/../src-protocol]/" +
+          "config/address-family";
+      }
+      description
+        "The address family associated with the connection. This
+        must be defined for the source protocol. The target
+        address family is implicitly defined by the address family
+        specified for the source protocol.";
+    }
+
+    leaf dst-protocol {
+      type leafref {
+        path "../../../../tables/table/config/protocol";
       }
       description
         "The destination protocol for the table connection";
+    }
+
+    leaf disable-metric-propagation {
+      type boolean;
+      default false;
+      description
+        "By default a system may reflect the metric specified in
+        the destination protocol according to that which is set in
+        the source protocol. For example:
+         - IS-IS metric may be reflected in BGP MED (and vice versa)
+         - OSPF metric may be reflected in the BGP MED (and vice versa)
+        When this leaf is set to true, this reflection behaviour MUST be
+        disabled, and rather the metric must be set to the default value,
+        or explicitly set by policy.";
     }
 
     uses oc-rpol:apply-policy-import-config;
@@ -749,7 +1139,12 @@ module openconfig-network-instance {
       description
         "The type of network instance. The value of this leaf
         indicates the type of forwarding entries that should be
-        supported by this network instance";
+        supported by this network instance. Signalling protocols
+        also use the network instance type to infer the type of
+        service they advertise; for example MPLS signalling
+        for an L2VSI network instance would infer a VPLS service
+        whereas a type of L2PTP would infer a VPWS (pseudo-wire)
+        service";
     }
 
     leaf enabled {
@@ -827,125 +1222,6 @@ module openconfig-network-instance {
     }
   }
 
-  grouping protocols-target-table {
-    description
-      "Configuration and state parameters relating to the target
-      table";
-
-    container target-table {
-      description
-        "Configuration and state parameters relating to the table
-        which should be populated by the routing protocol";
-
-        container config {
-          description
-            "Configuration parameters relating to the target table";
-
-          uses protocols-target-table-config;
-        }
-
-        container state {
-          config false;
-
-          description
-            "Operational state parameters relating to the target
-            table";
-          uses protocols-target-table-config;
-        }
-
-        uses protocols-target-table-af;
-    }
-  }
-
-  grouping protocols-target-table-config {
-    description
-      "Configuration parameters relating to the association that
-      a protocol has with a table within the network instance";
-
-    leaf global-target-table {
-     type leafref {
-      path "../../../../../tables/table/table-name";
-     }
-     description
-      "The table (RIB, FIB, or LFIB) that the protocol should
-      populate its entries in.";
-    }
-  }
-
-  grouping protocols-target-table-af-config {
-    description
-      "Configuration parameters relating to the association
-      that individual AFI, SAFIs within a network instance have with
-      a table within the network instance";
-
-    leaf address-family {
-      type identityref {
-        base "oc-types:ADDRESS_FAMILY";
-      }
-      description
-        "The address family for which the association is being
-        specified";
-    }
-
-    leaf target-table {
-      // we are at /network-instances/network-instance/protocols/
-      // protocol/target-table/af-target-tables/af-target-table/
-      // config/target-table
-      type leafref {
-        path "../../../../../../../tables/table/table-name";
-      }
-      description
-        "A reference to the target table to which the address
-        family should be associated";
-    }
-  }
-
-  grouping protocols-target-table-af {
-    description
-      "Configuration and state parameters relating to the address
-      family target table";
-
-    container af-target-tables {
-      description
-        "Where a protocol may populate different target-tables based
-        on the address family that routing entries are associated
-        with, entries within the list provide this mapping";
-
-      list af-target-table {
-        key "address-family";
-
-        description
-          "List of address family to target table associations";
-
-        leaf address-family {
-          type leafref {
-            path "../config/address-family";
-          }
-          description
-            "Reference to the address family for which the
-            association is being specified";
-        }
-
-        container config {
-          description
-            "Configuration parameters relating to the target table
-            mapping";
-
-          uses protocols-target-table-af-config;
-        }
-
-        container state {
-          config false;
-          description
-            "Operational state parameters relating to the target
-            table mapping";
-          uses protocols-target-table-af-config;
-        }
-      }
-    }
-  }
-
-
   grouping protocols-state {
     description
       "Operational state parameters relating to a protocol instance";
@@ -993,6 +1269,5 @@ module openconfig-network-instance {
         in the network instance";
     }
   }
-
   uses network-instance-top;
 }

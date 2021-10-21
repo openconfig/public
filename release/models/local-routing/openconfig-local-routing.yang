@@ -8,10 +8,11 @@ module openconfig-local-routing {
   prefix "oc-loc-rt";
 
   // import some basic types
-  import ietf-inet-types { prefix inet; }
+  import openconfig-inet-types { prefix inet; }
   import openconfig-policy-types { prefix oc-pt; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-interfaces { prefix oc-if; }
+  import openconfig-bfd { prefix oc-bfd; }
 
   // meta
   organization "OpenConfig working group";
@@ -42,7 +43,31 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2020-03-24" {
+    description
+      "Add bfd support without augmentation.";
+    reference "1.2.0";
+  }
+
+  revision "2020-03-24" {
+    description
+      "Add a description statement to static routes.";
+    reference "1.1.0";
+  }
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "1.0.2";
+  }
+
+  revision "2017-05-15" {
+    description
+      "Update to resolve style guide non-compliance.";
+    reference "1.0.1";
+  }
 
   revision "2016-05-11" {
     description
@@ -50,6 +75,10 @@ module openconfig-local-routing {
     reference "1.0.0";
   }
 
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
   // identity statements
 
@@ -100,6 +129,12 @@ module openconfig-local-routing {
         used for filtering routes that are distributed to other
         routing protocols.";
     }
+
+    leaf description {
+      type string;
+      description
+        "An optional textual description for the route.";
+    }
   }
 
   grouping local-static-config {
@@ -138,7 +173,7 @@ module openconfig-local-routing {
 
     leaf next-hop {
       type union {
-        type inet:ip-address-no-zone;
+        type inet:ip-address;
         type local-defined-next-hop;
       }
       description
@@ -200,7 +235,7 @@ module openconfig-local-routing {
         "Enclosing container for the list of static routes";
 
       list static {
-        key prefix;
+        key "prefix";
         description
           "List of locally configured static routes";
 
@@ -237,7 +272,7 @@ module openconfig-local-routing {
             route being specified";
 
           list next-hop {
-            key index;
+            key "index";
 
             description
               "A list of next-hops to be utilised for the static
@@ -273,6 +308,7 @@ module openconfig-local-routing {
               uses local-static-nexthop-state;
             }
 
+            uses oc-bfd:bfd-enable;
             uses oc-if:interface-ref;
           }
         }
@@ -322,7 +358,7 @@ module openconfig-local-routing {
         routes";
 
       list aggregate {
-        key prefix;
+        key "prefix";
         description
           "List of aggregates";
 

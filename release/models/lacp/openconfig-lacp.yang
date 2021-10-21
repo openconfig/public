@@ -9,10 +9,9 @@ module openconfig-lacp {
 
   // import some basic types
   import openconfig-interfaces { prefix oc-if; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
-
-
+  import openconfig-types { prefix oc-types; }
 
   // meta
   organization "OpenConfig working group";
@@ -27,7 +26,25 @@ module openconfig-lacp {
     managing aggregate interfaces.   It works in conjunction with
     the OpenConfig interfaces and aggregate interfaces models.";
 
-  oc-ext:openconfig-version "1.0.2";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2021-07-20" {
+    description
+      "Add count of number of timeouts and time of the last timeout.";
+    reference "1.2.0";
+  }
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "1.1.1";
+  }
+
+  revision "2017-05-05" {
+    description
+      "Add member local and remote port num";
+    reference "1.1.0";
+  }
 
   revision "2016-05-26" {
     description
@@ -35,6 +52,10 @@ module openconfig-lacp {
     reference "1.0.2";
   }
 
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
   // typedef statements
 
@@ -174,7 +195,7 @@ module openconfig-lacp {
     }
 
     leaf system-id {
-      type yang:mac-address;
+      type oc-yang:mac-address;
       description
         "MAC address that defines the local system ID for the
         aggregate interface";
@@ -188,7 +209,7 @@ module openconfig-lacp {
     }
 
     leaf partner-id {
-      type yang:mac-address;
+      type oc-yang:mac-address;
       description
         "MAC address representing the protocol partner's interface
         system ID";
@@ -200,11 +221,30 @@ module openconfig-lacp {
         "Operational value of the protocol partner's key";
     }
 
-    // TODO: rjs: unclear whether this is required, it is referenced
-    //            elsewhere under the state container. The grouping
-    //            does not exist.
-    // added the new group below to provide LACP statistics.
-    // uses aggregation-lacp-statistic;
+    leaf port-num {
+      type uint16;
+      description
+        "Port number of the local (actor) aggregation member";
+    }
+
+    leaf partner-port-num {
+      type uint16;
+      description
+        "Port number of the partner (remote) port for this member
+        port";
+    }
+
+    leaf last-change {
+      type oc-types:timeticks64;
+      description
+        "The timestamp indicates the absolute time of the last state
+        change of a LACP timeout. The last state change of the LACP
+        timeout is defined as what is reported as the operating state
+        to the system. The state change is both a timeout event and
+        when the timeout event is no longer active. The value is the
+        timestamp in nanoseconds relative to the Unix Epoch
+        (Jan 1, 1970 00:00:00 UTC).";
+    }
   }
 
 grouping aggregation-lacp-members-statistics {
@@ -216,39 +256,51 @@ grouping aggregation-lacp-members-statistics {
         "LACP protocol counters";
 
       leaf lacp-in-pkts {
-        type yang:counter64;
+        type oc-yang:counter64;
         description
           "Number of LACPDUs received";
       }
 
       leaf lacp-out-pkts {
-        type yang:counter64;
+        type oc-yang:counter64;
         description
           "Number of LACPDUs transmitted";
       }
 
       leaf lacp-rx-errors {
-        type yang:counter64;
+        type oc-yang:counter64;
         description
           "Number of LACPDU receive packet errors";
       }
 
       leaf lacp-tx-errors {
-        type yang:counter64;
+        type oc-yang:counter64;
         description
           "Number of LACPDU transmit packet errors";
       }
 
       leaf lacp-unknown-errors {
-        type yang:counter64;
+        type oc-yang:counter64;
         description
           "Number of LACPDU unknown packet errors";
       }
 
       leaf lacp-errors {
-        type yang:counter64;
+        type oc-yang:counter64;
         description
           "Number of LACPDU illegal packet errors";
+      }
+
+      leaf lacp-timeout-transitions {
+        type oc-yang:counter64;
+        description
+          "Number of times the LACP state has transitioned
+          with a timeout since the time the device restarted
+          or the interface was brought up, whichever is most
+          recent. The last state change of the LACP timeout
+          is defined as what is reported as the operating state
+          to the system. The state change is both a timeout
+          event and when the timeout event is no longer active.";
       }
     }
   }
@@ -328,7 +380,7 @@ grouping aggregation-lacp-members-statistics {
     }
 
     leaf system-id-mac {
-      type yang:mac-address;
+      type oc-yang:mac-address;
       description
         "The MAC address portion of the node's System ID. This is
         combined with the system priority to construct the 8-octet

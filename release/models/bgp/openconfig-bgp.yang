@@ -9,7 +9,7 @@ module openconfig-bgp {
 
   // import some basic inet types
   import openconfig-extensions { prefix oc-ext; }
-  import openconfig-routing-policy { prefix oc-rpol; }
+  import openconfig-rib-bgp { prefix oc-bgprib; }
 
   // Include the OpenConfig BGP submodules
   // Common: defines the groupings that are common across more than
@@ -60,7 +60,87 @@ module openconfig-bgp {
           +-> [ optional pointer to peer-group ]
           +-> AFI / SAFI [ per-AFI overrides ]";
 
-  oc-ext:openconfig-version "2.1.1";
+  oc-ext:openconfig-version "6.1.1";
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "6.1.1";
+  }
+
+  revision "2021-03-17" {
+    description
+      "Add bfd support without augmentation.";
+    reference "6.1.0";
+  }
+
+  revision "2019-07-10" {
+    description
+      "Normalise timestamp units to nanoseconds.";
+    reference "6.0.0";
+  }
+
+  revision "2019-05-28" {
+    description
+      "Clarify prefix counter descriptions, add received-pre-policy
+      counter.";
+    reference "5.2.0";
+  }
+
+  revision "2019-04-16" {
+    description
+      "Add BGP RIB to the top-level BGP container";
+    reference "5.1.0";
+  }
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "5.0.2";
+  }
+
+  revision "2018-08-20" {
+    description
+      "Correct description of AFI-SAFI enabled leaf.";
+    reference "5.0.1";
+  }
+
+  revision "2018-04-11" {
+    description
+      "Correct naming of BGP maximum prefix warning percentage leaf.";
+    reference "5.0.0";
+  }
+
+  revision "2018-03-20" {
+    description
+      "Added SR-TE policy SAFI";
+    reference "4.1.0";
+  }
+
+  revision "2017-07-30" {
+    description
+      "Clarification of add-paths send-max leaf";
+    reference "4.0.1";
+  }
+
+  revision "2017-07-10" {
+    description
+      "Add error notifications; moved add-paths config; add AS
+      prepend policy features; removed unneeded config leaves";
+    reference "4.0.0";
+  }
+
+  revision "2017-02-02" {
+    description
+      "Bugfix to remove remaining global-level policy data";
+    reference "3.0.1";
+  }
+
+  revision "2017-01-26" {
+    description
+      "Add dynamic neighbor support, migrate to OpenConfig types";
+    reference "3.0.0";
+  }
 
   revision "2016-06-21" {
     description
@@ -80,6 +160,11 @@ module openconfig-bgp {
     reference "2.0.1";
   }
 
+    // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
   grouping bgp-top {
     description
       "Top-level grouping for the BGP model data";
@@ -92,7 +177,6 @@ module openconfig-bgp {
         description
           "Global configuration for the BGP router";
           uses bgp-global-base;
-          uses oc-rpol:apply-policy-group;
       }
 
       container neighbors {
@@ -106,6 +190,8 @@ module openconfig-bgp {
           "Configuration for BGP peer-groups";
         uses bgp-peer-group-list;
       }
+
+      uses oc-bgprib:bgp-rib-top;
     }
   }
 

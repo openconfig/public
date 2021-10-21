@@ -7,7 +7,8 @@ submodule openconfig-bgp-common {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
   import openconfig-routing-policy { prefix oc-rpol; }
-  import ietf-inet-types { prefix inet; }
+  import openconfig-types { prefix oc-types; }
+  import openconfig-inet-types { prefix oc-inet; }
 
   // meta
   organization
@@ -23,7 +24,75 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "2.1.1";
+  oc-ext:openconfig-version "6.0.0";
+
+  revision "2019-07-10" {
+    description
+      "Normalise timestamp units to nanoseconds.";
+    reference "6.0.0";
+  }
+
+  revision "2019-05-28" {
+    description
+      "Clarify prefix counter descriptions, add received-pre-policy
+      counter.";
+    reference "5.2.0";
+  }
+
+  revision "2019-04-16" {
+    description
+      "Add BGP RIB to the top-level BGP container";
+    reference "5.1.0";
+  }
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "5.0.2";
+  }
+
+  revision "2018-08-20" {
+    description
+      "Correct description of AFI-SAFI enabled leaf.";
+    reference "5.0.1";
+  }
+
+  revision "2018-04-11" {
+    description
+      "Correct naming of BGP maximum prefix warning percentage leaf.";
+    reference "5.0.0";
+  }
+
+  revision "2018-03-20" {
+    description
+      "Added SR-TE policy SAFI";
+    reference "4.1.0";
+  }
+
+  revision "2017-07-30" {
+    description
+      "Clarification of add-paths send-max leaf";
+    reference "4.0.1";
+  }
+
+  revision "2017-07-10" {
+    description
+      "Add error notifications; moved add-paths config; add AS
+      prepend policy features; removed unneeded config leaves";
+    reference "4.0.0";
+  }
+
+  revision "2017-02-02" {
+    description
+      "Bugfix to remove remaining global-level policy data";
+    reference "3.0.1";
+  }
+
+  revision "2017-01-26" {
+    description
+      "Add dynamic neighbor support, migrate to OpenConfig types";
+    reference "3.0.0";
+  }
 
   revision "2016-06-21" {
     description
@@ -93,13 +162,13 @@ submodule openconfig-bgp-common {
       "Neighbor level configuration items.";
 
     leaf peer-as {
-      type inet:as-number;
+      type oc-inet:as-number;
       description
         "AS number of the peer.";
     }
 
     leaf local-as {
-      type inet:as-number;
+      type oc-inet:as-number;
       description
         "The local autonomous system number that is to be used
         when establishing sessions with the remote peer or peer
@@ -115,7 +184,7 @@ submodule openconfig-bgp-common {
     }
 
     leaf auth-password {
-      type string;
+      type oc-types:routing-password;
       description
         "Configures an MD5 authentication password for use with
         neighboring devices.";
@@ -185,7 +254,7 @@ submodule openconfig-bgp-common {
 
     leaf local-address {
       type union {
-        type inet:ip-address;
+        type oc-inet:ip-address;
         type string;
       }
       //TODO:  the string should be converted to a leafref type
@@ -293,6 +362,16 @@ submodule openconfig-bgp-common {
         "Replace occurrences of the peer's AS in the AS_PATH
         with the local autonomous system number";
     }
+
+    leaf disable-peer-as-filter {
+      type boolean;
+      default "false";
+      description
+        "When set to true, the system advertises routes to a peer
+        even if the peer's AS was in the AS path.  The default
+        behavior (false) suppresses advertisements to peers if
+        their AS number is in the AS path of the route.";
+    }
   }
 
   grouping bgp-common-neighbor-group-add-paths-config {
@@ -304,15 +383,29 @@ submodule openconfig-bgp-common {
       type boolean;
       default false;
       description
-        "Enable ability to receive multiple path advertisements
-        for an NLRI from the neighbor or group";
+        "Enable capability negotiation to receive multiple path
+        advertisements for an NLRI from the neighbor or group";
+      reference
+        "RFC 7911 - Advertisement of Multiple Paths in BGP";
+    }
+
+    leaf send {
+      type boolean;
+      default false;
+      description
+        "Enable capability negotiation to send multiple path
+        advertisements for an NLRI from the neighbor or group";
+      reference
+        "RFC 7911 - Advertisement of Multiple Paths in BGP";
     }
 
     leaf send-max {
       type uint8;
       description
-        "The maximum number of paths to advertise to neighbors
-        for a single NLRI";
+        "The maximum total number of paths to advertise to neighbors
+        for a single NLRI.  This includes the single best path as
+        well as additional paths advertised when add-paths is
+        enabled.";
     }
 
     leaf eligible-prefix-policy {
@@ -595,4 +688,3 @@ submodule openconfig-bgp-common {
 
 
 }
-

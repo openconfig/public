@@ -9,7 +9,7 @@ module openconfig-acl {
 
   import openconfig-packet-match { prefix oc-match; }
   import openconfig-interfaces { prefix oc-if; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
 
   // meta
@@ -26,21 +26,62 @@ module openconfig-acl {
     containing one or more ACL entries.  ACL sets are identified
     by a unique name, while each entry within a set is assigned
     a sequence-id that determines the order in which the ACL
-    rules are applied to a packet.
+    rules are applied to a packet.  Note that ACLs are evaluated
+    in ascending order based on the sequence-id (low to high).
 
-    The model allows individual ACL rules to combine match criteria
-    from various fields in the packet, along with an action that
-    defines how matching packets should be handled.  Note that some
-    device implementations may require separate entries for match
-    criteria that cross protocol layers, e.g., MAC layer and IP
-    layer matches.";
+    Individual ACL rules specify match criteria based on fields in
+    the packet, along with an action that defines how matching
+    packets should be handled. Entries have a type that indicates
+    the type of match criteria, e.g., MAC layer, IPv4, IPv6, etc.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "1.2.1";
 
-  revision "2016-06-22" {
+  revision "2021-06-16" {
     description
-      "Initial public version";
-    reference "0.1.0";
+      "Remove trailing whitespace";
+    reference "1.2.1";
+  }
+
+  revision "2021-03-17" {
+    description
+      "Add MPLS filter Support.";
+      reference "1.2.0";
+  }
+
+  revision "2019-11-27" {
+    description
+      "Fix xpaths in when statements.";
+    reference "1.1.1";
+  }
+
+  revision "2019-10-25" {
+    description
+      "Update when statements.";
+    reference "1.1.0";
+  }
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "1.0.2";
+  }
+
+  revision "2018-04-24" {
+    description
+      "Clarified order of ACL evaluation";
+    reference "1.0.1";
+  }
+
+  revision "2017-05-26" {
+    description
+      "Separated ACL entries by type";
+    reference "1.0.0";
+  }
+
+  revision "2016-08-08" {
+    description
+      "OpenConfig public release";
+    reference "0.2.0";
   }
 
   revision "2016-01-22" {
@@ -49,59 +90,89 @@ module openconfig-acl {
     reference "TBD";
   }
 
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  identity ACL_TYPE {
+    description
+      "Base identity for types of ACL sets";
+  }
+
+  identity ACL_IPV4 {
+    base ACL_TYPE;
+    description
+      "IP-layer ACLs with IPv4 addresses";
+  }
+
+  identity ACL_IPV6 {
+    base ACL_TYPE;
+    description
+      "IP-layer ACLs with IPv6 addresses";
+  }
+
+  identity ACL_L2 {
+    base ACL_TYPE;
+    description
+      "MAC-layer ACLs";
+  }
+
+  identity ACL_MIXED {
+    base ACL_TYPE;
+    description
+      "Mixed-mode ACL that specifies L2 and L3 protocol
+      fields.  This ACL type is not implemented by many
+      routing/switching devices.";
+  }
+
+  identity ACL_MPLS {
+    base ACL_TYPE;
+    description
+      "An ACL that matches on fields from the MPLS header.";
+  }
 
   // ACL action type
 
-  identity ACL_ACTION_TYPE {
+  identity FORWARDING_ACTION {
     description
-      "Base identity for categories of ACL actions";
-  }
-
-  identity FORWARD {
-    base ACL_ACTION_TYPE;
-    description
-      "Forwarding-related actions";
-  }
-
-  identity LOG {
-    base ACL_ACTION_TYPE;
-    description
-      "Logging-related actions";
-  }
-
-  identity FORWARDING_ACTIONS {
-    description
-      "Base identity for forwarding-related actions";
+      "Base identity for actions in the forwarding category";
   }
 
   identity ACCEPT {
-    base FORWARDING_ACTIONS;
+    base FORWARDING_ACTION;
     description
       "Accept the packet";
   }
 
   identity DROP {
-    base FORWARDING_ACTIONS;
+    base FORWARDING_ACTION;
     description
       "Drop packet without sending any ICMP error message";
   }
 
   identity REJECT {
-    base FORWARDING_ACTIONS;
+    base FORWARDING_ACTION;
     description
       "Drop the packet and send an ICMP error message to the source";
   }
 
-  identity LOG_DESTINATION {
+  identity LOG_ACTION {
     description
       "Base identity for defining the destination for logging
       actions";
   }
 
-  identity SYSLOG {
-    base LOG_DESTINATION;
+  identity LOG_SYSLOG {
+    base LOG_ACTION;
     description
       "Log the packet in Syslog";
+  }
+
+  identity LOG_NONE {
+    base LOG_ACTION;
+    description
+      "No logging";
   }
 
   identity ACL_COUNTER_CAPABILITY {
@@ -176,44 +247,26 @@ module openconfig-acl {
     description
       "Config of action type";
 
-    leaf index {
-      type uint32;
-      description
-        "Index / key of the list of actions for an ACL entry";
-    }
-
-    leaf action-type {
-      type identityref {
-        base ACL_ACTION_TYPE;
-      }
-      description
-        "Type of action for matched packets";
-    }
 
     leaf forwarding-action {
-      when "action-type='FORWARD'" {
-        description
-          "Forwarding actions are valid when the action type is
-          FORWARD";
-      }
       type identityref {
-        base FORWARDING_ACTIONS;
+        base FORWARDING_ACTION;
       }
+      mandatory true;
       description
-        "Specifies the forwarding action";
+        "Specifies the forwarding action.  One forwarding action
+        must be specified for each ACL entry";
     }
 
-    leaf log-destination {
-      when "action-type='LOG'" {
-        description
-          "Log destination is valid when the action type is LOG";
-      }
+    leaf log-action {
       type identityref {
-        base LOG_DESTINATION;
+        base LOG_ACTION;
       }
+      default LOG_NONE;
       description
-
-        "Specifies the log destination for matched packets";
+        "Specifies the log action and destination for
+        matched packets.  The default is not to log the
+        packet.";
     }
 
 
@@ -234,32 +287,18 @@ module openconfig-acl {
         "Enclosing container for list of ACL actions associated
         with an entry";
 
-      list action {
-        key "index";
+      container config {
         description
-          "List of actions to take on matched packets";
+          "Config data for ACL actions";
+        uses action-config;
+      }
 
-        leaf index {
-          type leafref {
-            path "../config/index";
-          }
-          description
-            "Reference to the list entry index";
-        }
-
-        container config {
-          description
-            "Config data";
-          uses action-config;
-        }
-
-        container state {
-          config false;
-          description
-            "State information";
-          uses action-config;
-          uses action-state;
-        }
+      container state {
+        config false;
+        description
+          "State information for ACL actions";
+        uses action-config;
+        uses action-state;
       }
     }
   }
@@ -269,7 +308,7 @@ module openconfig-acl {
       "Common grouping for ACL counters";
 
     leaf matched-packets {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Count of the number of packets matching the current ACL
         entry.
@@ -288,7 +327,7 @@ module openconfig-acl {
     }
 
     leaf matched-octets {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "Count of the number of octets (bytes) matching the current
         ACL entry.
@@ -309,6 +348,7 @@ module openconfig-acl {
   }
 
   // Access List Entries
+
   grouping access-list-entries-config {
     description
       "Access List Entries (ACE) config.";
@@ -319,16 +359,15 @@ module openconfig-acl {
         "The sequence id determines the order in which ACL entries
         are applied.  The sequence id must be unique for each entry
         in an ACL set.  Target devices should apply the ACL entry
-        rules in the order determined by sequence id, rather than
-        the relying only on order in the list.";
+        rules in ascending order determined by sequence id (low to
+        high), rather than the relying only on order in the list.";
     }
 
-    leaf entry-id {
+    leaf description {
       type string;
       description
-        "A user-defined identifier for this Access List Entry.  The
-        entry id may be used to assign a descriptive label to an
-        ACL entry.";
+        "A user-defined description, or comment, for this Access List
+        Entry.";
     }
 
   }
@@ -351,7 +390,6 @@ module openconfig-acl {
 
       list acl-entry {
         key "sequence-id";
-        ordered-by user;
         description
           "List of ACL entries comprising an ACL set";
 
@@ -377,11 +415,47 @@ module openconfig-acl {
           uses access-list-entries-state;
         }
 
-        uses oc-match:ethernet-header-top;
-        uses oc-match:ip-protocol-fields-top;
-        uses oc-match:transport-fields-top;
-        uses input-interface-top;
+        uses oc-match:ethernet-header-top {
+          when "../../config/type='ACL_L2'" {
+            description
+              "MAC-layer fields are valid when the ACL type is L2";
+          }
+        }
 
+        uses oc-match:ipv4-protocol-fields-top {
+          when "../../config/type='ACL_IPV4'" {
+            description
+              "IPv4-layer fields are valid when the ACL type is
+              IPv4";
+          }
+        }
+
+        uses oc-match:mpls-header-top {
+          when "../../config/type='ACL_MPLS'" {
+            description
+              "MPLS-layer fields are valid when the ACL type is
+              MPLS";
+          }
+        }
+
+        uses oc-match:ipv6-protocol-fields-top {
+          when "../../config/type='ACL_IPV6'" {
+            description
+              "IPv6-layer fields are valid when the ACL type is
+              IPv6";
+          }
+        }
+
+        uses oc-match:transport-fields-top {
+          when "../../config/type='ACL_IPV6' or " +
+            "../../config/type='ACL_IPV4'" {
+            description
+              "Transport-layer fields are valid when specifying
+              L3 ACL types";
+          }
+        }
+
+        uses input-interface-top;
         uses action-top;
       }
     }
@@ -395,6 +469,21 @@ module openconfig-acl {
       type string;
       description
         "The name of the access-list set";
+    }
+
+    leaf type {
+      type identityref {
+        base ACL_TYPE;
+      }
+      description
+        "The type determines the fields allowed in the ACL entries
+        belonging to the ACL set (e.g., IPv4, IPv6, etc.)";
+    }
+
+    leaf description {
+      type string;
+      description
+        "Description, or comment, for the ACL set";
     }
 
   }
@@ -413,7 +502,7 @@ module openconfig-acl {
         "Access list entries variables enclosing container";
 
       list acl-set {
-        key "name";
+        key "name type";
         description
           "List of ACL sets, each comprising of a list of ACL
           entries";
@@ -424,6 +513,14 @@ module openconfig-acl {
           }
           description
             "Reference to the name list key";
+        }
+
+        leaf type {
+          type leafref {
+            path "../config/type";
+          }
+          description
+            "Reference to the type list key";
         }
 
         container config {
@@ -457,7 +554,8 @@ module openconfig-acl {
     leaf sequence-id {
       type leafref {
         path "/acl/acl-sets/" +
-          "acl-set[name=current()/../../../../set-name]/" +
+          "acl-set[name=current()/../../../../set-name]" +
+          "[type=current()/../../../../type]/" +
           "acl-entries/acl-entry/sequence-id";
       }
       description
@@ -514,10 +612,19 @@ module openconfig-acl {
 
     leaf set-name {
       type leafref {
-        path "/acl/acl-sets/acl-set/config/name";
+        path "../../../../../../acl-sets/acl-set/config/name";
       }
       description
-        "Reference to the ACL set applied on ingress";
+        "Reference to the ACL set name applied on ingress";
+    }
+
+    leaf type {
+      type leafref {
+        path "../../../../../../acl-sets/acl-set[name=current()/../set-name]" +
+          "/config/type";
+      }
+      description
+        "Reference to the ACL set type applied on ingress";
     }
   }
 
@@ -536,7 +643,7 @@ module openconfig-acl {
         interface";
 
       list ingress-acl-set {
-        key "set-name";
+        key "set-name type";
         description
           "List of ingress ACLs on the interface";
 
@@ -546,6 +653,14 @@ module openconfig-acl {
           }
           description
             "Reference to set name list key";
+        }
+
+        leaf type {
+          type leafref {
+            path "../config/type";
+          }
+          description
+            "Reference to type list key";
         }
 
         container config {
@@ -577,10 +692,19 @@ module openconfig-acl {
 
     leaf set-name {
       type leafref {
-        path "/acl/acl-sets/acl-set/config/name";
+        path "../../../../../../acl-sets/acl-set/config/name";
       }
       description
-        "Reference to the ACL set applied on egress";
+        "Reference to the ACL set name applied on egress";
+    }
+
+    leaf type {
+      type leafref {
+        path "../../../../../../acl-sets/acl-set[name=current()/../set-name]" +
+          "/config/type";
+      }
+      description
+        "Reference to the ACL set type applied on egress.";
     }
   }
 
@@ -599,7 +723,7 @@ module openconfig-acl {
         interface";
 
       list egress-acl-set {
-        key "set-name";
+        key "set-name type";
         description
           "List of egress ACLs on the interface";
 
@@ -609,6 +733,14 @@ module openconfig-acl {
           }
           description
             "Reference to set name list key";
+        }
+
+        leaf type {
+          type leafref {
+            path "../config/type";
+          }
+          description
+            "Reference to type list key";
         }
 
         container config {
@@ -753,8 +885,5 @@ module openconfig-acl {
 
   // augment statements
 
-  // rpc statements
-
-  // notification statements
 
 }

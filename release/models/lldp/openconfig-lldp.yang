@@ -24,7 +24,19 @@ module openconfig-lldp {
     "This module defines configuration and operational state data
     for the LLDP protocol.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2018-11-21" {
+    description
+      "Add OpenConfig module metadata extensions.";
+    reference "0.2.1";
+  }
+
+  revision "2018-07-17" {
+    description
+      "Adds ttl to lldp-neighbor-state";
+    reference "0.2.0";
+  }
 
   revision "2016-05-16" {
     description
@@ -32,6 +44,10 @@ module openconfig-lldp {
     reference "0.1.0";
   }
 
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
   // identity statements
 
@@ -203,6 +219,15 @@ module openconfig-lldp {
       type int64;
       description
         "Seconds since last update received.";
+    }
+
+    leaf ttl {
+     type uint16;
+     units "seconds";
+     description
+        "The time-to-live (TTL) is a mandatory TLV which indicates
+        how long information from the neighbor should be considered
+        valid.";
     }
 
     leaf port-id {

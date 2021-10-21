@@ -1,0 +1,258 @@
+{
+  "interfaces": {
+    "interface": [
+      {
+        "config": {
+          "description": "PE Interface 1",
+          "name": "g0/0/0",
+          "type": "ethernetCsmacd"
+        },
+        "name": "g0/0/0",
+        "subinterfaces": {
+          "subinterface": [
+            {
+              "config": {
+                "description": "pink VLAN instance in GLOBAL",
+                "index": 1042
+              },
+              "index": 1042,
+              "ipv4": {
+                "addresses": {
+                  "address": [
+                    {
+                      "config": {
+                        "ip": "192.168.1.2",
+                        "prefix-length": 24
+                      },
+                      "ip": "192.168.1.2"
+                    }
+                  ]
+                }
+              },
+              "ipv6": {
+                "addresses": {
+                  "address": [
+                    {
+                      "config": {
+                        "ip": "2001:db8::1",
+                        "prefix-length": 64
+                      },
+                      "ip": "2001:db8::1"
+                    }
+                  ]
+                }
+              },
+              "vlan": {
+                "config": {
+                  "vlan-id": 1042
+                }
+              }
+            },
+            {
+              "config": {
+                "description": "blue VLAN instance in L2VSI",
+                "index": 1400
+              },
+              "index": 1400,
+              "vlan": {
+                "config": {
+                  "vlan-id": 1400
+                }
+              }
+            },
+            {
+              "config": {
+                "description": "cyan VLAN instance in L2P2P",
+                "index": 1500
+              },
+              "index": 1500,
+              "vlan": {
+                "config": {
+                  "vlan-id": 1500
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "config": {
+          "description": "PE Interface 2",
+          "name": "g0/10/114",
+          "type": "ethernetCsmacd"
+        },
+        "name": "g0/10/114",
+        "subinterfaces": {
+          "subinterface": [
+            {
+              "config": {
+                "description": "orange VLAN instance in L2P2P",
+                "index": 10421042
+              },
+              "index": 10421042,
+              "vlan": {
+                "config": {
+                  "vlan-id": "1042.1042"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "config": {
+          "description": "PE Interface 0",
+          "name": "t0/12/116",
+          "type": "ethernetCsmacd"
+        },
+        "name": "t0/12/116",
+        "subinterfaces": {
+          "subinterface": [
+            {
+              "config": {
+                "description": "purple VLAN instance in L2VSI",
+                "index": 1042
+              },
+              "index": 1042,
+              "vlan": {
+                "config": {
+                  "vlan-id": 1042
+                }
+              }
+            },
+            {
+              "config": {
+                "description": "red VLAN instance in L3VRF",
+                "index": 2048
+              },
+              "index": 2048,
+              "ipv4": {
+                "addresses": {
+                  "address": [
+                    {
+                      "config": {
+                        "ip": "84.18.192.124",
+                        "prefix-length": 24
+                      },
+                      "ip": "84.18.192.124"
+                    }
+                  ]
+                }
+              },
+              "ipv6": {
+                "addresses": {
+                  "address": [
+                    {
+                      "config": {
+                        "ip": "2001:4c20::1",
+                        "prefix-length": 64
+                      },
+                      "ip": "2001:4c20::1"
+                    }
+                  ]
+                }
+              },
+              "vlan": {
+                "config": {
+                  "vlan-id": 2048
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "network-instances": {
+    "network-instance": [
+      {
+        "config": {
+          "name": "GLOBAL"
+        },
+        "interfaces": {
+          "interface": [
+            {
+              "config": {
+                "id": "g0/0/0.1042",
+                "interface": "g0/0/0",
+                "subinterface": "1042"
+              },
+              "id": "g0/0/0.1042"
+            }
+          ]
+        },
+        "name": "GLOBAL"
+      },
+      {
+        "config": {
+          "name": "L2P2P"
+        },
+        "interfaces": {
+          "interface": [
+            {
+              "config": {
+                "id": "g0/0/0.1500",
+                "interface": "g0/0/0",
+                "subinterface": "1500"
+              },
+              "id": "g0/0/0.1500"
+            },
+            {
+              "config": {
+                "id": "g0/10/114.1042.1042",
+                "interface": "g0/10/114",
+                "subinterface": "1042.1042"
+              },
+              "id": "g0/10/114.1042.1042"
+            }
+          ]
+        },
+        "name": "L2P2P"
+      },
+      {
+        "config": {
+          "name": "L2VSI"
+        },
+        "interfaces": {
+          "interface": [
+            {
+              "config": {
+                "id": "g0/0/0.1400",
+                "interface": "g0/0/0",
+                "subinterface": "1400"
+              },
+              "id": "g0/0/0.1400"
+            },
+            {
+              "config": {
+                "id": "t0/12/116.1042",
+                "interface": "t0/12/116",
+                "subinterface": "1042"
+              },
+              "id": "t0/12/116.1042"
+            }
+          ]
+        },
+        "name": "L2VSI"
+      },
+      {
+        "config": {
+          "name": "L3VRF"
+        },
+        "interfaces": {
+          "interface": [
+            {
+              "config": {
+                "id": "t0/12/116.2048",
+                "interface": "t0/12/116",
+                "subinterface": "2048"
+              },
+              "id": "t0/12/116.2048"
+            }
+          ]
+        },
+        "name": "L3VRF"
+      }
+    ]
+  }
+}
