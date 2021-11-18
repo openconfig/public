@@ -1,0 +1,115 @@
+// Authorization for gnXi operations.
+//
+// Define a list of policies, where the most specific policy is applied
+// on the device authorizing the action.
+//
+// Users may be referenced by user name, or as a group with a group name.
+// Groups are defined and managed in the authorization policy itself.
+//
+// Paths may be referenced in whole or in complete parts, ie:
+//   /interfaces/interface[name=Ethernet1/2/3]/state/counters
+//   /interfaces/interface[name=*]/state/oper-status
+//   /network-instances/network-instance/tables/table[protocol=BGP][address-family=*]
+//
+// Paths are gnmi.Path protobufs.
+//
+// The most specific match is returned for a request, this means the longest
+// path and the most specific user match (user preferred over group).
+//
+// Additionally, the policy maintains a timestamp of creation
+// and version number from the underlying version control system.
+// The version/timestamp are available to requestors to verify which version
+// of policy is being applied at the time of the request.
+//
+syntax = "proto3";
+
+package authorization.proto;
+
+import "third_party/openconfig/gnmi/proto/gnmi/gnmi.proto";
+
+option java_multiple_files = true;
+option go_api_flag = "OPAQUE_V0";
+
+// User is a singular username used only in the matching criteria.
+message User {
+  string name = 1;
+}
+
+// Group is a group of users, groups are a construct of the policy configuration
+// as a method to collect many users with the same authorizations together.
+message Group {
+  string name = 1;
+  repeated User members = 2;
+}
+
+// LogLevel is set for all RPCs (via default_log_level, or per-RPC specifically.
+enum LogLevel {
+  LOG_NONE = 0;   // Don't pollute the logs with high volume RPCs.
+  LOG_BRIEF = 1;  // RPC name and calling Principal name.
+  LOG_FULL = 2;   // RPC, Principal, Request, and Response.
+}
+
+// Action is the defined action for an AuthorizationPolicy.
+enum Action {
+  UNKNOWN = 0;
+  DENY = 1;
+  PERMIT = 2;
+}
+
+message AuthorizationPolicy {
+  // Policy Identifier, a unique string per policy/rule, eg: uuid.
+  string id = 1;
+  LogLevel log_level = 2;
+
+  oneof principal {
+    User user = 3;
+    Group group = 4;
+  }
+
+  // Path is the request path, longest prefix (by path elements from left
+  // to right).
+  gnmi.Path path = 5;
+
+  // Permit or deny the user/group access to the path specified.
+  Action action = 6;
+}
+
+message AuthorizationPolicies {
+  repeated AuthorizationPolicy policies = 1;
+  // Version string of this policy, a UUID4 or equivalent locally significant
+  // value.
+  string version = 2;
+  // Release created-on (in seconds since epoch) for this policy.
+  int64 created_on = 3;
+  // Default RPC log level, used only if an RPC has no defined logging level.
+  LogLevel default_log_level = 4;
+  // Groups of usernames collected for simplicity of policy expression.
+  repeated Group groups = 5;
+}
+
+// AuthorizationRequest contains a single user name and
+// gnmi Path being attempted. Data returned to an RPC Caller should
+// adhere to the policy.
+message AuthorizationRequest {
+  string user = 1;
+  gnmi.Path path = 2;
+}
+
+// AuthorizationReply returns the ack/nack for a single user request
+// as evaluated against the current policy, along with the policy id
+// and current policy version.
+message AuthorizationReply {
+  Action action = 1;
+  string id = 2;
+  string version = 3;
+}
+
+// VersionRequest requires no content, this is a simple status request.
+message VersionRequest {}
+
+// VersionReply returns only the version string and timestamp
+// of policy creation.
+message VersionReply {
+  string version = 1;
+  int64 created_on = 2;
+}
