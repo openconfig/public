@@ -25,6 +25,12 @@ submodule openconfig-ospfv2-area {
 
   oc-ext:openconfig-version "0.2.2";
 
+  revision "2021-11-29" {
+    description
+      "Add options for stub, totally-stubby, and not-so-stubby area configurations";
+    reference "0.2.3";
+  }
+
   revision "2019-11-28" {
     description
       "Revert path changes in when statements in LSDB model";
@@ -111,6 +117,66 @@ submodule openconfig-ospfv2-area {
     }
   }
 
+  grouping ospfv2-area-stub-config {
+    description
+      "Configuration parameters relating to the OSPF stub area";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "Specifies whether the OSPF area is a stub area";
+    }
+
+    leaf default-information-originate {
+      type boolean;
+      description
+        "Specifies whether an OSPF stub area ABR injects a default route into the stub area";
+    }
+  }
+
+  grouping ospfv2-area-totally-stubby-config {
+    description
+      "Configuration parameters relating to the OSPF totally stubby area";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "Specifies whether the OSPF area is a totally-stubby stub area";
+    }
+
+    leaf default-information-originate {
+      type boolean;
+      description
+        "Specifies whether an OSPF totally-stubby area ABR injects a default route into the totally-stubby area";
+    }
+  }
+
+  grouping ospfv2-area-nssa-config {
+    description
+      "Configuration parameters relating to the OSPF not-so-stubby area (nssa)";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "Specifies whether the OSPF area is a not-so-stubby (nssa) area";
+    }
+
+    leaf default-information-originate {
+      type boolean;
+      description
+        "Specifies whether an OSPF NSSA area ABR injects a default route into the NSSA area";
+    }
+
+    leaf no-summary {
+      type boolean;
+      description
+        "Specifies whether an OSPF NSSA area ABR advertises Type 3 LSAs into the NSSA area";
+    }
+  }
+
   grouping ospfv2-area-structure {
     description
       "Structural grouping for configuration and operational state
@@ -186,6 +252,43 @@ submodule openconfig-ospfv2-area {
             "State parameters relating to the OSPF virtual link";
           uses ospfv2-area-virtual-link-config;
           uses ospfv2-area-interface-neighbor-state;
+        }
+      }
+    }
+    container stub-options {
+      description
+        "Configuration parameters relating stub area types";
+
+      container stub {
+        description
+          "Configuration parameters for OSPFv2 stub areas";
+
+        container config {
+          description
+            "Configuration parameters for OSPFv2 stub areas";
+          uses ospfv2-area-stub-config;
+        }
+      }
+
+      container totally-stubby {
+        description
+          "Configuration parameters for OSPFv2 totally-stubby areas";
+
+        container config {
+          description
+            "Configuration parameters for OSPFv2 totally-stubby areas";
+          uses ospfv2-area-totally-stubby-config;
+        }
+      }
+
+      container nssa {
+        description
+          "Configuration parameters for OSPFv2 nssa areas";
+
+        container config {
+          description
+            "Configuration parameters for OSPFv2 nssa areas";
+          uses ospfv2-area-nssa-config;
         }
       }
     }
