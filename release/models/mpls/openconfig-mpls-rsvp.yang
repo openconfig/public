@@ -28,7 +28,14 @@ module openconfig-mpls-rsvp {
      parameters and LSP-specific configuration for constrained-path
      LSPs";
 
-  oc-ext:openconfig-version "3.0.2";
+  oc-ext:openconfig-version "4.0.0";
+
+  revision "2021-12-01" {
+    description
+      "Change authentication-key to routing-password type, Add new
+      authentication-type to indicate hashing algorithm.";
+    reference "4.0.0";
+  }
 
   revision "2020-02-04" {
     description
@@ -343,15 +350,18 @@ module openconfig-mpls-rsvp {
         "Enables RSVP authentication on the node.";
     }
 
-    leaf authentication-key {
-      type string {
-        // Juniper supports 1..16 while
-        // Cisco has a much bigger range, up to 60.
-        length "1..32";
+    leaf authentication-type {
+      type identityref {
+        base oc-mplst:RSVP_AUTH_TYPE;
       }
       description
-        "authenticate RSVP signaling
-         messages";
+        "RSVP message authentication algorithm type";
+    }
+
+    leaf authentication-key {
+      type oc-types:routing-password;
+      description
+        "Authenticate RSVP signaling messages";
       reference
         "RFC 2747: RSVP Cryptographic Authentication";
     }
