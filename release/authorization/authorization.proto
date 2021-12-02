@@ -25,10 +25,9 @@ syntax = "proto3";
 
 package authorization.proto;
 
-import "third_party/openconfig/gnmi/proto/gnmi/gnmi.proto";
+import "github.com/openconfig/gnmi/proto/gnmi/gnmi.proto";
 
-option java_multiple_files = true;
-option go_api_flag = "OPAQUE_V0";
+option go_package = "github.com/openconfig/public/release/authorization";
 
 // User is a singular username used only in the matching criteria.
 message User {
@@ -70,8 +69,8 @@ message AuthorizationPolicy {
   LogLevel log_level = 2;
 
   oneof principal {
-    User user = 3;
-    Group group = 4;
+    string user = 3;
+    string group = 4;
   }
 
   // Path is the request path, longest prefix (by path elements from left
