@@ -2,11 +2,11 @@
 
 ## Objective
 
-This proto and the reference code(to be delivered seperately) serve to describe
-an authorization framework for controlling which OpenConfig paths of a network
-device specific users can access using a gNMI micro-serivice. The authorization
-policy is initially intended to be deployed to a device, with the ability to
-define:
+This proto definition and the reference code(to be delivered seperately) serve
+to describe an authorization framework for controlling which OpenConfig paths of
+a network device specific users can access using a gNMI micro-serivice. The
+authorization policy is initially intended to be deployed to a device, with the
+ability to define:
 
 *   Policy rules - each rule defines a single authorization policy.
 *   Groups of users - as a method to logically group users in the administrative
@@ -19,6 +19,10 @@ Policy rules are matched based on the best match for the authorization request,
 not the first match against a policy rule. Best match enables a configuration
 which permits a user or group access to particular OpenConfig paths while
 denying subordinate portions of the permitted paths, or the converse.
+
+Best, or most specific, match is that which has the longest match to the
+requested path and prefers a specific user over a group in the matching
+policy.
 
 Match rules permit a match against:
 
