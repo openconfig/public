@@ -24,7 +24,14 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "6.0.0";
+  oc-ext:openconfig-version "8.0.0";
+
+  revision "2021-12-01" {
+    description
+      "Rename prefix-limit, add prefix-limit-received, add
+      prefix-limit state nodes.";
+    reference "8.0.0";
+  }
 
   revision "2019-07-10" {
     description
@@ -130,7 +137,7 @@ submodule openconfig-bgp-common-multiprotocol {
       default false;
       description
         "This leaf indicates whether the AFI-SAFI is
-        enabled for the neighbour or group";
+        enabled for the neighbor or group";
     }
   }
 
@@ -367,10 +374,10 @@ submodule openconfig-bgp-common-multiprotocol {
     description
       "Grouping for configuration common to all AFI,SAFI";
 
-    container prefix-limit {
+    container prefix-limit-accepted {
       description
         "Configure the maximum number of prefixes that will be
-        accepted from a peer";
+        accepted post policy from a peer";
 
       container config {
         description
@@ -385,6 +392,28 @@ submodule openconfig-bgp-common-multiprotocol {
           "State information relating to the prefix-limit for the
           AFI-SAFI";
         uses bgp-common-mp-all-afi-safi-common-prefix-limit-config;
+        uses bgp-common-mp-all-afi-safi-common-prefix-limit-state;
+      }
+    }
+    container prefix-limit-received {
+      description
+        "Configure the maximum number of prefixes that will be
+        received from a peer";
+
+      container config {
+        description
+          "Configuration parameters relating to the prefix
+          limit for the AFI-SAFI";
+        uses bgp-common-mp-all-afi-safi-common-prefix-limit-config;
+      }
+
+      container state {
+        config false;
+        description
+          "State information relating to the prefix-limit for the
+          AFI-SAFI";
+        uses bgp-common-mp-all-afi-safi-common-prefix-limit-config;
+        uses bgp-common-mp-all-afi-safi-common-prefix-limit-state;
       }
     }
   }
@@ -493,7 +522,7 @@ submodule openconfig-bgp-common-multiprotocol {
       type uint32;
       description
         "Maximum number of prefixes that will be accepted
-        from the neighbour";
+        from the neighbor";
     }
 
     leaf prevent-teardown {
@@ -511,15 +540,13 @@ submodule openconfig-bgp-common-multiprotocol {
       type oc-types:percentage;
       description
         "Threshold on number of prefixes that can be received
-        from a neighbour before generation of warning messages
+        from a neighbor before generation of warning messages
         or log entries. Expressed as a percentage of
         max-prefixes";
     }
 
     leaf restart-timer {
-      type decimal64 {
-        fraction-digits 2;
-      }
+      type uint16;
       units "seconds";
       description
         "Time interval in seconds after which the BGP session
@@ -527,6 +554,27 @@ submodule openconfig-bgp-common-multiprotocol {
         the max-prefix limit.";
     }
   }
+
+  grouping bgp-common-mp-all-afi-safi-common-prefix-limit-state {
+    description
+      "State parameters relating to prefix-limits for an AFI-SAFI";
+
+    leaf prefix-limit-exceeded {
+      type boolean;
+      description
+        "If set to true, the prefix-limit has been exceeded.";
+    }
+
+    leaf remaining-restart-time {
+      type uint16;
+      units "seconds";
+      description
+        "Remaining time (in seconds) before the BGP session is
+        re-established after being torn down due to exceeding
+        the max-prefix limit.";
+    }
+  }
+
 
   grouping bgp-common-mp-ipv4-ipv6-unicast-common-config {
     description
@@ -537,7 +585,7 @@ submodule openconfig-bgp-common-multiprotocol {
       type boolean;
       default "false";
       description
-        "If set to true, send the default-route to the neighbour(s)";
+        "If set to true, send the default-route to the neighbor(s)";
     }
   }
 }
