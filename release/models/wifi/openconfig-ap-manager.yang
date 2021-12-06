@@ -25,7 +25,16 @@ module openconfig-ap-manager {
     "This module defines the top level configuration and state data for a
     system which manages Access Points.";
 
-  oc-ext:openconfig-version "0.1.3";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2021-12-06" {
+    description
+      "Change pattern regexes to conform to RFC6020/7950.
+
+      Leaf nodes impacted:
+      - country-code";
+    reference "0.2.0";
+  }
 
   revision "2020-06-30" {
     description
@@ -73,7 +82,7 @@ module openconfig-ap-manager {
 
     leaf country-code {
       type string {
-        pattern '^[A-Z]{2}$';
+        pattern '[A-Z]{2}';
         oc-ext:posix-pattern '^[A-Z]{2}$';
       }
       description

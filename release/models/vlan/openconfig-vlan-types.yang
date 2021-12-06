@@ -21,7 +21,17 @@ module openconfig-vlan-types {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.1.1";
+  oc-ext:openconfig-version "3.2.0";
+
+  revision "2021-12-06" {
+    description
+      "Remove module extension oc-ext:regexp-posix by making pattern regexes
+      conform to RFC6020/7950.
+
+      Types impacted:
+      - vlan-range";
+    reference "3.2.0";
+  }
 
   revision "2020-06-30" {
     description
@@ -63,7 +73,6 @@ module openconfig-vlan-types {
   }
 
   // OpenConfig specific extensions for module metadata.
-  oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
@@ -128,10 +137,10 @@ module openconfig-vlan-types {
   typedef vlan-range {
     type string {
       // range specified as [lower]..[upper]
-      pattern '^(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|'       +
+      pattern '(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|'       +
               '[1-9][0-9]{1,2}|[1-9])\.\.(409[0-4]|'       +
               '40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|' +
-              '[1-9])$';
+              '[1-9])';
       oc-ext:posix-pattern '^(409[0-4]|40[0-8][0-9]|[1-3][0-9]{3}|'       +
               '[1-9][0-9]{1,2}|[1-9])\.\.(409[0-4]|'       +
               '40[0-8][0-9]|[1-3][0-9]{3}|[1-9][0-9]{1,2}|' +
