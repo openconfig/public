@@ -12,7 +12,7 @@ module openconfig-evpn {
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-types { prefix oc-types; }
 
   // meta
   organization
@@ -1082,36 +1082,43 @@ module openconfig-evpn {
     }
 
     container endpoint-peers {
-      description "Overlay endpoint peers oper data";
+      description
+        "Top level container for state information related to peer VXLAN Tunnel
+        Endpoints(VTEPs) learned by the local VTEP in the default network
+        instance";
       config false;
 
       list endpoint-peer {
         key "peer-address";
-          description "Overlay endpoint peers oper data";
+          description "List of VTEP peers and associated state information";
 
         leaf peer-address {
         type leafref{
           path '../state/peer-address';
         }
-        description "overlay endpoint peer ip address";
+        description "IP Address for the VTEP peer";
         }
+
         container state {
          config false;
          description
-           "State parameters relating to the overlay tunnel endpoints
-           of the network instance";
+           "Container for state parameters related to this VTEP peer";
            uses evpn-endpoint-peer-state;
         }
       }
     }
 
     container endpoint-vnis {
-      description "Overlay endpoint peers oper data";
+      description
+        "Top level container for state information related to layer2 and layer3
+        virtual network identifiers (L2/L3 VNIs) that are learned on the local
+        VXLAN Tunnel End Point from remote VTEPS in the default network
+        instance";
       config false;
 
       list endpoint-vni {
         key "vni";
-        description "Overlay endpoint evis oper data";
+        description "List of L2 and L3 VNIs learned on the local VTEP"
 
         leaf vni {
           type leafref{
@@ -1119,11 +1126,11 @@ module openconfig-evpn {
             }
             description "VNI Identifier";
         }
+
         container state {
           config false;
-           description
-             "State parameters relating to the overlay tunnel endpoints
-             of the network instance";
+          description
+            "Container for state parameters related to this L2 or L3 VNI";
              uses evpn-endpoint-vni-state;
         }
       }
@@ -1132,45 +1139,64 @@ module openconfig-evpn {
 
   grouping evpn-endpoint-peer-state {
     description
-    "Grouping for VXLAN EVPN Overlay endpoint oper data";
+      "Grouping for state information related to peer VXLAN Tunnel
+      Endpoints(VTEPs) learned by the local VTEP";
+
     leaf peer-address {
       type oc-inet:ip-address;
-      description "VXLAN EVPN Overlay endpoint peer ip address";
+      description "IP address of the remote VXLAN Tunnel Endpoint peer";
     }
+
     leaf peer-state {
       type enumeration {
         enum UP {
-          description "VXLAN EVPN Overlay peer state is UP";
+          description
+            "Operational status of the remote VTEP to indicate that the peer
+            status is UP";
         }
         enum DOWN {
-          description "VXLAN EVPN Overlay peer state is DOWN";
+          description
+            "Operational status of the remote VTEP to indicate that the peer
+            status is DOWN";
         }
       }
-      description "VXLAN EVPN Overlay peer state";
+      description "State parameters related to the remote VTEP peer state";
     }
+
     leaf uptime {
-      type yang:timestamp;
-      description "VXLAN EVPN Overlay Peer Uptime";
+      type oc-types:timeticks64;
+      description
+        "This timestamp indicates the time elapsed relative to the moment that
+        the remote VTEP peer was discovered.";
     }
+
     leaf control-plane-vnis {
       type string;
-      description "VNIs learned over the control-plane";
+      description
+        "The control plan VNIs are all of the VNIs that are discovered by the
+        control plane behind this peer VTEP";
     }
+
     leaf router-mac {
       type oc-yang:mac-address;
-      description "Peer Router mac-address";
+      description "Mac address of the remote VTEP";
     }
   }
 
   grouping evpn-endpoint-vni-state {
-    description "Grouping for VXLAN EVPN Overlay endpoint to vni mapping data";
+    description
+      "Grouping for state information related layer2 and layer3 virtual network
+      identifiers (L2/L3 VNIs) that are learned on the local VXLAN Tunnel End
+      Point from remote VTEPS";
+
     leaf vni {
       type oc-evpn-types:evi-id;
       description "VNI Identifier";
     }
+
     leaf multidestination-traffic {
       type union {
-        type oc-evpn-types:multicast-address;
+        type oc-inet:ip-address;
         type enumeration {
           enum STATIC_INGRESS_REPLICATION {
             description
@@ -1187,58 +1213,83 @@ module openconfig-evpn {
       description
         "The data plane for overlays needs to handle the transport of
          multidestination traffic. Multidestination traffic is typically
-         referred to as “BUM,” which stands for broadcast, unknown unicast,
+         referred to as (BUM) which stands for broadcast, unknown unicast,
          or multicast. The two most common methods that can accommodate this
          replication and transport in the underlay are IP multicast and
          ingress replication
          (also called head-end replication or unicast mode).";
     }
+
     leaf learning-mode {
       type oc-evpn-types:learning-mode;
-      description "Learning mode";
+      description
+        "Indicates that the learning mode for this VNI is either control plane
+        or data plane";
     }
+
     leaf vni-type {
       type enumeration {
         enum L2 {
-          description "L2 VNI Type";
+          description
+            "This is a layer2 service VNI that is used for communication within
+            the same subnet or broadcast domain";
         }
         enum L3 {
-          description "L3 VNI Type";
+          description
+            "This is a layer3 service VNI or VRF VNI that is used for
+            communication between subnets";
         }
       }
-      description "VNI Type";
+      description "They type of virtual network identfier (L2 or L3)";
     }
+
     leaf vni-state {
-        type enumeration {
-          enum UP {
-            description "VNI state is UP";
-          }
-          enum DOWN {
-            description "VNI state is DOWN";
-          }
+      type enumeration {
+        enum UP {
+          description
+            "Operational status of the virtual network identifier (VNI) to
+            indicate that it is UP";
         }
-        description "L2/3 VNI State";
+        enum DOWN {
+          description
+            "Operational status of the virtual network identifier (VNI) to
+            indicate that it is DOWN";
+        }
       }
+      description "Operational state of the L2 or L3 Virtual Network Identifier";
+    }
+
     leaf svi-state {
-        type enumeration {
-          enum UP {
-            description "SVI state is UP";
-          }
-          enum DOWN {
-            description "SVI state is DOWN";
-          }
+      type enumeration {
+        enum UP {
+          description
+            "Operational status of the SVI mapped to the L3VNI used for routing
+            between subnets to indicate the SVI is UP";
         }
-        description "SVI State used for VLAN to L3 VNI mapping";
+        enum DOWN {
+          description
+            "Operational status of the SVI mapped to the L3VNI used for routing
+            between subnets to indicate the SVI is DOWN";
+        }
       }
+      description
+        "Operational status of the SVI mapped to the L3VNI that is used for
+        routing between subnets in the VXLAN fabric";
+    }
+
     leaf bridge-domain {
-        type uint32;
-        description "VLAN or BD that maps to this L2 VNI";
-      }
+      type uint32;
+      description
+        "This reflects the configured VLAN or Bridge Domain that maps to this
+        Layer2 VNI in the VXLAN fabric";
+    }
 
     leaf l3-vrf-name {
-        type string;
-        description "VRF routing instance that maps to this L3 VNI";
-      }
+      type string;
+      description
+        "This refects the configured VRF instance that maps to this layer3
+        VNI that is used for routing between subnets in the VXLAN fabric";
     }
 
+  }
 }
