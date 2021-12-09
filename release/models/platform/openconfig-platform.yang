@@ -63,7 +63,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.13.0";
+  oc-ext:openconfig-version "0.14.0";
+
+  revision "2021-08-13" {
+    description
+      "Add container for PCIe error statistics";
+    reference "0.14.0";
+  }
 
   revision "2021-01-18" {
     description
@@ -528,6 +534,235 @@ module openconfig-platform {
     }
   }
 
+  grouping pcie-uncorrectable-errors {
+    description
+      "PCIe uncorrectable error statistics.";
+
+    leaf total-errors {
+      type oc-yang:counter64;
+      description
+        "Total number of uncorrectable errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf undefined-errors {
+      type oc-yang:counter64;
+      description
+        "Number of undefined errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf data-link-errors {
+      type oc-yang:counter64;
+      description
+        "Number of data-link errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf surprise-down-errors {
+      type oc-yang:counter64;
+      description
+        "Number of unexpected link down errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf poisoned-tlp-errors {
+      type oc-yang:counter64;
+      description
+        "Number of poisoned TLP errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf flow-control-protocol-errors {
+      type oc-yang:counter64;
+      description
+        "Number of flow control protocol errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf completion-timeout-errors {
+      type oc-yang:counter64;
+      description
+        "Number of completion timeout errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf completion-abort-errors {
+      type oc-yang:counter64;
+      description
+        "Number of completion abort errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf unexpected-completion-errors {
+      type oc-yang:counter64;
+      description
+        "Number of unexpected completion errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf receiver-overflow-errors  {
+      type oc-yang:counter64;
+      description
+        "Number of receiver overflow errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf malformed-tlp-errors  {
+      type oc-yang:counter64;
+      description
+        "Number of malformed TLP errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf ecrc-errors  {
+      type oc-yang:counter64;
+      description
+        "Number of ECRC errors detected by PCIe device since the system
+        booted, according to PCIe AER driver.";
+    }
+
+    leaf unsupported-request-errors {
+      type oc-yang:counter64;
+      description
+        "Number of unsupported request errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf acs-violation-errors {
+      type oc-yang:counter64;
+      description
+        "Number of access control errors detected by PCIe device since
+        the system booted, according to PCIe AER driver.";
+    }
+
+    leaf internal-errors {
+      type oc-yang:counter64;
+      description
+        "Number of internal errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf blocked-tlp-errors {
+      type oc-yang:counter64;
+      description
+        "Number of blocked TLP errors detected by PCIe device since
+        the system booted, according to PCIe AER driver.";
+    }
+
+    leaf atomic-op-blocked-errors {
+      type oc-yang:counter64;
+      description
+        "Number of atomic operation blocked errors detected by PCIe
+        device since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf tlp-prefix-blocked-errors {
+      type oc-yang:counter64;
+      description
+        "Number of TLP prefix blocked errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+  }
+
+  grouping pcie-correctable-errors {
+    description
+      "PCIe correctable error statistics.";
+
+    leaf total-errors {
+      type oc-yang:counter64;
+      description
+        "Total number of correctable errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf receiver-errors {
+      type oc-yang:counter64;
+      description
+        "Number of receiver errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf bad-tlp-errors {
+      type oc-yang:counter64;
+      description
+        "Number of TLPs with bad LCRC detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf bad-dllp-errors {
+      type oc-yang:counter64;
+      description
+        "Number of DLLPs with bad LCRC detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf relay-rollover-errors {
+      type oc-yang:counter64;
+      description
+        "Number of relay rollover errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf replay-timeout-errors {
+      type oc-yang:counter64;
+      description
+        "Number of replay timeout errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf advisory-non-fatal-errors {
+      type oc-yang:counter64;
+      description
+        "Number of advisory non fatal errors detected by PCIe device since
+        the system booted, according to PCIe AER driver.";
+    }
+
+    leaf internal-errors {
+      type oc-yang:counter64;
+      description
+        "Number of internal errors detected by PCIe device since the system
+        booted, according to PCIe AER driver.";
+    }
+
+    leaf hdr-log-overflow-errors {
+      type oc-yang:counter64;
+      description
+        "Number of header log overflow errors detected by PCIe device since
+        the system booted, according to PCIe AER driver.";
+    }
+  }
+
+  grouping platform-component-pcie-state {
+    description
+      "Per-component PCIe error statistics";
+
+    container pcie {
+      description
+        "Components that are connected to the system over the Peripheral
+        Component Interconnect Express (PCIe), report the fatal, non-fatal
+        and correctable PCIe error counts.";
+
+      container fatal-errors {
+        description
+          "The count of the fatal PCIe errors.";
+        uses pcie-uncorrectable-errors;
+      }
+
+      container non-fatal-errors {
+        description
+          "The count of the non-fatal PCIe errors.";
+        uses pcie-uncorrectable-errors;
+      }
+
+      container correctable-errors {
+        description
+          "The count of the correctable PCIe errors.";
+        uses pcie-correctable-errors;
+      }
+    }
+  }
+
   grouping platform-anchors-top {
     description
       "This grouping is used to add containers for components that
@@ -781,6 +1016,11 @@ module openconfig-platform {
           uses platform-component-temp-state;
           uses platform-component-memory-state;
           uses platform-component-power-state;
+          uses platform-component-pcie-state {
+            when "./type = 'oc-platform-types:STORAGE' or " +
+              "'oc-platform-types:INTEGRATED_CIRCUIT' or " +
+              "'oc-platform-types:FRU'";
+          }
         }
 
         uses platform-component-properties-top;

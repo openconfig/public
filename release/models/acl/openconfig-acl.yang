@@ -34,7 +34,13 @@ module openconfig-acl {
     packets should be handled. Entries have a type that indicates
     the type of match criteria, e.g., MAC layer, IPv4, IPv6, etc.";
 
-  oc-ext:openconfig-version "1.2.0";
+  oc-ext:openconfig-version "1.2.1";
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "1.2.1";
+  }
 
   revision "2021-03-17" {
     description
@@ -415,7 +421,7 @@ module openconfig-acl {
               "MAC-layer fields are valid when the ACL type is L2";
           }
         }
-        
+
         uses oc-match:ipv4-protocol-fields-top {
           when "../../config/type='ACL_IPV4'" {
             description
@@ -423,7 +429,7 @@ module openconfig-acl {
               IPv4";
           }
         }
-        
+
         uses oc-match:mpls-header-top {
           when "../../config/type='ACL_MPLS'" {
             description
@@ -431,7 +437,7 @@ module openconfig-acl {
               MPLS";
           }
         }
-        
+
         uses oc-match:ipv6-protocol-fields-top {
           when "../../config/type='ACL_IPV6'" {
             description
@@ -439,7 +445,7 @@ module openconfig-acl {
               IPv6";
           }
         }
-        
+
         uses oc-match:transport-fields-top {
           when "../../config/type='ACL_IPV6' or " +
             "../../config/type='ACL_IPV4'" {
@@ -448,7 +454,7 @@ module openconfig-acl {
               L3 ACL types";
           }
         }
-        
+
         uses input-interface-top;
         uses action-top;
       }

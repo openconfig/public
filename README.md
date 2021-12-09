@@ -1,9 +1,8 @@
-[![pyang](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:pyang.svg)](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:pyang.html)
-[![pyang@1.7.8](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:pyang@1.7.8.svg)](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:pyang@1.7.8.html)
-[![OpenConfig Linter](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:oc-pyang.svg)](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:oc-pyang.html)
-[![pyangbind](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:pyangbind.svg)](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:pyangbind.html)
-[![goyang/ygot](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:goyang-ygot.svg)](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:goyang-ygot.html)
-[![yanglint](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:yanglint.svg)](https://storage.googleapis.com/artifacts.disco-idea-817.appspot.com/compatibility-badges/openconfig-public:yanglint.html)
+[![pyang](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:pyang.svg)](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:pyang.html)
+[![OpenConfig Linter](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:oc-pyang.svg)](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:oc-pyang.html)
+[![pyangbind](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:pyangbind.svg)](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:pyangbind.html)
+[![goyang/ygot](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:goyang-ygot.svg)](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:goyang-ygot.html)
+[![yanglint](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:yanglint.svg)](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:yanglint.html)
 
 # OpenConfig
 

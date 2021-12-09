@@ -24,7 +24,19 @@ module openconfig-platform-port {
     "This module defines data related to PORT components in the
     openconfig-platform model";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.4.2";
+
+  revision "2021-10-01" {
+    description
+      "Fix indentation for 'list group'";
+    reference "0.4.2";
+  }
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "0.4.1";
+  }
 
   revision "2021-04-22" {
     description
@@ -92,9 +104,9 @@ module openconfig-platform-port {
       type uint8;
       description
         "Each index specifies breakouts that are identical in
-        terms of speed and the number of physical channels."; 
+        terms of speed and the number of physical channels.";
     }
-    
+
     leaf num-breakouts {
       type uint8;
       description
@@ -106,10 +118,10 @@ module openconfig-platform-port {
         base oc-eth:ETHERNET_SPEED;
       }
       description
-        "Speed of interfaces in this breakout group, supported 
+        "Speed of interfaces in this breakout group, supported
         values are defined by the ETHERNET_SPEED identity.";
     }
-    
+
     leaf num-physical-channels {
       type uint8;
       description
@@ -137,56 +149,56 @@ module openconfig-platform-port {
       container groups {
         description
           "Top level container for breakout groups data.
-          
-           When a device has the capability to break a port into 
-           interfaces of different speeds and different number of 
-           physical channels, it can breakout a 400G OSFP port with 
-           8 physical channels (with support for 25G NRZ, 50G PAM4 
-           and 100G PAM4) in the following configuration: 
-           
+
+           When a device has the capability to break a port into
+           interfaces of different speeds and different number of
+           physical channels, it can breakout a 400G OSFP port with
+           8 physical channels (with support for 25G NRZ, 50G PAM4
+           and 100G PAM4) in the following configuration:
+
            100G + 100G + 200G -> 1 interface with 2 physical channels
            and 1 interface with 4 physical channels and 1 interface with
-           2 physical channels. With this configuration the interface in 
-           1st breakout group would use 50G PAM4 modulation, interface 
-           in 2nd breakout group would use 25G NRZ modulation and the  
+           2 physical channels. With this configuration the interface in
+           1st breakout group would use 50G PAM4 modulation, interface
+           in 2nd breakout group would use 25G NRZ modulation and the
            interface in 3rd breakout group would use 100G PAM4 modulation
            This configuration would result in 3 entries in the breakout
-           groups list. 
-           
-           When a device does not have the capability to break a port 
-           into interfaces of different speeds and different number of 
-           physical channels, it would breakout a 400G OSFP port with 
+           groups list.
+
+           When a device does not have the capability to break a port
+           into interfaces of different speeds and different number of
+           physical channels, it would breakout a 400G OSFP port with
            8 physical channels in the following configuration:
-           
-           50G -> 8 interfaces with 1 physical channel each, this would 
+
+           50G -> 8 interfaces with 1 physical channel each, this would
            result in 1 entry in the breakout groups list.";
 
-           list group {
-             key "index";
-             description
-               "List of breakout groups.";
-          
-             leaf index {
-               type leafref {
-               path "../config/index";
-             }
-             description
-               "Index of the breakout group entry in the breakout groups list.";
-           }
-               
-           container config {
-             description
-               "Configuration data for breakout group.";
-             uses group-config;
-           }
+        list group {
+          key "index";
+          description
+            "List of breakout groups.";
 
-           container state {
-             config false;
-             description
-               "Operational state data for breakout group.";
+          leaf index {
+            type leafref {
+              path "../config/index";
+            }
+            description
+              "Index of the breakout group entry in the breakout groups list.";
+          }
 
-             uses group-config;
-             uses group-state;
+          container config {
+            description
+              "Configuration data for breakout group.";
+            uses group-config;
+          }
+
+          container state {
+            config false;
+            description
+              "Operational state data for breakout group.";
+
+            uses group-config;
+            uses group-state;
           }
         }
       }

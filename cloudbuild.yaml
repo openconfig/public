@@ -48,7 +48,7 @@ steps:
     git clone git@github.com:openconfig/models-ci.git /go/src/github.com/openconfig/models-ci
     cd /go/src/github.com/openconfig/models-ci
     # Modify the major version to update models-ci version.
-    branch=$(git tag -l 'v5*' | sort -V | tail -1)
+    branch=$(git tag -l 'v6*' | sort -V | tail -1)
     git checkout $branch
   volumes:
   - name: 'ssh'
@@ -125,7 +125,7 @@ steps:
   dir: '/go/src/github.com/openconfig/pattern-regex-tests'
   waitFor: ['regexp clone']
   id: 'regexp dep'
-- name: 'gcr.io/disco-idea-817/models-ci-image'
+- name: 'gcr.io/$PROJECT_ID/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/regexp/test.sh"]
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -144,10 +144,14 @@ steps:
 
 ############### YANGLINT ##############
 - name: gcr.io/cloud-builders/gsutil
-  args: ['cp', 'gs://artifacts.disco-idea-817.appspot.com/libyang.deb', '/workspace/libyang.deb']
+  args: ['cp', 'gs://openconfig/libyang.deb', '/workspace/libyang.deb']
   waitFor: ['validator prep']
-  id: 'yanglint prep'
-- name: 'gcr.io/disco-idea-817/models-ci-image'
+  id: 'yanglint prep1'
+- name: gcr.io/cloud-builders/gsutil
+  args: ['cp', 'gs://openconfig/yanglint.deb', '/workspace/yanglint.deb']
+  waitFor: ['validator prep']
+  id: 'yanglint prep2'
+- name: 'gcr.io/$PROJECT_ID/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/yanglint/test.sh"]
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -161,7 +165,7 @@ steps:
   - 'COMMIT_SHA=$COMMIT_SHA'
   - '_REPO_SLUG=$_REPO_SLUG'
   - 'BRANCH_NAME=$BRANCH_NAME'
-  waitFor: ['yanglint prep']
+  waitFor: ['yanglint prep1', 'yanglint prep2']
   id: 'yanglint'
 
 ############### MISC-CHECKS ###############
@@ -185,7 +189,7 @@ steps:
   id: 'misc-checks'
 
 ############### OC-PYANG ###############
-- name: 'gcr.io/disco-idea-817/models-ci-image'
+- name: 'gcr.io/$PROJECT_ID/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/oc-pyang/test.sh']
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -213,7 +217,7 @@ steps:
   - 'GO111MODULE=on'
   waitFor: ['go path creation']
   id: 'goyang-ygot prep'
-- name: 'gcr.io/disco-idea-817/models-ci-image'
+- name: 'gcr.io/$PROJECT_ID/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/goyang-ygot/test.sh"]
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -231,7 +235,7 @@ steps:
   id: 'goyang-ygot'
 
 ############### PYANG ###############
-- name: 'gcr.io/disco-idea-817/models-ci-image'
+- name: 'gcr.io/$PROJECT_ID/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/pyang/test.sh']
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -249,7 +253,7 @@ steps:
   id: 'pyang'
 
 ############### PYANGBIND ###############
-- name: 'gcr.io/disco-idea-817/models-ci-image'
+- name: 'gcr.io/$PROJECT_ID/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/pyangbind/test.sh']
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -267,7 +271,7 @@ steps:
   id: 'pyangbind'
 
 ############### COMPATIBILITY REPORT ###############
-- name: 'gcr.io/disco-idea-817/models-ci-image'
+- name: 'gcr.io/$PROJECT_ID/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/compat_report.sh']
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -289,7 +293,7 @@ options:
 
 availableSecrets:
   inline:
-  - kmsKeyName: projects/disco-idea-817/locations/global/keyRings/keyring0/cryptoKeys/key0
+  - kmsKeyName: 'projects/$PROJECT_ID/locations/global/keyRings/keyring0/cryptoKeys/key0'
     envMap:
       # This is the encrypted version of the token.
       GITHUB_ACCESS_TOKEN: 'CiQAvY6emxdh1dn1h9yW/IXSsGQE8l2L39zL8zT8lugxP4zsxBcSUQACTwBYgV0FHz18eP4bqQP6v9Co5ScbuOY24VgquPjtjGumwmdo68/Mn6P6uNn2DOUULvnHfOdpSG865RPGlVSM7kCo5n5tR2e9oskvYfMFWA=='
