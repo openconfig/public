@@ -847,14 +847,6 @@ submodule openconfig-rib-bgp-tables {
       "Key references to support operational state structure for
       BGP EVPN type 5 routes";
 
-      leaf esi {
-        type leafref {
-          path "../state/esi";
-        }
-        description
-          "Reference to the esi list key";
-      }
-
       leaf ethernet-tag {
         type leafref {
           path "../state/ethernet-tag";
@@ -878,15 +870,6 @@ submodule openconfig-rib-bgp-tables {
         description
           "Reference to the ip-prefix list key";
       }
-
-      leaf gateway-ip-address {
-        type leafref {
-          path "../state/gateway-ip-address";
-        }
-        description
-          "Reference to the gateway-ip-address list key";
-      }
-
   }
 
   grouping bgp-evpn-type-five-state {
@@ -894,7 +877,7 @@ submodule openconfig-rib-bgp-tables {
     container type-five-ip-prefix {
       description "Top level container for type five l2vpn evpn routes";
       list type-five-route {
-        key "esi ethernet-tag ip-prefix-length ip-prefix gateway-ip-address";
+        key "ethernet-tag ip-prefix-length ip-prefix";
         description
           "List of evpn ip prefix routes";
 
