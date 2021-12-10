@@ -13,6 +13,7 @@ submodule openconfig-rib-bgp-tables {
 
   import openconfig-network-instance-types { prefix oc-ni-types; }
   import openconfig-evpn-types { prefix oc-evpn-types; }
+  import openconfig-bgp-types { prefix oc-bgpt; }
 
   include openconfig-rib-bgp-attributes;
   include openconfig-rib-bgp-shared-attributes;
@@ -410,7 +411,7 @@ submodule openconfig-rib-bgp-tables {
       description "List of BGP paths attributes for this route";
       list path {
         description "List of paths";
-        key "peer-ip peer-path-id";
+        key "peer-ip peer-path-id source-route-distinguisher source-address-family";
 
         leaf peer-ip {
           type leafref {
@@ -428,6 +429,22 @@ submodule openconfig-rib-bgp-tables {
             "Reference to the peer-path-id key";
         }
 
+        leaf source-route-distinguisher {
+          type leafref {
+            path "../state/source-route-distinguisher";
+          }
+          description
+            "Reference to the source-route-distinguisher key";
+        }
+
+        leaf source-address-family {
+          type leafref {
+            path "../state/source-address-family";
+          }
+          description
+            "Reference to the source-address-family key";
+        }
+
         container state {
           description "BGP path attributes for this route";
 
@@ -435,42 +452,59 @@ submodule openconfig-rib-bgp-tables {
             type oc-inet:ip-address;
             description "Peer IP information";
           }
+
           leaf peer-path-id {
             type uint32;
             description "Peer path identifier";
           }
+
+          leaf source-route-distinguisher {
+            type oc-ni-types:route-distinguisher;
+            description
+              "The source route distinguisher is the remote RD source of the
+              imported route";
+          }
+
+          leaf source-address-family {
+            type identityref {
+              base oc-bgpt:AFI_SAFI_TYPE;
+            }
+            description "The source address-family of the imported route";
+          }
+
           leaf-list advertised-to-peer {
             type oc-inet:ip-address;
             description "List of peers to which this path is advertised";
           }
+
           leaf label {
             type string;
             description 
               "MPLS Label field used for route attributes";
             reference "RFC7432: BGP MPLS-Based Ethernet VPN";
           }
+
           leaf label2 {
             type string;
             description "MPLS Label2 field used for route attributes";
             reference "RFC7432: BGP MPLS-Based Ethernet VPN";
           }
+
           leaf bestpath {
             type boolean;
             description "Marked as bestpath";
           }
+
           leaf multipath {
             type boolean;
             description "Marked as multipath";
           }
+
           leaf backup {
             type boolean;
             description "Marked as backup";
           }
-          leaf source-route-distinguisher {
-            type oc-ni-types:route-distinguisher;
-            description
-              "The source route distinguisher";
-          }
+
           uses bgp-loc-rib-l2vpn-evpn-attr-refs;
         }
       }
@@ -813,20 +847,12 @@ submodule openconfig-rib-bgp-tables {
       "Key references to support operational state structure for
       BGP EVPN type 5 routes";
 
-      leaf ip-prefix {
+      leaf esi {
         type leafref {
-          path "../state/ip-prefix";
+          path "../state/esi";
         }
         description
-          "Reference to the ip-prefix list key";
-      }
-
-      leaf ip-length {
-        type leafref {
-          path "../state/ip-length";
-        }
-        description
-          "Reference to the ip-length list key";
+          "Reference to the esi list key";
       }
 
       leaf ethernet-tag {
@@ -836,6 +862,31 @@ submodule openconfig-rib-bgp-tables {
         description
           "Reference to the ethernet-tag list key";
       }
+
+      leaf ip-prefix-length {
+        type leafref {
+          path "../state/ip-prefix-length";
+        }
+        description
+          "Reference to the ip-prefix-length list key";
+      }
+
+      leaf ip-prefix {
+        type leafref {
+          path "../state/ip-prefix";
+        }
+        description
+          "Reference to the ip-prefix list key";
+      }
+
+      leaf gateway-ip-address {
+        type leafref {
+          path "../state/gateway-ip-address";
+        }
+        description
+          "Reference to the gateway-ip-address list key";
+      }
+
   }
 
   grouping bgp-evpn-type-five-state {
@@ -843,7 +894,7 @@ submodule openconfig-rib-bgp-tables {
     container type-five-ip-prefix {
       description "Top level container for type five l2vpn evpn routes";
       list type-five-route {
-        key "ip-prefix ip-length ethernet-tag";
+        key "esi ethernet-tag ip-prefix-length ip-prefix gateway-ip-address";
         description
           "List of evpn ip prefix routes";
 
@@ -854,22 +905,34 @@ submodule openconfig-rib-bgp-tables {
             "Operational state data for type5 evpn route entries
             in the BGP LOC-RIB";
 
-          leaf ip-prefix {
-            type oc-inet:ip-prefix;
+          leaf esi {
+            type oc-evpn-types:esi;
             description
-              "The ip-prefix for the route";
-          }
-
-          leaf ip-length {
-            type string;
-            description
-              "The ip-prefix length for the route";
+              "The ethernet segment identifier for the route";
           }
 
           leaf ethernet-tag {
             type oc-evpn-types:ethernet-tag;
             description
               "The ethernet tag for the route";
+          }
+
+          leaf ip-prefix-length {
+            type string;
+            description
+              "The ip-prefix length for the route";
+          }
+
+          leaf ip-prefix {
+            type oc-inet:ip-prefix;
+            description
+              "The ip-prefix for the route";
+          }
+
+          leaf gateway-ip-address {
+            type oc-inet:ip-prefix;
+            description
+              "The gateway-ip-address for the route";
           }
 
           uses bgp-loc-rib-attr-state;
