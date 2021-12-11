@@ -22,7 +22,13 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2021-12-10" {
+    description
+      "Add identity for BIOS";
+    reference "1.2.0";
+  }
 
   revision "2021-01-18" {
     description
@@ -261,6 +267,13 @@ module openconfig-platform-types {
       installed software packages using this type -- but rather
       updates that are bundled together as a single installable
       item";
+  }
+
+  identity BIOS {
+    base OPENCONFIG_SOFTWARE_COMPONENT;
+    description
+      "Legacy BIOS or UEFI firmware interface responsible for
+      initializing hardware components and first stage boot loader.";
   }
 
   identity BOOT_LOADER {
