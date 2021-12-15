@@ -34,6 +34,12 @@ An implicit deny is assumed, if there is no matching rule in the policy. Logging
 may be specified on a per-policy-rule basis as well as a default for the whole
 authorization policy.
 
+As a request is evaluated against the configured policy, a READ request for
+the configuration tree may traverse all of the tree. For portions of the tree
+for which the user has no access no data will be returned. A WRITE request
+which attempts to write to a denied subtree or element will return an error
+to the caller.
+
 [OpenConfig paths](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md#222-paths)
 are heirarchical, and rooted at a defined "origin". OpenConfig may contain paths
 such as:
