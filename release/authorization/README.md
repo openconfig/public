@@ -4,9 +4,9 @@
 
 This proto definition and the reference code(to be delivered seperately) serve
 to describe an authorization framework for controlling which OpenConfig paths of
-a network device specific users can access using a gNMI micro-serivice. The
-authorization policy is initially intended to be deployed to a device, with the
-ability to define:
+a network device users can access using a gNMI micro-serivice. The authorization
+policy is initially intended to be deployed to a device, with the ability to
+define:
 
 *   Policy rules - each rule defines a single authorization policy.
 *   Groups of users - as a method to logically group users in the administrative
@@ -21,20 +21,21 @@ which permits a user or group access to particular OpenConfig paths while
 denying subordinate portions of the permitted paths, or the converse.
 
 Best, or most specific, match is that which has the longest match to the
-requested path and prefers a specific user over a group in the matching
-policy.
+requested path and prefers:
+*   a specific user over a group in the matching policy.
+*   a defined KEY over a wildcard element in a keyed path.
 
 Match rules permit a match against:
 
 *   User or Group (not both)
-*   an OpenConfig path
+*   an OpenConfig gNMI path
 
 An implicit deny is assumed, if there is no matching rule in the policy. Logging
 may be specified on a per-policy-rule basis as well as a default for the whole
 authorization policy.
 
 [OpenConfig paths](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md#222-paths)
-are heirarchical, rooted at a defined "origin". OpenConfig may contain paths
+are heirarchical, and rooted at a defined "origin". OpenConfig may contain paths
 such as:
 
 ```proto
@@ -64,6 +65,18 @@ Not permitted use:
 ```proto
     /a/b[key=foo]/*/d
 ```
+
+An example of two rules with similar paths that differ only with respect
+to attribute wildcarding:
+
+```proto
+   /a/b[key=FOO]/c/d
+   /a/b[key=*]/c/d
+```
+
+The first rule specifies a single key, that rule is more specific than
+the second rule, which specifies 'any value is accepted'.
+
 
 ## Bootstrap / Install Options
 
@@ -101,7 +114,7 @@ group {
   members { name: "crusty" }
   members { name: "the-clown" }
 }
-# Action stevie to access /this/is/a/message_path
+# Action stevie to access /this/is/a/message_path in a READ manner.
 policy {
   id: "one"
   log_level: LOG_NONE
@@ -113,9 +126,11 @@ policy {
     elem { name: "message_path" }
   }
   action: PERMIT
+  level: READ
   user { name: "stevie" }
 }
-# Action members of family-group to access /this/is/a/different/message_path
+# Action members of family-group to access /this/is/a/different/message_path in
+# both READ and WRITE methods.
 policy {
   id: "two"
   log_level: LOG_BRIEF
@@ -128,9 +143,11 @@ policy {
     elem { name: "message_path" }
   }
   action: PERMIT
+  level: READ
+  level: WRITE
   group { name: "family-group" }
 }
-# Demonstrate a key with an attribute defined.
+# Demonstrate READ access to a key with an attribute defined.
 policy {
   id: "key"
   log_level: LOG_BRIEF
@@ -149,9 +166,10 @@ policy {
     elem { name: "message_path" }
   }
   action: PERMIT
+  level: READ
   group { name: "test-group" }
 }
-# Demonstrate a key with a wildcard attribute.
+# Demonstrate READ access to a key with a wildcard attribute.
 policy {
   id: "wyld"
   log_level: LOG_BRIEF
@@ -170,6 +188,7 @@ policy {
     elem { name: "message_path" }
   }
   action: PERMIT
+  level: READ
   group { name: "family-group" }
 }
 # Demonstrate a key with a wildcard attribute and a user specific match.
@@ -193,12 +212,15 @@ policy {
     elem { name: "message_path" }
   }
   action: DENY
+  level: READ
   group { name: "brian" }
 }
 # Add a final rule which is an explicit deny rule.
 policy {
   id: "explicit-deny"
   log_level: LOG_FULL
+  level: READ
+  level: WRITE
   action: DENY
 }
 ```
@@ -206,7 +228,7 @@ policy {
 The example first policy rule:
 
 ```proto
-# Action stevie to access /this/is/a/message_path
+# Action stevie to access /this/is/a/message_path for READ.
 policy {
   id: "one"
   log_level: LOG_NONE
@@ -218,6 +240,7 @@ policy {
     elem { name: "message_path" }
   }
   action: PERMIT
+  level: READ
   user { name: "stevie" }
 }
 ```
@@ -229,7 +252,7 @@ permits the singular user "stevie" to access the path:
 ```
 
 Additionally, "stevie" is permitted access to all paths below the defined path,
-such as:
+in a READ only mode, such as:
 
 ```shell
     /this/is/a/message_path/the
@@ -254,11 +277,14 @@ policy {
     elem { name: "message_path" }
   }
   action: PERMIT
+  level: READ
+  level: WRITE
   group { name: "family-group" }
 }
 ```
 
-example policy permits members or the family-group access to a single path:
+example policy permits members or the family-group access to a single path, for
+reading or writing:
 
 ```shell
     /this/is/a/different/message_path
@@ -294,11 +320,13 @@ policy {
     elem { name: "message_path" }
   }
   action: PERMIT
+  level: READ
   group { name: "test-group" }
 }
 ```
 
-Permits access by the "test-group" users to the keyed path:
+Permits access by the "test-group" users to the keyed path, in a
+read only manner:
 
 ```shell
     /this/is/a/keyed[name=Ethernet1/2/3]/message_path
@@ -326,12 +354,13 @@ policy {
     elem { name: "message_path" }
   }
   action: PERMIT
+  level: READ
   group { name: "family-group" }
 }
 ```
 
 permits access by the "family-group" users to the keyed path, with no
-restrictions on the key values:
+restrictions on the key values, but still as read-only:
 
 ```shell
     /this/is/a/keyed[name=Ethernet1/2/3]/message_path
@@ -359,6 +388,8 @@ The policy rule:
 policy {
   id: "explicit-deny"
   log_level: LOG_FULL
+  level: READ
+  level: WRITE
   action: DENY
 }
 ```

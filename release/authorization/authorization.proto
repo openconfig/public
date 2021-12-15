@@ -55,12 +55,12 @@ enum Action {
   PERMIT = 2;
 }
 
-// Level is either READONLY or READWRITE, whether or not the path being
+// Level is either READ or WRITE, whether or not the path being
 // accessed is mutable by the calling entity.
 enum Level {
   UNDEFINED = 0;
-  READONLY = 1;
-  READWRITE = 2;
+  READ = 1;
+  WRITE = 2;
 }
 
 message AuthorizationPolicy {
@@ -80,8 +80,8 @@ message AuthorizationPolicy {
   // Permit or deny the user/group access to the path specified.
   Action action = 6;
 
-  // Permit Read only or Read and Write access to the path specified.
-  Level level = 7;
+  // Permit Read, Write, or Read and Write access to the path specified.
+  repeated Level level = 7;
 }
 
 message AuthorizationPolicies {
