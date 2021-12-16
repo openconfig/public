@@ -26,7 +26,13 @@ module openconfig-p4rt {
     The P4RT protocol specification is linkde from https://p4.org/specs/
     under the P4Runtime heading.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision 2021-12-15 {
+    description
+      "Add interface parent IC node identifier";
+    reference "0.3.0";
+  }
 
   revision 2021-07-20 {
     description
@@ -64,6 +70,21 @@ module openconfig-p4rt {
         interface is required, it does not replace the unique name assigned to
         the interface.";
     }
+
+    leaf node-id {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/" +
+             "oc-platform:integrated-circuit/oc-platform:config/" +
+             "oc-p4rt:node-id";
+      }
+      description
+        "The parent integrated circuit node identifier responsible for the
+        interface.  The interface node ID provides an explicit unique association
+        between an interface and its corresponding integrated circuit which may
+        also be referred to as a 'device', 'node' or 'target' according to the
+        P4RT specification.";
+    }
+
   }
 
   augment "/oc-if:interfaces/oc-if:interface/oc-if:config" {
