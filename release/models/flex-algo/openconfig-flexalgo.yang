@@ -1,0 +1,228 @@
+module openconfig-flexalgo {
+  yang-version 1.1;
+  namespace "http://openconfig.net/yang/flexalgo";
+  prefix "oc-flexalgo";
+
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+  oc-ext:openconfig-version "0.6.1";
+
+  organization
+    "Arista Networks <http://arista.com/>";
+  contact
+    "Arista Networks, Inc.
+     Product Support";
+  description
+    "This YANG module defines the essential types for the management
+     of Flex-Algorithm for IGP. It also defines the module for
+     configuration and management of IGP Flex-Algorithms.
+
+     The design of this module deserves some explanation, as it
+     follows the Arista configuration model, which may not parallel
+     other implementations.
+
+     We do not consider FlexAlgo to be tightly coupled to any
+     protocol: we want to allow FlexAlgo to be configured in the same
+     way across both IS-IS and OSPF. We also consider FlexAlgo to be
+     independent of MPLS. There are already proposals that suggest
+     using FlexAlgo directly with IP without MPLS.
+
+     To help instantiate this, we define Flexible Algorithm
+     Definitions (FAD) to be outside of any protocol and MPLS. For
+     operator convenience, we also assign names to each FAD and refer
+     to FADs by name. FAD configuration is independent of the
+     advertisement of a FAD, which is part of the router capability
+     TLV.
+
+     Copyright (c) 2021 Arista Networks, Inc. All rights reserved.
+
+     This module is derived from
+     draft-rasool-lsr-flex-algo-yang-01 and extensively modified.
+
+     Copyright (c) 2019 IETF Trust and the persons identified as
+     authors of the code.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the Simplified BSD License
+     set forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (http://trustee.ietf.org/license-info).";
+  revision 2021-12-20 {
+    description
+      "Initial revision of flexalgo module";
+    reference
+      "0.4.3";
+  }
+
+  /* Types definitions */
+
+  typedef flex-algo-metric-type {
+    type enumeration {
+      enum IGP {
+        value 0;
+        description
+          "IGP metric to be used during the calculation.";
+      }
+      enum MIN_DELAY {
+        value 1;
+        description
+          "Min Unidirectional Link Delay as defined in [RFC7810] to
+           be used during the calculation.";
+      }
+      enum TE_METRIC {
+        value 2;
+        description
+          "TE default metric as defined in [RFC5305] to be used
+           during the calculation.";
+      }
+    }
+    description
+      "Type of metric to be used during a Flex Algo path
+       computation";
+  }
+
+  typedef flex-algo-id {
+    type uint8 {
+      range "128..255";
+    }
+    description
+      "Flex-Algorithm identifies which algorithm should be used during
+       path computation";
+  }
+
+  typedef flex-algo-calc-type {
+    type uint8 {
+      range "0..127";
+    }
+    default "0";
+    description
+      "Calculation type value ranges from 0 to 127 both inclusive
+       from the IGP Algorithm Types registry defined under
+       Interior Gateway Protocol (IGP)
+       Parameters IANA registries.
+       If the required calculation type is Shortest Path First,
+       the value 0 SHOULD appear in this field.";
+  }
+
+  typedef bit-position {
+    type uint8 {
+      range "0..31";
+    }
+    description
+      "A bit position in a 32 bit field, used for specifying
+       legacy administrative groups.";
+  }
+
+  // The IS-IS Flexible Algorithm Prefix Metric subTLV is not defined
+  // as it's not part of Arista's implementation.
+  /* Groupings */
+  // Configuration groupings
+
+  grouping algorithm-attributes {
+    description
+      "All of the possible attributes for an flexible algorithm
+       definition";
+    leaf name {
+      type string;
+      description
+        "Flexible Algorithm name";
+    }
+    leaf flex-algo-id {
+      type flex-algo-id;
+      mandatory true;
+      description
+        "Flex Algorithm Identifier";
+    }
+    leaf metric-type {
+      type flex-algo-metric-type;
+      default "IGP";
+      description
+        "Indicates which is the corresponding metric type for
+         this algorithm";
+    }
+    leaf calc-type {
+      type flex-algo-calc-type;
+      description
+        "Indicates the calculation type, if advertised";
+    }
+    leaf priority {
+      type uint8;
+      default "237";
+      description
+        "Indicates the priority for this algorithm";
+    }
+
+    leaf-list exclude-group {
+      type bit-position;
+      description
+        "List of admin-groups to exclude in path calculation.";
+    }
+    leaf-list include-all-group {
+      type bit-position;
+      description
+        "list of admin-groups, all of which must be included";
+    }
+    leaf-list include-any-group {
+      type bit-position;
+      description
+        "list of admin-groups, one of which must be included";
+    }
+
+    leaf-list srlg-names {
+      type leafref {
+        path "../../../../mpls/te-global-attributes/srlgs/srlg/name";
+      }
+      description
+        "list of references to named SRLGs to be excluded";
+    }
+
+    leaf-list srlg-values {
+      type uint32;
+      description
+        "list of references to SRLG values to be excluded";
+    }
+
+    leaf color {
+      type uint32;
+      description
+        "When a flexalgo tunnel is used for RIB resolution, the flexalgo can 
+        be configured with a specific color (which may be specified based on 
+        a BGP extended color community)";
+    }
+  }
+
+  grouping fad-definition-top {
+    description
+      "Top level grouping for Flexible Algorithm Definitions";
+    container flex-algorithms {
+      description
+        "Flexible Algorithms and their definitions";
+      list algorithm {
+        key "name";
+        description
+          "List of Flexible Algorithms";
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Name for a Flexible Algorithm";
+        }
+        container config {
+          description
+            "Attributes for a Flexible Algorithm";
+          uses algorithm-attributes;
+        }
+        container state {
+          config false;
+          description
+            "Attributes for a Flexible Algorithm";
+          uses algorithm-attributes;
+        }
+      }
+    }
+  }
+}
+
