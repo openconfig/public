@@ -14,6 +14,7 @@ module openconfig-segment-routing {
   import ietf-yang-types { prefix "yang"; }
   import openconfig-segment-routing-types { prefix "oc-srt"; }
   import openconfig-srte-policy { prefix "oc-srte"; }
+  import openconfig-isis-types { prefix "oc-isis-types"; }
 
   // meta
   organization "OpenConfig working group";
@@ -511,6 +512,28 @@ module openconfig-segment-routing {
       }
   }
 
+  grouping fad-binding-attributes {
+    description
+      "Attributes for FAD bindings";
+    leaf flex-algo-name {
+      type string;
+      description
+        "Name of a Flexible Algorithm";
+    }
+    leaf isis-level {
+      type oc-isis-types:level-type;
+      default "LEVEL_1_2";
+      description
+        "IS-IS Level associated with this Flex Algorithm";
+    }
+    leaf advertised {
+      type boolean;
+      default "false";
+      description
+        "Is the algorithm advertised?";
+    }
+  }
+
   grouping sr-igp-config {
     description
       "Configuration parameters relating to segment routing within an
@@ -542,6 +565,34 @@ module openconfig-segment-routing {
       description
         "A reference to the Segment Routing Local Block (SRLB) that is to
         be advertised by the IGP instance.";
+    }
+
+    container fad-bindings {
+      description
+        "Flex Algorithm bindings";
+      list fad-binding {
+        key "flex-algo-name";
+        description
+          "Flex Algorithm binding for a given algorithm name";
+        leaf flex-algo-name {
+          type leafref {
+            path "../config/flex-algo-name";
+          }
+          description
+            "Flex Algorithm name used by IGP";
+        }
+        container config {
+          description
+            "Attributes of a FAD binding";
+          uses fad-binding-attributes;
+        }
+        container state {
+          config false;
+          description
+            "Attributes of a FAD binding";
+          uses fad-binding-attributes;
+        }
+      }
     }
   }
 
