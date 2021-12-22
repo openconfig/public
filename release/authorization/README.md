@@ -4,31 +4,43 @@
 
 This proto definition and the reference code(to be delivered seperately) serve
 to describe an authorization framework for controlling which OpenConfig paths of
-a network device users can access using a gNMI micro-serivice. The authorization
-policy is initially intended to be deployed to a device, with the ability to
-define:
+a network device users can access. The authorization policy is initially intended
+to be deployed to a device, with the ability to define:
 
 *   Policy rules - each rule defines a single authorization policy.
 *   Groups of users - as a method to logically group users in the administrative
     domain, for instance: operators or administrators.
 *   Users which are individual users as part of either rules or in groups.
-    Authentication information is not included in this Authorization
-    configuration.
+
+Authentication information is not included in this Authorization configuration.
 
 Policy rules are matched based on the best match for the authorization request,
 not the first match against a policy rule. Best match enables a configuration
 which permits a user or group access to particular OpenConfig paths while
-denying subordinate portions of the permitted paths, or the converse.
+denying subordinate portions of the permitted paths, or the converse, without
+regard to ordering of the rules in the configuration.
 
-Best, or most specific, match is that which has the longest match to the
+## Best Match
+
+Authorization is performed for a singular user, gNMI path accessed, and access
+methodology (READ/WRITE). The result of an Authorization evaluation is an
+Action (Permit/Deny), policy version, and rule identifier.
+
+A Best, or most specific, match is that which has the longest match to the
 requested path and prefers:
+
 *   a specific user over a group in the matching policy.
 *   a defined KEY over a wildcard element in a keyed path.
+
+Authorization rules must be defined such that a single best match is possible.
+If the result of policy evaluation is more than one match, an error must be
+raised.
 
 Match rules permit a match against:
 
 *   User or Group (not both)
 *   an OpenConfig gNMI path
+*   an access method (READ or WRITE)
 
 An implicit deny is assumed, if there is no matching rule in the policy. Logging
 may be specified on a per-policy-rule basis as well as a default for the whole
