@@ -1,0 +1,184 @@
+module openconfig-route-programming-state {
+  prefix "oc-rtstate";
+
+  namespace "http://openconfig.net/yang/route-programming";
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-network-instance { prefix "oc-ni"; }
+  import openconfig-inet-types { prefix "oc-inet"; }
+  import openconfig-types { prefix "oc-types"; }
+
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module provides detailed information as to the programming
+    state of routes within a particular network instance. It can be used to
+    track where there are routing programming errors on a device.";
+
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2021-10-16" {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  grouping route-state-top {
+    description
+      "Top-level grouping for route state in OpenConfig.";
+
+    container route-programming {
+      config false;
+      description
+        "The programming status of routes within the network-instance. Route
+        programming reports are divided into a set of sub-categories:
+
+         - failed programming -- these routes are those that were attempted to be
+           programed to the hardware, but the programming operation failed.
+         - stale programming -- these routes are those that are programmed into
+           hardware, but some failure occurred in updating to a new state.
+         - drop programming - these routes are explicitly programmed into hardware
+           to point to a destination that discards packets.";
+
+      container failed-routes {
+        description
+          "Surrounding container for the list of routes that fail programming.";
+
+        list failed {
+          key "prefix";
+
+          description
+            "A prefix that was attempted to the programmed into hardware, but the
+            programming operation failed.";
+
+          leaf prefix {
+            type leafref {
+              path "../state/prefix";
+            }
+            description
+              "Reference to the prefix that keys the failed list.";
+          }
+
+          container state {
+            description
+              "Operational state parameters relating to a failed programming
+              operation.";
+            uses route-state-common;
+          }
+        }
+      }
+
+      container stale-routes {
+        description
+          "Surrounding container for the list of routes that are currently in
+          a stale state.";
+
+        list stale {
+          key "prefix";
+
+          description
+            "A prefix that is currently installed in hardware, but a subsequent
+            operation to update its programming failed - such that the entry in
+            hardware is stale.";
+
+          leaf prefix {
+            type leafref {
+              path "../state/prefix";
+            }
+            description
+              "Reference to the prefix that keys the stale list.";
+          }
+
+          container state {
+            description
+              "Operational state parameters relating to a stale route.";
+            uses route-state-common;
+          }
+        }
+      }
+
+      container drop-routes {
+        description
+          "Surrounding container for the list of routes that are currently in
+          a drop state.";
+
+        list drop {
+          key "prefix";
+
+          description
+            "A prefix that is currently installed in hardware but with an explicit
+            instruction that it should discard packets that are destined towards
+            it.";
+
+          leaf prefix {
+            type leafref {
+              path "../state/prefix";
+            }
+            description
+              "Reference to the prefix that keys the drop list.";
+          }
+
+          container state {
+            description
+              "Operational state parameters relating to a drop route.";
+            uses route-state-common;
+          }
+        }
+      }
+    }
+  }
+
+ grouping route-state-common {
+    description
+      "Common state parameters that correspond to a particular route
+      type.";
+
+    leaf prefix {
+      type oc-inet:ip-prefix;
+      description
+        "The IPv4 or IPv6 prefix that the route state corresponds to.";
+    }
+
+    leaf time {
+      type oc-types:timeticks64;
+      description
+        "Time that the route was programmed, or the programming attempt was made
+        expressed as nanoseconds since the Unix epoch.";
+    }
+
+    leaf reason {
+      type enumeration {
+        enum INVALID {
+          description
+            "The reason for failure was that route, or its dependencies, was
+            deemed to be invalid.";
+        }
+        enum HW_PROGRAMMING_FAILED {
+          description
+            "The reason for the failure was that the hardware programming
+            failed.";
+        }
+        enum UNKNOWN {
+          description
+            "The programming failure occurred for an unknown reason.";
+        }
+      }
+    }
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance" {
+    description
+      "Augment the network-instance model with the route-programming container.";
+
+    uses route-state-top;
+  }
+}
