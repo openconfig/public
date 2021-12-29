@@ -53,8 +53,8 @@ to use a `leafref` within their module, particularly:
      key (under a `config` or `state` container) directly under the `list` structure
      itself, to comply with the YANG requirements.
 2. To provide a foreign-key within one part of the schema to another schema
-   element The common use case for such leaves is to allow the schema to be
-   normalised, and to allow programmatic means of traversing the schema (e.g.,
+   element. The common use case for such leaves is to allow the schema to be
+   normalized, and to allow programmatic means of traversing the schema (e.g.,
    automatically retrieving data that corresponds to such `leafref` references,
    without needing to write schema-path specific handling code).
    * For example, defining a `leafref` with the path
@@ -186,7 +186,7 @@ By default, a server supporting OpenConfig:
 
  * SHOULD validate types for leaves of type `leafref`, along with any
    restrictions (e.g., `pattern` or `range` statemenets) described with those
-types.
+   types.
  * SHOULD NOT validate the existence of the leaf that is pointed to by the
    leafref `path` by default. This behaviour MUST be explicitly enabled if
    required, and MAY be unsupported by a target. This guidance essentially treats
