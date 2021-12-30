@@ -1,0 +1,165 @@
+module openconfig-mirror {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/mirror";
+
+  prefix "oc-mirror";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-acl { prefix oc-acl; }
+  import openconfig-inet-types { prefix oc-inet; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Model for configuration and operational state data related
+    to mirroring of packets for debugging or monitoring.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2021-12-03" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // extension statements
+
+  // feature statements
+
+  // identity statements
+
+  // typedef statements
+  typedef mirror-action {
+    type enumeration {
+      enum GRE {
+        description "Captured packets are encapsulated in GRE and sent
+        to an IP destination";
+      }
+    }
+    description
+      "Type of mirroring to perform.";
+  }
+
+  // grouping statements
+
+  grouping mirror-session-config {
+    description
+      "Configuration data for aggregate interfaces";
+
+    leaf mirror-type {
+      type mirror-action;
+      description
+        "Which action is performed when a packet is selected for mirroring";
+    }
+
+    leaf name {
+      type string;
+      description
+        "Name of mirror session.";
+    }
+
+    leaf source-interface {
+      type leafref {
+          path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+        }
+        description
+          "Interface or sub-interface from which to select packets to
+          mirror. A source may be used by only a single mirroring
+          session at a time.";
+    }
+
+    leaf direction {
+      type enumeration {
+        enum RX {
+          description
+            "Mirror packets in the receive direction - i.e., arriving on
+            this interface.";
+        }
+        enum TX {
+          description
+            "Mirror packets in the transmit direction - i.e., leaving
+            this interface.";
+        }
+        enum BOTH {
+          description
+            "Mirror packets in both the transmit and receive directions.";
+        }
+      }
+      default BOTH;
+      description
+        "Direction of packet flow through the source interface to mirror.";
+    }
+
+    leaf acl {
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/oc-acl:name";
+      }
+      description
+        "ACL used for filtering packets prior to mirroring.";
+    }
+
+    leaf destination-address {
+        type oc-inet:ip-address;
+        description
+          "Valid when mirror action is GRE. Encapsulate mirrored packets
+          in GRE and send to this destination IPv4 or IPv6 address.";
+    }
+  }
+
+  grouping mirror-session-state {
+    description
+      "Operational state data for packet mirroring sessions";
+      // TODO: Add state variables
+  }
+
+
+  grouping mirroring-top {
+    description
+      "Grouping for the packet mirroring sessions.";
+
+    container mirror-sessions {
+      description
+        "Container for packet mirrorring sessions.";
+
+      container config {
+          description
+          "Configuration data for packet mirroring.";
+
+          uses mirror-session-config;
+      }
+
+      container state {
+          config false;
+          description
+          "Operational state parameters for packet mirroring.";
+
+          uses mirror-session-config;
+          uses mirror-session-state;
+      }
+    }
+  }
+  // data definition statements
+
+  // augment statements
+
+  // rpc statements
+
+  // notification statements
+  uses mirroring-top;
+
+}
