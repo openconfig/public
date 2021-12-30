@@ -65,9 +65,16 @@ module openconfig-platform-pipeline-counters {
     5 blocks, is to have the abililty to receive all drop counters from
     all 5 blocks, for example, with one request.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2021-10-16" {
+    description
+      "Update pipeline error counters to allow for multiple errors
+      per block.";
+    reference "0.2.0";
+  }
 
   revision "2020-07-31" {
     description
@@ -245,14 +252,26 @@ module openconfig-platform-pipeline-counters {
             "The IC interface subsystem connects the IC to the external PHY or
             MAC.";
 
-          // We do not need a 'config' container here since there is no configurable state for a particular
-          // entity.
-
-          container state {
+          list interface-block-error {
+            key "name";
             description
-              "Errors corresponding to the interface subsystem of the IC.";
+              "An individual error within the interface block. Each error counter
+              is uniquely identified by the name of the error.";
 
-            uses pipeline-errors-packet-interface-block-state;
+            leaf name {
+              type leafref {
+                path "../state/name";
+              }
+              description
+                "Reference to the name of the error being described.";
+            }
+
+            container state {
+              description
+                "Errors corresponding to the interface subsystem of the IC.";
+
+              uses pipeline-errors-packet-interface-block-state;
+            }
           }
         }
 
@@ -261,11 +280,26 @@ module openconfig-platform-pipeline-counters {
             "The IC lookup subsystem perform the next hop lookup of the packet
             and other forwarding features such as firewall filters.";
 
-          container state {
+          list lookup-block-error {
+            key "name";
             description
-              "Errors corresponding to the lookup subsystem of the IC.";
+              "An individual error within the lookup block. Each error counter
+              is uniquely identified by the name of the error.";
 
-            uses pipeline-errors-packet-lookup-block-state;
+            leaf name {
+              type leafref {
+                path "../state/name";
+              }
+              description
+                "Reference to the name of the error being described.";
+            }
+
+            container state {
+              description
+                "Errors corresponding to the lookup subsystem of the IC.";
+
+              uses pipeline-errors-packet-lookup-block-state;
+            }
           }
         }
 
@@ -274,11 +308,26 @@ module openconfig-platform-pipeline-counters {
             "The IC queueing subsystem buffers the packet while processing it
             and queues the packet for delivery to the next stage";
 
-          container state {
+          list queueing-block-error {
+            key "name";
             description
-              "Errors corresponding to the queueing subsystem of the IC.";
+              "An individual error within the queueing block. Each error counter
+              is uniquely identified by the name of the error.";
 
-            uses pipeline-errors-packet-queueing-block-state;
+            leaf name {
+              type leafref {
+                path "../state/name";
+              }
+              description
+                "Reference to the name of the error being described.";
+            }
+
+            container state {
+              description
+                "Errors corresponding to the queueing subsystem of the IC.";
+
+              uses pipeline-errors-packet-queueing-block-state;
+            }
           }
         }
 
@@ -287,11 +336,26 @@ module openconfig-platform-pipeline-counters {
             "The IC fabric block subsystem connects the IC to the external
             systems fabric subsystem";
 
-          container state {
+          list fabric-block-error {
+            key "name";
             description
-              "Errors corresponding to the fabric subsystem of the IC.";
+              "An individual error within the fabric block. Each error counter
+              is uniquely identified by the name of the error.";
 
-            uses pipeline-errors-packet-fabric-block-state;
+            leaf name {
+              type leafref {
+                path "../state/name";
+              }
+              description
+                "Reference to the name of the error being described.";
+            }
+
+            container state {
+              description
+                "Errors corresponding to the fabric subsystem of the IC.";
+
+              uses pipeline-errors-packet-fabric-block-state;
+            }
           }
         }
 
@@ -300,11 +364,27 @@ module openconfig-platform-pipeline-counters {
             "The IC host interface block subsystem connects the IC to the
             external systems host or control subsystem";
 
-          container state {
+          list host-interface-error {
+            key "name";
             description
-              "Errors corresponding to the host interface subsystem of the IC.";
+              "An individual error within the host interface block. Each error
+              counter is uniquely identified by the name of the error.";
 
-            uses pipeline-errors-packet-host-interface-block-state;
+            leaf name {
+              type leafref {
+                path "../state/name";
+              }
+              description
+                "Reference to the name of the error being described.";
+            }
+
+            container state {
+              description
+                "Errors corresponding to the host interface subsystem of
+                the IC.";
+
+              uses pipeline-errors-packet-host-interface-block-state;
+            }
           }
         }
       }
@@ -444,7 +524,7 @@ module openconfig-platform-pipeline-counters {
         "Amount of used firewall or ACL memory counter measured in entries.
         The number of used entries must include the entries
         that are 'allocated but free' if the memory reaping algorithm makes
-        these entries practically unusable";
+        these entries practically unusable.";
     }
 
     leaf acl-memory-total-bytes {
@@ -819,25 +899,26 @@ module openconfig-platform-pipeline-counters {
     description
       "A common set of error counters that apply to multiple error sections.";
 
-    leaf error-name {
+    leaf name {
       type string;
       description
         "Name of the interrupt, hardware error, or software error in the NPU.";
     }
 
-    leaf error-count {
+    leaf count {
       type uint64;
       description
-        "Number of all the errors.";
+        "Total count of errors of this type.";
     }
 
-    leaf error-threshold {
+    leaf threshold {
       type uint64;
       description
-        "Number of errors before recovery action.";
+        "Number of errors before a recovery action is automatically
+        taken by the system.";
     }
 
-    leaf error-action {
+    leaf-list action {
       type enumeration {
         enum LOG {
           description
@@ -869,11 +950,22 @@ module openconfig-platform-pipeline-counters {
         }
       }
       description
-        "Error action taken - log, linecard reboot, linecard offline, NPU
-        reset, NPU offline, gather diagnostic data, raise an alarm.";
+        "Error actions that are taken by the system - log, linecard reboot,
+        linecard offline, NPU reset, NPU offline, gather diagnostic data,
+        raise an alarm.";
     }
 
-    leaf error-level {
+    leaf active {
+      type boolean;
+      description
+        "The error is currently in an active state. When the system detects
+        that the specified threshold is exceeded, this value should be set to
+        true.";
+      default false;
+      oc-ext:telemetry-on-change;
+    }
+
+    leaf level {
       type enumeration {
         enum FATAL {
           description
@@ -894,8 +986,9 @@ module openconfig-platform-pipeline-counters {
         }
       }
       description
-        "Identify the severity of the error - Fatal, Major, Minor, or
-        Informational.";
+        "The severity of the error that is being recorded by the system. This
+        value can be used by a consumer to determine the action when this error
+        is recorded.";
     }
   }
 
