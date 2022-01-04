@@ -568,19 +568,23 @@ module openconfig-segment-routing {
         be advertised by the IGP instance.";
     }
 
-    list fad-binding {
-      key "flex-algo-name";
+    container fad-bindings {
       description
-        "Flex Algorithm binding for a given algorithm name";
-      leaf flex-algo-name {
-        type leafref {
-          path "/network-instances/network-instance/"
-             + "flex-algorithms/algorithm/name";
-        }
+        "Flex Algorithm bindings";
+      list fad-binding {
+        key "flex-algo-name";
         description
-          "Flex Algorithm name used by IGP";
+          "Flex Algorithm binding for a given algorithm name";
+        leaf flex-algo-name {
+          type leafref {
+            path "/network-instances/network-instance/"
+               + "flex-algorithms/algorithm/name";
+         }
+         description
+           "Flex Algorithm name used by IGP";
+        }
+        uses fad-binding-attributes;
       }
-      uses fad-binding-attributes;
     }
   }
 
