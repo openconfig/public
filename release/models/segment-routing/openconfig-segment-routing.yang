@@ -36,7 +36,13 @@ module openconfig-segment-routing {
       - SR SID advertisements - instantiated within the relevant IGP.
       - SR-specific counters - instantied within the relevant dataplane.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.3.2";
+
+  revision "2021-12-20" {
+    description
+      "Add flex-algo model";
+    reference "0.3.2";
+  }
 
   revision "2021-07-28" {
     description
@@ -515,12 +521,6 @@ module openconfig-segment-routing {
   grouping fad-binding-attributes {
     description
       "Attributes for FAD bindings";
-    leaf flex-algo-name {
-      type leafref {
-        path "/network-instances/network-instance/"
-           + "flex-algorithms/algorithm/name";
-      }
-    }
     leaf isis-level {
       type oc-isis-types:level-type;
       default "LEVEL_1_2";
@@ -568,32 +568,19 @@ module openconfig-segment-routing {
         be advertised by the IGP instance.";
     }
 
-    container fad-bindings {
+    list fad-binding {
+      key "flex-algo-name";
       description
-        "Flex Algorithm bindings";
-      list fad-binding {
-        key "flex-algo-name";
+        "Flex Algorithm binding for a given algorithm name";
+      leaf flex-algo-name {
+        type leafref {
+          path "/network-instances/network-instance/"
+             + "flex-algorithms/algorithm/name";
+        }
         description
-          "Flex Algorithm binding for a given algorithm name";
-        leaf flex-algo-name {
-          type leafref {
-            path "../config/flex-algo-name";
-          }
-          description
-            "Flex Algorithm name used by IGP";
-        }
-        container config {
-          description
-            "Attributes of a FAD binding";
-          uses fad-binding-attributes;
-        }
-        container state {
-          config false;
-          description
-            "Attributes of a FAD binding";
-          uses fad-binding-attributes;
-        }
+          "Flex Algorithm name used by IGP";
       }
+      uses fad-binding-attributes;
     }
   }
 
