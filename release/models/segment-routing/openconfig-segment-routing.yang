@@ -516,9 +516,10 @@ module openconfig-segment-routing {
     description
       "Attributes for FAD bindings";
     leaf flex-algo-name {
-      type string;
-      description
-        "Name of a Flexible Algorithm";
+      type leafref {
+        path "/network-instances/network-instance/"
+           + "flex-algorithms/algorithm/name";
+      }
     }
     leaf isis-level {
       type oc-isis-types:level-type;
@@ -727,6 +728,33 @@ module openconfig-segment-routing {
     }
   }
 
+  grouping sr-igp-interface-flex-algo-prefix-sid-config {
+    description
+      "Configuration parameters relating to an IGP prefix SID advertisement for
+       Flexible Algorithms";
+    leaf prefix {
+      type inet:ip-prefix;
+      description
+        "The IP prefix for which the IGP prefix SID should be advertised. The
+         value specified is a local prefix on the interface which is advertised
+         into the IGP.";
+    }
+    leaf flex-algo-name {
+      type leafref {
+        path "/network-instances/network-instance/"
+           + "flex-algorithms/algorithm/name";
+      }
+      description
+        "Name of the Flexible Algorithm for the prefix segment.";
+    }
+    leaf sid-id {
+      type oc-srt:sr-sid-type;
+      description
+        "The Segment Identifier to be used when advertising the IGP Prefix SID for
+         the Flexible Algorithm.";
+    }
+  }
+
   grouping sr-igp-interface-top {
     description
       "Per-interface configuration and operational state relating to an
@@ -772,6 +800,50 @@ module openconfig-segment-routing {
             description
               "Operational state parameters for the IGP-Prefix SID.";
             uses sr-igp-interface-prefix-sid-config;
+          }
+        }
+      }
+
+      container flex-algo-prefix-sids {
+        description
+           "Configuration and operational state parameters relating to segment
+           routing flexible algorithm for an interface within the IGP.";
+
+        list flex-algo-prefix-sid {
+          key "prefix flex-algo-name";
+
+          description
+            "IGP prefix segments allocated for Flexible Algorithms";
+
+          leaf prefix {
+            type leafref {
+              path "../config/prefix";
+            }
+            description
+              "Reference to the prefix for which Flexible Algorithm Prefix SID is to be
+              advertised.";
+          }
+
+          leaf flex-algo-name {
+            type leafref {
+              path "../config/flex-algo-name";
+            }
+            description
+              "Reference to the Flexible Algorithm for which Flexible Algorithm Prefix
+              SID is to be advertised.";
+          }
+
+          container config {
+            description
+              "Configuration parameters for the IGP Flexible Algorithm Prefix SID.";
+            uses sr-igp-interface-flex-algo-prefix-sid-config;
+          }
+
+          container state {
+            config false;
+            description
+              "Operational state parameters for the IGP Flexible Algorithm Prefix SID.";
+            uses sr-igp-interface-flex-algo-prefix-sid-config;
           }
         }
       }
