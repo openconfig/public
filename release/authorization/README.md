@@ -110,7 +110,7 @@ the delivery of all other bootstrap artifacts in a secure manner.
 
 ## Conflict Resolution
 
-Policy evalyation should end with a single best match policy for the provided
+Policy evaluation should end with a single best match policy for the provided
 user / path. If there is more than one 'best match', an error must be logged
 and evaluation should return a failure.
 
