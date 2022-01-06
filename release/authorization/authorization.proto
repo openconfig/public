@@ -84,17 +84,16 @@ message AuthorizationRule {
   repeated Level level = 7;
 }
 
+// AuthorizationPolicy includes rules and user/group information.
+// The service which updates the policies will provide both a
+//   created_on - int64 - seconds since Jan 01 1970 00:00:00
+//   version - string - unique among the implementation's policies deployed.
 message AuthorizationPolicy {
   repeated AuthorizationRule rules = 1;
-  // Version string of this policy, a UUID4 or equivalent locally significant
-  // value.
-  string version = 2;
-  // Release created-on (in seconds since epoch) for this policy.
-  int64 created_on = 3;
   // Default RPC log level, used only if an RPC has no defined logging level.
-  LogLevel default_log_level = 4;
+  LogLevel default_log_level = 2;
   // Groups of usernames collected for simplicity of policy expression.
-  repeated Group groups = 5;
+  repeated Group groups = 3;
 }
 
 // AuthorizationRequest contains a single user name and
