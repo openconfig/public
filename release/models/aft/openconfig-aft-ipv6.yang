@@ -20,7 +20,13 @@ submodule openconfig-aft-ipv6 {
     "Submodule containing definitions of groupings for the abstract
     forwarding tables for IPv6.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.9.0";
+
+  revision "2022-01-10" {
+    description
+      "Add next hop counters and prefix counters";
+    reference "0.9.0";
+  }
 
   revision "2021-08-06" {
     description
@@ -132,7 +138,14 @@ submodule openconfig-aft-ipv6 {
           "The IPv6 destination prefix that should be matched to
           utilise the AFT entry.";
     }
-    uses aft-common-entry-state;
+    uses aft-common-entry-state {
+      augment counters {
+        description
+          "counter for the backup NHG.";
+
+        uses aft-common-backup-entry-counter-state;
+      }
+    }
     uses aft-common-ip-state;
   }
 }
