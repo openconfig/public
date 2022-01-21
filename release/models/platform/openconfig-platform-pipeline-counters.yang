@@ -65,9 +65,15 @@ module openconfig-platform-pipeline-counters {
     5 blocks, is to have the abililty to receive all drop counters from
     all 5 blocks, for example, with one request.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2022-01-21" {
+    description
+      "Add percent utilization leaves for lookup, nexthop, and ACL memories.";
+    reference "0.3.0";
+  }
 
   revision "2021-10-16" {
     description
@@ -498,6 +504,12 @@ module openconfig-platform-pipeline-counters {
         "The amount of memory used in the lookup subsystem.";
     }
 
+    leaf lookup-memory-utilization {
+      type oc-types:percentage;
+      description
+        "Percent utilization of overall lookup memory.";
+    }
+
     leaf nexthop-memory {
       type uint64;
       units bytes;
@@ -510,6 +522,12 @@ module openconfig-platform-pipeline-counters {
       units bytes;
       description
         "The amount of nexthops memory used in the lookup subsystem.";
+    }
+
+    leaf nexthop-memory-utilization {
+      type oc-types:percentage;
+      description
+        "Percent utilization of overall nexthop memory.";
     }
 
     leaf acl-memory-total-entries {
@@ -542,6 +560,12 @@ module openconfig-platform-pipeline-counters {
         The number of used bytes must include the bytes
         that are 'allocated but free' if the memory reaping algorithm makes
         these bytes practically unusable";
+    }
+
+    leaf acl-memory-utilization {
+      type oc-types:percentage;
+      description
+        "Percent utilization of overall firewall or ACL memory.";
     }
 
     leaf fragment-total-pkts {
