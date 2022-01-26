@@ -1,0 +1,197 @@
+module openconfig-ate-isis {
+  yang-version "1";
+
+  namespace "http://openconfig.net/yang/ate-isis";
+  prefix "oc-ate-isis";
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-yang-types { prefix "oc-yang"; }
+  
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+     netopenconfig@googlegroups.com";
+
+  description
+    "This module defines telemetry that relates to ISIS sessions that 
+    are controlled by automated test equipment (ATE) whose definition 
+    is outside of the context of this module.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision 2022-01-21 {
+    description "Initial revision.";
+    reference "0.1.0";
+  }
+
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  grouping isis-top {
+    description
+      "Top-level structural grouping for ISIS router telemetry 
+      entries.";
+
+    container isis-routers {
+      description
+        "ISIS router telemetry collected by the ATE device.";
+
+      list isis-router {
+        key "name";
+
+        config false;
+
+        description
+          "Each ISIS router is identified by an arbitrary string 
+          identifier.";
+
+        leaf name {
+          type leafref {
+            path "../state/name";
+          }
+          description
+            "Reference to the ISIS router's name, acting as a key of 
+            the ISIS router list.";
+        }
+
+        container state {
+          description 
+            "Operational state of an individual ISIS router.";
+          uses state;
+        }
+      }
+    }
+  }
+
+  grouping state {
+    description
+      "Operational state of an individual ISIS router.";
+
+    leaf name {
+      type string;
+      description
+        "An arbitary name of the ISIS router determined by the ATE 
+        configuration.";
+    }
+
+    container level1 {
+      description
+        "Level1 state of the ISIS router.";
+      uses isis-state;
+    }
+
+    container level2 {
+      description
+        "Level2 state of the ISIS router.";
+      uses isis-state;
+    }
+  }
+
+  grouping isis-state {
+    description
+      "Operational state of the ISIS router.";
+
+    container counters {
+      description
+        "Counters of the ISIS router.";
+
+      uses isis-counters;
+    }
+  }
+
+  grouping isis-counters {
+    description
+      "Counters of the ISIS router.";
+
+    leaf sessions-up {
+      type oc-yang:counter64;
+      description
+        "The total number of sessions that are fully up.";
+    }
+
+    leaf sessions-flap {
+      type oc-yang:counter64;
+      description
+        "The total number of sessions flap.";
+    }
+
+    leaf database-size {
+      type oc-yang:counter64;
+      description
+        "The total number of link state updates (LSPs) in the LSP 
+        databases.";
+    }
+
+    leaf out-bcast-hellos {
+      type oc-yang:counter64;
+      description
+        "The total number of broadcast HELLO messages sent.";
+    }
+
+    leaf in-bcast-hellos {
+      type oc-yang:counter64;
+      description
+        "The total number of broacast HELLO messages received.";
+    }
+
+    leaf out-p2p-hellos {
+      type oc-yang:counter64;
+      description
+        "The total number of point to point (P2P) HELLO messages 
+        sent.";
+    }
+
+    leaf in-p2p-hellos {
+      type oc-yang:counter64;
+      description
+        "The total number of point to point (P2P) HELLO messages 
+        received.";
+    }
+
+    leaf out-psnp {
+      type oc-yang:counter64;
+      description
+        "The total number of partial sequence number packet (PSNPs) 
+        messages sent.";
+    }
+
+    leaf in-psnp {
+      type oc-yang:counter64;
+      description
+        "The total number of partial sequence number packet (PSNPs) 
+        messages received.";
+    }
+
+    leaf out-csnp {
+      type oc-yang:counter64;
+      description
+        "The total number of complete sequence number packet (CSNPs) 
+        messages sent.";
+    }
+
+    leaf in-csnp {
+      type oc-yang:counter64;
+      description
+        "The total number of complete sequence number packet (CSNPs) 
+        messages received.";
+    }
+
+    leaf out-lsp {
+      type oc-yang:counter64;
+      description
+        "The total number of link state protocol data units (LSPs) 
+        sent.";
+    }
+
+    leaf in-lsp {
+      type oc-yang:counter64;
+      description
+        "The total number of link state protocol data units (LSPs) 
+        received.";
+    }
+  }
+
+  uses isis-top;
+}

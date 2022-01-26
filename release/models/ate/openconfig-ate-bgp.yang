@@ -1,0 +1,213 @@
+module openconfig-ate-bgp {
+  yang-version "1";
+
+  namespace "http://openconfig.net/yang/ate-bgp";
+  prefix "oc-ate-bgp";
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-yang-types { prefix "oc-yang"; }
+  
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+     netopenconfig@googlegroups.com";
+
+  description
+    "This module defines telemetry that relates to BGP sessions that 
+    are controlled by automated test equipment (ATE) whose definition 
+    is outside of the context of this module.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision 2022-01-21 {
+    description "Initial revision.";
+    reference "0.1.0";
+  }
+
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  grouping bgp-top {
+    description
+      "Top-level structural grouping for BGP session telemetry 
+      entries.";
+
+    container bgp-peers {
+      description
+        "BGP peer session telemetry collected by the ATE device.";
+
+      list bgp-peer {
+        key "name";
+
+        config false;
+
+        description
+          "Each BGP peer is identified by an arbitrary string 
+          identifier.";
+
+        leaf name {
+          type leafref {
+            path "../state/name";
+          }
+          description
+            "Reference to the BGP peer's name, acting as a key of the 
+            BGP peer list.";
+        }
+
+        container state {
+          config false;
+
+          description
+            "Operational state of an individual BGP peer.";
+
+          uses bgp-state;
+
+          container counters {
+            description
+              "Counters of an individual BGP peer.";
+
+            uses bgp-counters;
+          }
+        }
+      }
+    }
+  }
+
+  grouping bgp-state {
+    description
+      "Operational state of the individual BGP peer.";
+
+    leaf name {
+      type string;
+      description
+        "An arbitary name of the BGP peer determined by the ATE 
+        configuration.";
+    }
+
+    leaf session-state {
+      type enumeration {
+          enum IDLE {
+            description
+              "Neighbor is down, and in the Idle state of the
+              FSM";
+          }
+          enum CONNECT {
+            description
+              "Neighbor is down, and the session is waiting for
+              the underlying transport session to be established";
+          }
+          enum ACTIVE {
+            description
+              "Neighbor is down, and the local system is awaiting
+              a connection from the remote peer";
+          }
+          enum OPEN_SENT {
+            description
+              "Neighbor is in the process of being established.
+              The local system has sent an OPEN message";
+          }
+          enum OPEN_CONFIRM {
+            description
+              "Neighbor is in the process of being established.
+              The local system is awaiting a NOTIFICATION or
+              KEEPALIVE message";
+          }
+          enum ESTABLISHED {
+            description
+              "Neighbor is up. The BGP session with the peer is 
+              established";
+          }
+        }
+        description
+          "Operational state of the BGP peer";
+    }
+  }
+
+  grouping bgp-counters {
+    description
+      "Counters of an indivdual BGP session.";
+
+    leaf flaps {
+      type oc-yang:counter64;
+      description
+        "The total number of times the BGP session went from an 
+        ESTABLISHED state to an IDLE state.";
+    }
+
+    leaf in-routes {
+      type oc-yang:counter64;
+      description
+        "The total number of routes received.";
+    }
+
+    leaf out-routes {
+      type oc-yang:counter64;
+      description
+        "The total number of routes advertised.";
+    }
+
+    leaf in-route-withdraw {
+      type oc-yang:counter64;
+      description
+        "The total number of route withdraws received.";
+    }
+
+    leaf out-route-withdraw {
+      type oc-yang:counter64;
+      description
+        "The total number of route withdraws sent.";
+    }
+
+    leaf in-updates {
+      type oc-yang:counter64;
+      description
+        "The total number of UPDATE messages received.";
+    }
+
+    leaf out-updates {
+      type oc-yang:counter64;
+      description
+        "The total number of UPDATE messages sent.";
+    }
+
+    leaf in-opens {
+      type oc-yang:counter64;
+      description
+        "The total number of OPEN messages received.";
+    }
+
+    leaf out-opens {
+      type oc-yang:counter64;
+      description
+        "The total number of OPEN messages sent.";
+    }
+
+    leaf in-keepalives {
+      type oc-yang:counter64;
+      description
+        "The total number of KEEPALIVE messages received.";
+    }
+
+    leaf out-keepalives {
+      type oc-yang:counter64;
+      description
+        "The total number of KEEPALIVE messages sent.";
+    }
+
+    leaf in-notifications {
+      type oc-yang:counter64;
+      description
+        "The total number of NOTIFICATION messages received.";
+    }
+
+    leaf out-notifications {
+      type oc-yang:counter64;
+      description
+        "The total number of NOTIFICATION messages sent.";
+    }
+  }
+
+  uses bgp-top;
+}

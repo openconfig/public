@@ -2,11 +2,12 @@ module openconfig-ate-intf {
   yang-version "1";
 
   namespace "http://openconfig.net/yang/ate-intf";
-  prefix "oc-atei";
+  prefix "oc-ate-if";
 
   import openconfig-extensions { prefix  "oc-ext"; }
   import openconfig-types { prefix "oc-types"; }
-  import openconfig-interfaces { prefix "oc-if"; }
+  import openconfig-yang-types { prefix "oc-yang"; }
+  import openconfig-inet-types { prefix "oc-inet"; }
 
   organization
     "OpenConfig working group";
@@ -16,11 +17,18 @@ module openconfig-ate-intf {
      netopenconfig@googlegroups.com";
 
   description
-    "This module defines augments to the OpenConfig tree specifically for
-    automated test equipment (ATE) devices. These parameters are not widely
-    supported by non-ATE devices.";
+    "This module defines telemetry that relates to interfaces that are 
+    defined by automated test equipment (ATE). The definition of ATE 
+    interfaces is outside of the context of this module.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision 2022-01-21 {
+    description 
+      "Migrate ATE interface to standalone module and add discovery
+      models.";
+    reference "0.2.0";
+  }
 
   revision 2019-08-07 {
     description "Initial revision.";
@@ -31,32 +39,213 @@ module openconfig-ate-intf {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
-  grouping interface-rate {
+  grouping interface-top {
     description
-      "Calculated rate parameters for interfaces supported directly by
-      ATE devices.";
+      "Top-level structural grouping for ATE interface entries.";
+
+    container interfaces {
+      description
+        "Interfaces defined by an ATE.";
+
+      list interface {
+        key "name";
+
+        config false;
+
+        description
+          "An individual interface defined by an ATE.";
+
+        leaf name {
+          type leafref {
+            path "../state/name";
+          }
+          description
+            "Reference to the interface's name, acting as a key of 
+            the interfaces list.";
+        }
+
+        container state {
+          description 
+            "Operational state of an individual ATE interface.";
+          uses state;
+        }
+
+        container neighbors {
+          description
+            "Discovered neighbors of an ATE interface";
+          uses neighbors;
+        }
+      }
+    }
+  }
+
+  grouping state {
+    description
+      "Operational state of an ATE interface.";
+
+    leaf name {
+      type string;
+      description
+        "An arbitary name of an ATE interface determined by the ATE 
+        configuration.";
+    }
+
+    leaf link {
+      type enumeration {
+        enum UP {
+          description
+            "Ready to pass packets.";
+        }
+        enum DOWN {
+          description
+            "Not ready to pass packets.";
+        }
+      }
+
+      description
+        "The current state of an ATE interface.";
+    }
 
     leaf out-rate {
       type oc-types:ieeefloat32;
       units "bps";
       description
-        "The calculated transmitted rate of the interface, measured in bits
-        per second.";
+        "The current transmit rate of an ATE interface, measured in 
+        bits per second.";
     }
 
     leaf in-rate {
       type oc-types:ieeefloat32;
       units "bps";
       description
-        "The calculate received rate of the interface, measured in bits
-        per second.";
+        "The current receive rate of an ATE interface, measured in 
+        bits per second.";
+    }
+
+    container counters {
+      description
+        "Counters of an ATE interface.";
+      uses counters;
     }
   }
 
-  augment "/oc-if:interfaces/oc-if:interface/oc-if:state" {
+  grouping counters {
     description
-      "Augment the OpenConfig interfaces base model with ATE specific
-      state parameters.";
-    uses interface-rate;
+      "Counters of an ATE interface.";
+
+      leaf out-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of octets transmitted on the interface.";
+      }
+
+      leaf in-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of octets received on the interface.";
+      }
+
+      leaf out-frames {
+        type oc-yang:counter64;
+        description
+          "The total number of packets transmitted on the interface.";
+      }
+
+      leaf in-frames {
+        type oc-yang:counter64;
+        description
+          "The total number of packets received on the interface.";
+      }
   }
+
+  grouping neighbors {
+    description
+      "Structural grouping of discovered neighbors.";
+
+    list ipv4-neighbor {
+      key ipv4-address;
+
+      description
+        "The interface neighbor state or ARP cache entry.";
+
+      leaf ipv4-address {
+        type leafref {
+          path "../state/ipv4-address";
+        }
+
+        description
+          "The IPv4 address of the neighbor.";
+      }
+
+      uses neighbor-ipv4-state;
+    }
+
+    list ipv6-neighbor {
+      key ipv6-address;
+
+      description
+        "The interface neighbor state or NDISC cache entry.";
+
+      leaf ipv6-address {
+        type leafref {
+          path "../state/ipv6-address";
+        }
+
+        description
+          "The IPv6 address of the neighbor.";
+      }
+
+      uses neighbor-ipv6-state;
+    }
+  }
+
+  grouping neighbor-ipv4-state {
+    description
+      "Structural grouping of IPv4 neighbor information.";
+
+    container state {
+      description
+        "State of IPv4 neighbor information";
+
+      leaf ipv4-address {
+        type oc-inet:ipv4-address;
+
+        description
+          "The IPv4 address of the neighbor.";
+      }
+
+      leaf link-layer-address {
+        type oc-yang:mac-address;
+
+        description
+          "The link layer address or MAC address of the neighbor.";
+      }
+    }
+  }
+
+  grouping neighbor-ipv6-state {
+    description
+      "Structural grouping of IPv6 neighbor information.";
+
+    container state {
+      description
+        "State of IPv6 neighbor information";
+
+      leaf ipv6-address {
+        type oc-inet:ipv6-address;
+
+        description
+          "The IPv6 address of the neighbor.";
+      }
+
+      leaf link-layer-address {
+        type oc-yang:mac-address;
+
+        description
+          "The link layer address or MAC address of the neighbor.";
+      }
+    }
+  }
+
+  uses interface-top;
 }
