@@ -258,6 +258,26 @@ submodule openconfig-pf-forwarding-policies {
         according to the IP destination).";
     }
 
+    leaf decapsulate-mpls-in-udp {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, the local system should remove
+        the UDP header from the packet matching the rule.
+        Following the decapsulation it should subsequently forward the
+        encapsulated packet according to the underlying MPLS label.";
+    }
+
+    leaf decapsulate-gue {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, the local system should remove
+        the Generic UDP Encapsulation (GUE) header from the packet matching the rule.
+        Following the decapsulation it should subsequently forward the
+        encapsulated packet according to the underlying IPv4 or IPv6 header.";
+    }
+
     leaf network-instance {
       type leafref {
         // this must be an absolute reference to allow another NI to be
@@ -299,26 +319,6 @@ submodule openconfig-pf-forwarding-policies {
         packets matching the match criteria for the forwarding rule
         should be forwarded to the next-hop IP address, bypassing any
         lookup on the local system.";
-    }
-
-    leaf decapsulate-mpls-in-udp {
-      type boolean;
-      default false;
-      description
-        "When this leaf is set to true, the local system should remove
-        the UDP header from the packet matching the rule.
-        Following the decapsulation it should subsequently forward the
-        encapsulated packet according to the underlying MPLS label.";
-    }
-
-    leaf decapsulate-gue {
-      type boolean;
-      default false;
-      description
-        "When this leaf is set to true, the local system should remove
-        the GUE header from the packet matching the rule.
-        Following the decapsulation it should subsequently forward the
-        encapsulated packet according to the underlying IPv4 or IPv6 header.";
     }
   }
 
