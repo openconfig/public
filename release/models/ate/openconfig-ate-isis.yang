@@ -6,7 +6,7 @@ module openconfig-ate-isis {
 
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-yang-types { prefix "oc-yang"; }
-  
+
   organization
     "OpenConfig working group";
 
@@ -15,8 +15,8 @@ module openconfig-ate-isis {
      netopenconfig@googlegroups.com";
 
   description
-    "This module defines telemetry that relates to ISIS sessions that 
-    are controlled by automated test equipment (ATE) whose definition 
+    "This module defines telemetry that relates to ISIS sessions that
+    are controlled by automated test equipment (ATE) whose definition
     is outside of the context of this module.";
 
   oc-ext:openconfig-version "0.1.0";
@@ -31,7 +31,7 @@ module openconfig-ate-isis {
 
   grouping isis-top {
     description
-      "Top-level structural grouping for ISIS router telemetry 
+      "Top-level structural grouping for ISIS router telemetry
       entries.";
 
     container isis-routers {
@@ -44,7 +44,7 @@ module openconfig-ate-isis {
         config false;
 
         description
-          "Each ISIS router is identified by an arbitrary string 
+          "Each ISIS router is identified by an arbitrary string
           identifier.";
 
         leaf name {
@@ -52,12 +52,12 @@ module openconfig-ate-isis {
             path "../state/name";
           }
           description
-            "Reference to the ISIS router's name, acting as a key of 
+            "Reference to the ISIS router's name, acting as a key of
             the ISIS router list.";
         }
 
         container state {
-          description 
+          description
             "Operational state of an individual ISIS router.";
           uses state;
         }
@@ -72,7 +72,7 @@ module openconfig-ate-isis {
     leaf name {
       type string;
       description
-        "An arbitary name of the ISIS router determined by the ATE 
+        "An arbitary name of the ISIS router determined by the ATE
         configuration.";
     }
 
@@ -120,7 +120,7 @@ module openconfig-ate-isis {
     leaf database-size {
       type oc-yang:counter64;
       description
-        "The total number of link state updates (LSPs) in the LSP 
+        "The total number of link state updates (LSPs) in the LSP
         databases.";
     }
 
@@ -139,56 +139,56 @@ module openconfig-ate-isis {
     leaf out-p2p-hellos {
       type oc-yang:counter64;
       description
-        "The total number of point to point (P2P) HELLO messages 
+        "The total number of point to point (P2P) HELLO messages
         sent.";
     }
 
     leaf in-p2p-hellos {
       type oc-yang:counter64;
       description
-        "The total number of point to point (P2P) HELLO messages 
+        "The total number of point to point (P2P) HELLO messages
         received.";
     }
 
     leaf out-psnp {
       type oc-yang:counter64;
       description
-        "The total number of partial sequence number packet (PSNPs) 
+        "The total number of partial sequence number packet (PSNPs)
         messages sent.";
     }
 
     leaf in-psnp {
       type oc-yang:counter64;
       description
-        "The total number of partial sequence number packet (PSNPs) 
+        "The total number of partial sequence number packet (PSNPs)
         messages received.";
     }
 
     leaf out-csnp {
       type oc-yang:counter64;
       description
-        "The total number of complete sequence number packet (CSNPs) 
+        "The total number of complete sequence number packet (CSNPs)
         messages sent.";
     }
 
     leaf in-csnp {
       type oc-yang:counter64;
       description
-        "The total number of complete sequence number packet (CSNPs) 
+        "The total number of complete sequence number packet (CSNPs)
         messages received.";
     }
 
     leaf out-lsp {
       type oc-yang:counter64;
       description
-        "The total number of link state protocol data units (LSPs) 
+        "The total number of link state protocol data units (LSPs)
         sent.";
     }
 
     leaf in-lsp {
       type oc-yang:counter64;
       description
-        "The total number of link state protocol data units (LSPs) 
+        "The total number of link state protocol data units (LSPs)
         received.";
     }
   }

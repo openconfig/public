@@ -6,7 +6,7 @@ module openconfig-ate-bgp {
 
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-yang-types { prefix "oc-yang"; }
-  
+
   organization
     "OpenConfig working group";
 
@@ -15,8 +15,8 @@ module openconfig-ate-bgp {
      netopenconfig@googlegroups.com";
 
   description
-    "This module defines telemetry that relates to BGP sessions that 
-    are controlled by automated test equipment (ATE) whose definition 
+    "This module defines telemetry that relates to BGP sessions that
+    are controlled by automated test equipment (ATE) whose definition
     is outside of the context of this module.";
 
   oc-ext:openconfig-version "0.1.0";
@@ -31,7 +31,7 @@ module openconfig-ate-bgp {
 
   grouping bgp-top {
     description
-      "Top-level structural grouping for BGP session telemetry 
+      "Top-level structural grouping for BGP session telemetry
       entries.";
 
     container bgp-peers {
@@ -44,7 +44,7 @@ module openconfig-ate-bgp {
         config false;
 
         description
-          "Each BGP peer is identified by an arbitrary string 
+          "Each BGP peer is identified by an arbitrary string
           identifier.";
 
         leaf name {
@@ -52,7 +52,7 @@ module openconfig-ate-bgp {
             path "../state/name";
           }
           description
-            "Reference to the BGP peer's name, acting as a key of the 
+            "Reference to the BGP peer's name, acting as a key of the
             BGP peer list.";
         }
 
@@ -82,7 +82,7 @@ module openconfig-ate-bgp {
     leaf name {
       type string;
       description
-        "An arbitary name of the BGP peer determined by the ATE 
+        "An arbitary name of the BGP peer determined by the ATE
         configuration.";
     }
 
@@ -116,7 +116,7 @@ module openconfig-ate-bgp {
           }
           enum ESTABLISHED {
             description
-              "Neighbor is up. The BGP session with the peer is 
+              "Neighbor is up. The BGP session with the peer is
               established";
           }
         }
@@ -132,7 +132,7 @@ module openconfig-ate-bgp {
     leaf flaps {
       type oc-yang:counter64;
       description
-        "The total number of times the BGP session went from an 
+        "The total number of times the BGP session went from an
         ESTABLISHED state to an IDLE state.";
     }
 
