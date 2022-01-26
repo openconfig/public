@@ -32,7 +32,7 @@ submodule openconfig-aft-pf {
 
   revision "2021-10-20" {
     description
-      "Add atomic attribute to this container.";
+      "Add atomic attribute to the policy forwarding container.";
     reference "0.9.0";
   }
 
@@ -113,6 +113,7 @@ submodule openconfig-aft-pf {
     list policy-forwarding-entry {
       key "index";
 
+      oc-ext::telemetry-atomic;
       description
         "List of the policy forwarding entries within the abstract
         forwarding table. Each entry is uniquely identified by an
@@ -139,7 +140,6 @@ submodule openconfig-aft-pf {
           AFT entry.";
         uses aft-pf-entry-state;
       }
-      oc-ext:telemetry-atomic;
     }
   }
 

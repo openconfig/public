@@ -24,7 +24,7 @@ submodule openconfig-aft-ethernet {
 
   revision "2021-10-20" {
     description
-      "Add atomic attribute to this container.";
+      "Add atomic attribute to Ethernet container.";
     reference "0.9.0";
   }
 
@@ -105,6 +105,7 @@ submodule openconfig-aft-ethernet {
     list mac-entry {
       key "mac-address";
 
+      oc-ext:telemetry-atomic;
       description
         "List of the Ethernet entries within the abstract
         forwarding table. This list is keyed by the outer MAC address
@@ -126,7 +127,6 @@ submodule openconfig-aft-ethernet {
           entry.";
         uses aft-ethernet-entry-state;
       }
-      oc-ext:telemetry-atomic;
     }
   }
 

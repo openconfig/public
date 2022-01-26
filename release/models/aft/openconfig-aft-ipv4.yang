@@ -24,7 +24,7 @@ submodule openconfig-aft-ipv4 {
 
   revision "2021-10-20" {
     description
-      "Add atomic attribute to this container.";
+      "Add atomic attribute to the IPv4 container.";
     reference "0.9.0";
   }
 
@@ -105,6 +105,7 @@ submodule openconfig-aft-ipv4 {
     list ipv4-entry {
       key "prefix";
 
+      oc-ext:telemetry-atomic;
       description
         "List of the IPv4 unicast entries within the abstract
         forwarding table. This list is keyed by the destination IPv4
@@ -126,7 +127,6 @@ submodule openconfig-aft-ipv4 {
           entry.";
         uses aft-ipv4-unicast-entry-state;
       }
-      oc-ext:telemetry-atomic;
     }
   }
 

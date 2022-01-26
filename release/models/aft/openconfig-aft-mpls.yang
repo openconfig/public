@@ -25,7 +25,7 @@ submodule openconfig-aft-mpls {
 
   revision "2021-10-20" {
     description
-      "Add atomic attribute to this container.";
+      "Add atomic attribute to the MPLS container.";
     reference "0.9.0";
   }
 
@@ -106,6 +106,7 @@ submodule openconfig-aft-mpls {
     list label-entry {
       key "label";
 
+      oc-ext::telemetry-atomic;
       description
         "List of the MPLS entries within the abstract
         forwarding table. This list is keyed by the top-most MPLS
@@ -127,7 +128,6 @@ submodule openconfig-aft-mpls {
           entry.";
         uses aft-mpls-entry-state;
       }
-      oc-ext:telemetry-atomic;
     }
   }
 
