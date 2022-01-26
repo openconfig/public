@@ -67,19 +67,19 @@ module openconfig-ate-intf {
         container state {
           description 
             "Operational state of an individual ATE interface.";
-          uses state;
+          uses interface-state;
         }
 
         container neighbors {
           description
             "Discovered neighbors of an ATE interface";
-          uses neighbors;
+          uses interface-neighbors;
         }
       }
     }
   }
 
-  grouping state {
+  grouping interface-state {
     description
       "Operational state of an ATE interface.";
 
@@ -125,11 +125,11 @@ module openconfig-ate-intf {
     container counters {
       description
         "Counters of an ATE interface.";
-      uses counters;
+      uses interface-counters;
     }
   }
 
-  grouping counters {
+  grouping interface-counters {
     description
       "Counters of an ATE interface.";
 
@@ -158,9 +158,9 @@ module openconfig-ate-intf {
       }
   }
 
-  grouping neighbors {
+  grouping interface-neighbors {
     description
-      "Structural grouping of discovered neighbors.";
+      "Structural grouping of an interface's discovered neighbors.";
 
     list ipv4-neighbor {
       key ipv4-address;
