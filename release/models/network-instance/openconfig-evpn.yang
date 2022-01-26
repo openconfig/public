@@ -1089,37 +1089,37 @@ module openconfig-evpn {
 
         container state {
           config false;
-           description
-             "Container for state parameters related to this VTEP peer";
-             uses evpn-endpoint-peer-state;
+            description
+              "Container for state parameters related to this VTEP peer";
+            uses evpn-endpoint-peer-state;
         }
       }
     }
 
     container endpoint-vnis {
       description
-        "Top level container for state information related to layer-2 and
-        layer-3 virtual network identifiers (L2/L3 VNIs) that are learned on
-        the local VXLAN Tunnel End Point from remote VTEPs in the default
-        network instance";
+        "Top level container for state information related to Layer 2 virtual
+        network identifiers (L2VNIs) and Layer 3 virtual network identifiers
+        (L3VNIs) that are learned on the local VXLAN Tunnel End Point from
+        remote VTEPs in the default network instance";
       config false;
 
       list endpoint-vni {
         key "vni";
-        description "List of L2 and L3 VNIs learned on the local VTEP";
+        description "List of L2VNIs and L3VNIs learned on the local VTEP";
 
         leaf vni {
           type leafref {
             path '../state/vni';
           }
-          description "VNI Identifier";
+          description "L2VNI or L3VNI Identifier";
         }
 
         container state {
           config false;
           description
-            "Container for state parameters related to this L2 or L3 VNI";
-             uses evpn-endpoint-vni-state;
+            "Container for state parameters related to this L2VNI or L3VNI";
+          uses evpn-endpoint-vni-state;
         }
       }
     }
@@ -1173,13 +1173,12 @@ module openconfig-evpn {
 
   grouping evpn-endpoint-vni-state {
     description
-      "Grouping for state information related layer-2 and layer-33 virtual
-      network identifiers (L2/L3 VNIs) that are learned on the local VXLAN
-      Tunnel End Point from remote VTEPs";
+      "Grouping for L2VNI and L3VNI state information learned on the
+      local VXLAN Tunnel End Point from remote VTEPs";
 
     leaf vni {
       type oc-evpn-types:evi-id;
-      description "VNI Identifier";
+      description "L2VNI or L3VNI Identifier";
     }
 
     leaf multidestination-traffic {
@@ -1219,16 +1218,17 @@ module openconfig-evpn {
       type enumeration {
         enum L2 {
           description
-            "This is a layer2 service VNI that is used for communication within
-            the same subnet or broadcast domain";
+            "This is a Layer 2 service virtual network identifier (L2VNI)
+            that is used for communication within the same subnet or
+            broadcast domain";
         }
         enum L3 {
           description
-            "This is a layer3 service VNI or VRF VNI that is used for
-            communication between subnets";
+            "This is a Layer 3 service virtual network identifier (L3VNI)
+            or VRF VNI that is used for communication between subnets";
         }
       }
-      description "The type of virtual network identfier (L2 or L3)";
+      description "The type of virtual network identfier";
     }
 
     leaf vni-state {
@@ -1244,7 +1244,7 @@ module openconfig-evpn {
             indicate that it is DOWN";
         }
       }
-      description "Operational state of the L2 or L3 Virtual Network Identifier";
+      description "Operational state of the L2VNI or L3VNI";
     }
 
     leaf svi-state {
@@ -1269,14 +1269,14 @@ module openconfig-evpn {
       type uint32;
       description
         "This reflects the configured VLAN or Bridge Domain that maps to this
-        Layer2 VNI in the VXLAN fabric";
+        L2VNI in the VXLAN fabric";
     }
 
     leaf l3-vrf-name {
       type string;
       description
-        "This refects the configured VRF instance that maps to this layer3
-        VNI that is used for routing between subnets in the VXLAN fabric";
+        "This refects the configured VRF instance that maps to this L3VNI
+        that is used for routing between subnets in the VXLAN fabric";
     }
 
   }
