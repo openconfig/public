@@ -70,10 +70,16 @@ module openconfig-ate-intf {
           uses interface-state;
         }
 
-        container neighbors {
+        container ipv4-neighbors {
           description
             "Discovered neighbors of an ATE interface";
-          uses interface-neighbors;
+          uses ipv4-neighbors;
+        }
+
+        container ipv6-neighbors {
+          description
+            "Discovered neighbors of an ATE interface";
+          uses ipv6-neighbors;
         }
       }
     }
@@ -158,12 +164,13 @@ module openconfig-ate-intf {
       }
   }
 
-  grouping interface-neighbors {
+  grouping ipv4-neighbors {
     description
-      "Structural grouping of an interface's discovered neighbors.";
+      "Structural grouping of an interface's discovered IPv4
+      neighbors.";
 
     list ipv4-neighbor {
-      key ipv4-address;
+      key "ipv4-address";
 
       description
         "The interface neighbor state or ARP cache entry.";
@@ -179,9 +186,15 @@ module openconfig-ate-intf {
 
       uses neighbor-ipv4-state;
     }
+  }
+
+  grouping ipv6-neighbors {
+    description
+      "Structural grouping of an interface's discovered IPv6
+      neighbors.";
 
     list ipv6-neighbor {
-      key ipv6-address;
+      key "ipv6-address";
 
       description
         "The interface neighbor state or NDISC cache entry.";
