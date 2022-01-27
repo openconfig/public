@@ -27,8 +27,7 @@ submodule openconfig-aft-common {
 
   revision "2022-01-26" {
     description
-      "Add vni-label property under next-hops for forwarding entries
-      that are learned from a remote VNI";
+      "Add vni-label and tunnel-src-ip-address properties under next-hops";
     reference "0.9.0";
   }
 
@@ -244,6 +243,13 @@ submodule openconfig-aft-common {
         network identifier (VNI) for the forwarding entry. This leaf is
         applicable only to next-hops which include VXLAN encapsulation
         header information";
+    }
+
+    leaf tunnel-src-ip-address {
+      type oc-inet:ip-address;
+      description
+        "Where applicable this represents the tunnel source ip address.
+        For VXLAN this represents the source VTEP ip address";
     }
   }
 
