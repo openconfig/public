@@ -31,6 +31,12 @@ submodule openconfig-aft-common {
     reference "0.10.0";
   }
 
+  revision "2021-12-09" {
+    description
+      "Add pop-top-label in NH AFT entry state";
+    reference "0.9.0";
+  }
+
   revision "2021-08-06" {
     description
       "Add references to the network instance within which to resolve
@@ -289,6 +295,17 @@ submodule openconfig-aft-common {
       description
         "The MAC address of the next-hop if resolved by the local
         network instance.";
+    }
+
+    leaf pop-top-label {
+      type boolean;
+      default false;
+      description
+        "Flag that controls pop action, i.e., the top-most MPLS label
+         should be popped from the packet when switched by the system.
+
+        The top-most MPLS label associated with pop action is equal to
+        the label key used in 'mpls' AFT 'label-entry' list.";
     }
 
     leaf-list pushed-mpls-label-stack {
