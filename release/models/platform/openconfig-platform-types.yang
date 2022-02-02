@@ -303,6 +303,24 @@ module openconfig-platform-types {
       "Component is administratively disabled.";
   }
 
+  identity MASTER {
+    base COMPONENT_OPER_STATUS;
+    description
+      "Component is up and acting the master role. For example, 
+      a device might have dual routing engine components for 
+      redundancy purpose, with one being the master and the other 
+      backup.";
+  }
+
+  identity BACKUP {
+    base COMPONENT_OPER_STATUS;
+    description
+      "Component is up and acting the backup role. For example, 
+      a device might have dual routing engine components for 
+      redundancy purpose, with one being the master and the other 
+      backup.";
+  }
+
   identity FEC_MODE_TYPE {
     description
       "Base identity for FEC operational modes.";
@@ -359,5 +377,57 @@ module openconfig-platform-types {
     description
       "A generic type reflecting whether a hardware component
       is powered on or off";
+  }
+
+  identity COMPONENT_SWITCHOVER_REASON {
+    description
+    "For components that have redundant roles (e.g. two 
+    supervisors in a device, one as master the other as backup), 
+    this is the base entity for the role switchover reason of 
+    the component.";
+  }
+
+  identity SWITCHOVER_USER_INITIATED {
+    base COMPONENT_SWITCHOVER_REASON;
+    description
+      "User initiated the switchover of the componenent's 
+      master/backup role.";
+  }
+
+  identity SWITCHOVER_LOST_MASTER {
+    base COMPONENT_SWITCHOVER_REASON;
+    description
+      "The component assumes master role due 
+      to lost of communication with component of the master role.";
+  }
+
+  identity SWITCHOVER_PRIORITY_CONTENTION {
+    base COMPONENT_SWITCHOVER_REASON;
+    description
+      "The component changed its role due to role priority 
+      contention with other components";
+  }
+
+  identity COMPONENT_REBOOT_REASON {
+    description
+      "Base entity for component reboot reasons.";
+  }
+
+  identity REBOOT_USER_INITIATED {
+    base COMPONENT_REBOOT_REASON;
+    description
+      "User initiated the reboot of the componenent.";
+  }
+
+  identity REBOOT_LOST_POWER {
+    base COMPONENT_REBOOT_REASON;
+    description
+      "The component reboots due to lost of power.";
+  }
+
+  identity REBOOT_CRITICAL_ERROR {
+    base COMPONENT_REBOOT_REASON;
+    description
+      "The component reboots due to critical errors.";
   }
 }
