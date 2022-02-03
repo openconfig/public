@@ -63,7 +63,14 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.14.0";
+  oc-ext:openconfig-version "0.15.0";
+
+  revision "2022-02-02" {
+    description
+      "Add new state data for component reboot and
+      switchover.";
+    reference "0.15.0";
+  }
 
   revision "2021-08-13" {
     description
@@ -435,6 +442,40 @@ module openconfig-platform {
         this reference must be kept synchronized with the
         corresponding subcomponent reference from the parent
         component.";
+    }
+    
+    leaf last-switchover-reason {
+      type identityref {
+        base oc-platform-types:COMPONENT_SWITCHOVER_REASON;
+      }
+      description
+        "For components that have redundant roles (e.g. two
+        supervisors in a device, one as master the other as backup),
+        this reports the reason of the last change of the
+        component's role.";
+    }
+
+    leaf last-switchover-time {
+      type oc-yang:date;
+      description
+        "For components that have redundant roles (e.g. two
+        supervisors in a device, one as master the other as backup),
+        this reports the time of the last change of the
+        component's role.";
+    }
+
+    leaf last-reboot-reason {
+      type identityref {
+        base oc-platform-types:COMPONENT_REBOOT_REASON;
+      }
+      description
+        "This reports the reason of the last reboot of the component.";
+    }
+
+    leaf last-reboot-time {
+      type oc-yang:date;
+      description
+        "This reports the time of the last reboot of the component.";
     }
   }
 
