@@ -29,6 +29,7 @@ module openconfig-network-instance {
   import openconfig-pim { prefix "oc-pim"; }
   import openconfig-igmp { prefix "oc-igmp"; }
   import openconfig-evpn { prefix "oc-evpn"; }
+  import openconfig-pcep { prefix "oc-pcep"; }
 
   // include submodules
   include openconfig-network-instance-l2;
@@ -47,7 +48,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.16.2";
+  oc-ext:openconfig-version "0.17.0";
+  
+    revision "2022-04-02" {
+    description
+      "Add pcep protocol to network-instance";
+    reference "0.17.0";
+  }
 
   revision "2021-11-17" {
     description
@@ -832,6 +839,17 @@ module openconfig-network-instance {
               description
                 "Configuration and state parameters relating to the Internet
                 Group Management Protocol (IGMP).";
+            }
+
+			uses oc-pcep:pcep-top {
+              when "./config/identifier = 'PCEP'" {
+                description
+                  "Include PCEP configuration when the protocol is of type
+                  PCEP";
+              }
+              description
+                "Configuration and state parameters relating to the Path
+                Computation Element Protocol (PCEP).";
             }
 
           }
