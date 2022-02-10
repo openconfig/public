@@ -1,0 +1,180 @@
+module openconfig-system-controlplane {
+  yang-version "1";
+
+  namespace "http://openconfig.net/yang/system-controlplane";
+  prefix "oc-sys-copp";
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-system { prefix oc-sys; }
+  import openconfig-acl { prefix oc-acl; }
+  import openconfig-qos { prefix oc-qos; }
+
+  organization
+    "OpenConfig working group";
+  contact
+    "www.openconfig.net";
+
+  description
+    "This module adds configuration and operational state relating to
+    policies for traffic destined to the system's control-plane.
+    Particularly, it allows for mechanisms to:
+     - apply an ACL that forwards or drops traffic towards the control-plane.
+     - classify traffic that is destined to the control-plane according to
+       a QoS classifier.
+     - schedule traffic that has been forwarded towards the control-plane,
+       to allow for policies such as rate limits to be applied.
+    The configured policies apply generically to all control-planes that
+    exist within the system, and should be mapped to the internal interfaces
+    via which packets are forwarded to control-plane modules.
+    When a packet is received at an input interface - it is classified into a
+    forwarding group which drains to a specific queue. If this input mapping
+    is sufficient, the CPU-facing interface uses the specified scheduler
+    to determine how to drain queues. If more granular remapping is required
+    (e.g., to classify control-plane traffic more granularly), a user specifies
+    an alternate classifier that is used to reclassify traffic into
+    a new set of forwarding-groups (and hence queues) that can subsequently
+    be scheduled by the specified scheduler.
+    The specified control-plane ACL is applied to traffic received by the
+    control-plane of the system.";
+
+
+  oc-ext:openconfig-version "0.1.0";
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  revision "2021-08-02" {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  grouping system-controlplane-top {
+    description
+      "Top-level structural grouping for control-plane traffic policies.";
+
+    container control-plane-traffic {
+      description
+        "Policies and configuration relating to the traffic destined towards
+        the system control-plane.";
+
+      container config {
+        description
+          "Configuration parameters relating to control-plane traffic.";
+
+        uses system-controlplane-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters relating to control-plane traffic.";
+
+        uses system-controlplane-config;
+      }
+
+      container acls {
+        description
+          "Access control lists (ACLs) that are to be applied on traffic
+          destined for the control-plane. An ACL per traffic type
+          can be applied.";
+
+        list acl {
+          key "type";
+
+          description
+            "The ACL that is to be applied to traffic destined towards the
+            control-plane is specified by an entry in this list. Only
+            one ACL may be applied per address-family supported by
+            the system.";
+
+          leaf type {
+            type leafref {
+              path "../config/type";
+            }
+            description
+              "Reference to the type of the ACL set to be applied.";
+          }
+
+          container config {
+            description
+              "Configuration parameters for control-plane ACLs.";
+
+            uses acl-config;
+          }
+
+          container state {
+            config false;
+            description
+              "Operational state parameters for control-plane ACLs.";
+
+            uses acl-config;
+          }
+
+          // TODO(robjs): add per-ACE counters here when structure is agreed.
+      }
+     }
+   }
+  }
+
+  grouping acl-config {
+    description
+      "Grouping for configuration parameters relating to control-plane ACLs.";
+
+    leaf name {
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set[oc-acl:type=current()/../type]" +
+             "/oc-acl:config/oc-acl:name";
+      }
+      description
+        "Reference to ACL to be applied on traffic destined towards the control-plane.
+        The ACL must be of the type specified by the 'type' leaf in this context.";
+    }
+
+    leaf type {
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/oc-acl:config/oc-acl:type";
+      }
+      description
+        "The address family for which the ACL applies. This must correspond to a type
+        for which at least one ACL on the system is defined.
+        The tuple of <type,name> defines the ACL to be applied.";
+    }
+  }
+
+  grouping system-controlplane-config {
+    description
+      "Grouping for configuration parameters relating to the system
+      control-plane.";
+
+    leaf classifier-name {
+      type leafref {
+        path "/oc-qos:qos/oc-qos:classifiers/oc-qos:classifier/" +
+            "oc-qos:config/oc-qos:name";
+      }
+      description
+        "Reference to a classifier that is used to classify traffic
+        destined to the control-plane of the system.
+        This classifier determines how packets that match each terms
+        are classified into forwarding groups, and subsequently into
+        queues to be forwarded.";
+    }
+
+    leaf scheduler {
+      type leafref {
+        path "/oc-qos:qos/oc-qos:scheduler-policies/oc-qos:scheduler-policy/" +
+            "oc-qos:config/oc-qos:name";
+      }
+      description
+        "Reference to a scheduler policy that determines rate limits, or
+        shaping of packets towards the control-plane.";
+    }
+  }
+
+
+  augment "/oc-sys:system" {
+    description
+      "Add control-plane configuration and state to the system model.";
+
+    uses system-controlplane-top;
+  }
+}
