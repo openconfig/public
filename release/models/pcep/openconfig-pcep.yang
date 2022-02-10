@@ -10,7 +10,7 @@ module openconfig-pcep {
   // import some basic types
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-inet-types { prefix "oc-inet"; }
-  
+
   // meta
   organization
     "OpenConfig working group";
@@ -60,12 +60,12 @@ module openconfig-pcep {
       "Initial revision.";
     reference "0.1.0";
   }
-  
+
   // OpenConfig specific extensions for module metadata.
   oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
-  
+
   // typedef statements
 
   typedef pce-mode-type {
@@ -116,13 +116,13 @@ module openconfig-pcep {
       "The LSP path can be delegated to PCE, locally controled by PCC
 	  or only report information state to the PCE.";
     reference "RFC8231";
-  }  
-      
+  }
+
   grouping pcep-servers-top {
     description
       "Configuration and state data for establishing
 	  a PCEP session with pce servers.";
-	  
+
 	container path-computation-servers {
       description
         "Defines pce server parameters.";
@@ -132,14 +132,14 @@ module openconfig-pcep {
         description
           "Configuration and state information for
 		  communication with a pce server.";
-		  
+
         leaf pce-server-address {
           type leafref {
             path "../config/pce-server-address";
           }
           description
               "IPv4 address of pce server.";
-        }     
+        }
 
         container config {
           description
@@ -165,11 +165,11 @@ module openconfig-pcep {
     description
       "Configuration data for establishing
 	  a PCEP session with pce servers.";
-    
+
     leaf pce-server-address {
       type oc-inet:ip-address;
       description
-		"The destination IP address of the PCE server for PCEP service. 
+		"The destination IP address of the PCE server for PCEP service.
 		Repeat this step to specify multiple PCE servers to provide redundancy.
 		When multiple candidate servers are specified for a single client,
 		they are prioritized according to preference.";
@@ -186,20 +186,20 @@ module openconfig-pcep {
       default 4189;
       description
 		"The destination TCP port used for PCEP service in the PCE server.";
-	} 
+	}
 
     leaf pce-client-address {
       type oc-inet:ip-address;
       description
 		"The source IP address used by PCC(Router) to establish PCEP session.";
-	} 
+	}
 	
 	leaf pce-type {
       type pce-mode-type;
       description
 		"The type of PCEP capability supported which is advertised in the Open message
 		when a PCEP session is established.";
-	} 
+	}
 	
 	leaf preference {
       type uint8;
@@ -210,15 +210,15 @@ module openconfig-pcep {
 		on vendor implementation.
 		If no preference value is set, indicate the lowest preference
 		or no preference at all.";
-	} 
+	}
 	
 	leaf report-local-lsp {
       type boolean;
       description
 		"Specifies whether the PCC(Router) will advertise LSP existence and state
-		for LSPs that are not controlled by any PCE (for example,LSPs that are 
+		for LSPs that are not controlled by any PCE (for example,LSPs that are
 		statically configured at the PCC) but without delegating them.";
-	} 
+	}
 	
 	leaf pce-initiated-capability-enable {
       type boolean;
@@ -226,7 +226,7 @@ module openconfig-pcep {
       description
 		"Indicates to PCE that PCC(Router) supports PCE-initiated LSP paths instantiation.
 		A PCE can initiate LSPs only for PCCs that advertised this capability.";
-	} 
+	}
 	
 	leaf sr-capability-enable {
       type boolean;
@@ -234,14 +234,14 @@ module openconfig-pcep {
       description
 		"Indicates to PCE that PCC(Router) supports Segment-Routing
 		to set up LSP paths in addition to RSVP-TE.";
-	} 
+	}
   }
- 
+
   grouping pcep-timers-top {
     description
       "Configuration and state data for timers applicable
 	  to a established PCEP session with pce server.";
-	   
+
     container timers {
       description
         "This container defines PCEP timers.";
@@ -266,23 +266,23 @@ module openconfig-pcep {
   grouping pcep-timers-config  {
     description
       "Defines timers that applies to a PCEP session.";
-	  
+
     leaf keepalive {
       type uint8;
 	  units seconds;
 	  default 30;
       description
 		"Interval for sending keepalive messages over PCE session.";
-	} 
-  
+	}
+
     leaf deadtimer {
       type uint8;
 	  units seconds;
 	  default 120;
       description
 		"Interval after which PCE session is declared dead.";
-	} 
-	
+	}
+
 	leaf redelegation-timeout-interval {
       type uint16;
 	  units seconds;
@@ -290,7 +290,7 @@ module openconfig-pcep {
 		"When a PCEP session is terminated, the period of time a PCC waits
 		before revoking LSP delegation and attempting to redelegate LSPs
 		associated with the terminated PCEP session to an alternate PCE.";
-	} 
+	}
 	
 	leaf state-timeout-interval {
       type uint16;
@@ -299,7 +299,7 @@ module openconfig-pcep {
 		"When a PCEP session is terminated, the period of time a PCC waits
 		before before flushing LSP state associated with that PCEP session
 		and reverting to operator-defined default parameters or behaviors.";
-	} 
+	}
   }
 	
   grouping pcep-top {
@@ -309,10 +309,8 @@ module openconfig-pcep {
     container pcep {
       description
         "Top-level PCEP configuration and operational state.";
-    
-      uses pcep-servers-top;	  
+
+      uses pcep-servers-top;
     }
   }
 }
-  
-  
