@@ -22,36 +22,35 @@ module openconfig-pcep {
   description
     "This module defines configuration and operational state data
     relating to Path Computation Element Protocol (PCEP)for communications
-	between a network element (router) acting as PCC and a PCE server,
-	according to RFC4655 definitions:
-	
-	 -PCC:  Path Computation Client; any client application requesting a
+    between a network element (router) acting as PCC and a PCE server,
+    according to RFC4655 definitions:
+
+     -PCC:  Path Computation Client; any client application requesting a
       path computation to be performed by a Path Computation Element.
 
      -PCE:  Path Computation Element; an entity (component, application, or
       network node) that is capable of computing a network path or route
       based on a network graph and applying computational constraints.
-	
-	Also according to RFC4655, a PCE can be either stateful or stateless.
-	In the former case, there is a strict synchronization between the PCE
-	and not only the network states (in term of topology and resource information),
-	but also the set of computed paths and reserved resources in use in the network.
-	Conversely, stateless PCEs do not have to remember any computed path
-    and each set of request(s) is processed independently of each other.
-    For example, stateless PCEs may compute paths based on current TED
-    information, which could be out of sync with actual network state
-    given other recent PCE-computed paths changes.
-	
-	On the other hand, RFC8051 defines for Stateful PCE two modes of operation:
-	
-	 -Passive Stateful PCE:  a PCE that uses LSP state information learned
-      from PCCs to optimize path computations.  It does not actively
-      update LSP state.  A PCC maintains synchronization with the PCE.
 
-     -Active Stateful PCE:  a PCE that may issue recommendations to the
-      network.  For example, an Active Stateful PCE may use the
-      Delegation mechanism to update LSP parameters in those PCCs that
-      delegate control over their LSPs to the PCE.";
+     Also according to RFC4655, a PCE can be either stateful or stateless.
+     In the former case, there is a strict synchronization between the PCE
+     and not only the network states (in term of topology and resource information),
+     but also the set of computed paths and reserved resources in use in the network.
+     Conversely, stateless PCEs do not have to remember any computed path
+     and each set of request(s) is processed independently of each other.
+     For example, stateless PCEs may compute paths based on current TED
+     information, which could be out of sync with actual network state
+     given other recent PCE-computed paths changes.
+
+     On the other hand, RFC8051 defines for Stateful PCE two modes of operation:
+
+       -Passive Stateful PCE:  a PCE that uses LSP state information learned
+        from PCCs to optimize path computations.  It does not actively update LSP state.
+        A PCC maintains synchronization with the PCE.
+
+       -Active Stateful PCE:  a PCE that may issue recommendations to the network.
+        For example, an Active Stateful PCE may use the Delegation mechanism to update
+	LSP parameters in those PCCs that delegate control over their LSPs to the PCE.";
 
   oc-ext:openconfig-version "0.1.0";
 
@@ -78,21 +77,21 @@ module openconfig-pcep {
         description
           "PCEP peer announce Stateful Passive capability";
       }
-	  enum STATEFUL-ACTIVE {
+      enum STATEFUL-ACTIVE {
         description
           "PCEP peer announce Stateless Active";
       }
     }
     description
       "The type of PCEP capability supported which is advertised in the Open
-	  message when a PCEP session is established. It could be:
+      message when a PCEP session is established. It could be:
         - Stateless PCEs: A PCE that do not have to remember any computed path
-		and each set of request(s) is processed independently of each other(RFC4655).
+	  and each set of request(s) is processed independently of each other(RFC4655).
         - Passive Stateful PCE:  a PCE that uses LSP state information learned from PCCs
-		to optimize path computations, but it does not actively update LSP state(RFC8051).
-		- Active Stateful PCE:  a PCE that may issue recommendations to the network by using
-		the Delegation mechanism to update LSP parameters in those PCCs that delegate control
-		over their LSPs to the PCE (RFC8051).";
+	  to optimize path computations, but it does not actively update LSP state(RFC8051).
+	- Active Stateful PCE:  a PCE that may issue recommendations to the network by using
+	  the Delegation mechanism to update LSP parameters in those PCCs that delegate control
+	  over their LSPs to the PCE (RFC8051).";
     reference "RFC4555/RFC8051";
   }
 
@@ -106,33 +105,32 @@ module openconfig-pcep {
         description
           "PCC(Router) don't allow or revoke control over LSP path to PCE (stateless) ";
       }
-	  enum PCC_REPORT_ONLY {
+      enum PCC_REPORT_ONLY {
         description
           "PCC(Router) only inform to a PCE whenever the state of an LSP changes,
-		  but without delegating control (stateful passive)";
+	  but without delegating control (stateful passive)";
       }
     }
     description
       "The LSP path can be delegated to PCE, locally controled by PCC
-	  or only report information state to the PCE.";
+      or only report information state to the PCE.";
     reference "RFC8231";
   }
 
   grouping pcep-servers-top {
     description
-      "Configuration and state data for establishing
-	  a PCEP session with pce servers.";
-
-	container path-computation-servers {
+      "Configuration and state data for establishing a PCEP session with pce servers.";
+      
+    container path-computation-servers {
       description
         "Defines pce server parameters.";
-
+	
       list path-computation-server {
         key "pce-server-address";
+	
         description
-          "Configuration and state information for
-		  communication with a pce server.";
-
+          "Configuration and state information for communication with a pce server.";
+	  
         leaf pce-server-address {
           type leafref {
             path "../config/pce-server-address";
@@ -156,91 +154,89 @@ module openconfig-pcep {
           uses pce-server-config;
         }
 		
-		uses pcep-timers-top;
+	uses pcep-timers-top;
       }
     }
   }
 	
   grouping pce-server-config {
     description
-      "Configuration data for establishing
-	  a PCEP session with pce servers.";
+      "Configuration data for establishing a PCEP session with pce servers.";
 
     leaf pce-server-address {
       type oc-inet:ip-address;
       description
-		"The destination IP address of the PCE server for PCEP service.
-		Repeat this step to specify multiple PCE servers to provide redundancy.
-		When multiple candidate servers are specified for a single client,
-		they are prioritized according to preference.";
-	}
+	"The destination IP address of the PCE server for PCEP service.
+	Repeat this step to specify multiple PCE servers to provide redundancy.
+	When multiple candidate servers are specified for a single client,
+	they are prioritized according to preference.";
+    }
 	
-	leaf pce-server-id {
+    leaf pce-server-id {
       type string;
       description
-		"A unique name for the pce server.";
-	}
+	"A unique name for the pce server.";
+    }
 
     leaf pce-server-port {
       type oc-inet:port-number;
       default 4189;
       description
-		"The destination TCP port used for PCEP service in the PCE server.";
-	}
+	"The destination TCP port used for PCEP service in the PCE server.";
+    }
 
     leaf pce-client-address {
       type oc-inet:ip-address;
       description
-		"The source IP address used by PCC(Router) to establish PCEP session.";
-	}
+	"The source IP address used by PCC(Router) to establish PCEP session.";
+    }
 	
-	leaf pce-type {
+    leaf pce-type {
       type pce-mode-type;
       description
-		"The type of PCEP capability supported which is advertised in the Open message
-		when a PCEP session is established.";
-	}
+	"The type of PCEP capability supported which is advertised in the Open message
+	when a PCEP session is established.";
+    }
 	
-	leaf preference {
+    leaf preference {
       type uint8;
       description
-		"When multiple PCE servers are specified, the candidate PCE server
-		with the highest preference is selected to calculate paths.
-		The greater or lower the value, the higher the preference could depend
-		on vendor implementation.
-		If no preference value is set, indicate the lowest preference
-		or no preference at all.";
-	}
-	
-	leaf report-local-lsp {
+	"When multiple PCE servers are specified, the candidate PCE server
+	with the highest preference is selected to calculate paths.
+	The greater or lower the value, the higher the preference could
+	dependon vendor implementation. If no preference value is set, indicate
+	the lowest preference or no preference at all.";
+    }
+
+    leaf report-local-lsp {
       type boolean;
       description
-		"Specifies whether the PCC(Router) will advertise LSP existence and state
-		for LSPs that are not controlled by any PCE (for example,LSPs that are
-		statically configured at the PCC) but without delegating them.";
-	}
+	"Specifies whether the PCC(Router) will advertise LSP existence and state
+	for LSPs that are not controlled by any PCE (for example,LSPs that are
+	statically configured at the PCC) but without delegating them.";
+     }
 	
-	leaf pce-initiated-capability-enable {
-      type boolean;
-	  default false;
-      description
-		"Indicates to PCE that PCC(Router) supports PCE-initiated LSP paths instantiation.
-		A PCE can initiate LSPs only for PCCs that advertised this capability.";
-	}
+     leaf pce-initiated-capability-enable {
+       type boolean;
+       default false;
+       description
+	 "Indicates to PCE that PCC(Router) supports PCE-initiated LSP paths instantiation.
+	 A PCE can initiate LSPs only for PCCs that advertised this capability.";
+     }
 	
-	leaf sr-capability-enable {
-      type boolean;
-	  default false;
-      description
-		"Indicates to PCE that PCC(Router) supports Segment-Routing
-		to set up LSP paths in addition to RSVP-TE.";
-	}
+     leaf sr-capability-enable {
+       type boolean;
+       default false;
+       description
+	  "Indicates to PCE that PCC(Router) supports Segment-Routing
+	  to set up LSP paths in addition to RSVP-TE.";
+     }
   }
 
   grouping pcep-timers-top {
     description
       "Configuration and state data for timers applicable
-	  to a established PCEP session with pce server.";
+      to a established PCEP session with pce server.";
 
     container timers {
       description
@@ -260,7 +256,7 @@ module openconfig-pcep {
 
         uses pcep-timers-config;
       }
-  	}
+    }
   }
 
   grouping pcep-timers-config  {
@@ -269,37 +265,37 @@ module openconfig-pcep {
 
     leaf keepalive {
       type uint8;
-	  units seconds;
-	  default 30;
+      units seconds;
+      default 30;
       description
-		"Interval for sending keepalive messages over PCE session.";
-	}
+	"Interval for sending keepalive messages over PCE session.";
+    }
 
     leaf deadtimer {
       type uint8;
-	  units seconds;
-	  default 120;
+      units seconds;
+      default 120;
       description
-		"Interval after which PCE session is declared dead.";
-	}
-
-	leaf redelegation-timeout-interval {
+	"Interval after which PCE session is declared dead.";
+    }
+    
+    leaf redelegation-timeout-interval {
       type uint16;
-	  units seconds;
+      units seconds;
       description
-		"When a PCEP session is terminated, the period of time a PCC waits
-		before revoking LSP delegation and attempting to redelegate LSPs
-		associated with the terminated PCEP session to an alternate PCE.";
-	}
+	"When a PCEP session is terminated, the period of time a PCC waits
+	before revoking LSP delegation and attempting to redelegate LSPs
+	associated with the terminated PCEP session to an alternate PCE.";
+     }
 	
-	leaf state-timeout-interval {
+     leaf state-timeout-interval {
       type uint16;
-	  units seconds;
+      units seconds;
       description
-		"When a PCEP session is terminated, the period of time a PCC waits
-		before before flushing LSP state associated with that PCEP session
-		and reverting to operator-defined default parameters or behaviors.";
-	}
+	"When a PCEP session is terminated, the period of time a PCC waits
+	before before flushing LSP state associated with that PCEP session
+	and reverting to operator-defined default parameters or behaviors.";
+      }
   }
 	
   grouping pcep-top {
