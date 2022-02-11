@@ -22,7 +22,7 @@ regard to ordering of the rules in the configuration.
 
 ## Best Match
 
-Authorization is performed for a singular user, gNMI path accessed, and access
+Authorization is performed for a singular user, gNMI path access, and access
 methodology (READ/WRITE). The result of an Authorization evaluation is an
 Action (Permit/Deny), policy version, and rule identifier.
 
