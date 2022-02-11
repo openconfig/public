@@ -3,7 +3,7 @@
 ## Objective
 
 This proto definition and the reference code(to be delivered seperately) serve
-to describe an authorization framework for controlling which OpenConfig paths of
+to describe an authorization framework for controlling which gNMI paths of
 a network device users can access. The authorization policy is initially intended
 to be deployed to a device, with the ability to define:
 
@@ -16,7 +16,7 @@ Authentication information is not included in this Authorization configuration.
 
 Policy rules are matched based on the best match for the authorization request,
 not the first match against a policy rule. Best match enables a configuration
-which permits a user or group access to particular OpenConfig paths while
+which permits a user or group access to particular gNMI paths while
 denying subordinate portions of the permitted paths, or the converse, without
 regard to ordering of the rules in the configuration.
 
@@ -39,7 +39,7 @@ raised.
 Match rules permit a match against:
 
 *   User or Group (not both)
-*   an OpenConfig gNMI path
+*   an gNMI gNMI path
 *   an access method (READ or WRITE)
 
 An implicit deny is assumed, if there is no matching rule in the policy. Logging
@@ -52,8 +52,8 @@ for which the user has no access no data will be returned. A WRITE request
 which attempts to write to a denied subtree or element will return an error
 to the caller.
 
-[OpenConfig paths](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md#222-paths)
-are heirarchical, and rooted at a defined "origin". OpenConfig may contain paths
+[gNMI paths](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md#222-paths)
+are heirarchical, and rooted at a defined "origin". gNMOpenConfigI may contain paths
 such as:
 
 ```proto
