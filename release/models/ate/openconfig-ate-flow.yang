@@ -9,6 +9,7 @@ module openconfig-ate-flow {
   import openconfig-types { prefix "oc-types"; }
   import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-mpls-types { prefix "oc-mplst"; }
+  import openconfig-vlan-types { prefix "oc-vlan"; }
 
   organization
     "OpenConfig working group";
@@ -161,6 +162,12 @@ module openconfig-ate-flow {
         "The destination IPv6 value of the traffic header.";
     }
 
+    leaf vlan-id {
+      type oc-vlan:vlan-id;
+      description
+        "The VLAN ID of the traffic header.";
+    }
+
     leaf filter {
       type string;
       description
@@ -252,7 +259,7 @@ module openconfig-ate-flow {
         fields to the flow statistics specific to frames that match that
         combination.";
 
-      key "src-port dst-port mpls-label src-ipv4 dst-ipv4 src-ipv6 dst-ipv6";
+      key "src-port dst-port mpls-label src-ipv4 dst-ipv4 src-ipv6 dst-ipv6 vlan-id";
 
       leaf src-port {
         type leafref {
@@ -308,6 +315,14 @@ module openconfig-ate-flow {
         }
         description
           "The dst IPv6 value of the traffic header.";
+      }
+
+      leaf vlan-id {
+        type leafref {
+          path "../state/vlan-id";
+        }
+        description
+          "The VLAN ID value of the traffic header.";
       }
 
       container state {
