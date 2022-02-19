@@ -391,8 +391,9 @@ Additionally, the path elements beyond "message_path" are available for access
 to this group as well.
 
 The wildcard character "*" (asterisk) is only able to be used as a value in
-keyed elements. The wildcard is only used to mask out all possible values but
-not portions of values, for instance:
+keyed elements, if the keys are missing in a keyed path a wildcard is assumed.
+The wildcard is only used to mask out all possible values but not portions of
+values, for instance:
 
 ```shell
     /this/is/a/keyed[name=*]/things - permitted usage of wildcard
