@@ -55,12 +55,15 @@ enum Action {
   ACTION_PERMIT = 2;
 }
 
-// Level is either READ or WRITE, whether or not the path being
-// accessed is mutable by the calling entity.
+// Level is:
+//   READ: Ability to view/read data.
+//   SUBSCRIBE: Ability to subscribe for updates to data.
+//   WRITE: Ability to mutate data.
 enum Level {
   LEVEL_UNDEFINED = 0;
   LEVEL_READ = 1;
-  LEVEL_WRITE = 2;
+  LEVEL_SUBSCRIBE = 2;
+  LEVEL_WRITE = 3;
 }
 
 message AuthorizationRule {

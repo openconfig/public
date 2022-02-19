@@ -3,8 +3,8 @@
 ## Objective
 
 This proto definition and the reference code(to be delivered seperately) serve
-to describe an authorization framework for controlling which gNMI paths of
-a network device users can access. The authorization policy is initially intended
+to describe an authorization framework for controlling which gNMI paths of a
+network device users can access. The authorization policy is initially intended
 to be deployed to a device, with the ability to define:
 
 *   Policy rules - each rule defines a single authorization policy.
@@ -40,17 +40,17 @@ Match rules permit a match against:
 
 *   User or Group (not both)
 *   an gNMI gNMI path
-*   an access method (READ or WRITE)
+*   an access method (READ / WRITE / SUBSCRIBE)
 
 An implicit deny is assumed, if there is no matching rule in the policy. Logging
 may be specified on a per-policy-rule basis as well as a default for the whole
 authorization policy.
 
-As a request is evaluated against the configured policy, a READ request for
-the configuration tree may traverse all of the tree. For portions of the tree
-for which the user has no access no data will be returned. A WRITE request
-which attempts to write to a denied subtree or element will return an error
-to the caller.
+As a request is evaluated against the configured policy, a READ / SUBSCRIBE
+request for the configuration tree may traverse all of the tree. For portions of
+the tree for which the user has no access no data will be returned. A WRITE
+request which attempts to write to a denied subtree or element will return an
+error to the caller.
 
 [gNMI paths](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md#222-paths)
 are heirarchical, and rooted at a defined "origin". gNMOpenConfigI may contain paths
