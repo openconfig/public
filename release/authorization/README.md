@@ -49,8 +49,8 @@ authorization policy.
 As a request is evaluated against the configured policy, a READ / SUBSCRIBE
 request for the configuration tree may traverse all of the tree and subtrees.
 For portions of the tree for which the user has no access no data will be
-returned. A WRITE request which attempts to write to a denied subtree or element
-will return an error to the caller.
+returned. A WRITE request which attempts to write to a denied gNMI path or
+element will return an error to the caller.
 
 [gNMI paths](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md#222-paths)
 are heirarchical, and rooted at a defined "origin". gNMOpenConfigI may contain paths
