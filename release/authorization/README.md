@@ -53,7 +53,7 @@ returned. A WRITE request which attempts to write to a denied gNMI path or
 element will return an error to the caller.
 
 [gNMI paths](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md#222-paths)
-are heirarchical, and rooted at a defined "origin". gNMOpenConfigI may contain paths
+are hierarchical, and rooted at a defined "origin". gNMOpenConfigI may contain paths
 such as:
 
 ```proto
