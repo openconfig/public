@@ -16,7 +16,13 @@ module openconfig-aft-types {
     "Types related to the OpenConfig Abstract Forwarding
     Table (AFT) model";
 
-  oc-ext:openconfig-version "0.3.4";
+  oc-ext:openconfig-version "0.3.5";
+
+  revision "2021-08-24" {
+    description
+      "Add vxlan to next-hops encapsulation-header-type.";
+    reference "0.3.5";
+  }
 
   revision "2019-11-07" {
     description
@@ -72,6 +78,10 @@ module openconfig-aft-types {
         description
           "The encapsulation header is one or more MPLS labels indicated
           by the pushed and popped label stack lists.";
+      }
+      enum VXLAN {
+        description
+          "The encapsulation header is a VXLAN packet header";
       }
     }
     description
