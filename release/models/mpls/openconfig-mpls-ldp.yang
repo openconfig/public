@@ -176,11 +176,11 @@ module openconfig-mpls-ldp {
 
   typedef label-advertisement-mode {
     type enumeration {
-      enum DOWNSTREAM-UNSOLICITED {
+      enum DOWNSTREAM_UNSOLICITED {
         description
           "Downstream Unsolicited.";
       }
-      enum DOWNSTREAM-ON-DEMAND {
+      enum DOWNSTREAM_ON_DEMAND {
         description
           "Downstream on Demand.";
       }
@@ -945,11 +945,14 @@ module openconfig-mpls-ldp {
   grouping mpls-ldp-label-advertisement-config {
     description
       "Grouping containing configuration to enable Downstream on demand in a session.";
-    leaf downstream-on-deman-enabled {
+    leaf downstream-on-demand-enabled {
       type boolean;
       default "false";
       description
-        "'true' if session downstream on demand is enabled.";
+        "If this leaf is set to true, LDP downstream on demand is enabled in 
+        the LDP session and the router advertises DoD to the peer. If the peer
+        also adverstises DoD, then downstream on demand is used in the session,
+        otherwise downstream unsolicited is used";
     }
   }
 
@@ -957,14 +960,16 @@ module openconfig-mpls-ldp {
     description
       "Grouping containing Label advertisement mode state based on peer negotiaton.";
     leaf peer-label-advertisement-mode {
-      type label-adverstisement-mode;
+      type label-advertisement-mode;
       description
-        "Label Advertisement Mode advestised by the peer.";
+        "This leaf shows the Label Advertisement Mode which is advertised by the peer.";
     }
     leaf negotiated-label-advertisement-mode {
-      type label-adverstisement-mode;
+      type label-advertisement-mode;
       description
-        "Negotiated Label Advertisement Mode based on local and remote preferences.";
+        "This leaf shows the Label Advertisement Mode negotiated based on local
+        and remote preferences. If DoD is enabled and the peer also adverstises DoD,
+        then downstream is negotiated. Otherwise, downstream unsolicited is used";
     }
   }
 
