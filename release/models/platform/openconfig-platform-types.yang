@@ -201,6 +201,30 @@ module openconfig-platform-types {
     uses oc-types:min-max-time;
   }
 
+  grouping component-redundant-role-switchover-reason {
+    description
+      "Common grouping for recording the reason of a component's
+      redundant role switchover. For example two supervisors in
+      a device, one as primary the other as secondary, switchover
+      can happen in different scenarios, e.g. user requested,
+      system error, priority contention, etc.";
+
+    leaf type {
+      type component-redundant-role-switchover-reason-type;
+      description
+        "Records the generic reason type, e.g. user or system
+        initiated the switchover.";
+    }
+
+    leaf details {
+      type string;
+      description
+        "Records detailed description of why the switchover happens.
+        For example, system initiated the switchover due to critical
+        errors in the existing component of the primary role.";
+    }
+  }
+
   // identity statements
   identity OPENCONFIG_HARDWARE_COMPONENT {
     description
@@ -444,33 +468,20 @@ module openconfig-platform-types {
       other secondary.";
   }
 
-  identity COMPONENT_SWITCHOVER_REASON {
+  typedef component-redundant-role-switchover-reason-type {
+    type enumeration {
+      enum USER_INITIATED {
+        description
+          "User initiated the switchover, e.g. via command line.";
+      }
+      enum SYSTEM_INITIATED {
+        description
+          "The system initiated the switchover, e.g. critical errors
+          in the component of the primar role.";
+      }
+    }
     description
-    "For components that have redundant roles (e.g. two
-    supervisors in a device, one as master the other as backup),
-    this is the base entity for the role switchover reason of
-    the component.";
-  }
-
-  identity SWITCHOVER_USER_INITIATED {
-    base COMPONENT_SWITCHOVER_REASON;
-    description
-      "User initiated the switchover of the componenent's
-      master/backup role.";
-  }
-
-  identity SWITCHOVER_LOST_MASTER {
-    base COMPONENT_SWITCHOVER_REASON;
-    description
-      "The component assumes master role due
-      to lost of communication with component of the master role.";
-  }
-
-  identity SWITCHOVER_PRIORITY_CONTENTION {
-    base COMPONENT_SWITCHOVER_REASON;
-    description
-      "The component changed its role due to role priority
-      contention with other components";
+      "A type helps reflect how the role switchover is triggered.";
   }
 
   identity COMPONENT_REBOOT_REASON {

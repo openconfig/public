@@ -452,15 +452,14 @@ module openconfig-platform {
         this reports the role of the component.";
     }
 
-    leaf last-switchover-reason {
-      type identityref {
-        base oc-platform-types:COMPONENT_SWITCHOVER_REASON;
-      }
+    container last-switchover-reason {
       description
         "For components that have redundant roles (e.g. two
-        supervisors in a device, one as master the other as backup),
+        supervisors in a device, one as primary the other as secondary),
         this reports the reason of the last change of the
         component's role.";
+
+      uses oc-platform-types:component-redundant-role-switchover-reason;
     }
 
     leaf last-switchover-time {
