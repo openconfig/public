@@ -450,6 +450,29 @@ module openconfig-platform-types {
       is powered on or off";
   }
 
+  identity COMPONENT_REBOOT_REASON {
+    description
+      "Base entity for component reboot reasons.";
+  }
+
+  identity REBOOT_USER_INITIATED {
+    base COMPONENT_REBOOT_REASON;
+    description
+      "User initiated the reboot of the componenent.";
+  }
+
+  identity REBOOT_POWER_FAILURE {
+    base COMPONENT_REBOOT_REASON;
+    description
+      "The component reboots due to power failure.";
+  }
+
+  identity REBOOT_CRITICAL_ERROR {
+    base COMPONENT_REBOOT_REASON;
+    description
+      "The component reboots due to critical errors.";
+  }
+
   typedef component-redundant-role {
     type enumeration {
       enum PRIMARY {
@@ -482,28 +505,5 @@ module openconfig-platform-types {
     }
     description
       "A type helps reflect how the role switchover is triggered.";
-  }
-
-  identity COMPONENT_REBOOT_REASON {
-    description
-      "Base entity for component reboot reasons.";
-  }
-
-  identity REBOOT_USER_INITIATED {
-    base COMPONENT_REBOOT_REASON;
-    description
-      "User initiated the reboot of the componenent.";
-  }
-
-  identity REBOOT_POWER_FAILURE {
-    base COMPONENT_REBOOT_REASON;
-    description
-      "The component reboots due to power failure.";
-  }
-
-  identity REBOOT_CRITICAL_ERROR {
-    base COMPONENT_REBOOT_REASON;
-    description
-      "The component reboots due to critical errors.";
   }
 }
