@@ -368,22 +368,6 @@ module openconfig-platform-types {
       "Component is administratively disabled.";
   }
 
-  identity MASTER {
-    base COMPONENT_OPER_STATUS;
-    description
-      "Component is up and acting the master role. For example,
-      a device might have dual supervisors components for redundancy
-      purpose, with one being the master and the other backup.";
-  }
-
-  identity BACKUP {
-    base COMPONENT_OPER_STATUS;
-    description
-      "Component is up and acting the backup role. For example,
-      a device might have dual supervisors components for redundancy
-      purpose, with one being the master and the other backup.";
-  }
-
   identity FEC_MODE_TYPE {
     description
       "Base identity for FEC operational modes.";
@@ -440,6 +424,24 @@ module openconfig-platform-types {
     description
       "A generic type reflecting whether a hardware component
       is powered on or off";
+  }
+
+  typedef component-redundant-role {
+    type enumeration {
+      enum PRIMARY {
+        description
+          "Component is acting the primary role.";
+      }
+      enum SECONDARY {
+        description
+          "Component is acting the secondary role.";
+      }
+    }
+    description
+      "A generic type reflecting the component's redundanty role.
+      For example, a device might have dual supervisors components
+      for redundant purpose, with one being the primary and the
+      other secondary.";
   }
 
   identity COMPONENT_SWITCHOVER_REASON {
