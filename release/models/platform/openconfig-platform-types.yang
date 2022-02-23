@@ -26,8 +26,7 @@ module openconfig-platform-types {
 
   revision "2022-02-02" {
     description
-      "Add identities to support component reboot and
-      switchover.";
+      "Add support for component reboot and switchover.";
     reference "1.2.0";
   }
 
@@ -209,10 +208,10 @@ module openconfig-platform-types {
       can happen in different scenarios, e.g. user requested,
       system error, priority contention, etc.";
 
-    leaf type {
-      type component-redundant-role-switchover-reason-type;
+    leaf trigger {
+      type component-redundant-role-switchover-reason-trigger;
       description
-        "Records the generic reason type, e.g. user or system
+        "Records the generic triggers, e.g. user or system
         initiated the switchover.";
     }
 
@@ -220,8 +219,9 @@ module openconfig-platform-types {
       type string;
       description
         "Records detailed description of why the switchover happens.
-        For example, system initiated the switchover due to critical
-        errors in the existing component of the primary role.";
+        For example, when system initiated the switchover, this leaf
+        can be used to record the specific reason, e.g. due to critical
+        errors of the routing daemon in the primary role.";
     }
   }
 
@@ -491,7 +491,7 @@ module openconfig-platform-types {
       other secondary.";
   }
 
-  typedef component-redundant-role-switchover-reason-type {
+  typedef component-redundant-role-switchover-reason-trigger {
     type enumeration {
       enum USER_INITIATED {
         description
@@ -499,11 +499,11 @@ module openconfig-platform-types {
       }
       enum SYSTEM_INITIATED {
         description
-          "The system initiated the switchover, e.g. critical errors
-          in the component of the primar role.";
+          "The system initiated the switchover, e.g. due to
+          critical errors in the component of the primar role.";
       }
     }
     description
-      "A type helps reflect how the role switchover is triggered.";
+      "Records how the role switchover is triggered.";
   }
 }
