@@ -53,7 +53,13 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "0.7.1";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2022-02-24" {
+    description
+      "Add Hello PDU padding type to IS-IS global configuration.";
+    reference "0.8.0";
+  }
 
   revision "2022-01-19" {
     description
@@ -166,7 +172,7 @@ module openconfig-isis {
 
   grouping isis-global-config {
     description
-      "This grouping defines lobal configuration options for ISIS router.";
+      "This grouping defines global configuration options for ISIS router.";
 
     // multi-instance
     leaf instance {
@@ -233,6 +239,13 @@ module openconfig-isis {
       description
         "When set to true, IS will always flood the LSP that triggered an SPF
      before the router actually runs the SPF computation.";
+    }
+
+    leaf hello-padding {
+      type oc-isis-types:hello-padding-type;
+      default "STRICT";
+      description
+        "Controls the padding type for IS-IS Hello PDUs on a global level.";
     }
   }
 
@@ -575,7 +588,7 @@ module openconfig-isis {
     leaf hello-padding {
       type oc-isis-types:hello-padding-type;
       description
-        "This leaf controls padding type for IS-IS Hello PDUs.";
+        "Controls the padding type for IS-IS Hello PDUs.";
     }
 
     leaf circuit-type {
