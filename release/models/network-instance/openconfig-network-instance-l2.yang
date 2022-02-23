@@ -440,7 +440,7 @@ submodule openconfig-network-instance-l2 {
             "Enclosing container for list of MAC address entries";
 
           list entry {
-            key "mac-address vlan";
+            key "mac-address";
             description "List of learned MAC addresses";
 
             leaf mac-address {
@@ -448,14 +448,6 @@ submodule openconfig-network-instance-l2 {
                 path "../state/mac-address";
               }
               description "Leafref of MAC address object";
-            }
-
-            leaf vlan {
-              type leafref {
-                path "../state/vlan";
-              }
-              description
-                "Leafref VLAN on which the MAC address is present";
             }
 
             container state {
@@ -503,7 +495,7 @@ submodule openconfig-network-instance-l2 {
             "Enclosing container for list of MAC-IP address entries";
 
           list entry {
-            key "mac-address vlan host-ip";
+            key "mac-address host-ip";
             description "List of learned MAC-IP addresses";
 
             leaf mac-address {
@@ -511,14 +503,6 @@ submodule openconfig-network-instance-l2 {
                 path "../state/mac-address";
               }
               description "Leafref of MAC-IP address object";
-            }
-
-            leaf vlan {
-              type leafref {
-                path "../state/vlan";
-              }
-              description
-                "Leafref VLAN on which the MAC-IP address is present";
             }
 
             leaf host-ip {
