@@ -10,7 +10,7 @@ to be deployed to a device, with the ability to define:
 *   Policy rules - each rule defines a single authorization policy.
 *   Groups of users - as a method to logically group users in the administrative
     domain, for instance: operators or administrators.
-*   Users which are individual users as part of either rules or in groups.
+*   Users - individual referenced in rules or group definitions.
 
 Authentication information is not included in this Authorization configuration.
 
@@ -39,7 +39,7 @@ raised.
 Match rules permit a match against:
 
 *   User or Group (not both)
-*   an gNMI gNMI path
+*   an gNMI path
 *   an access method (READ / WRITE / SUBSCRIBE)
 
 An implicit deny is assumed, if there is no matching rule in the policy. Logging
@@ -50,7 +50,7 @@ As a request is evaluated against the configured policy, a READ / SUBSCRIBE
 request for the configuration tree may traverse all of the tree and subtrees.
 For portions of the tree for which the user has no access no data will be
 returned. A WRITE request which attempts to write to a denied gNMI path or
-element will return an error to the caller.
+element will return a "Permission Denied" error to the caller.
 
 [gNMI paths](https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-specification.md#222-paths)
 are hierarchical, and rooted at a defined "origin". gNMOpenConfigI may contain paths
@@ -282,7 +282,7 @@ in a READ only mode, such as:
 The second policy rule:
 
 ```proto
-# Action memberss of family-group to run /this/is/a/different/message_path
+# Action members of family-group to run /this/is/a/different/message_path
 policy {
   id: "two"
   log_level: LOG_BRIEF
@@ -416,5 +416,3 @@ policy {
 provides an explcit deny for any request wich does not match any other policy
 rule. This rule also requests that the result be logged in full fidelity.
 
-Hopefully this illustrates the acceptable usage of the wildcard character in
-path elements of authorization policy rules.
