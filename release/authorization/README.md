@@ -105,8 +105,8 @@ and services have immediate authorized access to finish installation and
 move devices into production in a timely manner.
 
 Using the Secure Zero Touch Provisioning (sZTP - RFC8572) process for
-bootstrap/installation provides a method to accomplish this delivery, and
-the delivery of all other bootstrap artifacts in a secure manner.
+bootstrap/installation is a reocommended method for to accomplish this
+delivery, and the delivery of all other bootstrap artifacts in a secure manner.
 
 ## Conflict Resolution
 
