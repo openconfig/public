@@ -21,7 +21,13 @@ module openconfig-keychain-types {
     "This module contains general data definitions for use in
     keychain-based authentication.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2022-03-01" {
+    description
+      "Remove NONE identity from AUTH_TYPE";
+    reference "0.2.0";
+  }
 
   revision "2021-10-01" {
     description
@@ -33,12 +39,6 @@ module openconfig-keychain-types {
   identity AUTH_TYPE {
     description
     "Base identify to define the type of authentication";
-  }
-
-  identity NONE {
-    base AUTH_TYPE;
-    description
-    "NO authentication is used";
   }
 
   identity SIMPLE_KEY {
