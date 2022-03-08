@@ -47,7 +47,14 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.16.2";
+  oc-ext:openconfig-version "0.16.3";
+
+  revision "2022-03-07" {
+    description
+      "Description updates for DEFAULT_INSTANCE implementation
+      guidance and default value/guidance for protocol instances";
+    reference "0.16.3";
+  }
 
   revision "2021-11-17" {
     description
@@ -1135,8 +1142,10 @@ module openconfig-network-instance {
     leaf name {
       type string;
       description
-        "An operator-assigned unique name for the forwarding
-        instance";
+        "An operator-assigned unique name for the network instance.
+        If the operator does not designate a name for the instance of
+        type 'DEFAULT_INSTANCE' (e.g. config), the implementation
+        should use the name of 'DEFAULT' (e.g. state).";
     }
 
     leaf type {
@@ -1146,12 +1155,14 @@ module openconfig-network-instance {
       description
         "The type of network instance. The value of this leaf
         indicates the type of forwarding entries that should be
-        supported by this network instance. Signalling protocols
-        also use the network instance type to infer the type of
-        service they advertise; for example MPLS signalling
-        for an L2VSI network instance would infer a VPLS service
-        whereas a type of L2PTP would infer a VPWS (pseudo-wire)
-        service";
+        supported by this network instance. Signalling protocols also
+        use the network instance type to infer the type of service
+        they advertise; for example MPLS signalling for an L2VSI
+        network instance would infer a VPLS service whereas a type of
+        L2PTP would infer a VPWS (pseudo-wire) service.
+
+        An implementation must support only a single network-instance
+        of type 'DEFAULT_INSTANCE'.";
     }
 
     leaf enabled {
@@ -1204,8 +1215,16 @@ module openconfig-network-instance {
 
     leaf name {
       type string;
+      default "DEFAULT";
       description
-        "A unique name for the protocol instance";
+        "A unique name for the protocol instance.
+
+        If the operator does not designate a name for the protocol
+        instance (e.g. config), the implementation should use the
+        name of 'DEFAULT' (e.g. state).  In addition, for
+        implementations that support single protocol instances, the
+        default value is recommended for consistency and uniqueness
+        per protocol instance.";
     }
 
     leaf enabled {
