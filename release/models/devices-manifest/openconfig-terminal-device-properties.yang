@@ -83,8 +83,13 @@ module openconfig-terminal-device-properties {
       configured to this mode.";
 
     container explicit-mode {
+      description
+        "Explicit defition of the operational-mode. Typically this is used
+        for non-standard/propietary modes defined by the terminal-device
+        vendor and it is self described by the capabilities included in
+        the subtree underneath.";
+
       container operational-mode-capabilities {
-        uses operational-mode-features-description;
         description
           "Set of attributes which charaterizes the operational-mode for optimal
           optical-channel transmission and receiver functions. This attributes
@@ -92,19 +97,17 @@ module openconfig-terminal-device-properties {
           network planning phase, to estimate the physical-impairment
           tolerances which can be introduced by the DWDM optical path,
           while assuring optimal transmission function.";
+
+        uses operational-mode-capabilities-top;
       }
       container optical-channel-config-value-constrains{
-        uses config-value-constrains-top;
         description
           "Set of constrains of the configuration attributes
           of the optical-channel associated to the selected
           operational-mode.";
+
+        uses config-value-constrains-top;
       }
-      description
-        "Explicit defition of the operational-mode. Typically this is used
-        for non-standard/propietary modes defined by the terminal-device
-        vendor and it is self described by the capabilities included in
-        the subtree underneath.";
     }
   }
 
@@ -176,8 +179,86 @@ module openconfig-terminal-device-properties {
     }
   }
 
+  grouping penalties-list-element-attributes {
+    description
+      "OSNR penalties grouping, including the set of attributes
+      which defines each element of the penalties list.";
 
-  grouping operational-mode-features-description {
+    leaf parameter-and-unit {
+      type oc-opt-term-prop-types:impairment-type;
+      description
+        "Impairment and unit leading to the penalty (i.e., cd-ps)";
+    }
+
+    leaf up-to-boundary {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      description
+        "defines the upper (for positive values) and lower (for negative values)
+         limit for which the penalty value is valid.";
+    }
+
+    leaf penalty-value {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dB;
+      description
+        "OSNR penalty associated to the given values, expressed in dB.";
+    }
+  }
+
+  grouping fec-codes-attributes {
+    description
+      "FEC codes attributes grouping, including the set of attributes
+      which defines the FEC code employed on the tranmission represented
+      by the operational-mode.";
+
+    leaf fec-coding {
+      type union {
+        type string;
+        type oc-opt-term-prop-types:fec-coding;
+      }
+      description
+        "Forward error correction (FEC) coding schema used in the
+        tramission mode. Type union of string (for propietary codes)
+        and a set of standard codes encoded as identityrefs";
+    }
+
+    leaf coding-overhead {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      description
+        "Coding overhead rate in %.";
+    }
+
+    leaf coding-gain {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      default 0.00;
+      units dB;
+      description
+        "Net coding gain (NCG) in dB units at 10E-15 bit error rate.
+        It may vary depending on the modulation format used in the
+        associated transmission mode (operational-mode).";
+    }
+    leaf pre-fec-ber-threshold {
+      type decimal64 {
+        fraction-digits 18;
+      }
+      units bit-errors-per-second;
+      description
+        "Threshold on the PRE-FEC-BER, for which FEC code is able to
+        correct errors.";
+    }
+  }
+
+  grouping operational-mode-capabilities-top {
+    description
+      "Operational-mode features top container";
     leaf modulation-format {
       type union {
         type string;
@@ -217,50 +298,12 @@ module openconfig-terminal-device-properties {
     }
 
     container fec {
-      leaf fec-coding {
-        type union {
-          type string;
-          type oc-opt-term-prop-types:fec-coding;
-        }
-        description
-          "Forward error correction (FEC) coding schema used in the
-          tramission mode. Type union of string (for propietary codes)
-          and a set of standard codes encoded as identityrefs";
-      }
-
-      leaf coding-overhead {
-        type decimal64 {
-          fraction-digits 2;
-        }
-        description
-          "Coding overhead rate in %.";
-      }
-
-      leaf coding-gain {
-        type decimal64 {
-          fraction-digits 2;
-        }
-        default 0.00;
-        units dB;
-        description
-          "Net coding gain (NCG) in dB units at 10E-15 bit error rate.
-          It may vary depending on the modulation format used in the
-          associated transmission mode (operational-mode).";
-      }
-      leaf pre-fec-ber-threshold {
-        type decimal64 {
-          fraction-digits 18;
-        }
-        units bit-errors-per-second;
-        description
-          "Threshold on the PRE-FEC-BER, for which FEC code is able to
-          correct errors.";
-      }
-
       description
         "The Forward Error Coding (FEC) coding schema used,
         including the name, overhead, pre-fec-ber threshold and gain
         properties.";
+
+      uses fec-codes-attributes;
     }
 
     //sensitivity specs.
@@ -352,32 +395,14 @@ module openconfig-terminal-device-properties {
         - For paramter values above highest up-to-boundary value, the penalty is the one
         included within penalty-value attribute associated to the highest up-to-boundary";
 
-      leaf parameter-and-unit {
-        type oc-opt-term-prop-types:impairment-type;
-        description
-          "Impairment and unit leading to the penalty (i.e., cd-ps)";
-      }
-
-      leaf up-to-boundary {
-        type decimal64 {
-          fraction-digits 2;
-        }
-        description
-          "defines the upper (for positive values) and lower (for negative values)
-           limit for which the penalty value is valid.";
-      }
-
-      leaf penalty-value {
-        type decimal64 {
-          fraction-digits 2;
-        }
-        units dB;
-        description
-          "OSNR penalty associated to the given values, expressed in dB.";
-      }
+      uses penalties-list-element-attributes;
     }
 
     container filter {
+      description
+        "This container includes information which characterises the filter at
+        transceiver transmission for the given operational-mode.";
+
       leaf roll-off {
         description
           "Decimal fraction between 0 and 1. Roll-off parameter (𝛽) of the TX pulse
@@ -409,37 +434,42 @@ module openconfig-terminal-device-properties {
 
     uses explicit-mode-features-description;
   }
+
   grouping operational-mode-top{
-    list mode-descriptor {
-      key "mode-id";
+    description
+      "top-level operational-mode definitions";
+
+    container operational-modes {
       config false;
       description
-        "List of operational modes supported by the platform.
-        The operational mode provides a platform-defined summary
-        of information such as symbol rate, modulation, pulse
-        shaping, etc.";
+        "Indicates the transceiver's list of supported operational
+         modes and its assoiated transmission features";
 
-      leaf mode-id {
-        type leafref {
-          path "../features/mode-id";
+      list mode-descriptor {
+        key "mode-id";
+        description
+          "List of operational modes supported by the platform.
+          The operational mode provides a platform-defined summary
+          of information such as symbol rate, modulation, pulse
+          shaping, etc.";
+
+        leaf mode-id {
+          type leafref {
+            path "../features/mode-id";
+          }
+          description
+            "Reference to mode-id";
         }
-        description
-          "Reference to mode-id";
-      }
 
-      container features {
-        description
-          "Features supported by the operational mode.";
+        container features {
+          description
+            "Features supported by the operational mode.";
 
-        uses operational-mode-features;
+          uses operational-mode-features;
+        }
       }
     }
   }
 
-  container operational-modes {
-    description
-      "Indicates the transceiver's list of supported operational
-       modes and its assoiated transmission features";
-    uses operational-mode-top;
-  }
+  uses operational-mode-top;
 }
