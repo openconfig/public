@@ -18,6 +18,7 @@ module openconfig-isis {
   import openconfig-segment-routing { prefix "oc-sr"; }
   import openconfig-bfd { prefix "oc-bfd"; }
   import openconfig-keychain { prefix "oc-keychain"; }
+  import openconfig-keychain-types { prefix "oc-keychain-types"; }
 
   // Include submodules:
   // IS-IS LSP is the LSDB for IS-IS.
@@ -53,7 +54,19 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "0.7.1";
+  oc-ext:openconfig-version "0.9.0";
+
+  revision "2022-03-01" {
+    description
+      "Add simple authentication key support.";
+    reference "0.9.0";
+  }
+
+  revision "2022-02-24" {
+    description
+      "Add Hello PDU padding type to IS-IS global configuration.";
+    reference "0.8.0";
+  }
 
   revision "2022-01-19" {
     description
@@ -166,7 +179,7 @@ module openconfig-isis {
 
   grouping isis-global-config {
     description
-      "This grouping defines lobal configuration options for ISIS router.";
+      "This grouping defines global configuration options for ISIS router.";
 
     // multi-instance
     leaf instance {
@@ -234,6 +247,13 @@ module openconfig-isis {
         "When set to true, IS will always flood the LSP that triggered an SPF
      before the router actually runs the SPF computation.";
     }
+
+    leaf hello-padding {
+      type oc-isis-types:hello-padding-type;
+      default "STRICT";
+      description
+        "Controls the padding type for IS-IS Hello PDUs on a global level.";
+    }
   }
 
   grouping admin-config {
@@ -262,6 +282,42 @@ module openconfig-isis {
     }
   }
 
+  grouping isis-authentication-type-config {
+    description
+      "This grouping defines the ISIS authentication type.";
+
+    leaf auth-type {
+      type identityref {
+        base oc-keychain-types:AUTH_TYPE;
+      }
+      description
+        "The type of authentication used in the applicable IS-IS PDUs
+        (simple_key, keychain).";
+    }
+  }
+
+  grouping isis-simple-key-authentication-config {
+    description
+      "This grouping defines ISIS simple authentication config.";
+
+    leaf auth-mode {
+      type identityref {
+        base oc-isis-types:AUTH_MODE;
+      }
+      description
+        "The type of authentication used in the applicable IS-IS PDUs.
+
+        This leaf along with the sibling leaf 'auth-password' can be used
+        to configure the simple key authentication.";
+    }
+
+    leaf auth-password {
+      type oc-types:routing-password;
+      description
+        "The authentication key used in the applicable IS-IS PDUs. The key in the
+        packet may be encrypted according to the configured authentication type.";
+    }
+  }
   grouping isis-metric-style-config {
     description
       "This grouping defines ISIS metric style.";
@@ -302,6 +358,8 @@ module openconfig-isis {
         "This container defines ISIS authentication configuration.";
 
       uses isis-hello-authentication-config;
+      uses isis-authentication-type-config;
+      uses isis-simple-key-authentication-config;
     }
 
     container state {
@@ -310,6 +368,8 @@ module openconfig-isis {
         "This container defines ISIS authentication state.";
 
       uses isis-hello-authentication-config;
+      uses isis-authentication-type-config;
+      uses isis-simple-key-authentication-config;
     }
   }
 
@@ -575,7 +635,7 @@ module openconfig-isis {
     leaf hello-padding {
       type oc-isis-types:hello-padding-type;
       description
-        "This leaf controls padding type for IS-IS Hello PDUs.";
+        "Controls the padding type for IS-IS Hello PDUs.";
     }
 
     leaf circuit-type {
@@ -1347,6 +1407,8 @@ module openconfig-isis {
         "Configuration parameters relating to IS-IS authentication.";
 
       uses isis-level-authentication-config;
+      uses isis-authentication-type-config;
+      uses isis-simple-key-authentication-config;
     }
 
     container state {
@@ -1354,6 +1416,8 @@ module openconfig-isis {
       description
         "Operational state parameters relating to IS-IS authentication.";
       uses isis-level-authentication-config;
+      uses isis-authentication-type-config;
+      uses isis-simple-key-authentication-config;
     }
   }
 
@@ -1366,10 +1430,10 @@ module openconfig-isis {
       default false;
       description
         "When this leaf is set to true, authentication of IS-IS PSNP, CSNP and
-        LSP packets is enabled using the authentication details specified in
-        the keychain in the sibling leaf.
+        LSP packets is enabled using the specified authentication details in
+        the sibling leaves.
 
-        The simbling 'disable-<type>' leaves can be used to override the value
+        The sibling 'disable-<type>' leaves can be used to override the value
         of this leaf and disable authentication for a specific packet type.";
     }
 
