@@ -35,7 +35,7 @@ module openconfig-terminal-device-properties {
       the OTSi (OTSiMC). It also includes (optional) aspects such as
       filter characterization, CD and DGD tolerance.";
 
-  oc-ext:openconfig-version "1.7.3";
+  oc-ext:openconfig-version "0.1.0";
 
 
   // Revisions
@@ -61,7 +61,6 @@ module openconfig-terminal-device-properties {
     container G.698.2 {
       leaf standard-mode {
         type oc-opt-term-prop-types:standard-mode;
-        config false;
         description
           "G.698.2 (11/18) standard mode";
       }
@@ -85,7 +84,6 @@ module openconfig-terminal-device-properties {
 
     container explicit-mode {
       container operational-mode-capabilities {
-        config false;
         uses operational-mode-features-description;
         description
           "Set of attributes which charaterizes the operational-mode for optimal
@@ -411,12 +409,7 @@ module openconfig-terminal-device-properties {
 
     uses explicit-mode-features-description;
   }
-
-  container operational-modes {
-    description
-      "Indicates the transceiver's list of supported operational
-       modes and its assoiated transmission features";
-
+  grouping operational-mode-top{
     list mode-descriptor {
       key "mode-id";
       config false;
@@ -441,5 +434,12 @@ module openconfig-terminal-device-properties {
         uses operational-mode-features;
       }
     }
+  }
+
+  container operational-modes {
+    description
+      "Indicates the transceiver's list of supported operational
+       modes and its assoiated transmission features";
+    uses operational-mode-top;
   }
 }
