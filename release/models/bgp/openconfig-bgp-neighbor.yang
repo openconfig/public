@@ -30,7 +30,13 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "8.0.0";
+  oc-ext:openconfig-version "9.0.0";
+
+  revision "2022-03-19" {
+    description
+      "Transition decimal64 types to uint16 for various BGP timers";
+    reference "9.0.0";
+  }
 
   revision "2021-12-01" {
     description
@@ -450,9 +456,7 @@ submodule openconfig-bgp-neighbor {
       with the BGP session";
 
     leaf negotiated-hold-time {
-      type decimal64 {
-        fraction-digits 2;
-      }
+      type uint16;
       description
         "The negotiated hold-time for the BGP session";
     }
