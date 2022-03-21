@@ -317,7 +317,7 @@ module openconfig-terminal-device-properties {
         "Minimum back-to-back OSNR measured over 0.1nm@193.7Thz or
         12.5GHz noise resolution bandwidth at the min-input-power.
         If received OSNR at min-input-power is lower than this value,
-        an increased level of bit-errors post-FEC needs to be 
+        an increased level of bit-errors post-FEC needs to be
         expected.";
     }
 
@@ -328,7 +328,7 @@ module openconfig-terminal-device-properties {
       units dBm;
       description
         "Minimum value required input power in dBm of an optical channel
-        at the receiver (Rx) according to the given min-osnr value. If
+        at the receiver (Rx) according to the given min-rx-osnr value. If
         the input-power is lower it is expected to introduce an OSNR
         penalty.";
     }
@@ -339,8 +339,8 @@ module openconfig-terminal-device-properties {
       }
       units dBm;
       description
-        "Maximum tolerated input power in dBm at the receiver (Rx) 
-        of the coherence transceiver, which if exceeded can cause an 
+        "Maximum tolerated input power in dBm at the receiver (Rx)
+        of the coherence transceiver, which if exceeded can cause an
         overload.";
     }
 
@@ -419,7 +419,10 @@ module openconfig-terminal-device-properties {
     }
   }
 
-  grouping operational-mode-features{
+  grouping operational-mode-features-top{
+    description
+      "Top-level operational-mode-features grouping definitions";
+
     leaf mode-id {
       type uint16;
       description
@@ -470,7 +473,7 @@ module openconfig-terminal-device-properties {
           description
             "Features supported by the operational mode.";
 
-          uses operational-mode-features;
+          uses operational-mode-features-top;
         }
       }
     }
