@@ -300,23 +300,25 @@ module openconfig-terminal-device-properties {
     container fec {
       description
         "The Forward Error Coding (FEC) coding schema used,
-        including the name, overhead, pre-fec-ber threshold and gain
-        properties.";
+        including the name, overhead, pre-fec-ber threshold and
+        gain properties.";
 
       uses fec-codes-attributes;
     }
 
     //sensitivity specs.
 
-    leaf min-osnr {
+    leaf min-rx-osnr {
       type decimal64 {
           fraction-digits 2;
       }
       units dB;
       description
-        "Minimum OSNR measured over 0.1nm resolution bandwidth;
-        if received OSNR at minimum Rx-power is lower than min-osnr,
-        an increased level of bit-errors post-FEC needs to be expected.";
+        "Minimum back-to-back OSNR measured over 0.1nm@193.7Thz or
+        12.5GHz noise resolution bandwidth at the min-input-power.
+        If received OSNR at min-input-power is lower than this value,
+        an increased level of bit-errors post-FEC needs to be 
+        expected.";
     }
 
     leaf min-input-power {
@@ -325,8 +327,10 @@ module openconfig-terminal-device-properties {
       }
       units dBm;
       description
-        "Minimun required input power in dBm of a optical channel
-        at the receiver (Rx) of the coherence transceiver.";
+        "Minimum value required input power in dBm of an optical channel
+        at the receiver (Rx) according to the given min-osnr value. If
+        the input-power is lower it is expected to introduce an OSNR
+        penalty.";
     }
 
     leaf max-input-power {
@@ -335,8 +339,9 @@ module openconfig-terminal-device-properties {
       }
       units dBm;
       description
-        "Maximun tolerated input power in dBm of a optical channel
-        at the receiver (Rx) of the coherence transceiver.";
+        "Maximum tolerated input power in dBm at the receiver (Rx) 
+        of the coherence transceiver, which if exceeded can cause an 
+        overload.";
     }
 
     leaf min-q-value {
