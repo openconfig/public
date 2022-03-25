@@ -238,8 +238,8 @@ module openconfig-terminal-device-properties {
       type decimal64 {
         fraction-digits 2;
       }
-      default 0.00;
       units dB;
+      default 0.00;
       description
         "Net coding gain (NCG) in dB units at 10E-15 bit error rate.
         It may vary depending on the modulation format used in the
@@ -253,6 +253,33 @@ module openconfig-terminal-device-properties {
       description
         "Threshold on the PRE-FEC-BER, for which FEC code is able to
         correct errors.";
+    }
+  }
+
+  grouping filter-attributes-top {
+    description
+      "This gruping includes the attributes which characterises the filter at
+      transceiver transmission for the given operational-mode.";
+
+    leaf pulse-shaping-type {
+      type union {
+        type string;
+        type oc-opt-term-prop-types:pulse-shaping-type;
+      }
+      description
+       "Pulse/spectral shaping type such as Raised-cosine (RC), 
+         root-raised-cosine (RRC) and OFF. The attribute allows
+         other pulse-shapping types to be encoded as strings.";
+    }
+
+    leaf roll-off {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      description
+        "Decimal fraction between 0 and 1. Roll-off parameter (𝛽) of the
+        TX pulse shaping filter. This assumes a raised-cosine filter";
+
     }
   }
 
@@ -308,13 +335,23 @@ module openconfig-terminal-device-properties {
 
     //sensitivity specs.
 
+    leaf min-tx-osnr {
+      type decimal64 {
+          fraction-digits 2;
+      }
+      units dB;
+      description
+        "Minimum in-band transmitter OSNR measured at 0.1nm@193.6Thz,
+        considering the maximum transceiver inserted noise. ";
+    }
+
     leaf min-rx-osnr {
       type decimal64 {
           fraction-digits 2;
       }
       units dB;
       description
-        "Minimum back-to-back OSNR measured over 0.1nm@193.7Thz or
+        "Minimum back-to-back OSNR measured over 0.1nm@193.6Thz or
         12.5GHz noise resolution bandwidth at the min-input-power.
         If received OSNR at min-input-power is lower than this value,
         an increased level of bit-errors post-FEC needs to be
@@ -344,25 +381,13 @@ module openconfig-terminal-device-properties {
         overload.";
     }
 
-    leaf min-q-value {
-      type decimal64 {
-        fraction-digits 2;
-      }
-      units dB;
-      description
-        "Minimum required Quality value (factor) in decibels (dB) of a optical
-        channel at the receiver side (RX) of the coherence transceiver.
-        This value corresponds to the pre-fec-ber-threshold value which if
-        exceeded, uncorrectable errors will start to be generated.";
-    }
-
     leaf max-chromatic-dispersion {
       type decimal64 {
         fraction-digits 2;
       }
       units ps-nm;
       description
-        "Maximum chromatic-dispersion, absolute value, supported by the
+        "Maximum chromatic-dispersion, accumulated value, supported by the
         optical channel associated to the associated tranmission mode
         (operational model), expressed in picoseconds / nanometer (ps/nm).";
     }
@@ -384,7 +409,7 @@ module openconfig-terminal-device-properties {
       }
       units dB;
       description
-        "Maximum polarization-dependent-loss absolute value, supported by the
+        "Maximum polarization-dependent-loss accumulated value, supported by the
         optical channel associated to the associated tranmission mode
         (operational model), expressed in decibels (dB)";
     }
@@ -408,14 +433,7 @@ module openconfig-terminal-device-properties {
         "This container includes information which characterises the filter at
         transceiver transmission for the given operational-mode.";
 
-      leaf roll-off {
-        description
-          "Decimal fraction between 0 and 1. Roll-off parameter (𝛽) of the TX pulse
-          shaping filter. This assumes a raised-cosine filter";
-        type decimal64 {
-          fraction-digits 2;
-        }
-      }
+      uses filter-attributes-top;
     }
   }
 

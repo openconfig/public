@@ -67,6 +67,14 @@ module openconfig-terminal-device-property-types {
       associated tributary logical channel.";
   }
 
+  typedef pulse-shaping-type {
+    type identityref {
+      base SHAPING_TYPE;
+    }
+    description
+      "Pulse/spectral shaping type associated to the mode.";
+  }
+
   typedef modulation-format {
     type identityref {
       base MODULATION_FORMAT;
@@ -109,6 +117,30 @@ module openconfig-terminal-device-property-types {
       "Definition of impairment type and unit used in penaty list";
   }
 
+  identity SHAPING_TYPE {
+    description
+      "Base identity for pulse-shaping-type, to help characterize the
+      filter type included in the transceiver which support the mode.";
+  }
+
+  identity RC {
+    base  SHAPING_TYPE;
+    description
+      "Raised-cosine filter shape.";
+  }
+
+  identity RRC {
+    base  SHAPING_TYPE;
+    description
+      "Root-raised-cosine filter shape.";
+  }
+
+  identity OFF {
+    base  SHAPING_TYPE;
+    description
+      "No filter.";
+  }
+
   identity IMPAIRMENT_TYPE {
     description
       "Base identity for impairment type and units, used in penaty list.";
@@ -124,6 +156,12 @@ module openconfig-terminal-device-property-types {
     base  IMPAIRMENT_TYPE;
     description
       "Polarization Mode Dispersion (PMD) in picoseconds units.";
+  }
+
+  identity PDL_DB {
+    base  IMPAIRMENT_TYPE;
+    description
+      "Polarization Dependent Loss (PDL) in decibels (dB) units.";
   }
 
   identity GRID_TYPE {
