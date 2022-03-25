@@ -28,6 +28,12 @@ module openconfig-wifi-mac {
 
   oc-ext:openconfig-version "1.0.0";
 
+  revision "2022-03-24" {
+    description
+      "Update model to support operation in 6 GHz frequency.";
+    reference "1.1.0";
+  }
+
   revision "2021-08-02" {
     description
       "Update tx/rx MCS rates, add AX as client connection mode.";
@@ -151,6 +157,21 @@ module openconfig-wifi-mac {
       description
         "5GHz Supported data-rates for the SSID.";
     }
+    leaf-list basic-data-rates-6g {
+      type identityref {
+        base oc-wifi-types:DATA_RATE;
+      }
+      description
+        "6GHz Basic data-rates for the SSID.";
+    }
+
+    leaf-list supported-data-rates-6g {
+      type identityref {
+        base oc-wifi-types:DATA_RATE;
+      }
+      description
+        "6GHz Supported data-rates for the SSID.";
+    }
     // MCS rates explicitly absent, as they are typically not pruned.
 
     leaf broadcast-filter {
@@ -208,8 +229,19 @@ module openconfig-wifi-mac {
           description
             "WPA2-Enterprise with 802.1X authentication.";
         }
+        enum ENHANCED-OPEN {
+          description
+            "Open authentication with Opportunistic Wireless Encryption.";
+        }
+        enum WPA3_SAE {
+          description
+            "WPA3-SAE using Simultaneous Authentication of Equals (SAE).";
+        }
+        enum WPA3_ENTERPRISE {
+          description
+            "WPA3-Enterprise with 802.1X authentication.";
+        }
       }
-      default "OPEN";
       description
         "The type of Layer2 authentication in use.";
     }
@@ -226,14 +258,17 @@ module openconfig-wifi-mac {
      }
 
     leaf server-group {
-      when "../opmode = 'WPA2_ENTERPRISE' or ../opmode =
-      'WPA2_PERSONAL'";
+      when "../opmode = 'WPA2_ENTERPRISE' or
+      ../opmode = 'WPA2_PERSONAL' or
+      ../opmode = 'WPA3_ENTERPRISE' or
+      ../opmode = 'WPA3_SAE'";
       type string;
         description
           "Specifies the RADIUS server-group to be used,
           as defined in the openconfig-aaa.yang model.
 
-          Including WPA2_PERSONAL as it can be accompained by MAB.";
+          Including WPA2_PERSONAL and WPA3_SAE as they can be accompanied by
+          MAB.";
     }
 
     leaf dva {
@@ -293,6 +328,15 @@ module openconfig-wifi-mac {
       type boolean;
       description
         "Enable/disable Opportunistic Key Caching.";
+    }
+
+    leaf mfp {
+      when "../opmode = 'WPA3_ENTERPRISE' or ../opmode =
+      'WPA3_SAE' or ../opmode = 'ENHANCED_OPEN'";
+      type boolean;
+      mandatory true;
+      description
+        "Management Frame Protection is required for WPA3 and OWE.";
     }
   }
 

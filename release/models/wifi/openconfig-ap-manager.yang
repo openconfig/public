@@ -27,6 +27,12 @@ module openconfig-ap-manager {
 
   oc-ext:openconfig-version "1.0.0";
 
+  revision "2023-03-24" {
+    description
+      "Update model to support operation in 6 GHz frequency.";
+    reference "1.1.0";
+  }
+
   revision "2021-08-02" {
     description
       "Update model version as it is in production.";
@@ -86,6 +92,22 @@ module openconfig-ap-manager {
         "Country code where the AP operates in ISO 3166-1 alpha-2
         format.";
     }
+
+    leaf deployment-type-6ghz {
+      type enumeration {
+        enum INDOOR-AP {
+          description
+            "Indoor 6 GHz Access Point.";
+        }
+        enum STANDARD-AP {
+          description
+            "Standard Power 6 GHz Access Point that can operate outdoors.";
+        }
+      }
+      default "INDOOR-AP";
+      description
+        "The type of 6 GHz AP deployment.";
+      }
   }
 
   grouping controller-aps-system-state {
@@ -165,6 +187,9 @@ module openconfig-ap-manager {
       }
       enum AF {
         description "Powered using 802.3af.";
+      }
+      enum BT {
+        description "Powered using 802.3bt.";
       }
       enum PLUG {
         description "Powered using local source, not PoE.";

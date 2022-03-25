@@ -24,6 +24,12 @@ module openconfig-wifi-types {
 
   oc-ext:openconfig-version "1.0.0";
 
+  revision "2022-03-24" {
+    description
+      "Update model to support operation in 6 GHz frequency.";
+    reference "1.1.0";
+  }
+
   revision "2021-08-02" {
     description
       "Add OFDMA in client capabilities.";
@@ -57,6 +63,16 @@ module openconfig-wifi-types {
       "Type to specify all the WiFi channels available for use. This is
       a superset of what may be allowed by any one particular regulatory
       domain.";
+  }
+
+  typedef channels-type-6ghz {
+    type uint8 {
+      range "1 | 5 | 9 | 13 | 17 | 21 | 25 | 29 | 33 | 37 | 41 | 45 | 49 | 53 | 57 | 61 | 65 | 69 | 73 | 77 | 81 | 85 | 89 | 93 | 97 | 101 | 105 | 109 | 113 | 117 | 121 | 125 | 129 | 133 | 137 | 141 | 145 | 149 | 153 | 157 | 161 | 165 | 169 | 173 | 177 | 181 | 185 | 189 | 193 | 197 | 201 | 205 | 209 | 213 | 217 | 221 | 225 | 229 | 233";
+    }
+    description
+      "Type to specify all the 6 GHz channels available for use. This is a
+       superset of what may be allowed by any one particular regulatory
+       domain.";
   }
 
   // identity statements
@@ -248,6 +264,27 @@ module openconfig-wifi-types {
       each frequency.";
   }
 
+  identity FREQ_6GHZ {
+    base OPERATING_FREQUENCY;
+    description "The Radio or SSID will operate at 6GHz only.";
+  }
+
+  identity FREQ_5_6GHZ {
+    base OPERATING_FREQUENCY;
+    description "The Radio or SSID will be dual-band; operating in both 5 &
+    6GHz frequencies. Dual-band Radio typically refers to a Monitor-mode
+    radio, hopping between frequencies, dwelling for a configurable amount of
+    time on each frequency.";
+  }
+
+  identity FREQ_2_5_6GHZ {
+    base OPERATING_FREQUENCY;
+    description "The Radio or SSID will be tri-band; operating in 2.4, 5 and
+    6GHz frequencies. Tri-band Radio typically refers to a Monitor-mode radio,
+    hopping between frequencies, dwelling for a configurable amount of time on
+    each frequency.";
+  }
+
   identity CLIENT_CAPABILITIES {
     description
       "Client capabilities, as reported by Assoc. Req. or
@@ -282,6 +319,11 @@ module openconfig-wifi-types {
       "Whether this STA supports 802.11v BSS Transition. Note, must
       be enabled on BSS for this to be accurate; unless Probe Req.
       are observied in addition to Assoc. Req.";
+  }
+
+  identity MFP {
+    base CLIENT_CAPABILITIES;
+    description "Whether this STA can use Management Frame Protection.";
   }
 
   identity CHANGE_REASON_TYPE {

@@ -27,6 +27,12 @@ module openconfig-wifi-phy {
 
   oc-ext:openconfig-version "1.0.0";
 
+  revision "2022-03-24" {
+    description
+      "Update model to support operation in 6 GHz frequency.";
+    reference "1.1.0";
+  }
+
   revision "2021-08-02" {
     description
       "Add BSS color to radio config and neighbor table.";
@@ -122,7 +128,7 @@ module openconfig-wifi-phy {
 
     leaf channel {
       type uint8 {
-        range "1..165";
+        range "1..233";
         }
       description
         "Operating channel of this radio. If using channel-bonding
@@ -282,6 +288,13 @@ module openconfig-wifi-phy {
       description
         "Channels allowed by a combination of regulatory and AP certification
         restrictions.";
+    }
+
+    leaf-list supported-channels-6ghz {
+      type oc-wifi-types:channels-type-6ghz;
+      description
+        "6 GHz channels allowed by a combination of regulatory and AP
+         certification restrictions.";
     }
 
     leaf channel-change-reason {
