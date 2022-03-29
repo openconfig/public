@@ -244,7 +244,21 @@ module openconfig-packet-match {
         leaf is specified. It is not valid to specify both 'dscp' and 'dscp-set together.'";
     }
 
-    leaf protocol {
+    leaf length {
+      type uint16;
+      description
+        "In the IPv4 header field, this field is known as the Total
+         Length.  Total Length is the length of the datagram, measured
+         in octets, including internet header and data.
+         In the IPv6 header field, this field is known as the Payload
+         Length, which is the length of the IPv6 payload, i.e., the rest
+         of the packet following the IPv6 header, in octets.";
+      reference
+        "RFC 791: Internet Protocol
+         RFC 8200: Internet Protocol, Version 6 (IPv6) Specification.";
+    }
+
+    leaf-list protocol {
       type oc-pkt-match-types:ip-protocol-type;
       description
         "The protocol carried in the IP packet, expressed either
@@ -310,6 +324,7 @@ module openconfig-packet-match {
         uses ipv4-protocol-fields-config;
         uses ipv4-protocol-fields-state;
       }
+      uses ip-icmp-header-fields-top;
     }
   }
 
@@ -374,6 +389,7 @@ module openconfig-packet-match {
         uses ipv6-protocol-fields-config;
         uses ipv6-protocol-fields-state;
       }
+      uses ip-icmp-header-fields-top;
     }
   }
 
@@ -429,6 +445,57 @@ module openconfig-packet-match {
         uses transport-fields-config;
         uses transport-fields-state;
       }
+    }
+  }
+
+  grouping ip-icmp-header-fields-top {
+    description
+      "Top grouping for the icpm filtering";
+
+    container icmp {
+      description
+        "Top container for the icpm filtering";
+
+      container config {
+        description
+          "Configuration attributes for the icmp filtering";
+
+        uses ip-icmp-header-fields-config;
+      }
+
+      container state {
+        description
+          "State attributes for the icmp filtering";
+        config false;
+
+        uses ip-icmp-header-fields-config;
+      }
+    }
+  }
+
+  grouping ip-icmp-header-fields-config {
+    description
+      "Collection of ICMP header fields that can be
+       used to set up a match filter.";
+    leaf icmp-type {
+      type uint8;
+      description
+        "Also known as control messages.";
+      reference
+        "RFC 792: Internet Control Message Protocol
+         RFC 4443: Internet Control Message Protocol (ICMPv6)
+                   for Internet Protocol Version 6 (IPv6)
+                   Specification.";
+    }
+    leaf icmp-code {
+      type uint8;
+      description
+        "ICMP subtype.  Also known as control messages.";
+      reference
+        "RFC 792: Internet Control Message Protocol
+         RFC 4443: Internet Control Message Protocol (ICMPv6)
+                   for Internet Protocol Version 6 (IPv6)
+                   Specification.";
     }
   }
 
