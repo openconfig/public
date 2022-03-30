@@ -55,7 +55,7 @@ For systems that allow configuration directly onto a parent interface that
 cannot be configured directly in OpenConfig (e.g., IP address information) -
 this configuration should be mapped to a subinterface with index 0. This
 subinterface should have the encapsulation of the 'default' subinterface
-specified if this is relevant - in most cases, the encapsulation iss is
+specified if this is relevant - in most cases, the encapsulation is
 expected to be null.
 
 In this case, operational state of the parent `interface` should:
