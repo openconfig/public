@@ -22,7 +22,13 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "1.4.0";
+  oc-ext:openconfig-version "1.5.0";
+
+  revision "2022-03-30" {
+    description
+      "Add identity for MODULE hardware component";
+    reference "1.5.0";
+  }
 
   revision "2022-03-27" {
     description
@@ -297,6 +303,14 @@ module openconfig-platform-types {
     base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Linecard component, typically inserted into a chassis slot";
+  }
+
+  identity MODULE {
+    base OPENCONFIG_HARDWARE_COMPONENT;
+    description
+      "A modular adapter, typically inserted into a linecard
+      component that serves the purpose of housing physical ports
+      or services";
   }
 
   identity CONTROLLER_CARD {
