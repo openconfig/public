@@ -10,6 +10,7 @@ module openconfig-pcep {
   // import some basic types
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-inet-types { prefix "oc-inet"; }
+  import openconfig-keychain { prefix "oc-keychain"; }
 
   // meta
   organization
@@ -155,6 +156,7 @@ module openconfig-pcep {
         }
 		
 	uses pcep-timers-top;
+	uses pcep-authentication-top;
       }
     }
   }
@@ -298,6 +300,50 @@ module openconfig-pcep {
       }
   }
 	
+  grouping pcep-authentication-top {
+    description
+    "Grouping containing PCEP authentication attributes";
+    container authentication {
+      description
+        "Global PCEP authentication";
+      container config {
+          description
+            "Configuration of PCEP authentication attributes";
+          uses pcep-authentication-config;
+      }
+      container state {
+        config false;
+        description
+          "PCEP authentication state.";
+        uses pcep-authentication-config;
+      }
+    }
+  }
+	
+  grouping pcep-authentication-config {
+    description
+      "PCEP authentication parameters container.";
+    leaf enable {
+      type boolean;
+      default false;
+      description
+        "Enables PCEP authentication on the node.";
+    }
+    leaf authentication-key {
+      type oc-types:routing-password;
+      description
+        "Password(key) used for securing a PCEP session using TCP-MD5 authentication";
+      reference
+        "RFC1321 The MD5 Message-Digest Algorithm
+        RFC5440 PCEP Specification";
+    }
+   leaf keychain {
+     type oc-keychain:keychain-ref;
+     description
+       "Reference to a predefined keychain that should be used to secure PCEP session";
+  }
+}
+	
   grouping pcep-top {
     description
       "Top-level grouping for PCEP configuration.";
@@ -309,4 +355,5 @@ module openconfig-pcep {
       uses pcep-servers-top;
     }
   }
+
 }
