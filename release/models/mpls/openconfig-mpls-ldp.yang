@@ -272,7 +272,6 @@ module openconfig-mpls-ldp {
           description
             "Neighbor configuration attributes.";
           uses mpls-ldp-neighbor-config;
-          uses mpls-ldp-label-advertisement-config;
         }
 
         container state {
@@ -281,8 +280,6 @@ module openconfig-mpls-ldp {
             "Neighbor state attributes.";
           uses mpls-ldp-neighbor-config;
           uses mpls-ldp-neighbor-state;
-          uses mpls-ldp-label-advertisement-config;
-          uses mpls-ldp-label-advertisement-state;
         }
 
         container hello-adjacencies {
@@ -367,6 +364,16 @@ module openconfig-mpls-ldp {
         "Label space ID of the neighbor.";
     }
 
+    leaf enable-downstream-on-demand {
+      type boolean;
+      default "false";
+      description
+        "If this leaf is set to true, LDP downstream on demand is enabled in
+        the LDP session and the router advertises DoD to the peer. If the peer
+        also adverstises DoD, then downstream on demand is used in the session,
+        otherwise downstream unsolicited is used";
+    }
+
   }
 
   grouping mpls-ldp-neighbor-state {
@@ -397,6 +404,20 @@ module openconfig-mpls-ldp {
         negotiation behavior.";
       reference
        "RFC5036, Sec. 2.5.4.";
+    }
+
+    leaf peer-label-advertisement-mode {
+      type label-advertisement-mode;
+      description
+        "This leaf shows the Label Advertisement Mode which is advertised by the peer.";
+    }
+
+    leaf negotiated-label-advertisement-mode {
+      type label-advertisement-mode;
+      description
+        "This leaf shows the Label Advertisement Mode negotiated based on local
+        and remote preferences. If DoD is enabled and the peer also adverstises DoD,
+        then downstream is negotiated. Otherwise, downstream unsolicited is used";
     }
 
   }
@@ -939,39 +960,6 @@ module openconfig-mpls-ldp {
       description
         "When set to true, the functionality within which this leaf is
         defined is enabled, when set to false it is explicitly disabled.";
-    }
-  }
-
-  grouping mpls-ldp-label-advertisement-config {
-    description
-      "Grouping containing configuration to enable Downstream on demand in a session.";
-    leaf downstream-on-demand-enabled {
-      type boolean;
-      default "false";
-      description
-        "If this leaf is set to true, LDP downstream on demand is enabled in
-        the LDP session and the router advertises DoD to the peer. If the peer
-        also adverstises DoD, then downstream on demand is used in the session,
-        otherwise downstream unsolicited is used";
-    }
-  }
-
-  grouping mpls-ldp-label-advertisement-state {
-    description
-      "Grouping containing Label advertisement mode state based on peer negotiaton.";
-
-    leaf peer-label-advertisement-mode {
-      type label-advertisement-mode;
-      description
-        "This leaf shows the Label Advertisement Mode which is advertised by the peer.";
-    }
-
-    leaf negotiated-label-advertisement-mode {
-      type label-advertisement-mode;
-      description
-        "This leaf shows the Label Advertisement Mode negotiated based on local
-        and remote preferences. If DoD is enabled and the peer also adverstises DoD,
-        then downstream is negotiated. Otherwise, downstream unsolicited is used";
     }
   }
 
