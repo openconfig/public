@@ -123,7 +123,7 @@ module openconfig-wifi-mac {
       default "oc-wifi-types:FREQ_2_5_GHZ";
       description
         "Operating frequency of this SSID. When none specified, the
-        default is dual-band.";
+        default is dual-band 2.4 and 5 GHz.";
     }
 
     leaf-list basic-data-rates-2g {
@@ -239,7 +239,13 @@ module openconfig-wifi-mac {
         }
         enum WPA3_ENTERPRISE {
           description
-            "WPA3-Enterprise with 802.1X authentication.";
+            "WPA3-Enterprise with 802.1X SHA-256 authentication key
+             management.";
+        }
+        enum WPA3_ENTERPRISE_192_BIT {
+          description
+            "WPA3-Enterprise with 802.1X SHA-384 authentication key
+             management.";
         }
       }
       description
@@ -255,12 +261,22 @@ module openconfig-wifi-mac {
       }
       description
         "The passphrase used on this WPA2-Personal SSID.";
-     }
+    }
+
+    leaf wpa3-psk {
+      when "../opmode = 'WPA3_SAE'";
+      type string {
+        length "8..63";
+      }
+      description
+        "The passphrase used on this WPA3-SAE SSID.";
+    }
 
     leaf server-group {
       when "../opmode = 'WPA2_ENTERPRISE' or
       ../opmode = 'WPA2_PERSONAL' or
       ../opmode = 'WPA3_ENTERPRISE' or
+      ../opmode = 'WPA3_ENTERPRISE_192_BIT' or
       ../opmode = 'WPA3_SAE'";
       type string;
         description
@@ -332,6 +348,7 @@ module openconfig-wifi-mac {
 
     leaf mfp {
       when "../opmode = 'WPA3_ENTERPRISE' or ../opmode =
+      'WPA3_ENTERPRISE_192_BIT' or ../opmode =
       'WPA3_SAE' or ../opmode = 'ENHANCED_OPEN'";
       type boolean;
       mandatory true;
@@ -1373,8 +1390,7 @@ module openconfig-wifi-mac {
       leaf frequency {
         type uint8;
         description
-          "Frequency the client is utilizing. Typically, 2.4 or
-          5[GHz].";
+          "Frequency the client is utilizing. Typically, 2.4, 5 or 6 [GHz].";
       }
     }
   }
