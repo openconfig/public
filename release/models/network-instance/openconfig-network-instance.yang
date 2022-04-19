@@ -47,7 +47,20 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.16.1";
+  oc-ext:openconfig-version "0.16.3";
+
+  revision "2022-04-19" {
+    description
+      "Fix some broken xpath references in when statements.";
+    reference "0.16.3";
+  }
+
+  revision "2021-11-17" {
+    description
+      "Add prefix to qualification prefix to when statements
+      at identifier level.";
+    reference "0.16.2";
+  }
 
   revision "2021-07-22" {
     description
@@ -283,8 +296,8 @@ module openconfig-network-instance {
         }
 
         container evpn {
-          when "./config/type = 'oc-ni-types:L2VSI'
-                or ./config/type = 'oc-ni-types:L3VRF'" {
+          when "../config/type = 'oc-ni-types:L2VSI'
+                or ../config/type = 'oc-ni-types:L3VRF'" {
            description
              "EVPN container should be included for L2 and L3 NIs";
          }
@@ -313,8 +326,8 @@ module openconfig-network-instance {
             uses encapsulation-config;
 
             uses l2ni-encapsulation-config {
-              when "./config/type = 'oc-ni-types:L2VSI' or ./config/type = 'oc-ni-types:L2P2P'
-                      or ./config/type = 'oc-ni-types:L2L3'" {
+              when "../../config/type = 'oc-ni-types:L2VSI' or ../../config/type = 'oc-ni-types:L2P2P'
+                      or ../../config/type = 'oc-ni-types:L2L3'" {
                         description
                           "Only allow L2 encapsulations to be set
                           when the instance is of a type that supports
@@ -331,8 +344,8 @@ module openconfig-network-instance {
             uses encapsulation-config;
 
             uses l2ni-encapsulation-config {
-              when "./config/type = 'oc-ni-types:L2VSI' or ./config/type = 'oc-ni-types:L2P2P'
-                      or ./config/type = 'oc-ni-types:L2L3'" {
+              when "../../config/type = 'oc-ni-types:L2VSI' or ../../config/type = 'oc-ni-types:L2P2P'
+                      or ../../config/type = 'oc-ni-types:L2L3'" {
                         description
                           "Only allow L2 encapsulations to be set
                           when the instance is of a type that supports
@@ -754,7 +767,7 @@ module openconfig-network-instance {
             }
 
             uses oc-loc-rt:local-static-top {
-              when "./config/identifier = 'STATIC'" {
+              when "./config/identifier = 'oc-pol-types:STATIC'" {
                 description
                   "Include static route parameters only when the
                   protocol is set to static";
@@ -765,7 +778,7 @@ module openconfig-network-instance {
             }
 
             uses oc-loc-rt:local-aggregate-top {
-              when "./config/identifier = 'LOCAL_AGGREGATE'" {
+              when "./config/identifier = 'oc-pol-types:LOCAL_AGGREGATE'" {
                 description
                   "Include aggregate route parameters only when the
                   protocol is set to aggregate";
@@ -776,7 +789,7 @@ module openconfig-network-instance {
             }
 
             uses oc-bgp:bgp-top {
-              when "./config/identifier = 'BGP'" {
+              when "./config/identifier = 'oc-pol-types:BGP'" {
                 description
                   "Include BGP parameters only when the protocol
                   is of type BGP";
@@ -787,7 +800,7 @@ module openconfig-network-instance {
             }
 
             uses oc-ospfv2:ospfv2-top {
-              when "./config/identifier = 'OSPF'" {
+              when "./config/identifier = 'oc-pol-types:OSPF'" {
                 description
                   "Include OSPFv2 parameters only when the protocol
                   is of type OSPFv2";
@@ -795,7 +808,7 @@ module openconfig-network-instance {
             }
 
             uses oc-isis:isis-top {
-              when "./config/identifier = 'ISIS'" {
+              when "./config/identifier = 'oc-pol-types:ISIS'" {
                 description
                   "Include IS-IS configuration when the protocol is of type
                   IS-IS";
@@ -806,7 +819,7 @@ module openconfig-network-instance {
             }
 
             uses oc-pim:pim-top {
-              when "./config/identifier = 'PIM'" {
+              when "./config/identifier = 'oc-pol-types:PIM'" {
                 description
                   "Include PIM configuration when the protocol is of type
                   PIM";
@@ -817,7 +830,7 @@ module openconfig-network-instance {
             }
 
             uses oc-igmp:igmp-top {
-              when "./config/identifier = 'IGMP'" {
+              when "./config/identifier = 'oc-pol-types:IGMP'" {
                 description
                   "Include IGMP configuration when the protocol is of type
                   IGMP";

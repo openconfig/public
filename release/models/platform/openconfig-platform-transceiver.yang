@@ -65,7 +65,13 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.9.0";
+
+  revision "2021-07-29" {
+    description
+      "Add several media-lane-based VDM defined by CMIS to physical channel";
+    reference "0.9.0";
+  }
 
   revision "2021-02-23" {
     description
@@ -287,6 +293,59 @@ module openconfig-platform-transceiver {
       such as when the physical channel has a leafref to an optical
       channel component and the module-functional-type is
       TYPE_DIGITAL_COHERENT_OPTIC this grouping will NOT be used.";
+
+    leaf laser-age {
+      type oc-types:percentage;
+      description
+        "Laser age (0% at beginning of life, 100% end of life) in integer
+        percentage. This term is defined by Common Management Interface
+        Specification (CMIS).";
+
+      reference "QSFP-DD CMIS 5.0 Table 8-122";
+    }
+
+    container laser-temperature {
+      description
+        "Laser temperature for the cooled laser in degrees Celsius with 1
+        decimal precision. This term is defined by Common Management
+        Interface Specification (CMIS). Values include the instantaneous,
+        average, minimum, and maximum statistics. If avg/min/max statistics
+        are not supported, the target is expected to just supply the
+        instant value.";
+
+      reference "QSFP-DD CMIS 5.0 Table 8-122";
+
+      uses oc-platform-types:avg-min-max-instant-stats-precision1-celsius;
+    }
+
+    container target-frequency-deviation {
+      description
+        "The difference in MHz with 1 decimal precision between the target
+        center frequency and the actual current center frequency . This term
+        is defined by Common Management Interface Specification (CMIS) and
+        referred to as laser frequency error or laser ferquency deviation.
+        Values include the instantaneous, average, minimum, and maximum
+        statistics. If avg/min/max statistics are not supported, the target
+        is expected to just supply the instant value.";
+
+      reference "QSFP-DD CMIS 5.0 Section Table 8-122";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision1-mhz;
+    }
+
+    container tec-current {
+      description
+        "The amount of current flowing to the TC of a cooled laser in percentage
+        with 2 decimal precision. This term is defined by Common Management
+        Interface Specification (CMIS). Values include the instantaneous,
+        average, minimum, and maximum statistics. If avg/min/max statistics
+        are not supported, the target is expected to just supply the instant
+        value.";
+
+      reference "QSFP-DD CMIS 5.0 Table 8-122";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
+    }
 
     uses physical-channel-state-extended {
       when "../../../state/module-functional-type = 'oc-opt-types:TYPE_STANDARD_OPTIC'" {
@@ -612,6 +671,17 @@ module openconfig-platform-transceiver {
         instant value";
 
       uses oc-opt-types:avg-min-max-instant-stats-precision18-ber;
+    }
+
+    container supply-voltage {
+      description
+        "Supply voltage to the transceiver in volts with 2 decimal
+        precision. Values include the instantaneous, average, minimum,
+        and maximum statistics. If avg/min/max statistics are not
+        supported, the target is expected to just supply the instant
+        value.";
+
+      uses oc-platform-types:avg-min-max-instant-stats-precision2-volts;
     }
 
     uses optical-power-state;
