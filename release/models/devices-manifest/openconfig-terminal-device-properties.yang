@@ -25,13 +25,13 @@ module openconfig-terminal-device-properties {
       www.openconfig.net";
 
   description
-      "Module to extend OC terminal device with information about
-      operational modes. It supports operational modes for 1 Optical
-      Channel, with a single OTSi. The operational mode incluides key
+      "Module to extend OpenConfig terminal device's operational modes'
+      data. It supports operational modes for one Optical
+      Channel, with a single OTSi. The operational mode includes key
       attributes such modulation format, symbol rate, nominal central
-      frequency (NFC) tunability constraits (grid, min/max NCF), FEC
-      gain,minimum and maximum output power of the transmitter or
-      minimum q-value at the receiver as well as the spectrum width of
+      frequency (NFC) tunability constraints (grid, min/max NCF), FEC
+      gain, minimum and maximum output power of the transmitter or
+      minimum OSNR at the receiver as well as the spectrum width of
       the OTSi (OTSiMC). It also includes (optional) aspects such as
       filter characterization, CD and DGD tolerance.";
 
@@ -39,7 +39,7 @@ module openconfig-terminal-device-properties {
 
 
   // Revisions
-  revision "2021-06-21" {
+  revision "2022-04-19" {
       description "Initial manifest fine to extend the information
       related to the operational modes supported by a terminal device";
       reference "0.1.0";
@@ -68,30 +68,30 @@ module openconfig-terminal-device-properties {
         "ITU-T G.698.2 (11/18) standard mode that guarantees interoperability.
         It must be an string with the following format:
         B-DScW-ytz(v) where all these attributes are conformant
-        to the ITU-T G.698.2 (11/18) recomendation.";
+        to the ITU-T G.698.2 (11/18) recommendation.";
     }
   }
 
   grouping explicit-mode-features-description {
     description
-      "Definition of propiertary or non-standard operational-modes, which can be
+      "Definition of proprietary or non-standard operational-modes, which can be
       uniformly characterized by the set of attributes included in their
       operational-mode-capabilities which defines the related signal physical
-      impairment related aspects such Rx and Tx associated attibutes and tolerances,
+      impairment related aspects such Rx and Tx associated attributes and tolerances,
       ; and its optical-channel-config-value-constrains, which defines what are the
       allowed values to be configured at the oc-component:optical-channel instance
       configured to this mode.";
 
     container explicit-mode {
       description
-        "Explicit defition of the operational-mode. Typically this is used
-        for non-standard/propietary modes defined by the terminal-device
-        vendor and it is self described by the capabilities included in
+        "Explicit definition of the operational-mode. Typically this is used
+        for non-standard/proprietary modes defined by the terminal-device
+        vendor and it is self-described by the capabilities included in
         the subtree underneath.";
 
       container operational-mode-capabilities {
         description
-          "Set of attributes which charaterizes the operational-mode for optimal
+          "Set of attributes which characterizes the operational-mode for optimal
           optical-channel transmission and receiver functions. This attributes
           are intending to describe all the relevant data used during the
           network planning phase, to estimate the physical-impairment
@@ -139,7 +139,7 @@ module openconfig-terminal-device-properties {
       description
         "Adjustment granularity in Gigahertz. As per  ITU-T G.694.1
         (10/2020), it is used to calculate nominal central frequency of an
-        optical channel. It defines the minimun granularity supporting by the
+        optical channel. It defines the minimum granularity supporting by the
         optical channel's central frequency setting.";
     }
 
@@ -152,7 +152,7 @@ module openconfig-terminal-device-properties {
        "Minimum recommended spectrum spacing between the central frequency of two
         adjacent optical channels of the same mode. In case of two adjacent optical
         channels with different operational-modes, it is up to the path computation
-        engine to determine the minimun distance between the central frequencies of
+        engine to determine the minimum distance between the central frequencies of
         these two optical channels.";
     }
 
@@ -162,7 +162,7 @@ module openconfig-terminal-device-properties {
       }
       units dBm;
       description
-        "Minimmun target output optical power level of the optical channel,
+        "Minimum target output optical power level of the optical channel,
         configurable according to the optical transceiver mode properties,
         expressed in increments of 0.01 dBm (decibel-milliwats)";
     }
@@ -173,9 +173,9 @@ module openconfig-terminal-device-properties {
       }
       units dBm;
       description
-        "Maximun arget output optical power level of the optical channel,
+        "Maximum arget output optical power level of the optical channel,
         configurable according to the optical transceiver mode properties,
-        expressed in increments of 0.01 dBm (decibel-milliwats)";
+        expressed in increments of 0.01 dBm (decibel-milliwatts)";
     }
   }
 
@@ -212,7 +212,7 @@ module openconfig-terminal-device-properties {
   grouping fec-codes-attributes {
     description
       "FEC codes attributes grouping, including the set of attributes
-      which defines the FEC code employed on the tranmission represented
+      which defines the FEC code employed on the transmission represented
       by the operational-mode.";
 
     leaf fec-coding {
@@ -222,8 +222,8 @@ module openconfig-terminal-device-properties {
       }
       description
         "Forward error correction (FEC) coding schema used in the
-        tramission mode. Type union of string (for propietary codes)
-        and a set of standard codes encoded as identityrefs";
+        transmission mode. Type union of string (for proprietary codes)
+        and a set of standard codes encoded as identity references";
     }
 
     leaf coding-overhead {
@@ -258,8 +258,8 @@ module openconfig-terminal-device-properties {
 
   grouping filter-attributes-top {
     description
-      "This gruping includes the attributes which characterises the filter at
-      transceiver transmission for the given operational-mode.";
+      "This grouping includes the attributes which characterises the filter
+      at transceiver transmission for the given operational-mode.";
 
     leaf pulse-shaping-type {
       type union {
@@ -269,7 +269,7 @@ module openconfig-terminal-device-properties {
       description
        "Pulse/spectral shaping type such as Raised-cosine (RC),
          root-raised-cosine (RRC) and OFF. The attribute allows
-         other pulse-shapping types to be encoded as strings.";
+         other pulse-shaping types to be encoded as strings.";
     }
 
     leaf roll-off {
@@ -300,7 +300,7 @@ module openconfig-terminal-device-properties {
       type oc-opt-term-prop-types:bit-rate;
       description
         "Rounded bit rate of the tributary signal delivered by the
-        optical channel associated to the specifc operational mode.
+        optical channel associated to the specific operational mode.
         Exact bit rate will be refined by protocol selection at the
         associated tributary logical channel.";
     }
@@ -388,7 +388,7 @@ module openconfig-terminal-device-properties {
       units ps-nm;
       description
         "Maximum chromatic-dispersion, accumulated value, supported by the
-        optical channel associated to the associated tranmission mode
+        optical channel associated to the associated transmission mode
         (operational model), expressed in picoseconds / nanometer (ps/nm).";
     }
 
@@ -410,7 +410,7 @@ module openconfig-terminal-device-properties {
       units dB;
       description
         "Maximum polarization-dependent-loss accumulated value, supported by the
-        optical channel associated to the associated tranmission mode
+        optical channel associated to the associated transmission mode
         (operational model), expressed in decibels (dB)";
     }
 
@@ -421,8 +421,8 @@ module openconfig-terminal-device-properties {
         cd, pmd, low RX Power, pdl,...
         - For parameter values below lowest up-to-boundary value, the penalty is 0.
         - For parameter values between lowest and highest up-to-boundary
-        values, penalty could be linerarly interpolated.
-        - For paramter values above highest up-to-boundary value, the penalty is the one
+        values, penalty could be linearly interpolated.
+        - For parameter values above highest up-to-boundary value, the penalty is the one
         included within penalty-value attribute associated to the highest up-to-boundary";
 
       uses penalties-list-element-attributes;
@@ -469,7 +469,7 @@ module openconfig-terminal-device-properties {
       config false;
       description
         "Indicates the transceiver's list of supported operational
-         modes and its assoiated transmission features";
+         modes and its associated transmission features";
 
       list mode-descriptor {
         key "mode-id";
