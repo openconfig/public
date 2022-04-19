@@ -30,6 +30,13 @@ module openconfig-bgp-policy {
 
   oc-ext:openconfig-version "6.0.2";
 
+  revision "2022-04-19" {
+    description
+      "Modified asn frmm leaf to leaf-list in set-as-path-prepend
+      group.";
+    reference "7.0.0";  
+  }
+
   revision "2020-06-30" {
     description
       "Add OpenConfig POSIX pattern extensions.";
@@ -671,17 +678,17 @@ module openconfig-bgp-policy {
       }
       description
         "Number of times to prepend the value specified in the asn
-        leaf to the AS path. If no value is specified by the asn
-        leaf, the local AS number of the system is used. The value
-        should be between 1 and the maximum supported by the
-        implementation.";
+        leaf-list to the AS path. If no value is specified by the
+        asn leaf-list, the local AS number of the system is used.
+        The value should be between 1 and the maximum supported by
+        the implementation.";
     }
 
-    leaf asn {
+    leaf-list asn {
       type oc-inet:as-number;
       description
-        "The AS number to prepend to the AS path. If this leaf is
-        not specified and repeat-n is set, then the local AS
+        "The AS number to prepend to the AS path. If this leaf-list
+        is not specified and repeat-n is set, then the local AS
         number will be used for prepending.";
     }
   }
