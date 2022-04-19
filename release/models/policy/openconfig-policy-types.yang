@@ -24,7 +24,13 @@ module openconfig-policy-types {
     policy.  It can be imported by modules that contain protocol-
     specific policy conditions and actions.";
 
-  oc-ext:openconfig-version "3.1.1";
+  oc-ext:openconfig-version "3.2.1";
+
+  revision "2021-12-10" {
+    description
+      "Add INSTALL_PROTOCOL_TYPE gRIBI.";
+    reference "3.2.1";
+  }
 
   revision "2018-11-21" {
     description
@@ -227,5 +233,10 @@ module openconfig-policy-types {
       "Internet Group Management Protocol";
     reference
       "RFC 3376";
+  }
+
+  identity GRIBI {
+    base INSTALL_PROTOCOL_TYPE;
+    description "gRPC Routing Information Base Interface";
   }
 }
