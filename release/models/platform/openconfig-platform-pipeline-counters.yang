@@ -424,6 +424,8 @@ module openconfig-platform-pipeline-counters {
   }
 
   grouping pipeline-counter {
+    description
+      "A common set of counters that apply to multiple NPU blocks.";
     leaf name {
       type string;
       description
@@ -447,7 +449,7 @@ module openconfig-platform-pipeline-counters {
         key "name";
         description
           "An individual counter within the NPU sub-block. Each counter is
-        uniquely identified by the name of the counter.";
+          uniquely identified by the name of the counter.";
 
         leaf name {
           type leafref {
@@ -459,7 +461,7 @@ module openconfig-platform-pipeline-counters {
 
         container state {
           description
-            "Counter corresponding to the NPU sub-block of the IC";
+            "Counter corresponding to the NPU sub-block of the IC.";
           uses pipeline-counter;
         }
       }
