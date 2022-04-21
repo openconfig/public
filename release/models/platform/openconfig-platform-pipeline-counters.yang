@@ -65,14 +65,20 @@ module openconfig-platform-pipeline-counters {
     5 blocks, is to have the abililty to receive all drop counters from
     all 5 blocks, for example, with one request.";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.3.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2022-04-13" {
+    description
+      "Add generic pipeline counters per block";
+    reference "0.3.0";
+  }
 
   revision "2022-01-19" {
     description
       "Fixed typo for aggregate field.";
-    reference "0.2.1";
+    reference "0.3.0";
   }
 
   revision "2021-10-16" {
@@ -116,6 +122,8 @@ module openconfig-platform-pipeline-counters {
 
             uses pipeline-counters-packet-interface-block-state;
           }
+
+          uses pipeline-counters-common;
         }
 
         container lookup-block {
@@ -130,6 +138,8 @@ module openconfig-platform-pipeline-counters {
 
             uses pipeline-counters-packet-lookup-block-state;
           }
+
+          uses pipeline-counters-common;
         }
 
         container queueing-block {
@@ -144,6 +154,8 @@ module openconfig-platform-pipeline-counters {
 
             uses pipeline-counters-packet-queueing-block-state;
           }
+
+          uses pipeline-counters-common;
         }
 
         container fabric-block {
@@ -158,6 +170,8 @@ module openconfig-platform-pipeline-counters {
 
             uses pipeline-counters-packet-fabric-block-state;
           }
+
+          uses pipeline-counters-common;
         }
 
         container host-interface-block {
@@ -172,6 +186,8 @@ module openconfig-platform-pipeline-counters {
 
             uses pipeline-counters-packet-host-interface-block-state;
           }
+
+          uses pipeline-counters-common;
         }
       }
 
@@ -193,6 +209,8 @@ module openconfig-platform-pipeline-counters {
 
             uses pipeline-drop-packet-interface-block-state;
           }
+
+          uses pipeline-counters-common;
         }
 
         container lookup-block {
@@ -206,6 +224,8 @@ module openconfig-platform-pipeline-counters {
 
             uses pipeline-drop-packet-lookup-block-state;
           }
+
+          uses pipeline-counters-common;
         }
 
         container queueing-block {
@@ -220,6 +240,8 @@ module openconfig-platform-pipeline-counters {
 
             uses pipeline-drop-packet-queueing-block-state;
           }
+
+          uses pipeline-counters-common;
         }
 
         container fabric-block {
@@ -233,6 +255,8 @@ module openconfig-platform-pipeline-counters {
 
             uses pipeline-drop-packet-fabric-block-state;
           }
+
+          uses pipeline-counters-common;
         }
 
         container host-interface-block {
@@ -247,6 +271,8 @@ module openconfig-platform-pipeline-counters {
 
             uses pipeline-drop-packet-host-interface-block-state;
           }
+
+          uses pipeline-counters-common;
         }
       }
 
@@ -392,6 +418,49 @@ module openconfig-platform-pipeline-counters {
               uses pipeline-errors-packet-host-interface-block-state;
             }
           }
+        }
+      }
+    }
+  }
+
+  grouping pipeline-counter {
+    leaf name {
+      type string;
+      description
+        "Name of the counter in the NPU.";
+    }
+    leaf count {
+      type oc-yang:counter64;
+      description
+        "Total counts of this type.";
+    }
+  }
+
+  grouping pipeline-counters-common {
+    description
+      "A common set of packet counters that apply to multiple sections.";
+    container counters {
+      description
+        "The container for a common set of packet counters.";
+
+      list counter {
+        key "name";
+        description
+          "An individual counter within the NPU sub-block. Each counter is
+        uniquely identified by the name of the counter.";
+
+        leaf name {
+          type leafref {
+            path "../state/name";
+          }
+          description
+            "Reference to the name of the counter being described.";
+        }
+
+        container state {
+          description
+            "Counter corresponding to the NPU sub-block of the IC";
+          uses pipeline-counter;
         }
       }
     }
