@@ -53,32 +53,46 @@ module openconfig-terminal-device-properties {
 
   // grouping statements
 
-  grouping standard-mode-features-description {
+  grouping standard-mode-features-attributes {
+    description
+      "Standard mode features attributes grouping.";
+
+    leaf standard-mode {
+      type oc-opt-term-prop-types:standard-mode;
+      description
+        "G.698.2 (11/18) standard mode";
+    }
+  }
+
+  grouping standard-mode-features-description-top {
     description
       "Standard mode features description grouping. It is used if the
       'mode-type' attribute is set to 'TRANSCEIVER_MODE_TYPE_STANDARD";
 
     container G.698.2 {
-      leaf standard-mode {
-        type oc-opt-term-prop-types:standard-mode;
-        description
-          "G.698.2 (11/18) standard mode";
-      }
       description
         "ITU-T G.698.2 (11/18) standard mode that guarantees interoperability.
         It must be an string with the following format:
         B-DScW-ytz(v) where all these attributes are conformant
         to the ITU-T G.698.2 (11/18) recommendation.";
+
+      container state {
+          config false;
+          description
+            "Operational-mode standard mode state top container.";
+
+          uses standard-mode-features-attributes;
+      }
     }
   }
 
-  grouping explicit-mode-features-description {
+  grouping explicit-mode-features-description-top {
     description
       "Definition of proprietary or non-standard operational-modes, which can be
       uniformly characterized by the set of attributes included in their
       operational-mode-capabilities which defines the related signal physical
-      impairment related aspects such Rx and Tx associated attributes and tolerances,
-      ; and its optical-channel-config-value-constraints, which defines what are the
+      impairment related aspects such Rx and Tx associated attributes and tolerances;
+      and its optical-channel-config-value-constraints, which defines what are the
       allowed values to be configured at the oc-component:optical-channel instance
       configured to this mode.";
 
@@ -89,24 +103,38 @@ module openconfig-terminal-device-properties {
         vendor and it is self-described by the capabilities included in
         the subtree underneath.";
 
-      container operational-mode-capabilities {
+      container operational-mode-capabilities{
         description
-          "Set of attributes which characterizes the operational-mode for optimal
-          optical-channel transmission and receiver functions. This attributes
-          are intending to describe all the relevant data used during the
-          network planning phase, to estimate the physical-impairment
-          tolerances which can be introduced by the DWDM optical path,
-          while assuring optimal transmission function.";
+            "Set of attributes which characterizes the operational-mode for optimal
+            optical-channel transmission and receiver functions. This attributes
+            are intending to describe all the relevant data used during the
+            network planning phase, to estimate the physical-impairment
+            tolerances which can be introduced by the DWDM optical path,
+            while assuring optimal transmission function.";
 
-        uses operational-mode-capabilities-top;
+        container state {
+          config false;
+          description
+            "Operational-mode explicit mode capabilities state top container.";
+
+          uses operational-mode-capabilities-top;
+        }
       }
+
       container optical-channel-config-value-constraints{
         description
           "Set of constraints of the configuration attributes
           of the optical-channel associated to the selected
           operational-mode.";
 
-        uses config-value-constraints-top;
+        container state {
+          config false;
+          description
+            "Operational-mode explicit mode config value constrains state top
+            container.";
+
+          uses config-value-constraints-top;
+        }
       }
     }
   }
@@ -119,13 +147,13 @@ module openconfig-terminal-device-properties {
     leaf min-central-frequency {
       type oc-opt-types:frequency-type;
       description
-        "The lowest configurable central frequency in MHz";
+        "The lowest configurable central frequency in MHz.";
     }
 
     leaf max-central-frequency {
       type oc-opt-types:frequency-type;
       description
-        "The highest configurable central frequency in MHz";
+        "The highest configurable central frequency in MHz.";
     }
 
     leaf grid-type {
@@ -283,9 +311,10 @@ module openconfig-terminal-device-properties {
     }
   }
 
-  grouping operational-mode-capabilities-top {
+  grouping operational-mode-capabilities-attributes-top {
     description
-      "Operational-mode features top container";
+      "Operational-mode capabilities leafs.";
+
     leaf modulation-format {
       type union {
         type string;
@@ -323,17 +352,6 @@ module openconfig-terminal-device-properties {
        "Spectrum width of the optical channel associated to this
         operational mode, calculated as the baud-rate*(1+roll-off).";
     }
-
-    container fec {
-      description
-        "The Forward Error Coding (FEC) coding schema used,
-        including the name, overhead, pre-fec-ber threshold and
-        gain properties.";
-
-      uses fec-codes-attributes;
-    }
-
-    //sensitivity specs.
 
     leaf min-tx-osnr {
       type decimal64 {
@@ -413,7 +431,29 @@ module openconfig-terminal-device-properties {
         optical channel associated to the associated transmission mode
         (operational model), expressed in decibels (dB)";
     }
+  }
 
+  grouping operational-mode-capabilities-top {
+    description
+      "Operational-mode explicit-mode capabilities grouping.";
+
+    uses operational-mode-capabilities-attributes-top;
+
+    container fec {
+      description
+        "The Forward Error Coding (FEC) coding schema used,
+        including the name, overhead, pre-fec-ber threshold and
+        gain properties.";
+      
+      container state {
+        config false;
+        description
+          "FEC state attributes top container.";
+          
+        uses fec-codes-attributes;
+      }
+    }
+    
     list penalties {
       key "parameter-and-unit up-to-boundary";
       description
@@ -424,16 +464,45 @@ module openconfig-terminal-device-properties {
         values, penalty could be linearly interpolated.
         - For parameter values above highest up-to-boundary value, the penalty is the one
         included within penalty-value attribute associated to the highest up-to-boundary";
+      
+      leaf parameter-and-unit {
+        type leafref {
+          path "../state/parameter-and-unit";
+        }
+        description
+          "Impairment and unit leading to the penalty (i.e., cd-ps)";
+      }
 
-      uses penalties-list-element-attributes;
+      leaf up-to-boundary {
+        type leafref {
+          path "../state/up-to-boundary";
+        }
+        description
+          "defines the upper (for positive values) and lower (for negative values)
+           limit for which the penalty value is valid.";
+      }
+      
+      container state {
+        config false;
+        description
+          "Penalties list element's state attributes top container.";
+          
+        uses penalties-list-element-attributes;
+      }
     }
 
     container filter {
       description
         "This container includes information which characterises the filter at
         transceiver transmission for the given operational-mode.";
-
-      uses filter-attributes-top;
+      
+      container state {
+        config false;
+        description
+          "Filter's state attributes top container.";
+          
+        uses filter-attributes-top;
+      }
     }
   }
 
@@ -456,9 +525,9 @@ module openconfig-terminal-device-properties {
         "Indicates whether the transceiver's mode is a standard
         mode, an organizational mode or an explicit mode.";
     }
-    uses standard-mode-features-description;
+    uses standard-mode-features-description-top;
 
-    uses explicit-mode-features-description;
+    uses explicit-mode-features-description-top;
   }
 
   grouping operational-mode-top{
@@ -481,15 +550,16 @@ module openconfig-terminal-device-properties {
 
         leaf mode-id {
           type leafref {
-            path "../features/mode-id";
+            path "../state/mode-id";
           }
           description
             "Reference to mode-id";
         }
 
-        container features {
+        container state {
           description
-            "Features supported by the operational mode.";
+            "Static features or properties which characterize the
+            operational mode.";
 
           uses operational-mode-features-top;
         }
