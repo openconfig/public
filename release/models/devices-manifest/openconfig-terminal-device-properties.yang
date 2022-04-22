@@ -117,7 +117,70 @@ module openconfig-terminal-device-properties {
           description
             "Operational-mode explicit mode capabilities state top container.";
 
-          uses operational-mode-capabilities-top;
+          uses operational-mode-capabilities-attributes-top;
+        }
+        container fec {
+          description
+            "The Forward Error Coding (FEC) coding schema used,
+            including the name, overhead, pre-fec-ber threshold and
+            gain properties.";
+
+          container state {
+            config false;
+            description
+              "FEC state attributes top container.";
+
+            uses fec-codes-attributes;
+          }
+        }
+
+        list penalties {
+          key "parameter-and-unit up-to-boundary";
+          description
+            "Penalties includes contributions from different impairments including
+            cd, pmd, low RX Power, pdl,...
+            - For parameter values below lowest up-to-boundary value, the penalty is 0.
+            - For parameter values between lowest and highest up-to-boundary
+            values, penalty could be linearly interpolated.
+            - For parameter values above highest up-to-boundary value, the penalty is the one
+            included within penalty-value attribute associated to the highest up-to-boundary";
+
+          leaf parameter-and-unit {
+            type leafref {
+              path "../state/parameter-and-unit";
+            }
+            description
+              "Impairment and unit leading to the penalty (i.e., cd-ps)";
+          }
+
+          leaf up-to-boundary {
+            type leafref {
+              path "../state/up-to-boundary";
+            }
+            description
+              "defines the upper (for positive values) and lower (for negative values)
+               limit for which the penalty value is valid.";
+          }
+
+          container state {
+            config false;
+            description
+              "Penalties list element's state attributes top container.";
+            uses penalties-list-element-attributes;
+          }
+        }
+
+        container filter {
+          description
+            "This container includes information which characterises the filter at
+            transceiver transmission for the given operational-mode.";
+
+          container state {
+            config false;
+            description
+              "Filter's state attributes top container.";
+            uses filter-attributes-top;
+          }
         }
       }
 
@@ -433,77 +496,6 @@ module openconfig-terminal-device-properties {
     }
   }
 
-  grouping operational-mode-capabilities-top {
-    description
-      "Operational-mode explicit-mode capabilities grouping.";
-
-    uses operational-mode-capabilities-attributes-top;
-
-    container fec {
-      description
-        "The Forward Error Coding (FEC) coding schema used,
-        including the name, overhead, pre-fec-ber threshold and
-        gain properties.";
-
-      container state {
-        config false;
-        description
-          "FEC state attributes top container.";
-
-        uses fec-codes-attributes;
-      }
-    }
-
-    list penalties {
-      key "parameter-and-unit up-to-boundary";
-      description
-        "Penalties includes contributions from different impairments including
-        cd, pmd, low RX Power, pdl,...
-        - For parameter values below lowest up-to-boundary value, the penalty is 0.
-        - For parameter values between lowest and highest up-to-boundary
-        values, penalty could be linearly interpolated.
-        - For parameter values above highest up-to-boundary value, the penalty is the one
-        included within penalty-value attribute associated to the highest up-to-boundary";
-
-      leaf parameter-and-unit {
-        type leafref {
-          path "../state/parameter-and-unit";
-        }
-        description
-          "Impairment and unit leading to the penalty (i.e., cd-ps)";
-      }
-
-      leaf up-to-boundary {
-        type leafref {
-          path "../state/up-to-boundary";
-        }
-        description
-          "defines the upper (for positive values) and lower (for negative values)
-           limit for which the penalty value is valid.";
-      }
-
-      container state {
-        config false;
-        description
-          "Penalties list element's state attributes top container.";
-        uses penalties-list-element-attributes;
-      }
-    }
-
-    container filter {
-      description
-        "This container includes information which characterises the filter at
-        transceiver transmission for the given operational-mode.";
-
-      container state {
-        config false;
-        description
-          "Filter's state attributes top container.";   
-        uses filter-attributes-top;
-      }
-    }
-  }
-
   grouping operational-mode-features-top{
     description
       "Top-level operational-mode-features grouping definitions";
@@ -523,8 +515,6 @@ module openconfig-terminal-device-properties {
         "Indicates whether the transceiver's mode is a standard
         mode, an organizational mode or an explicit mode.";
     }
-    uses standard-mode-features-description-top;
-    uses explicit-mode-features-description-top;
   }
 
   grouping operational-mode-top{
@@ -560,6 +550,8 @@ module openconfig-terminal-device-properties {
 
           uses operational-mode-features-top;
         }
+        uses standard-mode-features-description-top;
+        uses explicit-mode-features-description-top;
       }
     }
   }
