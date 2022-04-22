@@ -444,16 +444,16 @@ module openconfig-terminal-device-properties {
         "The Forward Error Coding (FEC) coding schema used,
         including the name, overhead, pre-fec-ber threshold and
         gain properties.";
-      
+
       container state {
         config false;
         description
           "FEC state attributes top container.";
-          
+
         uses fec-codes-attributes;
       }
     }
-    
+
     list penalties {
       key "parameter-and-unit up-to-boundary";
       description
@@ -464,7 +464,7 @@ module openconfig-terminal-device-properties {
         values, penalty could be linearly interpolated.
         - For parameter values above highest up-to-boundary value, the penalty is the one
         included within penalty-value attribute associated to the highest up-to-boundary";
-      
+
       leaf parameter-and-unit {
         type leafref {
           path "../state/parameter-and-unit";
@@ -481,12 +481,11 @@ module openconfig-terminal-device-properties {
           "defines the upper (for positive values) and lower (for negative values)
            limit for which the penalty value is valid.";
       }
-      
+
       container state {
         config false;
         description
           "Penalties list element's state attributes top container.";
-          
         uses penalties-list-element-attributes;
       }
     }
@@ -495,12 +494,11 @@ module openconfig-terminal-device-properties {
       description
         "This container includes information which characterises the filter at
         transceiver transmission for the given operational-mode.";
-      
+
       container state {
         config false;
         description
-          "Filter's state attributes top container.";
-          
+          "Filter's state attributes top container.";   
         uses filter-attributes-top;
       }
     }
@@ -526,7 +524,6 @@ module openconfig-terminal-device-properties {
         mode, an organizational mode or an explicit mode.";
     }
     uses standard-mode-features-description-top;
-
     uses explicit-mode-features-description-top;
   }
 
