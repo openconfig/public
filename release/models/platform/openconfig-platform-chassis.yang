@@ -3,7 +3,7 @@ module openconfig-platform-chassis {
 
   namespace "http://openconfig.net/yang/platform/chassis";
 
-  prefix "oc-ic";
+  prefix "oc-platform-chassis";
 
   import openconfig-platform { prefix oc-platform; }
   import openconfig-extensions { prefix oc-ext; }
@@ -31,6 +31,17 @@ module openconfig-platform-chassis {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
+
+  // extension statements
+
+  // feature statements
+
+  // identity statements
+
+  // typedef statements
+
+  // grouping statements
+
   grouping chassis-config {
     description
       "Config that corresponds to the global hardware package";
@@ -44,9 +55,26 @@ module openconfig-platform-chassis {
     }
   }
 
-  augment "/oc-platform:components/oc-platform:component/oc-platform:chassis" {
+  // data definition statements
+
+  // augment statements
+
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:chassis/oc-platform:config" {
     description
-      "Augment chassis component state and config.";
+      "Augment chassis component config.";
     uses chassis-config;
   }
+
+    augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:chassis/oc-platform:state" {
+    description
+      "Augment chassis component config.";
+    uses chassis-config;
+  }
+
 }
+
+  // rpc statements
+
+  // notification statements
