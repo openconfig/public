@@ -1,0 +1,52 @@
+module openconfig-platform-chassis {
+  yang-version "1";
+
+  namespace "http://openconfig.net/yang/platform/chassis";
+
+  prefix "oc-ic";
+
+  import openconfig-platform { prefix oc-platform; }
+  import openconfig-extensions { prefix oc-ext; }
+
+  organization "OpenConfig working group";
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines extensions to the OpenConfig platform model
+    that apply to chassis (CHASSIS) components.
+    These components are global to the device hardware package and
+    are not already part of another platform module and which
+    configuration or state is applicable.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2022-04-22" {
+    description
+      "Initial revision with chassis-id.";
+    reference "0.1.0";
+  }
+
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  grouping chassis-config {
+    description
+      "Config that corresponds to the global hardware package";
+
+    leaf chassis-id {
+      type uint32;
+      description
+        "A unique identifier representing the global device.  This is
+        intended to be used as a root of a tree of configurable component 
+        ids";
+    }
+  }
+
+  augment "/oc-platform:components/oc-platform:component/oc-platform:chassis" {
+    description
+      "Augment chassis component state and config.";
+    uses chassis-config;
+  }
+}
