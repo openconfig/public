@@ -24,7 +24,20 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "7.0.0";
+  oc-ext:openconfig-version "8.1.0";
+
+  revision "2022-03-21" {
+    description
+      "Add BGP port";
+    reference "8.1.0";
+  }
+
+  revision "2021-12-01" {
+    description
+      "Add prefix-limit-received, add prefix-limit
+      state nodes, change/relocate restart-timer";
+    reference "8.0.0";
+  }
 
   revision "2021-10-21" {
     description
@@ -172,6 +185,15 @@ submodule openconfig-bgp-common {
         particular set of NLRI exhibit instability.";
       reference
         "RFC 4271 - A Border Gateway Protocol 4, Sec 9.2.1.1";
+    }
+
+    leaf restart-time {
+      type uint16;
+      units "seconds";
+      description
+        "Time interval in seconds after which the BGP session is
+        re-established after being torn down due to exceeding any
+        configured max prefix-limit.";
     }
   }
 
