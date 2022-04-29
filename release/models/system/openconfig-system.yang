@@ -46,7 +46,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.13.0";
+  oc-ext:openconfig-version "0.14.0";
+
+  revision "2022-04-28" {
+    description
+      "Added system my-mac-address.";
+    reference "0.14.0";
+  }
 
   revision "2021-07-20" {
     description
@@ -266,6 +272,19 @@ module openconfig-system {
         information such as the current system date and time, uptime,
         last login timestamp, etc.";
     }
+
+    leaf my-mac-address{
+      type oc-yang:mac-address;
+      description
+        "MAC address to be added to my-mac-address. Packets with the 
+	dest-mac as this mac-address should be routed by the switch. 
+	This mac-address should be added to my-mac table of the router 
+	in addition to any mac-addresses that system may already have 
+	allocated. This mac-address may not be allocated from the block 
+	of mac-address that system owns. For instance, it's allocation 
+	could be managed by an external controller.";
+    }
+
   }
 
   grouping mount-point-state {
