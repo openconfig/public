@@ -219,6 +219,20 @@ module openconfig-ate-flow {
         "The rate, measured in bits per second, at which the flow is being
         received.";
     }
+
+    leaf first-packet-latency {
+      type oc-types:timeticks64;
+      description
+        "The time from when the flow was started to when the first packet was
+        received.";
+    }
+
+    leaf convergence-time {
+      type oc-types:timeticks64;
+      description
+        "The time from when the first packet was received to when traffic
+        loss dropped below a minimal threshold value.";
+    }
   }
 
   grouping flow-counters-state {
