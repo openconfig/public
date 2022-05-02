@@ -309,6 +309,26 @@ submodule openconfig-aft-common {
         specified header type.";
     }
 
+    leaf decapsulate-header {
+      type oc-aftt:encapsulation-header-type;
+      description
+        "When forwarding a packet to the specified next-hop, the local
+         system performs a decapsulation of the packet - removing the
+         specified header type. In the case that no next-hop is
+         specified, the packet header is removed, and a subsequent
+         forwarding lookup is performed on the packet encapsulated
+         within the header, matched within the relevant AFT within the
+         specified network-instance.";
+    }
+
+    leaf network-instance {
+      type string;
+      description:
+        "Network instance for the nexthop.  If this is not populated
+        then network-instance should be the same instance that the entry
+        is populated into.";
+    }
+
     uses aft-common-install-protocol;
   }
 
