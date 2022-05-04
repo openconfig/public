@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "0.10.0";
+  oc-ext:openconfig-version "0.11.0";
+
+  revision "2022-05-03" {
+    description
+      "Add fib-ready to AFT IPv(4/6) entry state";
+    reference "0.11.0";
+  }
 
   revision "2022-01-26" {
     description
@@ -378,6 +384,27 @@ submodule openconfig-aft-common {
       "Common parameters across IP address families";
 
     uses aft-common-install-protocol;
+
+    leaf fib-ready {
+      type boolean;
+      default false;
+      description
+        "AFT streaming over gNMI is an eventually consistent system.
+        When the device updates an entry it is usually expected to
+        stream an update to the client within a vert short amount
+        of time (few milliseconds). So, Telemetry collector or a
+        controller that parse the AFT doesn't have a consistent
+        snapshot, or overall versioned copy of AFT with the device
+        at any point of time.
+
+        In certain failure modes like device boot up, gNMI daemon
+        failure and device/routing engine stateful switchover
+        Telemetry collector or a controller need a flag to
+        determine whether it is in consistent with the device or
+        not such that it can a corrective action when needed.
+        A device would set this leaf or flag to indicate to the
+        client that AFT data/view is consistent.";
+    }
 
     leaf decapsulate-header {
       type oc-aftt:encapsulation-header-type;
