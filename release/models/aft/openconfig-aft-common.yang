@@ -10,6 +10,7 @@ submodule openconfig-aft-common {
   import openconfig-mpls-types { prefix "oc-mplst"; }
   import openconfig-policy-types { prefix "oc-pol-types"; }
   import openconfig-aft-types { prefix "oc-aftt"; }
+  import openconfig-evpn-types { prefix "oc-evpn-types"; }
 
   organization
     "OpenConfig working group";
@@ -28,6 +29,12 @@ submodule openconfig-aft-common {
     description
       "Add next hop counters and prefix counters";
     reference "1.0.0";
+  }
+
+  revision "2022-01-26" {
+    description
+      "Add vni-label and tunnel-src-ip-address properties under next-hops";
+    reference "0.10.0";
   }
 
   revision "2021-12-09" {
@@ -156,6 +163,8 @@ submodule openconfig-aft-common {
 
             uses aft-common-entry-counter-state;
           }
+
+          uses aft-evpn-entry-state;
         }
 
         container ip-in-ip {
@@ -235,6 +244,27 @@ submodule openconfig-aft-common {
         forwarding entry. This leaf is applicable only to next-hops
         which include MPLS label information, and its value typically
         corresponds to the RSVP-TE LSP name.";
+    }
+  }
+
+  grouping aft-evpn-entry-state {
+    description
+      "Operational state for evpn related information in forwarding entry";
+
+    leaf vni-label {
+      type oc-evpn-types:evi-id;
+      description
+        "Where applicable, the next hop label representing the virtual
+        network identifier (VNI) for the forwarding entry. This leaf is
+        applicable only to next-hops which include VXLAN encapsulation
+        header information";
+    }
+
+    leaf tunnel-src-ip-address {
+      type oc-inet:ip-address;
+      description
+        "Where applicable this represents the tunnel source ip address.
+        For VXLAN this represents the source VTEP ip address";
     }
   }
 
