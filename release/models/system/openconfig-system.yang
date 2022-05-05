@@ -273,16 +273,15 @@ module openconfig-system {
         last login timestamp, etc.";
     }
 
-    leaf my-mac-address{
+    leaf my-mac-address {
       type oc-yang:mac-address;
       description
-        "MAC address to be added to my-mac-address table. Packets with
-	the dest-mac as this mac-address should be routed by the switch.
-	This mac-address should be added to my-mac table of the router
-	in addition to any mac-addresses that system may already have
-	allocated. This mac-address may not be allocated from the block
-	of mac-address that system owns. For instance, it's allocation
-	could be managed by an external controller.";
+        "MAC address to be added to the my-mac-address table, in addition to 
+        any other MAC addresses that system may already have allocated and added. 
+        Packets destined to this MAC address are expected to go through ingress 
+        lookup and result in packet being routed by the switch. This MAC address 
+        may not be allocated from the block of MAC address that system owns. For 
+        instance, it's allocation could be managed by an external controller.";
     }
   }
 
