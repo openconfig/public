@@ -166,6 +166,14 @@ module openconfig-aft {
           for installation into the FIB of the device exporting the
           data structure.";
 
+        container state {
+          config false;
+          description
+          "Operational state parameters for the IPv4 unicast AFT.";
+
+          uses aft-common-ip-aft-state;
+        }
+
         uses aft-ipv4-unicast-structural;
       }
 
@@ -175,11 +183,20 @@ module openconfig-aft {
           within this table are uniquely keyed on the IPv6 unicast
           destination prefix which is matched by ingress packets.
 
-          The data set represented by the IPv6 Unicast AFTis the set
-          of entries within the IPv6 RIB that ";
+          The data set represented by the IPv6 Unicast AFT is the set
+          of entries within the IPv6 RIB that that have been selected
+          for installation into the FIB of the device exporting the
+          data structure.";
+
+        container state {
+          config false;
+          description
+            "Operational state parameters for the IPv6 unicast AFT.";
+
+          uses aft-common-ip-aft-state;
+        }
 
         uses aft-ipv6-unicast-structural;
-
       }
 
       container policy-forwarding {

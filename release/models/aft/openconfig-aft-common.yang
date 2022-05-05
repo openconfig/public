@@ -379,11 +379,9 @@ submodule openconfig-aft-common {
 
   }
 
-  grouping aft-common-ip-state {
+  grouping aft-common-ip-aft-state {
     description
-      "Common parameters across IP address families";
-
-    uses aft-common-install-protocol;
+      "Common parameters across AFT IP address families";
 
     leaf fib-ready {
       type boolean;
@@ -405,6 +403,13 @@ submodule openconfig-aft-common {
         A device would set this leaf or flag to indicate to the
         client that AFT data/view is consistent.";
     }
+  }
+
+  grouping aft-common-ip-state {
+    description
+      "Common parameters across IP address families";
+
+    uses aft-common-install-protocol;
 
     leaf decapsulate-header {
       type oc-aftt:encapsulation-header-type;
