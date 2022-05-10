@@ -184,18 +184,18 @@ module openconfig-pcep {
       type oc-inet:ip-address;
       description
       	"The destination IP address of the PCE server for PCEP service.
-      	Repeat this step to specify multiple PCE servers to provide redundancy.
+      	Specify multiple entries in the path-computation-server-list to provide redundancy.
       	When multiple candidate servers are specified for a single client,
       	they are prioritized according to preference.";
     }
 	
-    leaf pce-server-id {
+    leaf id {
       type string;
       description
         "A unique name for the PCE server.";
     }
 
-    leaf pce-server-port {
+    leaf port {
       type oc-inet:port-number;
       default 4189;
       description
@@ -323,9 +323,9 @@ module openconfig-pcep {
       description
         "Global PCEP authentication";
       container config {
-          description
-            "Configuration of PCEP authentication attributes";
-          uses pcep-authentication-config;
+        description
+          "Configuration of PCEP authentication attributes";
+        uses pcep-authentication-config;
       }
       container state {
         config false;
@@ -345,6 +345,7 @@ module openconfig-pcep {
       description
         "Enables PCEP authentication on the node.";
     }
+    
     leaf authentication-key {
       type oc-types:routing-password;
       description
@@ -354,6 +355,7 @@ module openconfig-pcep {
         "RFC1321: The MD5 Message-Digest Algorithm.
         RFC5440: PCEP Specification";
     }
+    
    leaf keychain {
      type oc-keychain:keychain-ref;
      description
