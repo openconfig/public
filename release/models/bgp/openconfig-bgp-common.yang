@@ -24,7 +24,19 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "8.0.0";
+  oc-ext:openconfig-version "9.0.0";
+
+  revision "2022-04-26" {
+    description
+      "Transition decimal64 types to uint16 for various BGP timers";
+    reference "9.0.0";
+  }
+
+  revision "2022-03-21" {
+    description
+      "Add BGP port";
+    reference "8.1.0";
+  }
 
   revision "2021-12-01" {
     description
@@ -131,9 +143,7 @@ submodule openconfig-bgp-common {
       peer";
 
     leaf connect-retry {
-      type decimal64 {
-        fraction-digits 2;
-      }
+      type uint16;
       default 30;
       description
         "Time interval in seconds between attempts to establish a
@@ -141,9 +151,7 @@ submodule openconfig-bgp-common {
     }
 
     leaf hold-time {
-      type decimal64 {
-        fraction-digits 2;
-      }
+      type uint16;
       default 90;
       description
         "Time interval in seconds that a BGP session will be
@@ -155,9 +163,7 @@ submodule openconfig-bgp-common {
     }
 
     leaf keepalive-interval {
-      type decimal64 {
-        fraction-digits 2;
-      }
+      type uint16;
       default 30;
       description
         "Time interval in seconds between transmission of keepalive
@@ -166,9 +172,7 @@ submodule openconfig-bgp-common {
     }
 
     leaf minimum-advertisement-interval {
-      type decimal64 {
-        fraction-digits 2;
-      }
+      type uint16;
       default 30;
       description
         "Minimum time which must elapse between subsequent UPDATE
@@ -476,9 +480,7 @@ submodule openconfig-bgp-common {
     }
 
     leaf stale-routes-time {
-      type decimal64 {
-        fraction-digits 2;
-      }
+      type uint16;
       description
         "An upper-bound on the time thate stale routes will be
         retained by a router after a session is restarted. If an
