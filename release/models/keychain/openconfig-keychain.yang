@@ -32,7 +32,13 @@ module openconfig-keychain {
     which may be then referenced by other models such as routing protocol
     management.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2022-03-05" {
+    description
+      "Add prefix qualification to keychain-ref";
+    reference "0.3.0";
+  }
 
   revision "2021-12-31" {
     description
@@ -48,7 +54,8 @@ module openconfig-keychain {
 
   typedef keychain-ref {
     type leafref {
-      path "/keychains/keychain/config/name";
+      path "/oc-keychain:keychains/oc-keychain:keychain/" +
+           "oc-keychain:config/oc-keychain:name";
     }
     description
       "A reference to a keychain defined on the system that can be used by
