@@ -29,12 +29,19 @@ submodule openconfig-aft-fib-ready {
       "Structural grouping defining the schema for the FIB ready signals
       of various abstract forwarding table.";
 
-    leaf ip-unicast {
-      type boolean;
-      default false;
+    container state {
+      config false;
       description
-        "FIB ready signal indicating consistent device snapshot of
-        IPv4 & IPv6 unicast AFTs.";
+        "Operational state parameters relating to the FIB
+        ready signals of various AFTs.";
+
+      leaf ip-unicast {
+        type boolean;
+        default false;
+        description
+          "FIB ready signal indicating consistent device snapshot of
+          IPv4 & IPv6 unicast AFTs.";
+      }
     }
   }
 }
