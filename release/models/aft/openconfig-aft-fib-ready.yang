@@ -1,0 +1,40 @@
+submodule openconfig-aft-fib-ready {
+  belongs-to "openconfig-aft" {
+    prefix "oc-aft";
+  }
+
+  import openconfig-extensions { prefix "oc-ext"; }
+
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Submodule containing definitions of groupings for the FIB
+    ready signals corresponding to various abstract forwarding tables.";
+
+  oc-ext:openconfig-version "0.11.0";
+
+  revision "2022-05-12" {
+    description
+      "Add fib-ready container under afts.";
+    reference "0.11.0";
+  }
+
+  grouping aft-fib-ready-structural {
+    description
+      "Structural grouping defining the schema for the FIB ready signals
+      of various abstract forwarding table.";
+
+    leaf ip-unicast {
+      type boolean;
+      default false;
+      description
+        "FIB ready signal indicating consistent device snapshot of
+        IPv4 & IPv6 unicast AFTs.";
+    }
+  }
+}
