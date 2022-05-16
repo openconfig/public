@@ -10,6 +10,7 @@ submodule openconfig-aft-common {
   import openconfig-mpls-types { prefix "oc-mplst"; }
   import openconfig-policy-types { prefix "oc-pol-types"; }
   import openconfig-aft-types { prefix "oc-aftt"; }
+  import openconfig-evpn-types { prefix "oc-evpn-types"; }
 
   organization
     "OpenConfig working group";
@@ -22,7 +23,25 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2022-01-27" {
+    description
+      "Add next hop counters and prefix counters.";
+    reference "1.0.0";
+  }
+
+  revision "2022-01-26" {
+    description
+      "Add vni-label and tunnel-src-ip-address properties under next-hops";
+    reference "0.10.0";
+  }
+
+  revision "2021-12-09" {
+    description
+      "Add pop-top-label in NH AFT entry state";
+    reference "0.9.0";
+  }
 
   revision "2021-08-06" {
     description
@@ -136,6 +155,16 @@ submodule openconfig-aft-common {
 
           uses aft-common-entry-nexthop-state;
           uses aft-labeled-entry-state;
+
+          container counters {
+            description
+              "Surrounding container for counters.";
+
+            uses aft-common-entry-counter-state;
+          }
+
+          uses aft-evpn-entry-state;
+
         }
 
         container ip-in-ip {
@@ -160,18 +189,12 @@ submodule openconfig-aft-common {
     description
       "Operational state parameters relating to a forwarding entry";
 
-    leaf packets-forwarded {
-      type oc-yang:counter64;
+    container counters {
+      config false;
       description
-        "The number of packets which have matched, and been forwarded,
-         based on the AFT entry.";
-    }
+        "Surrounding container for counters.";
 
-    leaf octets-forwarded {
-      type oc-yang:counter64;
-      description
-        "The number of octets which have matched, and been forwarded,
-         based on the AFT entry";
+      uses aft-common-entry-counter-state;
     }
 
     // This leafref needs to refer to any network-instance on the system
@@ -224,6 +247,27 @@ submodule openconfig-aft-common {
     }
   }
 
+  grouping aft-evpn-entry-state {
+    description
+      "Operational state for evpn related information in forwarding entry";
+
+    leaf vni-label {
+      type oc-evpn-types:evi-id;
+      description
+        "Where applicable, the next hop label representing the virtual
+        network identifier (VNI) for the forwarding entry. This leaf is
+        applicable only to next-hops which include VXLAN encapsulation
+        header information";
+    }
+
+    leaf tunnel-src-ip-address {
+      type oc-inet:ip-address;
+      description
+        "Where applicable this represents the tunnel source ip address.
+        For VXLAN this represents the source VTEP ip address";
+    }
+  }
+
   grouping aft-common-entry-nexthop-state {
     description
       "Parameters relating to a next-hop.";
@@ -260,6 +304,17 @@ submodule openconfig-aft-common {
       description
         "The MAC address of the next-hop if resolved by the local
         network instance.";
+    }
+
+    leaf pop-top-label {
+      type boolean;
+      default false;
+      description
+        "Flag that controls pop action, i.e., the top-most MPLS label
+         should be popped from the packet when switched by the system.
+
+        The top-most MPLS label associated with pop action is equal to
+        the label key used in 'mpls' AFT 'label-entry' list.";
     }
 
     leaf-list pushed-mpls-label-stack {
@@ -627,5 +682,43 @@ submodule openconfig-aft-common {
     }
 
     uses oc-if:interface-ref-common;
+  }
+
+  grouping aft-common-entry-counter-state {
+    description
+      "Counters relating to a forwarding entry";
+
+    leaf packets-forwarded {
+      type oc-yang:counter64;
+      description
+        "The number of packets which have matched, and been forwarded,
+         based on the AFT entry.";
+    }
+
+    leaf octets-forwarded {
+      type oc-yang:counter64;
+      description
+        "The number of octets which have matched, and been forwarded,
+         based on the AFT entry";
+    }
+  }
+
+  grouping aft-common-backup-entry-counter-state {
+    description
+      "Counters relating to a backup forwarding entry";
+
+    leaf packets-forwarded-backup {
+      type oc-yang:counter64;
+      description
+        "The number of packets which have matched, and been forwarded,
+         based on the AFT backup entry.";
+    }
+
+    leaf octets-forwarded-backup {
+      type oc-yang:counter64;
+      description
+        "The number of octets which have matched, and been forwarded,
+         based on the AFT backup entry";
+    }
   }
 }

@@ -10,7 +10,6 @@ module openconfig-if-ethernet {
   // import some basic types
   import openconfig-interfaces { prefix oc-if; }
   import iana-if-type { prefix ianaift; }
-  import openconfig-platform-types { prefix oc-platform-types; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
 
@@ -25,7 +24,19 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.12.0";
+  oc-ext:openconfig-version "2.12.2";
+
+  revision "2022-04-20" {
+    description
+      "Remove unused import";
+    reference "2.12.2";
+  }
+
+  revision "2021-07-20" {
+    description
+      "Fix typo in hardware MAC address description.";
+    reference "2.12.1";
+  }
 
   revision "2021-07-07" {
     description
@@ -585,7 +596,7 @@ module openconfig-if-ethernet {
     leaf hw-mac-address {
       type oc-yang:mac-address;
       description
-        "Represenets the 'burned-in', or system-assigned, MAC
+        "Represents the 'burned-in', or system-assigned, MAC
         address for the Ethernet interface.";
     }
 

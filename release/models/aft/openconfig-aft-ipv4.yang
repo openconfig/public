@@ -20,7 +20,25 @@ submodule openconfig-aft-ipv4 {
     "Submodule containing definitions of groupings for the abstract
     forwarding tables for IPv4.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2022-01-27" {
+    description
+      "Add next hop counters and prefix counters";
+    reference "1.0.0";
+  }
+
+  revision "2022-01-26" {
+    description
+      "Add vni-label and tunnel-src-ip-address properties under next-hops";
+    reference "0.10.0";
+  }
+
+  revision "2021-12-09" {
+    description
+      "Add pop-top-label in NH AFT entry state";
+    reference "0.9.0";
+  }
 
   revision "2021-08-06" {
     description
@@ -132,7 +150,15 @@ submodule openconfig-aft-ipv4 {
           "The IPv4 destination prefix that should be matched to
           utilise the AFT entry.";
     }
-    uses aft-common-entry-state;
+    uses aft-common-entry-state {
+      augment counters {
+        description
+          "The number of packets and octets matched the AFT entry
+          and routed to next-hops within the backup next-hop-group";
+
+        uses aft-common-backup-entry-counter-state;
+      }
+    }
     uses aft-common-ip-state;
   }
 }

@@ -30,7 +30,38 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "6.1.0";
+  oc-ext:openconfig-version "9.0.0";
+
+  revision "2022-04-26" {
+    description
+      "Transition decimal64 types to uint16 for various BGP timers";
+    reference "9.0.0";
+  }
+
+  revision "2022-03-21" {
+    description
+      "Add BGP port";
+    reference "8.1.0";
+  }
+
+  revision "2021-12-01" {
+    description
+      "Add prefix-limit-received, add prefix-limit
+      state nodes, change/relocate restart-timer";
+    reference "8.0.0";
+  }
+
+  revision "2021-10-21" {
+    description
+      "Removal of top-level /bgp container";
+    reference "7.0.0";
+  }
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "6.1.1";
+  }
 
   revision "2021-03-17" {
     description
@@ -130,6 +161,13 @@ submodule openconfig-bgp-neighbor {
         type oc-inet:ip-address;
         description
           "Address of the BGP peer, either in IPv4 or IPv6";
+    }
+
+    leaf neighbor-port {
+        type oc-inet:port-number;
+        default 179;
+        description
+          "Port number of the BGP peer";
     }
 
     leaf enabled {
@@ -293,6 +331,24 @@ submodule openconfig-bgp-neighbor {
         due to an inbound connection request from a specified source prefix
         within a dynamic-neighbor-prefix.";
     }
+
+    leaf last-prefix-limit-exceeded {
+      type oc-types:timeticks64;
+      description
+        "This timestamp indicates the time that the BGP session last
+        violated a configured max prefix-limit for any AFI/SAFI combination
+        on the session.  The value is the timestamp in nanoseconds relative
+        to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).
+
+        If the 'prefix-limit-exceeded' node is set to true for any AFI/SAFI
+        on the session, then the next restart time for the session can be
+        calculated as this value plus the configured 'restart-time' under
+        the neighbor timers.
+
+        This value should be retained across established sessions and is only
+        set/updated when prefix-limit-exceeded transitions from false/unset to
+        true.";
+    }
   }
 
   grouping bgp-neighbor-counters-message-types-state {
@@ -413,9 +469,7 @@ submodule openconfig-bgp-neighbor {
       with the BGP session";
 
     leaf negotiated-hold-time {
-      type decimal64 {
-        fraction-digits 2;
-      }
+      type uint16;
       description
         "The negotiated hold-time for the BGP session";
     }
