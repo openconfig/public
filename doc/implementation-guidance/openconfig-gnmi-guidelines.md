@@ -83,14 +83,10 @@ empty string:
  
 This set of simplifying rules allow for separation of users from the exact
 module structure, whilst still supporting extensibility of the OpenConfig tree.
-We observe that asserting thse constraints avoids alternate approaches, such as
+We observe that asserting these constraints avoids alternate approaches, such as
 defining a single huge module for the entire tree, as some implementations do -
 which causes significant difficulty in consuming the model for specific use
-cases which make use of only a subset of nodes. This single module approach is
-taken by some implementations, e.g.,
-[`nokia-conf`](https://github.com/nokia/7x50_YangModels/blob/master/latest_sros_20.7/nokia-conf.yang),
-and [`configuration`](https://github.com/Juniper/yang/blob/master/17.1/17.1R1/configuration.yang)
-module. In these cases, there will be user-facing impact of breaking these
+cases which make use of only a subset of nodes. In these cases, there will be user-facing impact of breaking these
 modules down into more consumable chunks, which the approach described above
 avoids.
 
