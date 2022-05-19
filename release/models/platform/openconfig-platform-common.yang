@@ -6,6 +6,7 @@ submodule openconfig-platform-common {
     prefix "oc-platform";
   }
 
+  import openconfig-platform-types { prefix oc-platform-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-types { prefix oc-types; }
 
@@ -19,7 +20,13 @@ submodule openconfig-platform-common {
     "This modules contains common groupings that are used in multiple
     components within the platform module.";
 
-  oc-ext:openconfig-version "0.17.0";
+  oc-ext:openconfig-version "0.18.0";
+
+  revision "2022-06-28" {
+    description
+      "Add grouping for component power management";
+    reference "0.18.0";
+  }
 
   revision "2022-06-10" {
     description
@@ -140,6 +147,18 @@ submodule openconfig-platform-common {
       type oc-types:timeticks64;
       description
         "The time when the high-watermark was last updated";
+    }
+  }
+
+  grouping component-power-management {
+    description
+      "Common grouping for managing component power";
+
+    leaf power-admin-state {
+      type oc-platform-types:component-power-type;
+      default POWER_ENABLED;
+      description
+        "Enable or disable power to the component";
     }
   }
 
