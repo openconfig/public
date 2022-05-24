@@ -13,6 +13,7 @@ module openconfig-platform {
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-types { prefix oc-types; }
 
+  include openconfig-platform-common;
 
   // meta
   organization "OpenConfig working group";
@@ -64,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.15.0";
+  oc-ext:openconfig-version "0.16.0";
+
+  revision "2022-04-21" {
+    description
+      "Add platform utilization.";
+    reference "0.16.0";
+  }
 
   revision "2022-02-02" {
     description
@@ -835,6 +842,8 @@ module openconfig-platform {
         description
           "Operational state data for chassis components";
       }
+
+      uses platform-utilization-top;
     }
 
 // TODO(aashaikh): linecard container is already defined in
@@ -989,6 +998,8 @@ module openconfig-platform {
         description
           "Operational state data for chip components";
       }
+
+      uses platform-utilization-top;
     }
 
     container backplane {

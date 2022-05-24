@@ -24,8 +24,14 @@ submodule openconfig-aft-ipv6 {
 
   revision "2022-05-05" {
     description
-      "Add network-instance and decapsulate-header in NH AFT entry state";
-    reference "0.11.0";
+        "Add network-instance and decapsulate-header in NH AFT entry state";
+      reference "1.10";
+  }
+
+  revision "2022-01-27" {
+    description
+      "Add next hop counters and prefix counters.";
+    reference "1.0.0";
   }
 
   revision "2022-01-26" {
@@ -150,7 +156,15 @@ submodule openconfig-aft-ipv6 {
           "The IPv6 destination prefix that should be matched to
           utilise the AFT entry.";
     }
-    uses aft-common-entry-state;
+    uses aft-common-entry-state {
+      augment counters {
+        description
+          "The number of packets and octets matched the AFT entry
+          and routed to next-hops within the backup next-hop-group";
+
+        uses aft-common-backup-entry-counter-state;
+      }
+    }
     uses aft-common-ip-state;
   }
 }
