@@ -1,0 +1,17 @@
+module openconfig-vlan-types-test {
+  prefix "oc-vlan-types-t";
+  namespace "urn:openconfig-vlan-types-test";
+
+  import pattern-test { prefix "pt"; }
+  import openconfig-vlan-types { prefix "oc-vlan-types"; }
+
+  leaf vlan-range {
+    type oc-vlan-types:vlan-range;
+    pt:pattern-test-pass "1..10";
+    pt:pattern-test-pass "30..32";
+    pt:pattern-test-pass "1024..2048";
+    pt:pattern-test-fail "100..4097";
+    pt:pattern-test-fail "14";
+    pt:pattern-test-fail "A..40";
+  }
+}
