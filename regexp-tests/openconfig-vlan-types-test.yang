@@ -14,4 +14,25 @@ module openconfig-vlan-types-test {
     pt:pattern-test-fail "14";
     pt:pattern-test-fail "A..40";
   }
+
+  leaf qinq-id {
+    type oc-vlan-types:qinq-id;
+    pt:pattern-test-pass "10.10";
+    pt:pattern-test-pass "23.2000";
+    pt:pattern-test-pass "1000.*";
+    pt:pattern-test-fail "525";
+    pt:pattern-test-fail "100.4097";
+    pt:pattern-test-fail "300.4A";
+  }
+
+  leaf qinq-id-range {
+    type oc-vlan-types:qinq-id-range;
+    pt:pattern-test-pass "1.10..100";
+    pt:pattern-test-pass "100.400..1000";
+    pt:pattern-test-pass "300..400.1000";
+    pt:pattern-test-pass "1024..2048.1024";
+    pt:pattern-test-fail "1024..2048..1024";
+    pt:pattern-test-fail "10.20.30";
+    pt:pattern-test-fail "1020..1030";
+  }
 }
