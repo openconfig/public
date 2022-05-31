@@ -20,8 +20,8 @@ module openconfig-aft {
   include openconfig-aft-ethernet;
   // Include the common cross-AFT entities.
   include openconfig-aft-common;
-  // Include the FIB ready submodule.
-  include openconfig-aft-fib-ready;
+  // Include the state synced submodule.
+  include openconfig-aft-state-synced;
 
   organization
     "OpenConfig working group";
@@ -46,7 +46,7 @@ module openconfig-aft {
 
   revision "2022-05-12" {
     description
-      "Add fib-ready container under afts.";
+      "Add state-synced container under afts.";
     reference "1.1.0";
   }
 
@@ -227,7 +227,7 @@ module openconfig-aft {
         uses aft-ethernet-structural;
       }
 
-      container fib-ready {
+      container state-synced {
         description
           "AFT streaming over gNMI is an eventually consistent system.
           When the device updates an entry it is usually expected to
@@ -245,7 +245,7 @@ module openconfig-aft {
           A device would set this leaf or flag to indicate to the
           client that AFT data/view is consistent.";
 
-        uses aft-fib-ready-structural;
+        uses aft-state-synced-structural;
       }
 
       uses aft-next-hop-groups-structural;
