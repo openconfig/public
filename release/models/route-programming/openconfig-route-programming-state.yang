@@ -42,10 +42,15 @@ module openconfig-route-programming-state {
         "The programming status of routes within the network-instance. Route
         programming reports are divided into a set of sub-categories:
 
-         - failed programming -- these routes are those that were attempted to be
-           programed to the hardware, but the programming operation failed.
-         - stale programming -- these routes are those that are programmed into
-           hardware, but some failure occurred in updating to a new state.
+         - failed programming -- A prefix which is not present in the AFT is
+           attempted to be added into the AFT but failed.  Traffic destined for
+           this prefix will not be matched.
+
+         - stale programming -- A prefix is already in the AFT is requested to
+           be updated but failed.  Traffic destined for this prefix will be
+           forwarded to the old next-hop.  AFT telemetry should continue to
+           reflect the old next-hop for the prefix.
+
          - drop programming - these routes are explicitly programmed into hardware
            to point to a destination that discards packets.";
 
