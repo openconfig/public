@@ -7,9 +7,9 @@ submodule openconfig-rib-bgp-tables {
 
   // import some basic types
   import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-policy-types { prefix oc-pol-types; }
-  import ietf-yang-types { prefix yang; }
 
   import openconfig-network-instance-types { prefix oc-ni-types; }
   import openconfig-evpn-types { prefix oc-evpn-types; }
@@ -30,7 +30,13 @@ submodule openconfig-rib-bgp-tables {
     "This submodule contains structural data definitions for
     BGP routing tables.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.8.1";
+
+  revision "2022-06-06" {
+    description
+      "Revert IETF types in favor of oc-inet types";
+    reference "0.8.1";
+  }
 
   revision "2021-06-21" {
     description
@@ -778,7 +784,7 @@ submodule openconfig-rib-bgp-tables {
           }
 
           leaf mac-address {
-            type yang:mac-address;
+            type oc-yang:mac-address;
             description
               "The MAC address that is learned on a PE from a CE that is
               connected to it or learned from other PEs";
