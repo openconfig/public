@@ -65,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.16.0";
+  oc-ext:openconfig-version "0.17.0";
+
+  revision "2022-06-10" {
+    description
+      "Specify units and epoch for switchover and reboot times.";
+    reference "0.17.0";
+  }
 
   revision "2022-04-21" {
     description
@@ -472,11 +478,14 @@ module openconfig-platform {
 
     leaf last-switchover-time {
       type oc-types:timeticks64;
+      units "nanoseconds";
       description
         "For components that have redundant roles (e.g. two
         supervisors in a device, one as primary the other as
         secondary), this reports the time of the last change of
-        the component's role.";
+        the component's role. The value is the timestamp in 
+        nanoseconds relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+
     }
 
     leaf last-reboot-reason {
@@ -489,8 +498,11 @@ module openconfig-platform {
 
     leaf last-reboot-time {
       type oc-types:timeticks64;
+      units "nanoseconds";
       description
-        "This reports the time of the last reboot of the component.";
+        "This reports the time of the last reboot of the component. The 
+        value is the timestamp in nanoseconds relative to the Unix Epoch 
+        (Jan 1, 1970 00:00:00 UTC).";
     }
   }
 
