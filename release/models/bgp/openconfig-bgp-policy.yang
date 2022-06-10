@@ -28,6 +28,7 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
+
   oc-ext:openconfig-version "7.0.0";
 
   revision "2022-04-19" {
@@ -37,6 +38,16 @@ module openconfig-bgp-policy {
       as-path-prepend-type to select single AS number repeated
       multiple time or mutiple AS numbers.";
     reference "7.0.0";
+
+  revision "2022-05-24" {
+    description
+      "Remove module extension oc-ext:regexp-posix by making pattern regexes
+      conform to RFC6020/RFC7950.
+
+      Types impacted:
+      - bgp-set-med-type";
+    reference "6.1.0";
+
   }
 
   revision "2020-06-30" {
@@ -110,7 +121,6 @@ module openconfig-bgp-policy {
   }
 
   // OpenConfig specific extensions for module metadata.
-  oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
@@ -159,7 +169,7 @@ module openconfig-bgp-policy {
     type union {
       type uint32;
       type string {
-        pattern '^[+-][0-9]+$';
+        pattern '[+-][0-9]+';
         oc-ext:posix-pattern '^[+-][0-9]+$';
       }
       type enumeration {
