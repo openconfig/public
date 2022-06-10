@@ -32,8 +32,10 @@ module openconfig-bgp-policy {
 
   revision "2022-04-19" {
     description
-      "Modified asn from leaf to leaf-list in set-as-path-prepend
-      group.";
+      "Add new container as-path-prepend-list to support mutiple
+      AS numbers in AS path prepend. Add new container
+      as-path-prepend-type to select single AS number repeated
+      multiple time or mutiple AS numbers.";
     reference "7.0.0";
   }
 
@@ -668,6 +670,67 @@ module openconfig-bgp-policy {
     }
   }
 
+  grouping as-path-prepend-type-config {
+    description
+      "Configuration data for the AS path prepend type action.";
+
+    leaf asn-prepend-type {
+      type enumeration {
+        enum "SINGLE" {
+          description
+             "SINGLE AS number to prepend to AS path with specified number
+             of times.";
+        }
+        enum "MULTIPLE" {
+          description {
+            "MULTIPLE AS number to prepend to AS path.";
+          }
+        }
+        default "SINGLE";
+        descripition
+          "AS number prepends in AS path depends on asn-prepend-type leaf.
+          Single AS number is repeated by specified number of time prepend
+          in AS path if asn-prepend-type leaf is SINGLE. Multiple AS numbers
+          specified to prepend to AS path if asn-prepend-type is MULTIPLE."
+      }
+    }
+  }
+
+  grouping as-path-prepend-type-state {
+    description
+      "Operational state data for the AS path prepend type action.";
+  }
+
+  grouping as-path-prepend-type-top {
+    description
+      "Top-level grouping for the AS path prepend type";
+
+    container set-as-path-prepend-type {
+      description
+        "Action to specify AS path prepend type to prepend
+        single AS number repeated multiple time or multiple
+        AS numbers.";
+
+      container config {
+        description
+          "Configuration data for the AS path prepend type action.";
+
+        uses as-path-prepend-type-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for the AS path prepend type action.";
+
+        uses as-path-prepend-type-config;
+        uses as-path-prepend-type-state;
+      }
+    }
+  }
+
   grouping as-path-prepend-config {
     description
       "Configuration data for the AS path prepend action";
@@ -678,17 +741,17 @@ module openconfig-bgp-policy {
       }
       description
         "Number of times to prepend the value specified in the asn
-        leaf-list to the AS path. If no value is specified by the
-        asn leaf-list, the local AS number of the system is used.
-        The value should be between 1 and the maximum supported by
-        the implementation.";
+        leaf to the AS path. If no value is specified by the asn
+        leaf, the local AS number of the system is used. The value
+        should be between 1 and the maximum supported by the
+        implementation.";
     }
 
-    leaf-list asn {
+    leaf asn {
       type oc-inet:as-number;
       description
-        "The AS number to prepend to the AS path. If this leaf-list
-        is not specified and repeat-n is set, then the local AS
+        "The AS number to prepend to the AS path. If this leaf is
+        not specified and repeat-n is set, then the local AS
         number will be used for prepending.";
     }
   }
@@ -703,6 +766,7 @@ module openconfig-bgp-policy {
       "Top-level grouping for the AS path prepend action";
 
     container set-as-path-prepend {
+      when ../set-as-path-prepend-type/config/asn-prepend-type = SINGLE";
       description
         "Action to prepend the specified AS number to the AS-path a
         specified number of times";
@@ -723,6 +787,75 @@ module openconfig-bgp-policy {
 
         uses as-path-prepend-config;
         uses as-path-prepend-state;
+      }
+    }
+  }
+
+  grouping as-path-prepend-list-config {
+    description
+      "Configuration data for AS numbers list for AS path prepend action.";
+
+    leaf index {
+      type uint32;
+      description
+        "Index of AS number added in the list for AS path perpend.";
+    }
+
+    leaf asn {
+      type oc-inet:as-number;
+      description
+       "AS number added in the list for AS path prepend."
+    }
+
+  }
+
+  grouping as-path-prepend-list-state {
+    description
+      "Operational state data for AS numbers list for AS path prepend action.";
+  }
+
+  grouping as-path-prepend-list-top {
+    description
+      "Top-level grouping for the AS path prepend list action";
+
+    container set-as-path-prepend-list {
+      when ../set-as-path-prepend-type/config/asn-prepend-type = MULTIPLE";
+      description
+        "Action to prepend the specified AS numbers to the AS path";
+
+      list asn-list {
+        key "index";
+        description
+          "List of AS numbers to prepend to the AS path.";
+
+        leaf index {
+          type leafref {
+            path "../config/index";
+          }
+          description {
+            "Reference to asn-list key.";
+          }
+        }
+
+        container config {
+          description
+            "Configuration data for AS numbers list for AS path
+            prepend action";
+
+          uses as-path-prepend-list-config;
+        }
+
+        container state {
+
+            config false;
+
+            description
+              "Operation state data for AS numbers list for AS path
+              prepend action";
+
+            uses as-path-prepend-list-config
+            uses as-path-prepend-list-state
+        }
       }
     }
   }
@@ -1145,7 +1278,9 @@ module openconfig-bgp-policy {
         uses bgp-actions-config;
         uses bgp-actions-state;
       }
+      uses as-path-prepend-type-top;
       uses as-path-prepend-top;
+      uses as-path-prepend-list-top;
       uses set-community-action-top;
       uses set-ext-community-action-top;
     }
