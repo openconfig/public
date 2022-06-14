@@ -13,6 +13,7 @@ module openconfig-sampling-sflow {
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-network-instance { prefix oc-netinst; }
+  import openconfig-packet-match-types { prefix oc-pkt-match-t; }
 
 
   // meta
@@ -29,7 +30,13 @@ module openconfig-sampling-sflow {
     RFC 3176 - InMon Corporation's sFlow: A Method for
     Monitoring Traffic in Switched and Routed Networks";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2022-06-14" {
+    description
+      "Add support for specifying a DSCP for egress sFlow packets.";
+    reference "0.2.0";
+  }
 
   revision "2020-06-26" {
     description
@@ -227,6 +234,13 @@ module openconfig-sampling-sflow {
       description
         "Sets the source IP address for sFlow datagrams sent to
         sFlow collectors.";
+    }
+
+    leaf dscp {
+      type oc-inet:dscp;
+      description
+        "The DSCP value that should be used for sFlow packets sent to the
+        collector.";
     }
 
     leaf sampling-rate {
