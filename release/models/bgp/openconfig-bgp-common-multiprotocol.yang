@@ -24,7 +24,25 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "8.0.0";
+  oc-ext:openconfig-version "9.1.0";
+
+  revision "2022-05-21" {
+    description
+      "Added extended-next-hop-encoding leaf.";
+    reference "9.1.0";
+  }
+
+  revision "2022-04-26" {
+    description
+      "Transition decimal64 types to uint16 for various BGP timers";
+    reference "9.0.0";
+  }
+
+  revision "2022-03-21" {
+    description
+      "Add BGP port";
+    reference "8.1.0";
+  }
 
   revision "2021-12-01" {
     description
@@ -139,6 +157,20 @@ submodule openconfig-bgp-common-multiprotocol {
     }
   }
 
+  grouping bgp-common-mp-afi-safi-extended-next-hop-encoding-config {
+    description
+      "BGP extended next-hop encoding parameters that apply on a per-AFI-SAFI
+      basis";
+
+    leaf extended-next-hop-encoding {
+      type boolean;
+      default false;
+      description
+        "This leaf indicates whether extended next-hop encoding is enabled for
+        this AFI-SAFI";
+    }
+  }
+
   grouping bgp-common-mp-afi-safi-config {
     description
       "Configuration parameters used for all BGP AFI-SAFIs";
@@ -194,11 +226,7 @@ submodule openconfig-bgp-common-multiprotocol {
       }
 
       description "IPv4 unicast configuration options";
-
-      // include common IPv[46] unicast options
-      uses bgp-common-mp-ipv4-ipv6-unicast-common;
-
-      // placeholder for IPv4 unicast  specific configuration
+      uses bgp-common-mp-ipv4-unicast-common;
     }
   }
 
@@ -214,12 +242,7 @@ submodule openconfig-bgp-common-multiprotocol {
       }
 
       description "IPv6 unicast configuration options";
-
-      // include common IPv[46] unicast options
-      uses bgp-common-mp-ipv4-ipv6-unicast-common;
-
-      // placeholder for IPv6 unicast specific configuration
-      // options
+      uses bgp-common-mp-ipv6-unicast-common;
     }
   }
 
@@ -437,10 +460,35 @@ submodule openconfig-bgp-common-multiprotocol {
     }
   }
 
-  grouping bgp-common-mp-ipv4-ipv6-unicast-common {
+  grouping bgp-common-mp-ipv4-unicast-common {
     description
-      "Common configuration that is applicable for IPv4 and IPv6
-      unicast";
+      "Configuration that is applicable for IPv4 unicast";
+
+    // include common afi-safi options.
+    uses bgp-common-mp-all-afi-safi-common;
+
+    container config {
+      description
+        "Configuration parameters for IPv4 unicast AFI-SAFI options";
+      // configuration options that are common to IPv[46] unicast
+      uses bgp-common-mp-ipv4-ipv6-unicast-common-config;
+
+      // configuration options that are specific to IPv4 unicast
+      uses bgp-common-mp-afi-safi-extended-next-hop-encoding-config;
+    }
+
+    container state {
+      config false;
+      description
+        "State information for IPv4 parameters";
+      uses bgp-common-mp-ipv4-ipv6-unicast-common-config;
+      uses bgp-common-mp-afi-safi-extended-next-hop-encoding-config;
+    }
+  }
+
+  grouping bgp-common-mp-ipv6-unicast-common {
+    description
+      "Configuration that is applicable for IPv6 unicast";
 
     // include common afi-safi options.
     uses bgp-common-mp-all-afi-safi-common;
@@ -448,15 +496,16 @@ submodule openconfig-bgp-common-multiprotocol {
     // configuration options that are specific to IPv[46] unicast
     container config {
       description
-        "Configuration parameters for common IPv4 and IPv6 unicast
-        AFI-SAFI options";
+        "Configuration parameters for IPv6 unicast AFI-SAFI options";
+      // configuration options that are common to IPv[46] unicast
       uses bgp-common-mp-ipv4-ipv6-unicast-common-config;
+
+      // placholder for IPv6 unicast specific options
     }
     container state {
       config false;
       description
-        "State information for common IPv4 and IPv6 unicast
-        parameters";
+        "State information for IPv6 unicast parameters";
       uses bgp-common-mp-ipv4-ipv6-unicast-common-config;
     }
   }
