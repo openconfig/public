@@ -208,22 +208,14 @@ steps:
 
 ############### GOYANG/YGOT ###############
 - name: 'gcr.io/cloud-builders/go:debian'
-  args: ['version']
-  volumes:
-  - name: 'gopath'
-    path: /go
-  env:
-  - 'GOPATH=/go'
-  waitFor: ['go path creation']
-  id: 'goyang-ygot prep 0'
-- name: 'gcr.io/cloud-builders/go:debian'
   args: ['install', 'github.com/openconfig/ygot/generator@latest']
   volumes:
   - name: 'gopath'
     path: /go
   env:
   - 'GOPATH=/go'
-  waitFor: ['goyang-ygot prep 0']
+  - 'GO111MODULE=on'
+  waitFor: ['go path creation']
   id: 'goyang-ygot prep'
 - name: 'gcr.io/$PROJECT_ID/models-ci-image'
   entrypoint: 'bash'
@@ -298,6 +290,7 @@ steps:
 timeout: 600s
 options:
   machineType: 'E2_HIGHCPU_32'
+
 
 availableSecrets:
   inline:
