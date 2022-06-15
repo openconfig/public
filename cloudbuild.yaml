@@ -207,14 +207,13 @@ steps:
   id: 'oc-pyang'
 
 ############### GOYANG/YGOT ###############
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: '1.18-alpine'
   args: ['install', 'github.com/openconfig/ygot/generator']
   volumes:
   - name: 'gopath'
     path: /go
   env:
   - 'GOPATH=/go'
-  - 'GO111MODULE=on'
   waitFor: ['go path creation']
   id: 'goyang-ygot prep'
 - name: 'gcr.io/$PROJECT_ID/models-ci-image'
