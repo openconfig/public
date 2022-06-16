@@ -35,12 +35,26 @@ submodule openconfig-aft-state-synced {
         "Operational state parameters relating to the state
         synced signals of various AFTs.";
 
-      leaf ip-unicast {
+      leaf ipv4-unicast {
         type boolean;
         default false;
         description
           "State synced signal indicating consistent device snapshot of
-          IPv4 & IPv6 unicast AFTs.";
+          IPv4 unicast AFT entries. Before setting this flag to True
+          next-hop-groups & next-hops AFT entries, associated with
+          ipv4-unicast AFT entries, are expected to be consistent with
+          device snapshot.";
+      }
+
+      leaf ipv6-unicast {
+        type boolean;
+        default false;
+        description
+          "State synced signal indicating consistent device snapshot of
+          IPv6 unicast AFT entries. Before setting this flag to True
+          next-hop-groups & next-hops AFT entries, associated with
+          ipv6-unicast AFT entries, are expected to be consistent with
+          device snapshot.";
       }
     }
   }
