@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "2.0.0";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2022-06-15" {
+    description
+      "Add decapsulate-header in NH AFT entry state";
+    reference "2.1.0";
+  }
 
   revision "2022-05-17" {
     description
@@ -326,6 +332,18 @@ submodule openconfig-aft-common {
         "When forwarding a packet to the specified next-hop the local
         system performs an encapsulation of the packet - adding the
         specified header type.";
+    }
+
+    leaf decapsulate-header {
+      type oc-aftt:encapsulation-header-type;
+      description
+        "When forwarding a packet to the specified next-hop, the local
+         system performs a decapsulation of the packet - removing the
+         specified header type. In the case that no next-hop is
+         specified, the packet header is removed, and a subsequent
+         forwarding lookup is performed on the packet encapsulated
+         within the header, matched within the relevant AFT within the
+         specified network-instance.";
     }
 
     uses aft-common-install-protocol;
