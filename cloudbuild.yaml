@@ -32,7 +32,7 @@ steps:
 
 ############### COMMON PREP ###############
 # Create GOPATH
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   entrypoint: 'bash'
   args: ['-c', 'mkdir -p /go/src/github.com/openconfig']
   volumes:
@@ -40,7 +40,7 @@ steps:
     path: /go
   id: 'go path creation'
 # Clone CI repository
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   entrypoint: 'bash'
   args:
   - '-c'
@@ -58,7 +58,7 @@ steps:
     path: /go
   id: 'models-ci clone'
 # Get CI script dependencies
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   args:
   - 'install'
   - './cmd_gen'
@@ -73,7 +73,7 @@ steps:
   dir: '/go/src/github.com/openconfig/models-ci'
   id: 'models-ci dep'
 # Generate validator scripts
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   entrypoint: 'bash'
   args:
   - -c
@@ -98,7 +98,7 @@ steps:
 
 ############### REGEXP TESTS ###############
 # Clone CI repository
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   entrypoint: 'bash'
   args:
   - '-c'
@@ -116,7 +116,7 @@ steps:
   waitFor: ['validator prep']
   id: 'regexp clone'
 # Get regexp dependencies
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   args: ['get', './...']
   volumes:
   - name: 'gopath'
@@ -170,7 +170,7 @@ steps:
   id: 'yanglint'
 
 ############### MISC-CHECKS ###############
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   entrypoint: 'bash'
   args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/misc-checks/test.sh"]
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -291,7 +291,6 @@ steps:
 timeout: 600s
 options:
   machineType: 'E2_HIGHCPU_32'
-
 
 availableSecrets:
   inline:
