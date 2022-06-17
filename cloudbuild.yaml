@@ -62,8 +62,7 @@ steps:
   entrypoint: 'go'
   args:
   - 'install'
-  - './cmd_gen'
-  - './post_results'
+  - './...'
   volumes:
   - name: 'ssh'
     path: /root/.ssh
@@ -119,7 +118,7 @@ steps:
 # Get regexp dependencies
 - name: 'golang'
   entrypoint: 'go'
-  args: ['get', './...']
+  args: ['install', './...']
   volumes:
   - name: 'gopath'
     path: /go
