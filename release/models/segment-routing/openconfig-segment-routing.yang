@@ -518,23 +518,6 @@ module openconfig-segment-routing {
       }
   }
 
-  grouping fad-binding-attributes {
-    description
-      "Attributes for FAD bindings";
-    leaf isis-level {
-      type oc-isis-types:level-type;
-      default "LEVEL_1_2";
-      description
-        "IS-IS Level associated with this Flex Algorithm";
-    }
-    leaf advertised {
-      type boolean;
-      default "false";
-      description
-        "Indicates if the Flex Algorithm definition is advertised by this node";
-    }
-  }
-
   grouping sr-igp-config {
     description
       "Configuration parameters relating to segment routing within an
@@ -567,23 +550,27 @@ module openconfig-segment-routing {
         "A reference to the Segment Routing Local Block (SRLB) that is to
         be advertised by the IGP instance.";
     }
+  }
 
-    container fad-bindings {
+  grouping fad-binding-attributes {
+    description
+      "Attributes for FAD bindings";
+    leaf flex-algo-name {
+      type string;
       description
-        "Flex Algorithm bindings";
-      list fad-binding {
-        key "flex-algo-name";
-        description
-          "Flex Algorithm binding for a given algorithm name";
-        leaf flex-algo-name {
-          // ideally leafref to
-          // /network-instances/network-instance/flex-algorithms/algorithm/name
-          type string;
-         description
-           "Flex Algorithm name used by IGP";
-        }
-        uses fad-binding-attributes;
-      }
+        "Name of a Flexible Algorithm";
+    }
+    leaf isis-level {
+      type oc-isis-types:level-type;
+      default "LEVEL_1_2";
+      description
+        "IS-IS Level associated with this Flex Algorithm";
+    }
+    leaf advertised {
+      type boolean;
+      default "false";
+      description
+        "Indicates if the Flex Algorithm definition is advertised by this node";
     }
   }
 
@@ -609,6 +596,32 @@ module openconfig-segment-routing {
           "Operational state parameters relating to segment routing for the
           IGP instance.";
         uses sr-igp-config;
+      }
+
+      container fad-bindings {
+        description
+          "Flex Algorithm bindings";
+        list fad-binding {
+          key "flex-algo-name";
+          description
+            "Flex Algorithm binding for a given algorithm name";
+          leaf flex-algo-name {
+            type "../config/flex-algo-name";
+            description
+              "Flex Algorithm name used by IGP";
+          }
+          container config {
+            description
+              "Attributes of a FAD binding";
+            uses fad-binding-attributes;
+          }
+          container state {
+            config false;
+            description
+              "Attributes of a FAD binding";
+            uses fad-binding-attributes;
+          }
+        }
       }
     }
   }
