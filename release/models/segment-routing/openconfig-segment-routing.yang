@@ -556,7 +556,9 @@ module openconfig-segment-routing {
     description
       "Attributes for FAD bindings";
     leaf flex-algo-name {
-      type string;
+      type leafref {
+        path "/network-instances/network-instance/flex-algorithms/algorithm/name";
+      }
       description
         "Name of a Flexible Algorithm";
     }
@@ -606,7 +608,9 @@ module openconfig-segment-routing {
           description
             "Flex Algorithm binding for a given algorithm name";
           leaf flex-algo-name {
-            type "../config/flex-algo-name";
+            type leafref {
+              path "../config/flex-algo-name";
+            }
             description
               "Flex Algorithm name used by IGP";
           }
