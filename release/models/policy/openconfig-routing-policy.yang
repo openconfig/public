@@ -77,7 +77,17 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
-  oc-ext:openconfig-version "3.2.2";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2022-05-24" {
+    description
+      "Remove module extension oc-ext:regexp-posix by making pattern regexes
+      conform to RFC6020/7950.
+
+      Types impacted:
+      - masklength-range";
+    reference "3.3.0";
+  }
 
   revision "2020-08-18" {
     description
@@ -126,7 +136,6 @@ module openconfig-routing-policy {
   }
 
   // OpenConfig specific extensions for module metadata.
-  oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
@@ -273,7 +282,7 @@ module openconfig-routing-policy {
 
     leaf masklength-range {
       type string {
-        pattern '^(([0-9]+\.\.[0-9]+)|exact)$';
+        pattern '(([0-9]+\.\.[0-9]+)|exact)';
         oc-ext:posix-pattern '^(([0-9]+\.\.[0-9]+)|exact)$';
       }
       description

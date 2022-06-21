@@ -47,12 +47,31 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "0.17.0";
+  oc-ext:openconfig-version "1.2.0";
 
-  revision "2022-01-19" {
+  revision "2022-06-21" {
     description
       "Add prefix to qualification netinst-ref.";
     reference "0.17.0";
+  }
+
+  revision "2022-04-20" {
+    description
+      "Add support for l2rib state data";
+    reference "1.1.0";
+  }
+
+  revision "2022-04-19" {
+    description
+      "Description updates for DEFAULT_INSTANCE implementation
+      guidance and default value/guidance for protocol instances";
+    reference "1.0.0";
+  }
+
+  revision "2022-04-19" {
+    description
+      "Fix some broken xpath references in when statements.";
+    reference "0.16.3";
   }
 
   revision "2021-11-17" {
@@ -297,8 +316,8 @@ module openconfig-network-instance {
         }
 
         container evpn {
-          when "./config/type = 'oc-ni-types:L2VSI'
-                or ./config/type = 'oc-ni-types:L3VRF'" {
+          when "../config/type = 'oc-ni-types:L2VSI'
+                or ../config/type = 'oc-ni-types:L3VRF'" {
            description
              "EVPN container should be included for L2 and L3 NIs";
          }
@@ -327,8 +346,8 @@ module openconfig-network-instance {
             uses encapsulation-config;
 
             uses l2ni-encapsulation-config {
-              when "./config/type = 'oc-ni-types:L2VSI' or ./config/type = 'oc-ni-types:L2P2P'
-                      or ./config/type = 'oc-ni-types:L2L3'" {
+              when "../../config/type = 'oc-ni-types:L2VSI' or ../../config/type = 'oc-ni-types:L2P2P'
+                      or ../../config/type = 'oc-ni-types:L2L3'" {
                         description
                           "Only allow L2 encapsulations to be set
                           when the instance is of a type that supports
@@ -345,8 +364,8 @@ module openconfig-network-instance {
             uses encapsulation-config;
 
             uses l2ni-encapsulation-config {
-              when "./config/type = 'oc-ni-types:L2VSI' or ./config/type = 'oc-ni-types:L2P2P'
-                      or ./config/type = 'oc-ni-types:L2L3'" {
+              when "../../config/type = 'oc-ni-types:L2VSI' or ../../config/type = 'oc-ni-types:L2P2P'
+                      or ../../config/type = 'oc-ni-types:L2L3'" {
                         description
                           "Only allow L2 encapsulations to be set
                           when the instance is of a type that supports
@@ -1142,8 +1161,10 @@ module openconfig-network-instance {
     leaf name {
       type string;
       description
-        "An operator-assigned unique name for the forwarding
-        instance";
+        "An operator-assigned unique name for the network instance.
+        If the operator does not designate a name for the instance of
+        type 'DEFAULT_INSTANCE' (e.g. config), the implementation
+        should use the name of 'DEFAULT' (e.g. state).";
     }
 
     leaf type {
@@ -1153,12 +1174,14 @@ module openconfig-network-instance {
       description
         "The type of network instance. The value of this leaf
         indicates the type of forwarding entries that should be
-        supported by this network instance. Signalling protocols
-        also use the network instance type to infer the type of
-        service they advertise; for example MPLS signalling
-        for an L2VSI network instance would infer a VPLS service
-        whereas a type of L2PTP would infer a VPWS (pseudo-wire)
-        service";
+        supported by this network instance. Signalling protocols also
+        use the network instance type to infer the type of service
+        they advertise; for example MPLS signalling for an L2VSI
+        network instance would infer a VPLS service whereas a type of
+        L2PTP would infer a VPWS (pseudo-wire) service.
+
+        An implementation must support only a single network-instance
+        of type 'DEFAULT_INSTANCE'.";
     }
 
     leaf enabled {
@@ -1211,8 +1234,16 @@ module openconfig-network-instance {
 
     leaf name {
       type string;
+      default "DEFAULT";
       description
-        "A unique name for the protocol instance";
+        "A unique name for the protocol instance.
+
+        If the operator does not designate a name for the protocol
+        instance (e.g. config), the implementation should use the
+        name of 'DEFAULT' (e.g. state).  In addition, for
+        implementations that support single protocol instances, the
+        default value is recommended for consistency and uniqueness
+        per protocol instance.";
     }
 
     leaf enabled {
