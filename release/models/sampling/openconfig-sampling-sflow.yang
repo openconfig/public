@@ -30,7 +30,7 @@ module openconfig-sampling-sflow {
     RFC 3176 - InMon Corporation's sFlow: A Method for
     Monitoring Traffic in Switched and Routed Networks";
 
-  revision "2022-06-14" {
+  revision "2022-06-21" {
     description
       "Add agent-id/source-address for IPv4/IPv6; add polling-interval;
       add global dscp marking for generated packets; moved sampling-rate
@@ -131,7 +131,7 @@ module openconfig-sampling-sflow {
     leaf address {
       type oc-inet:ip-address;
       description
-        "IP address of the sFlow collector.";
+        "IPv4/IPv6 address of the sFlow collector.";
     }
 
     leaf port {
@@ -139,6 +139,13 @@ module openconfig-sampling-sflow {
       default 6343;
       description
         "UDP port number for the sFlow collector.";
+    }
+
+    leaf source-address {
+      type oc-inet:ip-address;
+      description
+        "Sets the source IPv4/IPv6 address for sFlow datagrams sent
+        to sFlow collectors.";
     }
 
     leaf network-instance {
@@ -283,20 +290,6 @@ module openconfig-sampling-sflow {
       reference
         "RFC 3176 - InMon Corporation's sFlow: A Method for
         Monitoring Traffic in Switched and Routed Networks";
-    }
-
-    leaf source-address-ipv4 {
-      type oc-inet:ipv4-address;
-      description
-        "Sets the source IPv4 address for sFlow datagrams sent
-        to sFlow collectors.";
-    }
-
-    leaf source-address-ipv6 {
-      type oc-inet:ipv6-address;
-      description
-        "Sets the source IPv6 address for sFlow datagrams sent
-        to sFlow collectors.";
     }
 
     leaf dscp {
