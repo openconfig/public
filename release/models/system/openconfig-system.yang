@@ -48,9 +48,9 @@ module openconfig-system {
 
   oc-ext:openconfig-version "0.14.0";
 
-  revision "2022-04-28" {
+  revision "2022-07-01" {
     description
-      "Added system my-mac-address.";
+      "Added system MAC address.";
     reference "0.14.0";
   }
 
@@ -273,16 +273,6 @@ module openconfig-system {
         last login timestamp, etc.";
     }
 
-    leaf my-mac-address {
-      type oc-yang:mac-address;
-      description
-        "MAC address to be added to the my-mac-address table, in addition to
-        any other MAC addresses that system may already have allocated and added.
-        Packets destined to this MAC address are expected to go through ingress
-        lookup and result in packet being routed by the switch. This MAC address
-        may not be allocated from the block of MAC address that system owns. For
-        instance, it's allocation could be managed by an external controller.";
-    }
   }
 
   grouping mount-point-state {
@@ -925,6 +915,47 @@ module openconfig-system {
     }
   }
 
+  grouping system-macaddr-routing-config {
+    description
+      "Configuration data for system's routing MAC addresses.";
+
+    leaf mac-address {
+      type oc-yang:mac-address;
+      description
+        "MAC address to be added to the my-mac-address table, in addition to
+        any other MAC addresses that system may already have allocated and added.
+        Packets destined to this MAC address are expected to go through ingress
+        lookup and result in packet being routed by the switch. This MAC address
+        may not be allocated from the block of MAC address that system owns. For
+        instance, it's allocation could be managed by an external controller.";
+    }
+  }
+
+  grouping system-macaddr-top {
+    description
+      "Top-level grouping for configuration and state of system's MAC addresses";
+
+    container routing {
+      description
+        "Top-level container for routing MAC address configuration and state";
+
+      container config {
+        description
+          "Configuration data for routing MAC address.";
+
+        uses system-macaddr-routing-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for routing MAC address.";
+
+        uses system-macaddr-routing-config;
+      }
+    }
+  }
+
   grouping system-memory-config {
     description
       "Configuration data for system memory";
@@ -1176,6 +1207,7 @@ module openconfig-system {
       uses oc-alarms:alarms-top;
       uses oc-messages:messages-top;
       uses oc-license:license-top;
+      uses system-macaddr-top;
     }
   }
 
