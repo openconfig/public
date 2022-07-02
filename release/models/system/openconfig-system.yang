@@ -932,10 +932,10 @@ module openconfig-system {
     }
   }
 
-  grouping system-macaddr-top {
+  grouping system-macaddr-routing-top {
     description
-      "Top-level grouping for configuration and state of system's MAC addresses";
-
+      "Top-level grouping for configuration and state of routing MAC addresses";
+    
     container routing {
       description
         "Top-level container for routing MAC address configuration and state";
@@ -954,6 +954,18 @@ module openconfig-system {
 
         uses system-macaddr-routing-config;
       }
+    }
+  }
+
+  grouping system-macaddr-top {
+    description
+      "Top-level grouping for configuration and state of system's MAC addresses";
+    
+    container mac-address {
+      description
+        "Top-level container for MAC address configuration and state";
+
+      uses system-macaddr-routing-top;
     }
   }
 
