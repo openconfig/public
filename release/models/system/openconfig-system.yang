@@ -918,7 +918,7 @@ module openconfig-system {
     description
       "Configuration data for system's routing MAC addresses.";
 
-    leaf mac-address {
+    leaf routing-mac-address {
       type oc-yang:mac-address;
       description
         "Any packets destined to this MAC address must be routed by the system,
@@ -932,13 +932,13 @@ module openconfig-system {
     }
   }
 
-  grouping system-macaddr-routing-top {
+  grouping system-macaddr-top {
     description
-      "Top-level grouping for configuration and state of routing MAC addresses";
+      "Top-level grouping for configuration and state of system's MAC addresses";
 
-    container routing {
+    container mac-address {
       description
-        "Top-level container for routing MAC address configuration and state";
+        "Top-level container for system's MAC address configuration and state";
 
       container config {
         description
@@ -954,18 +954,6 @@ module openconfig-system {
 
         uses system-macaddr-routing-config;
       }
-    }
-  }
-
-  grouping system-macaddr-top {
-    description
-      "Top-level grouping for configuration and state of system's MAC addresses";
-
-    container mac-address {
-      description
-        "Top-level container for MAC address configuration and state";
-
-      uses system-macaddr-routing-top;
     }
   }
 
