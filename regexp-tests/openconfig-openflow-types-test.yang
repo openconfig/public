@@ -1,0 +1,18 @@
+module openconfig-openflow-types-test {
+  prefix "openflow-types-t";
+  namespace "urn:openconfig-openflow-types-test";
+
+  import pattern-test { prefix "pt"; }
+  import openconfig-openflow-types { prefix "openflow-types"; }
+
+  leaf datapath-id {
+    type openflow-types:datapath-id;
+    // Upper 16-bits (UD), Lower 48-bits (MAC)
+    pt:pattern-test-pass "00:0a:00:9c:02:d8:18:00";
+    pt:pattern-test-pass "00:ff:0a:3c:67:c8:12:01";
+    pt:pattern-test-pass "00:FF:0A:3C:67:C8:12:01";
+    pt:pattern-test-pass "11:11:11:11:11:11:11:11";
+    pt:pattern-test-fail "0:a:0:9:0:d:1:0";
+    pt:pattern-test-fail "0h:0a:00:9c:02:d8:18:00";
+  }
+}
