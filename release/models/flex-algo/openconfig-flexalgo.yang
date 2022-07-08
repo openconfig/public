@@ -74,15 +74,6 @@ module openconfig-flexalgo {
        the value 0 SHOULD appear in this field.";
   }
 
-  typedef bit-position {
-    type uint8 {
-      range "0..31";
-    }
-    description
-      "A bit position in a 32 bit field, used for specifying
-       legacy administrative groups.";
-  }
-
   grouping algorithm-attributes {
     description
       "All of the possible attributes for an flexible algorithm
@@ -97,6 +88,11 @@ module openconfig-flexalgo {
       mandatory true;
       description
         "Flex Algorithm Identifier";
+    }
+    leaf flex-algo-description {
+      type string;
+      description
+        "Description of this flex-algo";
     }
     leaf metric-type {
       type flex-algo-metric-type;
@@ -117,42 +113,33 @@ module openconfig-flexalgo {
         "Indicates the priority for this algorithm";
     }
 
-    leaf-list exclude-group {
-      type bit-position;
+    leaf-list exclude {
+      type leafref {
+        path "../../../../mpls/te-global-attributes/mpls-admin-groups/admin-group/admin-group-name";
+      }
       description
-        "List of admin-groups to exclude in path calculation.";
+        "extended-admin-groups to exclude in path calculation.";
     }
-    leaf-list include-all-group {
-      type bit-position;
+    leaf-list include-all {
+      type leafref {
+        path "../../../../mpls/te-global-attributes/mpls-admin-groups/admin-group/admin-group-name";
+      }
       description
-        "list of admin-groups, all of which must be included";
+        "extended-admin-groups, all of which must be included";
     }
-    leaf-list include-any-group {
-      type bit-position;
+    leaf-list include-any {
+      type leafref {
+        path "../../../../mpls/te-global-attributes/mpls-admin-groups/admin-group/admin-group-name";
+      }
       description
-        "list of admin-groups, one of which must be included";
+        "extended-admin-groups, one of which must be included";
     }
-
     leaf-list srlg-names {
       type leafref {
         path "../../../../mpls/te-global-attributes/srlgs/srlg/name";
       }
       description
         "list of references to named SRLGs to be excluded";
-    }
-
-    leaf-list srlg-values {
-      type uint32;
-      description
-        "list of references to SRLG values to be excluded";
-    }
-
-    leaf color {
-      type uint32;
-      description
-        "When a flexalgo tunnel is used for RIB resolution, the flexalgo can
-        be configured with a specific color (which may be specified based on
-        a BGP extended color community)";
     }
   }
 
