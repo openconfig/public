@@ -1,0 +1,335 @@
+module openconfig-system-grpc-tunnel {
+  yang-version "1";
+
+  namespace "http://openconfig.net/yang/system/grpc-tunnel";
+  prefix "oc-sys-grpc-tun";
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-system { prefix oc-sys; }
+  import openconfig-network-instance { prefix oc-netinst; }
+  import openconfig-inet-types { prefix oc-inet; }
+
+  organization
+    "OpenConfig working group";
+  contact
+    "www.openconfig.net";
+
+  description
+    "This module adds configuration and operational state relating to gRPC
+    tunnel (https://github.com/openconfig/grpctunnel/) to invoke one or
+    more dialout TCP over gRPC tunnels to bypass situations in which
+    direct dialin gRPC communications are not feasible.";
+
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision 2022-07-08 {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  typedef target-type {
+    type enumeration {
+      enum UNKNOWN {
+        value 0;
+        description
+          "An Unknown/Invalid target type";
+      }
+      enum SSH {
+        value 22;
+        description
+          "SSH protocol target type";
+      }
+      enum NETCONF_SSH {
+        value 830;
+        description
+          "NETCONF over SSH target type";
+      }
+      enum OPENFLOW {
+        value 6653;
+        description
+          "OpenFlow protocol target type";
+      }
+      enum GNMI_GNOI {
+        value 9339;
+        description
+          "gNMI/gNOI target type";
+      }
+      enum GRIBI {
+        value 9340;
+        description
+          "gRIBI target type";
+      }
+      enum P4RT {
+        value 9559;
+        description
+          "P4 Runtime target type";
+      }
+    }
+    description
+      "Sets the TCP based protocols to be tunneled over the gRPC tunnel";
+    reference
+      "OpenConfig gRPC Tunnel:
+      https://github.com/openconfig/grpctunnel/blob/master/proto/tunnel/tunnel.proto";
+  }
+
+  grouping tunnel-server-config {
+    description
+      "Configuration and state parameters corresponding to an individual
+      gRPC tunnel server";
+
+    leaf name {
+      type string;
+      description
+        "The name of the gRPC tunnel server instance";
+    }
+
+    leaf enable {
+      type boolean;
+      description
+        "When set to true, the tunnel server endpoint is enabled and an
+        outbound connection is initiated";
+    }
+
+    leaf host {
+      type oc-inet:host;
+      description
+        "The IPv4/IPv6 address or hostname of the tunnel server";
+    }
+
+    leaf port {
+      type oc-inet:port-number;
+      description
+        "The port number of the tunnel server";
+    }
+
+    leaf transport-security {
+      type boolean;
+      default true;
+      description
+        "Use gRPC transport security (TLS).  Enabled by default.  This
+        leaf allows transport security to be disabled for use cases that
+        are not supported, such as lab testing.";
+    }
+
+    leaf certificate-id {
+      type string;
+      description
+        "Name of the certificate that is associated with client (e.g.
+        mutual authentication).  The certificate ID is provisioned
+        through other interfaces to the device, such as the gNOI
+        certificate management service.  If this leaf is provisioned and
+        transport-security is enabled, mutual authentication is implied.
+        If this leaf is not provisioned and transport-security is
+        enabled, then the client will only validate the server
+        certificate (one-way authentication).";
+    }
+
+    leaf source-address {
+      type oc-inet:ip-address;
+      description
+        "Source IPv4/IPv6 address to use in communications to the tunnel
+        server";
+    }
+
+    leaf network-instance {
+      type oc-netinst:network-instance-ref;
+      description
+        "The network instance to initiate outbound communications to the
+        tunnel server.  When unspecified, the DEFAULT_INSTANCE should be
+        used.";
+    }
+
+    leaf-list target {
+      type target-type;
+      description
+        "The target TCP based protocols that should be enabled for
+        tunneling for the specified tunnel server instance session";
+    }
+
+  }
+
+  grouping grpc-tunnel-config {
+    description
+      "Global gRPC tunnel configuration and state parameters";
+
+    leaf retry-interval {
+      type uint64 {
+        range 1..max;
+      }
+      units seconds;
+      description
+        "The interval (in seconds) that a tunnel client attempts to
+        re-establish connection to a tunnel server after failure";
+    }
+  }
+
+  grouping target-options {
+    description
+      "Grouping for gRPC tunnel client target options";
+
+    container target-options {
+      description
+        "Enclosing container for tunnel client target options";
+
+      container config {
+        description
+          "Configuration data for tunnel client target options";
+
+        uses target-options-config;
+      }
+
+      container state {
+        description
+          "Operational state data for tunnel client target options";
+
+        uses target-options-config;
+      }
+    }
+  }
+
+  grouping target-options-config {
+    description
+      "Grouping for gRPC tunnel client target options configuration and
+      operational state";
+
+    leaf-list pattern {
+      type enumeration {
+        enum HOSTNAME {
+          description
+            "Use the configured system hostname of the tunnel client";
+        }
+        enum VENDOR {
+          description
+            "Use the system derived vendor organization string of the
+            tunnel client";
+        }
+        enum MODEL {
+          description
+            "Use the system derived model of the tunnel client";
+        }
+        enum VERSION {
+          description
+            "Use the system derived software version string of the
+            tunnel client";
+        }
+        enum CUSTOM {
+          description
+            "Use a custom user-defined string.  If this value is
+            selected, then the 'custom-string' leaf must be populated
+            with a string value.";
+        }
+      }
+      ordered-by user;
+      description
+        "The ordered list of pattern variables included in the 'target'
+        field in the 'Target' message.  The pattern variables are used
+        in conjunction with the delimeter to concenate the final
+        string.";
+    }
+
+    leaf custom-string {
+      type string;
+      description
+        "A user-defined custom string value that can be used in the
+        ordered list of pattern variables if the 'CUSTOM' variant is
+        used";
+    }
+
+    leaf delimeter {
+      type string {
+        length 1..3;
+      }
+      description
+        "A character (or multi-character) delimeter used in between
+        concatenated pattern variables.  If left unspecified, an
+        implementation can use a default value (e.g. ':')";
+    }
+  }
+
+  grouping grpc-tunnel-servers {
+    description
+      "Top-level grouping for list of gRPC tunnel servers";
+
+    container servers {
+      description
+        "Enclosing container for the list of gRPC tunnel servers";
+
+      list server {
+        key name;
+
+        description
+          "The list of target gRPC tunnel servers";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the locally signficant name of the gRPC tunnel
+            server";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the gRPC tunnel
+            server";
+
+          uses tunnel-server-config;
+        }
+
+        container state {
+          config false;
+
+          description
+            "Operational state relating to the gRPC tunnel server";
+
+          uses tunnel-server-config;
+        }
+      }
+    }
+
+    uses target-options;
+  }
+
+  grouping grpc-tunnel-structural {
+    description
+      "Top-level grouping for data related to gRPC tunnel";
+
+    container grpc-tunnel {
+      description
+        "Enclosing container for gRPC tunnel related configuration and
+        state data";
+
+      container config {
+        description
+          "Global configuration data for gRPC tunnel";
+
+        uses grpc-tunnel-config;
+      }
+
+      container state {
+        description
+          "Global operational state data for gRPC tunnel";
+
+        config false;
+
+        uses grpc-tunnel-config;
+      }
+
+      uses grpc-tunnel-servers;
+    }
+  }
+
+  augment "/oc-sys:system" {
+    description
+      "Add gRPC tunnel configuration/state to the openconfig-system
+      model.";
+
+    uses grpc-tunnel-structural;
+  }
+}
