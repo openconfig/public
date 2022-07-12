@@ -13,6 +13,7 @@ module openconfig-packet-match {
   import openconfig-packet-match-types { prefix oc-pkt-match-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-mpls-types { prefix oc-mpls; }
+  import openconfig-acl-defined-sets { prefix oc-sets; }
 
   // meta
   organization "OpenConfig working group";
@@ -282,8 +283,8 @@ module openconfig-packet-match {
 
     leaf source-address-prefix-list {
       type leafref {
-         path "/oc-acl:acl/prefix-sets"
-            + "/ipv4-prefix-set/name";
+         path "/oc-sets:defined-sets/ipv4-prefix-sets"
+            + "/prefix-set/name";
        }
       description
           "Reference to a IPv4 address Prefix list

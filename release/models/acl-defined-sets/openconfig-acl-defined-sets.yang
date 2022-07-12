@@ -1,0 +1,222 @@
+module openconfig-acl {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/acl-defined-sets";
+
+  prefix "oc-sets";
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-inet-types { prefix oc-inet; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines configuration and operational state
+    data for defined sets (IP prefixes lists, protocols, etc)
+    to be used in network access control lists (i.e., filters,
+    rules, etc.).";
+
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2022-07-12" {
+    description
+      "Initial version";
+    reference "1.0.0";
+  }
+
+ 
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+ 
+  grouping prefix-list-config {
+     leaf name {
+        type string;
+        description
+           "Name of the prefix list to
+            be used in the matches";
+      }
+
+      leaf description {
+        type string;
+        description
+          "Prefix list description";
+      }
+
+      leaf-list prefix {
+         type oc-inet:ip-prefix;
+         description
+           "List of prefixes to be used in match
+           conditions";
+      }
+    }
+    
+  grouping port-sets {
+    leaf name {
+        type string;
+        description
+           "Name of the port list to
+            be used in the matches";
+      }
+
+      leaf description {
+        type string;
+        description
+          "port list description";
+      }
+      list port {
+      key "name";
+      description
+        "Port numbers along with the operator on which to
+         match.";
+      leaf name {
+        type string;
+        description
+          "Identifier of the list of ports.";
+      }
+      leaf-list port {
+        type oc-pkt-match-types:port-num-range;
+         description
+           "List of ports to be used in match
+           conditions";
+      }
+    }
+  }
+
+  grouping defined-sets-top {
+    description
+      "Configuration of Defined Sets";
+    container ipv4-prefix-sets {
+      description
+        "Container to hold list of IPv4
+         prefixes which are matched as part of a policy.";
+      list prefix-set {
+        key "name";
+        description
+          "List of ipv4 prefix sets";
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+        description
+          "Reference to prefix name list key";
+        }
+        container config {
+          description
+          "Configuration data for prefix lists";
+          uses prefix-list-config;
+        }
+        container state {
+          config false;
+          description
+          "State data for prefix lists";
+          uses prefix-list-config;
+        }
+      }
+    }
+    
+    container ipv6-prefix-sets {
+      description
+        "Container to hold list of IPv6
+         prefixes which are matched as part of a policy.";
+      list prefix-set {
+        key "name";
+        description
+          "List of ipv6 prefix sets";
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+        description
+          "Reference to prefix name list key";
+        }
+        container config {
+          description
+          "Configuration data for prefix lists";
+          uses prefix-list-config;
+        }
+        container state {
+          config false;
+          description
+          "State data for prefix lists";
+          uses prefix-list-config;
+        }
+      }
+    }
+    
+    container port-sets {
+      description
+        "Data definitions for a list of ports which can
+         be matched in policies.";
+      list port-set {
+        key "name";
+        description
+          "List of port set definitions.";
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Name of the portset -- this is used as a label to
+             reference the set in match conditions.";
+        }
+        container config {
+          description
+          "Configuration data for port lists";
+          uses port-list-config;
+        }
+        container state {
+          config false;
+          description
+          "State data for port lists";
+          uses port-list-config;
+        }
+      }
+    }
+    
+  }
+
+
+ 
+  grouping acl-defined-sets-top {
+    description
+      "Top level grouping for defined-sets";
+
+    container defined-sets {
+      description
+        "Top level enclosing container for ACL model config
+        and operational state data";
+
+      container config {
+        description
+          "Global config data for defined sets";
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Global operational state data for defined sets";
+      }
+      uses prefix-list-top;
+    }
+  }
+
+  // data definition statements
+  uses acl-defined-sets-top;
+
+  // augment statements
+
+
+}
