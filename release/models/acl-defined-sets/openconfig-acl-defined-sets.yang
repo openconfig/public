@@ -41,28 +41,32 @@ module openconfig-acl-defined-sets {
 
  
   grouping prefix-list-config {
-     leaf name {
-        type string;
-        description
-           "Name of the prefix list to
-            be used in the matches";
-      }
-
-      leaf description {
-        type string;
-        description
-          "Prefix list description";
-      }
-
-      leaf-list prefix {
-         type oc-inet:ip-prefix;
-         description
-           "List of prefixes to be used in match
-           conditions";
-      }
+    description
+      "Configuration of prefix lists";
+    leaf name {
+      type string;
+      description
+         "Name of the prefix list to
+          be used in the matches";
     }
+
+    leaf description {
+      type string;
+      description
+        "Prefix list description";
+    }
+
+    leaf-list prefix {
+       type oc-inet:ip-prefix;
+       description
+         "List of prefixes to be used in match
+         conditions";
+    }
+  }
     
   grouping port-sets-config {
+    description
+      "Configuration of port Sets";
     leaf name {
         type string;
         description
@@ -75,23 +79,12 @@ module openconfig-acl-defined-sets {
         description
           "port list description";
       }
-      list port {
-      key "name";
-      description
-        "Port numbers along with the operator on which to
-         match.";
-      leaf name {
-        type string;
-        description
-          "Identifier of the list of ports.";
-      }
       leaf-list port {
         type oc-pkt-match-types:port-num-range;
          description
            "List of ports to be used in match
            conditions";
       }
-    }
   }
 
   grouping defined-sets-top {
@@ -101,7 +94,7 @@ module openconfig-acl-defined-sets {
       description
         "Container to hold list of IPv4
          prefixes which are matched as part of a policy.";
-      list prefix-set {
+      list ipv4-prefix-set {
         key "name";
         description
           "List of ipv4 prefix sets";
@@ -130,7 +123,7 @@ module openconfig-acl-defined-sets {
       description
         "Container to hold list of IPv6
          prefixes which are matched as part of a policy.";
-      list prefix-set {
+      list ipv4-prefix-set {
         key "name";
         description
           "List of ipv6 prefix sets";
