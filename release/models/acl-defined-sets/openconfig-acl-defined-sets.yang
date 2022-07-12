@@ -9,7 +9,8 @@ module openconfig-acl-defined-sets {
 
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-inet-types { prefix oc-inet; }
-
+  import openconfig-packet-match-types { prefix oc-pkt-match-types; }
+  
   // meta
   organization "OpenConfig working group";
 
@@ -61,7 +62,7 @@ module openconfig-acl-defined-sets {
       }
     }
     
-  grouping port-sets {
+  grouping port-sets-config {
     leaf name {
         type string;
         description
@@ -173,13 +174,13 @@ module openconfig-acl-defined-sets {
         container config {
           description
           "Configuration data for port lists";
-          uses port-list-config;
+          uses port-sets-config;
         }
         container state {
           config false;
           description
           "State data for port lists";
-          uses port-list-config;
+          uses port-sets-config;
         }
       }
     }
@@ -209,7 +210,7 @@ module openconfig-acl-defined-sets {
         description
           "Global operational state data for defined sets";
       }
-      uses prefix-list-top;
+      uses defined-sets-top;
     }
   }
 
