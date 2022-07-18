@@ -151,10 +151,15 @@ module openconfig-system-grpc-tunnel {
     }
 
     leaf-list target {
-      type target-type;
+      type union {
+        type target-type;
+        type string;
+      }
       description
         "The target TCP based protocols that should be enabled for
-        tunneling for the specified tunnel server instance session";
+        tunneling for the specified tunnel server instance session.  The
+        target may be a well defined target-type variant or a target
+        that is negotiated out of band.";
     }
 
   }
