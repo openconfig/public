@@ -1,0 +1,156 @@
+module openconfig-system-redundancy {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/system/redundancy";
+
+  prefix "oc-sys-red";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-types { prefix oc-types; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines the configuration and operational state data
+    related to redundant systems, such as two supervisors in a device.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2022-07-20" {
+    description
+      "Initial revision with file sync";
+    reference "0.1.0";
+  }
+
+  // extension statements
+
+  // feature statements
+
+  // identity statements
+
+  // typedef statements
+
+  // grouping statements
+
+  grouping redundancy-file-sync-config {
+    description
+      "Configuration grouping for file synchronization.";
+
+    leaf path {
+      type string;
+      description
+        "The system file path of the file to be synched to another
+        redundant system.";
+    }
+  }
+
+  grouping redundancy-file-sync-state {
+    description
+      "Operational grouping for file synchronization.";
+
+    leaf status {
+      type enumeration {
+        enum unsynchronized {
+          description
+            "The file is being synchronized or the synchronization has yet to be started.";
+        }
+
+        enum synchronized {
+          description
+            "The file was successfully synchronization.";
+        }
+
+        enum failed {
+          description
+            "The file synchronization has failed.";
+        }
+      }
+      default unsynchronized;
+      description
+        "The enum reports the synchronization status of the file.";
+    }
+
+    leaf last-sync-time {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+      description
+        "This reports the time of the last successful synchronization of the file.
+        The value is the timestamp in nanoseconds relative to the Unix Epoch
+        (Jan 1, 1970 00:00:00 UTC).";
+    }
+  }
+
+  grouping redundancy-file-sync-top {
+    description
+      "Top-level grouping for file synchronization between multiple supervisors.";
+
+    container file-sync {
+      description
+        "Top-level container for file synchronization.";
+
+      container files {
+        description
+          "This contains the list of files to synchronize between
+          multiple systems.";
+
+        list file {
+          key "path";
+          description
+            "List of files in the system to sync.";
+
+          leaf path {
+            type leafref {
+              path "../config/path";
+            }
+            description
+              "Reference to the path of the file.";
+          }
+
+          container config {
+            description
+              "Configuration data for each file to be synced.";
+
+              uses redundancy-file-sync-config;
+          }
+
+          container state {
+            config false;
+            description
+              "Operational state data of each file synced.";
+
+              uses redundancy-file-sync-config;
+              uses redundancy-file-sync-state;
+          }
+        }
+      }
+    }
+  }
+
+  grouping system-redundancy-top {
+    description
+      "Top-level grouping for redundancy.";
+
+    container redundancy {
+      description
+        "Top-level container for system level redundancy features.";
+
+      uses redundancy-file-sync-top;
+    }
+  }
+
+  // data definition statements
+
+  // augment statements
+
+  // rpc statements
+
+  // notification statements
+}
