@@ -25,7 +25,14 @@ submodule openconfig-qos-interfaces {
     configuration and operational state associated with
     interfaces.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.5.1";
+
+  revision "2022-07-20" {
+    description
+      "Remove enum variant values when the enumeration does not
+      require";
+    reference "0.5.1";
+  }
 
   revision "2021-08-28" {
     description
@@ -208,12 +215,10 @@ submodule openconfig-qos-interfaces {
     leaf type {
       type enumeration {
         enum IPV4 {
-          value 4;
           description
             "Classifier matches IPv4 Unicast packets.";
         }
         enum IPV6 {
-          value 6;
           description
             "Classifier matches IPv6 Unicast packets.";
         }
