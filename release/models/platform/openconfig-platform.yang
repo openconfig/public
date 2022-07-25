@@ -65,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.17.0";
+  oc-ext:openconfig-version "0.18.0";
+
+  revision "2022-07-11" {
+    description
+      "Add switchover ready";
+    reference "0.18.0";
+  }
 
   revision "2022-06-10" {
     description
@@ -503,6 +509,18 @@ module openconfig-platform {
         "This reports the time of the last reboot of the component. The
         value is the timestamp in nanoseconds relative to the Unix Epoch
         (Jan 1, 1970 00:00:00 UTC).";
+    }
+
+    leaf switchover-ready {
+      type boolean;
+      description
+        "For components that have redundant roles, this reports a value
+        that indicates if the component is ready to support failover.
+
+        The components with a redundant-role should reflect the overall
+        system's switchover status.  For example, two supervisors in a
+        device, one as primary and the other as secondary, should both
+        report the same value.";
     }
   }
 
