@@ -15,6 +15,7 @@ submodule openconfig-mpls-te {
   import openconfig-types { prefix oc-types; }
   import openconfig-yang-types { prefix yang; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-pcep { prefix oc-pcep; }
 
   // meta
   organization "OpenConfig working group";
@@ -29,7 +30,13 @@ submodule openconfig-mpls-te {
     signaling protocol or mechanism (see related submodules for
     signaling protocol-specific configuration).";
 
-  oc-ext:openconfig-version "3.2.2";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2022-02-11" {
+    description
+      "Add lsp-path PCE control mode";
+    reference "3.3.0";
+  }
 
   revision "2021-07-28" {
     description
@@ -868,17 +875,27 @@ submodule openconfig-mpls-te {
         equally desirable paths during CSFP computation";
     }
 
-
     leaf path-computation-server {
       when "../path-computation-method = 'oc-mplst:EXTERNALLY_QUERIED'" {
         description
           "The path-computation server when the path is
            externally queried";
       }
-      type inet:ip-address;
+      type leafref {
+        path "../../../../../../../../../../protocols/protocol/pcep/path-computation-servers/" +
+             "path-computation-server/pce-server-address";
+      }
       description
-        "Address of the external path computation
-         server";
+        "Reference to the address of a previously configured
+        external path computation server.";
+    }
+	
+	leaf path-control {
+      type oc-pcep:lsp-control-type;
+      description
+        "Set the LSP path control mode as PCE_DELEGATED
+        PCC_CONTROLLED or PCC_REPORT_ONLY information
+        state to the PCE.";
     }
 
     leaf explicit-path-name {
