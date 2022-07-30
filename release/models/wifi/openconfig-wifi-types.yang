@@ -22,7 +22,13 @@ module openconfig-wifi-types {
     that are used in the openconfig-wifi modules. It can be
     imported by any module to make use of these types.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2022-03-24" {
+    description
+      "Update model to support operation in 6 GHz frequency.";
+    reference "1.1.0";
+  }
 
   revision "2021-08-02" {
     description
@@ -51,7 +57,7 @@ module openconfig-wifi-types {
   //typdef statements
   typedef channels-type {
     type uint8 {
-      range "1..14 | 36 | 40 | 44| 48 | 52 | 56 | 60 | 64 | 100 | 104 | 108 | 112 | 116 | 120 | 124 | 128 | 132 | 136 | 140 | 144 | 149 | 153 | 157 | 161 | 165";
+      range "1..14 | 17 | 21 | 25 | 29 | 33 | 36 | 37 | 40 | 41 | 44 | 45 | 48 | 49 | 52 | 53 | 56 | 57 | 60 | 61 | 64 | 65 | 69 | 73 | 77 | 81 | 85 | 89 | 93 | 97 | 100 | 101 | 104 | 105 | 108 | 109 | 112 | 113 | 116 | 117 | 120 | 121 | 124 | 125 | 128 | 129 | 132 | 133 | 136 | 137 | 140 | 141 | 144 | 145 | 149 | 153 | 157 | 161 | 165 | 169 | 173 | 177 | 181 | 185 | 189 | 193 | 197 | 201 | 205 | 209 | 213 | 217 | 221 | 225 | 229 | 233";
     }
     description
       "Type to specify all the WiFi channels available for use. This is
@@ -241,11 +247,24 @@ module openconfig-wifi-types {
     base OPERATING_FREQUENCY;
     description
       "The Radio or SSID will be dual-band; operating in
-      both 2.4 & 5GHz frequencies.
+      both 2.4 & 5GHz frequencies.";
+  }
 
-      Dual-band Radio typically refers to a Monitor-mode radio, hopping
-      between frequencies, dwelling for a configurable amount of time on
-      each frequency.";
+  identity FREQ_6GHZ {
+    base OPERATING_FREQUENCY;
+    description "The Radio or SSID will operate at 6GHz only.";
+  }
+
+  identity FREQ_5_6_GHZ {
+    base OPERATING_FREQUENCY;
+    description "The Radio or SSID will be dual-band; operating in both 5 &
+    6GHz frequencies.";
+  }
+
+  identity FREQ_2_5_6_GHZ {
+    base OPERATING_FREQUENCY;
+    description "The Radio or SSID will be tri-band; operating in 2.4, 5 and
+    6GHz frequencies.";
   }
 
   identity CLIENT_CAPABILITIES {
@@ -282,6 +301,11 @@ module openconfig-wifi-types {
       "Whether this STA supports 802.11v BSS Transition. Note, must
       be enabled on BSS for this to be accurate; unless Probe Req.
       are observied in addition to Assoc. Req.";
+  }
+
+  identity MFP {
+    base CLIENT_CAPABILITIES;
+    description "Whether this STA can use Management Frame Protection.";
   }
 
   identity CHANGE_REASON_TYPE {

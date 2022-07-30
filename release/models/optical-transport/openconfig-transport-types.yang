@@ -22,7 +22,13 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.14.0";
+  oc-ext:openconfig-version "0.15.0";
+
+  revision "2021-07-29" {
+    description
+      "Add several avg-min-max-instant-stats groupings";
+    reference "0.15.0";
+  }
 
   revision "2021-03-22" {
     description
@@ -433,6 +439,160 @@ module openconfig-transport-types {
     uses oc-types:stat-interval-state;
     uses oc-types:min-max-time;
   }
+
+  grouping avg-min-max-instant-stats-precision1-mhz {
+    description
+      "Common grouping for recording frequency values in MHz with
+      1 decimal precision. Values include the instantaneous, average,
+      minimum, and maximum statistics. Statistics are computed and
+      reported based on a moving time interval (e.g., the last 30s).
+      If supported by the device, the time interval over which the
+      statistics are computed, and the times at which the minimum and
+      maximum values occurred, are also reported.";
+
+    leaf instant {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units MHz;
+      description
+        "The instantaneous value of the statistic.";
+    }
+
+    leaf avg {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units MHz;
+      description
+        "The arithmetic mean value of the statistic over the
+        time interval.";
+    }
+
+    leaf min {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units MHz;
+      description
+        "The minimum value of the statistic over the time interval.";
+    }
+
+    leaf max {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units MHz;
+      description
+        "The maximum value of the statistic over the time interval.";
+    }
+
+    uses oc-types:stat-interval-state;
+    uses oc-types:min-max-time;
+  }
+
+  grouping avg-min-max-instant-stats-precision1-krads {
+    description
+      "Common grouping for recording kiloradian per second (krad/s) values
+      with 1 decimal precision. Values include the instantaneous,
+      average, minimum, and maximum statistics. Statistics are computed
+      and reported based on a moving time interval (e.g., the last 30s).
+      If supported by the device, the time interval over which the
+      statistics are computed, and the times at which the minimum and
+      maximum values occurred, are also reported.";
+
+    leaf instant {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "krad/s";
+      description
+        "The instantaneous value of the statistic.";
+    }
+
+    leaf avg {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "krad/s";
+      description
+        "The arithmetic mean value of the statistic over the
+        time interval.";
+    }
+
+    leaf min {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "krad/s";
+      description
+        "The minimum value of the statistic over the time interval.";
+    }
+
+    leaf max {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "krad/s";
+      description
+        "The maximum value of the statistic over the time interval.";
+    }
+
+    uses oc-types:stat-interval-state;
+    uses oc-types:min-max-time;
+  }
+
+  grouping avg-min-max-instant-stats-precision2-pct {
+    description
+      "Common grouping for percentage statistics with 2 decimal precision.
+      Values include the instantaneous, average, minimum, and maximum
+      statistics. Statistics are computed and reported based on a moving
+      time interval (e.g., the last 30s). If supported by the device,
+      the time interval over which the statistics are computed, and the
+      times at which the minimum and maximum values occurred, are also
+      reported.";
+
+    leaf instant {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units percentage;
+      description
+        "The instantaneous value of the statistic.";
+    }
+
+    leaf avg {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units percentage;
+      description
+        "The arithmetic mean value of the statistic over the
+        time interval.";
+    }
+
+    leaf min {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units percentage;
+      description
+        "The minimum value of the statistic over the time interval.";
+    }
+
+    leaf max {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units percentage;
+      description
+        "The maximum value of the statistic over the time interval.";
+    }
+
+    uses oc-types:stat-interval-state;
+    uses oc-types:min-max-time;
+  }
+
 
   // identity statements
 
