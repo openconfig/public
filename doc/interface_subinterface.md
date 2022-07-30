@@ -81,8 +81,8 @@ For systems that have this default mapping of subinterface 0 to a parent
 interface, the configuration of separate IPv4 and IPv6 subinterfaces with no
 specified encapsulations is invalid - since in this case there is ambiguity as
 to which OpenConfig `subinterface` entities map to the "default" subinterface's
-config on the device. (i.e., OpenConfig `subinterface` 4 and 6 configured on
-`GigabitEthernet42` would potentially both map into configuration and state
+config on the device. (i.e., OpenConfig `subinterface` index 4 and 6 configured
+on `GigabitEthernet42` would potentially both map into configuration and state
 directly under `GigabitEthernet` in the native schema). Conversely, a single
 subinterface that specifies both IPv4 and IPv6 addresses is valid, since this
 unambiguously maps to the "default" subinterface on these systems.
