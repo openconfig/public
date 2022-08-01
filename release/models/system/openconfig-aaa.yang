@@ -32,7 +32,14 @@ module openconfig-aaa {
     Portions of this model reuse data definitions or structure from
     RFC 7317 - A YANG Data Model for System Management";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2022-07-29" {
+    description
+      "Specify a default role of SYSTEM_ROLE_READ_ONLY if
+      user role is not specified during user creation.";
+      reference "0.6.0";
+  }
 
   revision "2020-07-30" {
     description
@@ -396,10 +403,12 @@ module openconfig-aaa {
           base oc-aaa-types:SYSTEM_DEFINED_ROLES;
         }
       }
+      default oc-aaa-types:SYSTEM_ROLE_READ_ONLY;
       description
-        "Role assigned to the user.  The role may be supplied
-        as a string or a role defined by the SYSTEM_DEFINED_ROLES
-        identity.";
+        "Role assigned to the user.  The role must be supplied
+        as a role defined by the SYSTEM_DEFINED_ROLES
+        identity or a string.  If no role is supplied,
+        a default of SYSTEM_ROLE_READ_ONLY must be used.";
     }
   }
 
