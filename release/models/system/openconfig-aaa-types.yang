@@ -22,7 +22,14 @@ module openconfig-aaa-types {
     "This module defines shared types for data related to AAA
     (authentication, authorization, accounting).";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2022-07-29" {
+    description
+      "Add two new SYSTEM_DEFINED_ROLES: SYSTEM_ROLE_OPERATOR 
+      and SYSTEM_ROLE_READ_ONLY.";
+    reference "0.5.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -71,7 +78,8 @@ module openconfig-aaa-types {
   identity SYSTEM_DEFINED_ROLES {
     description
       "Base identity for system_defined roles that can be assigned
-      to users.";
+      to users.  Default of SYSTEM_ROLE_READ_ONLY is used if role
+      is not specified during user creation.";
   }
 
   identity SYSTEM_ROLE_ADMIN {
@@ -80,6 +88,22 @@ module openconfig-aaa-types {
       "Built-in role that allows the equivalent of superuser
       permission for all configuration and operational commands
       on the device.";
+  }
+
+  identity SYSTEM_ROLE_OPERATOR {
+    base SYSTEM_DEFINED_ROLES;
+    description
+      "Built-in role that allows the equivalent of network-operator
+      permission for all read-only and operational commands
+      on the device.";
+  }
+
+  identity SYSTEM_ROLE_READ_ONLY {
+    base SYSTEM_DEFINED_ROLES;
+    description
+      "Built-in role that allows for the execution of read-only
+      commands on the device.  Lacks permissions to operational
+      or configuration commands.";
   }
 
   identity AAA_ACCOUNTING_EVENT_TYPE {
