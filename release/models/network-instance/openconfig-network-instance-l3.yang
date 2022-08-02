@@ -23,13 +23,7 @@ module openconfig-network-instance-l3 {
     Layer 3 network instance configuration and operational state
     parameters.";
 
-  oc-ext:openconfig-version "0.12.0";
-
-  revision "2021-11-15" {
-    description
-      "Add VRF fallback configuration.";
-    reference "0.12.0";
-  }
+  oc-ext:openconfig-version "0.11.0";
 
   revision "2018-11-21" {
     description
@@ -139,16 +133,6 @@ module openconfig-network-instance-l3 {
       description
         "The address families that are to be enabled for this
         network instance.";
-    }
-
-    leaf fallback-network-instance {
-      type network-instance-ref;
-      description
-        "When this leaf is populated, the specified network instance
-        should be used as a fallback instance when a route cannot
-        be resolved in the local network-instance.
-        This configuration is only valid when specified in a non-default
-        instance which must be a L3 capable VRF (i.e., L2L3, or L3VRF).";
     }
   }
 
