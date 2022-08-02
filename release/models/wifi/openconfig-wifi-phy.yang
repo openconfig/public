@@ -25,7 +25,19 @@ module openconfig-wifi-phy {
   description
     "Model for managing PHY layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "0.4.2";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2022-03-24" {
+    description
+      "Update model to support operation in 6 GHz frequency.";
+    reference "1.1.0";
+  }
+
+  revision "2021-08-02" {
+    description
+      "Add BSS color to radio config and neighbor table.";
+    reference "1.0.0";
+  }
 
   revision "2020-03-24" {
     description
@@ -116,7 +128,7 @@ module openconfig-wifi-phy {
 
     leaf channel {
       type uint8 {
-        range "1..165";
+        range "1..233";
         }
       description
         "Operating channel of this radio. If using channel-bonding
@@ -130,6 +142,21 @@ module openconfig-wifi-phy {
       default 20;
       description
         "Operating channel-width of this radio.";
+    }
+
+    leaf bss-coloring {
+      type boolean;
+      default "true";
+      description
+        "Utilize BSS coloring on this radio.";
+    }
+
+    leaf bss-color-id {
+      type uint8 {
+        range "1..63";
+        }
+      description
+        "Numerical identifier of the BSS.";
     }
 
     leaf dca {
@@ -324,7 +351,6 @@ module openconfig-wifi-phy {
     }
   }
 
-  // neighbor BSSID | SSID | RSSI | Channel | Center Channel | Last-seen
   grouping neighbor-list-state {
     description
       "Operational state data relating to neighboring
@@ -363,6 +389,14 @@ module openconfig-wifi-phy {
         bonded channel.";
     }
 
+    leaf bss-color-id {
+      type uint8 {
+        range "1..63";
+        }
+      description
+        "Numerical identifier of the BSS.";
+    }
+
     leaf last-seen {
       type oc-types:timeticks64;
       units nanoseconds;
@@ -399,6 +433,24 @@ module openconfig-wifi-phy {
         enum WEP {
           description
             "Any flavor of WEP encryption.";
+        }
+        enum ENHANCED_OPEN {
+          description
+            "Open authentication with Opportunistic Wireless Encryption.";
+        }
+        enum WPA3_SAE {
+          description
+            "WPA3-SAE using Simultaneous Authentication of Equals (SAE).";
+        }
+        enum WPA3_ENTERPRISE {
+          description
+            "WPA3-Enterprise with 802.1X SHA-256 authentication key
+             management.";
+        }
+        enum WPA3_ENTERPRISE_192_BIT {
+          description
+            "WPA3-Enterprise with 802.1X SHA-384 authentication key
+             management.";
         }
       }
       description

@@ -26,7 +26,19 @@ module openconfig-wifi-mac {
   description
     "Model for managing MAC layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2022-03-24" {
+    description
+      "Update model to support operation in 6 GHz frequency.";
+    reference "1.1.0";
+  }
+
+  revision "2021-08-02" {
+    description
+      "Update tx/rx MCS rates, add AX as client connection mode.";
+    reference "1.0.0";
+  }
 
   revision "2020-03-24" {
     description
@@ -111,7 +123,7 @@ module openconfig-wifi-mac {
       default "oc-wifi-types:FREQ_2_5_GHZ";
       description
         "Operating frequency of this SSID. When none specified, the
-        default is dual-band.";
+        default is dual-band 2.4 and 5 GHz.";
     }
 
     leaf-list basic-data-rates-2g {
@@ -144,6 +156,21 @@ module openconfig-wifi-mac {
       }
       description
         "5GHz Supported data-rates for the SSID.";
+    }
+    leaf-list basic-data-rates-6g {
+      type identityref {
+        base oc-wifi-types:DATA_RATE;
+      }
+      description
+        "6GHz Basic data-rates for the SSID.";
+    }
+
+    leaf-list supported-data-rates-6g {
+      type identityref {
+        base oc-wifi-types:DATA_RATE;
+      }
+      description
+        "6GHz Supported data-rates for the SSID.";
     }
     // MCS rates explicitly absent, as they are typically not pruned.
 
@@ -202,8 +229,25 @@ module openconfig-wifi-mac {
           description
             "WPA2-Enterprise with 802.1X authentication.";
         }
+        enum ENHANCED_OPEN {
+          description
+            "Open authentication with Opportunistic Wireless Encryption.";
+        }
+        enum WPA3_SAE {
+          description
+            "WPA3-SAE using Simultaneous Authentication of Equals (SAE).";
+        }
+        enum WPA3_ENTERPRISE {
+          description
+            "WPA3-Enterprise with 802.1X SHA-256 authentication key
+             management.";
+        }
+        enum WPA3_ENTERPRISE_192_BIT {
+          description
+            "WPA3-Enterprise with 802.1X SHA-384 authentication key
+             management.";
+        }
       }
-      default "OPEN";
       description
         "The type of Layer2 authentication in use.";
     }
@@ -217,17 +261,30 @@ module openconfig-wifi-mac {
       }
       description
         "The passphrase used on this WPA2-Personal SSID.";
-     }
+    }
+
+    leaf wpa3-psk {
+      when "../opmode = 'WPA3_SAE'";
+      type string {
+        length "8..63";
+      }
+      description
+        "The passphrase used on this WPA3-SAE SSID.";
+    }
 
     leaf server-group {
-      when "../opmode = 'WPA2_ENTERPRISE' or ../opmode =
-      'WPA2_PERSONAL'";
+      when "../opmode = 'WPA2_ENTERPRISE' or
+      ../opmode = 'WPA2_PERSONAL' or
+      ../opmode = 'WPA3_ENTERPRISE' or
+      ../opmode = 'WPA3_ENTERPRISE_192_BIT' or
+      ../opmode = 'WPA3_SAE'";
       type string;
         description
           "Specifies the RADIUS server-group to be used,
           as defined in the openconfig-aaa.yang model.
 
-          Including WPA2_PERSONAL as it can be accompained by MAB.";
+          Including WPA2_PERSONAL and WPA3_SAE as they can be accompanied by
+          MAB.";
     }
 
     leaf dva {
@@ -287,6 +344,16 @@ module openconfig-wifi-mac {
       type boolean;
       description
         "Enable/disable Opportunistic Key Caching.";
+    }
+
+    leaf mfp {
+      when "../opmode = 'WPA3_ENTERPRISE' or ../opmode =
+      'WPA3_ENTERPRISE_192_BIT' or ../opmode =
+      'WPA3_SAE' or ../opmode = 'ENHANCED_OPEN'";
+      type boolean;
+      mandatory true;
+      description
+        "Management Frame Protection is required for WPA3 and OWE.";
     }
   }
 
@@ -766,6 +833,18 @@ module openconfig-wifi-mac {
           description
             "Rx Data frames at MCS 9.";
         }
+
+        leaf mcs10 {
+          type oc-yang:counter64;
+          description
+            "Rx Data frames at MCS 10.";
+        }
+
+        leaf mcs11 {
+          type oc-yang:counter64;
+          description
+            "Rx Data frames at MCS 11.";
+        }
       }
 
       leaf rx-retries {
@@ -1025,6 +1104,18 @@ module openconfig-wifi-mac {
           type oc-yang:counter64;
             description
               "Tx Data frames at MCS 9.";
+        }
+
+        leaf mcs10 {
+          type oc-yang:counter64;
+            description
+              "Tx Data frames at MCS 10.";
+        }
+
+        leaf mcs11 {
+          type oc-yang:counter64;
+            description
+              "Tx Data frames at MCS 11.";
         }
       }
 
@@ -1287,6 +1378,10 @@ module openconfig-wifi-mac {
             description
               "Client connected using 802.11ac.";
           }
+          enum AX {
+            description
+              "Client connected using 802.11ax.";
+          }
         }
         description
           "802.11 protocol used for the client's connection.";
@@ -1295,8 +1390,7 @@ module openconfig-wifi-mac {
       leaf frequency {
         type uint8;
         description
-          "Frequency the client is utilizing. Typically, 2.4 or
-          5[GHz].";
+          "Frequency the client is utilizing. Typically, 2.4, 5 or 6 [GHz].";
       }
     }
   }
