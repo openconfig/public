@@ -24,13 +24,6 @@ module openconfig-aaa-types {
 
   oc-ext:openconfig-version "0.5.0";
 
-  revision "2022-07-29" {
-    description
-      "Add two new SYSTEM_DEFINED_ROLES: SYSTEM_ROLE_OPERATOR
-      and SYSTEM_ROLE_READ_ONLY.";
-    reference "0.5.0";
-  }
-
   revision "2018-11-21" {
     description
       "Add OpenConfig module metadata extensions.";
@@ -88,22 +81,6 @@ module openconfig-aaa-types {
       "Built-in role that allows the equivalent of superuser
       permission for all configuration and operational commands
       on the device.";
-  }
-
-  identity SYSTEM_ROLE_OPERATOR {
-    base SYSTEM_DEFINED_ROLES;
-    description
-      "Built-in role that allows for the access to state paths.
-      Lacks permissions to operational (gNOI) and lacks
-      write access to config paths.";
-  }
-
-  identity SYSTEM_ROLE_READ_ONLY {
-    base SYSTEM_DEFINED_ROLES;
-    description
-      "Built-in role that allows for the execution of read-only
-      commands on the device.  Lacks permissions to operational
-      or configuration commands.";
   }
 
   identity AAA_ACCOUNTING_EVENT_TYPE {
