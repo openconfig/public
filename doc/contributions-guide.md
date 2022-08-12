@@ -1,7 +1,8 @@
-# External Submissions to OpenConfig
+# Contributionss to OpenConfig
 *Contributors*: robjs<sup>†</sup>, aashaikh<sup>†</sup>, chris_luke<sup>⸸</sup>  
 † @google.com, ⸸ @comcast.com  
-May 2018
+Created: May 2018  
+Updated: August 2022
 
 ## Rationale
 As the OpenConfig project matures and is adopted by implementors and network
@@ -54,9 +55,10 @@ ascribe any specific rights to a single OpenConfig member.
 To make a contribution to OpenConfig:
 
 1. Open a pull request in the
- [openconfig/public](https://github.com/openconfig/public) repo. A brief
- description of the proposed addition along with references to any discussion
- issues should be included.
+ [openconfig/public](https://github.com/openconfig/public) repo. The pull
+  request template for the repository details the information that is expected,
+  please fill it out, along with any additional information that is useful for
+  reviewers. In addition:
     * Pull requests should be kept small. An ideal change is less than 500 lines
      of YANG. Small changes allow detailed discussions of the additions that are
      being made to the model, whilst also ensuring that course-corrections can be
@@ -66,7 +68,7 @@ To make a contribution to OpenConfig:
      likely an issue should have been created to discuss the addition prior to
      code review.
     * When the pull request adds a new feature that is supported across vendors,
-     best practice is to include links to public-facing documentation showing
+     the author must include links to public-facing documentation showing
      the implementation of the feature within the change description. This
      simplifies the process of reviewing differences and the chosen abstractions
      (if any are used).
@@ -90,23 +92,13 @@ To make a contribution to OpenConfig:
  available YANG toolchains, in order to detect regression issues that may occur
  due to OpenConfig model changes.
 
-1. A member of the OpenConfig operator working group will be assigned as a
- shepherd for the pull request. The shepherd will act as a liasion between the
- author(s) of the PR and the OpenConfig group - particularly, they will perform
- an initial review of the submission, provide feedback from the wider operator
- group on the PR, or directly interact with the authors to iterate on the
- proposal. The working group meets weekly and, in some cases, may ask the
- authors to join this meeting for a discussion of the changes.
+1. Discussion of the PR is carried out in the `openconfig/public` repository -
+ in order to ensure that different viewpoints can be considered from the
+ community. Real-time discussions (either scheduled or ad-hoc) can be arranged
+ where needed.
 
-1. When the model changes are approved. The pull request will not be directly
- merged in the public repository, but merged in a private development repo.
- Members of the OpenConfig group have access to the private repo, and may make
- subsequent changes to the accepted pull request. Merged changes will be
- upstreamed from the private repo to
- [openconfig/public](https://github.com/openconfig/public) periodically. This
- helps keep the release history well defined within the public repository, and
- to maintain consistency over changes that require major revision number
- changes.
+1. When the model changes are approved. The pull request will  be directly
+ merged in the public repository. [0]
 
 The aim of this process is not to restrict contributions to OpenConfig, but
 simply to maintain the model quality and approach that the working group has
@@ -115,3 +107,7 @@ are welcome, please use the [netopenconfig Google
 group](mailto:netopenconfig@googlegroups.com), or the [public repository
 issues](https://github.com/openconfig/public/issues). 
 
+[0]: Previously, changes were merged in an upstream repository, but since
+2022-05-01 `openconfig/public` is the source of truth for OpenConfig models.
+Please note that this requires stricter consideration of version numbers
+that were previously changed upstream.
