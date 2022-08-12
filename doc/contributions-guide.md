@@ -1,4 +1,4 @@
-# Contributionss to OpenConfig
+# Contributions to OpenConfig
 *Contributors*: robjs<sup>†</sup>, aashaikh<sup>†</sup>, chris_luke<sup>⸸</sup>  
 † @google.com, ⸸ @comcast.com  
 Created: May 2018  
