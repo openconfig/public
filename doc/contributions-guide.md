@@ -97,8 +97,8 @@ To make a contribution to OpenConfig:
  community. Real-time discussions (either scheduled or ad-hoc) can be arranged
  where needed.
 
-1. When the model changes are approved. The pull request will  be directly
- merged in the public repository. [0]
+1. When the model changes are approved. The pull request will be
+ merged in the public repository.
 
 The aim of this process is not to restrict contributions to OpenConfig, but
 simply to maintain the model quality and approach that the working group has

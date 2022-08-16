@@ -9,7 +9,6 @@ https://github.com/openconfig/public/blob/master/doc/external-contributions-guid
 
 * [Please briefly describe the change that is being made to the models.]
 * [Please indicate whether this change is backwards compatible.]
-
 ### Platform Implementations
 
  * Implementation A: [link to documentation](http://foo.com) and/or
@@ -17,7 +16,7 @@ https://github.com/openconfig/public/blob/master/doc/external-contributions-guid
  * Implementation B: [link to documentation](http://foo.com) and/or
    implementation output.
 
-[Note: Implementation A and B should be from separate companies.]. 
+[Note: Please provide at least two references to implementations which are relevant to the model changes proposed.  Each implementation should be from separate organizations.]. 
 
 [Note: If the feature being proposed is new - and something that is being
 proposed as an enhancement to device functionality, it is sufficient to have
