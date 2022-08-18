@@ -26,7 +26,13 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "9.1.0";
+  oc-ext:openconfig-version "9.2.0";
+
+  revision "2022-08-30" {
+    description
+      "Added update generation support.";
+    reference "9.2.0";
+  }
 
   revision "2022-05-21" {
     description
@@ -370,6 +376,20 @@ submodule openconfig-bgp-global {
     }
   }
 
+  grouping bgp-global-update-generation-config {
+    description
+      "Configuration options relating to update message generation
+      for the BGP router";
+
+    leaf wait-fib-install {
+      type boolean;
+      default "false";
+      description
+        "Advertisement will be postponed until route is programmed
+        in the FIB";
+    }
+  }
+
   // Structural groupings
   grouping bgp-global-base {
     description
@@ -452,6 +472,20 @@ submodule openconfig-bgp-global {
     }
 
     uses bgp-global-dynamic-neighbors;
-  }
 
+    container update-generation {
+       description
+         "Parameters relating the update message generation for BGP";
+       container config {
+         description
+           "Configuration parameter relating to update message generation";
+         uses bgp-global-update-generation-config;
+       }
+       container state {
+         config false;
+         description
+           "State information associated with update message generation";
+         uses bgp-global-update-generation-config;
+       }
+    }
 }
