@@ -19,7 +19,13 @@ module openconfig-network-instance-types {
   description
     "Types associated with a network instance";
 
-  oc-ext:openconfig-version "0.9.3";
+  oc-ext:openconfig-version "0.10.0";
+
+  revision "2022-08-10" {
+    description
+      "Add MAC_VRF network-instance type.";
+    reference "0.10.0";
+  }
 
   revision "2021-07-14" {
     description
@@ -173,6 +179,12 @@ module openconfig-network-instance-types {
     base NETWORK_INSTANCE_TYPE;
     description
       "A private Layer 2 and Layer 3 forwarding instance";
+  }
+
+  identity MAC_VRF {
+    base NETWORK_INSTANCE_TYPE;
+    description
+      "A MAC-VRF forwarding instance";
   }
 
   identity ENDPOINT_TYPE {
