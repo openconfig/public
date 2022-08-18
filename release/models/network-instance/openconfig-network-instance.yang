@@ -48,7 +48,15 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "1.3.0";
+  oc-ext:openconfig-version "2.0.0";
+
+  revision "2022-08-10" {
+    description
+       "Add VLAN as key to mac-table and mac-ip-table under fdb/l2rib and allow
+       fdb hierarchy for MAC_VRF network-instance type. Correct yang/inet types
+       to use OpenConfig types.";
+    reference "2.0.0";
+  }
 
   revision "2022-07-04" {
     description
@@ -295,6 +303,7 @@ module openconfig-network-instance {
             when "./config/type = 'oc-ni-types:L2VSI'
                   or ./config/type = 'oc-ni-types:L2P2P'
                   or ./config/type = 'oc-ni-types:L2L3'
+                  or ./config/type = 'oc-ni-types:MAC_VRF'
                   or ./config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
                   description
                     "Layer 2 configuration parameters included when
