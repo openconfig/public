@@ -27,7 +27,14 @@ module openconfig-packet-match {
     field is omitted from a match expression, the effect is a
     wildcard ('any') for that field.";
 
-  oc-ext:openconfig-version "1.3.1";
+  oc-ext:openconfig-version "1.4.0";
+
+  revision "2022-10-25" {
+    description
+      "Add the ability to match multiple source/destination IPv4/IPv6 address prefixes
+      as well as multiple source/destination ports.";
+    reference "1.4.0";
+  }
 
   revision "2021-06-16" {
     description
@@ -274,10 +281,31 @@ module openconfig-packet-match {
         "Source IPv4 address prefix.";
     }
 
+    leaf-list source-address-set {
+      type oc-inet:ipv4-prefix;
+      description
+	"A list of source IPv4 address prefixes to be matched for incoming packets.
+        An OR match should be performed, such that a packet must match one of the
+        source IPv4 address prefixes defined in this list. If the field is left empty then
+        any source IPv4 address prefix matches unless the 'source-address' leaf is specified.
+        It is not valid to specify both 'source-address' and 'source-address-set' together.";
+    }
+
     leaf destination-address {
       type oc-inet:ipv4-prefix;
       description
         "Destination IPv4 address prefix.";
+    }
+
+    leaf-list destination-address-set {
+      type oc-inet:ipv4-prefix;
+      description
+	"A list of destination IPv4 address prefixes to be matched for incoming packets.
+        An OR match should be performed, such that a packet must match one of the
+        destination IPv4 address prefixes defined in this list. If the field is left empty
+        then any destination IPv4 address prefix matches unless the 'destination-address'
+        leaf is specified. It is not valid to specify both 'destination-address' and
+        'destination-address-set' together.";
     }
 
     uses ip-protocol-fields-common-config;
@@ -323,6 +351,16 @@ module openconfig-packet-match {
         "Source IPv6 address prefix.";
     }
 
+    leaf-list source-address-set {
+      type oc-inet:ipv6-prefix;
+      description
+	"A list of source IPv6 address prefixes to be matched for incoming packets.
+        An OR match should be performed, such that a packet must match one of the
+        source IPv6 address prefixes defined in this list. If the field is left empty then
+        any source IPv6 address prefix matches unless the 'source-address' leaf is specified.
+        It is not valid to specify both 'source-address' and 'source-address-set' together.";
+    }
+
     leaf source-flow-label {
       type oc-inet:ipv6-flow-label;
       description
@@ -333,6 +371,17 @@ module openconfig-packet-match {
       type oc-inet:ipv6-prefix;
       description
         "Destination IPv6 address prefix.";
+    }
+
+    leaf-list destination-address-set {
+      type oc-inet:ipv6-prefix;
+      description
+	"A list of destination IPv6 address prefixes to be matched for incoming packets.
+        An OR match should be performed, such that a packet must match one of the
+        destination IPv6 address prefixes defined in this list. If the field is left empty
+        then any destination IPv6 address prefix matches unless the 'destination-address'
+        leaf is specified. It is not valid to specify both 'destination-address' and
+        'destination-address-set' together.";
     }
 
     leaf destination-flow-label {
@@ -388,10 +437,31 @@ module openconfig-packet-match {
         "Source port or range";
     }
 
+    leaf-list source-port-set {
+      type oc-pkt-match-types:port-num-range;
+      description
+	"A list of source port or range to be matched for incoming packets.
+        An OR match should be performed, such that a packet must match one of the
+        source port or range defined in this list. If the field is left empty then
+        any source port or range matches unless the 'source-port' leaf is specified.
+        It is not valid to specify both 'source-port' and 'source-port-set' together.";
+    }
+
     leaf destination-port {
       type oc-pkt-match-types:port-num-range;
       description
         "Destination port or range";
+    }
+
+    leaf-list destination-port-set {
+      type oc-pkt-match-types:port-num-range;
+      description
+	"A list of destination port or range to be matched for incoming packets.
+        An OR match should be performed, such that a packet must match one of the
+        destination port or range defined in this list. If the field is left empty
+        then any destination port or range matches unless the 'destination-port' leaf
+        is specified. It is not valid to specify both 'destination-port' and
+        'destination-port-set' together.";
     }
 
     leaf-list tcp-flags {
