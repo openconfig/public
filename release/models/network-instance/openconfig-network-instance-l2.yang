@@ -5,12 +5,12 @@ submodule openconfig-network-instance-l2 {
   }
 
   // import some basic types
-  import openconfig-extensions { prefix oc-ext; }
-  import openconfig-interfaces { prefix oc-if; }
-  import openconfig-yang-types { prefix oc-yang; }
-  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-interfaces { prefix "oc-if"; }
+  import ietf-yang-types { prefix "yang"; }
+  import ietf-inet-types { prefix "inet"; }
   import openconfig-evpn-types { prefix oc-evpn-types; }
-  import openconfig-evpn { prefix oc-evpn; }
+  import openconfig-evpn { prefix "oc-evpn"; }
 
   // meta
   organization "OpenConfig working group";
@@ -24,15 +24,7 @@ submodule openconfig-network-instance-l2 {
     Layer 2 network instance configuration and operational state
     parameters.";
 
-  oc-ext:openconfig-version "2.0.0";
-
-  revision "2022-08-10" {
-    description
-      "Add VLAN as key to mac-table and mac-ip-table under fdb/l2rib and allow
-      fdb hierarchy for MAC_VRF network-instance type. Correct yang/inet types
-      to use OpenConfig types.";
-    reference "2.0.0";
-  }
+  oc-ext:openconfig-version "1.3.0";
 
   revision "2022-07-04" {
     description
@@ -321,7 +313,7 @@ submodule openconfig-network-instance-l2 {
       "Configuration data for MAC table entries";
 
     leaf mac-address {
-      type oc-yang:mac-address;
+      type yang:mac-address;
       description
         "MAC address for the dynamic or static MAC table
         entry";
@@ -461,25 +453,14 @@ submodule openconfig-network-instance-l2 {
             "Enclosing container for list of MAC address entries";
 
           list entry {
-            key "mac-address vlan";
+            key "mac-address";
             description "List of learned MAC addresses";
 
             leaf mac-address {
               type leafref {
                 path "../state/mac-address";
               }
-              description
-                "Reference to the MAC address associated with the
-                mac-table entry.";
-            }
-
-            leaf vlan {
-              type leafref {
-                path "../state/vlan";
-              }
-              description
-                "Reference to the VLAN ID associated with the mac-table
-                entry.";
+              description "Leafref of MAC address object";
             }
 
             container state {
@@ -527,34 +508,21 @@ submodule openconfig-network-instance-l2 {
             "Enclosing container for list of MAC-IP address entries";
 
           list entry {
-            key "mac-address host-ip vlan";
+            key "mac-address host-ip";
             description "List of learned MAC-IP addresses";
 
             leaf mac-address {
               type leafref {
                 path "../state/mac-address";
               }
-              description
-                "Reference to the MAC address associated with the
-                mac-ip-table entry.";
+              description "Leafref of MAC-IP address object";
             }
 
             leaf host-ip {
               type leafref {
                 path "../state/host-ip";
               }
-              description
-                "Reference to the IP address of the Customer Edge Device
-                associated with the mac-ip-table entry.";
-            }
-
-            leaf vlan {
-              type leafref {
-                path "../state/vlan";
-              }
-              description
-                "Reference to the VLAN ID associated with the mac-ip-table
-                entry.";
+              description "IP address of the Customer Edge device";
             }
 
             container state {
@@ -603,7 +571,7 @@ submodule openconfig-network-instance-l2 {
     uses l2ni-l2rib-common-state;
 
     leaf host-ip {
-      type oc-inet:ip-address;
+      type inet:ip-address;
       description
         "Host IP address of the CE device for the L2RIB MAC-IP entry";
       reference "RFC7432: BGP MPLS-Based Ethernet VPN";
@@ -625,7 +593,7 @@ submodule openconfig-network-instance-l2 {
     description "L2RIB Common Property Operational State Data Grouping";
 
     leaf mac-address {
-        type oc-yang:mac-address;
+        type yang:mac-address;
         description "MAC address of the L2RIB MAC or MAC-IP entry";
     }
     leaf vlan {
@@ -732,7 +700,7 @@ submodule openconfig-network-instance-l2 {
             description "A unique entry for the next-hop.";
           }
           leaf peer-ip {
-            type oc-inet:ip-address;
+            type inet:ip-address;
             description "Next hop peer address";
           }
           leaf label {
