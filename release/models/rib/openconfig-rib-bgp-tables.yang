@@ -7,8 +7,13 @@ submodule openconfig-rib-bgp-tables {
 
   // import some basic types
   import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-policy-types { prefix oc-pol-types; }
+
+  import openconfig-network-instance-types { prefix oc-ni-types; }
+  import openconfig-evpn-types { prefix oc-evpn-types; }
+  import openconfig-bgp-types { prefix oc-bgpt; }
 
   include openconfig-rib-bgp-attributes;
   include openconfig-rib-bgp-shared-attributes;
@@ -25,7 +30,19 @@ submodule openconfig-rib-bgp-tables {
     "This submodule contains structural data definitions for
     BGP routing tables.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.1";
+
+  revision "2022-06-06" {
+    description
+      "Revert IETF types in favor of oc-inet types";
+    reference "0.8.1";
+  }
+
+  revision "2021-06-21" {
+    description
+      "Add L2VPN-EVPN BGP RIB Support";
+    reference "0.8.0";
+  }
 
   revision "2019-10-15" {
     description
@@ -306,6 +323,826 @@ submodule openconfig-rib-bgp-tables {
           }
 
           uses bgp-unknown-attr-top;
+        }
+      }
+    }
+  }
+
+  grouping l2vpn-evpn-loc-rib-top {
+    description
+      "Top-level grouping for L2VPN EVPN routing tables";
+
+    container loc-rib {
+      config false;
+      description
+        "Container for the L2VPN EVPN BGP LOC-RIB data";
+
+      uses bgp-common-table-attrs-top;
+
+      container routes {
+        description
+          "Enclosing container for list of routes in the routing
+          table.";
+
+        list route-distinguisher {
+          description "List of route distinguishers";
+          key "route-distinguisher";
+
+          leaf route-distinguisher {
+            type leafref {
+              path "../state/route-distinguisher";
+            }
+            description
+              "An EVPN instance requires a Route Distinguisher (RD) that is
+              unique per MAC-VRF";
+            reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+          }
+
+          container state {
+            description "Top level container for L2VPN EVPN RDs";
+            leaf route-distinguisher {
+              type oc-ni-types:route-distinguisher;
+              description
+                "Route Distinguisher for all supported EVPN route types";
+            }
+          }
+          uses bgp-evpn-type-one-state;
+          uses bgp-evpn-type-two-state;
+          uses bgp-evpn-type-three-state;
+          uses bgp-evpn-type-four-state;
+          uses bgp-evpn-type-five-state;
+        }
+      }
+    }
+  }
+
+  grouping bgp-loc-rib-l2vpn-evpn-attr-refs {
+    description
+      "Definitions of common references to attribute sets for
+      multiple AFI-SAFIs for LOC-RIB tables";
+
+    leaf attr-index {
+      type leafref {
+        path "../../../../../../../../../../../../attr-sets/attr-set/" +
+          "state/index";
+      }
+      description
+        "Reference to the common attribute group for the
+        route";
+    }
+
+    leaf community-index {
+      type leafref {
+        path "../../../../../../../../../../../../communities/community/" +
+          "state/index";
+      }
+      description
+        "Reference to the community attribute for the route";
+    }
+
+    leaf ext-community-index {
+      type leafref {
+        path "../../../../../../../../../../../../ext-communities/" +
+          "ext-community/state/index";
+      }
+      description
+        "Reference to the extended community attribute for the
+        route";
+    }
+  }
+
+  grouping bgp-evpn-route-path-common-state {
+    description
+      "Grouping for BGP L2VPN EVPN route-type common path state information";
+
+    container paths {
+      description "List of BGP path attributes for this route";
+
+      list path {
+        description "List of paths";
+        key "peer-ip peer-path-id source-route-distinguisher source-address-family";
+
+        uses bgp-evpn-route-path-lefref-common;
+
+        container state {
+          description "BGP path attributes for this route";
+
+          uses bgp-evpn-route-path-keys-common;
+          uses bgp-evpn-route-path-attributes-common;
+        }
+
+        uses bgp-unknown-attr-top;
+
+      }
+    }
+  }
+
+  grouping bgp-evpn-route-path-type2-state {
+    description
+      "Grouping for BGP L2VPN EVPN route-type path state information for
+      route type 2";
+
+    container paths {
+      description "List of BGP path attributes for this route";
+
+      list path {
+        description "List of paths";
+        key "peer-ip peer-path-id source-route-distinguisher source-address-family";
+
+        uses bgp-evpn-route-path-lefref-common;
+
+        container state {
+          description "BGP path attributes for this route";
+
+          uses bgp-evpn-route-path-keys-common;
+
+          leaf esi {
+            type oc-evpn-types:esi;
+            description
+              "The Ethernet Segment Identifier (ESI) identifying the ethernet
+              segment for this route";
+          }
+
+          uses bgp-evpn-route-path-attributes-common;
+        }
+
+        uses bgp-unknown-attr-top;
+
+      }
+    }
+  }
+
+  grouping bgp-evpn-route-path-type5-state {
+    description
+      "Grouping for BGP L2VPN EVPN route-type path state information for
+      route type 5";
+
+    container paths {
+      description "List of BGP path attributes for this route";
+
+      list path {
+        description "List of paths";
+        key "peer-ip peer-path-id source-route-distinguisher source-address-family";
+
+        uses bgp-evpn-route-path-lefref-common;
+
+        container state {
+          description "BGP path attributes for this route";
+
+          leaf esi {
+            type oc-evpn-types:esi;
+            description
+              "The Ethernet Segment Identifier (ESI) identifying the ethernet
+              segment for this route";
+          }
+
+          leaf gateway-ip-address {
+            type oc-inet:ip-prefix;
+            description
+              "The gateway-ip-address for the route";
+          }
+
+          uses bgp-evpn-route-path-keys-common;
+          uses bgp-evpn-route-path-attributes-common;
+        }
+
+        uses bgp-unknown-attr-top;
+
+      }
+    }
+  }
+
+  grouping bgp-evpn-route-path-lefref-common {
+    description "Common BGP L2VPN EVPN Path Leaf References";
+
+    leaf peer-ip {
+      type leafref {
+        path "../state/peer-ip";
+      }
+      description "The source peer ip address of the imported route";
+    }
+
+    leaf peer-path-id {
+      type leafref {
+        path "../state/peer-path-id";
+      }
+      description "The source peer path id of the imported route";
+    }
+
+    leaf source-route-distinguisher {
+      type leafref {
+        path "../state/source-route-distinguisher";
+      }
+      description
+        "The source route distinguisher is the remote RD source of the
+        imported route";
+    }
+
+    leaf source-address-family {
+      type leafref {
+        path "../state/source-address-family";
+      }
+      description "The source address-family of the imported route";
+    }
+  }
+
+  grouping bgp-evpn-route-path-keys-common {
+    description "Common BGP L2VPN EVPN Path Keys";
+
+    leaf peer-ip {
+      type oc-inet:ip-address;
+      description
+        "The source peer ip address of the imported route";
+    }
+
+    leaf peer-path-id {
+      type uint32;
+      description "The source peer path id of the imported route";
+    }
+
+    leaf source-route-distinguisher {
+      type oc-ni-types:route-distinguisher;
+      description
+        "The source route distinguisher is the remote RD source of the
+        imported route";
+    }
+
+    leaf source-address-family {
+      type identityref {
+        base oc-bgpt:AFI_SAFI_TYPE;
+      }
+      description "The source address-family of the imported route";
+    }
+  }
+
+  grouping bgp-evpn-route-path-attributes-common {
+    description "Common BGP L2VPN EVPN Path Attributes";
+
+    leaf-list advertised-to-peer {
+      type oc-inet:ip-address;
+      description "List of peers to which this path is advertised";
+    }
+
+    leaf label {
+      type string;
+      description
+        "MPLS Label field used for route attributes";
+      reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+    }
+
+    leaf label2 {
+      type string;
+      description "MPLS Label2 field used for route attributes";
+      reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+    }
+
+    leaf bestpath {
+      type boolean;
+      description
+        "BGP can receive multiple paths to the same destination. This
+        parameter indicates that this path is the bestpath to install
+        in the IP routing table and use for traffic forwarding";
+    }
+
+    leaf multipath {
+      type boolean;
+      description
+        "BGP can use multiple paths to reach a destination allowing
+        BGP to load-balance traffic. This parameter indicates that this
+        path is marked as multipath";
+    }
+
+    leaf backup {
+      type boolean;
+      description "BGP path marked as a backup path";
+    }
+
+    uses bgp-common-route-annotations-state;
+    uses bgp-loc-rib-l2vpn-evpn-attr-refs;
+  }
+
+  grouping bgp-evpn-type-one-key-refs {
+    description
+      "Key references to support operational state structure for
+      BGP EVPN Ethernet Auto-discovery routes.
+
+      For the purpose of BGP route key processing, only the Ethernet Segment
+      Identifier and Ethernet Tag ID are considered to be part of the prefix in
+      the NLRI";
+    reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+
+
+      leaf esi {
+        type leafref {
+          path "../state/esi";
+        }
+        description
+          "The Ethernet Segment Identifier (ESI) is a unique non-zero
+          identifier that identifies an Ethernet segment";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+      }
+
+      leaf ethernet-tag {
+        type leafref {
+          path "../state/ethernet-tag";
+        }
+        description
+          "The Ethernet tag identifies a particular broadcast domain.  An EVPN
+          instance consists of one or more broadcast domains";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+      }
+  }
+
+  grouping bgp-evpn-type-one-state {
+    description "Grouping for BGP EVPN Ethernet Auto-discovery routes";
+    container type-one-ethernet-auto-discovery {
+      description "Top level container BGP EVPN Ethernet Auto-discovery routes";
+      list type-one-route {
+        key "esi ethernet-tag";
+        description
+          "List of BGP EVPN Ethernet Auto-discovery routes
+
+          For the purpose of BGP route key processing, only the Ethernet Segment
+          Identifier and Ethernet Tag ID are considered to be part of the prefix in
+          the NLRI";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+
+        uses bgp-evpn-type-one-key-refs;
+
+        container state {
+          description
+            "Operational state data for BGP EVPN Ethernet Auto-discovery route
+            entries in the BGP LOC-RIB";
+
+          leaf esi {
+            type oc-evpn-types:esi;
+            description
+              "The Ethernet Segment Identifier (ESI) identifying the ethernet
+              segment for this route";
+          }
+
+          leaf ethernet-tag {
+            type oc-evpn-types:ethernet-tag;
+            description
+              "The Ethernet tag identifying the broadcast domain for this
+              route";
+          }
+
+          uses bgp-loc-rib-attr-state;
+          uses bgp-loc-rib-route-annotations-state;
+        }
+
+         uses bgp-evpn-route-path-common-state;
+      }
+    }
+  }
+
+  grouping bgp-evpn-type-two-key-refs {
+    description
+      "Key references to support operational state structure for
+      MAC_IP Advertisement routes.
+
+      For the purpose of BGP route key processing, only the Ethernet Tag ID,
+      MAC Address Length, MAC Address, IP Address Length, and IP Address fields
+      are considered to be part of the prefix in the NLRI";
+    reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+
+      leaf ethernet-tag {
+        type leafref {
+          path "../state/ethernet-tag";
+        }
+        description
+          "The Ethernet tag identifies a particular broadcast domain.  An EVPN
+          instance consists of one or more broadcast domains";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+      }
+
+      leaf mac-address {
+        type leafref {
+          path "../state/mac-address";
+        }
+        description
+          "The PEs forward packets that they receive based on the destination
+          MAC address";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+      }
+
+      leaf mac-length {
+        type leafref {
+          path "../state/mac-length";
+        }
+        description
+          "The MAC Address Length for the MAC address defined in mac-address";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+      }
+
+      leaf ip-prefix {
+        type leafref {
+          path "../state/ip-prefix";
+        }
+        description
+          "The IPv4 or IPv6 address carried in a MAC_IP Advertisement route";
+      }
+
+      leaf ip-length {
+        type leafref {
+          path "../state/ip-length";
+        }
+        description
+          "The IPv4 or IPv6 address prefix length for the address defined in
+          ip-prefix";
+      }
+  }
+
+  grouping bgp-evpn-type-two-state {
+    description "Grouping for MAC_IP Advertisement L2VPN EVPN routes";
+    container type-two-mac-ip-advertisement {
+      description
+        "Top level container for MAC_IP Advertisement L2VPN EVPN routes";
+      list type-two-route {
+        key "ethernet-tag mac-address mac-length ip-prefix ip-length";
+        description
+          "List of MAC_IP Advertisement L2VPN EVPN routes
+
+          For the purpose of BGP route key processing, only the Ethernet Tag ID,
+          MAC Address Length, MAC Address, IP Address Length, and IP Address fields
+          are considered to be part of the prefix in the NLRI";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+
+        uses bgp-evpn-type-two-key-refs;
+
+        container state {
+          description
+            "Operational state data MAC_IP Advertisement L2VPN EVPN route
+            entries in the BGP LOC-RIB";
+
+          leaf ethernet-tag {
+            type oc-evpn-types:ethernet-tag;
+            description
+              "The Ethernet tag identifying the broadcast domain for this
+              route";
+          }
+
+          leaf mac-address {
+            type oc-yang:mac-address;
+            description
+              "The MAC address that is learned on a PE from a CE that is
+              connected to it or learned from other PEs";
+          }
+
+          leaf mac-length {
+            type uint32;
+            description
+              "The MAC address length for the mac-address";
+          }
+
+          leaf ip-prefix {
+            type oc-inet:ip-prefix;
+            description
+              "The IP address for end-host reachability information";
+          }
+
+          leaf ip-length {
+            type uint32;
+            description
+              "The ip-prefix length for the IP address specified by ip-prefix";
+          }
+
+          uses bgp-loc-rib-attr-state;
+          uses bgp-loc-rib-route-annotations-state;
+        }
+
+         uses bgp-evpn-route-path-type2-state;
+      }
+    }
+  }
+
+  grouping bgp-evpn-type-three-key-refs {
+    description
+      "Key references to support operational state structure for Inclusive
+      Multicast Ethernet Tag routes.
+
+      For the purpose of BGP route key processing, only the Ethernet Tag ID,
+      IP Address Length, and Originating Router's IP Address fields are
+      considered to be part of the prefix in the NLRI";
+    reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+
+      leaf ethernet-tag {
+        type leafref {
+          path "../state/ethernet-tag";
+        }
+        description
+          "The Ethernet tag identifies a particular broadcast domain.  An EVPN
+          instance consists of one or more broadcast domains";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+      }
+
+      leaf originating-router-ip {
+        type leafref {
+          path "../state/originating-router-ip";
+        }
+        description
+          "Reference to the originating-router-ip list key";
+      }
+
+      leaf originator-ip-length {
+        type leafref {
+          path "../state/originator-ip-length";
+        }
+        description
+          "Reference to the originating router ip length list key";
+      }
+  }
+
+  grouping bgp-evpn-type-three-state {
+    description
+      "Grouping for Inclusive Multicast Ethernet Tag L2VPN EVPN routes";
+    container type-three-inclusive-multicast-ethernet-tag {
+      description
+        "Top level container for Inclusive Multicast Ethernet Tag L2VPN EVPN
+        routes";
+
+      list type-three-route {
+        key "ethernet-tag originating-router-ip originator-ip-length";
+        description
+          "List of Inclusive Multicast Ethernet Tag L2VPN EVPN routes
+
+          For the purpose of BGP route key processing, only the Ethernet Tag ID,
+          IP Address Length, and Originating Router's IP Address fields are
+          considered to be part of the prefix in the NLRI";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+
+        uses bgp-evpn-type-three-key-refs;
+
+        container state {
+          description
+            "Operational state data for Inclusive Multicast Ethernet Tag L2VPN
+            EVPN entries in the BGP LOC-RIB";
+
+          leaf ethernet-tag {
+            type oc-evpn-types:ethernet-tag;
+            description
+              "The Ethernet tag identifying the broadcast domain for this
+              route";
+          }
+
+          leaf originating-router-ip {
+            type oc-inet:ip-prefix;
+            description
+              "The Originating Router's IP Address";
+            reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+          }
+
+          leaf originator-ip-length {
+            type uint32;
+            description
+              "The ip-prefix length for the route";
+          }
+
+          uses bgp-loc-rib-attr-state;
+          uses bgp-loc-rib-route-annotations-state;
+        }
+
+         uses bgp-evpn-route-path-common-state;
+      }
+    }
+  }
+
+  grouping bgp-evpn-type-four-key-refs {
+    description
+      "Key references to support operational state structure for Ethernet
+      Segment routes.
+
+      For the purpose of BGP route key processing, only the Ethernet Segment ID,
+      IP Address Length, and Originating Router's IP Address fields are
+      considered to be part of the prefix in the NLRI";
+    reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+
+      leaf esi {
+        type leafref {
+          path "../state/esi";
+        }
+        description
+          "The Ethernet Segment Identifier (ESI) is a unique non-zero
+          identifier that identifies an Ethernet segment";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+      }
+
+      leaf originating-router-ip {
+        type leafref {
+          path "../state/originating-router-ip";
+        }
+        description
+          "Reference to the ip-prefix list key";
+      }
+
+      leaf originator-ip-length {
+        type leafref {
+          path "../state/originator-ip-length";
+        }
+        description
+          "Reference to the ip-length list key";
+      }
+  }
+
+  grouping bgp-evpn-type-four-state {
+    description "Grouping for Ethernet Segment L2VPN EVPN routes";
+    container type-four-ethernet-segment {
+      description "Top level container for Ethernet Segment L2VPN EVPN routes";
+
+      list type-four-route {
+        key "esi originating-router-ip originator-ip-length";
+        description
+          "List of Ethernet Segment L2VPN EVPN routes
+
+          For the purpose of BGP route key processing, only the Ethernet Segment ID,
+          IP Address Length, and Originating Router's IP Address fields are
+          considered to be part of the prefix in the NLRI";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+
+        uses bgp-evpn-type-four-key-refs;
+
+        container state {
+          description
+            "Operational state data for Ethernet Segment L2VPN EVPN route
+            entries in the BGP LOC-RIB";
+
+          leaf esi {
+            type oc-evpn-types:esi;
+            description
+              "The Ethernet Segment Identifier (ESI) identifying the ethernet
+              segment for this route";
+          }
+
+          leaf originating-router-ip {
+            type oc-inet:ip-prefix;
+            description
+              "The originating router ip";
+          }
+
+          leaf originator-ip-length {
+            type uint32;
+            description
+              "The originating router ip length";
+          }
+
+          uses bgp-loc-rib-attr-state;
+          uses bgp-loc-rib-route-annotations-state;
+
+        }
+
+         uses bgp-evpn-route-path-common-state;
+      }
+    }
+  }
+
+  grouping bgp-evpn-type-five-key-refs {
+    description
+      "Key references to support operational state structure for IP Prefix
+      Advertisement routes.
+
+      For the purpose of BGP route key processing, only The RD, Ethernet Tag ID,
+      IP prefix length, and IP prefix are part of the route key used by BGP to
+      compare routes";
+    reference "RFC9136: IP Prefix Advertisement in Ethernet VPN (EVPN)";
+
+      leaf ethernet-tag {
+        type leafref {
+          path "../state/ethernet-tag";
+        }
+        description
+          "The Ethernet tag identifies a particular broadcast domain.  An EVPN
+          instance consists of one or more broadcast domains";
+        reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+      }
+
+      leaf ip-prefix-length {
+        type leafref {
+          path "../state/ip-prefix-length";
+        }
+        description
+          "Reference to the ip-prefix-length list key";
+      }
+
+      leaf ip-prefix {
+        type leafref {
+          path "../state/ip-prefix";
+        }
+        description
+          "Reference to the ip-prefix list key";
+      }
+  }
+
+  grouping bgp-evpn-type-five-state {
+    description "Grouping for IP Prefix Advertisement L2VPN EVPN routes";
+    container type-five-ip-prefix {
+      description
+        "Top level container for IP Prefix Advertisement L2VPN EVPN routes";
+      list type-five-route {
+        key "ethernet-tag ip-prefix-length ip-prefix";
+        description
+          "List of IP Prefix Advertisement L2VPN EVPN routes
+
+          For the purpose of BGP route key processing, only The RD, Ethernet Tag ID,
+          IP prefix length, and IP prefix are part of the route key used by BGP to
+          compare routes";
+        reference "RFC9136: IP Prefix Advertisement in Ethernet VPN (EVPN)";
+
+        uses bgp-evpn-type-five-key-refs;
+
+        container state {
+          description
+            "Operational state data for IP Prefix Advertisement L2VPN EVPN
+            route entries in the BGP LOC-RIB";
+
+          leaf ethernet-tag {
+            type oc-evpn-types:ethernet-tag;
+            description
+              "The Ethernet tag identifying the broadcast domain for this
+              route";
+          }
+
+          leaf ip-prefix-length {
+            type string;
+            description
+              "The ip-prefix length for the route";
+          }
+
+          leaf ip-prefix {
+            type oc-inet:ip-prefix;
+            description
+              "The ip-prefix for the route";
+          }
+
+          uses bgp-loc-rib-attr-state;
+          uses bgp-loc-rib-route-annotations-state;
+        }
+
+         uses bgp-evpn-route-path-type5-state;
+      }
+    }
+  }
+
+  grouping l2vpn-evpn-adj-rib-top {
+    description
+      "Top-level grouping for L2VPN-EVPN Adj-RIB table";
+
+    container neighbors {
+      config false;
+      description
+        "Enclosing container for neighbor list";
+
+      list neighbor {
+        key "neighbor-address";
+        description
+          "List of neighbors (peers) of the local BGP speaker";
+
+        leaf neighbor-address {
+          type leafref {
+            path "../state/neighbor-address";
+          }
+          description
+            "Reference to the list key";
+        }
+
+        container state {
+          description
+            "Operational state for each neighbor BGP Adj-RIB";
+
+          leaf neighbor-address {
+            type oc-inet:ip-address;
+            description
+              "IP address of the BGP neighbor or peer";
+          }
+        }
+
+        container adj-rib-in-pre {
+          description
+            "Per-neighbor table containing the NLRI updates
+            received from the neighbor before any local input
+            policy rules or filters have been applied.  This can
+            be considered the 'raw' updates from the neighbor.";
+        }
+
+        container adj-rib-in-post {
+          description
+            "Per-neighbor table containing the paths received from
+            the neighbor that are eligible for best-path selection
+            after local input policy rules have been applied.";
+        }
+
+        container adj-rib-out-pre {
+          description
+            "Per-neighbor table containing paths eligble for
+            sending (advertising) to the neighbor before output
+            policy rules have been applied";
+        }
+
+        container adj-rib-out-post {
+          description
+            "Per-neighbor table containing paths eligble for
+            sending (advertising) to the neighbor after output
+            policy rules have been applied";
         }
       }
     }
