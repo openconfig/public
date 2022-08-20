@@ -26,7 +26,13 @@ module openconfig-p4rt {
     The P4RT protocol specification is linked from https://p4.org/specs/
     under the P4Runtime heading.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision 2022-08-19 {
+    description
+      "Add chassis grouping and chassis-id";
+    reference "0.4.0";
+  }
 
   revision 2022-06-08 {
     description
@@ -47,11 +53,21 @@ module openconfig-p4rt {
     reference "0.1.0";
   }
 
+  // extension statements
+
+  // feature statements
+
+  // identity statements
+
   identity P4RT {
-    base "oc-grpc:GRPC_SERVICE";
-    description
-      "P4RT: P4 Runtime (P4RT) Service.";
+      base "oc-grpc:GRPC_SERVICE";
+      description
+        "P4RT: P4 Runtime (P4RT) Service.";
   }
+
+  // typedef statements
+
+  // grouping statements
 
   grouping p4rt-interface-config {
     description
@@ -90,18 +106,16 @@ module openconfig-p4rt {
     }
   }
 
-  augment "/oc-if:interfaces/oc-if:interface/oc-if:config" {
+  grouping p4rt-chassis-config {
     description
-      "Add interface-specific intended configuration for P4RT.";
+      "Config regarding p4rt use cases which corresponds to the global device hardware package";
 
-    uses p4rt-interface-config;
-  }
-
-  augment "/oc-if:interfaces/oc-if:interface/oc-if:state" {
-    description
-      "Add interface-specific applied configuration for P4RT.";
-
-    uses p4rt-interface-config;
+    leaf id {
+      type uint32;
+      description
+        "A unique identifier representing the global hardware device.  This is
+        intended to be used as a root of a tree of p4rt ids";
+    }
   }
 
   grouping p4rt-ic-config {
@@ -127,6 +141,24 @@ module openconfig-p4rt {
       "P4 Runtime Specification v1.3.0
       https://p4.org/p4-spec/p4runtime/main/P4Runtime-Spec.html#sec-write-rpc";
   }
+  
+  // data definition statements
+
+  // augment statements
+
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:config" {
+    description
+      "Add interface-specific intended configuration for P4RT.";
+
+    uses p4rt-interface-config;
+  }
+
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:state" {
+    description
+      "Add interface-specific applied configuration for P4RT.";
+
+    uses p4rt-interface-config;
+  }
 
   augment "/oc-platform:components/oc-platform:component/" +
           "oc-platform:integrated-circuit/oc-platform:config" {
@@ -145,4 +177,23 @@ module openconfig-p4rt {
 
     uses p4rt-ic-config;
   }
+
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:chassis/oc-platform:config" {
+    description
+      "Add p4rt chassis config to platform chassis component.";
+    uses p4rt-chassis-config;
+  }
+
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:chassis/oc-platform:state" {
+    description
+      "Add p4rt chassis state to platform chassis component.";
+    uses p4rt-chassis-config;
+  }
+
 }
+
+  // rpc statements
+
+  // notification statements
