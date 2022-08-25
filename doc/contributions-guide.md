@@ -72,6 +72,9 @@ To make a contribution to OpenConfig:
      the implementation of the feature within the change description. This
      simplifies the process of reviewing differences and the chosen abstractions
      (if any are used).
+    * Pull requests should update the versions of the modified models with a new
+     semantic version, the rules followed for this versioning are described in
+     [this document](https://openconfig.net/docs/semver/).
 
 1. The pull request should include both the suggested YANG additions, as well
  as any relevant changes to the `.spec.yml` files that are included within the
