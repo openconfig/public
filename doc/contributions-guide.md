@@ -34,12 +34,12 @@ The process for making a contribution is outlined below.
 OpenConfig prefers code (i.e., YANG) contributions, rather than feature
 requests. If you wish to discuss the suitability or approach for a change, or
 addition to the models, this can be done with an issue in the [OpenConfig
-public GitHub](https://github.com/openconfig/public/issues). 
+public GitHub](https://github.com/openconfig/public/issues).
 
 All contributions to OpenConfig MUST be Apache 2.0 licensed. A contributor
 license agreement (CLA), namely the [Google
 CLA](https://cla.developers.google.com/), MUST be signed for any contribution
-to be accepted. 
+to be accepted.
 
 The CLA is used to ensure that the rights to use the contribution are well
 understood by the OpenConfig working group, and consumers of the OpenConfig
@@ -105,9 +105,4 @@ simply to maintain the model quality and approach that the working group has
 strived for since its inception in 2014. Questions prior to making submissions
 are welcome, please use the [netopenconfig Google
 group](mailto:netopenconfig@googlegroups.com), or the [public repository
-issues](https://github.com/openconfig/public/issues). 
-
-[0]: Previously, changes were merged in an upstream repository, but since
-2022-05-01 `openconfig/public` is the source of truth for OpenConfig models.
-Please note that this requires stricter consideration of version numbers
-that were previously changed upstream.
+issues](https://github.com/openconfig/public/issues).
