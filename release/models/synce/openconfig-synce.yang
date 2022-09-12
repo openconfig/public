@@ -1,0 +1,586 @@
+module openconfig-synce {
+
+    yang-version 1.1;
+
+    namespace "http://openconfig.net/yang/openconfig-synce";
+
+    prefix "oc-synce";
+
+    import openconfig-extensions {
+       prefix oc-ext;
+    }
+
+    import openconfig-interfaces {
+        prefix oc-if;
+    }
+
+    import openconfig-synce-types {
+        prefix oc-synce-types;
+    }
+
+    import ietf-yang-types {
+        prefix yang;
+    }
+
+    // meta
+    organization
+      "OpenConfig working group";
+
+    contact
+      "OpenConfig working group
+      www.openconfig.net ";
+
+    description
+       "The aim of Synchronous Ethernet is to provide a synchronization
+        signal to those network resources that may eventually require
+        such a type of signal. The Synchronous Ethernet signal transmitted
+        over the Ethernet physical layer should be traceable to an external
+        clock, ideally a master and unique clock for the whole network.
+        Applications include cellular networks, access technologies such as
+        Ethernet passive optical network, and applications such as IPTV or VoIP.";
+
+    oc-ext:openconfig-version "0.1.0";
+
+    revision "2020-12-20" {
+        description
+          "Initial revision of SyncE model.";
+        reference "0.1.0";
+    }
+
+    grouping synce-global-config {
+        description
+            "synce global config parameters";
+        leaf enable  {
+            type empty;
+            mandatory true;
+            description "Use this command to configure Synchronous Ethernet. This command
+                        changes the mode from configure mode to configure Synchronous Ethernet
+                        mode and initializes the global Synchronous Ethernet parameters.";
+        } // END of enable definition.
+
+        leaf network-option  {
+            type oc-synce-types:synce-sync-option-t;
+            default "1";
+            description "Use this command to set the synchronization option for the internal
+                        clock that is locked in frequency to an incoming signal.";
+        } // END of network-option definition.
+
+        leaf clock-selection-mode  {
+            type oc-synce-types:synce-clk-selection-mode-t;
+            default "QL_ENABLED";
+            description "Use this command to determine whether to use the Quality Level (QL) as
+                        a criteria when selecting a clock";
+        } // END of clock-selection-mode definition.
+
+        leaf dpll3-select-10mhz-in  {
+            type empty;
+            description "Use this command to select/deselect dpll3 input";
+        } // END of dpll3-select-10mhz-in definition.
+
+        leaf holdover-timer  {
+            type uint16 {
+                 range "0..1440"  {
+                    description "synce holdover range (0-1440) in minutes";
+                 }
+            }
+            default "120";
+            description "set this command to enable synce holdover (default 120 min)";
+        } // END of holdover-timer definition.
+
+    } // END of synce-global-config definition.
+    grouping synce-global-state {
+        description
+            "synce global state runtime parameters";
+        leaf equipment-clock  {
+            type string {
+                length "1..max";
+                pattern "[^?' =,>|]+";
+            }
+            description "Equipment Clock option";
+        } // END of equipment-clock definition.
+
+        leaf locked-interface  {
+            type string {
+                length "1..max";
+                pattern "[^?' =,>|]+";
+            }
+            description "The input interface which is locked for clock synchronization";
+        } // END of locked-interface definition.
+
+        leaf esmc-state  {
+            type oc-synce-types:synce-esmc-state-t;
+            description "The condition of Ethernet Synchronization Messaging Channel (ESMC)
+                        status on the associated interface.";
+        } // END of esmc-state definition.
+
+        leaf is-source-selected  {
+            type oc-synce-types:synce-is-src-selected-t;
+            description "Whether this interface is the selected source for frequency signal";
+        } // END of is-source-selected definition.
+
+        leaf quality-level  {
+            type string {
+                length "1..max";
+                pattern "[^?' =,>|]+";
+            }
+            description "The signals Quality Level (SyncE can choose its selected frequency
+                        source based on level of signal quality or on configured Priority
+                        Number)";
+        } // END of quality-level definition.
+
+        leaf current-clock-state  {
+            type oc-synce-types:synce-clock-state-t;
+            description "The clock state of the frequency signal on the associated interface.
+                        Either Locked or Free Running";
+        } // END of current-clock-state definition.
+
+        leaf dpll-clock-state  {
+            type oc-synce-types:synce-clock-state-t;
+            description "The clock state of the frequency signal on the associated interface in
+                        device level. Either Locked or Free Running";
+        } // END of dpll-clock-state definition.
+
+        leaf state-duration  {
+            type yang:date-and-time {
+                pattern "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[\\+\\-]\\d{2}:\\d{2})";
+                }
+                description "Synce State Duration";
+            } // END of state-duration definition.
+
+            leaf selected-clock-src-id  {
+                type uint32;
+                description "Selected Clk-Src-ID";
+            } // END of selected-clock-src-id definition.
+
+    } // END of synce-global-state definition.
+    grouping synce-interface-config {
+        description
+            "synce configuration interface parameters";
+
+        leaf name  {
+           type oc-if:base-interface-ref;
+           description "Port name";
+        } // END of name definition.
+
+        leaf enable  {
+            type empty;
+            mandatory true;
+            description "Use this command to enable Synchronous Ethernet for an interface. This
+                        command changes the mode from interface mode to interface Synchronous
+                        Ethernet mode. This command does not automatically start
+                        synchronization distribution. You must explicitly give the mode
+                        command, specifying the synchronous option";
+        } // END of enable definition.
+
+        leaf synchronous-mode  {
+            type oc-synce-types:synce-mode-option-t;
+            default "NON_SYNCHRONOUS";
+            description "Use this command to configure the interface as synchronous or
+                        non-synchronous";
+        } // END of synchronous-mode definition.
+
+        leaf input-source-priority  {
+            type uint8 {
+                 range "0..255"  {
+                    description "0 - interface will not be included for clock selection. 1 is the
+                            highest priority, 255 is the lowest priority";
+                 }
+            }
+            default "255";
+            description "Use this command to set an input timing source. Synchronization
+                        packets are received from this source and sent to the clock selection
+                        algorithm";
+        } // END of input-source-priority definition.
+
+        leaf is-output-source  {
+            type boolean;
+            description "Use this command to configures an Ethernet interface as a timing
+                        output interface";
+        } // END of is-output-source definition.
+
+        leaf wait-to-restore-timer  {
+            type uint8 {
+                 range "0..12"  {
+                    description "Enter Wait to restore timer value in minutes (default is 5 min)";
+                 }
+            }
+            default "5";
+            description "Use this command to set the wait-to-restore timer in minutes. The
+                        wait-to-restore time ensures that a synchronization source that
+                        previously failed is considered by the selection process again only if
+                        it is fault free for a certain time.";
+        } // END of wait-to-restore-timer definition.
+
+        leaf hold-off-timer  {
+            type uint16 {
+                 range "300..1800"  {
+                    description "Enter Hold-off timer value (Default is 300ms)";
+                 }
+            }
+            default "300";
+            description "Use this command to set the hold-off time in milliseconds. The
+                        hold-off time ensures that short activation of signal fail is not
+                        passed to the selection process.";
+        } // END of hold-off-timer definition.
+
+        leaf quality-level  {
+            type string {
+                length "1..max";
+                pattern "[^?' =,>|]+";
+            }
+            description "Use this command to set the quality level (QL) for the timing source";
+        } // END of quality-level definition.
+
+        leaf clock-source-id  {
+            type uint8 {
+                 range "1..255"  {
+                    description "Specify clock-source ID";
+                 }
+            }
+            description "Configure clock-source-identifier";
+        } // END of clock-source-id definition.
+
+        leaf clock-source-lockout  {
+            type boolean;
+            description "Use this command to set or clear the lockout for a clock source. A
+                        clock source flagged as lockout is not considered by the clock
+                        selection algorithm.";
+        } // END of clock-source-lockout definition.
+
+        leaf source-switch  {
+            type oc-synce-types:synce-source-select-t;
+            description "Use this command to forcefully or manually select a synchronization
+                        source";
+        } // END of source-switch definition.
+
+        leaf autoNegMode  {
+            type oc-synce-types:synce-autoneg-mode-t;
+            description "Use this command to configure mode";
+        } // END of autoNegMode definition.
+
+    } // END of synce-interface-config definition.
+    grouping synce-interface-state {
+        description
+            "synce interface state runtime parameters";
+        leaf esmc-state  {
+            type oc-synce-types:synce-esmc-state-t;
+            description "The condition of Ethernet Synchronization Messaging Channel (ESMC)
+                        status on the associated interface.";
+        } // END of esmc-state definition.
+
+        leaf is-source-selected  {
+            type oc-synce-types:synce-is-src-selected-t;
+            description "Whether this interface is the selected source for frequency signal.";
+        } // END of is-source-selected definition.
+
+        leaf esmc-received  {
+            type uint64;
+            description "The count of Ethernet Synchronization Messaging Channel (ESMC) packets
+                        received on this interface.";
+        } // END of esmc-received definition.
+
+        leaf esmc-send  {
+            type uint64;
+            description "The count of Ethernet Synchronization Messaging Channel (ESMC) packets
+                        sent on this interface.";
+        } // END of esmc-send definition.
+
+        leaf quality-level-received-esmc  {
+            type string {
+                length "1..max";
+                pattern "[^?' =,>|]+";
+            }
+            description "The signals Quality Level received in ESMC";
+        } // END of quality-level-received-esmc definition.
+
+        leaf operational-quality-level  {
+            type string {
+                length "1..max";
+                pattern "[^?' =,>|]+";
+            }
+            description "The Operational Quality Level (SyncE can choose its selected frequency
+                        source based on level of signal quality or on configured Priority
+                        Number)";
+        } // END of operational-quality-level definition.
+
+        leaf out-quality-level  {
+            type string {
+                length "1..max";
+                pattern "[^?' =,>|]+";
+            }
+            description "The Out Quality Level (SyncE can choose its selected frequency source
+                        based on level of signal quality or on configured Priority Number)";
+        } // END of out-quality-level definition.
+
+        leaf interface-config-priority  {
+            type uint8;
+            description "The configured Priority for this interface (used when selection
+                        process is based on priority rather than on oscillator frequency
+                        quality level)";
+        } // END of interface-config-priority definition.
+
+        leaf signal-fail  {
+            type oc-synce-types:synce-is-sf-t;
+            description "Whether a synchronization source has failed";
+        } // END of signal-fail definition.
+
+        leaf external-command  {
+            type oc-synce-types:synce-external-cmds-t;
+            description "Commands activated on SyncE interfaces that connect to external
+                        devices. Lockout keeps a signal from a connected external device from
+                        participating in the frequency source selection process. The command
+                        force causes the device to use the external  synchronization signal
+                        arriving on a particular interface.";
+        } // END of external-command definition.
+
+        leaf wtr-timer-status  {
+            type oc-synce-types:synce-is-timer-running-t;
+            description "Whether WTR Timer Running";
+        } // END of wtr-timer-status definition.
+
+        leaf hold-off-timer-status  {
+            type oc-synce-types:synce-is-timer-running-t;
+            description "Hold-off Timer Running";
+        } // END of hold-off-timer-status definition.
+
+        leaf link-state  {
+            type oc-synce-types:synce-link-state-t;
+            description "Synce interface link state(up/down)";
+        } // END of link-state definition.
+
+    } // END of synce-interface-state definition.
+    grouping synce-external-interface-config {
+        description
+            "synce config external interface parameters";
+        leaf external-synce-interface  {
+            type oc-synce-types:synce-external-interface-t;
+            description "External synce interface";
+        } // END of external-synce-interface definition.
+
+        leaf synchronous-mode  {
+            type oc-synce-types:synce-mode-option-t;
+            default "NON_SYNCHRONOUS";
+            description "Configure the synce interface mode";
+        } // END of synchronous-mode definition.
+
+        leaf input-source-priority  {
+            type uint8 {
+                 range "0..255"  {
+                    description "0 - interface will not be included for clock selection. 1 is the
+                            highest priority 255 is the lowest priority";
+                 }
+            }
+            default "255";
+            description "Use this command to set an input timing source. Synchronization
+                        packets are received from this source and sent to the clock selection
+                        algorithm.Use the no form of this command to delete an input source.";
+        } // END of input-source-priority definition.
+
+        leaf wait-to-restore-timer  {
+            type uint8 {
+                 range "0..12"  {
+                    description "Enter Wait to restore timer value in minutes (default is 5 min)";
+                 }
+            }
+            default "5";
+            description "Use this command to set the wait-to-restore timer in minutes. The
+                        wait-to-restore time ensures that a synchronization source that
+                        previously failed is considered by the selection process again only if
+                        it is fault free for a certain time";
+        } // END of wait-to-restore-timer definition.
+
+        leaf hold-off-timer  {
+            type uint16 {
+                 range "300..1800"  {
+                    description "Enter Hold-off timer value (Default is 300ms)";
+                 }
+            }
+            default "300";
+            description "Use this command to set the hold-off time in milliseconds. The
+                        hold-off time ensures that short activation of signal fail is not
+                        passed to the selection process";
+        } // END of hold-off-timer definition.
+
+        leaf quality-level  {
+            type string {
+                length "1..max";
+                pattern "[^?' =,>|]+";
+            }
+            description "Use this command to set the quality level (QL) for the timing source";
+        } // END of quality-level definition.
+
+    } // END of synce-external-interface-config definition.
+    grouping synce-global-top {
+        description
+            "synce global config parameters";
+        container globals {
+            description
+                "synce global structure";
+            container config {
+                description
+                    "synce global structure for config parameters";
+                uses synce-global-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "synce Operational state data";
+                uses synce-global-config;
+                uses synce-global-state;
+            } // END of state-container definition.
+        } // END of globals-container definition.
+    } // END of synce-global-top definition.
+    grouping synce-interface-top {
+        description
+            "synce interface config";
+        container interfaces {
+            description
+                "Top level container for interfaces, including configuration and state
+                        data";
+
+            list interface {
+            when "../../globals/config";
+                key "name";
+                description
+                    "SyncE interface related operations";
+                leaf name  {
+                    type leafref {
+                      path "../config/name";
+                    }
+                    description "Port name";
+                } // END of name definition.
+
+                container config {
+                    description
+                        "SyncE interface for config parameters";
+                    uses synce-interface-config;
+                } // END of config-container definition.
+                container state {
+                    config false;
+                    description
+                        "SyncE interface Operational state data";
+                    uses synce-interface-config;
+                    uses synce-interface-state;
+                } // END of state-container definition.
+            } // End of interface-list
+        } // END of interfaces-container definition.
+    } // END of synce-interface-top definition.
+    grouping synce-external-interface-top {
+        description
+            "synce external interface parameters";
+
+        list external-interfaces {
+        when "../globals/config";
+            key "external-synce-interface";
+            description
+                "External SyncE interface related operations";
+            leaf external-synce-interface  {
+                type leafref {
+                    path  "../config/external-synce-interface";
+                }
+                description "External synce interface";
+            } // END of external-synce-interface definition.
+
+            container config {
+                description
+                    "SyncE external interface for config parameters";
+                uses synce-external-interface-config;
+            } // END of config-container definition.
+            container state {
+                config false;
+                description
+                    "SyncE interface Operational state data";
+                uses synce-external-interface-config;
+                uses synce-interface-state;
+            } // END of state-container definition.
+        } // End of external-interfaces-list
+    } // END of synce-external-interface-top definition.
+
+    grouping  synce-grouping {
+    description
+        "Synce global level information";
+    container synce {
+        description
+            "Synce global level information";
+        uses synce-global-top;
+        uses synce-interface-top;
+        uses synce-external-interface-top;
+    } // END of synce-container definition.
+    } // END of synce-grouping definition.
+
+    uses synce-grouping;
+
+    rpc clear-synce-stats {
+        description "clear Ethernet Synchronization Messaging Chanel (ESMC) counters in all
+                    interface or in specified interface";
+        input  {
+            leaf interface-name  {
+                type string;
+                mandatory true;
+                description "Name of the interface to clear counters for. Specify NULL to clear
+                            counters for all interfaces";
+            }
+        }
+    }
+
+    /* ygot@v0.9.0 failure - Hence commenting out
+    notification synce-clock-status {
+
+        description "Notify the SyncE Clock State Status.";
+
+        // severity "CRITICAL";
+        // eventClass "MESSAGE";
+        leaf message {
+            type string;
+            description " alarm message notification";
+        }
+    }
+
+    notification synce-clock-state-change-notify {
+
+        description "Notify when there is SyncE Clock State transition.";
+
+        // eventClass "STATE";
+        leaf previous-clock-state {
+            type oc-synce-types:synce-clock-state-t;
+        description
+            "The clock state of the frequency signal on the associated interface.
+                    Either Locked or Free Running";
+        }
+
+        leaf current-clock-state {
+            type oc-synce-types:synce-clock-state-t;
+        description
+            "The clock state of the frequency signal on the associated interface.
+                    Either Locked or Free Running";
+        }
+    }
+
+    notification synce-clock-state-transition-locked-interface {
+
+        description "Notify when there is SyncE Clock State transition and locked interface.";
+
+        // eventClass "STATE";
+        leaf previous-clock-state {
+            type oc-synce-types:synce-clock-state-t;
+        description
+            "The clock state of the frequency signal on the associated interface.
+                    Either Locked or Free Running";
+        }
+
+        leaf current-clock-state {
+            type oc-synce-types:synce-clock-state-t;
+        description
+            "The clock state of the frequency signal on the associated interface.
+                    Either Locked or Free Running";
+        }
+
+        leaf locked-interface {
+            type string;
+        description
+            "The input interface which is locked for clock synchronization";
+        }
+    }
+   */ //ygot@v0.9.0 failure - Hence commenting out
+
+}

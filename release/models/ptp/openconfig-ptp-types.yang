@@ -1,0 +1,381 @@
+module openconfig-ptp-types {
+
+    yang-version 1.1;
+
+    namespace "http://openconfig.net/yang/ipi-ptp-types";
+
+    prefix "oc-ptp-types";
+
+    import openconfig-extensions {
+       prefix oc-ext;
+    }
+
+    // meta
+    organization
+      "OpenConfig working group";
+
+    contact
+      "OpenConfig working group
+       www.openconfig.net";
+
+    description
+        "Typedefs for PTP module";
+
+    oc-ext:openconfig-version "0.1.0";
+
+    revision "2020-12-20" {
+        description "Initial Version";
+        reference "0.1.0";
+    }
+
+    typedef ptp-encap-type-t {
+        type enumeration {
+            enum IPV4 {
+                value 1;
+                description "IPv4 Transport";
+            }
+            enum IPV6 {
+                value 2;
+                description "IPv6 Transport";
+            }
+        }
+        description "type definition for ptp-encap-type-t";
+    }
+
+    typedef ptp-clock-type-t {
+        type enumeration {
+            enum ORDINARY {
+                value 1;
+                description "The clock is an ordinary master or slave clock";
+            }
+            enum BOUNDARY {
+                value 2;
+                description "The clock is a boundary clock";
+            }
+        }
+        description "type definition for ptp-clock-type-t";
+    }
+
+    typedef ptp-1pss-in-smx-tod-type-t {
+        type enumeration {
+            enum SMX {
+                value 1;
+                description "SMA Or SMB 1pps";
+            }
+            enum TOD {
+                value 2;
+                description "TOD 1pps (default)";
+            }
+        }
+        description "type definition for ptp-1pss-in-smx-tod-type-t";
+    }
+
+    typedef ptp-servo-state-t {
+        type enumeration {
+            enum ACQUIRING_LOCK {
+                value 0;
+                description "Servo state is Acquiring-lock";
+            }
+            enum WARMUP {
+                value 1;
+                description "Servo state is Warmup";
+            }
+            enum FAST_LOOP {
+                value 2;
+                description "Servo state is Fast-loop";
+            }
+            enum NORMAL_LOOP {
+                value 3;
+                description "Servo state is Normal-loop";
+            }
+            enum BRIDGE {
+                value 4;
+                description "Servo state is Bridge";
+            }
+            enum HOLDOVER {
+                value 5;
+                description "Servo state is Holdover";
+            }
+            enum INITIAL {
+                value 6;
+                description "Servo state is Initial";
+            }
+            enum UNQUALIFIED {
+                value 7;
+                description "Servo state is Unqualified";
+            }
+            enum FREQ_LOCKED {
+                value 8;
+                description "Servo state is Freq-Locked";
+            }
+            enum TIME_LOCKED {
+                value 9;
+                description "Servo state is Time-Locked";
+            }
+            enum HOLDOVER_IN_SPEC {
+                value 10;
+                description "Servo state is Holdover-in-spec";
+            }
+            enum HOLDOVER_OUT_SPEC {
+                value 11;
+                description "Servo state is Holdover-out-spec";
+            }
+            enum FREE_RUN {
+                value 12;
+                description "Servo state is Free-run";
+            }
+        }
+        description "type definition for ptp-servo-state-t";
+    }
+
+    typedef ptp-config-state-t {
+        type enumeration {
+            enum PHASE_CORRECTION {
+                value 0;
+                description "Servo Config is Phase-Correction";
+            }
+            enum FREQ_PHASE_CORRECTION {
+                value 1;
+                description "Servo Config is Freq-Phase-Correction";
+            }
+            enum UNKNOWN {
+                value 2;
+                description "Servo Config is Unknown";
+            }
+        }
+        description "type definition for ptp-config-state-t";
+    }
+
+    typedef ptp-servo-apts-mode-t {
+        type enumeration {
+            enum GPS {
+                value 2;
+                description "APTS mode is GPS";
+            }
+            enum PTP {
+                value 3;
+                description "APTS mode is PTP";
+            }
+            enum NA {
+                value 4;
+                description "APTS mode is NA";
+            }
+        }
+        description "type definition for ptp-servo-apts-mode-t";
+    }
+
+    typedef ptp-port-state-t {
+        type enumeration {
+            enum INITIALIZING {
+                value 1;
+                description "The port is initializing its data sets, hardware, and communication facilities";
+            }
+            enum FAULTY {
+                value 2;
+                description "The port is in the fault state";
+            }
+            enum DISABLED {
+                value 3;
+                description "The port is disabled, and is not communicating PTP messages";
+            }
+            enum LISTENING {
+                value 4;
+                description "The port is listening for an Announce message";
+            }
+            enum PRE_MASTER {
+                value 5;
+                description "The port is in the pre-master state";
+            }
+            enum MASTER {
+                value 6;
+                description "The port is behaving as a master port";
+            }
+            enum PASSIVE {
+                value 7;
+                description "The port is in the passive state";
+            }
+            enum UNCALIBRATED {
+                value 8;
+                description "A master port has been selected, but the port is still in the uncalibrated state";
+            }
+            enum SLAVE {
+                value 9;
+                description "The port is synchronizing to the selected master port";
+            }
+        }
+        description "type definition for ptp-port-state-t";
+    }
+
+    typedef ptp-delay-mechanism-t {
+        type enumeration {
+            enum E2E {
+                value 1;
+                description "The port is configured to use the delay request-response mechanism";
+            }
+            enum P2P {
+                value 2;
+                description "The port is configured to use the peer delay mechanism";
+            }
+            enum DISABLED {
+                value 254;
+                description "The port does not implement the delay mechanism";
+            }
+        }
+        description "type definition for ptp-delay-mechanism-t";
+    }
+
+    typedef ptp-time-interval-t {
+        type int64;
+        description "type definition for ptp-time-interval-t";
+    }
+
+    typedef ptp-clock-identity-t {
+        type string {
+            length 18..26;
+        }
+        description "type definition for ptp-clock-identity-t";
+    }
+
+    typedef ptp-instance-t {
+        type enumeration {
+            enum CLOCK {
+                value 0;
+                description "Precision Time Protocol (PTP)";
+            }
+        }
+        description "type definition for ptp-instance-t";
+    }
+
+    typedef ptp-profile-t {
+        type enumeration {
+            enum G8275.1 {
+                value 1;
+                description "PTP time/phase telecom profile";
+            }
+            enum G8275.2 {
+                value 2;
+                description "PTP time/phase telecom g8275.2 profile";
+            }
+            enum DEFAULT {
+                value 4;
+                description "PTP time/phase default profile";
+            }
+        }
+        description "type definition for ptp-profile-t";
+    }
+
+    typedef ptp-ext-interface-t {
+        type enumeration {
+            enum 1PPS {
+                value 1;
+                description "1PPS external interface";
+            }
+            enum 10MHZ {
+                value 2;
+                description "10mhz external interface";
+            }
+            enum TOD {
+                value 3;
+                description "ToD external interface";
+            }
+        }
+        description "type definition for ptp-ext-interface-t";
+    }
+
+    typedef ptp-tod-format-t {
+        type enumeration {
+            enum NMEA {
+                value 1;
+                description "NMEA time of day format";
+            }
+            enum ISO8601 {
+                value 2;
+                description "ISO 8601 time of day format";
+            }
+        }
+        description "type definition for ptp-tod-format-t";
+    }
+
+    typedef ptp-clock-io-type-t {
+        type enumeration {
+            enum INPUT {
+                value 1;
+                description "Clock input";
+            }
+            enum OUTPUT {
+                value 2;
+                description "Clock output";
+            }
+        }
+        description "type definition for ptp-clock-io-type-t";
+    }
+
+    typedef ptp-time-source-t {
+        type enumeration {
+            enum ATOMIC_CLOCK {
+                value 16;
+                description "None";
+            }
+            enum GLOBAL_POSITIONING_SYSTEM {
+                value 32;
+                description "None";
+            }
+            enum TERRESTRIAL_RADIO {
+                value 48;
+                description "None";
+            }
+            enum PTP_BASED_SOURCE {
+                value 64;
+                description "None";
+            }
+            enum NETWORK_TIME_PROTOCOL_SOURCE {
+                value 80;
+                description "None";
+            }
+            enum HANDSET {
+                value 96;
+                description "None";
+            }
+            enum OTHER_TIMESOURCE {
+                value 144;
+                description "None";
+            }
+            enum INTERNAL_OSCILLATOR {
+                value 160;
+                description "None";
+            }
+        }
+        description "type definition for ptp-time-source-t";
+    }
+
+    typedef ptp-gps-sma-smb-interface-t {
+        type enumeration {
+            enum GPS {
+                value 0;
+                description "GPS interface";
+            }
+            enum PRC {
+                value 1;
+                description "SMA/SMB or external interfaces";
+            }
+        }
+        description "type definition for ptp-gps-sma-smb-interface-t";
+    }
+
+    typedef  synce-ifname-t {
+        type string;
+        description "type definition for synce-ifname-t";
+    }
+
+    typedef ptp-network-interface-t {
+        type union {
+            type synce-ifname-t {
+
+            }
+            type ptp-gps-sma-smb-interface-t {
+
+            }
+        }
+        description "type definition for ptp-network-interface-t";
+    }
+}
