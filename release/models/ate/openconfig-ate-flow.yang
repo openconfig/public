@@ -24,7 +24,13 @@ module openconfig-ate-flow {
     stream of packets whose definition is outside of the context of this
     module.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision 2022-04-29 {
+    description
+      "Add protocol convergence tracking statistics.";
+    reference "0.4.0";
+  }
 
   revision 2022-02-16 {
     description
@@ -218,6 +224,20 @@ module openconfig-ate-flow {
       description
         "The rate, measured in bits per second, at which the flow is being
         received.";
+    }
+
+    leaf first-packet-latency {
+      type oc-types:timeticks64;
+      description
+        "The time from when the flow was started to when the first packet was
+        received.";
+    }
+
+    leaf convergence-time {
+      type oc-types:timeticks64;
+      description
+        "The time from when the first packet was received to when traffic
+        loss dropped below a minimal threshold value.";
     }
   }
 
