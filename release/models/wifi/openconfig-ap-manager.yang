@@ -13,6 +13,7 @@ module openconfig-ap-manager {
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-wifi-types { prefix oc-wifi; }
+  import openconfig-types { prefix oc-types; }
 
   // Meta
   organization "OpenConfig working group";
@@ -25,7 +26,13 @@ module openconfig-ap-manager {
     "This module defines the top level configuration and state data for a
     system which manages Access Points.";
 
-  oc-ext:openconfig-version "1.2.0";
+  oc-ext:openconfig-version "2.0.0";
+
+  revision "2022-09-20" {
+    description
+      "Replace uptime counter with up-time oc-types:timeticks64 timestamp.";
+    reference "2.0.0";
+  }
 
   revision "2022-05-24" {
     description
@@ -132,11 +139,13 @@ module openconfig-ap-manager {
         "The current operational state of the AP.";
     }
 
-    leaf uptime {
-      type uint32;
-      units seconds;
+    leaf up-time {
+      type oc-types:timeticks64;
+      units nanoseconds;
       description
-        "Seconds this AP has been in the op-state of 'UP'.";
+        "Timestamp when this AP last changed its op-state to 'UP'. The value is
+        the timestamp in nanoseconds relative to the Unix Epoch (Jan 1, 1970
+        00:00:00 UTC).";
     }
 
     leaf enabled {
