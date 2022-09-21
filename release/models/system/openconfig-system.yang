@@ -21,6 +21,7 @@ module openconfig-system {
   import openconfig-messages { prefix oc-messages; }
   import openconfig-license { prefix oc-license; }
   import openconfig-network-instance { prefix oc-ni; }
+  import openconfig-hashing { prefix oc-hashing; }
 
   // meta
   organization "OpenConfig working group";
@@ -309,6 +310,12 @@ module openconfig-system {
         system.  They system may append additional standard
         information such as the current system date and time, uptime,
         last login timestamp, etc.";
+    }
+
+    leaf hashing-policy {
+        type leafref {
+            path "/oc-hashing:policies/oc-hashing:policy/config/name";
+        }
     }
   }
 

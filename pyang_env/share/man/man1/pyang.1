@@ -1,0 +1,1820 @@
+'\" t
+.\"     Title: pyang
+.\"    Author: Martin Björklund <mbj@tail-f.com>
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 2022-03-30
+.\"    Manual: pyang manual
+.\"    Source: pyang-2.5.3
+.\"  Language: English
+.\"
+.TH "PYANG" "1" "2022\-03\-30" "pyang\-2\&.5\&.3" "pyang manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+pyang \- validate and convert YANG modules to various formats
+.SH "SYNOPSIS"
+.HP \w'\fBpyang\fR\ 'u
+\fBpyang\fR [\-\-verbose] [\-\-canonical] [\-\-strict] [\-\-lint] [\-\-ietf] [\-\-lax\-quote\-checks] [\-\-lax\-xpath\-checks] [\-\-features\ \fIfeatures\fR] [\-\-exclude\-features\ \fIfeatures\fR] [\-\-max\-status\ \fImaxstatus\fR] [\-\-hello] [\-\-implicit\-hello\-deviations] [\-\-check\-update\-from\ \fIoldfile\fR] [\-o\ \fIoutfile\fR] [\-t\ \fItransform\fR] [\-f\ \fIformat\fR] [\-p\ \fIpath\fR] [\-W\ \fIwarning\fR] [\-E\ \fIerror\fR] \fIfile\fR...
+.HP \w'\fBpyang\fR\ 'u
+\fBpyang\fR [\-\-sid\-list] \-\-sid\-generate\-file {count | \fIentry\-point:size\fR} \fIyang\-filename\fR
+.HP \w'\fBpyang\fR\ 'u
+\fBpyang\fR [\-\-sid\-list] \-\-sid\-update\-file \fIsid\-filename\fR \fIyang\-filename\fR [\-\-sid\-extra\-range\ {count\ |\ \fIentry\-point:size\fR}]
+.HP \w'\fBpyang\fR\ 'u
+\fBpyang\fR [\-\-sid\-list] \-\-sid\-check\-file \fIsid\-filename\fR \fIyang\-filename\fR
+.HP \w'\fBpyang\fR\ 'u
+\fBpyang\fR \-h | \-\-help 
+.HP \w'\fBpyang\fR\ 'u
+\fBpyang\fR \-v | \-\-version 
+.PP
+One or more
+\fIfile\fR
+parameters may be given on the command line\&. They denote either YANG modules to be processed (in YANG or YIN syntax) or, using the
+\fB\-\-hello\fR
+switch, a server <hello> message conforming to
+\m[blue]\fBRFC 6241\fR\m[]\&\s-2\u[1]\d\s+2
+and
+\m[blue]\fBRFC 6020\fR\m[]\&\s-2\u[2]\d\s+2, which completely defines the data model \- supported YANG modules as well as features and capabilities\&. In the latter case, only one
+\fIfile\fR
+parameter may be present\&.
+.PP
+If no files are given,
+\fBpyang\fR
+reads input from stdin, which must be one module or a server <hello> message\&.
+.SH "DESCRIPTION"
+.PP
+The
+\fBpyang\fR
+program is used to validate YANG modules (\m[blue]\fBRFC 6020\fR\m[]\&\s-2\u[2]\d\s+2
+and
+\m[blue]\fBRFC 7950\fR\m[]\&\s-2\u[3]\d\s+2)\&. It is also used to convert YANG modules into equivalent YIN modules\&. From a valid module a hybrid DSDL schema (\m[blue]\fBRFC 6110\fR\m[]\&\s-2\u[4]\d\s+2) can be generated\&.
+.PP
+If no
+\fIformat\fR
+is given, the specified modules are validated, and the program exits with exit code 0 if all modules are valid\&.
+.SH "OPTIONS"
+.PP
+\fB\-h\fR \fB\-\-help\fR
+.RS 4
+Print a short help text and exit\&.
+.RE
+.PP
+\fB\-v\fR \fB\-\-version\fR
+.RS 4
+Print the version number and exit\&.
+.RE
+.PP
+\fB\-e\fR \fB\-\-list\-errors\fR
+.RS 4
+Print a listing of all error codes and messages pyang might generate, and then exit\&.
+.RE
+.PP
+\fB\-\-print\-error\-code\fR
+.RS 4
+On errors, print the symbolic error code instead of the error message\&.
+.RE
+.PP
+\fB\-\-print\-error\-basename\fR
+.RS 4
+On errors, print only the base file name independent of its module path location\&.
+.RE
+.PP
+\fB\-Werror\fR
+.RS 4
+Treat warnings as errors\&.
+.RE
+.PP
+\fB\-Wnone\fR
+.RS 4
+Do not print any warnings\&.
+.RE
+.PP
+\fB\-W\fR \fIerrorcode\fR
+.RS 4
+Treat
+\fIerrorcode\fR
+as a warning, even if
+\fB\-Werror\fR
+is given\&.
+\fIerrorcode\fR
+must be a warning or a minor error\&.
+.sp
+Use
+\fB\-\-list\-errors\fR
+to get a listing of all errors and warnings\&.
+.sp
+The following example treats all warnings except the warning for unused imports as errors:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-Werror \-W UNUSED_IMPORT
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-E\fR \fIerrorcode\fR
+.RS 4
+Treat the warning
+\fIerrorcode\fR
+as an error\&.
+.sp
+Use
+\fB\-\-list\-errors\fR
+to get a listing of all errors and warnings\&.
+.sp
+The following example treats only the warning for unused import as an error:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-Werror \-W UNUSED_IMPORT
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-\-ignore\-error\fR \fIerrorcode\fR
+.RS 4
+Ignore error
+\fIerrorcode\fR\&.
+.sp
+Use with care\&. Plugins that don\*(Aqt expect to be invoked if there are errors present may crash\&.
+.sp
+Use
+\fB\-\-list\-errors\fR
+to get a listing of all errors and warnings\&.
+.sp
+The following example ignores syntax errors in patterns:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-ignore\-error PATTERN_ERROR
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-\-msg\-template\fR \fImsg\-template\fR
+.RS 4
+Print out error message in defined
+\fImsg\-template\fR\&.
+.sp
+Template used to display error messages\&. This is a python new\-style format string used to format the message information with keys file, line, code, type, and msg\&.
+.sp
+The following example create a msg template in defined pattern:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-msg\-template=\*(Aq{file} || {line} || {type} || {level} || {code} || {msg}\*(Aq
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-\-ignore\-errors\fR
+.RS 4
+Ignore all errors\&. Use with care\&. Plugins that don\*(Aqt expect to be invoked if there are errors present may crash\&.
+.RE
+.PP
+\fB\-\-keep\-comments\fR
+.RS 4
+This parameter has effect only if a plugin can handle comments\&.
+.RE
+.PP
+\fB\-\-canonical\fR
+.RS 4
+Validate the module(s) according to the canonical YANG order\&.
+.RE
+.PP
+\fB\-\-verify\-revision\-history\fR
+.RS 4
+Ensure that the revision history in the given module(s) is correct, by checking that it can find the old revisions of the module(s) in the YANG module search path\&.
+.RE
+.PP
+\fB\-\-strict\fR
+.RS 4
+Force strict YANG compliance\&. Currently this checks that the deref() function is not used in XPath expressions and leafrefs\&.
+.RE
+.PP
+\fB\-\-lint\fR
+.RS 4
+Validate the module(s) according to the generic YANG guideline as specified in
+\m[blue]\fBRFC 8407\fR\m[]\&\s-2\u[5]\d\s+2\&. In addition, it checks that the module is in canonical order\&.
+.RE
+.PP
+\fB\-\-ietf\fR
+.RS 4
+Validate the module(s) like
+\fB\-\-lint\fR, and in addition verifies that the namespace and module name follow the IETF conventions, and that the module has the correct license text and
+\m[blue]\fBRFC 2119\fR\m[]\&\s-2\u[6]\d\s+2
+/
+\m[blue]\fBRFC 8174\fR\m[]\&\s-2\u[7]\d\s+2
+boilerplate text\&.
+.RE
+.PP
+\fB\-\-lax\-quote\-checks\fR
+.RS 4
+Lax checks of backslashes in double quoted strings in YANG version 1 modules\&.
+\m[blue]\fBRFC 6020\fR\m[]\&\s-2\u[2]\d\s+2
+does not clearly define how to handle backslahes within double quoted strings, when the character after the backslash is not one of the characters listed in Section 6\&.1\&.3 in
+\m[blue]\fBRFC 6020\fR\m[]\&\s-2\u[2]\d\s+2\&.
+.sp
+Earlier versions of pyang silently accepted such escape sequences, but the current version treats this as an error, just like it is defined in YANG 1\&.1 (\m[blue]\fBRFC 7950\fR\m[]\&\s-2\u[3]\d\s+2)\&. Passing this flag to pyang makes pyang silently accept such escape sequences\&.
+.RE
+.PP
+\fB\-\-lax\-xpath\-checks\fR
+.RS 4
+Lax checks of XPath expressions\&. Specifically, do not generate an error if an XPath expression uses a variable or an unknown function\&.
+.RE
+.PP
+\fB\-L\fR \fB\-\-hello\fR
+.RS 4
+Interpret the input file or standard input as a server <hello> message\&. In this case, no more than one
+\fIfile\fR
+parameter may be given\&.
+.RE
+.PP
+\fB\-\-implicit\-hello\-deviations\fR
+.RS 4
+Attempt to parse all deviations from a supplied <hello> message\&. Not all implementations provide deviations explicitly as modules\&. This flag enables more logic to attempt to derive all deviations from the message\&.
+.RE
+.PP
+\fB\-\-trim\-yin\fR
+.RS 4
+In YIN input modules, remove leading and trailing whitespace from every line in the arguments of the following statements: \*(Aqcontact\*(Aq, \*(Aqdescription\*(Aq, \*(Aqerror\-message\*(Aq, \*(Aqorganization\*(Aq and \*(Aqreference\*(Aq\&. This way, the XML\-indented argument texts look tidy after translating the module to the compact YANG syntax\&.
+.RE
+.PP
+\fB\-\-max\-line\-length\fR \fImaxlen\fR
+.RS 4
+Give a warning if any line is longer than
+\fImaxlen\fR\&. The value 0 means no check (default)\&.
+.RE
+.PP
+\fB\-\-max\-identifier\-length\fR \fImaxlen\fR
+.RS 4
+Give a error if any identifier is longer than
+\fImaxlen\fR\&.
+.RE
+.PP
+\fB\-t\fR \fB\-\-transform\fR \fItransform\fR
+.RS 4
+Transform the module(s) after parsing them but before outputting them\&. Multiple transformations can be given, and will be performed in the order that they were specified\&. The supported transformations are listed in
+TRANSFORMATIONS
+below\&.
+.RE
+.PP
+\fB\-f\fR \fB\-\-format\fR \fIformat\fR
+.RS 4
+Convert the module(s) into
+\fIformat\fR\&. Some translators require a single module, and some can translate multiple modules at one time\&. If no
+\fIoutfile\fR
+file is specified, the result is printed on stdout\&. The supported formats are listed in
+OUTPUT FORMATS
+below\&.
+.RE
+.PP
+\fB\-o\fR \fB\-\-output\fR \fIoutfile\fR
+.RS 4
+Write the output to the file
+\fIoutfile\fR
+instead of stdout\&.
+.RE
+.PP
+\fB\-F\fR \fB\-\-features\fR \fIfeatures\fR
+.RS 4
+\fIfeatures\fR
+is a string of the form
+\fImodulename\fR:[\fIfeature\fR(,\fIfeature\fR)*]
+.sp
+This option is used to prune the data model by removing all nodes that are defined with a "if\-feature" that is not listed as
+\fIfeature\fR\&. This option affects all output formats\&.
+.sp
+This option can be given multiple times, and may also be combined with
+\fB\-\-hello\fR\&. The
+\fB\-\-features\fR
+option overrides any supported features for a module that are taken from the hello file\&.
+.sp
+If this option is not given, nothing is pruned, i\&.e\&., it works as if all features were explicitly listed\&.
+.sp
+The
+\fB\-\-exclude\-features\fR
+option can be used for excluding a list of named features\&.
+\fB\-\-features\fR
+and
+\fB\-\-exclude\-features\fR
+can\*(Aqt both be specified for a given module\&.
+.sp
+For example, to view the tree output for a module with all if\-feature\*(Aqd nodes removed, do:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-f tree \-\-features mymod: mymod\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-X\fR \fB\-\-exclude\-features\fR \fIfeatures\fR
+.RS 4
+\fIfeatures\fR
+is a string of the form
+\fImodulename\fR:[\fIfeature\fR(,\fIfeature\fR)*]
+.sp
+This option is used to prune the data model by removing all nodes that are defined with a "if\-feature" that is listed as
+\fIfeature\fR\&. This option affects all output formats\&.
+.sp
+This option can be given multiple times\&. It can\*(Aqt be combined with
+\fB\-\-hello\fR\&.
+.sp
+The
+\fB\-\-features\fR
+option can be used for including all features or a list of named features\&.
+\fB\-\-features\fR
+and
+\fB\-\-exclude\-features\fR
+can\*(Aqt both be specified for a given module\&.
+.sp
+For example, to view the tree output for a module with if\-feature\*(Aqd nodes for the specified feature removed, do:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-f tree \-\-exclude\-features mymod:myfeat mymod\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-\-max\-status\fR \fImaxstatus\fR
+.RS 4
+\fImaxstatus\fR
+is one of:
+\fIcurrent\fR,
+\fIdeprecated\fR, or
+\fIobsolete\fR\&.
+.sp
+This option is used to prune the data model by removing all nodes that are defined with a "status" that is less than the given
+\fImaxstatus\fR\&. This option affects all output formats\&.
+.RE
+.PP
+\fB\-\-deviation\-module\fR \fIfile\fR
+.RS 4
+This option is used to apply the deviations defined in
+\fIfile\fR\&. This option affects all output formats\&.
+.sp
+This option can be given multiple times\&.
+.sp
+For example, to view the tree output for a module with some deviations applied, do:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-f tree \-\-deviation\-module mymod\-devs\&.yang mymod\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-p\fR \fB\-\-path\fR \fIpath\fR
+.RS 4
+\fIpath\fR
+is a colon (:) separated list of directories to search for imported modules\&. This option may be given multiple times\&.
+.sp
+By default, all directories (except "\&.") found in the path are recursively scanned for modules\&. This behavior can be disabled by giving the option
+\fB\-\-no\-path\-recurse\fR\&.
+.sp
+The following directories are always added to the search path:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+current directory
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+\fB$YANG_MODPATH\fR
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 3.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  3." 4.2
+.\}
+\fB$HOME\fR/yang/modules
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 4.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  4." 4.2
+.\}
+\fB$YANG_INSTALL\fR/yang/modules
+OR if
+\fB$YANG_INSTALL\fR
+is unset
+<the default installation directory>/yang/modules
+(on Unix systems:
+/usr/share/yang/modules)
+.RE
+.RE
+.PP
+\fB\-\-no\-path\-recurse\fR
+.RS 4
+If this parameter is given, directories in the search path are not recursively scanned for modules\&.
+.RE
+.PP
+\fB\-\-plugindir\fR \fIplugindir\fR
+.RS 4
+Load all YANG plugins found in the directory
+\fIplugindir\fR\&. This option may be given multiple times\&.
+.sp
+list of directories to search for pyang plugins\&. The following directories are always added to the search path:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+pyang/plugins
+from where pyang is installed
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+\fB$PYANG_PLUGINPATH\fR
+.RE
+.RE
+.PP
+\fB\-\-check\-update\-from\fR \fIoldfile\fR
+.RS 4
+Checks that a new revision of a module follows the update rules given in
+\m[blue]\fBRFC 6020\fR\m[]\&\s-2\u[2]\d\s+2
+and
+\m[blue]\fBRFC 7950\fR\m[]\&\s-2\u[3]\d\s+2\&.
+\fIoldfile\fR
+is the old module and
+\fIfile\fR
+is the new version of the module\&.
+.sp
+If the old module imports or includes any modules or submodules, it is important that the the old versions of these modules and submodules are found\&. By default, the directory where
+\fIoldfile\fR
+is found is used as the only directory in the search path for old modules\&. Use the option
+\fB\-\-check\-update\-from\-path\fR
+to control this path\&.
+.RE
+.PP
+\fB\-P\fR \fB\-\-check\-update\-from\-path\fR \fIoldpath\fR
+.RS 4
+\fIoldpath\fR
+is a colon (:) separated list of directories to search for imported modules\&. This option may be given multiple times\&.
+.RE
+.PP
+\fB\-D\fR \fB\-\-check\-update\-from\-deviation\-module\fR \fIolddeviation\fR
+.RS 4
+\fIolddeviation\fR
+is an old deviation module of the old module
+\fIoldfile\fR\&. This option may be given multiple times\&. For example, to check updates of a module with some deviations applied, do:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-check\-update\-from\-deviation\-module oldmod\-devs\&.yang \-\-check\-update\-from oldmod\&.yang \e
+  \-\-deviation\-module newmod\-devs\&.yang newmod\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fIfile\&.\&.\&.\fR
+.RS 4
+These are the names of the files containing the modules to be validated, or the module to be converted\&.
+.RE
+.SH "TRANSFORMATIONS"
+.PP
+Installed
+\fBpyang\fR
+transformations are (like output formats) plugins and therefore may define their own options, or add new transformations to the
+\fB\-t\fR
+option\&. These options and transformations are listed in
+\fBpyang \-h\fR\&.
+.PP
+\fIedit\fR
+.RS 4
+Modify the supplied module(s) in various ways\&. This transform will usually be used with the
+\fIyang\fR
+output format\&.
+.RE
+.SH "EDIT TRANSFORM"
+.PP
+The
+\fIedit\fR
+transform modifies the supplied module(s) in various ways\&. It can, for example, replace top\-level
+\fIdescription\fR
+statements, update
+\fIinclude\fR
+statements and manage
+\fIrevision\fR
+statements\&. Unless otherwise noted below, it only modifies
+\fIexisting\fR
+statements\&.
+.PP
+Each
+\fIedit\fR
+transform string (non\-date) option value is either a plain string (which is taken literally) or a
+\fI+\fR\-separated list of directives (whose expansions are concatenated with double\-linebreak separators, i\&.e\&. each directive results in one or more paragraphs)\&.
+.PP
+Each directive is either of the form
+\fI@filename\fR
+(which is replaced with the contents of the file; there is no search path; trailing whitespace is discarded) or of the form
+\fI%keyword\fR\&. Any unrecognized directives are treated as plain strings\&. The following
+\fI%\fR\-directives are currently supported:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fI%SUMMARY\fR
+: This expands to a "summary" of the original argument value\&. It\*(Aqs intended for use with top\-level
+\fIdescription\fR
+statements that typically consist of a hand\-crafted summary followed by copyrights, license and other boiler\-plate text\&. The summary is the text up to but not including the first line that (ignoring leading and trailing whitespace) starts with the word
+\fICopyright\fR
+followed by a space\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fI%SUBST/old/new\fR
+: This expands to the original argument value with all instances of
+\fIold\fR
+replaced with
+\fInew\fR\&. There is no provision for replacing characters that contain forward slashes, and there is no terminating slash\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fI%DELETE\fR
+: This clears the output buffer and suppresses a check that would normally prevent overwriting an existing value (unless that value is the literal string
+\fBTBD\fR)\&.
+.RE
+.PP
+In the examples given below, it\*(Aqs assumed that there are
+\fICONTACT\fR,
+\fICONTEXT\fR,
+\fILICENSE\fR,
+\fIORGANIZATION\fR,
+\fIREFERENCE\fR
+and
+\fIREVISION\fR
+files in a top\-level project directory (which in this case is the parent of the directory in which
+\fBpyang\fR
+is being run)\&. These examples illustrate how the
+\fIedit\fR
+transform might be used with the
+\fIyang\fR
+output format to prepare YANG files for publication\&.
+.PP
+Edit transform specific options:
+.PP
+\fB\-\-edit\-yang\-version\fR \fIversion\fR
+.RS 4
+Set the YANG version (i\&.e\&., the
+\fIyang\-version\fR
+statement\*(Aqs argument) to
+\fIversion\fR\&. This does nothing if the YANG module doesn\*(Aqt already have a
+\fIyang\-version\fR
+statement\&.
+.sp
+Example:
+\fB\-\-edit\-yang\-version 1\&.1\fR\&.
+.RE
+.PP
+\fB\-\-edit\-namespace\fR \fInamespace\fR
+.RS 4
+Set the YANG namespace (i\&.e\&., the
+\fInamespace\fR
+statement\*(Aqs argument) to
+\fInamespace\fR\&. This does nothing if the YANG module doesn\*(Aqt already have a
+\fInamespace\fR
+statement\&.
+.sp
+Example:
+\fB\-\-edit\-namespace %SUBST/acme\-pacific\-org/apo\fR
+.RE
+.PP
+\fB\-\-edit\-update\-import\-dates\fR
+.RS 4
+Update any
+\fIimport\fR
+(or
+\fIinclude\fR)
+\fIrevision\-date\fR
+statements to match imported (or included) modules and submodules\&. If there isn\*(Aqt already a
+\fIrevision\-date\fR
+statement, it will be added\&.
+.RE
+.PP
+\fB\-\-edit\-delete\-import\-dates\fR
+.RS 4
+Delete any
+\fIimport\fR
+(or
+\fIinclude\fR)
+\fIrevision\-date\fR
+statements\&.
+.RE
+.PP
+\fB\-\-edit\-organization\fR \fIorganization\fR
+.RS 4
+Set the organization (i\&.e\&. the
+\fIorganization\fR
+statement\*(Aqs argument) to
+\fIorganization\fR\&. This does nothing if the YANG module doesn\*(Aqt already have an
+\fIorganization\fR
+statement\&.
+.sp
+Example:
+\fB\-\-edit\-organization @\&.\&./ORGANIZATION\fR
+.RE
+.PP
+\fB\-\-edit\-contact\fR \fIcontact\fR
+.RS 4
+Set the contact info (i\&.e\&. the
+\fIcontact\fR
+statement\*(Aqs argument) to
+\fIcontact\fR\&. This does nothing if the YANG module doesn\*(Aqt already have a
+\fIcontact\fR
+statement\&.
+.sp
+Example:
+\fB\-\-edit\-contact @\&.\&./CONTACT\fR
+.RE
+.PP
+\fB\-\-edit\-description\fR \fIdescription\fR
+.RS 4
+Set the top\-level description (i\&.e\&. the top\-level
+\fIdescription\fR
+statement\*(Aqs argument) to
+\fIdescription\fR\&. This does nothing if the YANG module doesn\*(Aqt already have a
+\fIdescription\fR
+statement\&.
+.sp
+Example:
+\fB\-\-edit\-description %SUMMARY+@\&.\&./LICENSE+@\&.\&./CONTEXT\fR
+.RE
+.PP
+\fB\-\-edit\-delete\-revisions\-after\fR \fIprevdate\fR
+.RS 4
+Delete any
+\fIrevision\fR
+statements after (i\&.e\&. that are more recent than) the supplied
+\fIyyyy\-mm\-dd\fR
+revision date\&. A typical use case is to supply the date of the previous release: any revisions since then will be internal (e\&.g\&. developers often feel that they should add revision statements for git commits) and are not wanted in the next released version\&.
+.sp
+Example:
+\fB\-\-edit\-delete\-revisions\-after 2019\-03\-15\fR
+.RE
+.PP
+\fB\-\-edit\-revision\-date\fR \fIdate\fR
+.RS 4
+Set the most recent revision date to the supplied
+\fIyyyy\-mm\-dd\fR
+revision date\&. This does nothing if the YANG module doesn\*(Aqt already have at least one
+\fIrevision\fR
+statement\&. If necessary, a new
+\fIrevision\fR
+statement will be inserted before any (remaining) existing revisions\&.
+.sp
+Example:
+\fB\-\-edit\-revision\-date 2020\-03\-15\fR
+.RE
+.PP
+\fB\-\-edit\-revision\-description\fR \fIdescription\fR
+.RS 4
+Set the most recent revision description to
+\fIdescription\fR\&.
+.sp
+Example:
+\fB\-\-edit\-revision\-description=%DELETE+@\&.\&./REVISION\fR
+.RE
+.PP
+\fB\-\-edit\-revision\-reference\fR \fIreference\fR
+.RS 4
+Set the most recent revision reference to
+\fIreference\fR\&.
+.sp
+Example:
+\fB\-\-edit\-revision\-reference=%DELETE+@\&.\&./REFERENCE\fR
+.RE
+.SH "OUTPUT FORMATS"
+.PP
+Installed
+\fBpyang\fR
+plugins may define their own options, or add new formats to the
+\fB\-f\fR
+option\&. These options and formats are listed in
+\fBpyang \-h\fR\&.
+.PP
+\fIcapability\fR
+.RS 4
+Capability URIs for each module of the data model\&.
+.RE
+.PP
+\fIdepend\fR
+.RS 4
+Makefile dependency rule for the module\&.
+.RE
+.PP
+\fIdsdl\fR
+.RS 4
+Hybrid DSDL schema, see
+\m[blue]\fBRFC 6110\fR\m[]\&\s-2\u[4]\d\s+2\&.
+.RE
+.PP
+\fIidentifiers\fR
+.RS 4
+All identifiers in the module\&.
+.RE
+.PP
+\fIjsonxsl\fR
+.RS 4
+XSLT stylesheet for transforming XML instance documents to JSON\&.
+.RE
+.PP
+\fIjstree\fR
+.RS 4
+HTML/JavaScript tree navigator\&.
+.RE
+.PP
+\fIjtox\fR
+.RS 4
+Driver file for transforming JSON instance documents to XML\&.
+.RE
+.PP
+\fIname\fR
+.RS 4
+Module name, and the name of the main module for a submodule\&.
+.RE
+.PP
+\fIomni\fR
+.RS 4
+An applescript file that draws a diagram in
+\fBOmniGraffle\fR\&.
+.RE
+.PP
+\fIsample\-xml\-skeleton\fR
+.RS 4
+Skeleton of a sample XML instance document\&.
+.RE
+.PP
+\fItree\fR
+.RS 4
+Tree structure of the module\&.
+.RE
+.PP
+\fIflatten\fR
+.RS 4
+Print the schema nodes in CSV form\&.
+.RE
+.PP
+\fIuml\fR
+.RS 4
+UML file that can be read by
+\fBplantuml\fR
+to generate UML diagrams\&.
+.RE
+.PP
+\fIyang\fR
+.RS 4
+Normal YANG syntax\&.
+.RE
+.PP
+\fIyin\fR
+.RS 4
+The XML syntax of YANG\&.
+.RE
+.SH "LINT CHECKER"
+.PP
+The
+\fIlint\fR
+option validates that the module follows the generic conventions and rules given in
+\m[blue]\fBRFC 8407\fR\m[]\&\s-2\u[5]\d\s+2\&. In addition, it checks that the module is in canonical order\&.
+.PP
+Options for the
+\fIlint\fR
+checker:
+.PP
+\fB\-\-lint\-namespace\-prefix\fR \fIprefix\fR
+.RS 4
+Validate that the module\*(Aqs namespace is of the form: "<prefix><modulename>"\&.
+.RE
+.PP
+\fB\-\-lint\-modulename\-prefix\fR \fIprefix\fR
+.RS 4
+Validate that the module\*(Aqs name starts with
+\fIprefix\fR\&.
+.RE
+.PP
+\fB\-\-lint\-ensure\-hyphenated\-names\fR
+.RS 4
+Validate that all identifiers use hyphenated style, i\&.e\&., no uppercase letters or underscores\&.
+.RE
+.SH "YANG SCHEMA ITEM IDENTIFIERS (SID)"
+.PP
+YANG Schema Item iDentifiers (SID) are globally unique unsigned integers used to identify YANG items\&. SIDs are used instead of names to save space in constrained applications such as COREconf\&. This plugin is used to automatically generate and updated \&.sid files used to persist and distribute SID assignments\&.
+.PP
+Options for generating, updating and checking \&.sid files:
+.PP
+\fB\-\-sid\-generate\-file\fR
+.RS 4
+This option is used to generate a new \&.sid file from a YANG module\&.
+.sp
+Two arguments are required to generate a \&.sid file; the SID range assigned to the YANG module and its definition file\&. The SID range specified is a sub\-range within a range obtained from a registrar or a sub\-range within the experimental range (i\&.e\&. 60000 to 99999)\&. The SID range consists of the first SID of the range, followed by a colon, followed by the number of SID allocated to the YANG module\&. The filename consists of the module name, followed by an @ symbol, followed by the module revision, followed by the "\&.yang" extension\&.
+.sp
+This example shows how to generate the file
+\fItoaster@2009\-11\-20\&.sid\fR\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-sid\-generate\-file 20000:100 toaster@2009\-11\-20\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-\-sid\-update\-file\fR
+.RS 4
+Each time new items are added to a YANG module by the introduction of a new revision of this module, its included sub\-modules or imported modules, the associated \&.sid file need to be updated\&. This is done by using the
+\fB\-\-sid\-update\-file\fR
+option\&.
+.sp
+Two arguments are required to generate a \&.sid file for an updated YANG module; the previous \&.sid file generated for the YANG module and the definition file of the updated module\&. Both filenames follow the usual naming conversion consisting of the module name, followed by an @ symbol, followed by the module revision, followed by the extension\&.
+.sp
+This example shows how to generate the file
+\fItoaster@2009\-12\-28\&.sid\fR
+based on the SIDs already present in
+\fItoaster@2009\-11\-20\&.sid\fR\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-sid\-update\-file toaster@2009\-11\-20\&.sid \e
+toaster@2009\-12\-28\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-\-sid\-check\-file\fR
+.RS 4
+The
+\fB\-\-sid\-check\-file\fR
+option can be used at any time to verify if a \&.sid file need to be updated\&.
+.sp
+Two arguments are required to verify a \&.sid file; the filename of the \&.sid file to be checked and the corresponding definition file\&.
+.sp
+For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-sid\-check\-file toaster@2009\-12\-28\&.sid \e
+toaster@2009\-12\-28\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-\-sid\-list\fR
+.RS 4
+The
+\fB\-\-sid\-list\fR
+option can be used before any of the previous options to obtains the list of SIDs assigned or validated\&. For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-sid\-list \-\-sid\-generate\-file 20000:100 \e
+toaster@2009\-11\-20\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-\-sid\-extra\-range\fR
+.RS 4
+If needed, an extra SID range can be assigned to an existing YANG module during its update with the
+\fB\-\-sid\-extra\-range\fR
+option\&.
+.sp
+For example, this command generates the file
+\fItoaster@2009\-12\-28\&.sid\fR
+using the initial range(s) present in
+\fItoaster@2009\-11\-20\&.sid\fR
+and the extra range specified in the command line\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-sid\-update\-file toaster@2009\-11\-20\&.sid \e
+toaster@2009\-12\-28\&.yang \-\-sid\-extra\-range 20100:100
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fIcount\fR
+.RS 4
+The number of SID required when generating or updating a \&.sid file can be computed by specifying "\fIcount\fR" as SID range\&.
+.sp
+For example:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-sid\-generate\-file count toaster@2009\-11\-20\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+or:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-\-sid\-update\-file toaster@2009\-11\-20\&.sid \e
+toaster@2009\-12\-28\&.yang \-\-sid\-extra\-range count
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.SH "CAPABILITY OUTPUT"
+.PP
+The
+\fIcapability\fR
+output prints a capability URL for each module of the input data model, taking into account features and deviations, as described in section 5\&.6\&.4 of
+\m[blue]\fBRFC 6020\fR\m[]\&\s-2\u[2]\d\s+2\&.
+.PP
+Options for the
+\fIcapability\fR
+output format:
+.PP
+\fB\-\-capability\-entity\fR
+.RS 4
+Write ampersands in the output as XML entities ("&amp;")\&.
+.RE
+.SH "DEPEND OUTPUT"
+.PP
+The
+\fIdepend\fR
+output generates a Makefile dependency rule for files based on a YANG module\&. This is useful if files are generated from the module\&. For example, suppose a \&.c file is generated from each YANG module\&. If the YANG module imports other modules, or includes submodules, the \&.c file needs to be regenerated if any of the imported or included modules change\&. Such a dependency rule can be generated like this:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-f depend \-\-depend\-target mymod\&.c \e
+      \-\-depend\-extension \&.yang mymod\&.yang
+      mymod\&.c : ietf\-yang\-types\&.yang my\-types\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+Options for the
+\fIdepend\fR
+output format:
+.PP
+\fB\-\-depend\-target\fR
+.RS 4
+Makefile rule target\&. Default is the module name\&.
+.RE
+.PP
+\fB\-\-depend\-extension\fR
+.RS 4
+YANG module file name extension\&. Default is no extension\&.
+.RE
+.PP
+\fB\-\-depend\-no\-submodules\fR
+.RS 4
+Do not generate dependencies for included submodules\&.
+.RE
+.PP
+\fB\-\-depend\-from\-submodules\fR
+.RS 4
+Generate dependencies taken from all included submodules\&.
+.RE
+.PP
+\fB\-\-depend\-recurse\fR
+.RS 4
+Recurse into imported modules and generate dependencies for their imported modules etc\&.
+.RE
+.PP
+\fB\-\-depend\-include\-path\fR
+.RS 4
+Include file path in the prerequisites\&. Note that if no
+\fB\-\-depend\-extension\fR
+has been given, the prerequisite is the filename as found, i\&.e\&., ending in "\&.yang" or "\&.yin"\&.
+.RE
+.PP
+\fB\-\-depend\-ignore\-module\fR
+.RS 4
+Name of YANG module or submodule to ignore in the prerequisites\&. This option can be given multiple times\&.
+.RE
+.SH "DSDL OUTPUT"
+.PP
+The
+\fIdsdl\fR
+output takes a data model consisting of one or more YANG modules and generates a hybrid DSDL schema as described in
+\m[blue]\fBRFC 6110\fR\m[]\&\s-2\u[4]\d\s+2\&. The hybrid schema is primarily intended as an interim product used by
+\fByang2dsdl\fR(1)\&.
+.PP
+The
+\fIdsdl\fR
+plugin also supports metadata annotations, if they are defined and used as described in
+\m[blue]\fBRFC 7952\fR\m[]\&\s-2\u[8]\d\s+2\&.
+.PP
+Options for the
+\fIdsdl\fR
+output format:
+.PP
+\fB\-\-dsdl\-no\-documentation\fR
+.RS 4
+Do not print documentation annotations
+.RE
+.PP
+\fB\-\-dsdl\-no\-dublin\-core\fR
+.RS 4
+Do not print Dublin Core metadata terms
+.RE
+.PP
+\fB\-\-dsdl\-record\-defs\fR
+.RS 4
+Record translations of all top\-level typedefs and groupings in the output schema, even if they are not used\&. This is useful for translating library modules\&.
+.RE
+.SH "JSONXSL OUTPUT"
+.PP
+The
+\fIjsonxsl\fR
+output generates an XSLT 1\&.0 stylesheet that can be used for transforming an XML instance document into JSON text as specified in
+\m[blue]\fBRFC 7951\fR\m[]\&\s-2\u[9]\d\s+2\&. The XML document must be a valid instance of the data model which is specified as one or more input YANG modules on the command line (or via a <hello> message, see the
+\fB\-\-hello\fR
+option)\&.
+.PP
+The
+\fIjsonxsl\fR
+plugin also converts metadata annotations, if they are defined and used as described in
+\m[blue]\fBRFC 7952\fR\m[]\&\s-2\u[8]\d\s+2\&.
+.PP
+The data tree(s) must be wrapped at least in either <nc:data> or <nc:config> element, where "nc" is the namespace prefix for the standard NETCONF URI "urn:ietf:params:xml:ns:netconf:base:1\&.0", or the XML instance document has to be a complete NETCONF RPC request/reply or notification\&. Translation of RPCs and notifications defined by the data model is also supported\&.
+.PP
+The generated stylesheet accepts the following parameters that modify its behaviour:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIcompact\fR: setting this parameter to 1 results in a compact representation of the JSON text, i\&.e\&. without any whitespace\&. The default is 0 which means that the JSON output is pretty\-printed\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+\fIind\-step\fR: indentation step, i\&.e\&. the number of spaces to use for each level\&. The default value is 2 spaces\&. Note that this setting is only useful for pretty\-printed output (compact=0)\&.
+.RE
+.PP
+The stylesheet also includes the file
+jsonxsl\-templates\&.xsl
+which is a part of
+\fBpyang\fR
+distribution\&.
+.SH "JSTREE OUTPUT"
+.PP
+The
+\fIjstree\fR
+output grenerates an HTML/JavaScript page that presents a tree\-navigator to the given YANG module(s)\&.
+.PP
+jstree output specific option:
+.PP
+\fB\-\-jstree\-no\-path\fR
+.RS 4
+Do not include paths in the output\&. This option makes the page less wide\&.
+.RE
+.SH "JTOX OUTPUT"
+.PP
+The
+\fIjtox\fR
+output generates a driver file which can be used as one of the inputs to
+\fBjson2xml\fR
+for transforming a JSON document to XML as specified in
+\m[blue]\fBRFC 7951\fR\m[]\&\s-2\u[9]\d\s+2\&.
+.PP
+The
+\fIjtox\fR
+output itself is a JSON document containing a concise representation of the data model which is specified as one or more input YANG modules on the command line (or via a <hello> message, see the
+\fB\-\-hello\fR
+option)\&.
+.PP
+See
+\fBjson2xml\fR
+manual page for more information\&.
+.SH "OMNI OUTPUT"
+.PP
+The plugin generates an applescript file that draws a diagram in OmniGraffle\&. Requires OmniGraffle 6\&. Usage:
+.sp .if n \{\ .RS 4 .\} .nf $ pyang \-f omni foo\&.yang \-o foo\&.scpt $ osascript foo\&.scpt .fi .if n \{\ .RE .\}
+.PP
+omni output specific option:
+.PP
+\fB\-\-omni\-path\fR \fIpath\fR
+.RS 4
+Subtree to print\&. The
+\fIpath\fR
+is a slash ("/") separated path to a subtree to print\&. For example "/nacm/groups"\&.
+.RE
+.SH "NAME OUTPUT"
+.PP
+The
+\fIname\fR
+output prints the name of each module in the input data model\&. For submodules, it also shows the name of the main module to which the submodule belongs\&.
+.PP
+name output specific option:
+.PP
+\fB\-\-name\-print\-revision\fR
+.RS 4
+Print the name and revision in name@revision format\&.
+.RE
+.SH "SAMPLE-XML-SKELETON OUTPUT"
+.PP
+The
+\fIsample\-xml\-skeleton\fR
+output generates an XML instance document with sample elements for all nodes in the data model, according to the following rules:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+An element is present for every leaf, container or anyxml\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+At least one element is present for every leaf\-list or list\&. The number of entries in the sample is min(1, min\-elements)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+For a choice node, sample element(s) are present for each case\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Leaf, leaf\-list and anyxml elements are empty (but see the
+\fB\-\-sample\-xml\-skeleton\-defaults\fR
+option below)\&.
+.RE
+.PP
+Note that the output document will most likely be invalid and needs manual editing\&.
+.PP
+Options specific to the
+\fIsample\-xml\-skeleton\fR
+output format:
+.PP
+\fB\-\-sample\-xml\-skeleton\-annotations\fR
+.RS 4
+Add XML comments to the sample documents with hints about expected contents, for example types of leaf nodes, permitted number of list entries etc\&.
+.RE
+.PP
+\fB\-\-sample\-xml\-skeleton\-defaults\fR
+.RS 4
+Add leaf elements with defined defaults to the output with their default value\&. Without this option, the default elements are omitted\&.
+.RE
+.PP
+\fB\-\-sample\-xml\-skeleton\-doctype=\fR\fB\fItype\fR\fR
+.RS 4
+Type of the sample XML document\&. Supported values for
+\fItype\fR
+are
+data
+(default) and
+config\&. This option determines the document element of the output XML document (<data> or <config> in the NETCONF namespace) and also affects the contents: for
+config, only data nodes representing configuration are included\&.
+.RE
+.PP
+\fB\-\-sample\-xml\-skeleton\-path=\fR\fB\fIpath\fR\fR
+.RS 4
+Subtree of the sample XML document to generate, including all ancestor elements\&. The
+\fIpath\fR
+is a slash ("/") separated list of data node names that specifies the path to a subtree to print\&. For example "/nacm/rule\-list/rule/rpc\-name"\&.
+.RE
+.SH "TREE OUTPUT"
+.PP
+The
+\fItree\fR
+output prints the resulting schema tree from one or more modules\&. Use
+\fBpyang \-\-tree\-help\fR
+to print a description on the symbols used by this format\&.
+.PP
+Tree output specific options:
+.PP
+\fB\-\-tree\-help\fR
+.RS 4
+Print help on symbols used in the tree output and exit\&.
+.RE
+.PP
+\fB\-\-tree\-depth\fR \fIdepth\fR
+.RS 4
+Levels of the tree to print\&.
+.RE
+.PP
+\fB\-\-tree\-path\fR \fIpath\fR
+.RS 4
+Subtree to print\&. The
+\fIpath\fR
+is a slash ("/") separated path to a subtree to print\&. For example "/nacm/groups"\&. All ancestors and the selected subtree are printed\&.
+.RE
+.PP
+\fB\-\-tree\-print\-groupings\fR
+.RS 4
+Print the top\-level groupings defined in the module\&.
+.RE
+.PP
+\fB\-\-tree\-print\-structures\fR
+.RS 4
+Print the ietf\-yang\-structure\-ext:structure structures defined in the module\&.
+.RE
+.PP
+\fB\-\-tree\-print\-yang\-data\fR
+.RS 4
+Print the ietf\-restconf:yang\-data structures defined in the module\&.
+.RE
+.PP
+\fB\-\-tree\-line\-length\fR \fImaxlen\fR
+.RS 4
+Try to break lines so they are no longer than
+\fImaxlen\fR\&. This is a best effort algorithm\&.
+.RE
+.PP
+\fB\-\-tree\-module\-name\-prefix\fR \fImaxlen\fR
+.RS 4
+Use the module name (instead of the prefix) to prefix parameters and types\&.
+.RE
+.SH "FLATTEN OUTPUT"
+.PP
+The
+\fIflatten\fR
+output flattens provided YANG module and outputs the schema nodes and some of their properties in CSV format\&.
+.PP
+Flatten output specific options:
+.PP
+\fB\-\-flatten\-no\-header\fR
+.RS 4
+Do not emit the CSV header\&.
+.RE
+.PP
+\fB\-\-flatten\-keyword\fR
+.RS 4
+Output the keyword\&. This will resolve as container, leaf, etc\&.
+.RE
+.PP
+\fB\-\-flatten\-type\fR
+.RS 4
+Output the top\-level type\&. This will resolve to a module\-prefixed type\&.
+.RE
+.PP
+\fB\-\-flatten\-primitive\-type\fR
+.RS 4
+Output the primitive type\&. This resolves to a YANG type such as uint64\&.
+.RE
+.PP
+\fB\-\-flatten\-flag\fR
+.RS 4
+Output flag property\&. Derives a flag \- for instance rw/ro for config, or x for RPC\&.
+.RE
+.PP
+\fB\-\-flatten\-description\fR
+.RS 4
+Output the description\&.
+.RE
+.PP
+\fB\-\-flatten\-keys\fR
+.RS 4
+Output whether the XPath is identified as a key\&.
+\fIkey\fR
+or null will be output per XPath\&.
+.RE
+.PP
+\fB\-\-flatten\-keys\-in\-xpath\fR
+.RS 4
+Output the XPath with keys in path\&.
+.RE
+.PP
+\fB\-\-flatten\-prefix\-in\-xpath\fR
+.RS 4
+Output the XPath with prefixes instead of modules\&.
+.RE
+.PP
+\fB\-\-flatten\-qualified\-in\-xpath\fR
+.RS 4
+Output the qualified XPath i\&.e\&. /module1:root/module1:node/module2:node/\&.\&.\&.
+.RE
+.PP
+\fB\-\-flatten\-qualified\-module\-and\-prefix\-path\fR
+.RS 4
+Output an XPath with both module and prefix i\&.e\&. /module1:prefix1:root/\&.\&.\&. This is
+\fINOT\fR
+a colloquial syntax of XPath\&. Emitted separately\&.
+.RE
+.PP
+\fB\-\-flatten\-deviated\fR
+.RS 4
+Output deviated nodes in the schema as well\&.
+.RE
+.PP
+\fB\-\-flatten\-data\-keywords\fR
+.RS 4
+Flatten all data keywords instead of only data definition keywords\&.
+.RE
+.PP
+\fB\-\-flatten\-filter\-keyword\fR \fIkeyword\fR
+.RS 4
+Filter output to only desired keywords\&. Keywords specified are what will be displayed in output\&. Can be specified more than once\&.
+.RE
+.PP
+\fB\-\-flatten\-filter\-primitive\fR \fIprimitive_type\fR
+.RS 4
+Filter output to only desired primitive types\&. Primitives specified are what will be displayed in output\&. Can be specified more than once\&.
+.RE
+.PP
+\fB\-\-flatten\-filter\-flag\fR \fIchoice\fR
+.RS 4
+Filter output to flag\&.
+\fIrw\fR
+for configuration data\&.
+\fIro\fR
+for non\-configuration data, output parameters to rpcs and actions, and notification parameters\&.
+\fIw\fR
+for input parameters to rpcs and actions\&.
+\fIu\fR
+for uses of a grouping\&.
+\fIx\fR
+for rpcs and actions\&.
+\fIn\fR
+for notifications\&.
+.RE
+.PP
+\fB\-\-flatten\-csv\-dialect\fR \fIdialect\fR
+.RS 4
+CSV dialect for output\&. excel | excel\-tab | unix
+.RE
+.PP
+\fB\-\-flatten\-ignore\-no\-primitive\fR
+.RS 4
+Ignore error if primitive is missing\&.
+.RE
+.PP
+\fB\-\-flatten\-status\fR
+.RS 4
+Output the status statement value\&.
+.RE
+.PP
+\fB\-\-flatten\-resolve\-leafref\fR
+.RS 4
+Output the XPath of the leafref target\&.
+.RE
+.SH "UML OUTPUT"
+.PP
+The
+\fIuml\fR
+output prints an output that can be used as input\-file to
+\fBplantuml\fR
+(http://plantuml\&.sourceforge\&.net) in order to generate a UML diagram\&. Note that it requires
+\fBgraphviz\fR
+(http://www\&.graphviz\&.org/)\&.
+.PP
+For large diagrams you may need to increase the Java heap\-size by the \-XmxSIZEm option, to java\&. For example:
+\fBjava \-Xmx1024m \-jar plantuml\&.jar \&.\&.\&.\&.\fR
+.PP
+Options for the
+\fIUML\fR
+output format:
+.PP
+\fB\-\-uml\-classes\-only\fR
+.RS 4
+Generate UML with classes only, no attributes
+.RE
+.PP
+\fB\-\-uml\-split\-pages=\fR\fB\fIlayout\fR\fR
+.RS 4
+Generate UML output split into pages, NxN, example 2x2\&. One \&.png file per page will be rendered\&.
+.RE
+.PP
+\fB\-\-uml\-output\-directory=\fR\fB\fIdirectory\fR\fR
+.RS 4
+Put the generated \&.png files(s) in the specified output directory\&. Default is "img/"
+.RE
+.PP
+\fB\-\-uml\-title=\fR\fB\fItitle\fR\fR
+.RS 4
+Set the title of the generated UML diagram, (default is YANG module name)\&.
+.RE
+.PP
+\fB\-\-uml\-header=\fR\fB\fIheader\fR\fR
+.RS 4
+Set the header of the generated UML diagram\&.
+.RE
+.PP
+\fB\-\-uml\-footer=\fR\fB\fIfooter\fR\fR
+.RS 4
+Set the footer of the generated UML diagram\&.
+.RE
+.PP
+\fB\-\-uml\-long\-identifers\fR
+.RS 4
+Use complete YANG schema identifiers for UML class names\&.
+.RE
+.PP
+\fB\-\-uml\-no=\fR\fB\fIarglist\fR\fR
+.RS 4
+This option suppresses specified arguments in the generated UML diagram\&. Valid arguments are: uses, leafref, identity, identityref, typedef, annotation, import, circles, stereotypes\&. Annotation suppresses YANG constructs rendered as annotations, examples module info, config statements for containers\&. Example \-\-uml\-no=circles,stereotypes,typedef,import
+.RE
+.PP
+\fB\-\-uml\-truncate=\fR\fB\fIelemlist\fR\fR
+.RS 4
+Leafref attributes and augment elements can have long paths making the classes too wide\&. This option will only show the tail of the path\&. Example \-\-uml\-truncate=augment,leafref\&.
+.RE
+.PP
+\fB\-\-uml\-inline\-groupings\fR
+.RS 4
+Render the diagram with groupings inlined\&.
+.RE
+.PP
+\fB\-\-uml\-inline\-augments\fR
+.RS 4
+Render the diagram with augments inlined\&.
+.RE
+.PP
+\fB\-\-uml\-max\-enums=\fR\fB\fInumber\fR\fR
+.RS 4
+Maximum of enum items rendered\&.
+.RE
+.PP
+\fB\-\-uml\-filter\-file=\fR\fB\fIfile\fR\fR
+.RS 4
+NOT IMPLEMENTED: Only paths in the filter file will be included in the diagram\&. A default filter file is generated by option \-\-filter\&.
+.RE
+.SH "YANG OUTPUT"
+.PP
+Options for the
+\fIyang\fR
+output format:
+.PP
+\fB\-\-yang\-canonical\fR
+.RS 4
+Generate all statements in the canonical order\&.
+.RE
+.PP
+\fB\-\-yang\-remove\-unused\-imports\fR
+.RS 4
+Remove unused import statements from the output\&.
+.RE
+.PP
+\fB\-\-yang\-remove\-comments\fR
+.RS 4
+Remove all comments from the output\&.
+.RE
+.PP
+\fB\-\-yang\-line\-length\fR \fIlen\fR
+.RS 4
+Try to format each line with a maximum line length of
+\fIlen\fR\&. Does not reformat long lines within strings\&.
+.RE
+.SH "YIN OUTPUT"
+.PP
+Options for the
+\fIyin\fR
+output format:
+.PP
+\fB\-\-yin\-canonical\fR
+.RS 4
+Generate all statements in the canonical order\&.
+.RE
+.PP
+\fB\-\-yin\-pretty\-strings\fR
+.RS 4
+Pretty print strings, i\&.e\&. print with extra whitespace in the string\&. This is not strictly correct, since the whitespace is significant within the strings in XML, but the output is more readable\&.
+.RE
+.SH "YANG EXTENSIONS"
+.PP
+This section describes XPath functions that can be used in "must", "when", or "path" expressions in YANG modules, in addition to the core XPath 1\&.0 functions\&.
+.PP
+\fBpyang\fR
+can be instructed to reject the usage of these functions with the parameter
+\fI\-\-strict\fR\&.
+.PP
+\fBFunction:\fR\fInode\-set\fR\fBderef\fR(\fInode\-set\fR)
+.PP
+The
+\fBderef\fR
+function follows the reference defined by the first node in document order in the argument node\-set, and returns the nodes it refers to\&.
+.PP
+If the first argument node is an
+\fBinstance\-identifier\fR, the function returns a node\-set that contains the single node that the instance identifier refers to, if it exists\&. If no such node exists, an empty node\-set is returned\&.
+.PP
+If the first argument node is a
+\fBleafref\fR, the function returns a node\-set that contains the nodes that the leafref refers to\&.
+.PP
+If the first argument node is of any other type, an empty node\-set is returned\&.
+.PP
+The following example shows how a leafref can be written with and without the
+\fBderef\fR
+function:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+/* without deref */
+
+leaf my\-ip {
+  type leafref {
+    path "/server/ip";
+  }
+}
+leaf my\-port {
+  type leafref {
+    path "/server[ip = current()/\&.\&./my\-ip]/port";
+  }
+}
+
+/* with deref */
+
+leaf my\-ip {
+  type leafref {
+    path "/server/ip";
+  }
+}
+leaf my\-port {
+  type leafref {
+    path "deref(\&.\&./my\-ip)/\&.\&./port";
+  }
+}
+      
+.fi
+.if n \{\
+.RE
+.\}
+.SH "EXAMPLE"
+.PP
+The following example validates the standard YANG modules with derived types:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang ietf\-yang\-types\&.yang ietf\-inet\-types\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The following example converts the ietf\-yang\-types module into YIN:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ pyang \-f yin \-o ietf\-yang\-types\&.yin ietf\-yang\-types\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+The following example converts the ietf\-netconf\-monitoring module into a UML diagram:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+        $ pyang \-f uml ietf\-netconf\-monitoring\&.yang > \e
+        ietf\-netconf\-monitoring\&.uml
+        $ java \-jar plantuml\&.jar ietf\-netconf\-monitoring\&.uml
+        $ open img/ietf\-netconf\-monitoring\&.png
+      
+.fi
+.if n \{\
+.RE
+.\}
+.SH "ENVIRONMENT VARIABLES"
+.PP
+pyang searches for referred modules in the colon (:) separated path defined by the environment variable
+\fB$YANG_MODPATH\fR
+and in the directory
+\fB$YANG_INSTALL\fR/yang/modules\&.
+.PP
+pyang searches for plugins in the colon (:) separated path defined by the environment variable
+\fB$PYANG_PLUGINDIR\fR\&.
+.SH "BUGS"
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+The XPath arguments for the
+\fImust\fR
+and
+\fIwhen\fR
+statements are checked only for basic syntax errors\&.
+.RE
+.SH "AUTHORS"
+.PP
+\fBMartin Björklund\fR <\&mbj@tail\-f\&.com\&>
+.br
+Tail\-f Systems
+.RS 4
+.RE
+.PP
+\fBLadislav Lhotka\fR <\&lhotka@nic\&.cz\&>
+.br
+CZ\&.NIC
+.RS 4
+.RE
+.PP
+\fBStefan Wallin\fR <\&stefan@tail\-f\&.com\&>
+.br
+Tail\-f Systems
+.RS 4
+.RE
+.SH "NOTES"
+.IP " 1." 4
+RFC 6241
+.RS 4
+\%http://tools.ietf.org/html/rfc6241
+.RE
+.IP " 2." 4
+RFC 6020
+.RS 4
+\%http://tools.ietf.org/html/rfc6020
+.RE
+.IP " 3." 4
+RFC 7950
+.RS 4
+\%http://tools.ietf.org/html/rfc7950
+.RE
+.IP " 4." 4
+RFC 6110
+.RS 4
+\%http://tools.ietf.org/html/rfc6110
+.RE
+.IP " 5." 4
+RFC 8407
+.RS 4
+\%http://tools.ietf.org/html/rfc8407
+.RE
+.IP " 6." 4
+RFC 2119
+.RS 4
+\%http://tools.ietf.org/html/rfc2119
+.RE
+.IP " 7." 4
+RFC 8174
+.RS 4
+\%http://tools.ietf.org/html/rfc8174
+.RE
+.IP " 8." 4
+RFC 7952
+.RS 4
+\%http://tools.ietf.org/html/rfc7952
+.RE
+.IP " 9." 4
+RFC 7951
+.RS 4
+\%http://tools.ietf.org/html/rfc7951
+.RE

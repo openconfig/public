@@ -1,0 +1,445 @@
+'\" t
+.\"     Title: yang2dsdl
+.\"    Author: Ladislav Lhotka <lhotka@nic.cz>
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 2022-03-30
+.\"    Manual: pyang manual
+.\"    Source: yang2dsdl-2.5.3
+.\"  Language: English
+.\"
+.TH "YANG2DSDL" "1" "2022\-03\-30" "yang2dsdl\-2\&.5\&.3" "pyang manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+yang2dsdl \- translates YANG data models to DSDL schemas and validates instance documents\&.
+.SH "SYNOPSIS"
+.HP \w'\fByang2dsdl\fR\ 'u
+\fByang2dsdl\fR [\-t\ \fItarget\fR] [\-d\ \fIdir\fR] [\-b\ \fIbasename\fR] [\-j] [\-x] [\-c] [\-v\ \fIinstance\fR] \fIfile\fR...
+.HP \w'\fByang2dsdl\fR\ 'u
+\fByang2dsdl\fR \-L [\-t\ \fItarget\fR] [\-d\ \fIdir\fR] [\-b\ \fIbasename\fR] [\-j] [\-x] [\-c] [\-v\ \fIinstance\fR] \fIfile\fR
+.HP \w'\fByang2dsdl\fR\ 'u
+\fByang2dsdl\fR \-s [\-t\ \fItarget\fR] [\-d\ \fIdir\fR] \-b\ \fIbasename\fR [\-j] [\-x] [\-c] \-v\ \fIinstance\fR
+.HP \w'\fByang2dsdl\fR\ 'u
+\fByang2dsdl\fR \-h
+.SH "DESCRIPTION"
+.PP
+This shell script facilitates the translation of a data model described by one or more input YANG modules to DSDL schemas (RELAX NG, Schematron and DSRL) for a selected instance XML document type, as described in
+\m[blue]\fBRFC\ \&6110\fR\m[]\&\s-2\u[1]\d\s+2\&. Optionally, the script can validate an instance document of the given type against the schemas\&.
+.PP
+The input YANG module(s) may be given either directly as
+\fIfile\fR
+parameter(s) on the command line, or indirectly through a server <hello> message which also declares capabilities and features supported by the server\&. The latter alternative is indicated by the
+\fB\-L\fR
+switch, and only one
+\fIfile\fR
+parameter may be given in this case\&.
+.PP
+Input YANG module(s) may be expressed in YANG or YIN syntax\&. The output DSDL schemas are written to the directory
+\fIdir\fR
+(current directory by default)\&. Unless the option
+\fB\-s\fR
+is used, this directory must be writable\&.
+.PP
+Metadata annotations are also supported, if they are defined and used as described in
+\m[blue]\fBRFC\ \&7952\fR\m[]\&\s-2\u[2]\d\s+2\&.
+.PP
+The script can be executed by any shell interpreter compatible with POSIX\&.2, such as
+\fBbash\fR(1)
+or
+\fBdash\fR(1)\&.
+.PP
+The
+\fItarget\fR
+argument specifies the type of the target instance document\&. Supported values are:
+.PP
+data
+.RS 4
+Datastore contents (configuration and state data) encapsulated in <nc:data> document element\&.
+.RE
+.PP
+config
+.RS 4
+A configuration datastore contents encapsulated in <nc:config> document element\&.
+.RE
+.PP
+get\-reply
+.RS 4
+A complete NETCONF message containing a reply to the <nc:get> operation\&.
+.RE
+.PP
+get\-data\-reply
+.RS 4
+A complete NETCONF message containing a reply to the <ncds:get\-data> operation\&.
+.RE
+.PP
+get\-config\-reply
+.RS 4
+A complete NETCONF message containing a reply to the <nc:get\-config> operation\&.
+.RE
+.PP
+edit\-config
+.RS 4
+A complete NETCONF message containing an <nc:edit\-config> request\&. Only the RELAX NG schema is generated for this target\&.
+.RE
+.PP
+rpc
+.RS 4
+An RPC request defined in an input YANG module\&.
+.RE
+.PP
+rpc\-reply
+.RS 4
+An RPC reply defined in an input YANG module\&.
+.RE
+.PP
+notification
+.RS 4
+An event notification defined in an input YANG module\&.
+.RE
+.PP
+The output schemas are contained in the following four files whose names depend on the arguments
+\fIbasename\fR
+and
+\fItarget\fR:
+.PP
+\fIbasename\fR\-\fItarget\fR\&.rng
+.RS 4
+RELAX NG schema for the target document type\&.
+.RE
+.PP
+\fIbasename\fR\-gdefs\-config\&.rng, \fIbasename\fR\-gdefs\-edit\&.rng, \fIbasename\fR\-gdefs\&.rng
+.RS 4
+Auxiliary RELAX NG schema containing global named pattern definitions\&. The first is generated for "config" and "get\-config\-reply" targets, the second for "edit\-config" and the third for the remaining targets\&.
+.RE
+.PP
+\fIbasename\fR\-\fItarget\fR\&.sch
+.RS 4
+Schematron schema for the target document type\&. Not generated for the "edit\-config" target\&.
+.RE
+.PP
+\fIbasename\fR\-\fItarget\fR\&.dsrl
+.RS 4
+DSRL schema for the target document type\&. Not generated for the "edit\-config" target\&.
+.RE
+.PP
+Optional validation of an XML document stored in the file
+\fIinstance\fR
+proceeds as follows:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+Grammatical and datatype constraints are checked using the RELAX NG schema\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+The DSRL schema is used for adding default values together with ancestor containers to the instance document where necessary\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 3.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  3." 4.2
+.\}
+Semantic constraints are checked using the Schematron schema\&. The skeleton implementation of
+\m[blue]\fBISO Schematron\fR\m[]\&\s-2\u[3]\d\s+2
+by Rick Jelliffe is included in the distribution and used for this purpose\&.
+.RE
+.PP
+Steps
+2
+and
+3
+are not performed for the "edit\-config" target, or if step
+1
+reports any errors\&.
+.PP
+Option
+\fB\-s\fR
+may be used together with
+\fB\-v\fR
+for validating an instance document without generating the schemas\&. This assumes that the schemas are already present in the directory selected by the
+\fB\-d\fR
+option (current directory by default)\&. In this case, the basename of the schemas must be specified using
+\fB\-b\fR\fIbasename\fR
+and the input YANG modules need not be given\&. Also, if the DSRL or Schematron schema is missing, the corresponding step is skipped\&.
+.PP
+The script uses programs from the libxml2 suite \-
+\fBxmllint\fR(1) for RELAX NG validation and
+\fBxsltproc\fR(1) for performing XSLT transformations\&. Alternatively,
+\fBjing\fR(1) can be used for RELAX NG validation (option
+\fB\-j\fR)\&. If necessary, the script could be easily modified for use with other RELAX NG validators and/or XSLT1 processors supporting EXSLT\&.
+.SH "OPTIONS"
+.PP
+\fB\-b\fR \fIbasename\fR
+.RS 4
+Specifies the basename of files in which the output schemas are stored\&. The default is the concatenation of the names of all input YANG modules connected with the underscore character "_"\&. This option is mandatory if
+\fB\-s\fR
+is used\&.
+.RE
+.PP
+\fB\-d\fR \fIdir\fR
+.RS 4
+Specifies the directory for output files\&. By default they are stored in the current directory\&.
+.RE
+.PP
+\fB\-h\fR
+.RS 4
+Displays help screen and exits\&.
+.RE
+.PP
+\fB\-j\fR
+.RS 4
+Uses
+\fBjing\fR(1) for RELAX NG validation instead of the default
+\fBxmllint\fR(1)\&.
+.RE
+.PP
+\fB\-L\fR
+.RS 4
+Interpret the
+\fIfile\fR
+parameter as the name of a file containing a server <hello> message\&. In this case, exactly one
+\fIfile\fR
+parameter must be given\&.
+.RE
+.PP
+\fB\-s\fR
+.RS 4
+Performs just validation, without (re)generating the schemas\&. This option is only allowed together with
+\fB\-v\fR
+and
+\fB\-b\fR\fIbasename\fR
+must also be specified\&.
+.RE
+.PP
+\fB\-t\fR \fItarget\fR
+.RS 4
+Specifies the target XML document type using one of the following strings as explained above:
+\fBdata\fR
+(default),
+\fBconfig\fR,
+\fBget\-reply\fR,
+\fBget\-data\-reply\fR,
+\fBget\-config\-reply\fR,
+\fBedit\-config\fR,
+\fBrpc\fR,
+\fBrpc\-reply\fR
+or
+\fBnotification\fR\&.
+.RE
+.PP
+\fB\-v\fR \fIinstance\fR
+.RS 4
+Validates an instance XML document contained in file
+\fIinstance\fR\&.
+.RE
+.PP
+\fB\-x\fR
+.RS 4
+Try to translate modules written in unsupported YANG versions\&. If the module doesn\*(Aqt use any constructs introduced after YANG version 1, this may work\&. This option may produce unexpected results\&. Use at own risk\&.
+.RE
+.PP
+\fB\-c\fR
+.RS 4
+Use only definitions with status "current" in the YANG module\&.
+.RE
+.SH "FILES"
+.PP
+/usr/local/share/yang/xslt/gen\-relaxng\&.xsl
+.RS 4
+XSLT stylesheet generating RELAX NG schemas\&.
+.RE
+.PP
+/usr/local/share/yang/xslt/gen\-schematron\&.xsl
+.RS 4
+XSLT stylesheet generating Schematron schemas\&.
+.RE
+.PP
+/usr/local/share/yang/xslt/gen\-dsrl\&.xsl
+.RS 4
+XSLT stylesheet generating DSRL schemas\&.
+.RE
+.PP
+/usr/local/share/yang/xslt/gen\-common\&.xsl
+.RS 4
+Common templates for all three XSLT generators\&.
+.RE
+.PP
+/usr/local/share/yang/xslt/dsrl2xslt\&.xsl
+.RS 4
+Translates a subset of DSRL containing only specification of default contents to an XSLT stylesheet\&.
+.RE
+.PP
+/usr/local/share/yang/xslt/svrl2text\&.xsl
+.RS 4
+Translates an SVRL report to plain text\&.
+.RE
+.PP
+/usr/local/share/yang/schema/relaxng\-lib\&.rng
+.RS 4
+RELAX NG library of common NETCONF elements\&.
+.RE
+.PP
+/usr/local/share/yang/schema/edit\-config\-attributes\&.rng
+.RS 4
+RELAX NG definitions of <edit\-config> attributes\&.
+.RE
+.SH "ENVIRONMENT VARIABLES"
+.PP
+\fBPYANG_XSLT_DIR\fR
+.RS 4
+Alternative directory for XSLT stylesheets\&. The default is installation dependent\&.
+.RE
+.PP
+\fBPYANG_RNG_LIBDIR\fR
+.RS 4
+Alternative directory for the RELAX NG library\&. The default is installation dependent\&.
+.RE
+.PP
+\fBXSLT_OPTS\fR
+.RS 4
+Options to pass to the XSLT processor when generating the DSDL schemas\&. This is mainly useful for debugging\&.
+.RE
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ yang2dsdl \-v dhcp\-data\&.xml dhcp\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+This command generates the DSDL schemas for the datastore contents (default
+\fIdata\fR
+target) as defined by the
+dhcp\&.yang
+module and validates an instance document stored in the
+dhcp\-data\&.xml
+file\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+$ yang2dsdl \-t rpc rpc\-rock\&.yang
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+This command generates DSDL schemas for the choice of input parts (requests) of all RPC operations defined in the module
+rpc\-rock\&.yang\&.
+.SH "DIAGNOSTICS"
+.PP
+\fByang2dsdl\fR
+return codes have the following meaning:
+.PP
+0
+.RS 4
+No error (normal termination)
+.RE
+.PP
+1
+.RS 4
+Error in input parameters
+.RE
+.PP
+2
+.RS 4
+Error in DSDL schema generation
+.RE
+.PP
+3
+.RS 4
+Instance validation failed
+.RE
+.SH "BUGS"
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+The logic of command\-line arguments may not be able to distinguish replies to different RPC requests, for example if the replies have the same top\-level element\&.
+.RE
+.SH "SEE ALSO"
+.PP
+\fBpyang\fR(1),
+\fBxsltproc\fR(1),
+\fBxmllint\fR(1),
+\m[blue]\fBRFC\ \&6110\fR\m[]\&\s-2\u[1]\d\s+2,
+\m[blue]\fBDSDL\fR\m[]\&\s-2\u[4]\d\s+2,
+\m[blue]\fBRELAX NG\fR\m[]\&\s-2\u[5]\d\s+2,
+\m[blue]\fBISO Schematron\fR\m[]\&\s-2\u[3]\d\s+2\&.
+.SH "AUTHOR"
+.PP
+\fBLadislav Lhotka\fR <\&lhotka@nic\&.cz\&>
+.br
+CZ\&.NIC
+.RS 4
+.RE
+.SH "NOTES"
+.IP " 1." 4
+RFC\ \&6110
+.RS 4
+\%http://tools.ietf.org/html/rfc6110
+.RE
+.IP " 2." 4
+RFC\ \&7952
+.RS 4
+\%http://tools.ietf.org/html/rfc7952
+.RE
+.IP " 3." 4
+ISO Schematron
+.RS 4
+\%http://www.schematron.com
+.RE
+.IP " 4." 4
+DSDL
+.RS 4
+\%http://www.dsdl.org/
+.RE
+.IP " 5." 4
+RELAX NG
+.RS 4
+\%http://www.relaxng.org/
+.RE
