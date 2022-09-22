@@ -65,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.19.0";
+  oc-ext:openconfig-version "0.20.0";
+
+  revision "2022-08-31" {
+    description
+      "Add new state data for component CLEI code.";
+    reference "0.20.0";
+  }
 
   revision "2022-07-28" {
     description
@@ -430,6 +436,14 @@ module openconfig-platform {
         "System-assigned part number for the component.  This should
         be present in particular if the component is also an FRU
         (field replaceable unit)";
+    }
+
+    leaf clei-code {
+      type string;
+      description
+        "Common Language Equipment Identifier (CLEI) code of the
+        component.  This should be present in particular if the
+        component is also an FRU (field replaceable unit)";
     }
 
     leaf removable {
