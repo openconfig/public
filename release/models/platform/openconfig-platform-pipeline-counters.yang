@@ -65,9 +65,15 @@ module openconfig-platform-pipeline-counters {
     5 blocks, is to have the abililty to receive all drop counters from
     all 5 blocks, for example, with one request.";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.2.2";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2022-09-23" {
+    description
+      "Add uRPF drop counter in the lookup subsystem.";
+    reference "0.2.2";
+  }
 
   revision "2022-01-19" {
     description
@@ -812,6 +818,12 @@ module openconfig-platform-pipeline-counters {
       type oc-yang:counter64;
       description
         "Packets dropped due to firewall or acl terms.";
+    }
+
+    leaf urpf-total-drops {
+      type oc-yang:counter64;
+      description
+        "Total number of packets dropped by NPU due to failing uRPF check.";
     }
 
   }
