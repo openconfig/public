@@ -19,7 +19,14 @@ module openconfig-mpls-types {
   description
     "General types for MPLS / TE data model";
 
-  oc-ext:openconfig-version "3.4.0";
+  oc-ext:openconfig-version "3.4.1";
+
+  revision "2022-07-20" {
+    description
+      "Assign missing enum variant values where values are already
+      allocated";
+    reference "3.4.1";
+  }
 
   revision "2021-12-01" {
     description
@@ -459,6 +466,7 @@ module openconfig-mpls-types {
             labels RFC 6790";
         }
         enum NO_LABEL {
+          value -1;
           description
             "This value is utilised to indicate that the packet that
             is forwarded by the local system does not have an MPLS
