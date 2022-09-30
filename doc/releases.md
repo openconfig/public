@@ -1,4 +1,4 @@
-# OpenConfig Releases
+# OpenConfig Release Versioning
 
 ## Rationale
 
