@@ -34,9 +34,15 @@ module openconfig-acl {
     packets should be handled. Entries have a type that indicates
     the type of match criteria, e.g., MAC layer, IPv4, IPv6, etc.";
 
-  oc-ext:openconfig-version "1.2.2";
+  oc-ext:openconfig-version "2.0.0";
 
-  revision "2022-01-14" {
+  revision "2022-10-05" {
+    description
+      "Change sequence-id unit32 range to begin with 1";
+    reference "2.0.0";
+  }
+
+revision "2022-01-14" {
     description
       "Fix when statements for MIXED mode ACLs";
     reference "1.2.2";
@@ -360,7 +366,9 @@ module openconfig-acl {
       "Access List Entries (ACE) config.";
 
     leaf sequence-id {
-      type uint32;
+      type uint32 {
+        range 1..4294967039;
+      }
       description
         "The sequence id determines the order in which ACL entries
         are applied.  The sequence id must be unique for each entry
