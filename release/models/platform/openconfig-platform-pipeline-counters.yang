@@ -1101,45 +1101,64 @@ module openconfig-platform-pipeline-counters {
 
     container vendor {
       description
-        "Counters within these containers are defined and populated by vendors.
+        "Counters within these containers are defined and augmented by vendors.
         As each ASIC and vendor has different implementation and internal
         parts where packets may be dropped at any point in time. Providing
-        specific hardware counters provides better visibility into traffic drop.";
+        specific hardware counters provides better visibility into traffic drop.
 
-      container adverse {
+        The recommended useage of this container is to create an augment at
+        .../pipeline-counter/drop/vendor that contains additional vendor/platform
+        specific containers.
+
+        e.g.
+        augment /components/component/integrated-circuit/pipeline-counter/drop/vendor {
+          container <vendor name> {
+            container <platform name> {
+              uses pipeline-vendor-drop-containers;
+            }
+          }
+        }";
+    }
+  }
+
+  grouping pipeline-vendor-drop-containers {
+    description
+      "A utility grouping for vendors to insert when augmenting the vendor
+      drop counters container .../pipeline-counter/drop/vendor.";
+
+    container adverse {
+      description
+        "These counters capture where the switch is unexpectedly dropping
+        packets. Occurrence of these drops on a stable (no recent hardware
+        or config changes) and otherwise healthy switch needs further
+        investigation.";
+
+      container state {
         description
-          "These counters capture where the switch is unexpectedly dropping
-          packets. Occurrence of these drops on a stable (no recent hardware
-          or config changes) and otherwise healthy switch needs further
-          investigation.";
-
-        container state {
-          description
-            "State container for vendor specific adverse counters.";
-        }
+          "State container for vendor specific adverse counters.";
       }
+    }
 
-      container congestion {
+    container congestion {
+      description
+        "These counters track expected conditions of packet drops due to
+        internal congestion in some block of the hardware that may not be
+        visible in through other congestion indicators like interface
+        discards or queue drop counters.";
+
+      container state {
         description
-          "These counters track expected conditions of packet drops due to
-          internal congestion in some block of the hardware that may not be
-          visible in through other congestion indicators like interface
-          discards or queue drop counters.";
-
-        container state {
-          description
-            "State container for vendor specific congestion counters.";
-        }
+          "State container for vendor specific congestion counters.";
       }
+    }
 
-      container packet-processing {
+    container packet-processing {
+      description
+        "These counters represent the conditions in which packets are dropped
+        due to legitimate forwarding decisions (ACL drops, No Route etc.)";
+      container state {
         description
-          "These counters represent the conditions in which packets are dropped
-          due to legitimate forwarding decisions (ACL drops, No Route etc.)";
-        container state {
-          description
-            "State container for vendor specific packet processing counters.";
-        }
+          "State container for vendor specific packet processing counters.";
       }
     }
   }
