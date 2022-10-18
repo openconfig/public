@@ -264,16 +264,31 @@ submodule openconfig-pf-forwarding-policies {
         according to the IP destination).";
     }
 
-    leaf decap-network-instance {
-      type leafref {
-        // this must be an absolute reference to allow another NI to be
-        // referenced.
-        path "/network-instances/network-instance/config/name";
-      }
+    container decap-lookup {
       description
-        "When this leaf is set, packets matching the rule should be looked up in the specified NI to determine the decapsulation action.
-        This is normally used when the NI is populated by SDN controllers (e.g. via gRIBI).
-        If the device hardware pipeline or the SDN controller does not support looking up the new header after decapsulation, the leaf ../network-instance can be set to a proper NI for the lookup after decapsulation.";
+        "This is normally used with NIs (network instances) are populated by SDN controllers (e.g. gRIBI), where:
+          - packets matching the rule should be looked up in a NI to determine the decapsulation action.
+          - and, the new header after decapsulation should be looked up in another NI, which is chosen by fields (e.g. source IP, DSCP, etc) that are not used for route resolution.";
+      leaf network-instance {
+        type leafref {
+          // this must be an absolute reference to allow another NI to be
+          // referenced.
+          path "/network-instances/network-instance/config/name";
+        }
+        description
+          "When this leaf is set, packets matching the rule should be looked up in the specified NI to determine the decapsulation action.
+          Resolution of the new header after the decapsulation should be done in the NI specified by .../network-instance.";
+      }
+      leaf fallback-network-instance {
+        type leafref {
+          // this must be an absolute reference to allow another NI to be
+          // referenced.
+          path "/network-instances/network-instance/config/name";
+        }
+        description
+          "When this leaf is set, the specified NI
+          should be used as a fallback instance for lookup, when the NI specified by ../network-instance produces no lookup result.";
+      }
     }
 
     leaf network-instance {
@@ -291,21 +306,8 @@ submodule openconfig-pf-forwarding-policies {
         sub-topologies from a single ingress access interface, or
         different send and receive contexts for a particular
         interface (sometimes referred to as half-duplex VRF).
-        When both ../decap-network-instance and this leaf are set, NI specifiedy by ../decap-network-instance should be used for lookup to determine decapsulation action,
-        and NI specified by this leaf should be used for lookup on the new header after decapsulation.";
-    }
-
-    leaf fallback-network-instance {
-      type leafref {
-        // this must be an absolute reference to allow another NI to be
-        // referenced.
-        path "/network-instances/network-instance/config/name";
-      }
-      description
-        "When this leaf is set, the specified NI
-        should be used as a fallback instance for lookup, when the primary NI produces no lookup result.
-        The primary NI is set by  specified by ../network-instance produce no match in the lookup.
-        This leaf can only be set when ../network-instance is set.";
+        When both ../decap-network-instance and this leaf are set, The NI specifiedy by ../decap-network-instance/network-instance should be used for lookup to determine the decapsulation action,
+        and NI specified by this leaf should be used for resolution on the new header after decapsulation.";
     }
 
     leaf path-selection-group {
