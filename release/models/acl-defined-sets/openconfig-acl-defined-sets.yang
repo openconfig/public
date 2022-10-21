@@ -32,88 +32,88 @@ module openconfig-acl-defined-sets {
     reference "1.0.0";
   }
 
-
-
   // OpenConfig specific extensions for module metadata.
-  oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
-
   grouping prefix-list-config {
-    description
-      "Configuration of prefix lists";
+    description "Configuration parameters of prefix lists.";
+
     leaf name {
       type string;
       description
-         "Name of the prefix list to
-          be used in the matches";
+         "Name of the prefix list to be used in the matches.";
     }
 
     leaf description {
       type string;
-      description
-        "Prefix list description";
+      description "A user defined prefix list description.";
     }
 
     leaf-list prefix {
        type oc-inet:ip-prefix;
        description
-         "List of prefixes to be used in match
-         conditions";
+         "A user defined list of prefixes to be used in match
+         conditions. Each entry is a ip + mask combination.";
     }
   }
 
   grouping port-sets-config {
-    description
-      "Configuration of port Sets";
+    description "Configuration parameters of port Sets.";
+
     leaf name {
         type string;
         description
-           "Name of the port list to
-            be used in the matches";
+           "A user defined name of the port list to
+            be used in the match condition.";
       }
 
       leaf description {
         type string;
-        description
-          "port list description";
+        description 
+          "A user defined description
+          for the port set";
       }
+
       leaf-list port {
         type oc-pkt-match-types:port-num-range;
          description
-           "List of ports to be used in match
-           conditions";
+           "A user defined list of ports to be 
+           used in the match conditions.";
       }
   }
 
   grouping defined-sets-top {
-    description
-      "Configuration of Defined Sets";
+    description "Configuration of Defined Sets.";
+    
     container ipv4-prefix-sets {
       description
         "Container to hold list of IPv4
          prefixes which are matched as part of a policy.";
+      
       list ipv4-prefix-set {
         key "name";
         description
-          "List of ipv4 prefix sets";
+          "List of IPv4 prefix sets.";
+        
         leaf name {
           type leafref {
             path "../config/name";
           }
         description
-          "Reference to prefix name list key";
+          "Reference to prefix name list key.";
         }
+        
         container config {
           description
-          "Configuration data for prefix lists";
+            "Configuration data for prefix lists.";
           uses prefix-list-config;
         }
+        
         container state {
           config false;
           description
-          "State data for prefix lists";
+            "State data for prefix lists.";
           uses prefix-list-config;
         }
       }
@@ -123,26 +123,27 @@ module openconfig-acl-defined-sets {
       description
         "Container to hold list of IPv6
          prefixes which are matched as part of a policy.";
+      
       list ipv6-prefix-set {
         key "name";
-        description
-          "List of ipv6 prefix sets";
+        description "List of ipv6 prefix sets.";
+        
         leaf name {
           type leafref {
             path "../config/name";
           }
-        description
-          "Reference to prefix name list key";
+        description  "Reference to prefix name list key.";
         }
+        
         container config {
           description
-          "Configuration data for prefix lists";
+          "Configuration data for prefix lists.";
           uses prefix-list-config;
         }
+        
         container state {
           config false;
-          description
-          "State data for prefix lists";
+          description "State data for prefix lists.";
           uses prefix-list-config;
         }
       }
@@ -152,10 +153,12 @@ module openconfig-acl-defined-sets {
       description
         "Data definitions for a list of ports which can
          be matched in policies.";
+      
       list port-set {
         key "name";
         description
           "List of port set definitions.";
+        
         leaf name {
           type leafref {
             path "../config/name";
@@ -164,15 +167,15 @@ module openconfig-acl-defined-sets {
             "Name of the portset -- this is used as a label to
              reference the set in match conditions.";
         }
+
         container config {
-          description
-          "Configuration data for port lists";
+          description "Configuration data for port lists.";
           uses port-sets-config;
         }
+
         container state {
           config false;
-          description
-          "State data for port lists";
+          description "State data for port lists.";
           uses port-sets-config;
         }
       }
@@ -189,19 +192,17 @@ module openconfig-acl-defined-sets {
     container defined-sets {
       description
         "Top level enclosing container for ACL model config
-        and operational state data";
+        and operational state data.";
 
       container config {
         description
-          "Global config data for defined sets";
+          "Global config data for defined sets.";
       }
 
       container state {
-
         config false;
-
         description
-          "Global operational state data for defined sets";
+          "Global operational state data for defined sets.";
       }
       uses defined-sets-top;
     }
