@@ -70,7 +70,7 @@ module openconfig-acl-defined-sets {
 
       leaf description {
         type string;
-        description 
+        description
           "A user defined description
           for the port set";
       }
@@ -78,24 +78,24 @@ module openconfig-acl-defined-sets {
       leaf-list port {
         type oc-pkt-match-types:port-num-range;
          description
-           "A user defined list of ports to be 
+           "A user defined list of ports to be
            used in the match conditions.";
       }
   }
 
   grouping defined-sets-top {
     description "Configuration of Defined Sets.";
-    
+
     container ipv4-prefix-sets {
       description
         "Container to hold list of IPv4
          prefixes which are matched as part of a policy.";
-      
+
       list ipv4-prefix-set {
         key "name";
         description
           "List of IPv4 prefix sets.";
-        
+
         leaf name {
           type leafref {
             path "../config/name";
@@ -103,13 +103,13 @@ module openconfig-acl-defined-sets {
         description
           "Reference to prefix name list key.";
         }
-        
+
         container config {
           description
             "Configuration data for prefix lists.";
           uses prefix-list-config;
         }
-        
+
         container state {
           config false;
           description
@@ -123,24 +123,24 @@ module openconfig-acl-defined-sets {
       description
         "Container to hold list of IPv6
          prefixes which are matched as part of a policy.";
-      
+
       list ipv6-prefix-set {
         key "name";
         description "List of ipv6 prefix sets.";
-        
+
         leaf name {
           type leafref {
             path "../config/name";
           }
         description  "Reference to prefix name list key.";
         }
-        
+
         container config {
           description
           "Configuration data for prefix lists.";
           uses prefix-list-config;
         }
-        
+
         container state {
           config false;
           description "State data for prefix lists.";
@@ -153,12 +153,12 @@ module openconfig-acl-defined-sets {
       description
         "Data definitions for a list of ports which can
          be matched in policies.";
-      
+
       list port-set {
         key "name";
         description
           "List of port set definitions.";
-        
+
         leaf name {
           type leafref {
             path "../config/name";
