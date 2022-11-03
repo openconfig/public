@@ -296,6 +296,16 @@ module openconfig-packet-match {
       description
         "Destination IPv4 address prefix.";
     }
+    
+    leaf destination-address-prefix-list {
+      type leafref {
+         path "/oc-sets:defined-sets/oc-sets:ipv4-prefix-sets"
+            + "/oc-sets:ipv4-prefix-set/oc-sets:name";
+       }
+      description
+          "Reference to a IPv4 address Prefix list
+          to match the destination address";
+    }
 
     uses ip-protocol-fields-common-config;
 
@@ -339,6 +349,16 @@ module openconfig-packet-match {
       description
         "Source IPv6 address prefix.";
     }
+    
+    leaf source-address-prefix-list {
+      type leafref {
+         path "/oc-sets:defined-sets/oc-sets:ipv6-prefix-sets"
+            + "/oc-sets:ipv6-prefix-set/oc-sets:name";
+       }
+      description
+          "Reference to a IPv6 address Prefix list
+          to match the source address";
+    }
 
     leaf source-flow-label {
       type oc-inet:ipv6-flow-label;
@@ -350,6 +370,16 @@ module openconfig-packet-match {
       type oc-inet:ipv6-prefix;
       description
         "Destination IPv6 address prefix.";
+    }
+    
+    leaf destination-address-prefix-list {
+      type leafref {
+         path "/oc-sets:defined-sets/oc-sets:ipv6-prefix-sets"
+            + "/oc-sets:ipv6-prefix-set/oc-sets:name";
+       }
+      description
+          "Reference to a IPv6 address Prefix list
+          to match the destination address";
     }
 
     leaf destination-flow-label {
