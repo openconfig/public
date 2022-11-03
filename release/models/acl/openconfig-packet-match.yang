@@ -32,7 +32,8 @@ module openconfig-packet-match {
 
   revision "2022-06-01" {
     description
-      "Add the ability to match a prefix list";
+      "Add the ability to match source/destination ipv4 and 
+      ipv6 prefix list and source/destination port list ";
     reference "1.4.0";
   }
 
@@ -434,11 +435,31 @@ module openconfig-packet-match {
       description
         "Source port or range";
     }
+    
+    leaf source-port-list {
+      type leafref {
+         path "/oc-sets:defined-sets/oc-sets:port-sets"
+            + "/oc-sets:port-set/oc-sets:name";
+       }
+      description
+          "Reference to a port list
+          to match the source port";
+    }
 
     leaf destination-port {
       type oc-pkt-match-types:port-num-range;
       description
         "Destination port or range";
+    }
+    
+    leaf destination-port-list {
+      type leafref {
+         path "/oc-sets:defined-sets/oc-sets:port-sets"
+            + "/oc-sets:port-set/oc-sets:name";
+       }
+      description
+          "Reference to a port list
+          to match the destination port";
     }
 
     leaf-list tcp-flags {
