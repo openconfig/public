@@ -17,6 +17,7 @@ module openconfig-platform-transceiver {
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-alarm-types { prefix oc-alarm-types; }
 
 
   // meta
@@ -409,6 +410,7 @@ module openconfig-platform-transceiver {
           uses physical-channel-config;
           uses physical-channel-state;
         }
+        uses physical-channel-threshold-top;
       }
     }
   }
@@ -685,6 +687,81 @@ module openconfig-platform-transceiver {
     }
 
     uses optical-power-state;
+  }
+
+  grouping physical-channel-threshold-top {
+    description
+      "Grouping for alarm threshold values for various transceiver attributes";
+    container threshold {
+      description
+        "Container for alarm threshold values for various transceiver 
+        attributes";
+      container laser-tx-power {
+        description
+          "Thresholds for laser transceiver power";
+        uses port-transceiver-threshold-common;
+      }
+
+      container laser-rx-power {
+        description
+          "Thresholds for laser transceiver power";
+        uses port-transceiver-threshold-common;
+      }
+
+      container laser-temperature {
+        description
+          "Thresholds for laser transceiver power";
+        uses port-transceiver-threshold-common;
+      }
+    }
+  }
+
+  grouping port-transceiver-threshold-common {
+    description
+      "Grouping for config and state containers for transceiver thresholds";
+    container alarms {
+      description
+        "Container for a list of alarm thresholds";
+      list alarm {
+        description
+        "A list of alarm thresholds for a particular transceiver attribute
+        indexed by the severity of the alarm";
+        key "severity";
+        leaf severity {
+          description
+            "The severity of the alarm";
+          type leafref {
+            path "../config/severity";
+          }
+        }
+
+        container config {
+          description
+            "The container used to set the thresholds";
+          uses port-transceiver-threshold-config;
+        }
+
+        container state {
+          description
+            "The container used to get the threshold values";
+          config false;
+          uses port-transceiver-threshold-config;
+        }
+      }
+    }
+  }
+
+  grouping port-transceiver-threshold-config {
+    description
+      "Grouping for a single alarm threshold/severity combination";
+    leaf severity {
+      description
+        "The severity of the alarm";
+      type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+    }
+    uses oc-platform:platform-component-alarm-threshold;
   }
 
   grouping port-transceiver-top {

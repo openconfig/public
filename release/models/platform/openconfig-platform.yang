@@ -9,7 +9,6 @@ module openconfig-platform {
 
   import openconfig-platform-types { prefix oc-platform-types; }
   import openconfig-extensions { prefix oc-ext; }
-  import openconfig-alarm-types { prefix oc-alarm-types; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-types { prefix oc-types; }
 
@@ -543,6 +542,28 @@ module openconfig-platform {
         report the same value.";
     }
   }
+
+  grouping platform-component-alarm-threshold {
+    description
+      "Alarm threshold for platform components.";
+
+    leaf upper-value {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      description
+        "The value of the upper threshold";
+    }
+
+    leaf lower-value {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      description
+        "The value of the lower threshold";
+    }
+  }
+
 
   grouping platform-component-temp-alarm-state {
     description
