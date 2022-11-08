@@ -48,7 +48,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "1.4.0";
+  oc-ext:openconfig-version "2.0.0";
+
+  revision "2022-11-08" {
+    description
+      "Removal of top-level enabled-address-families leaf-list";
+    reference "2.0.0";
+  }
 
   revision "2022-09-15" {
     description
@@ -892,14 +898,6 @@ module openconfig-network-instance {
   grouping network-instance-type-dependent-config {
     description
       "Type dependent network instance configuration";
-
-    uses oc-ni-l3:l3ni-instance-common-config {
-      when "./type = 'oc-ni-types:L3VRF' or ./type = 'oc-ni-types:L2L3'" {
-        description
-          "Layer 3 VRF configuration parameters included when a
-          network instance is a L3VRF or combined L2L3 instance";
-      }
-    }
 
     uses l2ni-instance-common-config {
       when "./type = 'oc-ni-types:L2VSI' or ./type = 'oc-ni-types:L2P2P'" +
