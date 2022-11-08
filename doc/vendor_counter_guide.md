@@ -6,12 +6,15 @@ This document provides the guidelines for the vendor-specific portions of openco
 
 ## Usage: Vendor-specific pipeline drop counter
 
-Each implementor should augment `/components/component/integrated-circuit/pipeline-counter/drop/vendor` with their own vendor and platform containers. Within the platform container, that container may use the utility grouping `oc-ppc:pipeline-vendor-drop-containers` that provides the adverse/congestion/packet-processing specific containers. For each set of adverse/congestion/packet-processing counters augmented into `oc-ppc:pipeline-vendor-drop-containers`, the sum of the counters should be included in the values of the aggregate leaves:
+Each implementor should augment `/components/component/integrated-circuit/pipeline-counter/drop/vendor` with their own vendor and platform containers. The naming of the platform container may consist of the platform name, ASIC family, or a combination of both platform and ASIC family. Within the platform container, that container may use the utility grouping `oc-ppc:pipeline-vendor-drop-containers` that provides the adverse/congestion/packet-processing specific containers. For each set of adverse/congestion/packet-processing counters augmented into `oc-ppc:pipeline-vendor-drop-containers`, the sum of the counters should be included in the values of the aggregate leaves:
 
-- Counters within  `.../pipeline-counter/drop/vendor/<vendor>/<platform>/adverse/state` aggregate into `.../pipeline-counter/drop/state/adverse-aggregate`
-- Counters within  `.../pipeline-counter/drop/vendor/<vendor>/<platform>/congestion/state`  aggregate into `.../pipeline-counter/drop/state/congestion-aggregate`
-- Counters within  `.../pipeline-counter/drop/vendor/<vendor>/<platform>/packet-processing/state` aggregate into `.../pipeline-counter/drop/state/packet-processing-aggregate`
+- Counters within `.../pipeline-counter/drop/vendor/<vendor>/<platform>/adverse/state` aggregate into `.../pipeline-counter/drop/state/adverse-aggregate`
+- Counters within `.../pipeline-counter/drop/vendor/<vendor>/<platform>/congestion/state`  aggregate into `.../pipeline-counter/drop/state/congestion-aggregate`
+- Counters within `.../pipeline-counter/drop/vendor/<vendor>/<platform>/packet-processing/state` aggregate into `.../pipeline-counter/drop/state/packet-processing-aggregate`
 
+If these aggregate counters are implemented, the sum of the vendor-specific counters must match the aggregate counters.
+
+If an integrated-circuit has a vendor-specific packet drop counter which cannot differentiate between packet-processing, congestion and adverse drops, then that counter should still be exposed as a vendor-specific packet-processing counter with an appropriate description in the vendor's augmentation. Such a counter is undesirable as it means this hardware cannot meet the goal for identifying adverse packet drops in the ASIC, but it is better not to ruin the fidelity of the adverse-aggregate drop counter with noise of intended packet drops.
 ## Example
 
 This following is a sample augmentation file.
@@ -117,4 +120,3 @@ module: openconfig-platform
                               +--ro acme-ppc:packet-processing-reason-counter-b?    oc-yang:counter64
                               +--ro acme-ppc:packet-processing-reason-counter-c?    oc-yang:counter64
 ```
-

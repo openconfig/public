@@ -1118,20 +1118,31 @@ module openconfig-platform-pipeline-counters {
             }
           }
         }";
+
+      reference "doc/vendor_counter_guide.md";
     }
   }
 
   grouping pipeline-vendor-drop-containers {
     description
       "A utility grouping for vendors to insert when augmenting the vendor
-      drop counters container .../pipeline-counter/drop/vendor.";
+      drop counters container .../pipeline-counter/drop/vendor.
+
+      Counters that cannot differentiate between adverse, congestion, and
+      packet-processing should still be exposed as a vendor-specific,
+      packet-processing counter.";
+
+    reference "doc/vendor_counter_guide.md";
 
     container adverse {
       description
         "These counters capture where the switch is unexpectedly dropping
         packets. Occurrence of these drops on a stable (no recent hardware
         or config changes) and otherwise healthy switch needs further
-        investigation.";
+        investigation.
+
+        The sum of all counters under this container should match the value in
+        .../pipeline-counters/drop/state/adverse-aggregate";
 
       container state {
         description
@@ -1144,7 +1155,10 @@ module openconfig-platform-pipeline-counters {
         "These counters track expected conditions of packet drops due to
         internal congestion in some block of the hardware that may not be
         visible in through other congestion indicators like interface
-        discards or queue drop counters.";
+        discards or queue drop counters.
+
+        The sum of all counters under this container should match the value in
+        .../pipeline-counters/drop/state/congestion-aggregate";
 
       container state {
         description
@@ -1155,7 +1169,11 @@ module openconfig-platform-pipeline-counters {
     container packet-processing {
       description
         "These counters represent the conditions in which packets are dropped
-        due to legitimate forwarding decisions (ACL drops, No Route etc.)";
+        due to legitimate forwarding decisions (ACL drops, No Route etc.)
+
+        The sum of all counters under this container should match the value in
+        .../pipeline-counters/drop/state/packet-processing-aggregate";
+
       container state {
         description
           "State container for vendor specific packet processing counters.";
