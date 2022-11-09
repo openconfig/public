@@ -54,7 +54,13 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+    revision "2022-09-20" {
+    description
+      "Add CSNP enable to IS-IS global configuration.";
+    reference "1.1.0";
+  }
 
   revision "2022-05-10" {
     description
@@ -253,6 +259,13 @@ module openconfig-isis {
       description
         "When set to true, IS will always flood the LSP that triggered an SPF
      before the router actually runs the SPF computation.";
+    }
+
+    leaf csnp-enable-on-p2p-links {
+      type boolean;
+      default true;
+      description
+        "When set to true, ISIS will always enable CSNP on P2P Links.";
     }
 
     leaf hello-padding {
