@@ -14,7 +14,8 @@ Each implementor should augment `/components/component/integrated-circuit/pipeli
 
 If these aggregate counters are implemented, the sum of the vendor-specific counters must match the aggregate counters.
 
-If an integrated-circuit has a vendor-specific packet drop counter which cannot differentiate between packet-processing, congestion and adverse drops, then that counter should still be exposed as a vendor-specific packet-processing counter with an appropriate description in the vendor's augmentation.   The packet-processing-aggregate counter should be incremented in this scenario as expected above.  Such a counter is undesirable as it means this hardware cannot meet the goal for identifying adverse packet drops in the ASIC, but it is better not to ruin the fidelity of the adverse-aggregate drop counter with noise of intended packet drops.
+If an integrated-circuit has a vendor-specific packet drop counter which cannot differentiate between packet-processing, congestion and adverse drops, then that counter should still be exposed as a vendor-specific packet-processing counter with an appropriate description in the vendor's augmentation.   The `packet-processing-aggregate` counter should be incremented in this scenario as expected above.  Such a counter is undesirable as it means this hardware cannot meet the goal for identifying adverse packet drops in the ASIC, but it is better not to ruin the fidelity of the `adverse-aggregate` drop counter with noise of intended packet drops.
+
 ## Example
 
 This following is a sample augmentation file.
