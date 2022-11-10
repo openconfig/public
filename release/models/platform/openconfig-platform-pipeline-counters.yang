@@ -65,9 +65,15 @@ module openconfig-platform-pipeline-counters {
     5 blocks, is to have the abililty to receive all drop counters from
     all 5 blocks, for example, with one request.";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.3.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2022-11-09" {
+    description
+      "Add container for vendor specific drop counters.";
+    reference "0.3.0";
+  }
 
   revision "2022-01-19" {
     description
@@ -94,10 +100,10 @@ module openconfig-platform-pipeline-counters {
       counters.";
 
     container pipeline-counters {
+      config false;
       description
         "Top-level container for the packet, drop, and error counters for the
         five NPU sub-blocks.";
-      config false;
       container packet {
         description
           "IC packet counters for all five NPU sub-blocks.";
@@ -178,6 +184,14 @@ module openconfig-platform-pipeline-counters {
       container drop {
         description
           "IC drop counters for all five NPU sub-blocks.";
+        container state {
+          description
+            "State container for IC drop counters";
+
+          uses pipeline-drop-packet-state;
+        }
+
+
         container interface-block {
           description
             "The IC interface subsystem connects the IC to the external PHY or
@@ -248,6 +262,8 @@ module openconfig-platform-pipeline-counters {
             uses pipeline-drop-packet-host-interface-block-state;
           }
         }
+
+        uses pipeline-vendor-drop-packets;
       }
 
       container errors {
@@ -963,11 +979,11 @@ module openconfig-platform-pipeline-counters {
 
     leaf active {
       type boolean;
+      default false;
       description
         "The error is currently in an active state. When the system detects
         that the specified threshold is exceeded, this value should be set to
         true.";
-      default false;
       oc-ext:telemetry-on-change;
     }
 
@@ -1046,6 +1062,123 @@ module openconfig-platform-pipeline-counters {
 
     uses pipeline-errors-common;
 
+  }
+
+  grouping pipeline-drop-packet-state {
+    description
+      "Grouping of pipeline drop packet state.";
+
+    leaf adverse-aggregate {
+      type oc-yang:counter64;
+      description
+        "This captures the aggregation of all counters where the switch is
+        unexpectedly dropping packets. Occurrence of these drops on a stable
+        (no recent hardware or config changes) and otherwise healthy
+        switch needs further investigation.";
+    }
+
+    leaf congestion-aggregate {
+      type oc-yang:counter64;
+      description
+        "This tracks the aggregation of all counters where the expected
+        conditions of packet drops due to internal congestion in some block of
+        the hardware that may not be visible in through other congestion
+        indicators like interface discards or queue drop counters.";
+    }
+
+    leaf packet-processing-aggregate {
+      type oc-yang:counter64;
+      description
+        "This aggregation of counters represents the conditions in which
+        packets are dropped due to legitimate forwarding decisions (ACL drops,
+        No Route etc.)";
+    }
+  }
+
+  grouping pipeline-vendor-drop-packets {
+    description
+      "Grouping for vendor specific drop packets";
+
+    container vendor {
+      description
+        "Counters within these containers are defined and augmented by vendors.
+        As each ASIC and vendor has different implementation and internal
+        parts where packets may be dropped at any point in time. Providing
+        specific hardware counters provides better visibility into traffic drop.
+
+        The recommended useage of this container is to create an augment at
+        .../pipeline-counter/drop/vendor that contains additional vendor/platform
+        specific containers.
+
+        e.g.
+        augment /components/component/integrated-circuit/pipeline-counter/drop/vendor {
+          container <vendor name> {
+            container <platform name> {
+              uses pipeline-vendor-drop-containers;
+            }
+          }
+        }";
+
+      reference "doc/vendor_counter_guide.md";
+    }
+  }
+
+  grouping pipeline-vendor-drop-containers {
+    description
+      "A utility grouping for vendors to insert when augmenting the vendor
+      drop counters container .../pipeline-counter/drop/vendor.
+
+      Counters that cannot differentiate between adverse, congestion, and
+      packet-processing should still be exposed as a vendor-specific,
+      packet-processing counter.";
+
+    reference "doc/vendor_counter_guide.md";
+
+    container adverse {
+      description
+        "These counters capture where the switch is unexpectedly dropping
+        packets. Occurrence of these drops on a stable (no recent hardware
+        or config changes) and otherwise healthy switch needs further
+        investigation.
+
+        The sum of all counters under this container should match the value in
+        .../pipeline-counters/drop/state/adverse-aggregate";
+
+      container state {
+        description
+          "State container for vendor specific adverse counters.";
+      }
+    }
+
+    container congestion {
+      description
+        "These counters track expected conditions of packet drops due to
+        internal congestion in some block of the hardware that may not be
+        visible in through other congestion indicators like interface
+        discards or queue drop counters.
+
+        The sum of all counters under this container should match the value in
+        .../pipeline-counters/drop/state/congestion-aggregate";
+
+      container state {
+        description
+          "State container for vendor specific congestion counters.";
+      }
+    }
+
+    container packet-processing {
+      description
+        "These counters represent the conditions in which packets are dropped
+        due to legitimate forwarding decisions (ACL drops, No Route etc.)
+
+        The sum of all counters under this container should match the value in
+        .../pipeline-counters/drop/state/packet-processing-aggregate";
+
+      container state {
+        description
+          "State container for vendor specific packet processing counters.";
+      }
+    }
   }
 
   augment "/oc-platform:components/oc-platform:component/oc-platform:integrated-circuit" {
