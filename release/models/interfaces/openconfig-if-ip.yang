@@ -45,7 +45,7 @@ module openconfig-if-ip {
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
   oc-ext:openconfig-version "3.1.0";
-  
+
   revision "2022-11-09" {
     description
       "Add additional IPv6 router-advertisement features.";
@@ -939,7 +939,7 @@ module openconfig-if-ip {
     description
       "Configuration parameters for an individual prefix within an IPv6
       router advertisement.";
-    
+
     leaf cidr {
       type oc-inet:ipv4-prefix;
       description
@@ -966,7 +966,7 @@ module openconfig-if-ip {
         of preferred behaviours.";
       reference "RFC4861: Neighbor Discovery for IPv6, section 4.6.2";
     }
- 
+
     leaf disable-advertisement {
       type boolean;
       description
@@ -980,7 +980,7 @@ module openconfig-if-ip {
       description
         "When set to true, the prefix is marked as not to be used for stateless
         address configuration. This is achieved by setting the autonomous address
-        configuration bit for the prefix."; 
+        configuration bit for the prefix.";
       reference "RFC4861: Neighbor Discovery for IPv6, section 4.6.1";
     }
 
@@ -1228,9 +1228,13 @@ module openconfig-if-ip {
         }
 
         container prefixes {
+          description
+            "Container for a list of prefixes that are included in the
+            router advertisement message.";
+
           list prefix {
             key "cidr";
-          
+
             description
               "List of prefixes that are to be included in the IPv6
               router-advertisement messages for the interface. The list
@@ -1243,12 +1247,12 @@ module openconfig-if-ip {
               description
                 "Reference to the CIDR prefix key for the prefix list.";
             }
-          
+
             container config {
               description
                 "Configuration parameters corresponding to an IPv6 prefix
                 within the router advertisement.";
-              
+
               uses ipv6-ra-prefix-config;
             }
 
@@ -1257,7 +1261,7 @@ module openconfig-if-ip {
               description
                 "Operational state parameters corresponding to an IPv6 prefix
                 within the router advertisement.";
-              
+
               uses ipv6-ra-prefix-config;
             }
           }
