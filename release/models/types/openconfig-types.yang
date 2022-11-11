@@ -345,6 +345,30 @@ module openconfig-types {
     uses min-max-time;
   }
 
+  grouping alarm-threshold-precision2-dBm {
+      "Common grouping for reporting dBm thresholds with 2 decimal
+      precision. Values include an upper and a lower limit which 
+      establish the acceptable bounds of the power measurement.";
+
+    leaf upper-value {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The value of the upper threshold";
+    }
+
+    leaf lower-value {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The value of the lower threshold";
+    }
+  }
+
   grouping avg-min-max-instant-stats-precision2-mA {
     description
       "Common grouping for recording mA values with 2 decimal

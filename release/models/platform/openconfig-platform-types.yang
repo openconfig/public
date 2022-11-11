@@ -160,6 +160,31 @@ module openconfig-platform-types {
     uses oc-types:min-max-time;
   }
 
+  grouping alarm-threshold-precision1-celsius {
+      "Common grouping for reporting temperature threshold values in
+      Celsius with 1 decimal precision. Values include an upper
+      and a lower limit which establish the acceptable bounds of 
+      the temperature.";
+
+    leaf upper-value {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The value of the upper threshold";
+    }
+
+    leaf lower-value {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The value of the lower threshold";
+    }
+  }
+
   grouping avg-min-max-instant-stats-precision2-volts {
     description
       "Common grouping for recording voltage values in
