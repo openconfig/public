@@ -8,6 +8,7 @@ module openconfig-programming-errors {
   import openconfig-network-instance { prefix "oc-ni"; }
   import openconfig-platform { prefix "oc-platform"; }
   import openconfig-types { prefix "oc-types"; }
+  import openconfig-yang-types { prefix "oc-yang"; }
 
   organization
     "OpenConfig working group";
@@ -17,9 +18,10 @@ module openconfig-programming-errors {
     www.openconfig.net";
 
   description
-    "This module provides detailed information about the programming
+    "This module provides detailed information about the hardware programming
     state of various types of routes within a particular network instance.
-    It can be used to track where there are routing programming errors on a device.";
+    It can be used to track where there are routing hardware programming errors
+    on a device.";
 
   oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
@@ -35,44 +37,47 @@ module openconfig-programming-errors {
 
   grouping ip-routes-common-config {
     description
-      "IP routes programming error common configuration parameters";
+      "IP routes hardware programming error common configuration parameters";
 
     leaf enabled {
       type boolean;
       description
-        "This leaf indicates whether IP routes programming error tracking
+        "This leaf indicates whether IP routes hardware programming error tracking
         is enabled or not";
     }
   }
 
   grouping programming-errors-top {
     description
-      "Top-level grouping for programming errors in OpenConfig.";
+      "Top-level grouping for AFT hardware programming errors in OpenConfig.";
 
     container programming-errors {
       description
-        "Detailed information about the programming state of various types of routes
-        within a particular network instance. It can be used to track where there are
-        routing programming errors on a device.";
+        "Detailed information about the AFT hardware programming state of various types of
+        routes within a particular network instance. It can be used to track where there
+        are AFT hardware programming errors on a device.";
 
       container ip-routes {
         description
-          "The programming status of IP routes within the network-instance. IP Route
-          programming reports are divided into a set of sub-categories:
-           - failed programming -- A prefix which is not present in the AFT is
-             attempted to be added into the AFT but failed.  Traffic destined for
+          "The IP AFT/routes hardware programming status within the network-instance.
+          IP Route programming reports are divided into a set of sub-categories:
+           - failed programming -- A prefix which is not present in the AFT state is
+             attempted to be added into the hardware but failed.  Traffic destined for
              this prefix will not be matched.
            - stale programming -- A prefix is already in the AFT is requested to
              be updated but failed.  Traffic destined for this prefix will be
              forwarded to the old next-hop.  AFT telemetry should continue to
              reflect the old next-hop for the prefix.
            - drop programming - these routes are explicitly programmed into hardware
-             to point to a destination that discards packets, captures both intentional
-             and un-intentional drop routes.";
+             to point to a destination that discards packets.
+
+          Lifecycle of entries/prefixes in the above 3 containers is tied to AFT
+          telemetry data. When the route gets removed from AFT telemetry data
+          corresponding entry/prefix will be deleted from above containers as well";
 
         container config {
           description
-            "IP route programming errors Configuration parameters";
+            "IP route hardware programming errors Configuration parameters";
 
           uses ip-routes-common-config;
         }
@@ -80,7 +85,13 @@ module openconfig-programming-errors {
         container state {
           config false;
           description
-            "IP route programming errors State parameters";
+            "IP route hardware programming errors State parameters";
+
+          leaf total-errors {
+            type oc-yang:counter64;
+            description
+              "Total number of IP route hardware programming errors encountered";
+          }
 
           uses ip-routes-common-config;
         }
@@ -88,7 +99,8 @@ module openconfig-programming-errors {
         container failed-routes {
           config false;
           description
-            "Surrounding container for the list of routes that fail programming.";
+            "Surrounding container for the list of routes that failed hardware
+            programming.";
 
           list failed {
             key "prefix";
@@ -156,8 +168,7 @@ module openconfig-programming-errors {
             description
               "A prefix that is currently installed in hardware but with an explicit
               instruction that it should discard packets that are destined towards
-              it. This list includes both intentional and un-intentional
-              drop routes.";
+              it.";
 
             leaf prefix {
               type leafref {
@@ -178,7 +189,7 @@ module openconfig-programming-errors {
     }
   }
 
- grouping route-state-common {
+  grouping route-state-common {
     description
       "Common parameters that correspond to a particular route type.";
 
@@ -191,49 +202,24 @@ module openconfig-programming-errors {
     leaf time {
       type oc-types:timeticks64;
       description
-        "Represents the time the route programming state change was detected by the
-        monitoring subsystem expressed as nanoseconds since the Unix epoch.";
+        "Represents the time the hardware route programming state change was
+        detected by the monitoring subsystem expressed as nanoseconds since
+        the Unix epoch.";
     }
 
-    leaf dest-component {
+    leaf-list dest-component {
       type leafref {
         path "/oc-platform:components/oc-platform:component/oc-platform:name";
       }
       description
-        "The destination component for the route programming";
-     }
-
-    leaf reason {
-      type enumeration {
-        enum INVALID {
-          description
-            "The reason for failure was that route, or its dependencies, was
-            deemed to be invalid, i.e., route state is not up-to-date. Couple
-            of scenarios where the reason would be INVALID:
-            1. route R1 -> FEC F1 is in HW. Now, R1 -> F2 is in FIB and R1
-               programming update, to the current state, in HW is failed.
-            2. route R1 -> { F1 → F2 } is in HW. Now, either F1 or F2’s content
-               changed and programming update of F1 or F2 in HW is failed.";
-        }
-        enum HW_PROGRAMMING_FAILED {
-          description
-            "The reason for the failure was that the hardware programming
-            failed. This reason would be used when there is no state in HW
-            corresponding to a route R1 & an attempt to program R1 is failed.";
-        }
-        enum UNKNOWN {
-          description
-            "The programming failure occurred for an unknown reason.";
-        }
-      }
-      description
-        "The reason for failure";
+        "The destination component for the route hardware programming";
     }
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance" {
     description
-      "Augment the network-instance model with the programming errors container.";
+      "Augment the network-instance model with the hardware programming
+      errors container.";
 
     uses programming-errors-top;
   }
