@@ -23,28 +23,29 @@ releases are compatible with the notion of
     `openconfig/public` repo) is created roughly every quarter. The tag is named
     vx.y.z (e.g. v1.2.0) following
     [semantic versioning rules](https://semver.org/). A major, minor, or patch
-    version increment is possible at each release.
+    version increment is possible at each release, although non-backward
+    compatible releases SHOULD be released at a less-frequent cadence.
 
     At the current time, releases are only expected to occur at the HEAD branch
     of the repository, meaning patch releases for non-latest model versions are
     not expected to be made.
 
-2.  Any backwards-incompatible change for a pre-1.0.0 model does NOT on its own
+2.  Any non-backward compatible change for a pre-1.0.0 model does NOT on its own
     necessitate a major revision change for the overall models repository.
 
 3.  [Patch releases](https://semver.org/#spec-item-6) may be created at any time
-    for backwards-compatible bug fixes.
+    for backward compatible bug fixes.
 
 4.  [Pre-releases](https://semver.org/#spec-item-9) may be created at anytime to
     quickly introduce new changes to the models. These are not intended to be
     long-term, stable releases -- they should be replaced with the next regular
     release that encompasses these changes as soon as it becomes available.
 
-5.  Backwards-incompatible model changes affecting a feature that has reasonable
-    functional test coverage via
+5.  Non-backward compatible model changes affecting a feature that has
+    reasonable functional test coverage via
     [OpenConfig featureprofiles](https://github.com/openconfig/featureprofiles/))
     or implemented on a device SHOULD be made infrequently. The OpenConfig
-    working group will create backwards-incompatible releases periodically by
+    working group will create non-backward compatible releases periodically by
     considering both velocity and maintenance cost implications.
 
     e.g. It is November 2022, and the current latest release of OpenConfig
@@ -56,10 +57,10 @@ releases are compatible with the notion of
     the end of the quarter in December. In January 2022, a new release is
     created, versioned v3.0.0 containing this update.
 
-6.  Wherever possible, it is RECOMMENDED to make backwards compatible API
-    changes (e.g. deprecating leaves via the
+6.  Wherever possible, it is RECOMMENDED to make backward compatible API changes
+    (e.g. deprecating leaves via the
     [status statement](https://www.rfc-editor.org/rfc/rfc7950#section-7.21.2))
-    for at least one minor release prior to a backwards-incompatible API change
+    for at least one minor release prior to a non-backward compatible API change
     in order to ease the transition to the new API. These leaves are then
     expected to be removed or modified in the next major version release. NOTE:
     This guideline may change once OpenConfig operators gain more experience
@@ -74,5 +75,5 @@ to support different releases of OC.
 
 ### Corner-Case Guidelines
 
-For backwards-incompatible changes involving changing the type of a leaf, the
+For non backward compatible changes involving changing the type of a leaf, the
 new leaf SHOULD have a different name than the previous leaf.
