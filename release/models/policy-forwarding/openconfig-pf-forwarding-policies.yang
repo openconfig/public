@@ -279,29 +279,17 @@ submodule openconfig-pf-forwarding-policies {
           - and, the new header after decapsulation should be looked
             up in another NI, which is chosen by fields (e.g. source
             IP, DSCP, etc) that are not used for route resolution.";
-      leaf network-instance {
-        type leafref {
-          // this must be an absolute reference to allow another NI
-          // to be referenced.
-          path "/network-instances/network-instance/config/name";
-        }
+      container config {
         description
-          "When this leaf is set, packets matching the rule should
-          be looked up in the specified NI to determine the
-          decapsulation action. Resolution of the new header after
-          the decapsulation should be done in the NI specified by
-          .../network-instance.";
+          "Configuration option relating to decapsulation lookup";
+        uses pf-forwarding-policy-action-decap-lookup-config;
       }
-      leaf fallback-network-instance {
-        type leafref {
-          // this must be an absolute reference to allow another NI
-          // to be referenced.
-          path "/network-instances/network-instance/config/name";
-        }
+      container state {
+        config false;
         description
-          "When this leaf is set, the specified NI should be used
-          as a fallback instance for lookup, when the NI specified
-          by ../network-instance produces no lookup result.";
+          "Operational state parameters relating to decapsulation
+          lookup";
+        uses pf-forwarding-policy-action-decap-lookup-config;
       }
     }
 
@@ -371,6 +359,35 @@ submodule openconfig-pf-forwarding-policies {
         the Generic UDP Encapsulation (GUE) header from the packet matching
         the rule. Following the decapsulation it should subsequently forward the
         encapsulated packet according to the underlying IPv4 or IPv6 header.";
+    }
+  }
+
+  grouping pf-forwarding-policy-action-decap-lookup-config {
+    description
+      "Configuration option relating to decapsulation lookup";
+    leaf network-instance {
+      type leafref {
+        // this must be an absolute reference to allow another NI
+        // to be referenced.
+        path "/network-instances/network-instance/config/name";
+      }
+      description
+        "When this leaf is set, packets matching the rule should
+        be looked up in the specified NI to determine the
+        decapsulation action. Resolution of the new header after
+        the decapsulation should be done in the NI specified by
+        .../network-instance.";
+    }
+    leaf fallback-network-instance {
+      type leafref {
+        // this must be an absolute reference to allow another NI
+        // to be referenced.
+        path "/network-instances/network-instance/config/name";
+      }
+      description
+        "When this leaf is set, the specified NI should be used
+        as a fallback instance for lookup, when the NI specified
+        by ../network-instance produces no lookup result.";
     }
   }
 
