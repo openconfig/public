@@ -20,7 +20,13 @@ submodule openconfig-platform-common {
     "This modules contains common groupings that are used in multiple
     components within the platform module.";
 
-  oc-ext:openconfig-version "0.21.1";
+  oc-ext:openconfig-version "0.22.0";
+
+  revision "2022-12-20" {
+    description
+      "Add threshold and threshold-exceeded for resource usage.";
+    reference "0.22.0";
+  }
 
   revision "2022-12-19" {
     description
@@ -128,6 +134,22 @@ submodule openconfig-platform-common {
       description
         "Resource name within the component.";
     }
+
+    leaf threshold-upper {
+      type oc-types:percentage;
+      description
+        "The percentage value that will send an alert or system alarm when
+        the used percentage (used / (used + free) * 100) is higher than
+        this value";
+    }
+
+    leaf threshold-lower {
+      type oc-types:percentage;
+      description
+        "The percentage value that will send an alert or system alarm when
+        the used percentage (used / (used + free) * 100) is lower than
+        this value";
+    }
   }
 
   grouping platform-utilization-resource-state {
@@ -171,8 +193,17 @@ submodule openconfig-platform-common {
       type oc-types:timeticks64;
       description
         "The timestamp when the high-watermark was last updated. The value
-		  is the timestamp in nanoseconds relative to the Unix Epoch
-		  (Jan 1, 1970 00:00:00 UTC).";
+        is the timestamp in nanoseconds relative to the Unix Epoch
+        (Jan 1, 1970 00:00:00 UTC).";
+    }
+
+    leaf threshold-exceeded {
+      type boolean;
+      description
+        "This value is set to true when the system usage has crossed the
+        configured threshold-upper for this resource and false when the
+        system usage has crossed the configured threshold-lower for this
+        resource.";
     }
   }
 
