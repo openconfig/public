@@ -270,39 +270,44 @@ submodule openconfig-pf-forwarding-policies {
         according to the IP destination).";
     }
 
-    container decap-lookup {
+    leaf decap-network-instance {
+      type leafref {
+        // this must be an absolute reference to allow another NI
+        // to be referenced.
+        path "/network-instances/network-instance/config/name";
+      }
       description
         "This is normally used with NIs (network instances) that are
-        populated by SDN controllers (e.g. gRIBI), where:
-          - packets matching the rule should be looked up in a NI to
-            determine the decapsulation action.
-          - and, the new header after decapsulation should be looked
-            up in another NI, which is chosen by fields (e.g. source
-            IP, DSCP, etc) that are not used for route resolution.";
-      leaf network-instance {
-        type leafref {
-          // this must be an absolute reference to allow another NI
-          // to be referenced.
-          path "/network-instances/network-instance/config/name";
-        }
-        description
-          "When this leaf is set, packets matching the rule should
-          be looked up in the specified NI to determine the
-          decapsulation action. Resolution of the new header after
-          the decapsulation should be done in the NI specified by
-          .../network-instance.";
+        populated by SDN controllers (e.g. via gRIBI), where we want:
+          - The decapsulation decision to be controlled by the
+            controllers.
+          - The new header after decapsulation to be looked up in
+            another NI, and the NI is chosen by fields (e.g. source IP,
+            DSCP, etc) that are not used for route resolution.
+        When this leaf is set, packets matching the match criteria for
+        the forwarding rule should be looked up in the specified NI.
+        It is expected that the NI should only contain routes that have
+        next hop action as decapsualtion.
+          - If there is a match, the packet should be decapsulated and
+            route lookup on the new header should happen in the
+            ../network-instance. When this leaf is set,
+            ../network-instance should also be set.
+          - If there is no match:
+            - If the ../decap-fallback-network-instance is set, the
+              packet should be looked up there.
+            - Otherwise, the packet should be dropped.";
+    }
+
+    leaf decap-fallback-network-instance {
+      type leafref {
+        // this must be an absolute reference to allow another NI
+        // to be referenced.
+        path "/network-instances/network-instance/config/name";
       }
-      leaf fallback-network-instance {
-        type leafref {
-          // this must be an absolute reference to allow another NI
-          // to be referenced.
-          path "/network-instances/network-instance/config/name";
-        }
-        description
-          "When this leaf is set, the specified NI should be used
-          as a fallback instance for lookup, when the NI specified
-          by ../network-instance produces no lookup result.";
-      }
+      description
+        "When this leaf is set, the specified NI should be used
+        as a fallback instance for route lookup when ../decap-network-instance produces no lookup result for the packet.
+        NI specified by this leaf might have different mixed next hop actions (e.g. next hop IP, decapsulation, redirect to another NI, etc).";
     }
 
     leaf network-instance {
@@ -320,10 +325,10 @@ submodule openconfig-pf-forwarding-policies {
         sub-topologies from a single ingress access interface, or
         different send and receive contexts for a particular
         interface (sometimes referred to as half-duplex VRF).
-        When both ../decap-lookup/network-instance and this leaf are
-        set, the NI specifiedy by ../decap-lookup/network-instance
+        When both ../decap-network-instance and this leaf are
+        set, the NI specifiedy by ../decap-network-instance
         should be used for lookup to determine the decapsulation
-        action, and the NI specified by this leaf should be used
+        decision, and the NI specified by this leaf should be used
         for resolution on the new header after decapsulation.";
     }
 
