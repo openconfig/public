@@ -24,7 +24,13 @@ submodule openconfig-rib-bgp-attributes {
     attributes for use in BGP RIB tables.";
 
 
-  oc-ext:openconfig-version "0.8.1";
+  oc-ext:openconfig-version "0.9.0";
+
+  revision "2022-11-21" {
+    description
+      "Convert as-segment to a keyed list.";
+    reference "0.9.0";
+  }
 
   revision "2022-06-06" {
     description
@@ -81,6 +87,12 @@ submodule openconfig-rib-bgp-attributes {
     description
       "Data for representing BGP AS-PATH attribute";
 
+    leaf index {
+      type uint64;
+      description
+        "A unique index identifying the AS-PATH segment.";
+    }
+
     leaf type {
       type oc-bgpt:as-path-segment-type;
       description
@@ -117,8 +129,18 @@ submodule openconfig-rib-bgp-attributes {
         RFC 5065 - Autonomous System Confederations for BGP";
 
       list as-segment {
+        key "index";
+
         description
-          "Unkeyed list of AS PATH segments";
+          "List of AS-PATH segments";
+
+        leaf index {
+          type leafref {
+            path "../state/index";
+          }
+          description
+            "A unique index identifying the AS-PATH segment.";
+        }
 
         container state {
           config false;
