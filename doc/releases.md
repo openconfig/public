@@ -46,8 +46,8 @@ releases are compatible with the notion of
     the end of the quarter in December. In January 2022, a new release is
     created, versioned `v3.0.0` containing this update.
 
-3.  Any non-backward compatible change for a pre-`v1.0.0` model does NOT by
-    itself necessitate a major revision change for the overall models
+3.  Any non-backward compatible change for a pre-`v1.0.0` YANG module does NOT
+    by itself necessitate a major revision change for the overall models
     repository.
 
 4.  [Patch releases](https://semver.org/#spec-item-6) may be created at any time
