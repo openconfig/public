@@ -34,7 +34,13 @@ module openconfig-acl {
     packets should be handled. Entries have a type that indicates
     the type of match criteria, e.g., MAC layer, IPv4, IPv6, etc.";
 
-  oc-ext:openconfig-version "1.2.2";
+  oc-ext:openconfig-version "1.2.3";
+
+  revision "2022-11-10" {
+    description
+      "Add identity 'ACL_IPV4/ACL_IPV6/ACL_L2/ACL_MIXED/ACL_MPLS' with prefix";
+    reference "1.2.3";
+  }
 
   revision "2022-01-14" {
     description
@@ -422,8 +428,8 @@ module openconfig-acl {
         }
 
         uses oc-match:ethernet-header-top {
-          when "../../config/type='ACL_L2' or " +
-            "../../config/type='ACL_MIXED'" {
+          when "../../config/type='oc-acl:ACL_L2' or " +
+            "../../config/type='oc-acl:ACL_MIXED'" {
             description
               "MAC-layer fields are valid when the ACL type is L2 or
               MIXED";
@@ -431,8 +437,8 @@ module openconfig-acl {
         }
 
         uses oc-match:ipv4-protocol-fields-top {
-          when "../../config/type='ACL_IPV4' or " +
-            "../../config/type='ACL_MIXED'" {
+          when "../../config/type='oc-acl:ACL_IPV4' or " +
+            "../../config/type='oc-acl:ACL_MIXED'" {
             description
               "IPv4-layer fields are valid when the ACL type is
               IPv4 or MIXED";
@@ -440,8 +446,8 @@ module openconfig-acl {
         }
 
         uses oc-match:mpls-header-top {
-          when "../../config/type='ACL_MPLS' or " +
-            "../../config/type='ACL_MIXED'" {
+          when "../../config/type='oc-acl:ACL_MPLS' or " +
+            "../../config/type='oc-acl:ACL_MIXED'" {
             description
               "MPLS-layer fields are valid when the ACL type is
               MPLS or MIXED";
@@ -449,8 +455,8 @@ module openconfig-acl {
         }
 
         uses oc-match:ipv6-protocol-fields-top {
-          when "../../config/type='ACL_IPV6' or " +
-            "../../config/type='ACL_MIXED'" {
+          when "../../config/type='oc-acl:ACL_IPV6' or " +
+            "../../config/type='oc-acl:ACL_MIXED'" {
             description
               "IPv6-layer fields are valid when the ACL type is
               IPv6 or MIXED";
@@ -458,9 +464,9 @@ module openconfig-acl {
         }
 
         uses oc-match:transport-fields-top {
-          when "../../config/type='ACL_IPV6' or " +
-            "../../config/type='ACL_IPV4' or " +
-            "../../config/type='ACL_MIXED'" {
+          when "../../config/type='oc-acl:ACL_IPV6' or " +
+            "../../config/type='oc-acl:ACL_IPV4' or " +
+            "../../config/type='oc-acl:ACL_MIXED'" {
             description
               "Transport-layer fields are valid when specifying
               L3 or MIXED ACL types";
