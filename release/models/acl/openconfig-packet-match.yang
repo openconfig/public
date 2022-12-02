@@ -394,12 +394,32 @@ module openconfig-packet-match {
         "Destination port or range";
     }
 
-    leaf-list tcp-flags {
-      type identityref {
-        base oc-pkt-match-types:TCP_FLAGS;
+    container transport-details {
+      choice explicit-or-builtin {
+        case explicit-flags {
+          leaf-list tcp-flags {
+            type identityref {
+              base oc-pkt-match-types:TCP_FLAGS;
+            }
+            description
+              "List of TCP flags to match";
+          }
+          leaf match {
+            type enumeration {
+              enum ANY;
+              enum ALL;
+          }
+        }
+        case builtin {
+          leaf keyword {
+            type enumeration {
+              enum TCP-ESTABLISHED;
+              enum TCP-INITIAL;
+              enum FRAGMENT;
+            }
+          }
+        }
       }
-      description
-        "List of TCP flags to match";
     }
   }
 
