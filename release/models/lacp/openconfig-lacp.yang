@@ -26,7 +26,13 @@ module openconfig-lacp {
     managing aggregate interfaces.   It works in conjunction with
     the OpenConfig interfaces and aggregate interfaces models.";
 
-  oc-ext:openconfig-version "1.2.0";
+  oc-ext:openconfig-version "1.2.1";
+
+  revision "2022-12-02" {
+    description
+      "Adjust description statement for lacp-timeout-transitions.";
+    reference "1.2.1";
+  }
 
   revision "2021-07-20" {
     description
@@ -294,13 +300,13 @@ grouping aggregation-lacp-members-statistics {
       leaf lacp-timeout-transitions {
         type oc-yang:counter64;
         description
-          "Number of times the LACP state has transitioned
-          with a timeout since the time the device restarted
-          or the interface was brought up, whichever is most
-          recent. The last state change of the LACP timeout
-          is defined as what is reported as the operating state
-          to the system. The state change is both a timeout
-          event and when the timeout event is no longer active.";
+          "Number of times the LACP state has transitioned with a
+          timeout since the time the device restarted or the interface
+          was added in the LACP bundle, whichever is most recent. The
+          last state change of the LACP timeout is defined as what is
+          reported as the operating state to the system. The state
+          change is both a timeout event and when the timeout event is
+          no longer active.";
       }
     }
   }
