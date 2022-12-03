@@ -24,7 +24,19 @@ module openconfig-policy-types {
     policy.  It can be imported by modules that contain protocol-
     specific policy conditions and actions.";
 
-  oc-ext:openconfig-version "3.2.1";
+  oc-ext:openconfig-version "3.2.3";
+
+  revision "2022-11-08" {
+    description
+      "Add INSTALL_PROTOCOL_TYPE local.";
+    reference "3.2.3";
+  }
+
+  revision "2022-02-11" {
+    description
+      "Add PCEP to INSTALL_PROTOCOL_TYPES identity";
+    reference "3.2.2";
+  }
 
   revision "2021-12-10" {
     description
@@ -238,5 +250,37 @@ module openconfig-policy-types {
   identity GRIBI {
     base INSTALL_PROTOCOL_TYPE;
     description "gRPC Routing Information Base Interface";
+  }
+
+  identity PCEP {
+    base INSTALL_PROTOCOL_TYPE;
+    description
+      "Path Computation Element Communication Protocol";
+    reference
+      "RFC 5440";
+  }
+
+  identity LOCAL {
+    base INSTALL_PROTOCOL_TYPE;
+    description
+      "A local route.
+
+      Local routes define a route for the one specific IP
+      address configured on the router interface. They are
+      created in association with directly connected routes.
+      Local routes must end with a /32 in the case of ipv4
+      or /128 for ipv6.
+      For example, when configuring an interface with the ip
+      address
+
+      10.244.136.79/31
+
+      the derived DIRECTLY_CONNECTED route is
+
+      10.244.136.78/31
+
+      and the derived LOCAL route is
+
+      10.244.136.79/32.";
   }
 }

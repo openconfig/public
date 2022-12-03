@@ -65,7 +65,31 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.17.0";
+  oc-ext:openconfig-version "0.21.0";
+
+  revision "2022-09-26" {
+    description
+      "Add state data for base-mac-address.";
+    reference "0.21.0";
+  }
+
+  revision "2022-08-31" {
+    description
+      "Add new state data for component CLEI code.";
+    reference "0.20.0";
+  }
+
+  revision "2022-07-28" {
+    description
+      "Add container for controller card component";
+    reference "0.19.0";
+  }
+
+  revision "2022-07-11" {
+    description
+      "Add switchover ready";
+    reference "0.18.0";
+  }
 
   revision "2022-06-10" {
     description
@@ -420,6 +444,14 @@ module openconfig-platform {
         (field replaceable unit)";
     }
 
+    leaf clei-code {
+      type string;
+      description
+        "Common Language Equipment Identifier (CLEI) code of the
+        component.  This should be present in particular if the
+        component is also an FRU (field replaceable unit)";
+    }
+
     leaf removable {
       type boolean;
       description
@@ -504,6 +536,29 @@ module openconfig-platform {
         value is the timestamp in nanoseconds relative to the Unix Epoch
         (Jan 1, 1970 00:00:00 UTC).";
     }
+
+    leaf switchover-ready {
+      type boolean;
+      description
+        "For components that have redundant roles, this reports a value
+        that indicates if the component is ready to support failover.
+
+        The components with a redundant-role should reflect the overall
+        system's switchover status.  For example, two supervisors in a
+        device, one as primary and the other as secondary, should both
+        report the same value.";
+    }
+
+    leaf base-mac-address {
+      type oc-yang:mac-address;
+      description
+        "This is a MAC address representing the root or primary MAC
+        address for a component.  Components such as CHASSIS and
+        CONTROLLER_CARD are expected to provide a base-mac-address.  The
+        base mac-address for CHASSIS and a PRIMARY CONTROLLER_CARD may
+        contain the same value.";
+    }
+
   }
 
   grouping platform-component-temp-alarm-state {
@@ -1044,6 +1099,25 @@ module openconfig-platform {
         config false;
         description
           "Operational state data for software module components";
+      }
+    }
+
+    container controller-card {
+      description
+        "Data for controller card components, i.e., for components
+        with type=CONTROLLER_CARD";
+
+      container config {
+        description
+          "Configuration data for controller card components. Note that disabling
+          power to the primary supervisor should be rejected, and the operator is
+          required to perform a switchover first.";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for controller card components";
       }
     }
   }
