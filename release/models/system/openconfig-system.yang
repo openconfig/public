@@ -20,6 +20,7 @@ module openconfig-system {
   import openconfig-alarms { prefix oc-alarms; }
   import openconfig-messages { prefix oc-messages; }
   import openconfig-license { prefix oc-license; }
+  import openconfig-network-instance { prefix oc-ni; }
 
   // meta
   organization "OpenConfig working group";
@@ -1249,6 +1250,13 @@ module openconfig-system {
       uses oc-license:license-top;
       uses system-macaddr-top;
     }
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance" {
+    description
+      "Augment the NTP configuration and state into network instance.";
+
+    uses system-ntp-top;
   }
 
   // data definition statements
