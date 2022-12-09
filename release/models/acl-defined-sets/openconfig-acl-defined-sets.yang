@@ -36,35 +36,35 @@ module openconfig-acl-defined-sets {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
-  grouping ipv4-prefix-list-config {
-    description "Configuration parameters of IPv4 prefix lists.";
+  grouping ipv4-prefix-sets-config {
+    description "Configuration parameters of IPv4 prefix sets.";
 
     leaf name {
       type string;
       description
-         "Name of the IPv4 prefix list to be used in the matches.";
+         "Name of the IPv4 prefix set to be used in the matches.";
     }
 
     leaf description {
       type string;
-      description "A user defined IPv4 prefix list description.";
+      description "A user defined IPv4 prefix set description.";
     }
 
     leaf-list prefix {
-       type oc-inet:ipV4-prefix;
+       type oc-inet:ipv4-prefix;
        description
          "A user defined list of IPv4 prefixes to be used in match
          conditions. Each entry is a IPv4 + mask combination.";
     }
   }
 
-  grouping ipv6-prefix-list-config {
-    description "Configuration parameters of IPv6 prefix lists.";
+  grouping ipv6-prefix-sets-config {
+    description "Configuration parameters of IPv6 prefix sets.";
 
     leaf name {
       type string;
       description
-         "Name of the IPv6 prefix list to be used in the matches.";
+         "Name of the IPv6 prefix set to be used in the matches.";
     }
 
     leaf description {
@@ -81,7 +81,7 @@ module openconfig-acl-defined-sets {
   }
 
   grouping port-sets-config {
-    description "Configuration parameters of port Sets.";
+    description "Configuration parameters of port sets.";
 
     leaf name {
         type string;
@@ -129,14 +129,14 @@ module openconfig-acl-defined-sets {
         container config {
           description
             "Configuration data for prefix lists.";
-          uses ipv4-prefix-list-config;
+          uses ipv4-prefix-sets-config;
         }
 
         container state {
           config false;
           description
             "State data for prefix lists.";
-          uses ipv4-prefix-list-config;
+          uses ipv4-prefix-sets-config;
         }
       }
     }
@@ -160,13 +160,13 @@ module openconfig-acl-defined-sets {
         container config {
           description
           "Configuration data for prefix lists.";
-          uses ipv6-prefix-list-config;
+          uses ipv6-prefix-sets-config;
         }
 
         container state {
           config false;
           description "State data for prefix lists.";
-          uses ipv6-prefix-list-config;
+          uses ipv6-prefix-sets-config;
         }
       }
     }
