@@ -43,7 +43,13 @@ module openconfig-mpls-ldp {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.1.0";
+  oc-ext:openconfig-version "3.2.0";
+
+  revision "2022-02-21" {
+    description
+      "Added downstream-on-demand support";
+    reference "3.2.0";
+  }
 
   revision "2020-01-09" {
     description
@@ -166,6 +172,21 @@ module openconfig-mpls-ldp {
     }
     description
      "enumerated type for specifying LDP AFIs";
+  }
+
+  typedef label-advertisement-mode {
+    type enumeration {
+      enum DOWNSTREAM_UNSOLICITED {
+        description
+          "Downstream Unsolicited.";
+      }
+      enum DOWNSTREAM_ON_DEMAND {
+        description
+          "Downstream on Demand.";
+      }
+    }
+    description
+      "Label Advertisement Mode.";
   }
 
   // grouping statements
@@ -343,6 +364,16 @@ module openconfig-mpls-ldp {
         "Label space ID of the neighbor.";
     }
 
+    leaf enable-downstream-on-demand {
+      type boolean;
+      default "false";
+      description
+        "If this leaf is set to true, LDP downstream on demand is enabled in
+        the LDP session and the router advertises DoD to the peer. If the peer
+        also adverstises DoD, then downstream on demand is used in the session,
+        otherwise downstream unsolicited is used.";
+    }
+
   }
 
   grouping mpls-ldp-neighbor-state {
@@ -373,6 +404,20 @@ module openconfig-mpls-ldp {
         negotiation behavior.";
       reference
        "RFC5036, Sec. 2.5.4.";
+    }
+
+    leaf peer-label-advertisement-mode {
+      type label-advertisement-mode;
+      description
+        "This leaf shows the Label Advertisement Mode which is advertised by the peer.";
+    }
+
+    leaf negotiated-label-advertisement-mode {
+      type label-advertisement-mode;
+      description
+        "This leaf shows the Label Advertisement Mode negotiated based on local
+        and remote preferences. If DoD is enabled and the peer also adverstises DoD,
+        then downstream is negotiated. Otherwise, downstream unsolicited is used.";
     }
 
   }
