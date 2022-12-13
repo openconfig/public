@@ -11,7 +11,6 @@ module openconfig-if-aggregate {
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-if-ethernet { prefix oc-eth; }
   import iana-if-type { prefix ianaift; }
-  import openconfig-if-types { prefix oc-ift; }
   import openconfig-extensions { prefix oc-ext; }
 
   // meta
@@ -24,7 +23,13 @@ module openconfig-if-aggregate {
   description
     "Model for managing aggregated (aka bundle, LAG) interfaces.";
 
-  oc-ext:openconfig-version "2.4.3";
+  oc-ext:openconfig-version "2.4.4";
+
+  revision "2022-06-28" {
+    description
+      "Remove reference to invalid oc-ift type check";
+    reference "2.4.4";
+  }
 
   revision "2020-05-01" {
     description
@@ -214,8 +219,7 @@ module openconfig-if-aggregate {
     description "Adds LAG configuration to the interface module";
 
     uses aggregation-logical-top {
-      when "oc-if:config/oc-if:type = 'ianaift:ieee8023adLag' or " +
-        "oc-if:config/oc-if:type = 'oc-ift:IF_AGGREGATE'" {
+      when "oc-if:config/oc-if:type = 'ianaift:ieee8023adLag'" {
         description
           "active when the interface is set to type LAG";
       }
