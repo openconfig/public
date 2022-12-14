@@ -20,15 +20,16 @@ module openconfig-acl-defined-sets {
 
   description
     "This module defines configuration and operational state
-    data for defined sets (IP prefixes lists, protocols, etc)
-    to be used in network access control lists (i.e., filters,
-    rules, etc.).";
+    data for defined sets (sets of IPv4 prefixes, sets of
+    IPv6 prefixes, sets of ports, etc). These sets are used,
+    for example, in network access control lists (i.e., filters,
+    rules, etc.) in the matching fields.";
 
   oc-ext:openconfig-version "1.0.0";
 
-  revision "2022-07-12" {
+  revision "2022-12-14" {
     description
-      "Initial version";
+      "Initial version of the defined set model";
     reference "1.0.0";
   }
 
@@ -42,7 +43,7 @@ module openconfig-acl-defined-sets {
     leaf name {
       type string;
       description
-         "Name of the IPv4 prefix set to be used in the matches.";
+         "A user defined name of the IPv4 prefix set.";
     }
 
     leaf description {
@@ -64,12 +65,13 @@ module openconfig-acl-defined-sets {
     leaf name {
       type string;
       description
-         "Name of the IPv6 prefix set to be used in the matches.";
+        "Name of the IPv6 prefix set.";
     }
 
     leaf description {
       type string;
-      description "A user defined IPv6 prefix list description.";
+      description
+        "A user defined IPv6 prefix set description.";
     }
 
     leaf-list prefix {
@@ -81,27 +83,26 @@ module openconfig-acl-defined-sets {
   }
 
   grouping port-sets-config {
-    description "Configuration parameters of port sets.";
+    description
+      "Configuration parameters of port sets.";
 
     leaf name {
         type string;
         description
-           "A user defined name of the port list to
-            be used in the match condition.";
+          "A user defined name of the port set.";
       }
 
       leaf description {
         type string;
         description
-          "A user defined description
-          for the port set";
+          "A user defined description for the port set";
       }
 
       leaf-list port {
         type oc-pkt-match-types:port-num-range;
-         description
-           "A user defined list of ports to be
-           used in the match conditions.";
+        description
+          "A user defined set of ports to be
+          used in the match conditions.";
       }
   }
 
@@ -110,8 +111,7 @@ module openconfig-acl-defined-sets {
 
     container ipv4-prefix-sets {
       description
-        "Container to hold list of IPv4
-         prefixes which are matched as part of a policy.";
+        "Container to hold the list of IPv4 prefix sets.";
 
       list ipv4-prefix-set {
         key "name";
@@ -122,20 +122,20 @@ module openconfig-acl-defined-sets {
           type leafref {
             path "../config/name";
           }
-        description
-          "Reference to prefix name list key.";
+          description
+            "Reference to the name of the IPv4 prefix set.";
         }
 
         container config {
           description
-            "Configuration data for prefix lists.";
+            "Configuration data for IPv4 prefix sets.";
           uses ipv4-prefix-sets-config;
         }
 
         container state {
           config false;
           description
-            "State data for prefix lists.";
+            "State data for IPv4 prefix sets.";
           uses ipv4-prefix-sets-config;
         }
       }
@@ -143,29 +143,31 @@ module openconfig-acl-defined-sets {
 
     container ipv6-prefix-sets {
       description
-        "Container to hold list of IPv6
-         prefixes which are matched as part of a policy.";
+        "Container to hold the list of IPv4 prefix sets.";
 
       list ipv6-prefix-set {
         key "name";
-        description "List of ipv6 prefix sets.";
+        description "List of IPv6 prefix sets. Each defined set 
+        is uniquely identified by a name";
 
         leaf name {
           type leafref {
             path "../config/name";
           }
-        description  "Reference to prefix name list key.";
+          description
+            "Reference to the name of the IPv6 prefix set.";
         }
 
         container config {
           description
-          "Configuration data for prefix lists.";
+            "Configuration data for IPv6 prefix sets.";
           uses ipv6-prefix-sets-config;
         }
 
         container state {
           config false;
-          description "State data for prefix lists.";
+          description
+            "State data for prefix lists.";
           uses ipv6-prefix-sets-config;
         }
       }
@@ -173,56 +175,53 @@ module openconfig-acl-defined-sets {
 
     container port-sets {
       description
-        "Data definitions for a list of ports which can
-         be matched in policies.";
+        "Container to hold the list of port sets.";
 
       list port-set {
         key "name";
         description
-          "List of port set definitions.";
+          "List of port sets. Each por set is uniquely
+          identified by its name";
 
         leaf name {
           type leafref {
             path "../config/name";
           }
           description
-            "Name of the portset -- this is used as a label to
+            "Name of the port set. The name is used to
              reference the set in match conditions.";
         }
 
         container config {
-          description "Configuration data for port lists.";
+          description
+            "Configuration data for port lists.";
           uses port-sets-config;
         }
 
         container state {
           config false;
-          description "State data for port lists.";
+          description
+            "State data for port lists.";
           uses port-sets-config;
         }
       }
     }
-
   }
 
 
 
-  grouping acl-defined-sets-top {
+  grouping defined-sets-top {
     description
       "Top level grouping for defined-sets";
 
     container defined-sets {
       description
-        "Top level enclosing container for ACL model config
-        and operational state data.";
+        "Top level enclosing container for defined-set model
+        config and operational state data.";
       uses defined-sets-top;
     }
   }
 
-  // data definition statements
-  uses acl-defined-sets-top;
-
-  // augment statements
-
+  uses defined-sets-top;
 
 }
