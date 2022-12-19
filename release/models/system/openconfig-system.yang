@@ -49,9 +49,9 @@ module openconfig-system {
 
   oc-ext:openconfig-version "0.16.1";
 
-  revision "2022-12-06" {
+  revision "2022-12-14" {
     description
-      "Added NTP to the network instance schema.";
+      "Added network instance leaf to ntp client.";
     reference "0.16.1";
   }
 
@@ -701,6 +701,12 @@ module openconfig-system {
         "Indicates whether this server should be preferred
         or not.";
     }
+
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "The network instance used to find this server.";
+    }
   }
 
   grouping system-ntp-server-state {
@@ -1256,13 +1262,6 @@ module openconfig-system {
       uses oc-license:license-top;
       uses system-macaddr-top;
     }
-  }
-
-  augment "/oc-ni:network-instances/oc-ni:network-instance" {
-    description
-      "Augment the NTP configuration and state into network instance.";
-
-    uses system-ntp-top;
   }
 
   // data definition statements
