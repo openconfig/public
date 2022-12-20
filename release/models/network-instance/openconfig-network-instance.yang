@@ -8,8 +8,8 @@ module openconfig-network-instance {
   prefix "oc-netinst";
 
   // import some basic types
-  import ietf-yang-types { prefix "yang"; }
-  import ietf-inet-types { prefix "inet"; }
+  import openconfig-yang-types { prefix "oc-yang"; }
+  import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-network-instance-types { prefix "oc-ni-types"; }
   import openconfig-policy-types { prefix "oc-pol-types"; }
   import openconfig-routing-policy { prefix "oc-rpol"; }
@@ -48,11 +48,18 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "2.0.0";
+  oc-ext:openconfig-version "3.0.0";
 
-  revision "2022-11-08" {
+  revision "2022-12-20" {
     description
       "Removal of top-level enabled-address-families leaf-list";
+    reference "3.0.0";
+  }
+
+  revision "2022-11-18" {
+    description
+      "Enforce network-instance type as mandatory, removal of top-level
+      enabled leaf, migrate IETF types to OpenConfig types";
     reference "2.0.0";
   }
 
@@ -308,18 +315,6 @@ module openconfig-network-instance {
             "A unique name identifying the network instance";
         }
 
-        uses l2ni-instance {
-            when "./config/type = 'oc-ni-types:L2VSI'
-                  or ./config/type = 'oc-ni-types:L2P2P'
-                  or ./config/type = 'oc-ni-types:L2L3'
-                  or ./config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
-                  description
-                    "Layer 2 configuration parameters included when
-                    a network instance is a Layer 2 instance or a
-                    combined L2L3 instance";
-            }
-        }
-
         container config {
           description
             "Configuration parameters relating to a network
@@ -337,6 +332,18 @@ module openconfig-network-instance {
           uses network-instance-config;
           uses network-instance-type-dependent-config;
           uses network-instance-state;
+        }
+
+        uses l2ni-instance {
+            when "./config/type = 'oc-ni-types:L2VSI'
+                  or ./config/type = 'oc-ni-types:L2P2P'
+                  or ./config/type = 'oc-ni-types:L2L3'
+                  or ./config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
+                  description
+                    "Layer 2 configuration parameters included when
+                    a network instance is a Layer 2 instance or a
+                    combined L2L3 instance";
+            }
         }
 
         container evpn {
@@ -983,7 +990,7 @@ module openconfig-network-instance {
       "Configuration parameters relating to an endpoint that is
       remote from the local system";
     leaf remote-system {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description
         "The IP address of the device which hosts the
         remote end-point";
@@ -1197,6 +1204,7 @@ module openconfig-network-instance {
       type identityref {
         base "oc-ni-types:NETWORK_INSTANCE_TYPE";
       }
+      mandatory true;
       description
         "The type of network instance. The value of this leaf
         indicates the type of forwarding entries that should be
@@ -1210,13 +1218,6 @@ module openconfig-network-instance {
         of type 'DEFAULT_INSTANCE'.";
     }
 
-    leaf enabled {
-      type boolean;
-      description
-        "Whether the network instance should be configured to be
-        active on the network element";
-    }
-
     leaf description {
       type string;
       description
@@ -1225,7 +1226,7 @@ module openconfig-network-instance {
     }
 
     leaf router-id {
-      type yang:dotted-quad;
+      type oc-yang:dotted-quad;
       description
         "A identifier for the local network instance - typically
         used within associated routing protocols or signalling
