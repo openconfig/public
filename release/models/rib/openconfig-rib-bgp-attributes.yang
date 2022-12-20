@@ -26,9 +26,9 @@ submodule openconfig-rib-bgp-attributes {
 
   oc-ext:openconfig-version "0.9.0";
 
-  revision "2022-11-21" {
+  revision "2022-12-20" {
     description
-      "Convert as-segment to a keyed list.";
+      "Convert as-segment and as4-segment to keyed lists.";
     reference "0.9.0";
   }
 
@@ -88,9 +88,13 @@ submodule openconfig-rib-bgp-attributes {
       "Data for representing BGP AS-PATH attribute";
 
     leaf index {
-      type uint64;
+      type uint32;
       description
-        "A unique index identifying the AS-PATH segment.";
+        "A unique ordering index starting from 0 identifying the position of
+        the AS-PATH segment in the list of segments.
+
+        The index MUST start from 0 and end at (length-1), where length is the
+        number of segments in the list of AS-PATH segments.";
     }
 
     leaf type {
@@ -129,6 +133,7 @@ submodule openconfig-rib-bgp-attributes {
         RFC 5065 - Autonomous System Confederations for BGP";
 
       list as-segment {
+        oc-ext:telemetry-atomic;
         key "index";
 
         description
@@ -139,7 +144,8 @@ submodule openconfig-rib-bgp-attributes {
             path "../state/index";
           }
           description
-            "A unique index identifying the AS-PATH segment.";
+            "Reference to the unique ordering index starting from 0 identifying
+            the position of the AS-PATH segment in the list of segments.";
         }
 
         container state {
@@ -170,13 +176,25 @@ submodule openconfig-rib-bgp-attributes {
           "RFC 6793 - BGP Support for Four-octet AS Number Space";
 
       list as4-segment {
+        oc-ext:telemetry-atomic;
+        key "index";
+
         description
-          "Unkeyed list of AS PATH segments";
+          "List of AS4-PATH segments";
+
+        leaf index {
+          type leafref {
+            path "../state/index";
+          }
+          description
+            "Reference to the unique ordering index starting from 0 identifying
+            the position of the AS4-PATH segment in the list of segments.";
+        }
 
         container state {
           config false;
           description
-            "Opstate data for AS-PATH segments";
+            "Opstate data for AS4-PATH segments";
 
           uses bgp-as-path-attr-state;
         }
