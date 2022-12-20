@@ -7,8 +7,8 @@ submodule openconfig-network-instance-l2 {
   // import some basic types
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-interfaces { prefix "oc-if"; }
-  import ietf-yang-types { prefix "yang"; }
-  import ietf-inet-types { prefix "inet"; }
+  import openconfig-yang-types { prefix "oc-yang"; }
+  import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-evpn-types { prefix oc-evpn-types; }
   import openconfig-evpn { prefix "oc-evpn"; }
 
@@ -24,11 +24,18 @@ submodule openconfig-network-instance-l2 {
     Layer 2 network instance configuration and operational state
     parameters.";
 
-  oc-ext:openconfig-version "2.0.0";
+  oc-ext:openconfig-version "3.0.0";
 
-  revision "2022-11-22" {
+  revision "2022-12-20" {
     description
       "Removal of global per network-instance MTU";
+    reference "3.0.0";
+  }
+
+  revision "2022-11-18" {
+    description
+      "Enforce network-instance type as mandatory, removal of top-level
+      enabled leaf, migrate IETF types to OpenConfig types";
     reference "2.0.0";
   }
 
@@ -312,7 +319,7 @@ submodule openconfig-network-instance-l2 {
       "Configuration data for MAC table entries";
 
     leaf mac-address {
-      type yang:mac-address;
+      type oc-yang:mac-address;
       description
         "MAC address for the dynamic or static MAC table
         entry";
@@ -570,7 +577,7 @@ submodule openconfig-network-instance-l2 {
     uses l2ni-l2rib-common-state;
 
     leaf host-ip {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description
         "Host IP address of the CE device for the L2RIB MAC-IP entry";
       reference "RFC7432: BGP MPLS-Based Ethernet VPN";
@@ -592,7 +599,7 @@ submodule openconfig-network-instance-l2 {
     description "L2RIB Common Property Operational State Data Grouping";
 
     leaf mac-address {
-        type yang:mac-address;
+        type oc-yang:mac-address;
         description "MAC address of the L2RIB MAC or MAC-IP entry";
     }
     leaf vlan {
@@ -699,7 +706,7 @@ submodule openconfig-network-instance-l2 {
             description "A unique entry for the next-hop.";
           }
           leaf peer-ip {
-            type inet:ip-address;
+            type oc-inet:ip-address;
             description "Next hop peer address";
           }
           leaf label {
