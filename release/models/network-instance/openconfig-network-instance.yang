@@ -48,7 +48,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "2.0.0";
+  oc-ext:openconfig-version "3.0.0";
+
+  revision "2022-12-20" {
+    description
+      "Removal of top-level enabled-address-families leaf-list";
+    reference "3.0.0";
+  }
 
   revision "2022-11-18" {
     description
@@ -294,7 +300,12 @@ module openconfig-network-instance {
         key "name";
 
         description
-          "Network instances configured on the local system";
+          "Network instances configured on the local system
+
+          IPv4 and IPv6 forwarding are enabled by default within an L3
+          network-instance and subsequently, routes can be populated
+          into the network-instance using protocols that enable IPv4 and
+          IPv6 configuration without explicitly enabling these.";
 
         leaf name {
           type leafref {
@@ -899,14 +910,6 @@ module openconfig-network-instance {
   grouping network-instance-type-dependent-config {
     description
       "Type dependent network instance configuration";
-
-    uses oc-ni-l3:l3ni-instance-common-config {
-      when "./type = 'oc-ni-types:L3VRF' or ./type = 'oc-ni-types:L2L3'" {
-        description
-          "Layer 3 VRF configuration parameters included when a
-          network instance is a L3VRF or combined L2L3 instance";
-      }
-    }
 
     uses l2ni-instance-common-config {
       when "./type = 'oc-ni-types:L2VSI' or ./type = 'oc-ni-types:L2P2P'" +
