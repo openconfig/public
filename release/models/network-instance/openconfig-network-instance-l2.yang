@@ -24,7 +24,13 @@ submodule openconfig-network-instance-l2 {
     Layer 2 network instance configuration and operational state
     parameters.";
 
-  oc-ext:openconfig-version "3.1.0";
+  oc-ext:openconfig-version "4.0.0";
+
+  revision "2022-12-21" {
+    description
+      "Removal of global per network-instance MTU";
+    reference "4.0.0";
+  }
 
   revision "2022-12-21" {
     description
@@ -263,19 +269,6 @@ submodule openconfig-network-instance-l2 {
        uses oc-evpn:evpn-arp-proxy-top;
        uses oc-evpn:evpn-nd-proxy-top;
        uses l2ni-l2rib-top;
-    }
-  }
-
-  grouping l2ni-instance-common-config {
-    description
-      "Common configuration options which are specific to Layer 2
-      network instances";
-
-    leaf mtu {
-      type uint16;
-      description
-        "The maximum frame size which should be supported for this
-        instance for Layer 2 frames";
     }
   }
 
