@@ -1,0 +1,361 @@
+module openconfig-system-redundancy {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/system/redundancy";
+
+  prefix "oc-sys-red";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-types { prefix oc-types; }
+  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-platform { prefix oc-platform; }
+  
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines the configuration and operational state data
+    related to redundant systems, such as two supervisors in a device.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2022-07-20" {
+    description
+      "Initial revision with management-active redundancy";
+    reference "0.1.0";
+  }
+
+  // extension statements
+
+  // feature statements
+
+  // identity statements
+  identity SYSTEM_MANAGEMENT_MONITOR_MODE_BASE {
+    description
+      "Base identity for monitor modes for redundant management links.";
+  }
+
+  identity SYSTEM_MANAGEMENT_MONITOR_LINK_STATE {
+    base SYSTEM_MANAGEMENT_MONITOR_MODE_BASE;
+    description
+      "Monitor link-state of redundant management links.";
+  }
+
+  identity SYSTEM_MANAGEMENT_MONITOR_NEIGHBOR {
+    base SYSTEM_MANAGEMENT_MONITOR_MODE_BASE;
+    description
+      "Monitor nieghbor reachability via redundant management links.";
+  }
+
+  // typedef statements
+
+  // grouping statements
+  grouping management-active-link-controller-card-config {
+    description
+      "Configuration data for controller card components.";
+     
+    leaf name {
+      type leafref {
+        path "/oc-platform:components/oc-platform:component/oc-platform:name";
+      }
+      description
+        "References the controller card component.";
+    }
+
+    leaf-list interface {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      ordered-by user;
+
+      description
+        "Ordered list of redundant management links for 
+        managment-active interface when this controller
+        card is active.";
+    }
+  }
+
+  grouping management-active-link-controller-card-state {
+    description
+      "Operational state data for controller card components.";  
+  }
+
+  grouping management-active-link-controller-card-list {
+    description
+      "Top-level grouping for list of controller card components.";
+
+    container controller-cards {
+      description
+        "Top-level container for list of controller card components.";
+      
+      list controller-card {
+        key "name";
+        description
+          "Controller card name";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+
+          description
+            "References the controller card name";
+        }
+
+        container config {
+          description
+            "Configuration data for controller card components.";
+          uses management-active-link-controller-card-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for controller card components.";
+          uses management-active-link-controller-card-config;
+          uses management-active-link-controller-card-state;
+        }
+      }
+    }
+  }
+
+  grouping management-active-link-config {
+    description
+      "Configuration data for management-active interface current active.";
+  }
+
+  grouping management-active-link-state {
+    description
+      "Operational state data for management-active interface current active.";
+
+    leaf active-controller-card {
+      type leafref {
+        path "../../controller-cards/controller-card/name";
+      }
+
+      description
+        "References the active controller card component";
+    }
+
+    leaf active-interface {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+
+      description
+        "References the active management link";
+    }
+  }
+
+  grouping management-active-link-top {
+    description
+      "Top-level grouping for management-active interface current active data.";
+
+    container link {
+      description
+        "";
+
+      container config {
+        description
+          "Configuration data for management-active interface current active.";
+        uses management-active-link-config;
+
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for management-active interface current active.";
+
+        uses management-active-link-config;
+        uses management-active-link-state;
+      }
+
+      uses management-active-link-controller-card-list;
+    }
+  }
+
+  grouping management-active-neighbor-monitor-config {
+    description
+      "Configuration data for neighbor monitor.";
+
+    leaf neighbor-monitor {
+      type oc-inet:ip-address;
+      description
+        "Neighbor address to be monitored.";
+    }
+
+    leaf monitor-interval {
+      type uint32;
+      units "milliseconds";
+      description
+        "Interval for sending ARP or NS request packets to the neighbor.";
+    }
+
+    leaf timeout-multiplier {
+      type uint32;
+      description
+        "Maximum number of missed ARP or NA replies from the neighbor after
+        which the failover occurs.";
+    }
+  }
+
+  grouping management-active-neighbor-monitor-state {
+    description
+      "Operational state data for neighbor monitor.";
+  }
+
+  grouping management-active-neighbor-monitor-top {
+    description
+      "Top-level grouping for neighbor monitor data.";
+
+    container neighbor-monitor {
+      description
+        "Top-level container for neighbor monitor data.";
+
+      container config {
+        description
+          "Configuration data for neighbor monitor.";
+
+        uses management-active-neighbor-monitor-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for neighbor monitor.";
+
+        uses management-active-neighbor-monitor-config;
+        uses management-active-neighbor-monitor-state;
+      }
+    }
+  }
+
+  grouping redundancy-management-active-config {
+    description
+      "Configuration data for management-active interface redundancy.";
+
+    leaf enabled {
+      type boolean;
+      description
+        "Enables and disables management-active interface redundancy";
+    }
+
+    leaf monitor-mode {
+      type identityref {
+        base SYSTEM_MANAGEMENT_MONITOR_MODE_BASE;
+      }
+      default SYSTEM_MANAGEMENT_MONITOR_LINK_STATE;
+      description
+        "Monitor mode for management-active interface redundanct links.";
+    }
+
+    choice fallback-delay {
+      default infinity;
+      case delay {
+        leaf delay {
+          type uint32;
+          units "seconds";
+          description
+            "Delay after which a higher priority management link
+            will be considered to fallback after it has come up";
+        }
+      }
+      case infinity {
+        leaf infinity {
+           type empty;
+           description
+             "Dont automatically fallback to a higher priority 
+             management link after it has come up.";
+        }
+      }
+    }
+  }
+
+  grouping redundancy-management-active-state {
+    description
+      "Operational state data for management-active interface redundancy.";
+
+    leaf last-redundancy-config-change {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+
+      description
+        "This timestamp indicates the time redundancy configuration
+        was last applied to management-active interface.
+        The value is the timestamp in nanoseconds relative
+        to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+    }
+
+    leaf last-redundancy-link-change {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+
+      description
+        "This timestamp indicates the time active link was
+        last changed for management-active interface.
+        The value is the timestamp in nanoseconds relative
+        to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+    }
+  }
+  
+  grouping redundancy-management-active-top {
+    description
+      "Top-level grouping for management-active interface redundancy data.";
+
+    container management-active {
+      description
+        "Top-level container for management-active interface redundancy
+        data. The management-active is a logical interface on
+        modular systems providing out of band access to the active
+        controller card";
+
+      container config {
+        description
+          "Configuration data for management-active interface redundancy.";
+
+        uses redundancy-management-active-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for management-active interface redundancy.";
+
+        uses redundancy-management-active-config;
+        uses redundancy-management-active-state;
+      }
+
+      uses management-active-neighbor-monitor-top;
+      uses management-active-link-top;
+    }
+  }
+  
+  grouping system-redundancy-top {
+    description
+      "Top-level grouping for system level redundancy features.";
+
+    container redundancy {
+      description
+        "Top-level container for system level redundancy features.";
+
+      uses redundancy-management-active-top;
+    }
+  }
+
+  // data definition statements
+
+  // augment statements
+
+  // rpc statements
+
+  // notification statements
+}
