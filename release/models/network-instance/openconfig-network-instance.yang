@@ -48,7 +48,14 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.0.0";
+  oc-ext:openconfig-version "4.1.0";
+
+  revision "2022-12-22" {
+    description
+      "Add enabled-address-families leaf-list back for backward
+      compatibility";
+    reference "4.1.0";
+  }
 
   revision "2022-12-21" {
     description
@@ -332,6 +339,7 @@ module openconfig-network-instance {
             "Configuration parameters relating to a network
             instance";
           uses network-instance-config;
+          uses network-instance-type-dependent-config;
         }
 
 
@@ -341,6 +349,7 @@ module openconfig-network-instance {
             "Operational state parameters relating to a network
             instance";
           uses network-instance-config;
+          uses network-instance-type-dependent-config;
           uses network-instance-state;
         }
 
@@ -558,7 +567,7 @@ module openconfig-network-instance {
               An implementation is expected to create entries within
               this list when the relevant protocol context is enabled.
               i.e., when a BGP instance is created with IPv4 and IPv6
-              address families enabled, the protocol=BGP,
+              address families enabled, the protocol=qBGP,
               address-family=IPv4 table is created by the system.";
 
             leaf protocol {
@@ -912,6 +921,19 @@ module openconfig-network-instance {
             }
           }
         }
+      }
+    }
+  }
+
+  grouping network-instance-type-dependent-config {
+    description
+      "Type dependent network instance configuration";
+
+    uses oc-ni-l3:l3ni-instance-common-config {
+      when "./type = 'oc-ni-types:L3VRF' or ./type = 'oc-ni-types:L2L3'" {
+        description
+          "Layer 3 VRF configuration parameters included when a
+          network instance is a L3VRF or combined L2L3 instance";
       }
     }
   }
