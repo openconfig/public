@@ -13,6 +13,9 @@ module openconfig-if-ip {
   import openconfig-vlan { prefix oc-vlan; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-keychain { prefix oc-keychain; }
+  import openconfig-keychain-types { prefix oc-keychain-types; }
+  import openconfig-types { prefix oc-types; }
 
   // meta
   organization "OpenConfig working group";
@@ -44,7 +47,13 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.0.0";
+  oc-ext:openconfig-version "3.1.0";
+
+  revision "2022-05-03" {
+    description
+      "Add authentication in VRRP.";
+    reference "3.1.0";
+  }
 
   revision "2019-01-08" {
     description
@@ -819,6 +828,61 @@ module openconfig-if-ip {
     }
   }
 
+  grouping ip-vrrp-simple-key-authentication-config {
+    description
+      "This grouping defines VRRP simple authentication config.";
+
+    leaf auth-mode {
+      type identityref {
+        base oc-keychain-types:AUTH_TYPE;
+      }
+      description
+        "The type of authentication used in the applicable IS-IS PDUs.
+
+        This leaf along with the sibling leaf 'auth-password' can be used
+        to configure the simple key authentication.";
+    }
+
+    leaf auth-password {
+      type oc-types:routing-password;
+      description
+        "The authentication key used in the applicable IS-IS PDUs. The key in the
+        packet may be encrypted according to the configured authentication type.";
+    }
+  }
+
+  grouping ip-vrrp-authentication-group {
+    description
+      "This grouping defines VRRP authentication.";
+
+    container config {
+      description
+        "This container defines VRRP authentication configuration.";
+
+      uses ip-vrrp-simple-key-authentication-config;
+    }
+
+    container state {
+      config false;
+      description
+        "This container defines VRRP authentication state.";
+
+      uses ip-vrrp-simple-key-authentication-config;
+    }
+  }
+
+ grouping ip-vrrp-authentication-top {
+    description
+      "This grouping defines VRRP authentication.";
+
+      container authentication {
+        description
+          "This container defines VRRP authentication.";
+
+          uses ip-vrrp-authentication-group;
+        }
+  }
+
   grouping ip-vrrp-state {
     description
       "Operational state data for VRRP on IP interfaces";
@@ -874,6 +938,7 @@ module openconfig-if-ip {
           uses ip-vrrp-state;
         }
 
+        uses ip-vrrp-authentication-top;
         uses ip-vrrp-tracking-top;
       }
     }
