@@ -58,7 +58,7 @@ module openconfig-system-redundancy {
   // typedef statements
 
   // grouping statements
-  grouping management-active-link-controller-card-config {
+  grouping management-active-controller-card-config {
     description
       "Configuration data for controller card components.";
      
@@ -83,12 +83,12 @@ module openconfig-system-redundancy {
     }
   }
 
-  grouping management-active-link-controller-card-state {
+  grouping management-active-controller-card-state {
     description
       "Operational state data for controller card components.";  
   }
 
-  grouping management-active-link-controller-card-list {
+  grouping management-active-controller-card-list {
     description
       "Top-level grouping for list of controller card components.";
 
@@ -113,26 +113,26 @@ module openconfig-system-redundancy {
         container config {
           description
             "Configuration data for controller card components.";
-          uses management-active-link-controller-card-config;
+          uses management-active-controller-card-config;
         }
 
         container state {
           config false;
           description
             "Operational state data for controller card components.";
-          uses management-active-link-controller-card-config;
-          uses management-active-link-controller-card-state;
+          uses management-active-controller-card-config;
+          uses management-active-controller-card-state;
         }
       }
     }
   }
 
-  grouping management-active-link-config {
+  grouping management-active-current-active-config {
     description
       "Configuration data for management-active interface current active.";
   }
 
-  grouping management-active-link-state {
+  grouping management-active-current-active-state {
     description
       "Operational state data for management-active interface current active.";
 
@@ -155,18 +155,18 @@ module openconfig-system-redundancy {
     }
   }
 
-  grouping management-active-link-top {
+  grouping management-active-redundant-link-top {
     description
-      "Top-level grouping for management-active interface current active data.";
+      "Top-level grouping for management-active interface redundant links.";
 
-    container link {
+    container redundant-link {
       description
-        "";
+        "Top-level container for management-active interface redundant links.";
 
       container config {
         description
           "Configuration data for management-active interface current active.";
-        uses management-active-link-config;
+        uses management-active-current-active-config;
 
       }
 
@@ -175,11 +175,11 @@ module openconfig-system-redundancy {
         description
           "Operational state data for management-active interface current active.";
 
-        uses management-active-link-config;
-        uses management-active-link-state;
+        uses management-active-current-active-config;
+        uses management-active-current-active-state;
       }
 
-      uses management-active-link-controller-card-list;
+      uses management-active-controller-card-list;
     }
   }
 
@@ -335,7 +335,7 @@ module openconfig-system-redundancy {
       }
 
       uses management-active-neighbor-monitor-top;
-      uses management-active-link-top;
+      uses management-active-redundant-link-top;
     }
   }
   
