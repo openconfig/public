@@ -1,0 +1,81 @@
+module openconfig-route-summary {
+  yang-version "1";
+
+  namespace "http://openconfig.net/yang/route-summary";
+
+  prefix "openconfig-route-summary";
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-yang-types { prefix "oc-yang-types"; }
+  import openconfig-policy-types { prefix "oc-pol-types"; }
+  import openconfig-network-instance { prefix "oc-ni"; }
+
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module provides summary of route counts per route type for each network
+    instance.";
+
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2022-12-21" {
+    description
+      "Initial version.";
+    reference "1.0.0";
+  }
+
+  grouping route-counter {
+    leaf route-type {
+      type identityref {
+        base "oc-pol-types:INSTALL_PROTOCOL_TYPE";
+      }
+      description
+        "Route type that keys the route count list.";
+    }
+    leaf count {
+      type oc-yang-types:counter64;
+      description
+        "Count for the route type.";
+    }
+    description
+      "Route type counter item.";
+  }
+
+  grouping route-summary {
+    list route-count {
+      key "route-type";
+      uses route-counter;
+      description
+        "Route types that keys the route count list.";
+    }
+    description
+      "Route count by route type.";
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:afts/oc-ni:ipv6-unicast" {
+    container summary {
+      uses route-summary;
+      description
+        "IPv4 route summary for the network instance.";
+    }
+    description
+      "Augment the network-instance model with the route summary container for
+      IPv4.";
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:afts/oc-ni:ipv4-unicast" {
+    container summary {
+      uses route-summary;
+      description
+        "IPv6 route summary for the network instance.";
+    }
+    description
+      "Augment the network-instance model with the route summary container for
+      IPv6.";
+  }
+}
