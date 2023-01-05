@@ -66,12 +66,12 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.9.1";
+  oc-ext:openconfig-version "0.10.0";
 
   revision "2022-11-15" {
     description
       "Add laser power and temperature thresholds";
-    reference "0.9.1";
+    reference "0.10.0";
   }
 
   revision "2021-07-29" {
@@ -440,8 +440,10 @@ module openconfig-platform-transceiver {
             path "../config/severity";
           }
           description
-            "The severity of the alarm that this group of
-            alarm thresholds define.";
+           "The severity applied to the group of thresholds.
+            An implementation's highest severity threshold 
+            should be mapped to OpenConfig's `CRITICAL` 
+            severity level."; 
         }
 
         container config {
