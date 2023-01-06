@@ -65,9 +65,15 @@ module openconfig-platform-pipeline-counters {
     5 blocks, is to have the abililty to receive all drop counters from
     all 5 blocks, for example, with one request.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.3.1";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2022-12-01" {
+    description
+      "Add uRPF aggregate drop counter.";
+    reference "0.3.1";
+  }
 
   revision "2022-11-09" {
     description
@@ -1093,6 +1099,16 @@ module openconfig-platform-pipeline-counters {
         packets are dropped due to legitimate forwarding decisions (ACL drops,
         No Route etc.)";
     }
+
+    leaf urpf-aggregate {
+      type oc-yang:counter64;
+      description
+        "This aggregation of counters represents the conditions in which
+        packets are dropped due to failing uRPF lookup check.  This counter
+        and the packet-processing-aggregate counter should be incremented
+        for each uRPF packet drop.";
+    }
+
   }
 
   grouping pipeline-vendor-drop-packets {
