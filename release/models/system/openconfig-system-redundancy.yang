@@ -27,7 +27,7 @@ module openconfig-system-redundancy {
 
   oc-ext:openconfig-version "0.1.0";
 
-  revision "2022-07-20" {
+  revision "2023-01-06" {
     description
       "Initial revision with management-active redundancy";
     reference "0.1.0";
@@ -56,6 +56,22 @@ module openconfig-system-redundancy {
   }
 
   // typedef statements
+  typedef fallback-delay-value-seconds16 {
+    type union {
+      type uint16 {
+        range "1..65535";
+      }
+      type enumeration {
+        enum INFINITY {
+          description
+            "The delay is set to infinity.";
+        }
+      }
+    }
+    units "seconds";
+    description
+      "Fallback delay value type, in seconds (16-bit range).";
+  }
 
   // grouping statements
   grouping management-active-controller-card-config {
@@ -258,25 +274,13 @@ module openconfig-system-redundancy {
         "Monitor mode for management-active interface redundanct links.";
     }
 
-    choice fallback-delay {
-      default infinity;
-      case delay {
-        leaf delay {
-          type uint32;
-          units "seconds";
-          description
-            "Delay after which a higher priority management link
-            will be considered to fallback after it has come up";
-        }
-      }
-      case infinity {
-        leaf infinity {
-           type empty;
-           description
-             "Dont automatically fallback to a higher priority 
-             management link after it has come up.";
-        }
-      }
+    leaf fallback-delay {
+      type fallback-delay-value-seconds16;
+      default INFINITY;
+      description
+        "Delay after which a higher priority management link
+        will be considered to fallback after it has come up.
+        If set to infinity, then dont automatically fallback.";
     }
   }
 
