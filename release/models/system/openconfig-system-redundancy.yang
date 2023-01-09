@@ -9,6 +9,7 @@ module openconfig-system-redundancy {
 
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-system { prefix oc-sys; }
   import openconfig-types { prefix oc-types; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-interfaces { prefix oc-if; }
@@ -358,6 +359,13 @@ module openconfig-system-redundancy {
   // data definition statements
 
   // augment statements
+  augment "/oc-sys:system" {
+    description
+      "Add redundancy features to the openconfig-system model.";
+
+    uses system-redundancy-top;
+  }
+  
 
   // rpc statements
 
