@@ -49,9 +49,24 @@ module openconfig-route-summary {
   grouping route-summary {
     list route-count {
       key "route-type";
-      uses route-counter;
+
       description
         "Route types that keys the route count list.";
+
+      leaf route-type {
+        type leafref {
+          path "../state/route-type";
+        }
+        description
+          "Reference to the protocol type.";
+      }
+
+      container state {
+        description
+          "State parameters for the route summary list entry.";
+        uses route-counter;
+      }
+
     }
     description
       "Route count by route type.";
