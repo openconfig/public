@@ -430,14 +430,16 @@ module openconfig-platform-transceiver {
         "Enclosing container for transceiver alarm thresholds.";
 
       list threshold {
+        config false;
         key "severity";
         description
           "List of transceiver alarm thresholds, indexed by
           alarm severity.";
 
         leaf severity {
+          config false;
           type leafref {
-            path "../config/severity";
+            path "../state/severity";
           }
           description
            "The severity applied to the group of thresholds.
@@ -446,20 +448,12 @@ module openconfig-platform-transceiver {
             severity level.";
         }
 
-        container config {
-          description
-            "Configuration data for transceiver alarms if
-            the system allows programmable thresholds.";
-
-          uses transceiver-threshold-config;
-        }
-
         container state {
           config false;
           description
             "Operational alarm thresholds for the transceiver.";
 
-          uses transceiver-threshold-config;
+          uses transceiver-threshold-state;
         }
       }
     }
@@ -738,7 +732,7 @@ module openconfig-platform-transceiver {
     uses optical-power-state;
   }
 
-  grouping transceiver-threshold-config {
+  grouping transceiver-threshold-state {
     description
       "Grouping for all alarm threshold configs for a particular
       severity level.";
