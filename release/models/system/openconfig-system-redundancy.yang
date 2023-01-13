@@ -14,7 +14,7 @@ module openconfig-system-redundancy {
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-platform { prefix oc-platform; }
-  
+
   // meta
   organization "OpenConfig working group";
 
@@ -78,7 +78,7 @@ module openconfig-system-redundancy {
   grouping management-active-controller-card-config {
     description
       "Configuration data for controller card components.";
-     
+
     leaf name {
       type leafref {
         path "/oc-platform:components/oc-platform:component/oc-platform:name";
@@ -94,7 +94,7 @@ module openconfig-system-redundancy {
       ordered-by user;
 
       description
-        "Ordered list of redundant management links for 
+        "Ordered list of redundant management links for
         managment-active interface when this controller
         card is active.";
     }
@@ -102,7 +102,7 @@ module openconfig-system-redundancy {
 
   grouping management-active-controller-card-state {
     description
-      "Operational state data for controller card components.";  
+      "Operational state data for controller card components.";
   }
 
   grouping management-active-controller-card-list {
@@ -112,7 +112,7 @@ module openconfig-system-redundancy {
     container controller-cards {
       description
         "Top-level container for list of controller card components.";
-      
+
       list controller-card {
         key "name";
         description
@@ -211,14 +211,20 @@ module openconfig-system-redundancy {
     }
 
     leaf monitor-interval {
-      type uint32;
+      type uint32 {
+        range "1..300000";
+      }
+      default 200;
       units "milliseconds";
       description
         "Interval for sending ARP or NS request packets to the neighbor.";
     }
 
     leaf timeout-multiplier {
-      type uint32;
+      type uint8 {
+        range 1..100;
+      }
+      default 3;
       description
         "Maximum number of missed ARP or NA replies from the neighbor after
         which the failover occurs.";
@@ -311,7 +317,7 @@ module openconfig-system-redundancy {
         to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
     }
   }
-  
+
   grouping redundancy-management-active-top {
     description
       "Top-level grouping for management-active interface redundancy data.";
@@ -343,7 +349,7 @@ module openconfig-system-redundancy {
       uses management-active-redundant-link-top;
     }
   }
-  
+
   grouping system-redundancy-top {
     description
       "Top-level grouping for system level redundancy features.";
@@ -365,7 +371,6 @@ module openconfig-system-redundancy {
 
     uses system-redundancy-top;
   }
-  
 
   // rpc statements
 
