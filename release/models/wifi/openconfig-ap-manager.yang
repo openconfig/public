@@ -28,9 +28,10 @@ module openconfig-ap-manager {
 
   oc-ext:openconfig-version "2.0.0";
 
-  revision "2022-09-20" {
+  revision "2023-01-17" {
     description
-      "Replace uptime counter with up-time oc-types:timeticks64 timestamp.";
+      "Replace uptime counter with up-time oc-types:timeticks64 timestamp. Sets
+      uptime leaf to deprecated.";
     reference "2.0.0";
   }
 
@@ -146,6 +147,14 @@ module openconfig-ap-manager {
         "Timestamp when this AP last changed its op-state to 'UP'. The value is
         the timestamp in nanoseconds relative to the Unix Epoch (Jan 1, 1970
         00:00:00 UTC).";
+    }
+
+    leaf uptime {
+      type uint32;
+      units seconds;
+      status deprecated;
+      description
+        "Seconds this AP has been in the op-state of 'UP'.";
     }
 
     leaf enabled {
