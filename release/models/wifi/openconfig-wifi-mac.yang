@@ -26,12 +26,13 @@ module openconfig-wifi-mac {
   description
     "Model for managing MAC layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "2.0.0";
+  oc-ext:openconfig-version "1.2.0";
 
-  revision "2022-09-13" {
+  revision "2023-01-17" {
     description
-      "Splits client phy-rate leaf into rx/tx phy-rate leaves.";
-    reference "2.0.0";
+      "Splits client phy-rate leaf into rx/tx phy-rate leaves.  Marks phy-rate
+      as deprecated.";
+    reference "1.2.0";
   }
 
   revision "2022-03-24" {
@@ -1354,6 +1355,13 @@ module openconfig-wifi-mac {
         type uint8;
         description
           "Number of Spatial Streams supported by the client.";
+      }
+
+      leaf phy-rate {
+        type uint16;
+        status deprecated;
+        description
+          "Last used PHY rate of connected client.";
       }
 
       leaf rx-phy-rate {
