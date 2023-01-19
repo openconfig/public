@@ -23,7 +23,13 @@ module openconfig-system-logging {
     "This module defines configuration and operational state data
     for common logging facilities on network systems.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.3.2";
+
+  revision "2023-01-18" {
+    description
+      "Add remote-ports and deprecate remote-port.";
+    reference "0.3.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -427,10 +433,18 @@ module openconfig-system-logging {
     }
 
     leaf remote-port {
+      status deprecated;
       type oc-inet:port-number;
       default 514;
       description
         "Sets the destination port number for syslog UDP messages to
+        the server.  The default for syslog is 514.";
+    }
+
+    leaf-list remote-ports {
+      type oc-inet:port-number;
+      description
+        "Sets the destination port numbers for syslog UDP messages to
         the server.  The default for syslog is 514.";
     }
   }
