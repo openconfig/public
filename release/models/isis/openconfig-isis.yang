@@ -8,19 +8,17 @@ module openconfig-isis {
   prefix "oc-isis";
 
   // import some basic types
-  import ietf-inet-types { prefix "inet"; }
-  import ietf-yang-types { prefix "yang"; }
   import openconfig-types { prefix "oc-types"; }
+  import openconfig-inet-types { prefix "oc-inet"; }
+  import openconfig-yang-types { prefix "oc-yang"; }
   import openconfig-isis-types { prefix "oc-isis-types"; }
   import openconfig-routing-policy { prefix "oc-rpol"; }
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-interfaces { prefix "oc-if"; }
   import openconfig-segment-routing { prefix "oc-sr"; }
   import openconfig-bfd { prefix "oc-bfd"; }
-  // TODO(robjs): Import authentication and keychain following merge of these
-  // modules.
-  //import openconfig-authentication-types { prefix "oc-auth-types"; }
-  //import openconfig-keychain { prefix "oc-keychain"; }
+  import openconfig-keychain { prefix "oc-keychain"; }
+  import openconfig-keychain-types { prefix "oc-keychain-types"; }
 
   // Include submodules:
   // IS-IS LSP is the LSDB for IS-IS.
@@ -56,7 +54,45 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "0.6.2";
+  oc-ext:openconfig-version "1.1.0";
+
+    revision "2022-09-20" {
+    description
+      "Add CSNP enable to IS-IS global configuration.";
+    reference "1.1.0";
+  }
+
+  revision "2022-05-10" {
+    description
+      "Modify internal/external route preference to unrestricted uint32
+      type.";
+    reference "1.0.0";
+  }
+
+  revision "2022-03-01" {
+    description
+      "Add simple authentication key support.";
+    reference "0.9.0";
+  }
+
+  revision "2022-02-24" {
+    description
+      "Add Hello PDU padding type to IS-IS global configuration.";
+    reference "0.8.0";
+  }
+
+  revision "2022-01-19" {
+    description
+      "Align revisions across modules.";
+    reference "0.7.1";
+  }
+
+  revision "2021-12-31" {
+    description
+      "Add support for per-interface hello authentication, and per-level
+      *SNP authentication.";
+    reference "0.7.0";
+  }
 
   revision "2021-06-16" {
     description
@@ -156,7 +192,7 @@ module openconfig-isis {
 
   grouping isis-global-config {
     description
-      "This grouping defines lobal configuration options for ISIS router.";
+      "This grouping defines global configuration options for ISIS router.";
 
     // multi-instance
     leaf instance {
@@ -224,6 +260,20 @@ module openconfig-isis {
         "When set to true, IS will always flood the LSP that triggered an SPF
      before the router actually runs the SPF computation.";
     }
+
+    leaf csnp-enable-on-p2p-links {
+      type boolean;
+      default true;
+      description
+        "When set to true, ISIS will always enable CSNP on P2P Links.";
+    }
+
+    leaf hello-padding {
+      type oc-isis-types:hello-padding-type;
+      default "STRICT";
+      description
+        "Controls the padding type for IS-IS Hello PDUs on a global level.";
+    }
   }
 
   grouping admin-config {
@@ -252,6 +302,42 @@ module openconfig-isis {
     }
   }
 
+  grouping isis-authentication-type-config {
+    description
+      "This grouping defines the ISIS authentication type.";
+
+    leaf auth-type {
+      type identityref {
+        base oc-keychain-types:AUTH_TYPE;
+      }
+      description
+        "The type of authentication used in the applicable IS-IS PDUs
+        (simple_key, keychain).";
+    }
+  }
+
+  grouping isis-simple-key-authentication-config {
+    description
+      "This grouping defines ISIS simple authentication config.";
+
+    leaf auth-mode {
+      type identityref {
+        base oc-isis-types:AUTH_MODE;
+      }
+      description
+        "The type of authentication used in the applicable IS-IS PDUs.
+
+        This leaf along with the sibling leaf 'auth-password' can be used
+        to configure the simple key authentication.";
+    }
+
+    leaf auth-password {
+      type oc-types:routing-password;
+      description
+        "The authentication key used in the applicable IS-IS PDUs. The key in the
+        packet may be encrypted according to the configured authentication type.";
+    }
+  }
   grouping isis-metric-style-config {
     description
       "This grouping defines ISIS metric style.";
@@ -263,136 +349,24 @@ module openconfig-isis {
     }
   }
 
-  grouping authentication-key-config {
-    description
-      "This grouping defines authentication key configuration.";
-
-    leaf auth-password {
-      type oc-types:routing-password;
-      description
-        "Authentication key string.";
-    }
-  }
-
-  grouping keychain-base-group {
-    description
-      "This grouping defines keychain configuration.";
-
-    container keychain {
-      description
-        "This container defines keychain parameters.";
-
-      // TODO(robjs): Import keychain parameters following merge of the auth
-      // models.
-      //uses oc-keychain:keychain-common-base;
-      //uses oc-keychain:tolerance-base;
-      //uses oc-keychain:keychain-key-base;
-    }
-  }
-
-  grouping isis-authentication-config {
-    description
-      "This grouping defines ISIS authentication configuration.";
-
-    // TODO(robjs): Add authentication following merge of auth modules.
-    //leaf auth-type {
-    //  type oc-auth-types:auth-type;
-    //  description
-    //    "ISIS authentication type (key, key-chain).";
-    //}
-
-    leaf csnp-authentication {
-      type boolean;
-      default false;
-      description
-        "Enable or disable for IS-IS CSNPs.";
-    }
-
-    leaf psnp-authentication {
-      type boolean;
-      default false;
-      description
-        "Enable or disable authentication for IS-IS PSNPs.";
-    }
-
-    leaf lsp-authentication {
-      type boolean;
-      default false;
-      description
-        "Enable or disable authentication for IS-IS LSPs.";
-    }
-  }
-
-  grouping isis-authentication-group {
-   description
-     "This grouping defines ISIS authentication.";
-
-    container config {
-      description
-        "This container defines ISIS authentication configuration.";
-
-      uses isis-authentication-config;
-    }
-
-    container state {
-      config false;
-      description
-        "This container defines ISIS authentication state.";
-
-      uses isis-authentication-config;
-    }
-
-    container key {
-      description
-        "This container defines ISIS authentication key";
-      container config {
-        description
-          "This container defines ISIS authentication key configuration.";
-
-        uses authentication-key-group-config {
-          // TODO(aashaikh):  Add auth-type conditions after merge of
-          // auth models.
-          // when "../auth-type = 'KEY'";
-        }
-      }
-
-      container state {
-        config false;
-        description
-          "This container defines ISIS authentication key state.";
-
-        uses authentication-key-group-config {
-          // TODO(aashaikh):  Add auth-type conditions after merge of
-          // auth models.
-          // when "../auth-type = 'KEY'";
-        }
-      }
-    }
-
-    uses keychain-base-group  {
-      // TODO(aashaikh):  Add auth-type conditions after merge of
-      // auth models.
-      // when "../auth-type = 'KEY_CHAIN'";
-    }
-  }
-
   grouping isis-hello-authentication-config {
     description
       "Configuration options for IS-IS hello authentication.";
 
-    leaf hello-authentication {
+    leaf enabled {
       type boolean;
       default false;
       description
-        "Enabled or disable ISIS Hello authentication.";
+        "Enabled or disable ISIS Hello authentication. Hello authentication
+        is used on a per-interface basis to authenticate adjacencies on the
+        interface.";
     }
 
-    // TODO(robjs): Add hello-auth-type following merge of auth models.
-    //leaf hello-auth-type {
-    //  type oc-auth-types:auth-type;
-    //  description
-    //    "ISIS authentication type (key, key-chain).";
-    //}
+    leaf keychain {
+      type oc-keychain:keychain-ref;
+      description
+        "Reference to a keychain that should be used for hello authentication.";
+    }
   }
 
   grouping isis-hello-authentication-group {
@@ -404,6 +378,8 @@ module openconfig-isis {
         "This container defines ISIS authentication configuration.";
 
       uses isis-hello-authentication-config;
+      uses isis-authentication-type-config;
+      uses isis-simple-key-authentication-config;
     }
 
     container state {
@@ -412,40 +388,8 @@ module openconfig-isis {
         "This container defines ISIS authentication state.";
 
       uses isis-hello-authentication-config;
-    }
-
-    container key {
-      description
-        "This container defines ISIS authentication key";
-
-      container config {
-        description
-          "This container defines ISIS authentication key configuration.";
-
-        uses authentication-key-group-config {
-          // TODO(aashaikh):  Add auth-type conditions after merge of
-          // auth models.
-          // when "../auth-type = 'KEY'";
-        }
-      }
-
-      container state {
-        config false;
-        description
-          "This container defines ISIS authentication key state.";
-
-        uses authentication-key-group-config {
-          // TODO(aashaikh):  Add auth-type conditions after merge of
-          // auth models.
-          // when "../auth-type = 'KEY'";
-        }
-      }
-    }
-
-    uses keychain-base-group  {
-      // TODO(aashaikh):  Add auth-type conditions after merge of
-      // auth models.
-      // when "../auth-type = 'KEY_CHAIN'";
+      uses isis-authentication-type-config;
+      uses isis-simple-key-authentication-config;
     }
   }
 
@@ -477,13 +421,13 @@ module openconfig-isis {
       "This grouping defines ISIS Traffic Engineering configuration.";
 
     leaf ipv4-router-id {
-      type inet:ipv4-address-no-zone;
+      type oc-inet:ipv4-address;
       description
         "IPv4 MPLS Traffic Engineering Router-ID.";
     }
 
     leaf ipv6-router-id {
-      type inet:ipv6-address-no-zone;
+      type oc-inet:ipv6-address;
       description
         "IPv6 MPLS Traffic Engineering Router-ID.";
     }
@@ -711,7 +655,7 @@ module openconfig-isis {
     leaf hello-padding {
       type oc-isis-types:hello-padding-type;
       description
-        "This leaf controls padding type for IS-IS Hello PDUs.";
+        "Controls the padding type for IS-IS Hello PDUs.";
     }
 
     leaf circuit-type {
@@ -922,22 +866,6 @@ module openconfig-isis {
       "Policy governing the propagation of prefixes between levels.";
 
     uses oc-rpol:apply-policy-import-config;
-  }
-
-  grouping authentication-key-group-config {
-    description
-      "This grouping defines ISIS authentication key configuration.";
-
-    uses authentication-key-config;
-
-    // TODO(robjs): Add crypto-algorithm after merge of authentication modules.
-    //leaf crypto-algorithm {
-    //  type identityref {
-    //    base oc-auth-types:CRYPTO_TYPE;
-    //  }
-    //  description
-    //    "Authentication key cryptographic algorithm to be used for key encryption.";
-    //}
   }
 
   grouping isis-mpls-config {
@@ -1196,19 +1124,15 @@ module openconfig-isis {
       "This grouping defines ISIS route preference configuration";
 
     leaf external-route-preference {
-      type uint8 {
-        range "1..max";
-      }
+      type uint32;
       description
-        "Administrative Distance(preference) for external ISIS routes.";
+        "Administrative Distance (preference) for external ISIS routes.";
     }
 
     leaf internal-route-preference {
-      type uint8 {
-        range "1..max";
-      }
+      type uint32;
       description
-        "Administrative Distance(preference) for internal ISIS routes.";
+        "Administrative Distance (preference) for internal ISIS routes.";
     }
   }
 
@@ -1486,9 +1410,81 @@ module openconfig-isis {
     container authentication {
       description
         "This container defines ISIS authentication.";
-      uses isis-authentication-group;
+      uses isis-level-authentication-group;
+    }
+  }
+
+  grouping isis-level-authentication-group {
+    description
+      "Grouping containing structural elements for authentication in IS-IS.";
+
+    container config {
+      description
+        "Configuration parameters relating to IS-IS authentication.";
+
+      uses isis-level-authentication-config;
+      uses isis-authentication-type-config;
+      uses isis-simple-key-authentication-config;
     }
 
+    container state {
+      config false;
+      description
+        "Operational state parameters relating to IS-IS authentication.";
+      uses isis-level-authentication-config;
+      uses isis-authentication-type-config;
+      uses isis-simple-key-authentication-config;
+    }
+  }
+
+  grouping isis-level-authentication-config {
+    description
+      "Configuration leaves for IS-IS authentication.";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, authentication of IS-IS PSNP, CSNP and
+        LSP packets is enabled using the specified authentication details in
+        the sibling leaves.
+
+        The sibling 'disable-<type>' leaves can be used to override the value
+        of this leaf and disable authentication for a specific packet type.";
+    }
+
+    leaf disable-csnp {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, authentication is disabled for CSNP
+        packets, overriding the value of the enabled leaf in this context.";
+    }
+
+    leaf disable-psnp {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, authentication is disabled for PSNP
+        packets, overriding the value of the enabled leaf in this context.";
+    }
+
+    leaf disable-lsp {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, authentication is disabled for LSP
+        packets, overriding the value of the enabled leaf in this context.";
+    }
+
+    leaf keychain {
+      type oc-keychain:keychain-ref;
+      description
+        "Reference to the keychain that should be used for authenticating IS-IS
+        packets - the keychain may contain either a simple password, or
+        HMAC-MD5 key that is used for authenticating CSNP, PSNP and LSP packets
+        within the specified IS-IS level.";
+    }
   }
 
   grouping isis-interface-level-group {
@@ -1630,13 +1626,13 @@ module openconfig-isis {
     }
 
     leaf neighbor-ipv4-address {
-      type inet:ipv4-address-no-zone;
+      type oc-inet:ipv4-address;
       description
         "ISIS Neighbor IPv4 address.";
     }
 
     leaf neighbor-ipv6-address {
-      type inet:ipv6-address-no-zone;
+      type oc-inet:ipv6-address;
       description
         "ISIS Neighbor IPv6 address.";
     }
@@ -1691,18 +1687,12 @@ module openconfig-isis {
       reference "RFC4303. TLV 240.";
     }
 
-    leaf remaining-hold-time {
-      type uint16;
-      units seconds;
+    leaf up-timestamp {
+      type oc-types:timeticks64;
       description
-        "Holding time in seconds for adjacency. This value is based on received
-        hello PDUs and the elapsed time since receipt.";
-    }
-
-    leaf up-time {
-      type yang:timestamp;
-      description
-        "Adjacency up time.";
+        "Time at which the adjacency transitioned into the up state, expressed
+        as number of nanoseconds since the Unix epoch (Jan 1, 1970 00:00:00
+        UTC).";
     }
 
     leaf multi-topology {
@@ -1784,32 +1774,32 @@ module openconfig-isis {
       "Operational state parameters relating to LSP packet counters.";
 
     leaf received {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "The number of the specified type of PDU received on the interface.";
     }
     leaf processed {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "The number of the specified type of PDU received on the interface
         that have been processed by the local system.";
     }
     leaf dropped {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "The number of the specified type of PDU received on the interface
         that have been dropped.";
     }
 
     leaf sent {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "The number of the specified type of PDU that have been sent by the
         local system on the interface.";
     }
 
     leaf retransmit {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "The number of the specified type of PDU that that have been
         retransmitted by the local system on the interface.";
@@ -1917,7 +1907,7 @@ module openconfig-isis {
       "IS-IS counters that are relevant to the system IS-IS context.";
 
     leaf corrupted-lsps {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of corrupted in-memory LSPs detected. LSPs received from the
         wire with a bad checksum are silently dropped and not counted. LSPs
@@ -1926,7 +1916,7 @@ module openconfig-isis {
     }
 
     leaf database-overloads {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times the database has become
         overloaded.
@@ -1934,27 +1924,27 @@ module openconfig-isis {
     }
 
     leaf manual-address-drop-from-areas {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times a manual address has been dropped from area.
         MIB Entry: SysManAddrDropFromAreas.";
     }
 
     leaf exceed-max-seq-nums {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "The number of times the system has attempted to exceed the maximum
         sequence number. MIB Entry: SysAttmptToExMaxSeqNums.";
     }
     leaf seq-num-skips {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times a sequence number skip has occurred. MIB Entry:
         SysSeqNumSkips.";
     }
 
     leaf own-lsp-purges {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times a zero-aged copy of the system's
         own LSP is received from some other node.
@@ -1962,7 +1952,7 @@ module openconfig-isis {
     }
 
     leaf id-len-mismatch {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times a PDU is received with a different value for ID field
         length from that of the receiving system. MIB Entry:
@@ -1970,13 +1960,13 @@ module openconfig-isis {
     }
 
     leaf part-changes {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "The number of partition changes detected. MIB Entry: SysPartChanges.";
     }
 
     leaf max-area-address-mismatches {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times a PDU is received with a different value for
         MaximumAreaAddresses from that of the receiving system. MIB Entry:
@@ -1984,26 +1974,26 @@ module openconfig-isis {
     }
 
     leaf auth-fails {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "The number of authentication key failures.
          MIB Entry: SysAuthFails.";
     }
 
     leaf spf-runs {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "The number of times SPF was ran at this level.";
     }
 
     leaf auth-type-fails {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "The number of authentication type mismatches.";
     }
 
     leaf lsp-errors {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "The number of received LSPs with errors.";
     }
@@ -2028,28 +2018,28 @@ module openconfig-isis {
       interface or circuit.";
 
     leaf adj-changes {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times an adjacency state change has occurred on this circuit.
         MIB Entry: CircAdjChanges.";
     }
 
     leaf init-fails {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times initialization of this circuit has failed. This counts
         events such as PPP NCP failures. MIB Entry: CircInitFails.";
     }
 
     leaf rejected-adj {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times an adjacency has been rejected on this circuit. MIB
         Entry: CircRejAdjs.";
     }
 
     leaf id-field-len-mismatches {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times an IS-IS control PDU with an ID field length different
         from that for this system has been received.
@@ -2057,7 +2047,7 @@ module openconfig-isis {
     }
 
     leaf max-area-address-mismatches {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times an IS-IS control PDU with a max area address field
         different from that for this system has been received. MIB Entry:
@@ -2065,7 +2055,7 @@ module openconfig-isis {
     }
 
     leaf auth-type-fails {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times an IS-IS control PDU with an auth type field different
         from that for this system has been received. MIB Entry:
@@ -2073,14 +2063,14 @@ module openconfig-isis {
     }
 
     leaf auth-fails {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times an IS-IS control PDU with the correct auth type has
         failed to pass authentication validation. MIB Entry: CircAuthFails.";
     }
 
     leaf lan-dis-changes {
-      type yang:counter32;
+      type oc-yang:counter32;
       description
         "Number of times the Designated IS has changed on this circuit at this
         level. If the circuit is point to point, this count is zero. MIB Entry:

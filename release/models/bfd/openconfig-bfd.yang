@@ -11,7 +11,6 @@ module openconfig-bfd {
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-types { prefix "oc-types"; }
   import openconfig-interfaces { prefix "oc-if"; }
-  import openconfig-if-types { prefix "oc-ift"; }
   import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-policy-types { prefix "oc-pol-types"; }
   import ietf-inet-types { prefix "ietf-if"; }
@@ -27,7 +26,13 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.2.3";
+  oc-ext:openconfig-version "0.2.4";
+
+  revision "2022-06-28" {
+    description
+      "Remove reference to invalid oc-ift type check";
+    reference "0.2.4";
+  }
 
   revision "2021-06-16" {
     description
@@ -527,9 +532,6 @@ module openconfig-bfd {
 
     container micro-bfd-sessions {
       when "/oc-if:interfaces/oc-if:interface" +
-          "[oc-if:name=current()/../interface-ref/config/interface]/" +
-          "oc-if:config/oc-if:type = 'oc-ift:IF_AGGREGATE' or " +
-          "/oc-if:interfaces/oc-if:interface" +
           "[oc-if:name=current()/../interface-ref/config/interface]/" +
           "oc-if:config/oc-if:type = 'ietf-if:ieee8023adLag'" {
         description
