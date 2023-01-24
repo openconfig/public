@@ -39,21 +39,29 @@ module openconfig-system-redundancy {
   // feature statements
 
   // identity statements
-  identity SYSTEM_MANAGEMENT_MONITOR_MODE_BASE {
+  identity SYSTEM_MANAGEMENT_REDUNDANCY_MODE_BASE {
     description
-      "Base identity for monitor modes for redundant management links.";
+      "Base identity for redundancy modes for management-active interface.";
   }
 
-  identity SYSTEM_MANAGEMENT_MONITOR_LINK_STATE {
-    base SYSTEM_MANAGEMENT_MONITOR_MODE_BASE;
+  identity SYSTEM_MANAGEMENT_REDUNDANCY_DISABLED {
+    base SYSTEM_MANAGEMENT_REDUNDANCY_MODE_BASE;
     description
-      "Monitor link-state of redundant management links.";
+      "Disable redundancy for management-active interface.";
   }
 
-  identity SYSTEM_MANAGEMENT_MONITOR_NEIGHBOR {
-    base SYSTEM_MANAGEMENT_MONITOR_MODE_BASE;
+  identity SYSTEM_MANAGEMENT_REDUNDANCY_MONITOR_LINK_STATE {
+    base SYSTEM_MANAGEMENT_REDUNDANCY_MODE_BASE;
     description
-      "Monitor nieghbor reachability via redundant management links.";
+      "Enable redundancy for management-active interface with 
+      link-state monitor for redundant management links.";
+  }
+
+  identity SYSTEM_MANAGEMENT_REDUNDANCY_MONITOR_NEIGHBOR {
+    base SYSTEM_MANAGEMENT_REDUNDANCY_MODE_BASE;
+    description
+      "Enable redundancy for management-active interface with
+      nieghbor reachability monitor via redundant management links.";
   }
 
   // typedef statements
@@ -266,19 +274,13 @@ module openconfig-system-redundancy {
     description
       "Configuration data for management-active interface redundancy.";
 
-    leaf enabled {
-      type boolean;
-      description
-        "Enables and disables management-active interface redundancy";
-    }
-
-    leaf monitor-mode {
+    leaf redundancy-mode {
       type identityref {
-        base SYSTEM_MANAGEMENT_MONITOR_MODE_BASE;
+        base SYSTEM_MANAGEMENT_REDUNDANCY_MODE_BASE;
       }
-      default SYSTEM_MANAGEMENT_MONITOR_LINK_STATE;
+      default SYSTEM_MANAGEMENT_REDUNDANCY_DISABLED;
       description
-        "Monitor mode for management-active interface redundanct links.";
+        "Redundancy mode for management-active interface.";
     }
 
     leaf fallback-delay {
