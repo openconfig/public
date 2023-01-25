@@ -54,9 +54,16 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "2.0.0";
 
-    revision "2022-09-20" {
+  revision "2023-01-25" {
+    description
+      "Per-level global enabled configuration removed, since it duplicates
+      the level-capability leaf.";
+    reference "2.0.0";
+  }
+
+  revision "2022-09-20" {
     description
       "Add CSNP enable to IS-IS global configuration.";
     reference "1.1.0";
@@ -1328,7 +1335,6 @@ module openconfig-isis {
       description
         "This container defines ISIS level based configuration.";
 
-      uses admin-config;
       uses isis-base-level-config;
       uses isis-metric-style-config;
       uses isis-authentication-check-config;
