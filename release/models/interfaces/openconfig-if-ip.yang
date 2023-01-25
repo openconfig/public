@@ -44,9 +44,15 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.1.0";
+  oc-ext:openconfig-version "3.2.0";
 
-  revision "2022-11-09" {
+revision "2023-01-24" {
+    description
+      "Add ipv6 link-local configuration.";
+    reference "3.2.0";
+  }
+
+revision "2022-11-09" {
     description
       "Add additional IPv6 router-advertisement features.";
     reference "3.1.0";
@@ -513,6 +519,12 @@ module openconfig-if-ip {
       mandatory true;
       description
         "The length of the subnet prefix.";
+    }
+
+    leaf link-local {
+      type boolean;
+      description
+        "If true, this address is an ipv6 link local address";
     }
   }
 
