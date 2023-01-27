@@ -19,7 +19,7 @@ This repository is primarily for publishing the models, documents, and other
 material developed by the OpenConfig operators group.
 
 For information about how to contribute to OpenConfig models, please
-see [External Submissions to OpenConfig](doc/external-contributions-guide.md).
+see [External Submissions to OpenConfig](doc/contributions-guide.md).
 
 Feedback and suggestions to improve OpenConfig models is welcomed on the
 [public mailing list](https://groups.google.com/forum/?hl=en#!forum/netopenconfig),
