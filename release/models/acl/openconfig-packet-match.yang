@@ -14,6 +14,8 @@ module openconfig-packet-match {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-mpls-types { prefix oc-mpls; }
   import openconfig-defined-sets { prefix oc-sets; }
+  import openconfig-icmpv4-types { prefix oc-icmpv4-types; }
+  import openconfig-icmpv6-types { prefix oc-icmpv6-types; }
 
   // meta
   organization "OpenConfig working group";
@@ -366,7 +368,7 @@ module openconfig-packet-match {
         uses ipv4-protocol-fields-config;
         uses ipv4-protocol-fields-state;
       }
-      uses ipv4-icmp-header-fields-top;
+      uses ip-icmpv4-header-fields-top;
     }
   }
 
@@ -451,7 +453,7 @@ module openconfig-packet-match {
         uses ipv6-protocol-fields-config;
         uses ipv6-protocol-fields-state;
       }
-      uses ipv6-icmp-header-fields-top;
+      uses ip-icmpv6-header-fields-top;
     }
   }
 
@@ -530,54 +532,107 @@ module openconfig-packet-match {
     }
   }
 
-  grouping ip-icmp-header-fields-top {
+  grouping ip-icmpv4-header-fields-top {
     description
-      "Top grouping for ICMP filtering";
+      "Top grouping for ICMPv4 filtering";
 
-    container icmp {
+    container icmpv4 {
       description
-        "Top container for ICMP filtering";
+        "Top container for ICMPv4 filtering";
 
       container config {
         description
-          "Configuration attributes for ICMP filtering";
+          "Configuration attributes for ICMPv4 filtering";
 
-        uses ip-icmp-header-fields-config;
+        uses ip-icmpv4-header-fields-config;
       }
 
       container state {
         description
-          "State attributes for ICMP filtering";
+          "State attributes for ICMPv4 filtering";
         config false;
 
-        uses ip-icmp-header-fields-config;
+        uses ip-icmpv4-header-fields-config;
       }
     }
   }
 
-  grouping ip-icmp-header-fields-config {
+  grouping ip-icmpv6-header-fields-top {
     description
-      "Collection of ICMP header fields that can be
+      "Top grouping for ICMPv6 filtering";
+
+    container icmpv6 {
+      description
+        "Top container for ICMPv6 filtering";
+
+      container config {
+        description
+          "Configuration attributes for ICMPv6 filtering";
+
+        uses ip-icmpv6-header-fields-config;
+      }
+
+      container state {
+        description
+          "State attributes for ICMPv6 filtering";
+        config false;
+
+        uses ip-icmpv6-header-fields-config;
+      }
+    }
+  }
+
+  grouping ip-icmpv4-header-fields-config {
+    description
+      "Collection of ICMPv4 header fields that can be
        used to set up a match filter.";
 
-    leaf icmp-type {
-      type uint8;
+    leaf type {
+      type identityref {
+        base oc-icmpv4-types:TYPE;
+      }
       description
-        "Also known as control messages.";
+        "ICMPv4 type to be matched.";
       reference
-        "RFC 792: Internet Control Message Protocol
-         RFC 4443: Internet Control Message Protocol (ICMPv6)
+        "RFC 792: Internet Control Message Protocol";
+    }
+
+    leaf code {
+      type identityref {
+        base oc-icmpv4-types:CODE;
+      }
+      description
+        "ICMPv4 code to be matched.";
+      reference
+        "RFC 792: Internet Control Message Protocol";
+    }
+  }
+
+  grouping ip-icmpv6-header-fields-config {
+    description
+      "Collection of ICMPv6 header fields that can be
+       used to set up a match filter.";
+
+    leaf type {
+      type identityref {
+        base oc-icmpv6-types:TYPE;
+      }
+      description
+        "ICMPv6 type to be matched.";
+      reference
+        "RFC 4443: Internet Control Message Protocol (ICMPv6)
                    for Internet Protocol Version 6 (IPv6)
                    Specification.";
     }
 
-    leaf icmp-code {
-      type uint8;
+    leaf code {
+      type identityref {
+        base oc-icmpv6-types:CODE;
+      }
       description
-        "ICMP subtype.  Also known as control messages.";
+        "ICMP code to be matched.";
       reference
-        "RFC 792: Internet Control Message Protocol
-         RFC 4443: Internet Control Message Protocol (ICMPv6)
+        "RFC 4443: Internet Control Message Protocol (ICMPv6)
                    for Internet Protocol Version 6 (IPv6)
                    Specification.";
     }
