@@ -226,9 +226,9 @@ module openconfig-system-controlplane {
             traffic to be matched, along with a reference to an ACL
             configured in the OpenConfig ACL model within the /acl hierarchy.";
 
-          leaf name {
+          leaf set-name {
             type leafref {
-              path "../config/name";
+              path "../config/set-name";
             }
             description
               "Reference to the name of the ACL-set to be applied.";
@@ -258,7 +258,7 @@ module openconfig-system-controlplane {
       description
         "Grouping for ACL parameters relating to the system control-plane.";
 
-      leaf name {
+      leaf set-name {
         type leafref {
             path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
                   "oc-acl:config/oc-acl:name";
@@ -271,7 +271,7 @@ module openconfig-system-controlplane {
       leaf type {
         type leafref {
           path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set" +
-              "[oc-acl:name=current()/../name]" +
+              "[oc-acl:name=current()/../set-name]" +
               "/oc-acl:config/oc-acl:type";
         }
         description
