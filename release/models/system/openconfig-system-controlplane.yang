@@ -217,45 +217,35 @@ module openconfig-system-controlplane {
           "Configuration and operational state parameters relating to the
           access control list applied to control-plane traffic.";
 
-        container ipv4 {
+        list acl-set {
+          key "name type";
+
           description
-            "ACL parameters and statistics relating to the IPv4 control
-            plane traffic ACL.";
+            "List of the ACL that is to be applied in the specific ingress
+            or egress context. The key of the list specifies the type of
+            traffic to be matched, along with a reference to an ACL
+            configured in the OpenConfig ACL model within the /acl hierarchy.";
+
+          leaf name {
+            type leafref {
+              path "../config/name";
+            }
+            description
+              "Reference to the name of the ACL-set to be applied.";
+          }
+
+          leaf type {
+            type leafref {
+              path "../config/type";
+            }
+            description
+              "Reference to the type of the ACL-set to be applied.";
+          }
 
           container config {
             description
-              "Configuration parameters relating to the ACL applied to IPv4
-              ingress traffic towards the control-plane.";
-            uses system-controlplane-common-acl-config;
-          }
+              "Configuration parameters relating to the ACL to be applied.";
 
-          container state {
-            config false;
-            description
-              "Configuration parameters relating to the ACL applied to IPv4
-              egress traffic towards the control-plane.";
-            uses system-controlplane-common-acl-config;
-          }
-          uses oc-acl:interface-acl-entries-top;
-        }
-
-        container ipv6 {
-          description
-            "ACL parameters and statistics relating to the IPv6 control
-            plane traffic ACL.";
-
-          container config {
-            description
-              "Configuration parameters relating to the ACL applied to IPv6
-              ingress traffic towards the control-plane.";
-            uses system-controlplane-common-acl-config;
-          }
-
-          container state {
-            config false;
-            description
-              "Configuration parameters relating to the ACL applied to IPv6
-              egress traffic towards the control-plane.";
             uses system-controlplane-common-acl-config;
           }
 
@@ -274,7 +264,18 @@ module openconfig-system-controlplane {
                   "oc-acl:config/oc-acl:name";
         }
         description
-          "Reference to the ACL to be applied on IPv4 traffic
+          "Reference to the ACL to be applied to traffic
+          in the specified context (ingress or egress).";
+      }
+
+      leaf type {
+        type leafref {
+          path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set" +
+              "[oc-acl:name=current()/../name]" +
+              "/oc-acl:config/oc-acl:type";
+        }
+        description
+          "Reference to the ACL set type applied to traffic
           in the specified context (ingress or egress).";
       }
     }
