@@ -24,7 +24,13 @@ submodule openconfig-rib-bgp-attributes {
     attributes for use in BGP RIB tables.";
 
 
-  oc-ext:openconfig-version "0.8.1";
+  oc-ext:openconfig-version "0.9.0";
+
+  revision "2022-12-20" {
+    description
+      "Convert as-segment and as4-segment to keyed lists.";
+    reference "0.9.0";
+  }
 
   revision "2022-06-06" {
     description
@@ -81,6 +87,16 @@ submodule openconfig-rib-bgp-attributes {
     description
       "Data for representing BGP AS-PATH attribute";
 
+    leaf index {
+      type uint32;
+      description
+        "A unique ordering index starting from 0 identifying the position of
+        the AS-PATH segment in the list of segments.
+
+        The index MUST start from 0 and end at (length-1), where length is the
+        number of segments in the list of AS-PATH segments.";
+    }
+
     leaf type {
       type oc-bgpt:as-path-segment-type;
       description
@@ -99,6 +115,7 @@ submodule openconfig-rib-bgp-attributes {
       "Top-level grouping for AS-PATH attribute data";
 
     container as-path {
+      oc-ext:telemetry-atomic;
       description
         "Enclosing container for the list of AS path segments.
 
@@ -117,8 +134,19 @@ submodule openconfig-rib-bgp-attributes {
         RFC 5065 - Autonomous System Confederations for BGP";
 
       list as-segment {
+        key "index";
+
         description
-          "Unkeyed list of AS PATH segments";
+          "List of AS-PATH segments";
+
+        leaf index {
+          type leafref {
+            path "../state/index";
+          }
+          description
+            "Reference to the unique ordering index starting from 0 identifying
+            the position of the AS-PATH segment in the list of segments.";
+        }
 
         container state {
           config false;
@@ -136,6 +164,7 @@ submodule openconfig-rib-bgp-attributes {
       "Top-level grouping for AS4-PATH attribute data";
 
     container as4-path {
+      oc-ext:telemetry-atomic;
       description
         "This is the path encoded with 4-octet
         AS numbers in the optional transitive AS4_PATH attribute.
@@ -148,13 +177,24 @@ submodule openconfig-rib-bgp-attributes {
           "RFC 6793 - BGP Support for Four-octet AS Number Space";
 
       list as4-segment {
+        key "index";
+
         description
-          "Unkeyed list of AS PATH segments";
+          "List of AS4-PATH segments";
+
+        leaf index {
+          type leafref {
+            path "../state/index";
+          }
+          description
+            "Reference to the unique ordering index starting from 0 identifying
+            the position of the AS4-PATH segment in the list of segments.";
+        }
 
         container state {
           config false;
           description
-            "Opstate data for AS-PATH segments";
+            "Opstate data for AS4-PATH segments";
 
           uses bgp-as-path-attr-state;
         }
