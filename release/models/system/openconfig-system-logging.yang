@@ -23,7 +23,13 @@ module openconfig-system-logging {
     "This module defines configuration and operational state data
     for common logging facilities on network systems.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2023-02-01" {
+    description
+      "Add selector-set and destination-port list to remote-servers.";
+    reference "0.5.0";
+  }
 
   revision "2022-12-29" {
     description
@@ -136,7 +142,6 @@ module openconfig-system-logging {
     reference
       "IETF RFC 5424 - The Syslog Protocol";
   }
-
 
   identity NTP {
     base SYSLOG_FACILITY;
@@ -300,11 +305,63 @@ module openconfig-system-logging {
 
   // grouping statements
 
+  grouping logging-selector-set-state {
+    description 
+      "Operational state data for logging-selector-set-state";
+  }
+
+  grouping logging-selector-set-top {
+    description
+      "Configuration for named lists of selectors";
+
+    container selector-sets {
+      description
+        "Enclosing container";
+
+      list selector-set {
+        key "name";
+        description
+          "List of selectors for log messages";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to prefix name list key";
+        }
+
+        container config {
+          description
+            "Configuration data for selector sets";
+
+          uses logging-selectors-config;
+        }
+
+        container state {
+          config false;
+
+          description
+            "Operational state data ";
+
+          uses logging-selectors-config;
+          uses logging-selectors-state;
+        }
+      }
+    }
+  }
+
   grouping logging-selectors-config {
     description
       "Configuration data for logging selectors";
 
-    leaf facility {
+    leaf name {
+      type string;
+      description
+        "name of the selector, used to reference in the selector-set";
+    }
+
+    leaf-list facility {
       type identityref {
         base SYSLOG_FACILITY;
       }
@@ -312,7 +369,7 @@ module openconfig-system-logging {
         "Specifies the facility, or class of messages to log";
     }
 
-    leaf severity {
+    leaf-list severity {
       type syslog-severity;
       description
         "Specifies that only messages of the given severity (or
@@ -441,10 +498,35 @@ module openconfig-system-logging {
 
     leaf remote-port {
       type oc-inet:port-number;
+      status deprecated;
       default 514;
       description
         "Sets the destination port number for syslog UDP messages to
-        the server.  The default for syslog is 514.";
+        the server.  This leaf is deprecated in favor of using the
+        port-selector list";
+    }
+
+    list port-selector {
+      key "destination-port selector-set-name";
+      description 
+        "A list of ports associated selector.";
+
+      leaf destination-port {
+        type oc-inet:port-number;
+        description 
+          "Sets the destination port numbers for syslog messages to
+          the server.";
+      }
+
+      leaf selector-set-name {
+        type leafref {
+          path "/system/logging/selector-sets/selector-set/config/name";
+        }
+        description 
+          "Name of the selector set used to filter logs sent to this
+          port";
+      }
+
     }
   }
 
@@ -490,6 +572,7 @@ module openconfig-system-logging {
 
           uses logging-remote-config;
           uses logging-remote-state;
+          uses logging-selector-set-state;
         }
         uses logging-selectors-top;
       }
@@ -506,6 +589,7 @@ module openconfig-system-logging {
 
       uses logging-console-top;
       uses logging-remote-top;
+      uses logging-selector-set-top;
     }
   }
   // data definition statements
