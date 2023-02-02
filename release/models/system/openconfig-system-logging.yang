@@ -506,16 +506,25 @@ module openconfig-system-logging {
         port-selector list";
     }
 
-    list port-selector {
-      key "destination-port selector-set-name";
-      description 
-        "A list of ports associated selector.";
+    leaf-list remote-ports {
+      type oc-inet:port-number;
+      description
+        "Sets the destination port numbers for syslog UDP messages to
+        the server.  The default for syslog is 514.";
+    }
 
-      leaf destination-port {
-        type oc-inet:port-number;
+    list port-selector {
+      key "remote-port selector-set-name";
+      description 
+        "This list defines ports associated with selector-sets.  If no
+        port-selector is configured, then all logs are sent.";
+
+      leaf remote-port {
+        type leafref {
+          path "/system/logging/remote-servers/remote-server/config/remote-ports";
+        }
         description 
-          "Sets the destination port numbers for syslog messages to
-          the server.";
+          "Associate a selector-set to a remote-port.";
       }
 
       leaf selector-set-name {
