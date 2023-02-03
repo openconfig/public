@@ -70,9 +70,9 @@ module openconfig-icmpv4-types {
     reference "RFC1256: ICMP Router Discovery Messages";
   }
 
-  identity ROUTER_SELECTION {
+  identity ROUTER_SOLICITATION {
     description
-      "ICMP router selection, value 10.";
+      "ICMP Router Solicitation, value 10.";
     base TYPE;
     reference "RFC1256: ICMP Router Discovery Messages";
   }
@@ -104,7 +104,12 @@ module openconfig-icmpv4-types {
     base TYPE;
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
-
+  identity TRACEROUTE{
+    description
+      "Traceroute (deprecated), value 30.";
+    base TYPE;
+    reference "RFC1393: Traceroute Using an IP Option";
+  }
   identity PHOTURIS {
     description
       "ICMP Photuris, value 40.";
@@ -147,28 +152,28 @@ module openconfig-icmpv4-types {
 
   identity DST_UNREACHABLE_NET {
     description
-      "ICMPv4 destination network unreachable.";
+      "ICMPv4 destination network unreachable, code 0.";
     base DST_UNREACHABLE_CODE;
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
   identity DST_UNREACHABLE_HOST {
     description
-      "ICMPv4 destination host unreachable.";
+      "ICMPv4 destination host unreachable, code 1";
     base DST_UNREACHABLE_CODE;
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
   identity DST_UNREACHABLE_PROTOCOL {
     description
-      "ICMPv4 destination protocol unreachable.";
+      "ICMPv4 destination protocol unreachable, code 2.";
     base DST_UNREACHABLE_CODE;
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
   identity DST_UNREACHABLE_PORT {
     description
-      "ICMPv4 destination post unreachable.";
+      "ICMPv4 Port unreachable, code 3.";
     base DST_UNREACHABLE_CODE;
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
@@ -176,14 +181,14 @@ module openconfig-icmpv4-types {
   identity DST_UNREACHABLE_CANNOT_FRAGMENT {
     description
       "ICMPv4 destination unreachable due to inability to fragment. The df-bit
-      is set but the packet requires fragmentation.";
+      is set but the packet requires fragmentation, code 4.";
     base DST_UNREACHABLE_CODE;
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
   identity DST_UNREACHABLE_SRC_ROUTE_FAILED {
     description
-      "ICMPv4 destination is unreachable as source routing failed..";
+      "ICMPv4 destination is unreachable as source routing failed, code 5.";
     base DST_UNREACHABLE_CODE;
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
@@ -191,7 +196,7 @@ module openconfig-icmpv4-types {
   identity DST_UNREACHABLE_DST_NET_UNKNOWN {
     description
       "ICMPv4 destination is unreachable as the destination network is
-      unknown.";
+      unknown, code 6.";
     base DST_UNREACHABLE_CODE;
     reference "RFC1122: Requirements for Internet Hosts --
               Communication Layers";
@@ -199,7 +204,7 @@ module openconfig-icmpv4-types {
 
   identity DST_UNREACHABLE_DST_HOST_UNKNOWN {
     description
-      "ICMPv4 destination is unreachable as the destination host is unknown.";
+      "ICMPv4 destination is unreachable as the destination host is unknown, code 7.";
     base DST_UNREACHABLE_CODE;
     reference "RFC1122: Requirements for Internet Hosts --
           Communication Layers";
@@ -207,7 +212,7 @@ module openconfig-icmpv4-types {
 
   identity DST_UNREACHABLE_SRC_HOST_ISOLATED {
     description
-      "ICMPv4 destination unreachable as the source host is isolated.";
+      "ICMPv4 destination unreachable as the source host is isolated, code 8.";
     base DST_UNREACHABLE_CODE;
     reference "RFC1122: Requirements for Internet Hosts --
               Communication Layers";
@@ -216,7 +221,7 @@ module openconfig-icmpv4-types {
   identity DST_UNREACHABLE_DST_NET_ADMIN_PROHIBITED {
     description
       "ICMPv4 destination is unreachable as communication with the destination
-      network is administratively prohibited.";
+      network is administratively prohibited, code 9.";
     base DST_UNREACHABLE_CODE;
     reference "RFC1122: Requirements for Internet Hosts --
               Communication Layers";
@@ -225,7 +230,7 @@ module openconfig-icmpv4-types {
   identity DST_UNREACHABLE_DST_HOST_ADMIN_PROHIBITED {
     description
       "ICMPv4 destination is unreachable as communication with the destination
-      host is adminstratively prohibited.";
+      host is adminstratively prohibited, code 10.";
     base DST_UNREACHABLE_CODE;
     reference "RFC1122: Requirements for Internet Hosts --
               Communication Layers";
@@ -234,7 +239,7 @@ module openconfig-icmpv4-types {
   identity DST_UNREACHABLE_NET_UNREACHABLE_FOR_TOS {
     description
       "ICMPv4 destination network is unreachable for the specified type of
-      service.";
+      service, code 11.";
     base DST_UNREACHABLE_CODE;
     reference "RFC1122: Requirements for Internet Hosts --
               Communication Layers";
@@ -243,7 +248,7 @@ module openconfig-icmpv4-types {
   identity DST_UNREACHABLE_HOST_UNREACHABLE_FOR_TOS {
     description
       "ICMPv4 destination host is unreachable for the specified type of
-      service.";
+      service, code 12.";
     base DST_UNREACHABLE_CODE;
     reference "RFC1122: Requirements for Internet Hosts --
               Communication Layers";
@@ -259,16 +264,20 @@ module openconfig-icmpv4-types {
 
   identity DST_UNREACHABLE_HOST_PRECEDENCE_VIOLATION {
     description
-      "ICMPv4 destination host unreachable.";
+      "ICMPv4 destination is unreachable as the first-hop router has determined
+      that the destination cannot be reached for the specified source/
+      destination host, network, upper-layer protocol and source/destination
+      port. Code 14";
     base DST_UNREACHABLE_CODE;
   }
 
   identity DST_UNREACHABLE_PRECEDENCE_CUTOFF {
     description
-      "ICMPv4 destination is unreachable as the first-hop router has determined
+      "ICMPv4 Precedence cutoff in effect.  The network operators have imposed
+        a minimum level of precedence required for operation, the
+        datagram was sent with a precedence below this level.
+        Code 15.
       that the destination cannot be reached for the specified source/
-      destination host, network, upper-layer protocol and source/destination
-      port.";
     base DST_UNREACHABLE_CODE;
     reference "RFC1812: Requirements for IP Version 4 Routers";
   }
@@ -282,28 +291,30 @@ module openconfig-icmpv4-types {
   identity REDIRECT_NETWORK {
     base REDIRECT_CODE;
     description
-      "ICMP redirect is being issued for the network or subnet.";
+      "ICMP redirect is being issued for the network or subnet,
+       code 0";
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
   identity REDIRECT_HOST {
     base REDIRECT_CODE;
     description
-      "ICMP redirect is being issued for the host.";
+      "ICMP redirect is being issued for the host, code 1.";
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
   identity REDIRECT_TOS_NETWORK {
     base REDIRECT_CODE;
     description
-      "ICMP redirect is being issued for the network and type of service.";
+      "ICMP redirect is being issued for the network and type of service. code 2.";
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
   identity REDIRECT_TOS_HOST {
     base REDIRECT_CODE;
     description
-      "ICMP redirect is being issued for the host and type of service.";
+      "ICMP redirect is being issued for the host and type of service,
+      code 3";
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
@@ -329,14 +340,14 @@ module openconfig-icmpv4-types {
   identity ROUTER_ADVERTISEMENT_NORMAL {
     base ROUTER_ADVERTISEMENT_CODE;
     description
-      "Normal router advertisement.";
+      "Code 0: Normal router advertisement.";
     reference "RFC3344: IP Mobility Support for IPv4";
   }
 
   identity ROUTER_ADVERTISEMENT_DOES_NOT_ROUTE_COMMON {
     base ROUTER_ADVERTISEMENT_CODE;
     description
-      "Does not route common traffic.";
+      "Code 16: Does not route common traffic.";
     reference "RFC3344: IP Mobility Support for IPv4";
   }
 
@@ -362,34 +373,34 @@ module openconfig-icmpv4-types {
   identity TIME_EXCEEDED_IN_TRANSIT {
     base TIME_EXCEEDED_CODE;
     description
-      "Time to Live exceeded in transit.";
+      "Code 0: Time to Live exceeded in Transit.";
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
   identity TIME_EXCEEDED_FRAGMENT_REASSEMBLY_IN_TRANSIT {
     base TIME_EXCEEDED_CODE;
     description
-      "Fragment reassembly time exceeded.";
+      "Code 1: Fragment reassembly time exceeded.";
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
   identity PARAM_PROBLEM_CODE {
     base CODE;
     description
-      "Codes for the ICMPv4 parameter problem message.";
+      "Codes for the ICMPv4 parameter problem message (Type 12).";
   }
 
   identity PARAM_PROBLEM_POINTER_INDICATES_ERR {
     base PARAM_PROBLEM_CODE;
     description
-      "Pointer indicates the error.";
+      "Code 0: Pointer indicates the error.";
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
   identity PARAM_PROBLEM_MISSING_REQ_OPTION {
     base PARAM_PROBLEM_CODE;
     description
-      "Missing a required option.";
+      "Code 1: Missing a required option.";
     reference "RFC1108: U.S. Department of Defense
                Security Options for the Internet Protocol";
   }
@@ -397,14 +408,14 @@ module openconfig-icmpv4-types {
   identity PARAM_PROBLEM_BAD_LENGTH {
     base PARAM_PROBLEM_CODE;
     description
-      "Bad Length.";
+      "Code 2: Bad Length.";
     reference "RFC792: INTERNET CONTROL MESSAGE PROTOCOL";
   }
 
   identity TIMESTAMP_CODE {
     base CODE;
     description
-      "Codes of the ICMPv4 timestamp message.";
+      "Codes of the ICMPv4 timestamp message (Type 13).";
   }
   identity TIMESTAMP_NO_CODE {
     base TIMESTAMP_CODE;
@@ -416,7 +427,7 @@ module openconfig-icmpv4-types {
   identity TIMESTAMP_REPLY_CODE {
     base CODE;
     description
-      "Codes of the ICMPv4 timestamp reply message.";
+      "Codes of the ICMPv4 timestamp reply message (Type 14).";
   }
 
   identity TIMESTAMP_REPLY_NO_CODE {
@@ -429,48 +440,48 @@ module openconfig-icmpv4-types {
   identity PHOTURIS_CODE {
     base CODE;
     description
-      "Codes of the ICMPv4 Photuris type.";
+      "Codes of the ICMPv4 Photuris message (type 40).";
   }
 
   identity PHOTURIS_BAD_SPI {
     base PHOTURIS_CODE;
     description
-      "Bad SPI.";
+      "Code 0: Bad SPI.";
     reference "RFC2521: ICMP Security Failures Messages";
   }
 
   identity PHOTURIS_AUTH_FAILED {
     base PHOTURIS_CODE;
     description
-      "Authentication failed.";
+      "Code 1: Authentication failed.";
     reference "RFC2521: ICMP Security Failures Messages";
   }
 
   identity PHOTURIS_DECOMPRESS_FAILED {
     base PHOTURIS_CODE;
     description
-      "Decompression failed.";
+      "Code 2: Decompression failed.";
     reference "RFC2521: ICMP Security Failures Messages";
   }
 
   identity PHOTURIS_DECRYPTION_FAILED {
     base PHOTURIS_CODE;
     description
-      "Decryption failed.";
+      "Code 3: Decryption failed.";
     reference "RFC2521: ICMP Security Failures Messages";
   }
 
   identity PHOTURIS_NEED_AUTHENTICATION {
     base PHOTURIS_CODE;
     description
-      "Need authentication.";
+      "Code 4: Need authentication.";
     reference "RFC2521: ICMP Security Failures Messages";
   }
 
   identity PHOTURIS_NEED_AUTHORIZATION {
     base PHOTURIS_CODE;
     description
-      "Need authorization.";
+      "Code 5: Need authorization.";
     reference "RFC2521: ICMP Security Failures Messages";
   }
 
@@ -483,48 +494,48 @@ module openconfig-icmpv4-types {
   identity EXT_ECHO_REQUEST_NO_ERROR {
     base EXT_ECHO_REQUEST_CODE;
     description
-      "No error.";
+      "Code 0: No error.";
     reference "RFC8335: PROBE: A Utility for Probing Interfaces";
   }
 
   identity EXT_ECHO_REPLY_CODE {
     description
-      "Codes of the extended echo reply ICMP message.";
+      "Codes of the extended echo reply ICMP message (Type 43).";
     base CODE;
   }
 
   identity EXT_ECHO_REPLY_NO_ERROR {
     base EXT_ECHO_REPLY_CODE;
     description
-      "No error.";
+      "Code 0: No error.";
     reference "RFC8335: PROBE: A Utility for Probing Interfaces";
   }
 
   identity EXT_ECHO_REPLY_MALFORMED_QUERY {
     base EXT_ECHO_REPLY_CODE;
     description
-      "Malformed query.";
+      "Code 1: Malformed query.";
     reference "RFC8335: PROBE: A Utility for Probing Interfaces";
   }
 
   identity EXT_ECHO_REPLY_NO_SUCH_INTF {
     base EXT_ECHO_REPLY_CODE;
     description
-      "No such interface.";
+      "Code 2: No such interface.";
     reference "RFC8335: PROBE: A Utility for Probing Interfaces";
   }
 
   identity EXT_ECHO_REPLY_NO_SUB_TABLE_ENTRY {
     base EXT_ECHO_REPLY_CODE;
     description
-      "No such table entry.";
+      "Code 3: No such table entry.";
     reference "RFC8335: PROBE: A Utility for Probing Interfaces";
   }
 
   identity EXT_ECHO_REPLY_MULTIPLE_INTF_SATISFY_QUERY {
     base EXT_ECHO_REPLY_CODE;
     description
-      "Multiple interfaces satisfy query.";
+      "Code 4: Multiple interfaces satisfy query.";
     reference "RFC8335: PROBE: A Utility for Probing Interfaces";
   }
 }
