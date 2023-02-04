@@ -65,9 +65,15 @@ module openconfig-platform-pipeline-counters {
     5 blocks, is to have the abililty to receive all drop counters from
     all 5 blocks, for example, with one request.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2023-02-03" {
+    description
+      "Add vendor-specific control-plane traffic queue counters";
+    reference "0.4.0";
+  }
 
   revision "2022-12-01" {
     description
@@ -416,6 +422,8 @@ module openconfig-platform-pipeline-counters {
           }
         }
       }
+
+      uses pipeline-control-plane-top;
     }
   }
 
@@ -450,7 +458,6 @@ module openconfig-platform-pipeline-counters {
         "Outgoing bytes towards the line interfaces or fabric from the
         integrated-circuit interface subsystem block.";
     }
-
   }
 
   grouping pipeline-counters-common-high-low-packets {
@@ -1122,7 +1129,7 @@ module openconfig-platform-pipeline-counters {
         parts where packets may be dropped at any point in time. Providing
         specific hardware counters provides better visibility into traffic drop.
 
-        The recommended useage of this container is to create an augment at
+        The recommended usage of this container is to create an augment at
         .../pipeline-counter/drop/vendor that contains additional vendor/platform
         specific containers.
 
@@ -1135,7 +1142,8 @@ module openconfig-platform-pipeline-counters {
           }
         }";
 
-      reference "doc/vendor_counter_guide.md";
+      reference
+        "https://github.com/openconfig/public/tree/master/doc/vendor_counter_guide.md";
     }
   }
 
@@ -1148,7 +1156,8 @@ module openconfig-platform-pipeline-counters {
       packet-processing should still be exposed as a vendor-specific,
       packet-processing counter.";
 
-    reference "doc/vendor_counter_guide.md";
+    reference
+      "https://github.com/openconfig/public/tree/master/doc/vendor_counter_guide.md";
 
     container adverse {
       description
@@ -1193,6 +1202,131 @@ module openconfig-platform-pipeline-counters {
       container state {
         description
           "State container for vendor specific packet processing counters.";
+      }
+    }
+  }
+
+  grouping control-plane-traffic-counters-state {
+    description
+      "Control plane traffic counter state grouping.";
+
+    leaf queued-aggregate {
+      type oc-yang:counter64;
+      description
+        "This captures the aggregation of all counters where the switch has enqueued
+        traffic related to the control-plane.";
+    }
+
+    leaf queued-bytes-aggregate {
+      type oc-yang:counter64;
+      description
+        "This captures the aggregation of all counters in bytes where the switch has
+        enqueued traffic related to the control-plane.";
+    }
+
+    leaf dropped-aggregate {
+      type oc-yang:counter64;
+      description
+        "This captures the aggregation of all counters where the switch has dropped
+        traffic related to the control-plane.";
+    }
+
+    leaf dropped-bytes-aggregate {
+      type oc-yang:counter64;
+      description
+        "This captures the aggregation of all counters in bytes where the switch has
+        dropped traffic related to the control-plane.";
+    }
+  }
+
+  grouping control-plane-traffic-vendor-counters {
+    description
+      "A utility grouping for vendors to use when augmenting the vendor-specific
+      control-plane traffic container.";
+
+    leaf queued {
+      type oc-yang:counter64;
+      description
+        "This counter counts the number of packets enqueued.
+
+        This counter should contribute to the total aggregate of
+        .../pipeline-counters/control-plane-traffic/state/queued-aggregate.";
+    }
+
+    leaf queued-bytes {
+      type oc-yang:counter64;
+      description
+        "This counter counts the number of bytes enqueued.
+
+        This counter should contribute to the total aggregate of
+        .../pipeline-counters/control-plane-traffic/state/queued-bytes-aggregate.";
+    }
+
+    leaf dropped {
+      type oc-yang:counter64;
+      description
+        "This counter counts the number of packets dropped.
+
+        This counter should contribute to the total aggregate of
+        .../pipeline-counters/control-plane-traffic/state/dropped-aggregate.";
+    }
+
+    leaf dropped-bytes {
+      type oc-yang:counter64;
+      description
+        "This counter counts the number of bytes dropped.
+
+        This counter should contribute to the total aggregate of
+        .../pipeline-counters/control-plane-traffic/state/dropped-bytes-aggregate.";
+    }
+  }
+
+  grouping pipeline-control-plane-top {
+    description
+      "Top-level structural grouping for control-plane traffic counters.";
+
+    container control-plane-traffic {
+      description
+        "Counters that are related to traffic destined to the control-plane.";
+
+      container state {
+        config false;
+        description
+          "State container for control-plane traffic counters.";
+
+        uses control-plane-traffic-counters-state;
+      }
+
+      container vendor {
+        description
+          "Counters within these containers are defined and augmented by vendors.
+          As each ASIC and vendor has different implementation and internal
+          parts where packets may be dropped at any point in time. Providing
+          vendor-specific counters provides better visibility into control-plane traffic.
+
+          The recommended usage of this container is to create an augment at
+          .../pipeline-counter/control-plane-traffic/vendor that contains additional
+          vendor/platform specific containers.
+
+          e.g.
+          augment /components/component/integrated-circuit/pipeline-counter/control-plane-traffic/vendor {
+            container <vendor name> {
+              container <platform name> {
+                container state {
+                  leaf counter-a {
+                    uses control-plane-traffic-vendor-counters;
+                  }
+
+                  leaf counter-b {
+                    uses control-plane-traffic-vendor-counters;
+                  }
+                }
+              }
+            }
+          }";
+
+        reference
+          "https://github.com/openconfig/public/tree/master/doc/vendor_counter_guide.md";
       }
     }
   }
