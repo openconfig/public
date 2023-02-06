@@ -35,7 +35,13 @@ module openconfig-segment-routing {
       - SR SID advertisements - instantiated within the relevant IGP.
       - SR-specific counters - instantied within the relevant dataplane.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.3.2";
+
+  revision "2023-02-06" {
+    description
+      "Clarify use of interface-ref.";
+    reference "0.3.2";
+  }
 
   revision "2021-07-28" {
     description
@@ -332,8 +338,13 @@ module openconfig-segment-routing {
 
           description
             "Parameters and MPLS-specific configuration relating to Segment
-            Routing on an interface.";
+            Routing on an interface.
 
+            The interface referenced is based on the interface and
+            subinterface leaves within the interface-ref container -
+            which reference an entry in the /interfaces/interface list -
+            and should not rely on the value of the list key.";
+            
           leaf interface-id {
             type leafref {
               path "../config/interface-id";

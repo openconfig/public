@@ -25,7 +25,13 @@ submodule openconfig-ospfv2-area-interface {
     "This submodule provides OSPFv2 configuration and operational
     state parameters that are specific to the area context";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.4.1";
+
+  revision "2023-03-06" {
+    description
+      "Clarify use of interface-ref.";
+    reference "0.4.1";
+  }
 
   revision "2022-02-10" {
     description
@@ -352,8 +358,13 @@ submodule openconfig-ospfv2-area-interface {
         key "id";
 
         description
-          "List of interfaces which are enabled within this area";
+          "List of interfaces which are enabled within this area.
 
+           The interface referenced is based on the interface and
+           subinterface leaves within the interface-ref container -
+           which reference an entry in the /interfaces/interface list -
+           and should not rely on the value of the list key.";
+          
         leaf id {
           type leafref {
             path "../config/id";

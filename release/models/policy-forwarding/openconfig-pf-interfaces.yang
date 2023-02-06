@@ -19,7 +19,13 @@ submodule openconfig-pf-interfaces {
     "This submodule contains groupings related to the association
     between interfaces and policy forwarding rules.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.5.1";
+
+  revision "2023-02-06" {
+    description
+      "Clarify use of interface-ref.";
+    reference "0.5.1";
+  }
 
   revision "2022-01-25" {
     description
@@ -82,8 +88,13 @@ submodule openconfig-pf-interfaces {
         description
           "Configuration and operationals state relating to the
           relationship between interfaces and policy-based forwarding
-          rules.";
+          rules.
 
+          The interface referenced is based on the interface and
+          subinterface leaves within the interface-ref container -
+          which reference an entry in the /interfaces/interface list -
+          and should not rely on the value of the list key.";
+          
         leaf interface-id {
           type leafref {
             path "../config/interface-id";

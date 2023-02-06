@@ -50,7 +50,16 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.5.0";
+  oc-ext:openconfig-version "2.5.1";
+
+  revision "2023-02-06" {
+    description
+      "Add further specification to interface-ref type to
+       clarify that the interface and subinterface leaves
+       are how an interface is referenced, regardless of
+       context.";
+    reference "2.5.1";
+  }
 
   revision "2021-04-06" {
     description
@@ -211,7 +220,19 @@ module openconfig-interfaces {
 
     container interface-ref {
       description
-        "Reference to an interface or subinterface";
+        "Reference to an interface or subinterface. The interface
+        that is being referenced is uniquely referenced based on
+        the specified interface and subinterface leaves. In contexts
+        where a Layer 3 interface is to be referenced, both the
+        interface and subinterface leaves must be populated, as
+        Layer 3 configuration within the OpenConfig models is
+        associated with a subinterface. In the case where a
+        Layer 2 interface is to be referenced, only the
+        interface is specified.
+
+        The interface/subinterface leaf tuple must be used as
+        the means by which the interface is specified, regardless
+        of any other context information (e.g., key in a list).";
 
       container config {
         description

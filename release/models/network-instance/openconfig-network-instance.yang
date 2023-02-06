@@ -48,7 +48,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.0.0";
+  oc-ext:openconfig-version "4.0.1";
+
+  revision "2023-02-06" {
+    description
+      "Clarify use of interface-ref.";
+    reference "4.0.1";
+  }
 
   revision "2022-12-21" {
     description
@@ -495,8 +501,13 @@ module openconfig-network-instance {
             key "id";
 
             description
-              "An interface associated with the network instance";
+              "An interface associated with the network instance.
 
+               The interface referenced is based on the interface and
+               subinterface leaves within the interface-ref container -
+               which reference an entry in the /interfaces/interface list -
+               and should not rely on the value of the list key.";
+               
             leaf id {
               type leafref {
                 path "../config/id";
@@ -657,7 +668,7 @@ module openconfig-network-instance {
                   connection points that can be used for this
                   connection point). The active endpoint is selected
                   based on the precedence that it is configured
-                  with";
+                  with.";
 
                 leaf endpoint-id {
                   type leafref {
@@ -674,6 +685,7 @@ module openconfig-network-instance {
                     endpoint";
                   uses instance-endpoint-config;
                 }
+
                 container state {
                   config false;
                   description
@@ -951,7 +963,7 @@ module openconfig-network-instance {
       "Configuration parameters relating to an endpoint that is local
       to the current system";
 
-      uses oc-if:interface-ref-common;
+    uses oc-if:interface-ref-common;
 
     leaf site-id {
       type uint16;
