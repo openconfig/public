@@ -36,6 +36,7 @@ module openconfig-route-summary {
     leaf source {
       description
         "Route type that keys the route count list.";
+
       type identityref {
         base "oc-pol-types:INSTALL_PROTOCOL_TYPE";
       }
@@ -47,6 +48,7 @@ module openconfig-route-summary {
         routes which may not be installed due to hardware constraints.";
       type oc-yang-types:counter64;
     }
+
     leaf installed-count {
       description
         "Number of AFT routes installed in the hardware for the given source.";
@@ -55,6 +57,9 @@ module openconfig-route-summary {
   }
 
   grouping route-summary {
+    description
+      "A summary of route count by route type.";
+
     list route-count {
       key "source";
 
@@ -74,31 +79,30 @@ module openconfig-route-summary {
           "State parameters for the route summary list entry.";
         uses route-counter;
       }
-
     }
-    description
-      "A summary of route count by route type.";
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:afts/oc-ni:ipv6-unicast" {
+    description
+      "Augment the network-instance model with the route summary container for
+      IPv4.";
+
     container summary {
       uses route-summary;
       description
         "IPv4 route summary for the network instance.";
     }
-    description
-      "Augment the network-instance model with the route summary container for
-      IPv4.";
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:afts/oc-ni:ipv4-unicast" {
+    description
+      "Augment the network-instance model with the route summary container for
+      IPv6.";
+
     container summary {
       uses route-summary;
       description
         "IPv6 route summary for the network instance.";
     }
-    description
-      "Augment the network-instance model with the route summary container for
-      IPv6.";
   }
 }
