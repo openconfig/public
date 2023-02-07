@@ -93,7 +93,9 @@ submodule openconfig-pf-interfaces {
           The interface referenced is based on the interface and
           subinterface leaves within the interface-ref container -
           which reference an entry in the /interfaces/interface list -
-          and should not rely on the value of the list key.";
+          and should not rely on the value of the list key.
+          The interface referenced here should use interface.subinterface notation
+          if one exists;"
 
         leaf interface-id {
           type leafref {
@@ -162,9 +164,12 @@ submodule openconfig-pf-interfaces {
         path "../../../../policies/policy/config/policy-id";
       }
       description
-        "Apply the specific VRF selection policy on the interface. The referenced policy
-        MUST be of type VRF_SELECTION_POLICY. The VRF selection policy may coexist with
-        a policy-forwarding policy.
+        "Apply the specific VRF selection policy on the interface. 
+        Interface where the policy has to be binded REQUIRES to be defined
+        under the interface-ref container using the Interface and Sub-interface leaves.
+
+        The referenced policy MUST be of the type VRF_SELECTION_POLICY. 
+        The VRF selection policy may coexist with a policy-forwarding policy.
 
         The policy specified in this leaf is used to specifically choose the L3VRF network
         instance that is used for specific input criteria of packets.";
