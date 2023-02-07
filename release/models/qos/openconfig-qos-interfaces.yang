@@ -25,7 +25,13 @@ submodule openconfig-qos-interfaces {
     configuration and operational state associated with
     interfaces.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.6.1";
+
+  revision "2023-01-28" {
+    description
+      "Split groupings in interfaces for better leaf reuse.";
+    reference "0.6.1";
+  }
 
   revision "2022-09-13" {
     description
@@ -100,6 +106,13 @@ submodule openconfig-qos-interfaces {
       description
         "Reference to match terms in the classifier";
     }
+
+    uses qos-interface-classifier-match-counters-state;
+  }
+
+  grouping qos-interface-classifier-match-counters-state {
+    description
+      "Grouping for counters relating to QoS classifier match terms.";
 
     leaf matched-packets {
       type oc-yang:counter64;
