@@ -22,7 +22,13 @@ submodule openconfig-ospfv2-lsdb {
     "An OpenConfig model for the Open Shortest Path First (OSPF)
     version 2 link-state database (LSDB)";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.4.1";
+
+  revision "2023-02-07" {
+    description
+      "Add missing prefixes and fix typos in when statements";
+    reference "2.0.1";
+  }
 
   revision "2022-02-10" {
     description
@@ -1405,7 +1411,7 @@ submodule openconfig-ospfv2-lsdb {
     }
 
     leaf link-type {
-      when "../type = 'TE_LINK_TYPE'" {
+      when "../type = 'oc-ospf-types:TE_LINK_TYPE'" {
         description
           "Include the link-type field only when the sub-TLV type was a TE
           link type";
@@ -1434,7 +1440,7 @@ submodule openconfig-ospfv2-lsdb {
     }
 
     leaf link-id {
-      when "../type = 'TE_LINK_ID'" {
+      when "../type = 'oc-ospf-types:TE_LINK_ID'" {
         description
           "Include the link ID field only when the sub-TLV type was a TE
           Link identifier";
@@ -1503,7 +1509,7 @@ submodule openconfig-ospfv2-lsdb {
     }
 
     leaf maximum-reservable-bandwidth {
-      when "../type = 'oc-ospf-types:TE_LINK_MAXIUMUM_RESERVABLE_BANDWIDTH'" {
+      when "../type = 'oc-ospf-types:TE_LINK_MAXIMUM_RESERVABLE_BANDWIDTH'" {
         description
           "Include the maximum reservable bandwidth field only when the
           sub-TLV type is the maximum reservable bandwidth";
@@ -1602,7 +1608,7 @@ submodule openconfig-ospfv2-lsdb {
     }
 
     leaf-list local-ipv6-addresses {
-      when "../type = 'oc-ospf-types:NODE_LOCAL_IPV6_ADDRESS'" {
+      when "../type = 'oc-ospf-types:NODE_IPV6_LOCAL_ADDRESS'" {
         description
           "Include the local IPv6 addresses when the type of the sub-TLV
           indicfates that this is the contained data";
