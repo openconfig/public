@@ -46,7 +46,7 @@ module openconfig-if-ip {
 
   oc-ext:openconfig-version "3.2.0";
 
-  revision "2023-01-24" {
+  revision "2023-02-06" {
     description
       "Add ipv6 link-local configuration.";
     reference "3.2.0";
@@ -521,11 +521,12 @@ module openconfig-if-ip {
         "The length of the subnet prefix.";
     }
 
-    leaf link-local {
-      type boolean;
+    leaf type {
+      type oc-inet:ipv6-address-type;
       description
-        "If true, this address is an ipv6 link local address";
+        "This ipv6 address is one of the ipv6-address-type values";
     }
+
   }
 
   grouping ipv6-address-state {
