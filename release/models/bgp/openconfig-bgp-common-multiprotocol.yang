@@ -24,7 +24,14 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "9.1.0";
+  oc-ext:openconfig-version "9.2.0";
+
+  revision "2022-12-12" {
+    description
+      "Removed the default of enabled leaf of AFI-SAFI
+      at neighbor/peer-group to support BGP inheritance model.";
+    reference "9.2.0";
+  }
 
   revision "2022-05-21" {
     description
@@ -171,9 +178,9 @@ submodule openconfig-bgp-common-multiprotocol {
     }
   }
 
-  grouping bgp-common-mp-afi-safi-config {
+  grouping bgp-common-mp-global-afi-safi-config {
     description
-      "Configuration parameters used for all BGP AFI-SAFIs";
+      "Configuration parameters used for all BGP global AFI-SAFIs";
 
     leaf afi-safi-name {
       type identityref {
@@ -185,6 +192,26 @@ submodule openconfig-bgp-common-multiprotocol {
     leaf enabled {
       type boolean;
       default false;
+      description
+        "This leaf indicates whether the AFI-SAFI is enabled for all
+        neighbors or groups.";
+    }
+  }
+
+  grouping bgp-common-mp-afi-safi-config {
+    description
+      "Configuration parameters used for all BGP neighbors
+      or groups AFI-SAFIs";
+
+    leaf afi-safi-name {
+      type identityref {
+        base oc-bgp-types:AFI_SAFI_TYPE;
+      }
+      description "AFI,SAFI";
+    }
+
+    leaf enabled {
+      type boolean;
       description
         "This leaf indicates whether the AFI-SAFI is
         enabled for the neighbor or group";

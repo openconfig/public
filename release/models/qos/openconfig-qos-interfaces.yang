@@ -33,6 +33,12 @@ submodule openconfig-qos-interfaces {
     reference "0.7.0";
   }
 
+  revision "2023-01-28" {
+    description
+      "Split groupings in interfaces for better leaf reuse.";
+    reference "0.6.1";
+  }
+
   revision "2022-09-13" {
     description
       "Add queue octet drop counter.";
@@ -106,6 +112,13 @@ submodule openconfig-qos-interfaces {
       description
         "Reference to match terms in the classifier";
     }
+
+    uses qos-interface-classifier-match-counters-state;
+  }
+
+  grouping qos-interface-classifier-match-counters-state {
+    description
+      "Grouping for counters relating to QoS classifier match terms.";
 
     leaf matched-packets {
       type oc-yang:counter64;
