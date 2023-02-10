@@ -8,7 +8,6 @@ submodule openconfig-platform-common {
 
   import openconfig-platform-types { prefix oc-platform-types; }
   import openconfig-extensions { prefix oc-ext; }
-  import openconfig-types { prefix oc-types; }
 
   organization "OpenConfig working group";
 
@@ -20,7 +19,13 @@ submodule openconfig-platform-common {
     "This modules contains common groupings that are used in multiple
     components within the platform module.";
 
-  oc-ext:openconfig-version "0.22.0";
+  oc-ext:openconfig-version "0.23.0";
+
+  revision "2023-02-10" {
+    description
+      "Refactor platform utilization.";
+    reference "0.23.0";
+  }
 
   revision "2022-12-20" {
     description
@@ -79,131 +84,6 @@ submodule openconfig-platform-common {
   // typedef statements
 
   // grouping statements
-
-  grouping platform-utilization-top {
-    description
-      "Top level of utilization.";
-
-    container utilization {
-      description
-        "Utilization of the component.";
-
-      container resources {
-        description
-          "Enclosing container for the resources in this component.";
-
-        list resource {
-          key "name";
-          description
-            "List of resources, keyed by resource name.";
-
-          leaf name {
-            type leafref {
-              path "../config/name";
-            }
-            description
-              "References the resource name.";
-          }
-
-          container config {
-            description
-              "Configuration data for each resource.";
-
-            uses platform-utilization-resource-config;
-          }
-
-          container state {
-            config false;
-            description
-              "Operational state data for each resource.";
-
-            uses platform-utilization-resource-config;
-            uses platform-utilization-resource-state;
-          }
-        }
-      }
-    }
-  }
-
-  grouping platform-utilization-resource-config {
-    description
-      "Configuration data for utilization resource.";
-
-    leaf name {
-      type string;
-      description
-        "Resource name within the component.";
-    }
-
-    leaf used-threshold-upper {
-      type oc-types:percentage;
-      description
-        "The used percentage value (used / (used + free) * 100) that
-        when crossed will set utilization-threshold-exceeded to 'true'.";
-    }
-
-    leaf used-threshold-upper-clear {
-      type oc-types:percentage;
-      description
-        "The used percentage value (used / (used + free) * 100) that when
-        crossed will set utilization-threshold-exceeded to 'false'.";
-    }
-  }
-
-  grouping platform-utilization-resource-state {
-    description
-      "Operational state data for utilization resource.";
-
-    leaf used {
-      type uint64;
-      description
-        "Number of entries currently in use for the resource.";
-    }
-
-    leaf committed {
-      type uint64;
-      description
-        "Number of entries currently reserved for this resource. This is only
-        relevant to tables which allocate a block of resource for a given
-        feature.";
-    }
-
-    leaf free {
-      type uint64;
-      description
-        "Number of entries available to use.";
-    }
-
-    leaf max-limit {
-      type uint64;
-      description
-        "Maximum number of entries available for the resource. The value
-        is the theoretical maximum resource utilization possible.";
-    }
-
-    leaf high-watermark {
-      type uint64;
-      description
-        "A watermark of highest number of entries used for this resource.";
-    }
-
-    leaf last-high-watermark {
-      type oc-types:timeticks64;
-      description
-        "The timestamp when the high-watermark was last updated. The value
-        is the timestamp in nanoseconds relative to the Unix Epoch
-        (Jan 1, 1970 00:00:00 UTC).";
-    }
-
-    leaf used-threshold-upper-exceeded {
-      type boolean;
-      description
-        "This value is set to true when the used percentage value
-        (used / (used + free) * 100) has crossed the used-threshold-upper for this
-        resource and false when the used percentage value has crossed the configured
-        used-threshold-upper-clear value for this resource.";
-    }
-  }
 
   grouping component-power-management {
     description
