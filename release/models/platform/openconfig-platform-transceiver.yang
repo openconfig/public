@@ -66,7 +66,13 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.10.0";
+  oc-ext:openconfig-version "0.10.1";
+
+  revision "2023-02-10" {
+    description
+      "Fixing linting issues.";
+    reference "0.10.1";
+  }
 
   revision "2023-01-12" {
     description
@@ -430,17 +436,17 @@ module openconfig-platform-transceiver {
         "Enclosing container for transceiver alarm thresholds.";
 
       list threshold {
-        config false;
         key "severity";
+        config false;
         description
           "List of transceiver alarm thresholds, indexed by
           alarm severity.";
 
         leaf severity {
-          config false;
           type leafref {
             path "../state/severity";
           }
+          config false;
           description
            "The severity applied to the group of thresholds.
             An implementation's highest severity threshold
@@ -744,52 +750,52 @@ module openconfig-platform-transceiver {
         "The type of alarm to which the thresholds apply.";
     }
     leaf laser-temperature-upper {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
       description
         "The upper temperature threshold for the laser temperature sensor.";
-      type decimal64 {
-        fraction-digits 1;
-      }
-      units celsius;
     }
     leaf laser-temperature-lower {
-      description
-        "The lower temperature threshold for the laser temperature sensor.";
       type decimal64 {
         fraction-digits 1;
       }
       units celsius;
+      description
+        "The lower temperature threshold for the laser temperature sensor.";
     }
     leaf output-power-upper{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
       description
         "The upper power threshold for the laser output power.";
-      type decimal64 {
-        fraction-digits 2;
-      }
-      units dBm;
     }
     leaf output-power-lower{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
       description
         "The lower power threshold for the laser output power.";
-      type decimal64 {
-        fraction-digits 2;
-      }
-      units dBm;
     }
     leaf input-power-upper{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
       description
         "The upper power threshold for the laser input power.";
-      type decimal64 {
-        fraction-digits 2;
-      }
-      units dBm;
     }
     leaf input-power-lower{
-      description
-        "The lower power threshold for the laser input power.";
       type decimal64 {
         fraction-digits 2;
       }
       units dBm;
+      description
+        "The lower power threshold for the laser input power.";
     }
   }
 
