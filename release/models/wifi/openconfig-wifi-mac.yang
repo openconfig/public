@@ -26,7 +26,14 @@ module openconfig-wifi-mac {
   description
     "Model for managing MAC layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2023-01-17" {
+    description
+      "Splits client phy-rate leaf into rx/tx phy-rate leaves.  Marks phy-rate
+      as deprecated.";
+    reference "1.2.0";
+  }
 
   revision "2022-03-24" {
     description
@@ -1352,8 +1359,21 @@ module openconfig-wifi-mac {
 
       leaf phy-rate {
         type uint16;
+        status deprecated;
         description
           "Last used PHY rate of connected client.";
+      }
+
+      leaf rx-phy-rate {
+        type uint16;
+        description
+          "Last used PHY rate received from connected client.";
+      }
+
+      leaf tx-phy-rate {
+        type uint16;
+        description
+          "Last used PHY rate transmitted to connected client.";
       }
 
       leaf connection-mode {
