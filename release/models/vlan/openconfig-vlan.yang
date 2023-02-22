@@ -26,7 +26,13 @@ module openconfig-vlan {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.2.1";
+  oc-ext:openconfig-version "4.0.0";
+
+  revision "2022-11-17" {
+    description
+      "Update VLAN interface member list to be keyed";
+    reference "4.0.0";
+  }
 
   revision "2021-07-28" {
     description
@@ -149,14 +155,25 @@ module openconfig-vlan {
       "List of interfaces / subinterfaces belonging to the VLAN.";
 
     container members {
+      config false;
+
       description
         "Enclosing container for list of member interfaces";
 
       list member {
-        config false;
         description
           "List of references to interfaces / subinterfaces
           associated with the VLAN.";
+
+        key "interface";
+
+        leaf interface {
+          type leafref {
+            path "../state/interface";
+          }
+          description
+            "Reference to the list key";
+        }
 
         uses oc-if:base-interface-ref-state;
       }
