@@ -28,7 +28,15 @@ module openconfig-packet-match {
     field is omitted from a match expression, the effect is a
     wildcard ('any') for that field.";
 
-  oc-ext:openconfig-version "1.4.0";
+  oc-ext:openconfig-version "2.0.0";
+
+  revision "2023-01-27" {
+    description
+      "Update the mechanism to match detailed transport flags,
+      adding means for AND/OR in the explicitly specified flags
+      and commonly supported match aliases.";
+    reference "2.0.0";
+  }
 
   revision "2022-06-01" {
     description
@@ -462,12 +470,97 @@ module openconfig-packet-match {
           to match the destination port";
     }
 
-    leaf-list tcp-flags {
+    leaf detail-mode {
+      type enumeration {
+        enum EXPLICIT {
+          description
+            "Specifies that the mode for matching details at the transport
+             layer is to explicitly match transport flags.";
+        }
+        enum BUILTIN {
+          description
+            "Specifies that the mode for matching details at the transport
+            layer is to using implementation built-ins which may map to
+            multiple flags.";
+        }
+      }
+      description
+        "Mode that is used for matching detailed fields at the transport
+        layer. When EXPLICIT is specified, the implementation should
+        match based on the explicit flags that are specified in the
+        corresponding leaf. When BUILTIN is specified, the implementation
+        must expand the contents of the corresponding leaf to the flags
+        and/or fields that match the pre-defined built-in values.";
+    }
+
+    leaf explicit-detail-match-mode {
+      type enumeration {
+        enum ANY {
+          description
+            "Matches of the explicit-detail-flags field are treated as
+            an OR between the values in the list.";
+        }
+        enum ALL {
+          description
+            "Matches of the explicit-details-flags field are treated
+            as an AND of the values in the list.";
+        }
+      }
+      description
+        "Specifies how the contents of the explicit-details-flags list
+        are to be treated. ANY implies that any of the flags may match,
+        where ALL indicates that all the flags must be matched.";
+      when "../detail-mode = 'EXPLICIT'" {
+        description
+          "This leaf is only valid when the mode for matches is specified to
+          be explicit.";
+      }
+    }
+
+    leaf-list explicit-tcp-flags {
       type identityref {
         base oc-pkt-match-types:TCP_FLAGS;
       }
       description
-        "List of TCP flags to match";
+        "An explicit list of the TCP flags that are to be matched. The
+        mechanism for the match is specified by the explicit-detail-match-mode
+        leaf.";
+      when "../detail-mode = 'EXPLICIT'" {
+        description
+          "This leaf is only valid when the mode for matches is specified to
+          be explicit.";
+      }
+    }
+
+    leaf builtin-detail {
+      type enumeration {
+        enum TCP_INITIAL {
+          description
+            "Matches the first packet of a TCP session based on a packet
+            not having the ACK flag set, and having the SYN flag set.";
+        }
+        enum TCP_ESTABLISHED {
+          description
+            "Matches an established TCP session based on a packet having
+            the ACK or RST flags set. This does not match the first
+            packet.";
+        }
+        enum FRAGMENT {
+          description
+            "Matches non-zero values of the fragment-offset field, indicating
+            this packet is a follow up to a fragmented datagram.";
+        }
+      }
+      description
+        "Specifies a built-in (alias) for a match condition that matches
+        multiple flags, or specifies particular logic as to the flag matches
+        to be implemented. This leaf is only valid when the detail-match-mode
+        leaf is BUILTIN.";
+      when "../detail-mode = 'BUILTIN'" {
+        description
+          "This leaf is only valid when the mode for matches is specified to
+          be builtin.";
+      }
     }
   }
 
