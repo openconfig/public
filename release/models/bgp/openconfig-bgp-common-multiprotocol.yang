@@ -24,7 +24,13 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "9.2.0";
+  oc-ext:openconfig-version "9.2.1";
+
+  revision "2023-02-22" {
+    description
+      "Clarify the default of global AF enabled leaf for ipv4-unicast.";
+    reference "9.2.1";
+  }
 
   revision "2022-12-12" {
     description
@@ -194,7 +200,10 @@ submodule openconfig-bgp-common-multiprotocol {
       default false;
       description
         "This leaf indicates whether the AFI-SAFI is enabled for all
-        neighbors or groups.";
+        neighbors or groups. For historical reasons AF_IPV4 must be
+        enabled by default and all other AF are disabled by default.
+        This supports implementations of BGP RFC4271 which only defined
+        IPv4 and is always enabled when BGP is configured.";
     }
   }
 
