@@ -20,6 +20,7 @@ module openconfig-system {
   import openconfig-alarms { prefix oc-alarms; }
   import openconfig-messages { prefix oc-messages; }
   import openconfig-license { prefix oc-license; }
+  import openconfig-network-instance { prefix oc-ni; }
 
   // meta
   organization "OpenConfig working group";
@@ -46,7 +47,20 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.16.0";
+  oc-ext:openconfig-version "0.17.0";
+
+  revision "2022-12-20" {
+    description
+      "Added network instance leaf to ntp client, and dropped
+      ntp-source-address from global to individual config. Removed ntp prefix.";
+    reference "0.17.0";
+  }
+
+  revision "2022-12-19" {
+    description
+      "Update last configuration timestamp documentation.";
+    reference "0.16.1";
+  }
 
   revision "2022-09-28" {
     description
@@ -375,7 +389,8 @@ module openconfig-system {
       description
         "Indicates the monotonically increasing timestamp at which the
         last configuration change was made. This may may be through CLI,
-        gNMI or some other mechanism.";
+        gNMI or some other mechanism. The value is the timestamp in
+        nanoseconds relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
     }
   }
 
@@ -694,6 +709,18 @@ module openconfig-system {
         "Indicates whether this server should be preferred
         or not.";
     }
+
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "The network instance used to find this server.";
+    }
+
+    leaf source-address {
+      type oc-inet:ip-address;
+      description
+        "Source address to use on outgoing NTP packets";
+    }
   }
 
   grouping system-ntp-server-state {
@@ -892,12 +919,6 @@ module openconfig-system {
         "Enables and disables the NTP protocol and indicates that the system should
         attempt to synchronize the system clock with an NTP server
         from the servers defined in the 'ntp/server' list.";
-    }
-
-    leaf ntp-source-address {
-      type oc-inet:ip-address;
-      description
-        "Source address to use on outgoing NTP packets";
     }
 
     leaf enable-ntp-auth {
