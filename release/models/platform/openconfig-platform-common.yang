@@ -20,7 +20,31 @@ submodule openconfig-platform-common {
     "This modules contains common groupings that are used in multiple
     components within the platform module.";
 
-  oc-ext:openconfig-version "0.19.0";
+  oc-ext:openconfig-version "0.22.0";
+
+  revision "2022-12-20" {
+    description
+      "Add threshold and threshold-exceeded for resource usage.";
+    reference "0.22.0";
+  }
+
+  revision "2022-12-19" {
+    description
+      "Update last-high-watermark timestamp documentation.";
+    reference "0.21.1";
+  }
+
+  revision "2022-09-26" {
+    description
+      "Add state data for base-mac-address.";
+    reference "0.21.0";
+  }
+
+  revision "2022-08-31" {
+    description
+      "Add new state data for component CLEI code.";
+    reference "0.20.0";
+  }
 
   revision "2022-07-28" {
     description
@@ -110,6 +134,20 @@ submodule openconfig-platform-common {
       description
         "Resource name within the component.";
     }
+
+    leaf used-threshold-upper {
+      type oc-types:percentage;
+      description
+        "The used percentage value (used / (used + free) * 100) that
+        when crossed will set utilization-threshold-exceeded to 'true'.";
+    }
+
+    leaf used-threshold-upper-clear {
+      type oc-types:percentage;
+      description
+        "The used percentage value (used / (used + free) * 100) that when
+        crossed will set utilization-threshold-exceeded to 'false'.";
+    }
   }
 
   grouping platform-utilization-resource-state {
@@ -152,7 +190,18 @@ submodule openconfig-platform-common {
     leaf last-high-watermark {
       type oc-types:timeticks64;
       description
-        "The time when the high-watermark was last updated";
+        "The timestamp when the high-watermark was last updated. The value
+        is the timestamp in nanoseconds relative to the Unix Epoch
+        (Jan 1, 1970 00:00:00 UTC).";
+    }
+
+    leaf used-threshold-upper-exceeded {
+      type boolean;
+      description
+        "This value is set to true when the used percentage value
+        (used / (used + free) * 100) has crossed the used-threshold-upper for this
+        resource and false when the used percentage value has crossed the configured
+        used-threshold-upper-clear value for this resource.";
     }
   }
 
