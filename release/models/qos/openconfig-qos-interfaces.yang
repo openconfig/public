@@ -25,7 +25,25 @@ submodule openconfig-qos-interfaces {
     configuration and operational state associated with
     interfaces.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2023-02-17" {
+    description
+      "Add queue identifier.";
+    reference "0.8.0";
+  }
+
+  revision "2023-02-08" {
+    description
+      "Remove incorrect output placement of interface-ref";
+    reference "0.7.0";
+  }
+
+  revision "2023-01-28" {
+    description
+      "Split groupings in interfaces for better leaf reuse.";
+    reference "0.6.1";
+  }
 
   revision "2022-09-13" {
     description
@@ -100,6 +118,13 @@ submodule openconfig-qos-interfaces {
       description
         "Reference to match terms in the classifier";
     }
+
+    uses qos-interface-classifier-match-counters-state;
+  }
+
+  grouping qos-interface-classifier-match-counters-state {
+    description
+      "Grouping for counters relating to QoS classifier match terms.";
 
     leaf matched-packets {
       type oc-yang:counter64;
@@ -864,7 +889,6 @@ submodule openconfig-qos-interfaces {
         uses qos-interface-output-state;
       }
 
-      uses oc-if:interface-ref;
       uses qos-interface-classifier-top;
       uses qos-interface-queue-root-top;
       uses qos-interface-scheduler-top;

@@ -20,7 +20,13 @@ submodule openconfig-isis-routing {
   description
     "This module describes YANG model for ISIS Routing";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2023-01-04" {
+    description
+      "Add max ecmp paths for address family.";
+    reference "1.2.0";
+  }
 
   revision "2022-09-20" {
     description
@@ -249,6 +255,17 @@ submodule openconfig-isis-routing {
       description "ISIS metric value(default=10).";
     }
   }
+  grouping isis-ecmp-config {
+    description
+      "This grouping defines ISIS ecmp configuration.";
+
+    leaf max-ecmp-paths {
+      type uint8;
+      description
+        "ISIS max-paths count.";
+    }
+
+  }
 
   grouping isis-afi-safi-list {
     description
@@ -284,6 +301,7 @@ submodule openconfig-isis-routing {
         uses isis-afi-safi-config;
         uses isis-metric-config;
         uses rt-admin-config;
+        uses isis-ecmp-config;
       }
 
       container state {
@@ -294,6 +312,7 @@ submodule openconfig-isis-routing {
         uses isis-afi-safi-config;
         uses isis-metric-config;
         uses rt-admin-config;
+        uses isis-ecmp-config;
       }
 
       uses isis-mt-list;
