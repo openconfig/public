@@ -4,18 +4,11 @@ module openconfig-system-controlplane {
     namespace "http://openconfig.net/yang/system-controlplane";
     prefix "oc-sys-copp";
 
-    import openconfig-extensions {
-        prefix oc-ext;
-    }
-    import openconfig-system {
-        prefix oc-sys;
-    }
-    import openconfig-acl {
-        prefix oc-acl;
-    }
-    import openconfig-qos {
-        prefix oc-qos;
-    }
+    import openconfig-extensions { prefix oc-ext; }
+    import openconfig-system { prefix oc-sys; }
+    import openconfig-acl { prefix oc-acl; }
+    import openconfig-qos { prefix oc-qos; }
+    import openconfig-yang-types { prefix oc-yang; }
 
     organization
       "OpenConfig working group";
@@ -31,9 +24,13 @@ module openconfig-system-controlplane {
           a QoS classifier.
         - schedule traffic that has been forwarded towards the control-plane,
           to allow for policies such as rate limits to be applied.
+        - queue traffic ingress or egress from the control plane, allowing
+          packets to be queued separately based on a QoS classifier.
+
        The configured policies apply generically to all control-planes that
        exist within the system, and should be mapped to the internal interfaces
        via which packets are forwarded to control-plane modules.
+
        When a packet is received at an input interface - it is classified into a
        forwarding group which drains to a specific queue. If this input mapping
        is sufficient, the CPU-facing interface uses the specified scheduler
@@ -42,12 +39,20 @@ module openconfig-system-controlplane {
        an alternate classifier that is used to reclassify traffic into
        a new set of forwarding-groups (and hence queues) that can subsequently
        be scheduled by the specified scheduler.
+
        The specified control-plane ACL is applied to traffic received by the
        control-plane of the system.";
 
-    oc-ext:openconfig-version "0.2.0";
+    oc-ext:openconfig-version "0.3.0";
     oc-ext:catalog-organization "openconfig";
     oc-ext:origin "openconfig";
+
+    revision "2023-03-03" {
+        description
+          "Add queues to control plane.";
+        reference
+          "0.3.0";
+    }
 
     revision "2023-03-03" {
       description
@@ -198,6 +203,32 @@ module openconfig-system-controlplane {
                 }
               }
             }
+
+            container control-plane-queue {
+              description
+                "Configuration and operational state relating to the QoS
+                queues that are used for control-plane traffic.  The
+                control-plane-traffic container is treated like an
+                interface.";
+
+              container config {
+                description
+                  "Configuration parameters relating to the queues used
+                  for control-plane traffic.";
+
+                uses system-control-plane-queue-config;
+              }
+
+              container state {
+                config false;
+                description
+                  "Operational state parameters relating to the queues
+                  used for control-plane traffic.";
+
+                uses system-control-plane-queue-config;
+                uses system-control-plane-queue-state;
+              }
+            }
           }
         }
 
@@ -211,6 +242,66 @@ module openconfig-system-controlplane {
         }
       }
     }
+
+    grouping system-control-plane-queue-config {
+      description
+        "Configuration data for queues associated with the
+        interface, this is re-used across input/output queues.";
+
+      leaf name {
+        type string;
+        description
+          "Reference to the queue associated with the control plane.
+          A queue may be explicitly configured, or implicitly created
+          by the system based on default queues that are instantiated
+          by a hardware component, or are assumed to be default on
+          the system.";
+      }
+    }
+
+  grouping system-control-plane-queue-state {
+    description
+      "Operational state data for the queue associated with the
+      control plane";
+
+    leaf max-queue-len {
+      type oc-yang:counter64;
+      units bytes;
+      description
+        "Maximum observed queue length";
+    }
+
+    leaf avg-queue-len {
+      type oc-yang:counter64;
+      units bytes;
+      description
+        "Average observed queue length";
+    }
+
+    leaf transmit-pkts {
+      type oc-yang:counter64;
+      description
+        "Number of packets transmitted by this queue";
+    }
+
+    leaf transmit-octets {
+      type oc-yang:counter64;
+      description
+        "Number of octets trasmitted by this queue";
+    }
+
+    leaf dropped-pkts {
+      type oc-yang:counter64;
+      description
+        "Number of packets dropped by the queue due to overrun";
+    }
+
+    leaf dropped-octets {
+      type oc-yang:counter64;
+      description
+        "Number of octets dropped by the queue due to overrun";
+    }
+  }
 
     grouping system-controlplane-acl-common-top {
       description
