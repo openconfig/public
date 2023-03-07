@@ -26,7 +26,14 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "9.2.0";
+  oc-ext:openconfig-version "9.3.0";
+
+  revision "2023-03-07" {
+    description
+      "Added extra configuration parameters relating to an individual prefix
+      from which dynamic neighbors are accepted";
+    reference "9.3.0";
+  }
 
   revision "2022-12-12" {
     description
@@ -297,6 +304,24 @@ submodule openconfig-bgp-global {
         configured.  The configuration parameters used for the dynamic
         neighbor are those specified within the referenced peer
         group.";
+    }
+
+    leaf include-router-id {
+      type boolean;
+      default false;
+      description
+        "This value controls whether the router ID will be used to
+        identify BGP peers. A BGP peer by default is identified by
+        the network instance and peer address.
+        When this is set to true, the router ID will be included in
+        the identification of the BGP peer which will help to uniquely
+        identify dynamic peers.";
+    }
+
+    leaf remote-as {
+      type oc-inet:as-number;
+      description
+        "Neighbor's Autonomous System number."
     }
   }
 
