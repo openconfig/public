@@ -726,18 +726,27 @@ module openconfig-if-ip {
            tracked interface.";
         leaf interface {
           type leafref {
-            path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+            path "../config/interface";
           }
           description "the track interface";
         }
-        leaf priority-decrement {
-          type uint8 {
-            range 0..254;
+        container config {
+          leaf interface {
+            type leafref {
+              path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+            }
+            description "the track interface";
           }
-          default 0;
-          description "Set the value to subtract from priority when
-                       the tracked interface goes down";
+          leaf priority-decrement {
+            type uint8 {
+              range 0..254;
+            }
+            default 0;
+            description "Set the value to subtract from priority when
+                         the tracked interface goes down";
+          }
         }
+
       }
     }
   }
