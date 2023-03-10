@@ -706,11 +706,38 @@ module openconfig-if-ip {
 
   grouping ip-vrrp-tracking-config {
     description
-      "Configuration data for tracking interfaces
+      "Configuration data for tracking interface
       in a VRRP group";
-    container track-interfaces {
+
+    leaf interface {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description "the track interface";
+    }
+    leaf priority-decrement {
+      type uint8 {
+        range 0..254;
+      }
+      default 0;
+      description "Set the value to subtract from priority when
+                  the tracked interface goes down";
+    }
+  }
+
+  grouping ip-vrrp-tracking-state {
+    description
+      "Operational state data for tracking interfaces in a VRRP
+      group";
+  }
+
+  grouping ip-vrrp-tracking-top {
+    description
+      "Top-level grouping for VRRP interface tracking";
+
+    container interface-tracking {
       description
-        "The configuation data for tracking interfaces";
+        "Top-level container for VRRP interface tracking";
       list track-interface {
         key "interface";
         // TODO: we may need to add some restriction to ethernet
@@ -730,57 +757,24 @@ module openconfig-if-ip {
           }
           description "the track interface";
         }
+
         container config {
-          leaf interface {
-            type leafref {
-              path "/oc-if:interfaces/oc-if:interface/oc-if:name";
-            }
-            description "the track interface";
-          }
-          leaf priority-decrement {
-            type uint8 {
-              range 0..254;
-            }
-            default 0;
-            description "Set the value to subtract from priority when
-                         the tracked interface goes down";
-          }
+          description
+            "Configuration data for VRRP interface tracking";
+
+          uses ip-vrrp-tracking-config;
         }
 
-      }
-    }
-  }
+        container state {
 
-  grouping ip-vrrp-tracking-state {
-    description
-      "Operational state data for tracking interfaces in a VRRP
-      group";
-  }
+          config false;
 
-  grouping ip-vrrp-tracking-top {
-    description
-      "Top-level grouping for VRRP interface tracking";
+          description
+            "Operational state data for VRRP interface tracking";
 
-    container interface-tracking {
-      description
-        "Top-level container for VRRP interface tracking";
-
-      container config {
-        description
-          "Configuration data for VRRP interface tracking";
-
-        uses ip-vrrp-tracking-config;
-      }
-
-      container state {
-
-        config false;
-
-        description
-          "Operational state data for VRRP interface tracking";
-
-        uses ip-vrrp-tracking-config;
-        uses ip-vrrp-tracking-state;
+          uses ip-vrrp-tracking-config;
+          uses ip-vrrp-tracking-state;
+        }
       }
     }
   }
