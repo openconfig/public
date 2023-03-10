@@ -708,32 +708,36 @@ module openconfig-if-ip {
     description
       "Configuration data for tracking interfaces
       in a VRRP group";
-    list track-interface {
-      key interface;
-      // TODO: we may need to add some restriction to ethernet
-      // or IP interfaces.
+    container track-interfaces {
       description
-        "Sets a list of one or more interfaces that should
-         be tracked for up/down events to dynamically change the
-         priority state of the VRRP group, and potentially
-         change the mastership if the tracked interface going
-         down lowers the priority sufficiently.  Any of the tracked
-         interfaces going down will cause the priority to be lowered.
-         Some implementations may only support a single
-         tracked interface.";
-      leaf interface {
-        type leafref {
-          path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+        "The configuation data for tracking interfaces";
+      list track-interface {
+        key "interface";
+        // TODO: we may need to add some restriction to ethernet
+        // or IP interfaces.
+        description
+          "Sets a list of one or more interfaces that should
+           be tracked for up/down events to dynamically change the
+           priority state of the VRRP group, and potentially
+           change the mastership if the tracked interface going
+           down lowers the priority sufficiently.  Any of the tracked
+           interfaces going down will cause the priority to be lowered.
+           Some implementations may only support a single
+           tracked interface.";
+        leaf interface {
+          type leafref {
+            path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+          }
+          description "the track interface";
         }
-        description "the track interface";
-      }
-      leaf priority-decrement {
-        type uint8 {
-          range 0..254;
+        leaf priority-decrement {
+          type uint8 {
+            range 0..254;
+          }
+          default 0;
+          description "Set the value to subtract from priority when
+                       the tracked interface goes down";
         }
-        default 0;
-        description "Set the value to subtract from priority when
-                     the tracked interface goes down";
       }
     }
   }
