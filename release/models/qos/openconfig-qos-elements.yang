@@ -35,7 +35,25 @@ submodule openconfig-qos-elements {
       packets for transmission, including policer and shaper
       functions";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2023-02-17" {
+    description
+      "Add queue identifier.";
+    reference "0.8.0";
+  }
+
+  revision "2023-02-08" {
+    description
+      "Remove incorrect output placement of interface-ref";
+    reference "0.7.0";
+  }
+
+  revision "2023-01-28" {
+    description
+      "Split groupings in interfaces for better leaf reuse.";
+    reference "0.6.1";
+  }
 
   revision "2022-09-13" {
     description
@@ -559,6 +577,12 @@ submodule openconfig-qos-elements {
       type string;
       description
         "User-defined name of the queue";
+    }
+    leaf queue-id {
+      type uint8;
+      description
+        "An optional identifier which may be required by some hardware to map
+        the named queue to a hardware queue";
     }
   }
 
