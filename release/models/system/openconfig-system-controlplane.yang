@@ -233,7 +233,10 @@ module openconfig-system-controlplane {
                     used for control-plane traffic.";
 
                   leaf name {
-                    type string;
+                    type leafref {
+                      path "/oc-qos:qos/oc-qos:queues/oc-qos:queue/" +
+                      "oc-qos:config/oc-qos:name";
+                    }
                     description
                       "Reference to the queue associated with control plane 
                       traffic.  These queues are expected to be implicitly
@@ -257,60 +260,6 @@ module openconfig-system-controlplane {
         }
       }
     }
-
-  grouping system-control-plane-queue-state {
-    description
-      "Operational state data for the queue associated with the
-      control plane";
-
-    leaf name {
-      type string;
-      description
-        "Reference to the queue associated with the control plane.
-        A queue may be explicitly configured, or implicitly created
-        by the system based on default queues that are instantiated
-        by a hardware component, or are assumed to be default on
-        the system.";
-    }
-
-    leaf max-queue-len {
-      type oc-yang:counter64;
-      units bytes;
-      description
-        "Maximum observed queue length";
-    }
-
-    leaf avg-queue-len {
-      type oc-yang:counter64;
-      units bytes;
-      description
-        "Average observed queue length";
-    }
-
-    leaf transmit-pkts {
-      type oc-yang:counter64;
-      description
-        "Number of packets transmitted by this queue";
-    }
-
-    leaf transmit-octets {
-      type oc-yang:counter64;
-      description
-        "Number of octets trasmitted by this queue";
-    }
-
-    leaf dropped-pkts {
-      type oc-yang:counter64;
-      description
-        "Number of packets dropped by the queue due to overrun";
-    }
-
-    leaf dropped-octets {
-      type oc-yang:counter64;
-      description
-        "Number of octets dropped by the queue due to overrun";
-    }
-  }
 
     grouping system-controlplane-acl-common-top {
       description
