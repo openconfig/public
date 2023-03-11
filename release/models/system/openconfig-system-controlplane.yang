@@ -8,7 +8,6 @@ module openconfig-system-controlplane {
     import openconfig-system { prefix oc-sys; }
     import openconfig-acl { prefix oc-acl; }
     import openconfig-qos { prefix oc-qos; }
-    import openconfig-yang-types { prefix oc-yang; }
 
     organization
       "OpenConfig working group";
@@ -211,6 +210,7 @@ module openconfig-system-controlplane {
                 control-plane container is treated like an interface.";
 
               list queue {
+                config false;
                 key "name";
 
                 description
@@ -218,6 +218,7 @@ module openconfig-system-controlplane {
                 control plane traffic";
 
                 leaf name {
+                  config false;
                   type leafref {
                     path "../state/name";
                   }
@@ -232,16 +233,17 @@ module openconfig-system-controlplane {
                     "Operational state parameters relating to the queues
                     used for control-plane traffic.";
 
-                  leaf name {
-                    type leafref {
-                      path "/oc-qos:qos/oc-qos:queues/oc-qos:queue/" +
-                      "oc-qos:state/oc-qos:name";
+                    leaf name {
+                      config false;
+                      type leafref {
+                        path "/oc-qos:qos/oc-qos:queues/oc-qos:queue/" +
+                        "oc-qos:state/oc-qos:name";
+                      }
+                      description
+                        "Reference to the queue associated with control plane
+                        traffic.  These queues are expected to be implicitly
+                        created by the system.";
                     }
-                    description
-                      "Reference to the queue associated with control plane
-                      traffic.  These queues are expected to be implicitly
-                      created by the system.";
-                  }
 
                   uses oc-qos:qos-interface-queue-state;
                 }
