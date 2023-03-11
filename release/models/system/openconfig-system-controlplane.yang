@@ -204,28 +204,44 @@ module openconfig-system-controlplane {
               }
             }
 
-            container queue {
+            container queues {
               description
                 "Configuration and operational state relating to the QoS
-                queues that are used for control-plane traffic.  The
+                queues that are used for control plane traffic.  The
                 control-plane container is treated like an interface.";
-
-              container config {
+              
+              list queue {
+                key "name";
+                
                 description
-                  "Configuration parameters relating to the queues used
-                  for control-plane traffic.";
+                "Top-level container for the queue associated with 
+                control plane traffic";
 
-                uses system-control-plane-queue-config;
-              }
+                leaf name {
+                  type leafref {
+                    path "../state/name";
+                  }
+                  description
+                    "Reference to the name of the queue
+                    for control plane traffic.";
+                }
 
-              container state {
-                config false;
-                description
-                  "Operational state parameters relating to the queues
-                  used for control-plane traffic.";
+                container state {
+                  config false;
+                  description
+                    "Operational state parameters relating to the queues
+                    used for control-plane traffic.";
 
-                uses system-control-plane-queue-config;
-                uses system-control-plane-queue-state;
+                  leaf name {
+                    type string;
+                    description
+                      "Reference to the queue associated with control plane 
+                      traffic.  These queues are expected to be implicitly
+                      created by the system.";
+                  }
+
+                  uses oc-qos:qos-interface-queue-state;
+                }
               }
             }
           }
@@ -242,26 +258,20 @@ module openconfig-system-controlplane {
       }
     }
 
-    grouping system-control-plane-queue-config {
-      description
-        "Configuration data for queues associated with the
-        interface, this is re-used across input/output queues.";
-
-      leaf name {
-        type string;
-        description
-          "Reference to the queue associated with the control plane.
-          A queue may be explicitly configured, or implicitly created
-          by the system based on default queues that are instantiated
-          by a hardware component, or are assumed to be default on
-          the system.";
-      }
-    }
-
   grouping system-control-plane-queue-state {
     description
       "Operational state data for the queue associated with the
       control plane";
+
+    leaf name {
+      type string;
+      description
+        "Reference to the queue associated with the control plane.
+        A queue may be explicitly configured, or implicitly created
+        by the system based on default queues that are instantiated
+        by a hardware component, or are assumed to be default on
+        the system.";
+    }
 
     leaf max-queue-len {
       type oc-yang:counter64;
