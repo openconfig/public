@@ -209,6 +209,18 @@ module openconfig-isis {
 
   // grouping statements
 
+  grouping isis-global-state {
+    description
+      "IS-IS counters that are relevant to the system IS-IS context.";
+
+    leaf total-lsps {
+      type oc-yang:counter32;
+      description
+        "A count of all LSPs in ISIS link state database across all instances
+        and VRFs.";
+    }
+
+  }
   grouping isis-global-config {
     description
       "This grouping defines global configuration options for ISIS router.";
@@ -951,6 +963,7 @@ module openconfig-isis {
 
       uses isis-authentication-check-config;
       uses isis-global-config;
+      uses isis-global-state;
     }
 
     container lsp-bit {
@@ -1937,13 +1950,6 @@ module openconfig-isis {
   grouping system-level-counters-state {
     description
       "IS-IS counters that are relevant to the system IS-IS context.";
-
-    leaf total-lsps {
-      type oc-yang:counter32;
-      description
-        "A count of all LSPs in ISIS link state database across all instances
-        and VRFs.";
-    }
 
     leaf corrupted-lsps {
       type oc-yang:counter32;
