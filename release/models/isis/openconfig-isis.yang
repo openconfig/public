@@ -54,7 +54,15 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.3.0";
+  oc-ext:openconfig-version "1.4.0";
+
+  revision "2023-02-22" {
+    description
+      "Deprecate the instance leaf, and add a new instance-id leaf
+      that indicates the value to be used in the Instance Identifier
+      TLV.";
+    reference "1.4.0";
+  }
 
   revision "2023-01-25" {
     description
@@ -207,13 +215,28 @@ module openconfig-isis {
     description
       "This grouping defines global configuration options for ISIS router.";
 
-    // multi-instance
     leaf instance {
       type string;
       default 0;
       description
-        "ISIS Instance.";
+        "ISIS Instance. This leaf has been deprecated. The instance name
+        is specified within the
+        /network-instances/network-instance/protocols/protocol/config/name
+        leaf (list key). If a user requires a specific instance identifier
+        used in the Instance Identifier TLV to be configured the instance-id
+        leaf is used.";
+      status deprecated;
     }
+
+    leaf instance-id {
+      type uint16;
+      description
+        "When specified, this leaf explicitly indicates the instance identifier
+        that is to be used for the IS-IS instance. The value should be included
+        in the Instance Identifier (IID) TLV.";
+      reference "RFC6822: IS-IS Multi-Instance";
+    }
+
 
     leaf-list net {
       type oc-isis-types:net;
