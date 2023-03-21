@@ -54,11 +54,26 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.4.0";
+  oc-ext:openconfig-version "1.4.2";
 
-  revision "2023-03-13" {
+  revision "2023-03-20" {
     description
       "Add ISIS total-lsps counter.";
+    reference "1.4.2";
+  }
+
+  revision "2023-03-20" {
+    description
+      "Per-level global enabled configuration default false re-added to keep
+      backward compatibility.";
+    reference "1.4.1";
+  }
+
+  revision "2023-02-22" {
+    description
+      "Deprecate the instance leaf, and add a new instance-id leaf
+      that indicates the value to be used in the Instance Identifier
+      TLV.";
     reference "1.4.0";
   }
 
@@ -209,9 +224,34 @@ module openconfig-isis {
 
   // grouping statements
 
-  grouping isis-global-state {
+  grouping isis-global-counters {
     description
       "IS-IS counters that are relevant to the system IS-IS context.";
+
+    container global-level-counters {
+      description
+        "This container defines ISIS global counters.";
+
+      uses global-counters-structural;
+    }
+  }
+
+  grouping global-counters-structural {
+    description
+      "This grouping defines global counters.";
+
+    container state {
+      config false;
+      description
+        "The container defines a list of system counters for the IS.";
+
+      uses global-counters-state;
+    }
+  }
+
+  grouping global-counters-state {
+    description
+      "This container defines global counters";
 
     leaf total-lsps {
       type oc-yang:counter32;
@@ -221,17 +261,33 @@ module openconfig-isis {
     }
 
   }
+
   grouping isis-global-config {
     description
       "This grouping defines global configuration options for ISIS router.";
 
-    // multi-instance
     leaf instance {
       type string;
       default 0;
       description
-        "ISIS Instance.";
+        "ISIS Instance. This leaf has been deprecated. The instance name
+        is specified within the
+        /network-instances/network-instance/protocols/protocol/config/name
+        leaf (list key). If a user requires a specific instance identifier
+        used in the Instance Identifier TLV to be configured the instance-id
+        leaf is used.";
+      status deprecated;
     }
+
+    leaf instance-id {
+      type uint16;
+      description
+        "When specified, this leaf explicitly indicates the instance identifier
+        that is to be used for the IS-IS instance. The value should be included
+        in the Instance Identifier (IID) TLV.";
+      reference "RFC6822: IS-IS Multi-Instance";
+    }
+
 
     leaf-list net {
       type oc-isis-types:net;
@@ -326,6 +382,7 @@ module openconfig-isis {
 
     leaf enabled {
       type boolean;
+      default false;
       status deprecated;
       description
         "Formerly this leaf was used to enable or disable the functionality
@@ -963,7 +1020,7 @@ module openconfig-isis {
 
       uses isis-authentication-check-config;
       uses isis-global-config;
-      uses isis-global-state;
+      uses isis-global-counters;
     }
 
     container lsp-bit {
