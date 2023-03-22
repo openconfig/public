@@ -224,18 +224,6 @@ module openconfig-isis {
 
   // grouping statements
 
-  grouping isis-global-counters {
-    description
-      "IS-IS counters that are relevant to the system IS-IS context.";
-
-    container global-level-counters {
-      description
-        "This container defines ISIS global counters.";
-
-      uses global-counters-structural;
-    }
-  }
-
   grouping global-counters-structural {
     description
       "This grouping defines global counters.";
@@ -1020,7 +1008,13 @@ module openconfig-isis {
 
       uses isis-authentication-check-config;
       uses isis-global-config;
-      uses isis-global-counters;
+    }
+
+    container global-level-counters {
+      description
+        "This container defines ISIS global counters.";
+
+      uses global-counters-structural;
     }
 
     container lsp-bit {
