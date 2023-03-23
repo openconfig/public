@@ -1,3 +1,6 @@
+substitutions:
+    _OC_PYANG_VERSION: state-container-dne
+
 steps:
 ############### GET CI REPO ###############
 # Decrypt the file containing the key
@@ -48,7 +51,8 @@ steps:
     git clone git@github.com:openconfig/models-ci.git /go/src/github.com/openconfig/models-ci
     cd /go/src/github.com/openconfig/models-ci
     # Modify the major version to update models-ci version.
-    branch=$(git tag -l 'v8*' | sort -V | tail -1)
+    #branch=$(git tag -l 'v8*' | sort -V | tail -1)
+    branch=ocpyang-version #FIXME: remove
     git checkout $branch
   volumes:
   - name: 'ssh'
