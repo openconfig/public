@@ -28,7 +28,13 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "6.1.0";
+  oc-ext:openconfig-version "6.1.1";
+
+  revision "2023-03-27" {
+    description
+      "Update bgp-set-med-type to allow directly setting the med value";
+    reference "6.1.1";
+  }
 
   revision "2022-05-24" {
     description
@@ -159,8 +165,8 @@ module openconfig-bgp-policy {
     type union {
       type uint32;
       type string {
-        pattern '[+-][0-9]+';
-        oc-ext:posix-pattern '^[+-][0-9]+$';
+        pattern '[+-]?[0-9]+';
+        oc-ext:posix-pattern '^[+-]?[0-9]+$';
       }
       type enumeration {
         enum IGP {
