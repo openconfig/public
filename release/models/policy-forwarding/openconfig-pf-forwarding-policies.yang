@@ -292,10 +292,8 @@ submodule openconfig-pf-forwarding-policies {
           - If there is a match, the packet should be decapsulated.
             The route lookup on the new header should happen in the
             ../post-decap-network-instance.
-          - If there is no match:
-            - If the ../decap-fallback-network-instance is set, the
-              packet should be looked up there.
-            - Otherwise, the packet should be dropped.";
+          - If there is no match, the packet should be looked up in the
+            NI set by ../decap-fallback-network-instance.";
     }
 
     leaf decap-fallback-network-instance {
@@ -305,7 +303,7 @@ submodule openconfig-pf-forwarding-policies {
         path "/network-instances/network-instance/config/name";
       }
       description
-        "This leaf can only be set when ../decap-network-instance is set.
+        "This leaf has to be set when ../decap-network-instance is set.
         When this leaf is set, the specified NI should be used as a
         fallback instance for lookup when
         ../decap-network-instance produces no match for the packet.
