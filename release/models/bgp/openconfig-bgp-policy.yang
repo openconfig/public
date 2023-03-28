@@ -28,7 +28,13 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "6.1.0";
+  oc-ext:openconfig-version "6.1.1";
+
+  revision "2023-03-27" {
+    description
+      "Clarify bgp-set-med-type description";
+    reference "6.1.1";
+  }
 
   revision "2022-05-24" {
     description
@@ -172,8 +178,9 @@ module openconfig-bgp-policy {
     description
       "Type definition for specifying how the BGP MED can
       be set in BGP policy actions. The three choices are to set
-      the MED directly, increment/decrement using +/- notation,
-      and setting it to the IGP cost (predefined value).";
+      the MED directly using the uint32 type or increment/decrement
+      using +/- notation in the string type or setting it to
+      the IGP cost using the enum (predefined value).";
   }
 
   // grouping statements
