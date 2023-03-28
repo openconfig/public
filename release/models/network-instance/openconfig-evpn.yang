@@ -40,7 +40,13 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2023-03-08" {
+   description
+     "Change control-plane-vnis property to leaf-list";
+   reference   "1.0.0";
+  }
 
   revision "2021-06-28" {
    description
@@ -1158,8 +1164,8 @@ module openconfig-evpn {
         the remote VTEP peer was discovered.";
     }
 
-    leaf control-plane-vnis {
-      type string;
+    leaf-list control-plane-vnis {
+      type oc-evpn-types:vni-id;
       description
         "The control-plane VNIs are all of the VNIs that are discovered by the
         control-plane behind this peer VTEP";
