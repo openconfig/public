@@ -24,7 +24,15 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.3.0";
+  oc-ext:openconfig-version "10.0.0";
+
+  revision "2023-04-01" {
+    description
+      "Add support for BGP large communities [rfc8092] in send-community.
+      Leaf send-community was changed into a leaf-list to allow the
+      combination of different community types";
+    reference "10.0.0";
+  }
 
   revision "2023-03-31" {
     description
@@ -267,8 +275,19 @@ submodule openconfig-bgp-common {
     }
 
     leaf send-community {
+      status deprecated;
       type oc-bgp-types:community-type;
-      default "NONE";
+      description
+        "This leaf has been deprecated and replaced by send-community-type to
+        support large communities.
+
+        Specify which types of community should be sent to the
+        neighbor or group. The default is to not send the
+        community attribute";
+    }
+
+    leaf-list send-community-type {
+      type oc-bgp-types:community-type;
       description
         "Specify which types of community should be sent to the
         neighbor or group. The default is to not send the
