@@ -126,10 +126,10 @@ module: openconfig-platform
 
 Each implementor should augment `/components/component/integrated-circuit/control-plane-traffic/vendor` with their own `<vendor>/<platform>/state` containers. The naming of the platform container may consist of the platform name, ASIC family, or a combination of both platform and ASIC family. Within the state container, it should define vendor-specific counter containers. Each control-plane traffic counter may use the utility grouping `oc-ic:control-plane-traffic-vendor-counters` that provides the queued/dropped leaves. For each counters augmented into `<vendor>/<platform>/state`, the sum of the counters should be included in the values of the aggregate leaves:
 
-- Counters within `.../control-plane-traffic/vendor/<vendor>/<platform>/state/<counter>/queued` aggregate into `.../control-plane-traffic/state/total-queued`
-- Counters within `.../control-plane-traffic/vendor/<vendor>/<platform>/state/<counter>/queued-bytes` aggregate into `.../control-plane-traffic/state/total-queued-bytes`
-- Counters within `.../control-plane-traffic/vendor/<vendor>/<platform>/state/<counter>/dropped` aggregate into `.../control-plane-traffic/state/total-dropped`
-- Counters within `.../control-plane-traffic/vendor/<vendor>/<platform>/state/<counter>/dropped-bytes` aggregate into `.../control-plane-traffic/state/total-dropped-bytes`
+- Counters within `.../control-plane-traffic/vendor/<vendor>/<platform>/state/<counter>/queued` aggregate into `.../control-plane-traffic/state/queued-aggregate`
+- Counters within `.../control-plane-traffic/vendor/<vendor>/<platform>/state/<counter>/queued-bytes` aggregate into `.../control-plane-traffic/state/queued-bytes-aggregate`
+- Counters within `.../control-plane-traffic/vendor/<vendor>/<platform>/state/<counter>/dropped` aggregate into `.../control-plane-traffic/state/dropped-aggregate`
+- Counters within `.../control-plane-traffic/vendor/<vendor>/<platform>/state/<counter>/dropped-bytes` aggregate into `.../control-plane-traffic/state/dropped-bytes-aggregate`
 
 If these aggregate counters are implemented, the sum of the vendor-specific counters must match the aggregate counters.
 
