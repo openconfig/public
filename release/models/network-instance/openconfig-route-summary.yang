@@ -42,16 +42,20 @@ module openconfig-route-summary {
       }
     }
 
-    leaf total-count {
+    container total-count {
       description
-        "Total number of routes in the AFT for the given source. This count includes
-        routes which may not be installed due to hardware constraints.";
-      type oc-yang-types:counter64;
+        "A collection of route counts.";
+      uses total-count;
     }
+  }
 
-    leaf installed-count {
+  grouping total-count {
+    description
+      "A collection of route counts.";
+
+    leaf fib-count {
       description
-        "Number of AFT routes installed in the hardware for the given source.";
+        "Total number of routes in the FIB.";
       type oc-yang-types:counter64;
     }
   }
