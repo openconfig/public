@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "[!]...."
 #
 # MIT License
 # 
