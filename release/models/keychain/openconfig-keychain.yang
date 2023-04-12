@@ -10,6 +10,7 @@ module openconfig-keychain {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-keychain-types { prefix oc-keychain-types; }
   import openconfig-types { prefix oc-types; }
+  import openconfig-yang-types { prefix oc-yang; }
 
   // meta
   organization "OpenConfig working group";
@@ -32,7 +33,13 @@ module openconfig-keychain {
     which may be then referenced by other models such as routing protocol
     management.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2022-11-05" {
+    description
+      "Update key-id to a union of hex-string and uint64.";
+    reference "0.4.0";
+  }
 
   revision "2022-03-05" {
     description
@@ -186,7 +193,12 @@ module openconfig-keychain {
     description "This grouping defines key-chain key parameters.";
 
     leaf key-id {
-      type uint64;
+      type union {
+        type oc-yang:hex-string {
+          length "1..64";
+        }
+        type uint64;
+      }
       description
         "Identifier for the key within the keychain.";
     }

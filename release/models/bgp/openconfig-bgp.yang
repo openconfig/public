@@ -58,9 +58,24 @@ module openconfig-bgp {
         +-> neighbor
           +-> [ neighbor config ]
           +-> [ optional pointer to peer-group ]
-          +-> AFI / SAFI [ per-AFI overrides ]";
+          +-> AFI / SAFI [ per-AFI overrides ]
 
-  oc-ext:openconfig-version "9.1.0";
+    Most BGP features can be configured at multiple levels in the BGP
+    configuration level hierarchy. The common inheritance model allows
+    the more specific configuration (e.g. neighbor) to inherit from or
+    override the less specific configuration (e.g. global).
+    Leaf present at one level overrides leafs present at higher levels,
+    whereas leaf not present inherits its value from the leaf present
+    at the next higher level in the hierarchy.";
+
+  oc-ext:openconfig-version "9.2.0";
+
+  revision "2022-12-12" {
+    description
+      "Removed the default of enabled leaf of AFI-SAFI
+      at neighbor/peer-group to support BGP inheritance model.";
+    reference "9.2.0";
+  }
 
   revision "2022-05-21" {
     description
