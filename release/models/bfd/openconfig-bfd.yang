@@ -26,7 +26,14 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.2.4";
+  oc-ext:openconfig-version "0.3.0";
+  
+  revision "2023-04-13" {
+    description
+      "Add configuration of min interval, multiplier when
+      BFD is enabled at protocol level";
+    reference "0.3.0";
+  }
 
   revision "2022-06-28" {
     description
@@ -682,6 +689,46 @@ module openconfig-bfd {
     }
   }
 
+  grouping bfd-configuration {
+    description
+       "Configuration parameters of BFD when it is enabled in protocols.";
+    leaf desired-minimum-tx-interval {
+      type uint32;
+      units microseconds;
+      description
+        "The minimum interval between transmission of BFD control
+        packets that the operator desires. This value is advertised to
+        the peer, however the actual interval used is specified by
+        taking the maximum of desired-minimum-tx-interval and the
+        value of the remote required-minimum-receive interval value.
+
+        This value is specified as an integer number of microseconds.";
+    }
+
+    leaf required-minimum-receive {
+      type uint32;
+      units microseconds;
+      description
+        "The minimum interval between received BFD control packets that
+        this system should support. This value is advertised to the
+        remote peer to indicate the maximum frequency (i.e., minimum
+        inter-packet interval) between BFD control packets that is
+        acceptable to the local system.";
+    }
+
+    leaf detection-multiplier {
+      type uint8 {
+        range "1..max";
+      }
+      description
+        "The number of packets that must be missed to declare this
+        session as down. The detection interval for the BFD session
+        is calculated by multiplying the value of the negotiated
+        transmission interval by this value.";
+    }
+
+  }
+  
   grouping enable-bfd-state {
     description
       "Operational state parameters relating to enabling BFD.";
@@ -725,6 +772,8 @@ module openconfig-bfd {
           "Configuration parameters relating to enabling BFD.";
 
         uses enable-bfd-config;
+        uses bfd-configuration;
+        
       }
 
       container state {
@@ -733,6 +782,7 @@ module openconfig-bfd {
           "Operational state parameters relating to enabing BFD.";
 
         uses enable-bfd-config;
+        uses bfd-configuration;
         //uses enable-bfd-state;
       }
     }
