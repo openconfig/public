@@ -727,18 +727,12 @@ submodule openconfig-network-instance-l2 {
       description "MAC address is sticky and not subjected to MAC moves";
       reference "RFC7432: BGP MPLS-Based Ethernet VPN";
     }
-
-    leaf next-hop-group {
+    leaf-list next-hop-group {
       type leafref {
         path "../../../../../../next-hop-groups/next-hop-group/id";
       }
-      description "Leafref next-hop for the MAC-IP table entry";
-    }
-    leaf next-hop {
-      type leafref {
-        path "../../../../../../next-hops/next-hop/index";
-      }
-      description "Leafref next-hop for the MAC-IP table entry";
+      description
+        "Import Route Target (RT) in the network-instance on a PE.";
     }
   }
 
