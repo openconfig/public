@@ -10,7 +10,7 @@ module openconfig-system-logging {
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-inet-types { prefix oc-inet; }
-
+  import openconfig-network-instance { prefix oc-ni; }
 
   // meta
   organization "OpenConfig working group";
@@ -23,7 +23,13 @@ module openconfig-system-logging {
     "This module defines configuration and operational state data
     for common logging facilities on network systems.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.1";
+
+  revision "2022-12-29" {
+    description
+      "Add network-instance for remote logging servers";
+    reference "0.4.1";
+  }
 
   revision "2018-11-21" {
     description
@@ -424,6 +430,13 @@ module openconfig-system-logging {
       type oc-inet:ip-address;
       description
         "Source IP address for packets to the log server";
+    }
+
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "The network instance used to reach the log server.  If no
+        instance is specified, DEFAULT_INSTANCE is used.";
     }
 
     leaf remote-port {
