@@ -48,7 +48,14 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.0.1";
+  oc-ext:openconfig-version "4.0.2";
+
+  revision "2023-03-15" {
+    description
+      "Clarify that tables are to be deleted by the
+      network operating system";
+    reference "4.0.2";
+  }
 
   revision "2023-02-07" {
     description
@@ -565,7 +572,9 @@ module openconfig-network-instance {
               this list when the relevant protocol context is enabled.
               i.e., when a BGP instance is created with IPv4 and IPv6
               address families enabled, the protocol=BGP,
-              address-family=IPv4 table is created by the system.";
+              address-family=IPv4 table is created by the system. The
+	            removal of the table should not require additional or
+	            explicit configurations";
 
             leaf protocol {
               type leafref {
