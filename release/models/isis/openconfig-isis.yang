@@ -58,7 +58,7 @@ module openconfig-isis {
 
   revision "2023-03-20" {
     description
-      "Add ISIS total-lsps counter.";
+      "Add ISIS lsps counter.";
     reference "1.4.2";
   }
 
@@ -223,32 +223,6 @@ module openconfig-isis {
   // typedef statements
 
   // grouping statements
-
-  grouping global-counters-structural {
-    description
-      "This grouping defines global counters.";
-
-    container state {
-      config false;
-      description
-        "The container defines a list of system counters for the IS.";
-
-      uses global-counters-state;
-    }
-  }
-
-  grouping global-counters-state {
-    description
-      "This container defines global counters";
-
-    leaf total-lsps {
-      type oc-yang:counter32;
-      description
-        "A count of all LSPs in ISIS link state database across all instances
-        and VRFs.";
-    }
-
-  }
 
   grouping isis-global-config {
     description
@@ -1008,13 +982,6 @@ module openconfig-isis {
 
       uses isis-authentication-check-config;
       uses isis-global-config;
-    }
-
-    container global-level-counters {
-      description
-        "This container defines ISIS global counters.";
-
-      uses global-counters-structural;
     }
 
     container lsp-bit {
@@ -2001,6 +1968,12 @@ module openconfig-isis {
   grouping system-level-counters-state {
     description
       "IS-IS counters that are relevant to the system IS-IS context.";
+
+    leaf total-lsps {
+      type oc-yang:counter32;
+      description
+        "Number of LSPs in the database at the system level.";
+    }
 
     leaf corrupted-lsps {
       type oc-yang:counter32;
