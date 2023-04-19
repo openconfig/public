@@ -215,43 +215,7 @@ module openconfig-bfd {
         interface.";
     }
 
-    leaf desired-minimum-tx-interval {
-      type uint32;
-      units microseconds;
-      description
-        "The minimum interval between transmission of BFD control
-        packets that the operator desires. This value is advertised to
-        the peer, however the actual interval used is specified by
-        taking the maximum of desired-minimum-tx-interval and the
-        value of the remote required-minimum-receive interval value.
-
-        This value is specified as an integer number of microseconds.";
-    }
-
-    leaf required-minimum-receive {
-      type uint32;
-      units microseconds;
-      description
-        "The minimum interval between received BFD control packets that
-        this system should support. This value is advertised to the
-        remote peer to indicate the maximum frequency (i.e., minimum
-        inter-packet interval) between BFD control packets that is
-        acceptable to the local system.";
-    }
-
-    // rjs: Could have required-minimum-echo-receive here, but this is
-    // generally not configurable.
-
-    leaf detection-multiplier {
-      type uint8 {
-        range "1..max";
-      }
-      description
-        "The number of packets that must be missed to declare this
-        session as down. The detection interval for the BFD session
-        is calculated by multiplying the value of the negotiated
-        transmission interval by this value.";
-    }
+    uses bfd-configuration;
 
     leaf enable-per-member-link {
       type boolean;
@@ -701,8 +665,9 @@ module openconfig-bfd {
         the peer, however the actual interval used is specified by
         taking the maximum of desired-minimum-tx-interval and the
         value of the remote required-minimum-receive interval value.
-
-        This value is specified as an integer number of microseconds.";
+        This value is specified as an integer number of microseconds.
+        The value 0 is reserved and cannot be used.";
+      reference "section 4.1 of RFC 5880";
     }
 
     leaf required-minimum-receive {
@@ -714,6 +679,7 @@ module openconfig-bfd {
         remote peer to indicate the maximum frequency (i.e., minimum
         inter-packet interval) between BFD control packets that is
         acceptable to the local system.";
+      reference "section 4.1 of RFC 5880";
     }
 
     leaf detection-multiplier {
@@ -725,6 +691,7 @@ module openconfig-bfd {
         session as down. The detection interval for the BFD session
         is calculated by multiplying the value of the negotiated
         transmission interval by this value.";
+      reference "section 4.1 of RFC 5880";
     }
 
   }
