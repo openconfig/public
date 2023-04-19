@@ -20,7 +20,13 @@ module openconfig-isis-types {
     "This module contains general data definitions for use in ISIS YANG
     model.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2022-02-11" {
+    description
+      "Add simple authentication key support.";
+    reference "0.6.0";
+  }
 
   revision "2021-08-12" {
     description
@@ -177,6 +183,25 @@ module openconfig-isis-types {
     base AFI_TYPE;
     description
       "Base identify type for IPv6 address family";
+  }
+
+  identity AUTH_MODE {
+    description
+      "Base identify to define the authentication mode";
+  }
+
+  identity TEXT {
+    base AUTH_MODE;
+      description
+        "Simple Text Authentication";
+      reference "RFC1195";
+  }
+
+  identity MD5 {
+    base AUTH_MODE;
+      description
+        "HMAC-MD5 Authentication";
+      reference "RFC5304";
   }
 
   // typedef statements

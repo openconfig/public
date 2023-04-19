@@ -11,7 +11,9 @@ module openconfig-platform {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-alarm-types { prefix oc-alarm-types; }
   import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-types { prefix oc-types; }
 
+  include openconfig-platform-common;
 
   // meta
   organization "OpenConfig working group";
@@ -63,7 +65,62 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.14.0";
+  oc-ext:openconfig-version "0.22.0";
+
+  revision "2022-12-20" {
+     description
+        "Add threshold and threshold-exceeded for resource usage.";
+      reference "0.22.0";
+   }
+
+  revision "2022-12-19" {
+    description
+      "Update last-high-watermark timestamp documentation.";
+    reference "0.21.1";
+  }
+
+  revision "2022-09-26" {
+    description
+      "Add state data for base-mac-address.";
+    reference "0.21.0";
+  }
+
+  revision "2022-08-31" {
+    description
+      "Add new state data for component CLEI code.";
+    reference "0.20.0";
+  }
+
+  revision "2022-07-28" {
+    description
+      "Add container for controller card component";
+    reference "0.19.0";
+  }
+
+  revision "2022-07-11" {
+    description
+      "Add switchover ready";
+    reference "0.18.0";
+  }
+
+  revision "2022-06-10" {
+    description
+      "Specify units and epoch for switchover and reboot times.";
+    reference "0.17.0";
+  }
+
+  revision "2022-04-21" {
+    description
+      "Add platform utilization.";
+    reference "0.16.0";
+  }
+
+  revision "2022-02-02" {
+    description
+      "Add new state data for component reboot and
+      switchover.";
+    reference "0.15.0";
+  }
 
   revision "2021-08-13" {
     description
@@ -399,6 +456,14 @@ module openconfig-platform {
         (field replaceable unit)";
     }
 
+    leaf clei-code {
+      type string;
+      description
+        "Common Language Equipment Identifier (CLEI) code of the
+        component.  This should be present in particular if the
+        component is also an FRU (field replaceable unit)";
+    }
+
     leaf removable {
       type boolean;
       description
@@ -436,6 +501,76 @@ module openconfig-platform {
         corresponding subcomponent reference from the parent
         component.";
     }
+
+    leaf redundant-role {
+      type oc-platform-types:component-redundant-role;
+      description
+        "For components that have redundant roles (e.g. two
+        supervisors in a device, one as primary the other as secondary),
+        this reports the role of the component.";
+    }
+
+    container last-switchover-reason {
+      description
+        "For components that have redundant roles (e.g. two
+        supervisors in a device, one as primary the other as secondary),
+        this reports the reason of the last change of the
+        component's role.";
+
+      uses oc-platform-types:component-redundant-role-switchover-reason;
+    }
+
+    leaf last-switchover-time {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+      description
+        "For components that have redundant roles (e.g. two
+        supervisors in a device, one as primary the other as
+        secondary), this reports the time of the last change of
+        the component's role. The value is the timestamp in
+        nanoseconds relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+
+    }
+
+    leaf last-reboot-reason {
+      type identityref {
+        base oc-platform-types:COMPONENT_REBOOT_REASON;
+      }
+      description
+        "This reports the reason of the last reboot of the component.";
+    }
+
+    leaf last-reboot-time {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+      description
+        "This reports the time of the last reboot of the component. The
+        value is the timestamp in nanoseconds relative to the Unix Epoch
+        (Jan 1, 1970 00:00:00 UTC).";
+    }
+
+    leaf switchover-ready {
+      type boolean;
+      description
+        "For components that have redundant roles, this reports a value
+        that indicates if the component is ready to support failover.
+
+        The components with a redundant-role should reflect the overall
+        system's switchover status.  For example, two supervisors in a
+        device, one as primary and the other as secondary, should both
+        report the same value.";
+    }
+
+    leaf base-mac-address {
+      type oc-yang:mac-address;
+      description
+        "This is a MAC address representing the root or primary MAC
+        address for a component.  Components such as CHASSIS and
+        CONTROLLER_CARD are expected to provide a base-mac-address.  The
+        base mac-address for CHASSIS and a PRIMARY CONTROLLER_CARD may
+        contain the same value.";
+    }
+
   }
 
   grouping platform-component-temp-alarm-state {
@@ -786,6 +921,8 @@ module openconfig-platform {
         description
           "Operational state data for chassis components";
       }
+
+      uses platform-utilization-top;
     }
 
 // TODO(aashaikh): linecard container is already defined in
@@ -940,6 +1077,8 @@ module openconfig-platform {
         description
           "Operational state data for chip components";
       }
+
+      uses platform-utilization-top;
     }
 
     container backplane {
@@ -972,6 +1111,25 @@ module openconfig-platform {
         config false;
         description
           "Operational state data for software module components";
+      }
+    }
+
+    container controller-card {
+      description
+        "Data for controller card components, i.e., for components
+        with type=CONTROLLER_CARD";
+
+      container config {
+        description
+          "Configuration data for controller card components. Note that disabling
+          power to the primary supervisor should be rejected, and the operator is
+          required to perform a switchover first.";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for controller card components";
       }
     }
   }

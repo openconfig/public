@@ -1,3 +1,6 @@
+substitutions:
+    _OC_PYANG_VERSION: master
+
 steps:
 ############### GET CI REPO ###############
 # Decrypt the file containing the key
@@ -15,6 +18,7 @@ steps:
   - name: 'ssh'
     path: /root/.ssh
 # Set up git with key and domain
+# See https://cloud.google.com/build/docs/access-github-from-build#add_the_public_ssh_key_to_known_hosts
 - name: 'gcr.io/cloud-builders/git'
   entrypoint: 'bash'
   args:
@@ -32,7 +36,7 @@ steps:
 
 ############### COMMON PREP ###############
 # Create GOPATH
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   entrypoint: 'bash'
   args: ['-c', 'mkdir -p /go/src/github.com/openconfig']
   volumes:
@@ -40,7 +44,7 @@ steps:
     path: /go
   id: 'go path creation'
 # Clone CI repository
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   entrypoint: 'bash'
   args:
   - '-c'
@@ -48,7 +52,7 @@ steps:
     git clone git@github.com:openconfig/models-ci.git /go/src/github.com/openconfig/models-ci
     cd /go/src/github.com/openconfig/models-ci
     # Modify the major version to update models-ci version.
-    branch=$(git tag -l 'v6*' | sort -V | tail -1)
+    branch=$(git tag -l 'v9*' | sort -V | tail -1)
     git checkout $branch
   volumes:
   - name: 'ssh'
@@ -57,11 +61,11 @@ steps:
     path: /go
   id: 'models-ci clone'
 # Get CI script dependencies
-- name: 'gcr.io/cloud-builders/go:debian'
-  args: 
-  - 'get'
-  - './cmd_gen'
-  - './post_results'
+- name: 'golang'
+  entrypoint: 'go'
+  args:
+  - 'install'
+  - './...'
   volumes:
   - name: 'ssh'
     path: /root/.ssh
@@ -72,7 +76,7 @@ steps:
   dir: '/go/src/github.com/openconfig/models-ci'
   id: 'models-ci dep'
 # Generate validator scripts
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   entrypoint: 'bash'
   args:
   - -c
@@ -97,7 +101,7 @@ steps:
 
 ############### REGEXP TESTS ###############
 # Clone CI repository
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   entrypoint: 'bash'
   args:
   - '-c'
@@ -115,8 +119,9 @@ steps:
   waitFor: ['validator prep']
   id: 'regexp clone'
 # Get regexp dependencies
-- name: 'gcr.io/cloud-builders/go:debian'
-  args: ['get', './...']
+- name: 'golang'
+  entrypoint: 'go'
+  args: ['install', './...']
   volumes:
   - name: 'gopath'
     path: /go
@@ -169,7 +174,7 @@ steps:
   id: 'yanglint'
 
 ############### MISC-CHECKS ###############
-- name: 'gcr.io/cloud-builders/go:debian'
+- name: 'golang'
   entrypoint: 'bash'
   args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/misc-checks/test.sh"]
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -200,6 +205,7 @@ steps:
   - 'COMMIT_SHA=$COMMIT_SHA'
   - '_REPO_SLUG=$_REPO_SLUG'
   - 'BRANCH_NAME=$BRANCH_NAME'
+  - '_OC_PYANG_VERSION=$_OC_PYANG_VERSION'
   volumes:
   - name: 'gopath'
     path: /go
@@ -207,14 +213,14 @@ steps:
   id: 'oc-pyang'
 
 ############### GOYANG/YGOT ###############
-- name: 'gcr.io/cloud-builders/go:debian'
-  args: ['get', 'github.com/openconfig/ygot/generator']
+- name: 'golang'
+  entrypoint: 'go'
+  args: ['install', 'github.com/openconfig/ygot/generator@latest']
   volumes:
   - name: 'gopath'
     path: /go
   env:
   - 'GOPATH=/go'
-  - 'GO111MODULE=on'
   waitFor: ['go path creation']
   id: 'goyang-ygot prep'
 - name: 'gcr.io/$PROJECT_ID/models-ci-image'
