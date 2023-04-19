@@ -35,7 +35,13 @@ module openconfig-segment-routing {
       - SR SID advertisements - instantiated within the relevant IGP.
       - SR-specific counters - instantied within the relevant dataplane.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.3.2";
+
+  revision "2023-02-07" {
+    description
+      "Remove prefixes from enum values in when statements";
+    reference "0.3.2";
+  }
 
   revision "2021-07-28" {
     description
@@ -111,7 +117,7 @@ module openconfig-segment-routing {
     }
 
     leaf-list mpls-label-blocks {
-      when "../dataplane-type = 'oc-srt:MPLS'" {
+      when "../dataplane-type = 'MPLS'" {
         description
           "Allow the MPLS label block to be specified only for SRGBs that are
           using the MPLS dataplane.";
@@ -128,7 +134,7 @@ module openconfig-segment-routing {
     }
 
     leaf-list ipv6-prefixes {
-      when "../dataplane-type = 'oc-srt:IPV6'" {
+      when "../dataplane-type = 'IPV6'" {
         description
           "Allow IPv6 prefixes to be specified only when the dataplane
           realisation of the SRGB is IPv6.";
@@ -179,7 +185,7 @@ module openconfig-segment-routing {
     }
 
     leaf mpls-label-block {
-      when "../dataplane-type = 'oc-srt:MPLS'" {
+      when "../dataplane-type = 'MPLS'" {
         description
           "Allow the MPLS label block to be specified only for SRLBs that are
           using the MPLS dataplane.";
@@ -194,7 +200,7 @@ module openconfig-segment-routing {
     }
 
     leaf ipv6-prefix {
-      when "../dataplane-type = 'oc-srt:IPV6'" {
+      when "../dataplane-type = 'IPV6'" {
         description
           "Allow IPv6 prefixes to be specified only when the dataplane
           realisation of the SRGB is IPv6.";
