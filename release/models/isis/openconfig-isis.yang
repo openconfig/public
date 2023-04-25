@@ -54,12 +54,18 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.4.2";
+  oc-ext:openconfig-version "1.5.1";
 
-  revision "2023-03-22" {
+  revision "2023-04-25" {
     description
       "Clarify use of the interface-ref type.";
-    reference "1.4.2";
+    reference "1.5.1";
+  }
+
+  revision "2023-03-27" {
+    description
+      "Add weighted ecmp.";
+    reference "1.5.0";
   }
 
   revision "2023-03-20" {
@@ -281,6 +287,16 @@ module openconfig-isis {
       type uint8;
       description
         "ISIS max-paths count.";
+    }
+
+    leaf weighted-ecmp {
+      type boolean;
+      default "false";
+      description
+        "When set to true, all eligible multipath IS-IS routes associated with
+        the instance are programmed to use weighted ECMP. An IS-IS route is
+        eligible for weighted ECMP if all the next-hop interfaces in the
+        multipath set have a load-balancing-weight other than 'none'.";
     }
 
     leaf poi-tlv {
@@ -839,6 +855,33 @@ module openconfig-isis {
     }
   }
 
+  grouping isis-interface-weighted-ecmp-config {
+    description
+      "This grouping defines ISIS weighted ECMP configuration";
+
+    leaf load-balancing-weight {
+      description
+        "The load-balancing weight of the interface, which applies when
+        weighted ECMP is enabled and the interface is part of a multipath set.";
+      type union {
+        type uint32 {
+          range "1..4294967295";
+        }
+        type enumeration {
+          enum "auto" {
+              description "Load-balancing weight is based on the bandwidth of
+              the parent interface (port or LAG)";
+          }
+          enum "none" {
+              description "The interface should not participate in weighted
+              ECMP";
+          }
+        }
+      }
+      default "auto";
+    }
+  }
+
   grouping isis-transport-config {
     description
       "This grouping defines configuration parameters relating to the
@@ -1297,6 +1340,24 @@ module openconfig-isis {
           "This container defines state information for ISIS interface timers.";
 
         uses isis-interface-timers-config;
+      }
+    }
+
+    container weighted-ecmp {
+      description
+        "This container defines ISIS interface weighted ECMP options";
+
+      container config {
+        description
+          "Configuration parameters relating to weighted ecmp";
+        uses isis-interface-weighted-ecmp-config;
+      }
+
+      container state {
+        config false;
+        description
+          "This container defines state information for weighted ecmp";
+        uses isis-interface-weighted-ecmp-config;
       }
     }
 

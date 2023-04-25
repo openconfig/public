@@ -30,13 +30,20 @@ module openconfig-platform-healthz {
      further diagnostic and debugging informaton from a network
      device.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.1.1";
+
+  revision "2023-04-11" {
+    description
+      "Clarification for healthz state transition and unhealthy-count leaf";
+    reference "0.1.1";
+  }
 
   revision "2023-01-23" {
     description
       "Initial healthz variable revision";
     reference "0.1.0";
   }
+
 
   grouping platform-health-top {
     description
@@ -114,7 +121,7 @@ module openconfig-platform-healthz {
       description
         "The number of status checks that have determined this component
         to be in an unhealthy state. This counter should be incremented
-        when the component transitions from the HEALTHY to UNHEALTHY
+        when the component transitions from the HEALTHY to any other
         state such that the value reflects the number of times the
         component has become unhealthy.";
       oc-ext:telemetry-on-change;
