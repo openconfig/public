@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "2.2.0";
+  oc-ext:openconfig-version "2.2.1";
+
+  revision "2022-08-17" {
+    description
+      "Clarify next-hop ip-address description.";
+    reference "2.2.1";
+  }
 
   revision "2022-06-16" {
     description
@@ -289,7 +295,9 @@ submodule openconfig-aft-common {
     leaf ip-address {
       type oc-inet:ip-address;
       description
-        "The IP address of the next-hop system.";
+        "The IP address of the next-hop system. This leaf represents the
+        ip-address of the flattened next-hop representation in case of
+        recursion or indirection at the next-hop-group level";
     }
 
     leaf mac-address {
