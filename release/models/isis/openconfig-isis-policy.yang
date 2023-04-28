@@ -28,6 +28,12 @@ module openconfig-isis-policy {
 
   oc-ext:openconfig-version "0.6.0";
 
+  revision "2023-04-28" {
+    description
+      "Adding set metric-type leaf";
+    reference "0.6.0";
+  }
+
   revision "2023-02-27" {
     description
       "Fixing type for set-metric-type leaf";
@@ -143,6 +149,12 @@ module openconfig-isis-policy {
         be used in the case that import or export policies refer
         to an IS-IS instance that has multiple levels configured
         within it";
+    }
+
+    leaf set-metric-type {
+      type isis-types:metric-type;
+      description
+        "Set the type of the route to redistribute to INTERNAL or EXTERNAL";
     }
   }
 
