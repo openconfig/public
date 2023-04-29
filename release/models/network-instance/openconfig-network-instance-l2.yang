@@ -7,8 +7,8 @@ submodule openconfig-network-instance-l2 {
   // import some basic types
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-interfaces { prefix "oc-if"; }
-  import ietf-yang-types { prefix "yang"; }
-  import ietf-inet-types { prefix "inet"; }
+  import openconfig-yang-types { prefix "oc-yang"; }
+  import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-evpn-types { prefix oc-evpn-types; }
   import openconfig-evpn { prefix "oc-evpn"; }
 
@@ -24,7 +24,51 @@ submodule openconfig-network-instance-l2 {
     Layer 2 network instance configuration and operational state
     parameters.";
 
-  oc-ext:openconfig-version "1.4.0";
+  oc-ext:openconfig-version "4.0.3";
+
+  revision "2023-04-25" {
+    description
+      "Clarify use of interface-ref.";
+    reference "4.0.3";
+  }
+
+  revision "2023-03-15" {
+    description
+      "Clarify that tables are to be deleted by the
+      network operating system";
+    reference "4.0.2";
+  }
+
+  revision "2023-02-07" {
+    description
+      "Add prefixes to identity values in when statements";
+    reference "4.0.1";
+  }
+
+  revision "2022-12-21" {
+    description
+      "Removal of global per network-instance MTU";
+    reference "4.0.0";
+  }
+
+  revision "2022-12-21" {
+    description
+      "Removal of interface list unique statement";
+    reference "3.1.0";
+  }
+
+  revision "2022-12-20" {
+    description
+      "Removal of top-level enabled-address-families leaf-list";
+    reference "3.0.0";
+  }
+
+  revision "2022-11-18" {
+    description
+      "Enforce network-instance type as mandatory, removal of top-level
+      enabled leaf, migrate IETF types to OpenConfig types";
+    reference "2.0.0";
+  }
 
   revision "2022-09-15" {
     description
@@ -247,19 +291,6 @@ submodule openconfig-network-instance-l2 {
     }
   }
 
-  grouping l2ni-instance-common-config {
-    description
-      "Common configuration options which are specific to Layer 2
-      network instances";
-
-    leaf mtu {
-      type uint16;
-      description
-        "The maximum frame size which should be supported for this
-        instance for Layer 2 frames";
-    }
-  }
-
   grouping l2ni-fdb-mac-config {
     description
       "Parameters relating to FDB behaviour relating to MAC
@@ -319,7 +350,7 @@ submodule openconfig-network-instance-l2 {
       "Configuration data for MAC table entries";
 
     leaf mac-address {
-      type yang:mac-address;
+      type oc-yang:mac-address;
       description
         "MAC address for the dynamic or static MAC table
         entry";
@@ -577,7 +608,7 @@ submodule openconfig-network-instance-l2 {
     uses l2ni-l2rib-common-state;
 
     leaf host-ip {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description
         "Host IP address of the CE device for the L2RIB MAC-IP entry";
       reference "RFC7432: BGP MPLS-Based Ethernet VPN";
@@ -599,7 +630,7 @@ submodule openconfig-network-instance-l2 {
     description "L2RIB Common Property Operational State Data Grouping";
 
     leaf mac-address {
-        type yang:mac-address;
+        type oc-yang:mac-address;
         description "MAC address of the L2RIB MAC or MAC-IP entry";
     }
     leaf vlan {
@@ -706,7 +737,7 @@ submodule openconfig-network-instance-l2 {
             description "A unique entry for the next-hop.";
           }
           leaf peer-ip {
-            type inet:ip-address;
+            type oc-inet:ip-address;
             description "Next hop peer address";
           }
           leaf label {

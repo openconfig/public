@@ -24,7 +24,14 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.12.2";
+  oc-ext:openconfig-version "2.13.0";
+
+  revision "2023-03-10" {
+    description
+      "Allow Ethernet configuration parameters to be
+      used for aggregate (LAG) interfaces.";
+    reference "2.13.0";
+  }
 
   revision "2022-04-20" {
     description
@@ -669,9 +676,12 @@ module openconfig-if-ethernet {
     interfaces model";
 
     uses ethernet-top {
-      when "oc-if:config/oc-if:type = 'ianaift:ethernetCsmacd'" {
-      description "Additional interface configuration parameters when
-      the interface type is Ethernet";
+      when "oc-if:config/oc-if:type = 'ianaift:ethernetCsmacd' or " +
+           "oc-if:config/oc-if:type = 'ianaift:ieee8023adLag'" {
+      description
+        "Additional interface configuration parameters when
+        the interface type is Ethernet, or the interface is an aggregate
+        interface.";
       }
     }
   }

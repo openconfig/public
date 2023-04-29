@@ -26,7 +26,14 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "9.1.0";
+  oc-ext:openconfig-version "9.2.0";
+
+  revision "2022-12-12" {
+    description
+      "Removed the default of enabled leaf of AFI-SAFI
+      at neighbor/peer-group to support BGP inheritance model.";
+    reference "9.2.0";
+  }
 
   revision "2022-05-21" {
     description
@@ -337,13 +344,13 @@ submodule openconfig-bgp-global {
       container config {
         description
           "Configuration parameters for the AFI-SAFI";
-        uses bgp-common-mp-afi-safi-config;
+        uses bgp-common-mp-global-afi-safi-config;
       }
       container state {
         config false;
         description
           "State information relating to the AFI-SAFI";
-        uses bgp-common-mp-afi-safi-config;
+        uses bgp-common-mp-global-afi-safi-config;
         uses bgp-common-state;
       }
 
