@@ -54,7 +54,13 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.5.1";
+  oc-ext:openconfig-version "1.6.0";
+
+  revision "2023-05-01" {
+    description
+      "Add ISIS total-lsps counter.";
+    reference "1.6.0";
+  }
 
   revision "2023-04-25" {
     description
@@ -2034,6 +2040,12 @@ module openconfig-isis {
   grouping system-level-counters-state {
     description
       "IS-IS counters that are relevant to the system IS-IS context.";
+
+    leaf total-lsps {
+      type oc-yang:counter32;
+      description
+        "Number of LSPs in the database at the system level.";
+    }
 
     leaf corrupted-lsps {
       type oc-yang:counter32;
