@@ -60,6 +60,11 @@ module openconfig-isis {
     description
       "Add ISIS total-lsps counter.";
     reference "1.6.0";
+
+  revision "2023-04-25" {
+    description
+      "Clarify use of the interface-ref type.";
+    reference "1.5.1";
   }
 
   revision "2023-03-27" {
@@ -1250,7 +1255,12 @@ module openconfig-isis {
       key "interface-id";
 
       description
-        "This list contains ISIS interfaces.";
+        "This list contains ISIS interfaces.
+
+        The interface referenced is based on the interface and
+        subinterface leaves within the interface-ref container -
+        which reference an entry in the /interfaces/interface list -
+        and should not rely on the value of the list key.";
 
       leaf interface-id {
         type leafref {
