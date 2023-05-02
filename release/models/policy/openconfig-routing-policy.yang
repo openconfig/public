@@ -77,7 +77,16 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2023-05-02" {
+    description
+      "Add the telemetry-atomic extension to the BGP policy statements
+      container to reflect that policies are configured as a whole rather than
+      as individual statements. This change also enables scalar-based telemetry
+      to support the ordering of this 'ordered-by user' list.";
+    reference "3.4.0";
+  }
 
   revision "2022-05-24" {
     description
@@ -1022,8 +1031,14 @@ module openconfig-routing-policy {
       "Top-level grouping for the policy statements list";
 
     container statements {
+      oc-ext:telemetry-atomic;
       description
-        "Enclosing container for policy statements";
+        "Enclosing container for policy statements.
+
+        Note: in order to support scalar-based telemetry, policy statements are
+        treated as a whole instead of individually. Per the telemetry-atomic
+        extension, this means both configuration and telemetry must be sent in
+        whole and never as single policy statements.";
 
       list statement {
         key "name";
