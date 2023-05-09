@@ -48,7 +48,20 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.0.1";
+  oc-ext:openconfig-version "4.0.3";
+
+  revision "2023-04-25" {
+    description
+      "Clarify use of interface-ref.";
+    reference "4.0.3";
+  }
+
+  revision "2023-03-15" {
+    description
+      "Clarify that tables are to be deleted by the
+      network operating system";
+    reference "4.0.2";
+  }
 
   revision "2023-02-07" {
     description
@@ -501,7 +514,12 @@ module openconfig-network-instance {
             key "id";
 
             description
-              "An interface associated with the network instance";
+              "An interface associated with the network instance.
+
+               The interface referenced is based on the interface and
+               subinterface leaves within the interface-ref container -
+               which reference an entry in the /interfaces/interface list -
+               and should not rely on the value of the list key.";
 
             leaf id {
               type leafref {
@@ -565,7 +583,9 @@ module openconfig-network-instance {
               this list when the relevant protocol context is enabled.
               i.e., when a BGP instance is created with IPv4 and IPv6
               address families enabled, the protocol=BGP,
-              address-family=IPv4 table is created by the system.";
+              address-family=IPv4 table is created by the system. The
+	            removal of the table should not require additional or
+	            explicit configurations";
 
             leaf protocol {
               type leafref {
@@ -663,7 +683,7 @@ module openconfig-network-instance {
                   connection points that can be used for this
                   connection point). The active endpoint is selected
                   based on the precedence that it is configured
-                  with";
+                  with.";
 
                 leaf endpoint-id {
                   type leafref {
@@ -680,6 +700,7 @@ module openconfig-network-instance {
                     endpoint";
                   uses instance-endpoint-config;
                 }
+
                 container state {
                   config false;
                   description
@@ -957,7 +978,7 @@ module openconfig-network-instance {
       "Configuration parameters relating to an endpoint that is local
       to the current system";
 
-      uses oc-if:interface-ref-common;
+    uses oc-if:interface-ref-common;
 
     leaf site-id {
       type uint16;

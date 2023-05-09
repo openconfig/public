@@ -43,7 +43,13 @@ module openconfig-mpls-ldp {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.2.0";
+  oc-ext:openconfig-version "3.2.1";
+
+  revision "2023-02-06" {
+    description
+      "Add clarification of use of interface-ref.";
+    reference "3.2.1";
+  }
 
   revision "2022-02-21" {
     description
@@ -568,7 +574,12 @@ module openconfig-mpls-ldp {
         list interface {
           key "interface-id";
           description
-            "list of per-interface LDP configurations";
+            "List of per-interface LDP configurations.
+
+             The interface referenced is based on the interface and
+             subinterface leaves within the interface-ref container -
+             which reference an entry in the /interfaces/interface list -
+             and should not rely on the value of the list key.";
 
           leaf interface-id {
             type leafref {

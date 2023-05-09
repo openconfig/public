@@ -45,15 +45,20 @@ module openconfig-system-controlplane {
        The specified control-plane ACL is applied to traffic received by the
        control-plane of the system.";
 
-    oc-ext:openconfig-version "0.1.0";
+    oc-ext:openconfig-version "0.2.0";
     oc-ext:catalog-organization "openconfig";
     oc-ext:origin "openconfig";
 
+    revision "2023-03-03" {
+      description
+        "Add missing state container to ACL.";
+      reference "0.2.0";
+    }
+
     revision "2021-08-02" {
-        description
-          "Initial revision.";
-        reference
-          "0.1.0";
+      description
+        "Initial revision.";
+      reference "0.1.0";
     }
 
     grouping system-controlplane-top {
@@ -246,6 +251,13 @@ module openconfig-system-controlplane {
             description
               "Configuration parameters relating to the ACL to be applied.";
 
+            uses system-controlplane-common-acl-config;
+          }
+
+          container state {
+            config false;
+            description
+              "Operational state parameters relating to the ACL to be applied.";
             uses system-controlplane-common-acl-config;
           }
 

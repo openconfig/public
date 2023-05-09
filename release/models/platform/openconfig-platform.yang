@@ -65,7 +65,14 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.22.0";
+  oc-ext:openconfig-version "0.23.0";
+
+  revision "2023-02-13" {
+    description
+      "Refactor resource utilization threshold config into a separate grouping.
+      Update 'utilization resource' to 'resource utilization'.";
+    reference "0.23.0";
+  }
 
   revision "2022-12-20" {
      description
@@ -922,7 +929,7 @@ module openconfig-platform {
           "Operational state data for chassis components";
       }
 
-      uses platform-utilization-top;
+      uses platform-resource-utilization-top;
     }
 
 // TODO(aashaikh): linecard container is already defined in
@@ -1078,7 +1085,7 @@ module openconfig-platform {
           "Operational state data for chip components";
       }
 
-      uses platform-utilization-top;
+      uses platform-resource-utilization-top;
     }
 
     container backplane {
