@@ -563,9 +563,9 @@ module openconfig-segment-routing {
     }
   }
 
-  grouping fad-binding-attributes {
+  grouping flex-algo-binding-attributes {
     description
-      "Attributes for FAD bindings";
+      "Attributes for Flexible Algorithm bindings";
     leaf flex-algo-name {
       type leafref {
         path "/network-instances/network-instance/flex-algorithms/algorithm/name";
@@ -617,10 +617,10 @@ module openconfig-segment-routing {
         uses sr-igp-config;
       }
 
-      container fad-bindings {
+      container flex-algorithm-bindings {
         description
           "Flex Algorithm bindings";
-        list fad-binding {
+        list flex-algorithm-binding {
           key "flex-algo-name";
           description
             "Flex Algorithm binding for a given algorithm name";
@@ -634,13 +634,13 @@ module openconfig-segment-routing {
           container config {
             description
               "Attributes of a FAD binding";
-            uses fad-binding-attributes;
+            uses flex-algo-binding-attributes;
           }
           container state {
             config false;
             description
               "Attributes of a FAD binding";
-            uses fad-binding-attributes;
+            uses flex-algo-binding-attributes;
           }
         }
       }
