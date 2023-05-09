@@ -3,6 +3,9 @@ module openconfig-flexalgo {
   namespace "http://openconfig.net/yang/flexalgo";
   prefix "oc-flexalgo";
 
+  import openconfig-network-instance {
+    prefix "oc-ni";
+  }
   import openconfig-extensions {
     prefix oc-ext;
   }
@@ -115,28 +118,36 @@ module openconfig-flexalgo {
 
     leaf-list exclude {
       type leafref {
-        path "../../../../mpls/te-global-attributes/mpls-admin-groups/admin-group/admin-group-name";
+        path "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:mpls/oc-ni:te-global-attributes/" +
+          "oc-ni:mpls-admin-groups/oc-ni:admin-group/oc-ni:admin-group-name";
       }
       description
         "extended-admin-groups to exclude in path calculation.";
     }
     leaf-list include-all {
       type leafref {
-        path "../../../../mpls/te-global-attributes/mpls-admin-groups/admin-group/admin-group-name";
+        path "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:mpls/oc-ni:te-global-attributes/" +
+          "oc-ni:mpls-admin-groups/oc-ni:admin-group/oc-ni:admin-group-name";
       }
       description
         "extended-admin-groups, all of which must be included";
     }
     leaf-list include-any {
       type leafref {
-        path "../../../../mpls/te-global-attributes/mpls-admin-groups/admin-group/admin-group-name";
+        path "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:mpls/oc-ni:te-global-attributes/" +
+          "oc-ni:mpls-admin-groups/oc-ni:admin-group/oc-ni:admin-group-name";
       }
       description
         "extended-admin-groups, one of which must be included";
     }
     leaf-list srlg-names {
       type leafref {
-        path "../../../../mpls/te-global-attributes/srlgs/srlg/name";
+        path "/oc-ni:network-instances/oc-ni:network-instance/" +
+	  "oc-ni:mpls/oc-ni:te-global-attributes/" +
+	  "oc-ni:srlgs/oc-ni:srlg/oc-ni:name";
       }
       description
         "list of references to named SRLGs to be excluded";
@@ -178,6 +189,12 @@ module openconfig-flexalgo {
         }
       }
     }
+  }
+  augment "/oc-ni:network-instances/oc-ni:network-instance" {
+    description
+      "List of Flexible Algorithms and their definitions";
+
+    uses fad-definition-top;
   }
 }
 

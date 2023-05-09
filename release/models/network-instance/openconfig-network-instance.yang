@@ -30,7 +30,6 @@ module openconfig-network-instance {
   import openconfig-igmp { prefix "oc-igmp"; }
   import openconfig-evpn { prefix "oc-evpn"; }
   import openconfig-pcep { prefix "oc-pcep"; }
-  import openconfig-flexalgo {prefix "oc-flexalgo"; }
 
   // include submodules
   include openconfig-network-instance-l2;
@@ -49,13 +48,7 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.0.2";
-
-  revision "2023-02-24" {
-    description
-      "Add flexalgo model";
-    reference "4.0.2";
-  }
+  oc-ext:openconfig-version "4.0.1";
 
   revision "2023-02-07" {
     description
@@ -91,12 +84,6 @@ module openconfig-network-instance {
   revision "2022-09-15" {
     description
       "Add fallback-vrf option.";
-    reference "1.4.0";
-  }
-
-  revision "2022-08-19" {
-    description
-      "Add flexalgo model";
     reference "1.4.0";
   }
 
@@ -788,11 +775,6 @@ module openconfig-network-instance {
               network instance.";
           }
         }
-
-        uses oc-flexalgo:fad-definition-top {
-	  description
- 	    "List of Flexible Algorithms and their definitions";
-	}
 
         uses oc-vlan:vlan-top;
 
