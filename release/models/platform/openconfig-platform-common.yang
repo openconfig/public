@@ -20,7 +20,14 @@ submodule openconfig-platform-common {
     "This modules contains common groupings that are used in multiple
     components within the platform module.";
 
-  oc-ext:openconfig-version "0.22.0";
+  oc-ext:openconfig-version "0.23.0";
+
+  revision "2023-02-13" {
+    description
+      "Refactor resource utilization threshold config into a separate grouping.
+      Update 'utilization resource' to 'resource utilization'.";
+    reference "0.23.0";
+  }
 
   revision "2022-12-20" {
     description
@@ -80,13 +87,13 @@ submodule openconfig-platform-common {
 
   // grouping statements
 
-  grouping platform-utilization-top {
+  grouping platform-resource-utilization-top {
     description
-      "Top level of utilization.";
+      "Top level grouping of platform resource utilization.";
 
     container utilization {
       description
-        "Utilization of the component.";
+        "Resource utilization of the component.";
 
       container resources {
         description
@@ -109,7 +116,7 @@ submodule openconfig-platform-common {
             description
               "Configuration data for each resource.";
 
-            uses platform-utilization-resource-config;
+            uses platform-resource-utilization-config;
           }
 
           container state {
@@ -117,24 +124,17 @@ submodule openconfig-platform-common {
             description
               "Operational state data for each resource.";
 
-            uses platform-utilization-resource-config;
-            uses platform-utilization-resource-state;
+            uses platform-resource-utilization-config;
+            uses platform-resource-utilization-state;
           }
         }
       }
     }
   }
 
-  grouping platform-utilization-resource-config {
+  grouping resource-utilization-threshold-common {
     description
-      "Configuration data for utilization resource.";
-
-    leaf name {
-      type string;
-      description
-        "Resource name within the component.";
-    }
-
+      "Common threshold configuration model for resource utilization.";
     leaf used-threshold-upper {
       type oc-types:percentage;
       description
@@ -150,9 +150,22 @@ submodule openconfig-platform-common {
     }
   }
 
-  grouping platform-utilization-resource-state {
+  grouping platform-resource-utilization-config {
     description
-      "Operational state data for utilization resource.";
+      "Configuration data for resource utilization.";
+
+    leaf name {
+      type string;
+      description
+        "Resource name within the component.";
+    }
+
+    uses resource-utilization-threshold-common;
+  }
+
+  grouping platform-resource-utilization-state {
+    description
+      "Operational state data for resource utilization.";
 
     leaf used {
       type uint64;
