@@ -143,14 +143,14 @@ module openconfig-flexalgo {
       description
         "extended-admin-groups, one of which must be included";
     }
-    leaf-list srlg-names {
+    leaf-list srlg-exclude {
       type leafref {
         path "../../../../flex-algo-global-attributes/srlgs/srlg/name";
       }
       description
         "list of references to named SRLGs to be excluded";
     }
-    leaf flags-tlv {
+    leaf algo-flags {
       type boolean;
       description
         "Advertise flex-algo definition flags";
@@ -200,6 +200,12 @@ module openconfig-flexalgo {
       type uint32;
       description
         "TE specific metric for the link";
+    }
+
+    leaf min-delay {
+      type uint32;
+      description
+	"Min delay for the link";
     }
 
     leaf-list srlg-membership {
