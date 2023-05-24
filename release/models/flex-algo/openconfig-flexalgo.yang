@@ -376,21 +376,23 @@ module openconfig-flexalgo {
     description
       "Top level grouping for Flexible Algorithm Definitions";
 
-    container flex-algorithms {
-      description "Flexible Algorithms and their definitions";
-        uses flex-algo-definition-top;
-    }
+    container flex-algorithm {
+	container flex-algorithm-definition {
+          description "Flexible Algorithms and their definitions";
+          uses flex-algo-definition-top;
+        }
 
-    container flex-algo-global-attributes {
-      description "Flexible Algorithm global attributes";
-      uses flex-algo-srlg-top;
-      uses flex-algo-admin-groups-top;
-    }
+        container flex-algo-global-attributes {
+          description "Flexible Algorithm global attributes";
+          uses flex-algo-srlg-top;
+          uses flex-algo-admin-groups-top;
+        }
 
-    container flex-algo-interface-attributes {
-      description "Flexible Algorithm attributes for interfaces";
-      uses flex-algo-interface-attributes-top;
-    }
+        container flex-algo-interface-attributes {
+          description "Flexible Algorithm attributes for interfaces";
+          uses flex-algo-interface-attributes-top;
+        }
+     }
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance" {
