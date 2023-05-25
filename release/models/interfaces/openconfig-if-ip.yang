@@ -44,7 +44,13 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.2.0";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2023-04-12" {
+    description
+      "Add ipv4 address type configuration.";
+    reference "3.3.0";
+  }
 
   revision "2023-02-06" {
     description
@@ -171,6 +177,24 @@ module openconfig-if-ip {
     }
     description
       "The origin of a neighbor entry.";
+  }
+
+  typedef ipv4-address-type {
+    type enumeration {
+      enum PRIMARY {
+        description
+          "The primary address on the interface. There can only be one primary
+          address associated on an interface.";
+      }
+      enum SECONDARY {
+        description
+          "Secondary address on an interface. There can be multiple secondary
+          addresses associated on an interface.";
+      }
+    }
+
+    description
+      "The type of an IPv4 address.";
   }
 
   // grouping statements
@@ -390,7 +414,6 @@ module openconfig-if-ip {
   }
 
   grouping ipv4-address-config {
-
     description
       "Per IPv4 adresss configuration data for the
       interface.";
@@ -407,6 +430,16 @@ module openconfig-if-ip {
       }
       description
        "The length of the subnet prefix.";
+    }
+
+    leaf type {
+      type ipv4-address-type;
+      default PRIMARY;
+      description
+        "Specifies the explicit type of the IPv4 address being assigned
+        to the interface. By default, addresses are assumed to be a primary address.
+        Where secondary addresses is to be configured, this leaf should be set
+        to SECONDARY.";
     }
   }
 
@@ -526,7 +559,7 @@ module openconfig-if-ip {
       default GLOBAL_UNICAST;
       description
         "Specifies the explicit type of the IPv6 address being assigned
-        to the subinterface. By default, addresses are assumed to be
+        to the interface. By default, addresses are assumed to be
         global unicast.  Where a link-local address is to be explicitly
         configured, this leaf should be set to LINK_LOCAL.";
     }
