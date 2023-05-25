@@ -29,7 +29,43 @@ submodule openconfig-qos-mem-mgmt {
       per-queue basis, and determine how packets are marked/dropped within
       the queue instantiation.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.9.1";
+
+  revision "2023-04-25" {
+    description
+      "Clarify interface-ref usage.";
+    reference "0.9.1";
+  }
+
+  revision "2023-04-17" {
+    description
+      "Add support for relative RED min-threshold and max-threshold values.";
+    reference "0.9.0";
+  }
+
+  revision "2023-02-17" {
+    description
+      "Add queue identifier.";
+    reference "0.8.0";
+  }
+
+  revision "2023-02-08" {
+    description
+      "Remove incorrect output placement of interface-ref";
+    reference "0.7.0";
+  }
+
+  revision "2023-01-28" {
+    description
+      "Split groupings in interfaces for better leaf reuse.";
+    reference "0.6.1";
+  }
+
+  revision "2022-09-13" {
+    description
+      "Add queue octet drop counter.";
+    reference "0.6.0";
+  }
 
   revision "2021-08-28" {
     description
@@ -247,18 +283,40 @@ submodule openconfig-qos-mem-mgmt {
       type uint64;
       units bytes;
       description
-        "The mininum threshold parameter for a RED-managed queue. When the
-        average queue length is less than minth, all packets are admitted
-        to the queue.";
+        "The mininum threshold parameter for a RED-managed queue in bytes.
+        When the average queue length is less than minth, all packets are admitted
+        to the queue.  Mututally exclusive with min-threshold-percent and
+        max-threshold-percent.";
     }
 
     leaf max-threshold {
       type uint64;
       units bytes;
       description
-        "The maximum threshold parameter for a RED-managed queue. When the
-        average queue length exceeds the maxth value, all packets are
-        dropped (or marked if ECN is enabled).";
+        "The maximum threshold parameter for a RED-managed queue in bytes.
+        When the average queue length exceeds the maxth value, all packets are
+        dropped (or marked if ECN is enabled).  Mutually exclusive with
+        min-threshold-percent and max-threshold-percent.";
+    }
+
+    leaf min-threshold-percent {
+      type uint64;
+      units oc-types:percentage;
+      description
+        "The mininum threshold parameter for a RED-managed queue in percent.
+        When the average queue length is less than minth, all packets are
+        admitted to the queue.  Mutually exclusive with min-threshold and
+        max-threshold.";
+    }
+
+    leaf max-threshold-percent {
+      type uint64;
+      units oc-types:percentage;
+      description
+        "The maximum threshold parameter for a RED-managed queue in percent.
+        When the average queue length exceeds the maxth value, all packets
+        are dropped (or marked if ECN is enabled).  Mutually exclusive with
+        min-threshold and max-threshold.";
     }
 
     leaf enable-ecn {

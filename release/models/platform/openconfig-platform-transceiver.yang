@@ -17,6 +17,7 @@ module openconfig-platform-transceiver {
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-alarm-types { prefix oc-alarm-types; }
 
 
   // meta
@@ -65,7 +66,25 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.9.0";
+  oc-ext:openconfig-version "0.11.0";
+
+  revision "2023-05-03" {
+    description
+      "Increase max length of vendor-rev to 4.";
+    reference "0.11.0";
+  }
+
+  revision "2023-02-10" {
+    description
+      "Fixing linting issues.";
+    reference "0.10.1";
+  }
+
+  revision "2023-01-12" {
+    description
+      "Add laser power and temperature thresholds";
+    reference "0.10.0";
+  }
 
   revision "2021-07-29" {
     description
@@ -413,6 +432,44 @@ module openconfig-platform-transceiver {
     }
   }
 
+  grouping transceiver-threshold-top {
+    description
+      "Top-level grouping for transceiver alarm thresholds for
+      various sensors.";
+
+    container thresholds {
+      description
+        "Enclosing container for transceiver alarm thresholds.";
+
+      list threshold {
+        key "severity";
+        config false;
+        description
+          "List of transceiver alarm thresholds, indexed by
+          alarm severity.";
+
+        leaf severity {
+          type leafref {
+            path "../state/severity";
+          }
+          config false;
+          description
+           "The severity applied to the group of thresholds.
+            An implementation's highest severity threshold
+            should be mapped to OpenConfig's `CRITICAL`
+            severity level.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational alarm thresholds for the transceiver.";
+
+          uses transceiver-threshold-state;
+        }
+      }
+    }
+  }
 
   grouping port-transceiver-config {
     description
@@ -550,10 +607,10 @@ module openconfig-platform-transceiver {
 
     leaf vendor-rev {
       type string {
-        length 1..2;
+        length 1..4;
       }
       description
-        "Transceiver vendor's revision number. 2-octet field that
+        "Transceiver vendor's revision number. Field of 1 to 4 octets that
         contains ASCII characters, left-aligned and padded on the
         right with ASCII spaces (20h)";
     }
@@ -687,6 +744,67 @@ module openconfig-platform-transceiver {
     uses optical-power-state;
   }
 
+  grouping transceiver-threshold-state {
+    description
+      "Grouping for all alarm threshold configs for a particular
+      severity level.";
+    leaf severity {
+      type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The type of alarm to which the thresholds apply.";
+    }
+    leaf laser-temperature-upper {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The upper temperature threshold for the laser temperature sensor.";
+    }
+    leaf laser-temperature-lower {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The lower temperature threshold for the laser temperature sensor.";
+    }
+    leaf output-power-upper{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The upper power threshold for the laser output power.";
+    }
+    leaf output-power-lower{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The lower power threshold for the laser output power.";
+    }
+    leaf input-power-upper{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The upper power threshold for the laser input power.";
+    }
+    leaf input-power-lower{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The lower power threshold for the laser input power.";
+    }
+  }
+
   grouping port-transceiver-top {
     description
       "Top-level grouping for client port transceiver data";
@@ -715,6 +833,7 @@ module openconfig-platform-transceiver {
       // physical channels are associated with a transceiver
       // component
       uses physical-channel-top;
+      uses transceiver-threshold-top;
     }
   }
 
