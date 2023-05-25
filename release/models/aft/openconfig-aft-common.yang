@@ -23,7 +23,14 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "2.3.0";
+  oc-ext:openconfig-version "2.4.0";
+
+  revision "2023-05-25" {
+    description
+      "Add next-hop-group-name in NHG AFT entry state and
+       Add ttl and tos in NH AFT entry state";
+    reference "2.4.0";
+  }
 
   revision "2023-04-19" {
     description
@@ -359,6 +366,18 @@ submodule openconfig-aft-common {
          specified network-instance.";
     }
 
+    leaf ttl {
+      type uint32;
+      description
+        "TTL used when forwarding a packet to the specified next-hop.";
+    }
+
+    leaf tos {
+      type uint16;
+      description
+        "TOS used when forwarding a packet to the specified next-hop.";
+    }
+
     uses aft-common-install-protocol;
   }
 
@@ -577,6 +596,15 @@ submodule openconfig-aft-common {
         identifier. If the identifier of the next-hop-group
         is changed, all AFT entries that reference it must
         also be updated.";
+    }
+
+    leaf next-hop-group-name {
+      type string;
+      description
+       "Where applicable, this leaf is a unique identifier string for the
+        next-hop-group. This leaf's type is able to accommodate more
+        permutations of identifiers that vendors may have and want to
+        expose.";
     }
 
     leaf programmed-id {
