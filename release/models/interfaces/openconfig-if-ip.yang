@@ -44,7 +44,13 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.2.0";
+  oc-ext:openconfig-version "4.0.0";
+
+  revision "2023-03-10" {
+    description
+      "support setting priority for every VRRP track interface.";
+    reference "4.0.0";
+  }
 
   revision "2023-02-06" {
     description
@@ -700,33 +706,22 @@ module openconfig-if-ip {
 
   grouping ip-vrrp-tracking-config {
     description
-      "Configuration data for tracking interfaces
+      "Configuration data for tracking interface
       in a VRRP group";
 
-    leaf-list track-interface {
+    leaf interface {
       type leafref {
         path "/oc-if:interfaces/oc-if:interface/oc-if:name";
       }
-      // TODO: we may need to add some restriction to ethernet
-      // or IP interfaces.
-      description
-        "Sets a list of one or more interfaces that should
-        be tracked for up/down events to dynamically change the
-        priority state of the VRRP group, and potentially
-        change the mastership if the tracked interface going
-        down lowers the priority sufficiently.  Any of the tracked
-        interfaces going down will cause the priority to be lowered.
-        Some implementations may only support a single
-        tracked interface.";
+      description "the track interface";
     }
-
     leaf priority-decrement {
       type uint8 {
         range 0..254;
       }
       default 0;
       description "Set the value to subtract from priority when
-      the tracked interface goes down";
+                  the tracked interface goes down";
     }
   }
 
@@ -740,26 +735,46 @@ module openconfig-if-ip {
     description
       "Top-level grouping for VRRP interface tracking";
 
-    container interface-tracking {
+    container track-interfaces {
       description
         "Top-level container for VRRP interface tracking";
-
-      container config {
+      list track-interface {
+        key "interface";
+        // TODO: we may need to add some restriction to ethernet
+        // or IP interfaces.
         description
-          "Configuration data for VRRP interface tracking";
+          "Sets a list of one or more interfaces that should
+           be tracked for up/down events to dynamically change the
+           priority state of the VRRP group, and potentially
+           change the mastership if the tracked interface going
+           down lowers the priority sufficiently.  Any of the tracked
+           interfaces going down will cause the priority to be lowered.
+           Some implementations may only support a single
+           tracked interface.";
+        leaf interface {
+          type leafref {
+            path "../config/interface";
+          }
+          description "the track interface";
+        }
 
-        uses ip-vrrp-tracking-config;
-      }
+        container config {
+          description
+            "Configuration data for VRRP interface tracking";
 
-      container state {
+          uses ip-vrrp-tracking-config;
+        }
 
-        config false;
+        container state {
 
-        description
-          "Operational state data for VRRP interface tracking";
+          config false;
 
-        uses ip-vrrp-tracking-config;
-        uses ip-vrrp-tracking-state;
+          description
+            "Operational state data for VRRP interface tracking";
+
+          uses ip-vrrp-tracking-config;
+          uses ip-vrrp-tracking-state;
+        }
       }
     }
   }
