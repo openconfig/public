@@ -40,6 +40,10 @@ module openconfig-routing-policy {
     actions may be multitude of changes to route attributes or a
     final disposition of accepting or rejecting the route.
 
+    Alternatively, policies can be expressed in the policy language
+    defined by a vendor. This type of policy is provided as a text
+    string and interpreted by the vendor's policy framework.
+
     Route policy evaluation:
 
     Policy definitions are referenced in routing protocol
@@ -77,7 +81,13 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2022-05-29" {
+    description
+      "Add a vendor-specific policy definition container.";
+    reference "3.4.0";
+  }
 
   revision "2022-05-24" {
     description
@@ -1099,6 +1109,52 @@ module openconfig-routing-policy {
       "Operational state data for policy definitions";
   }
 
+  grouping vendor-policy-definition-config {
+    description
+      "Configuration data for vendor-specific policy definitions.";
+
+    leaf text {
+      type string;
+      description
+        "This leaf can be used to define a vendor-specific policy.
+        See the vendor's documentation on how to specify the
+        definition of their routing policies.";
+    }
+
+    leaf policy-group {
+      type string;
+      description
+        "This leaf can be used to group policies into vendor-specific
+        organization units such as files, configuration groups,
+        or code units.";
+    }
+  }
+
+  grouping vendor-policy-definition-top {
+    description
+      "Top-level grouping for the vendor-specific policy definition";
+
+    container vendor-policy-definition {
+      description
+        "Container for the vendor-specific policy definition";
+
+      container config {
+        description
+          "Configuration data for the vendor-specific policy definition";
+
+        uses vendor-policy-definition-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state for the vendor-specific policy definition";
+
+        uses vendor-policy-definition-config;
+      }
+    }
+  }
+
   grouping policy-definitions-top {
     description
       "Top-level grouping for the policy definition list";
@@ -1142,6 +1198,7 @@ module openconfig-routing-policy {
           uses policy-definitions-state;
         }
 
+        uses vendor-policy-definition-top;
         uses policy-statements-top;
       }
     }
