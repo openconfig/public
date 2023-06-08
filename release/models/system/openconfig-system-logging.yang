@@ -23,7 +23,13 @@ module openconfig-system-logging {
     "This module defines configuration and operational state data
     for common logging facilities on network systems.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2023-05-04" {
+    description
+      "removing LOG_DESTINATION_TYPE identities";
+    reference "0.5.0";
+  }
 
   revision "2022-12-29" {
     description
@@ -224,35 +230,6 @@ module openconfig-system-logging {
       "The facility for local use 7 messages.";
     reference
       "IETF RFC 5424 - The Syslog Protocol";
-  }
-
-  identity LOG_DESTINATION_TYPE {
-    description
-      "Base identity for destination for logging messages";
-  }
-
-  identity DEST_CONSOLE {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to the console";
-  }
-
-  identity DEST_BUFFER {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to and in-memory circular buffer";
-  }
-
-  identity DEST_FILE {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to a local file";
-  }
-
-  identity DEST_REMOTE {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to a remote syslog server";
   }
 
   // typedef statements
