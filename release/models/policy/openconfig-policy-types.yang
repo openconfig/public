@@ -24,7 +24,14 @@ module openconfig-policy-types {
     policy.  It can be imported by modules that contain protocol-
     specific policy conditions and actions.";
 
-  oc-ext:openconfig-version "3.2.3";
+  oc-ext:openconfig-version "3.2.4";
+
+  revision "2023-06-09" {
+    description
+      "Clarify that match-set-options-type ALL is not valid in
+      combination with bgp-community-regexp-type";
+    reference "3.2.4";
+  }
 
   revision "2022-11-08" {
     description
@@ -107,7 +114,8 @@ module openconfig-policy-types {
       }
       enum ALL {
         description "match is true if given value matches all
-        members of the defined set";
+        members of the defined set.  This type is not valid when
+        used with oc-bgp-types:bgp-community-regexp-type";
       }
       enum INVERT {
         description "match is true if given value does not match any
