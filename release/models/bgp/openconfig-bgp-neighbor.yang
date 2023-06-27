@@ -203,7 +203,8 @@ submodule openconfig-bgp-neighbor {
         type oc-inet:port-number;
         default 179;
         description
-          "Destination TCP port number of the BGP peer";
+          "Destination TCP port number of the BGP peer when initiating a
+          session from the local router";
     }
 
     leaf enabled {
@@ -480,10 +481,11 @@ submodule openconfig-bgp-neighbor {
     leaf remote-port {
       type oc-inet:port-number;
       description
-        "Remote port being used by the peer for the TCP session
-        supporting the BGP session.  This may be the same value
-        as the configured neighbor-port or another TCP port if
-        the peer initiated the TCP session.";
+        "The source TCP port being used by the peer for the TCP session
+        supporting the BGP session.  This is expected to be the same value
+        as the configured neighbor-port if the local device initiated the
+        connection or a different TCP port if the peer initiated the TCP
+        session.";
     }
   }
 
