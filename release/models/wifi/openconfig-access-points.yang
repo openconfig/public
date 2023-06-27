@@ -27,7 +27,20 @@ module openconfig-access-points {
     "This module defines the top level WiFi Configurations for a list of
     Access Points.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.1";
+
+  revision "2023-05-26" {
+    description
+      "Fix typos in descriptions.";
+    reference "1.1.1";
+  }
+
+  revision "2023-03-22" {
+    description
+      "Mirror /access-points/access-point/config/hostname in a state
+      container.";
+    reference "1.1.0";
+  }
 
   revision "2021-08-02" {
     description
@@ -115,7 +128,7 @@ module openconfig-access-points {
       list ap-manager {
         key "id";
         description
-          "Manager(s) this AP is assinged to, referenced by id.";
+          "Manager(s) this AP is assigned to, referenced by id.";
 
         leaf id {
           type leafref {
@@ -185,6 +198,14 @@ module openconfig-access-points {
         container config {
           description
             "Config items at the global, Access Point level.";
+
+          uses access-points-common-config;
+        }
+
+        container state {
+          config false;
+          description
+            "State items at the global, Access Point level.";
 
           uses access-points-common-config;
         }

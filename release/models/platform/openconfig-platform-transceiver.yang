@@ -66,12 +66,24 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.11.0";
+  oc-ext:openconfig-version "0.12.0";
 
   revision "2023-06-27" {
     description
       "Add tx bias and voltage thresholds";
+    reference "0.12.0";
+  }
+
+  revision "2023-05-03" {
+    description
+      "Increase max length of vendor-rev to 4.";
     reference "0.11.0";
+  }
+
+  revision "2023-02-10" {
+    description
+      "Fixing linting issues.";
+    reference "0.10.1";
   }
 
   revision "2023-01-12" {
@@ -436,17 +448,17 @@ module openconfig-platform-transceiver {
         "Enclosing container for transceiver alarm thresholds.";
 
       list threshold {
-        config false;
         key "severity";
+        config false;
         description
           "List of transceiver alarm thresholds, indexed by
           alarm severity.";
 
         leaf severity {
-          config false;
           type leafref {
             path "../state/severity";
           }
+          config false;
           description
            "The severity applied to the group of thresholds.
             An implementation's highest severity threshold
@@ -601,10 +613,10 @@ module openconfig-platform-transceiver {
 
     leaf vendor-rev {
       type string {
-        length 1..2;
+        length 1..4;
       }
       description
-        "Transceiver vendor's revision number. 2-octet field that
+        "Transceiver vendor's revision number. Field of 1 to 4 octets that
         contains ASCII characters, left-aligned and padded on the
         right with ASCII spaces (20h)";
     }
@@ -750,6 +762,7 @@ module openconfig-platform-transceiver {
         "The type of alarm to which the thresholds apply.";
     }
     leaf laser-temperature-upper {
+<<<<<<< HEAD
       description
         "The upper temperature threshold for the laser temperature sensor.";
       type decimal64 {
@@ -760,10 +773,21 @@ module openconfig-platform-transceiver {
     leaf laser-temperature-lower {
       description
         "The lower temperature threshold for the laser temperature sensor.";
+=======
       type decimal64 {
         fraction-digits 1;
       }
       units celsius;
+      description
+        "The upper temperature threshold for the laser temperature sensor.";
+    }
+    leaf laser-temperature-lower {
+>>>>>>> master
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+<<<<<<< HEAD
     }
     leaf output-power-upper{
       description
@@ -792,10 +816,41 @@ module openconfig-platform-transceiver {
     leaf input-power-lower{
       description
         "The lower power threshold for the laser input power.";
+=======
+      description
+        "The lower temperature threshold for the laser temperature sensor.";
+    }
+    leaf output-power-upper{
       type decimal64 {
         fraction-digits 2;
       }
       units dBm;
+      description
+        "The upper power threshold for the laser output power.";
+    }
+    leaf output-power-lower{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The lower power threshold for the laser output power.";
+    }
+    leaf input-power-upper{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The upper power threshold for the laser input power.";
+    }
+    leaf input-power-lower{
+>>>>>>> master
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+<<<<<<< HEAD
     }
     leaf laser-bias-current-upper{
       description
@@ -828,6 +883,10 @@ module openconfig-platform-transceiver {
         fraction-digits 2;
       }
       units volts;
+=======
+      description
+        "The lower power threshold for the laser input power.";
+>>>>>>> master
     }
   }
 

@@ -21,7 +21,31 @@ submodule openconfig-bgp-common-structure {
     "This sub-module contains groupings that are common across multiple BGP
     contexts and provide structure around other primitive groupings.";
 
-  oc-ext:openconfig-version "9.1.0";
+  oc-ext:openconfig-version "9.4.0";
+
+  revision "2023-04-01" {
+    description
+      "Add support for BGP large communities [rfc8092] in
+      send-community.
+      Leaf send-community was replaced by the leaf-list
+      send-community-type to allow the combination of different
+      community types";
+    reference "9.4.0";
+  }
+
+  revision "2023-03-31" {
+    description
+      "Allow configuring send-community per AFI-SAFI at
+       neighbor/peer-group.";
+    reference "9.3.0";
+  }
+
+  revision "2022-12-12" {
+    description
+      "Removed the default of enabled leaf of AFI-SAFI
+      at neighbor/peer-group to support BGP inheritance model.";
+    reference "9.2.0";
+  }
 
   revision "2022-05-21" {
     description
