@@ -30,7 +30,13 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "9.4.0";
+  oc-ext:openconfig-version "9.4.1";
+
+  revision "2023-06-27" {
+    description
+      "Clarify bgp neighbor-port, remote-port and local-port descriptions";
+    reference "9.4.1";
+  }
 
   revision "2023-04-01" {
     description
@@ -197,7 +203,8 @@ submodule openconfig-bgp-neighbor {
         type oc-inet:port-number;
         default 179;
         description
-          "Port number of the BGP peer";
+          "Destination TCP port number of the BGP peer when initiating a
+          session from the local router";
     }
 
     leaf enabled {
@@ -460,7 +467,7 @@ submodule openconfig-bgp-neighbor {
     leaf local-port {
       type oc-inet:port-number;
       description
-        "Local TCP port being used for the TCP session supporting
+        "Local, source TCP port being used for the TCP session supporting
         the BGP session";
     }
 
@@ -474,8 +481,11 @@ submodule openconfig-bgp-neighbor {
     leaf remote-port {
       type oc-inet:port-number;
       description
-        "Remote port being used by the peer for the TCP session
-        supporting the BGP session";
+        "The source TCP port being used by the peer for the TCP session
+        supporting the BGP session.  This is expected to be the same value
+        as the configured neighbor-port if the local device initiated the
+        connection or a different TCP port if the peer initiated the TCP
+        session.";
     }
   }
 
