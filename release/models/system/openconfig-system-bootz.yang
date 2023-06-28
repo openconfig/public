@@ -37,12 +37,12 @@ module openconfig-system-bootz {
     container bootz {
       description
         "Bootz protocol container for management of bootz protocol state.";
-  
+
       container state {
-          config false;
-          description
+        config false;
+        description
           "Operational state relating to the bootz service.";
-            uses bootz-state;
+        uses bootz-state;
       }
     }
   }
@@ -62,7 +62,7 @@ module openconfig-system-bootz {
         buffer serialization must be done by tag value for each field
         in the bootz protocol buffer. This will produce a
         determintistic marshalled value which can be
-        checksummed";
+        checksummed.";
     }
 
     leaf error-count {
@@ -82,9 +82,21 @@ module openconfig-system-bootz {
         enum BOOTZ_OS_UPGRADE_IN_PROGRESS;
         enum BOOTZ_OS_UPGRADE_COMPLETE;
         enum BOOTZ_OS_INVALID_IMAGE;
+        enum BOOTZ_CONFIGURATION_INVALID;
       }
       description
-        "The status of the bootz service.";
+        "The status of the bootz service.
+
+        The general sequence for the flow would be:
+        BOOTZ_UNSPECIFIED            <- system initial state
+        BOOTZ_SENT                   <- bootz request sent
+        BOOTZ_RECEIVED               <- bootz response received
+        BOOTZ_OS_UPGRADE_IN_PROGRESS <- (if needed)
+        BOOTZ_OS_UPGRADE_COMPLETE    <- (if needed)
+        BOOTZ_CONFIGURATION_APPLIED  <- bootz configuration applied
+        BOOTZ_OK                     <- bootz process successful
+
+        If any error is encounter an error ENUM will be returned.";
     }
 
     leaf last-boot-attempt {

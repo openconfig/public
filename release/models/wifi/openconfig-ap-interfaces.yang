@@ -32,7 +32,13 @@ module openconfig-ap-interfaces {
     "This module defines the configuration and state data for
     non-radio interfaces on WiFi Access Points.";
 
-  oc-ext:openconfig-version "1.0.1";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2023-06-26" {
+    description
+      "Remove deviation for unnumbered interfaces";
+    reference "1.2.0";
+  }
 
   revision "2023-05-26" {
     description
@@ -215,36 +221,5 @@ module openconfig-ap-interfaces {
       "Adds tunnel configuration and state to access-points model.";
 
     uses oc-tun:tunnel-top;
-  }
-  // Deviation statements
-  // Unnumbered interfaces not supported on Access Points.
-  deviation "/oc-access-points:access-points/" +
-    "oc-access-points:access-point/" +
-    "oc-ap-if:interfaces/oc-ap-if:interface/" +
-    "oc-ap-if:subinterfaces/oc-ap-if:subinterface/oc-ap-if:ipv4/" +
-    "oc-ap-if:unnumbered" {
-    deviate not-supported;
-  }
-
-  deviation "/oc-access-points:access-points/" +
-    "oc-access-points:access-point/" +
-    "oc-ap-if:interfaces/oc-ap-if:interface/" +
-    "oc-ap-if:subinterfaces/oc-ap-if:subinterface/oc-ap-if:ipv6/" +
-    "oc-ap-if:unnumbered" {
-    deviate not-supported;
-  }
-
-  deviation "/oc-access-points:access-points/" +
-    "oc-access-points:access-point/" +
-    "oc-ap-if:interfaces/oc-ap-if:interface/" +
-    "oc-ap-if:tunnel/oc-ap-if:ipv4/oc-ap-if:unnumbered" {
-    deviate not-supported;
-  }
-
-  deviation "/oc-access-points:access-points/" +
-    "oc-access-points:access-point/" +
-    "oc-ap-if:interfaces/oc-ap-if:interface/" +
-    "oc-ap-if:tunnel/oc-ap-if:ipv6/oc-ap-if:unnumbered" {
-    deviate not-supported;
   }
 }
