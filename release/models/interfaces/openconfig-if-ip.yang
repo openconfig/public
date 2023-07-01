@@ -1,52 +1,63 @@
 module openconfig-if-ip {
 
-  yang-version "1";
+yang-version "1";
 
-  // namespace
-  namespace "http://openconfig.net/yang/interfaces/ip";
+// namespace
+namespace "http://openconfig.net/yang/interfaces/ip";
 
-  prefix "oc-ip";
+prefix "oc-ip";
 
-  // import some basic types
-  import openconfig-inet-types { prefix oc-inet; }
-  import openconfig-interfaces { prefix oc-if; }
-  import openconfig-vlan { prefix oc-vlan; }
-  import openconfig-yang-types { prefix oc-yang; }
-  import openconfig-extensions { prefix oc-ext; }
+// import some basic types
+import openconfig-inet-types {
+    prefix oc-inet;
+}
+import openconfig-interfaces {
+    prefix oc-if;
+}
+import openconfig-vlan {
+    prefix oc-vlan;
+}
+import openconfig-yang-types {
+    prefix oc-yang;
+}
+import openconfig-extensions {
+    prefix oc-ext;
+}
 
-  // meta
-  organization "OpenConfig working group";
+// meta
+organization
+  "OpenConfig working group";
 
-  contact
-    "OpenConfig working group
-    netopenconfig@googlegroups.com";
+contact
+  "OpenConfig working group
+   netopenconfig@googlegroups.com";
 
-  description
-    "This model defines data for managing configuration and
-    operational state on IP (IPv4 and IPv6) interfaces.
+description
+  "This model defines data for managing configuration and
+   operational state on IP (IPv4 and IPv6) interfaces.
+   
+   This model reuses data items defined in the IETF YANG model for
+   interfaces described by RFC 7277 with an alternate structure
+   (particularly for operational state data) and with
+   additional configuration items.
+   
+   Portions of this code were derived from IETF RFC 7277.
+   Please reproduce this note if possible.
+   
+   IETF code is subject to the following copyright and license:
+   Copyright (c) IETF Trust and the persons identified as authors of
+   the code.
+   All rights reserved.
+   
+   Redistribution and use in source and binary forms, with or without
+   modification, is permitted pursuant to, and subject to the license
+   terms contained in, the Simplified BSD License set forth in
+   Section 4.c of the IETF Trust's Legal Provisions Relating
+   to IETF Documents (http://trustee.ietf.org/license-info).";
 
-    This model reuses data items defined in the IETF YANG model for
-    interfaces described by RFC 7277 with an alternate structure
-    (particularly for operational state data) and with
-    additional configuration items.
+oc-ext:openconfig-version "3.4.0";
 
-    Portions of this code were derived from IETF RFC 7277.
-    Please reproduce this note if possible.
-
-    IETF code is subject to the following copyright and license:
-    Copyright (c) IETF Trust and the persons identified as authors of
-    the code.
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, is permitted pursuant to, and subject to the license
-    terms contained in, the Simplified BSD License set forth in
-    Section 4.c of the IETF Trust's Legal Provisions Relating
-    to IETF Documents (http://trustee.ietf.org/license-info).";
-
-  oc-ext:openconfig-version "3.4.0";
-
-  revision '2023-06-30" {
+revision '2023-06-30" {
     description
       "add router advertisement config/mode and deprecate router advertisement
     config/suppress leaf";
