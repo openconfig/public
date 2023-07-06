@@ -946,6 +946,16 @@ module openconfig-if-ip {
     description
       "Configuration parameters for IPv6 router advertisements.";
 
+    leaf enable {
+      type boolean;
+      default true;
+      description
+        "All ipv6 router advertisement functions are disabled.  The
+        local system will not transmit router advertisement messages and
+        will not respond to router solicitation messages";
+
+    }
+
     leaf interval {
       type uint32;
       units seconds;
@@ -975,25 +985,19 @@ module openconfig-if-ip {
 
     leaf mode {
       type enumeration {
-        enum ENABLE {
+        enum ALL {
           description
-            "The system will transmit ipv6 router advertisement messages and
-            respond to route solicitation requests.";
+            "The system will transmit unsolicited router advertisement
+            messages and respond to router solicitation requests.";
         }
-        enum DISABLE {
-          description
-            "All ipv6 router advertisement functions are disabled.  The
-            local system will not transmit router advertisement messages and
-            will not respond to router solicitation messages.";
-        }
-        enum DISABLE_RA {
+        enum DISABLE_UNSOLICITED_RA {
           description
             "Unsolicted router advertisement messages are not transmitted on
             this interface.  Responses to router solicitation messages will
             be transmitted.";
         }
       }
-      default "ENABLE";
+      default "ALL";
       description
         "Mode controls which set of behaviors the local system should perform
         to support ipv6 router advertisements.";
