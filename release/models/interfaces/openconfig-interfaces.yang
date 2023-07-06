@@ -51,9 +51,15 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.0.2";
+  oc-ext:openconfig-version "3.4.0";
 
-revision "2023-02-06" {
+  revision "2023-07-06" {
+    description
+      "Add multicast-pkts counters.";
+    reference "3.4.0";
+  }
+
+  revision "2023-02-06" {
     description
       "Add further specification to interface-ref type to
        clarify that the interface and subinterface leaves
@@ -931,6 +937,276 @@ revision "2023-02-06" {
     }
   }
 
+  grouping subinterface-counters-state {
+    description
+      "Operational state representing subinterface counters and statistics.
+      Error counters such as fcs errors can only be accounted for at the
+      physical interface level.  Likewise, carrier transitions is only a
+      property of the physical interface.";
+
+    oc-ext:operational;
+
+    container counters {
+      description
+        "A collection of interface-related statistics objects.";
+
+      leaf in-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of octets received on the interface,
+          including framing characters.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB - ifHCInOctets";
+      }
+
+      leaf in-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of packets received on the interface,
+          including all unicast, multicast, broadcast and bad packets
+          etc.";
+        reference
+          "RFC 2819: Remote Network Monitoring Management Information
+          Base";
+      }
+
+      leaf in-unicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of packets, delivered by this sub-layer to a
+          higher (sub-)layer, that were not addressed to a
+          multicast or broadcast address at this sub-layer.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB - ifHCInUcastPkts";
+      }
+
+      leaf in-broadcast-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of packets, delivered by this sub-layer to a
+          higher (sub-)layer, that were addressed to a broadcast
+          address at this sub-layer.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB -
+                     ifHCInBroadcastPkts";
+      }
+
+      leaf in-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of packets, delivered by this sub-layer to a
+          higher (sub-)layer, that were addressed to a multicast
+          address at this sub-layer.  For a MAC-layer protocol,
+          this includes both Group and Functional addresses.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB -
+                     ifHCInMulticastPkts";
+      }
+
+      leaf in-discards {
+        type oc-yang:counter64;
+        description
+          "The number of inbound packets that were chosen to be
+          discarded even though no errors had been detected to
+          prevent their being deliverable to a higher-layer
+          protocol.  One possible reason for discarding such a
+          packet could be to free up buffer space.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+
+
+        reference
+          "RFC 2863: The Interfaces Group MIB - ifInDiscards";
+      }
+
+      leaf in-errors {
+        type oc-yang:counter64;
+        description
+          "For packet-oriented interfaces, the number of inbound
+          packets that contained errors preventing them from being
+          deliverable to a higher-layer protocol.  For character-
+          oriented or fixed-length interfaces, the number of
+          inbound transmission units that contained errors
+          preventing them from being deliverable to a higher-layer
+          protocol.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB - ifInErrors";
+      }
+
+      leaf in-unknown-protos {
+        type oc-yang:counter64;
+        description
+          "For packet-oriented interfaces, the number of packets
+          received via the interface that were discarded because
+          of an unknown or unsupported protocol.  For
+          character-oriented or fixed-length interfaces that
+          support protocol multiplexing, the number of
+          transmission units received via the interface that were
+          discarded because of an unknown or unsupported protocol.
+          For any interface that does not support protocol
+          multiplexing, this counter is not present.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB - ifInUnknownProtos";
+      }
+
+      leaf out-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of octets transmitted out of the
+          interface, including framing characters.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB - ifHCOutOctets";
+      }
+
+      leaf out-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of packets transmitted out of the
+          interface, including all unicast, multicast, broadcast,
+          and bad packets etc.";
+        reference
+          "RFC 2819: Remote Network Monitoring Management Information
+          Base";
+      }
+
+      leaf out-unicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of packets that higher-level protocols
+          requested be transmitted, and that were not addressed
+          to a multicast or broadcast address at this sub-layer,
+          including those that were discarded or not sent.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB - ifHCOutUcastPkts";
+      }
+
+      leaf out-broadcast-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of packets that higher-level protocols
+          requested be transmitted, and that were addressed to a
+          broadcast address at this sub-layer, including those
+          that were discarded or not sent.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB -
+                     ifHCOutBroadcastPkts";
+      }
+
+
+      leaf out-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of packets that higher-level protocols
+          requested be transmitted, and that were addressed to a
+          multicast address at this sub-layer, including those
+          that were discarded or not sent.  For a MAC-layer
+          protocol, this includes both Group and Functional
+          addresses.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB -
+                     ifHCOutMulticastPkts";
+      }
+
+      leaf out-discards {
+        type oc-yang:counter64;
+        description
+          "The number of outbound packets that were chosen to be
+          discarded even though no errors had been detected to
+          prevent their being transmitted.  One possible reason
+          for discarding such a packet could be to free up buffer
+          space.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB - ifOutDiscards";
+      }
+
+      leaf out-errors {
+        type oc-yang:counter64;
+        description
+          "For packet-oriented interfaces, the number of outbound
+          packets that could not be transmitted because of errors.
+          For character-oriented or fixed-length interfaces, the
+          number of outbound transmission units that could not be
+          transmitted because of errors.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 2863: The Interfaces Group MIB - ifOutErrors";
+      }
+
+      leaf last-clear {
+        type oc-types:timeticks64;
+        description
+          "Timestamp of the last time the interface counters were
+          cleared.
+
+          The value is the timestamp in nanoseconds relative to
+          the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+        oc-ext:telemetry-on-change;
+      }
+    }
+  }
+
   // data definition statements
 
   grouping sub-unnumbered-config {
@@ -1020,7 +1296,7 @@ revision "2023-02-06" {
     }
 
     uses interface-common-state;
-    uses interface-counters-state;
+    uses subinterface-counters-state;
   }
 
   grouping subinterfaces-top {
