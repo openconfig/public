@@ -1194,6 +1194,34 @@ module openconfig-interfaces {
           "RFC 2863: The Interfaces Group MIB - ifOutErrors";
       }
 
+      leaf in-fcs-errors {
+        status deprecated;
+        type oc-yang:counter64;
+        description
+          "This leaf is only valid for physical ports and is deprecated
+          for subinterfces.
+
+          Number of received packets which had errors in the frame check
+          sequence (FCS), i.e., framing errors.
+
+          Discontinuities in the value of this counter can occur
+          when the device is re-initialization as indicated by the
+          value of 'last-clear'.";
+      }
+
+      leaf carrier-transitions {
+        status deprecated;
+        type oc-yang:counter64;
+        description
+          "This leaf is only valid for physical ports and is deprecated
+          for subinterfces.
+          
+          Number of times the interface state has transitioned
+          between up and down since the time the device restarted
+          or the last-clear time, whichever is most recent.";
+        oc-ext:telemetry-on-change;
+      }
+
       leaf last-clear {
         type oc-types:timeticks64;
         description
