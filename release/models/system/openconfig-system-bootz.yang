@@ -23,6 +23,12 @@ module openconfig-system-bootz {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
+  revision "2023-07-11" {
+    description
+      "Introduce the support of skipping ownership validation.";
+    reference "1.1.0";
+  }
+
   revision "2023-06-16" {
     description
       "Creation of bootz state paths needed for the service.";
@@ -38,12 +44,31 @@ module openconfig-system-bootz {
       description
         "Bootz protocol container for management of bootz protocol state.";
 
+      container config {
+        description
+          "Configuration parameters related to bootz service.";
+        uses validate-ownership;
+      }
+
       container state {
         config false;
         description
           "Operational state relating to the bootz service.";
         uses bootz-state;
+        uses validate-ownership;
       }
+    }
+  }
+
+  grouping validate-ownership {
+    description
+      "Configuration related to ownership validation";
+    leaf validate-ownership {
+      type boolean;
+      default true;
+      description
+        "This field controls if the device should validate the ownership in
+        the next bootz workflow";
     }
   }
 
@@ -79,6 +104,7 @@ module openconfig-system-bootz {
         enum BOOTZ_CONFIGURATION_APPLIED;
         enum BOOTZ_OK;
         enum BOOTZ_OV_INVALID;
+        enum BOOTZ_OV_SKIPPED;
         enum BOOTZ_OS_UPGRADE_IN_PROGRESS;
         enum BOOTZ_OS_UPGRADE_COMPLETE;
         enum BOOTZ_OS_INVALID_IMAGE;
@@ -91,6 +117,7 @@ module openconfig-system-bootz {
         BOOTZ_UNSPECIFIED            <- system initial state
         BOOTZ_SENT                   <- bootz request sent
         BOOTZ_RECEIVED               <- bootz response received
+        BOOTZ_OV_SKIPPED             <- (if configured) OV validation is skipped.
         BOOTZ_OS_UPGRADE_IN_PROGRESS <- (if needed)
         BOOTZ_OS_UPGRADE_COMPLETE    <- (if needed)
         BOOTZ_CONFIGURATION_APPLIED  <- bootz configuration applied
@@ -103,6 +130,15 @@ module openconfig-system-bootz {
       type oc-types:timeticks64;
       description
         "The timestamp of the last bootz attempt.";
+    }
+
+    leaf ownership-validated {
+      type boolean;
+      default false;
+      description
+        "This field indicates if the device has succesfully validated the
+        ownership in the latest bootz workflow.
+        This field MUST be reset to false when a new bootz workflow starts.";
     }
   }
 
