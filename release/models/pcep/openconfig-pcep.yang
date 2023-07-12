@@ -60,7 +60,13 @@ module openconfig-pcep {
       LSP parameters in those PCCs that delegate control over their LSPs to
       the PCE.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.1.1";
+
+  revision "2023-04-25" {
+    description
+      "Add clarifying comments on use of interface-ref.";
+    reference "0.1.1";
+  }
 
   revision "2022-02-11" {
     description
@@ -140,10 +146,10 @@ module openconfig-pcep {
     container path-computation-servers {
       description
         "Defines PCE server parameters.";
-	
+
       list path-computation-server {
         key "pce-server-address";
-	
+
         description
           "Configuration and state information for communication with a PCE server.";
 
@@ -158,24 +164,24 @@ module openconfig-pcep {
         container config {
           description
             "PCE server configuration.";
-			
+
           uses pce-server-config;
         }
-		
+
         container state {
           config false;
           description
             "PCE server state.";
-			
+
           uses pce-server-config;
         }
-		
+
 	uses pcep-timers-top;
 	uses pcep-authentication-top;
       }
     }
   }
-	
+
   grouping pce-server-config {
     description
       "Configuration data for establishing a PCEP session with pce servers.";
@@ -188,7 +194,7 @@ module openconfig-pcep {
       	When multiple candidate servers are specified for a single client,
       	they are prioritized according to preference.";
     }
-	
+
     leaf id {
       type string;
       description
@@ -207,14 +213,14 @@ module openconfig-pcep {
       description
 	    "The source IP address used by PCC(Router) to establish PCEP session.";
     }
-	
+
     leaf pce-type {
       type pce-mode-type;
       description
 	    "The type of PCEP capability supported which is advertised in the Open
         message when a PCEP session is established.";
     }
-	
+
     leaf preference {
       type uint8;
       description
@@ -233,7 +239,7 @@ module openconfig-pcep {
       	for LSPs that are not controlled by any PCE (for example, LSPs that are
       	statically configured at the PCC) but without delegating them.";
      }
-	
+
      leaf pce-initiated-capability {
        type boolean;
        default false;
@@ -241,7 +247,7 @@ module openconfig-pcep {
       	 "Indicates to PCE that PCC (Router) supports PCE-initiated LSP paths instantiation.
       	 A PCE can initiate LSPs only for PCCs that advertised this capability.";
      }
-	
+
      leaf sr-support {
        type boolean;
        default false;
@@ -305,7 +311,7 @@ module openconfig-pcep {
         before revoking LSP delegation and attempting to redelegate LSPs
         associated with the terminated PCEP session to an alternate PCE.";
      }
-	
+
      leaf state-timeout-interval {
       type uint16;
       units seconds;
@@ -315,7 +321,7 @@ module openconfig-pcep {
       	and reverting to operator-defined default parameters or behaviors.";
       }
   }
-	
+
   grouping pcep-authentication-top {
     description
       "Grouping containing PCEP authentication attributes";
@@ -336,7 +342,7 @@ module openconfig-pcep {
       }
     }
   }
-	
+
   grouping pcep-authentication-config {
     description
       "PCEP authentication parameters container.";
@@ -364,7 +370,7 @@ module openconfig-pcep {
        PCEP session";
   }
 }
-	
+
   grouping pcep-top {
     description
       "Top-level grouping for PCEP configuration.";

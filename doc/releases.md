@@ -1,17 +1,27 @@
 # OpenConfig Release Versioning
 
-## Rationale
+## Background and Motivation
 
-As the OpenConfig project matures and is adopted by more implementors and
-network operators, model changes are becoming increasingly frequent. This has
-made identifying compatible and well-known sets of models more difficult.
-Furthermore, uncontrolled and frequent breaking changes can create excessive
-burden on implementors and operators alike.
+While each individual OpenConfig model can be tagged with a semantic version
+(see [semver.md](semver.md)), models are often interdependent, or need to be
+used together, for example when managing a full device. It is therefore useful
+to define OpenConfig "releases" that contain a set of models that are designed
+to work together. This also enables tracking breaking changes at the repository
+level, as well as allowing public users to view and download tagged collections
+of self-consistent models (see also the description of
+[GitHub releases](https://help.github.com/articles/creating-releases/)).
 
-This revision proposal aims to address these problems by introducing
-[semantic versioning](https://semver.org/) to the set of OpenConfig models as a
-whole along with some OpenConfig-specific guidelines. As a side note, these
-releases are compatible with the notion of
+In light of the above, this proposal introduces tagging
+[semantic versions](https://semver.org/) to the set of all OpenConfig models as
+a whole along with some OpenConfig-specific guidelines. Each release is
+therefore the cumulative set of models committed to the master branch at a
+certain point in time, and is tied to a specific commit in the OpenConfig
+repository. YANG validators ensure that each release consists of collection of
+published OpenConfig models that work together: that is, interdependencies
+(e.g., imports, augments) and cross-references (e.g., leafrefs) are all
+resolved.
+
+As a side note, these releases are compatible with the notion of
 [YANG release bundles](https://github.com/openconfig/public/blob/master/release/models/catalog/openconfig-module-catalog.yang).
 
 ## Policy
@@ -43,7 +53,7 @@ releases are compatible with the notion of
     breaking change since it would cause featureprofile tests that test for the
     behaviour of the default value without explicitly setting this leaf to begin
     to fail. As a result, the pull request for this change is not merged until
-    the end of the quarter in December. In January 2022, a new release is
+    the end of the quarter in December. In January 2023, a new release is
     created, versioned `v3.0.0` containing this update.
 
 3.  Any non-backward compatible change for a pre-`v1.0.0` YANG module does NOT
@@ -51,7 +61,8 @@ releases are compatible with the notion of
     repository.
 
 4.  [Patch releases](https://semver.org/#spec-item-6) may be created at any time
-    for backward compatible bug fixes.
+    for backward compatible bug fixes, or equivalently, where only patch number
+    increases occurred in models.
 
 5.  [Pre-releases](https://semver.org/#spec-item-9) may be created at anytime to
     quickly introduce new changes to the models. These are not intended to be
@@ -67,12 +78,19 @@ releases are compatible with the notion of
     This guideline may change once OpenConfig operators gain more experience
     managing breaking changes.
 
+7.  Release documentation should include the list of models and their version
+    numbers contained in the corresponding release.
+
 Each release `vx.y.z` (e.g. `v1.2.0`) MAY be given a name for easier human
 identification, e.g. "September 2022". A client can thus assert they are
 compatible with the "September 2022" release of OpenConfig. It's expected that
 vendors will have some deviations and augments from the baseline; further, some
 vendors may offer the ability to configure their NOS (network operating system)
 to support different releases of https://github.com/openconfig/public.
+
+Note that release version numbers need not be a function of individual model
+release numbers (e.g., the max version number of all of the models in the
+release).
 
 ### Corner-Case Guidelines
 

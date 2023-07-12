@@ -26,7 +26,13 @@ module openconfig-vlan {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.2.1";
+  oc-ext:openconfig-version "3.2.2";
+
+  revision "2023-02-07" {
+    description
+      "Remove prefix from enums in when statements";
+    reference "3.2.2";
+  }
 
   revision "2021-07-28" {
     description
@@ -176,7 +182,7 @@ module openconfig-vlan {
     }
 
     leaf native-vlan {
-      when "../interface-mode = 'oc-vlan-types:TRUNK'" {
+      when "../interface-mode = 'TRUNK'" {
         description
           "Native VLAN is valid for trunk mode interfaces";
       }
@@ -190,7 +196,7 @@ module openconfig-vlan {
     }
 
     leaf access-vlan {
-      when "../interface-mode = 'oc-vlan-types:ACCESS'" {
+      when "../interface-mode = 'ACCESS'" {
         description
           "Access VLAN assigned to the interfaces";
       }
@@ -200,7 +206,7 @@ module openconfig-vlan {
     }
 
     leaf-list trunk-vlans {
-      when "../interface-mode = 'oc-vlan-types:TRUNK'" {
+      when "../interface-mode = 'TRUNK'" {
         description
           "Allowed VLANs may be specified for trunk mode
           interfaces.";
