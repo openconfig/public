@@ -40,8 +40,10 @@ module openconfig-terminal-device-properties {
 
   // Revisions
   revision "2023-07-15" {
-      description "Comprehensive model update to undertake the liminatations
-      of the first version of the model, such... .";
+      description "Comprehensive model update to undertake the limitations
+      of the first version of the model, such the introduction of modes
+      dependencies on hardware components and the interoperability information
+      between terminal devices, linecards, transceviers and modes.";
       reference "0.2.0";
   }
 
@@ -789,8 +791,8 @@ module openconfig-terminal-device-properties {
 
           uses terminal-device-component-descriptor-state;
         }
+        uses transceiver-compatible-modes;
       }
-      uses transceiver-compatible-modes;
     }
   }
 
@@ -860,6 +862,9 @@ module openconfig-terminal-device-properties {
 
       list compatible-transceiver {
         key "transceiver-descriptor-id";
+        description 
+          "List of transceiver descriptor ids.";
+
         leaf transceiver-descriptor-id {
           type leafref {
             path "/oc-opt-term-properties:transceiver-descriptors/transceiver-descriptor/state/component-descriptor-id";
