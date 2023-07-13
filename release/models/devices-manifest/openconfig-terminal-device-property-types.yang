@@ -56,6 +56,14 @@ module openconfig-terminal-device-property-types {
       reference "ITU-T G.698.2 (11/2018)";
   }
 
+  typedef interoperability-modes-organization{
+    type identityref {
+      base INTEROPERABILITY_MODES_ORGANIZATION;
+    }
+    description
+      "Optical modulation format associated to the mode";
+  }
+
   typedef bit-rate {
     type identityref {
       base oc-opt-types:TRIBUTARY_RATE_CLASS_TYPE;
@@ -121,7 +129,7 @@ module openconfig-terminal-device-property-types {
     description
       "Base identity for pulse-shaping-type, to help characterize the
       filter type included in the transceiver which support the mode.";
-  }
+  } 
 
   identity RC {
     base  SHAPING_TYPE;
@@ -254,7 +262,6 @@ module openconfig-terminal-device-property-types {
         no minimun spacing between channels is defined.";
   }
 
-
   identity FEC {
     description
       "Forward Error Correction base identity.";
@@ -273,6 +280,7 @@ module openconfig-terminal-device-property-types {
       "Generic FEC, Reed Solomon (255,239) coding schema,
       defined in ITU-T G.975 (10/2000).";
   }
+
   identity FEC_E {
     base FEC;
     description
