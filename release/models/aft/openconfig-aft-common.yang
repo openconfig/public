@@ -27,8 +27,8 @@ submodule openconfig-aft-common {
 
   revision "2023-05-25" {
     description
-      "Add next-hop-group-name in NHG AFT entry state and
-       Add ttl and tos in NH AFT entry state for telemetry";
+      "Add next-hop-group-name and auto-size in NHG AFT entry state
+       and Add ttl and tos in NH AFT entry state for telemetry";
     reference "2.4.0";
   }
 
@@ -606,6 +606,14 @@ submodule openconfig-aft-common {
        "Where applicable, this leaf is a unique identifier string for the
         next-hop-group. It is an arbitrary name for the group, that is
         supported by vendors and is exposed for telemetry.";
+    }
+
+    leaf auto-size {
+      type boolean;
+      description
+       "Where applicable, this leaf is a indicator of the
+        next-hop-group size being automatically determined or is it
+        configured to a fixed size.";
     }
 
     leaf programmed-id {
