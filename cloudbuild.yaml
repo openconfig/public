@@ -80,7 +80,7 @@ steps:
   entrypoint: 'bash'
   args:
   - -c
-  - >- # CI Configuration
+  - >- # CI Configuration #-compat-report=yanglint
     /go/bin/cmd_gen
     -modelRoot=$_MODEL_ROOT
     -repo-slug=$_REPO_SLUG
@@ -89,7 +89,6 @@ steps:
     -pr-number=$_PR_NUMBER
     -skipped-validators=confd,yanglint
     -extra-pyang-versions=2.2.1
-    #-compat-report=yanglint
     -branch=$BRANCH_NAME
   secretEnv: ['GITHUB_ACCESS_TOKEN']
   env:
@@ -293,7 +292,7 @@ steps:
     path: /go
   id: 'compat-report'
 
-timeout: 600s
+timeout: 900s
 options:
   machineType: 'E2_HIGHCPU_32'
 
