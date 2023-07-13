@@ -370,6 +370,18 @@ submodule openconfig-qos-interfaces {
       description
         "Number of octets dropped by the queue due to overrun";
     }
+
+    leaf aged-pkts {
+      type oc-yang:counter64;
+      description
+        "Number of packets dropped due to timeout; Timeout occurse when queue is not full yet, so packet are enqueued and not tail/WRED dropped, but there is no transmission out of queue - queue is starved by other higher priority traffic for extended period of time.";
+    }
+
+    leaf aged-octets {
+      type oc-yang:counter64;
+      description
+        "Number of octets dropped by the queue due to timeout; Timeout occurse when queue is not full yet, so packet are enqueued and not tail/WRED dropped, but there is no transmission out of queue - queue is starved by other higher priority traffic for extended period of time.";
+    }
   }
 
   grouping qos-interface-queue-top {
