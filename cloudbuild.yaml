@@ -52,7 +52,8 @@ steps:
     git clone git@github.com:openconfig/models-ci.git /go/src/github.com/openconfig/models-ci
     cd /go/src/github.com/openconfig/models-ci
     # Modify the major version to update models-ci version.
-    branch=$(git tag -l 'v10.*' | sort -V | tail -1)
+    #branch=$(git tag -l 'v10.*' | sort -V | tail -1)
+    branch=pyangbind-version
     git checkout $branch
   volumes:
   - name: 'ssh'
@@ -89,8 +90,8 @@ steps:
     -pr-number=$_PR_NUMBER
     -skipped-validators=confd,yanglint
     -extra-pyang-versions=2.2.1
-    -compat-report=pyangbind
     -branch=$BRANCH_NAME
+    #-compat-report=pyangbind
   secretEnv: ['GITHUB_ACCESS_TOKEN']
   env:
   - 'GOPATH=/go'
