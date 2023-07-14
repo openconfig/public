@@ -84,16 +84,16 @@ module openconfig-flexalgo {
     description
       "All of the possible attributes for an flexible algorithm
        definition";
-    leaf name {
-      type string;
-      description
-        "Flexible Algorithm name";
-    }
     leaf flex-algo-id {
       type flex-algo-id;
       mandatory true;
       description
         "Flex Algorithm Identifier";
+    }
+    leaf flex-algo-name {
+      type string;
+      description
+        "Flexible Algorithm name";
     }
     leaf flex-algo-description {
       type string;
@@ -161,12 +161,12 @@ module openconfig-flexalgo {
     description
       "Top level grouping for flexible Algorithms and their definitions";
     list algorithm {
-      key "name";
+      key "flex-algo-id";
       description
         "List of Flexible Algorithms";
-      leaf name {
+      leaf flex-algo-id {
         type leafref {
-          path "../config/name";
+          path "../config/flex-algo-id";
         }
         description
           "Name for a Flexible Algorithm";

@@ -566,10 +566,12 @@ module openconfig-segment-routing {
   grouping flex-algo-binding-attributes {
     description
       "Attributes for Flexible Algorithm bindings";
-    leaf flex-algo-name {
-      type string;
+    leaf flex-algo-id {
+      type uint8 {
+	range "128..255";
+      }
       description
-        "Name of a Flexible Algorithm";
+        "Flexible Algorithm identifier";
     }
     leaf isis-level {
       type oc-isis-types:level-type;
@@ -619,15 +621,15 @@ module openconfig-segment-routing {
         description
           "Flex Algorithm bindings";
         list flex-algorithm-binding {
-          key "flex-algo-name";
+          key "flex-algo-id";
           description
-            "Flex Algorithm binding for a given algorithm name";
-          leaf flex-algo-name {
+            "Flex Algorithm binding";
+          leaf flex-algo-id {
             type leafref {
-              path "../config/flex-algo-name";
+              path "../config/flex-algo-id";
             }
             description
-              "Flex Algorithm name used by IGP";
+              "Flex Algorithm identifier used by IGP";
           }
           container config {
             description
@@ -761,10 +763,12 @@ module openconfig-segment-routing {
          value specified is a local prefix on the interface which is advertised
          into the IGP.";
     }
-    leaf flex-algo-name {
-      type string;
+    leaf flex-algo-id {
+      type uint8 {
+	range "128..255";
+      }
       description
-        "Name of the Flexible Algorithm for the prefix segment.";
+        "Flexible Algorithm identifier for the prefix segment.";
     }
     leaf sid-id {
       type oc-srt:sr-sid-type;
@@ -829,7 +833,7 @@ module openconfig-segment-routing {
            routing flexible algorithm for an interface within the IGP.";
 
         list flex-algo-prefix-sid {
-          key "prefix flex-algo-name";
+          key "prefix flex-algo-id";
 
           description
             "IGP prefix segments allocated for Flexible Algorithms";
@@ -843,9 +847,9 @@ module openconfig-segment-routing {
               advertised.";
           }
 
-          leaf flex-algo-name {
+          leaf flex-algo-id {
             type leafref {
-              path "../config/flex-algo-name";
+              path "../config/flex-algo-id";
             }
             description
               "Reference to the Flexible Algorithm for which Flexible Algorithm Prefix
