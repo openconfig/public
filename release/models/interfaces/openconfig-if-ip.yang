@@ -46,10 +46,10 @@ module openconfig-if-ip {
 
   oc-ext:openconfig-version "3.4.0";
 
-  revision "2023-07-14" {
+  revision "2023-06-30" {
     description
-      "Move counters which apply to both interfaces and subinterfaces to
-      a new openconfig-if-common module ";
+      "Deprecate IPv6 router advertisment config suppress leaf and add config
+      mode leaf.";
     reference "3.4.0";
   }
 
@@ -61,7 +61,7 @@ module openconfig-if-ip {
 
   revision "2023-02-06" {
     description
-      "Add ipv6 link-local configuration.";
+      "Add IPv6 link-local configuration.";
     reference "3.2.0";
   }
 
@@ -844,6 +844,15 @@ module openconfig-if-ip {
     description
       "Configuration parameters for IPv6 router advertisements.";
 
+    leaf enable {
+      type boolean;
+      default true;
+      description
+        "If set to false, all IPv6 router advertisement functions are
+        disabled.  The local system will not transmit router advertisement
+        messages and will not respond to router solicitation messages.";
+    }
+
     leaf interval {
       type uint32;
       units seconds;
@@ -862,11 +871,33 @@ module openconfig-if-ip {
     }
 
     leaf suppress {
+      status deprecated;
       type boolean;
       default false;
       description
         "When set to true, router advertisement neighbor discovery
         messages are not transmitted on this interface.";
+    }
+
+    leaf mode {
+      type enumeration {
+        enum ALL {
+          description
+            "The system will transmit unsolicited router advertisement
+            messages and respond to router solicitation requests.";
+        }
+        enum DISABLE_UNSOLICITED_RA {
+          description
+            "Unsolicted router advertisement messages are not transmitted on
+            this interface.  Responses to router solicitation messages will
+            be transmitted.";
+        }
+      }
+      default "ALL";
+      description
+        "Mode controls which set of behaviors the local system should perform
+        to support IPv6 router advertisements.";
+      reference "RFC4861: Neighbor Discovery for IP version 6 (IPv6)";
     }
 
     leaf managed {
