@@ -695,6 +695,58 @@ module openconfig-interfaces {
     }
   }
 
+  grouping subinterfaces-counters-state {
+    description
+      "Operational state representing interface counters
+      and statistics.";
+
+    oc-ext:operational;
+
+    leaf in-unknown-protos {
+      type oc-yang:counter64;
+      status deprecated;
+      description
+        "For packet-oriented interfaces, the number of packets
+        received via the interface that were discarded because
+        of an unknown or unsupported protocol.  For
+        character-oriented or fixed-length interfaces that
+        support protocol multiplexing, the number of
+        transmission units received via the interface that were
+        discarded because of an unknown or unsupported protocol.
+        For any interface that does not support protocol
+        multiplexing, this counter is not present.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifInUnknownProtos";
+    }
+
+    leaf in-fcs-errors {
+      type oc-yang:counter64;
+      status deprecated;
+      description
+        "Number of received packets which had errors in the
+        frame check sequence (FCS), i.e., framing errors.
+
+        Discontinuities in the value of this counter can occur
+        when the device is re-initialization as indicated by the
+        value of 'last-clear'.";
+    }
+
+    leaf carrier-transitions {
+      type oc-yang:counter64;
+      status deprecated;      
+      description
+        "Number of times the interface state has transitioned
+        between up and down since the time the device restarted
+        or the last-clear time, whichever is most recent.";
+      oc-ext:telemetry-on-change;
+    }
+  }
+
   // data definition statements
 
   grouping sub-unnumbered-config {
@@ -835,6 +887,14 @@ module openconfig-interfaces {
 
           uses subinterfaces-config;
           uses subinterfaces-state;
+          container counters {
+            description
+              "A collection of statistics entitites which apply to
+              subinterfaces.";
+
+            uses interface-common-counters-state;
+            uses subinterfaces-counters-state;
+          }
         }
       }
     }
