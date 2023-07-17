@@ -18,10 +18,16 @@ module openconfig-macsec {
     "This module defines configuration and state data for
      MACsec IEEE Std 802.1AE-2018.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
   oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2023-06-08" {
+    description
+      "Support rx-late-pkts leaf.";
+    reference "1.1.0";
+  }
 
   revision "2022-04-28" {
     description
@@ -418,6 +424,15 @@ module openconfig-macsec {
         "MACsec interface level Receive No SCI Packets counter.
          This counter will increment if MACsec is enabled on interface and
          incoming packet does not have SCI field in MACsec tag.";
+    }
+
+    leaf rx-late-pkts {
+      type oc-yang:counter64;
+      description
+        "MACsec interface level Receive Late Packets counter.
+        This counter will increment if MACsec is enabled on the interface and
+        packet number of incoming packet is less than the lowest acceptable
+        packet number and replay protection is enabled.";
     }
   }
 
