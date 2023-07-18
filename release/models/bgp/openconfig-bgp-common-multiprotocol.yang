@@ -24,7 +24,30 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "9.2.0";
+  oc-ext:openconfig-version "9.4.1";
+
+  revision "2023-06-27" {
+    description
+      "Clarify bgp remote-port description";
+    reference "9.4.1";
+  }
+
+  revision "2023-04-01" {
+    description
+      "Add support for BGP large communities [rfc8092] in
+      send-community.
+      Leaf send-community was replaced by the leaf-list
+      send-community-type to allow the combination of different
+      community types";
+    reference "9.4.0";
+  }
+
+  revision "2023-03-31" {
+    description
+      "Allow configuring send-community per AFI-SAFI at
+       neighbor/peer-group.";
+    reference "9.3.0";
+  }
 
   revision "2022-12-12" {
     description
@@ -195,6 +218,15 @@ submodule openconfig-bgp-common-multiprotocol {
       description
         "This leaf indicates whether the AFI-SAFI is enabled for all
         neighbors or groups.";
+    }
+
+    leaf-list send-community-type {
+      type oc-bgp-types:community-type;
+      description
+        "Specify which types of community should be sent to the
+        neighbor or group. The default is to not send the
+        community attribute. This takes precedence over the neighbor
+        or group configuration";
     }
   }
 
