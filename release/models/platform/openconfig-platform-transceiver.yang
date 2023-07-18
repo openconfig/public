@@ -445,7 +445,9 @@ module openconfig-platform-transceiver {
 
     container thresholds {
       description
-        "Enclosing container for transceiver alarm thresholds.";
+        "Enclosing container for transceiver alarm thresholds.
+        Each threshold is compared to the instant value of the
+        measured parameter corresponding to the threshold";
 
       list threshold {
         key "severity";
@@ -753,7 +755,7 @@ module openconfig-platform-transceiver {
   grouping transceiver-threshold-state {
     description
       "Grouping for all alarm threshold configs for a particular
-      severity level.";
+      severity level."
     leaf severity {
       type identityref {
         base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
