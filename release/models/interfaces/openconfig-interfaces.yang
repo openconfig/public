@@ -14,8 +14,6 @@ module openconfig-interfaces {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-transport-types { prefix oc-opt-types; }
 
-  include openconfig-if-common;
-
   // meta
   organization "OpenConfig working group";
 
@@ -57,9 +55,8 @@ module openconfig-interfaces {
 
   revision "2023-07-14" {
     description
-      "Move counters which apply to both interfaces and sub interfaces to
-      a new openconfig-if-common module.  Deprecate physical counters from
-      subinterface";
+      "Move counters which apply to both interfaces and subinterfaces to
+      a common grouping.  Deprecate physical counters from subinterface";
     reference "3.5.0";
   }
 
@@ -643,6 +640,267 @@ module openconfig-interfaces {
         interface as an Ethernet interface, for example, this leaf
         should be used to distinguish the CPU interface from dataplane
         interfaces.";
+      oc-ext:telemetry-on-change;
+    }
+  }
+
+grouping interface-common-counters-state {
+    description
+      "Operational state representing interface counters and statistics
+      applicable to (physical) interfaces and (logical) subinterfaces.";
+
+    leaf in-octets {
+      type oc-yang:counter64;
+      description
+        "The total number of octets received on the interface,
+        including framing characters.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifHCInOctets.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf in-pkts {
+      type oc-yang:counter64;
+      description
+        "The total number of packets received on the interface,
+        including all unicast, multicast, broadcast and bad packets
+        etc.";
+      reference
+        "RFC 2819: Remote Network Monitoring Management Information Base.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf in-unicast-pkts {
+      type oc-yang:counter64;
+      description
+        "The number of packets, delivered by this sub-layer to a
+        higher (sub-)layer, that were not addressed to a
+        multicast or broadcast address at this sub-layer.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifHCInUcastPkts.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf in-broadcast-pkts {
+      type oc-yang:counter64;
+      description
+        "The number of packets, delivered by this sub-layer to a
+        higher (sub-)layer, that were addressed to a broadcast
+        address at this sub-layer.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifHCInBroadcastPkts.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf in-multicast-pkts {
+      type oc-yang:counter64;
+      description
+        "The number of packets, delivered by this sub-layer to a
+        higher (sub-)layer, that were addressed to a multicast
+        address at this sub-layer.  For a MAC-layer protocol,
+        this includes both Group and Functional addresses.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifHCInMulticastPkts.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf in-errors {
+      type oc-yang:counter64;
+      description
+        "For packet-oriented interfaces, the number of inbound
+        packets that contained errors preventing them from being
+        deliverable to a higher-layer protocol.  For character-
+        oriented or fixed-length interfaces, the number of
+        inbound transmission units that contained errors
+        preventing them from being deliverable to a higher-layer
+        protocol.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifInErrors.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf in-discards {
+      type oc-yang:counter64;
+      description
+        "The number of inbound packets that were chosen to be
+        discarded even though no errors had been detected to
+        prevent their being deliverable to a higher-layer
+        protocol.  One possible reason for discarding such a
+        packet could be to free up buffer space.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+
+
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifInDiscards.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf out-octets {
+      type oc-yang:counter64;
+      description
+        "The total number of octets transmitted out of the
+        interface, including framing characters.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifHCOutOctets.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf out-pkts {
+      type oc-yang:counter64;
+      description
+        "The total number of packets transmitted out of the
+        interface, including all unicast, multicast, broadcast,
+        and bad packets etc.";
+      reference
+        "RFC 2819: Remote Network Monitoring Management Information Base.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf out-unicast-pkts {
+      type oc-yang:counter64;
+      description
+        "The total number of packets that higher-level protocols
+        requested be transmitted, and that were not addressed
+        to a multicast or broadcast address at this sub-layer,
+        including those that were discarded or not sent.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifHCOutUcastPkts.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf out-broadcast-pkts {
+      type oc-yang:counter64;
+      description
+        "The total number of packets that higher-level protocols
+        requested be transmitted, and that were addressed to a
+        broadcast address at this sub-layer, including those
+        that were discarded or not sent.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifHCOutBroadcastPkts.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf out-multicast-pkts {
+      type oc-yang:counter64;
+      description
+        "The total number of packets that higher-level protocols
+        requested be transmitted, and that were addressed to a
+        multicast address at this sub-layer, including those
+        that were discarded or not sent.  For a MAC-layer
+        protocol, this includes both Group and Functional
+        addresses.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifHCOutMulticastPkts.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf out-discards {
+      type oc-yang:counter64;
+      description
+        "The number of outbound packets that were chosen to be
+        discarded even though no errors had been detected to
+        prevent their being transmitted.  One possible reason
+        for discarding such a packet could be to free up buffer
+        space.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifOutDiscards.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf out-errors {
+      type oc-yang:counter64;
+      description
+        "For packet-oriented interfaces, the number of outbound
+        packets that could not be transmitted because of errors.
+        For character-oriented or fixed-length interfaces, the
+        number of outbound transmission units that could not be
+        transmitted because of errors.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of
+        'last-clear'.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifOutErrors.
+        RFC 4293: Management Information Base for the
+        Internet Protocol (IP).";
+    }
+
+    leaf last-clear {
+      type oc-types:timeticks64;
+      description
+        "Timestamp of the last time the interface counters were
+        cleared.
+
+        The value is the timestamp in nanoseconds relative to
+        the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
       oc-ext:telemetry-on-change;
     }
   }
