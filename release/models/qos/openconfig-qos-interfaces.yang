@@ -25,13 +25,7 @@ submodule openconfig-qos-interfaces {
     configuration and operational state associated with
     interfaces.";
 
-  oc-ext:openconfig-version "0.10.0";
-
-  revision "2023-07-13" {
-    description
-      "Add support for aged-packet, aged-byte conters";
-    reference "0.10.0";
-  }
+  oc-ext:openconfig-version "0.9.1";
 
   revision "2023-04-25" {
     description
@@ -375,18 +369,6 @@ submodule openconfig-qos-interfaces {
       type oc-yang:counter64;
       description
         "Number of octets dropped by the queue due to overrun, that is tail-drop or WRED drop";
-    }
-
-    leaf aged-pkts {
-      type oc-yang:counter64;
-      description
-        "Number of packets dropped due to timeout; Timeout occurse when queue is not full yet, so packet are enqueued and not tail/WRED dropped, but there is no transmission out of queue - queue is starved by other higher priority traffic for extended period of time.";
-    }
-
-    leaf aged-octets {
-      type oc-yang:counter64;
-      description
-        "Number of octets dropped by the queue due to timeout; Timeout occurse when queue is not full yet, so packet are enqueued and not tail/WRED dropped, but there is no transmission out of queue - queue is starved by other higher priority traffic for extended period of time.";
     }
   }
 
