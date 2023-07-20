@@ -25,6 +25,12 @@ module openconfig-system-logging {
 
   oc-ext:openconfig-version "0.5.0";
 
+revision "2023-07-20" {
+    description
+      "adding VTY and local files as logging destinations";
+    reference "0.5.1";
+  }
+
   revision "2023-05-04" {
     description
       "removing LOG_DESTINATION_TYPE identities";
@@ -354,12 +360,12 @@ module openconfig-system-logging {
 
   grouping logging-console-config {
     description
-      "Configuration data for console logging";
+      "Configuration data for console and vty logging";
   }
 
   grouping logging-console-state {
     description
-      "Operational state data for console logging";
+      "Operational state data for console and vty logging";
   }
 
   grouping logging-console-top {
@@ -579,6 +585,37 @@ module openconfig-system-logging {
     }
   }
 
+  grouping logging-vty-top {
+    description
+      "Top-level grouping for vty logging data";
+
+    container vty {
+      description
+        "Top-level container for data related to vty-based
+        logging (active sessions of ssh, telnet, etc )";
+
+      container config {
+        description
+          "Configuration data for vty logging";
+
+        uses logging-console-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for console logging";
+
+        uses logging-console-config;
+        uses logging-console-state;
+      }
+
+      uses logging-selectors-top;
+    }
+  }
+
   grouping logging-top {
     description
       "Top-level grouping for logging data";
@@ -590,6 +627,7 @@ module openconfig-system-logging {
       uses logging-console-top;
       uses logging-remote-top;
       uses logging-files-top;
+      uses logging-vty-top;
 
     }
   }
