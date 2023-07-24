@@ -1,0 +1,314 @@
+module openconfig-kubernetes-types {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/kubernetes-types";
+
+  prefix "oc-k8s-types";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-inet-types { prefix oc-inet; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    netopenconfig@googlegroups.com";
+
+  description
+    "This module defines the types uses for the openconfig-kubernetes.yang";
+
+  oc-ext:openconfig-version "3.1.0";
+
+  revision "2023-05-19" {
+    description
+      "OpenConfig public release";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // extension statements
+
+  // feature statements
+
+  // identity statements
+  identity RESOURCE_OBJECT_TYPE {
+  	description
+  	 "A base identity which can be extended to indicate the different
+     types, 'Kinds', of objects available and managed in Kubernetes";
+  }
+
+  identity POD {
+    base RESOURCE_OBJECT_TYPE;
+    description
+      "Environment for one or more containers that co-exist on the host system
+      and share resources";
+  }
+
+  identity DEPLOYMENT {
+    base RESOURCE_OBJECT_TYPE;
+    description
+      "Environment for one or more containers that co-exist on the host system
+      and the replication intent for the containers";
+  }
+
+  identity SERVICE {
+    base RESOURCE_OBJECT_TYPE;
+    description
+      "Internal and external network configuration for a cluster";
+  }
+
+  identity CONFIG_MAP {
+    base RESOURCE_OBJECT_TYPE;
+    description
+      "Key / value pairs to be referenced in the cluster";
+  }
+
+  identity SECRET {
+    base RESOURCE_OBJECT_TYPE;
+    description
+      "Hashed and encrypted key / value pairs to be referenced in the cluster";
+  }
+
+  identity SECRET_DATA_TYPE {
+    description
+      "A base identity which can be extended to indicate the different
+      types of secrets supported in Kubernetes";
+  }
+
+  identity OPAQUE {
+    base SECRET_DATA_TYPE;
+    description
+      "Default secret type which with no defined structure and is entered in clear text";
+  }
+
+  identity SERVICE_ACCOUNT_TOKEN {
+    base SECRET_DATA_TYPE;
+    description
+      "Token that references a service account";
+  }
+
+  identity DOCKER_CONFIG_SECRET {
+    base SECRET_DATA_TYPE;
+    description
+      "Credentials for accessing a Docker repository";
+  }
+
+  identity BASIC_AUTH {
+    base SECRET_DATA_TYPE;
+    description
+      "Credentials for authentication typically as username and password";
+  }
+
+  identity SERVICE_TYPE {
+    description
+      "A base identity which can be extended to indicate the different
+      types of services supported in Kubernetes";
+  }
+
+  identity NODE_PORT {
+    base SERVICE_TYPE;
+    description
+      "Exposes the service on each node's IP at a static port";
+  }
+
+  identity CLUSTER_IP {
+    base SERVICE_TYPE;
+    description
+      "Exposes the service on a cluster-internal IP";
+  }
+
+  identity LOAD_BALANCER {
+    base SERVICE_TYPE;
+    description
+      "Exposes the service externally using an external load balancer";
+  }
+
+  identity EXTERNAL_NAME {
+    base SERVICE_TYPE;
+    description
+      "Maps the service to the contents of the ExternalName field";
+  }
+
+  identity VALUE_TYPE {
+  	description
+  	 "A base identity which can be extended to indicate the different
+     types of data stored in the values of the name value list";
+  }
+
+  identity STRING {
+    base VALUE_TYPE;
+    description
+      "Default type in which this value leaf is the actual string value to be used with the name leaf";
+  }
+
+  identity VALUE_FROM_CONFIG_MAP {
+    base VALUE_TYPE;
+    description
+      "Value is a reference key to an entry stored in a ConfigMap list configured in the cluster";
+  }
+
+  identity VALUE_FROM_SECRET {
+    base VALUE_TYPE;
+    description
+      "Value is a reference key to an entry stored in a Secret list configured in the cluster";
+  }
+
+  // typedef statements
+  typedef api-version-type {
+    type enumeration {
+      enum V1 {
+        value 1;
+        description
+          "Manifest version v1";
+      }
+    }
+    description
+      "Manifest Apps API version to be used for Deployment resource";
+  }
+
+  typedef apps-api-version-type {
+    type enumeration {
+      enum APPSV1 {
+        value 1;
+        description
+          "Manifest apps version apps/v1";
+      }
+    }
+    description
+      "Manifest Apps API version to be used for Deployment resource";
+  }
+
+  typedef service-protocol-type {
+    type enumeration {
+      enum TCP;
+      enum UDP;
+      enum ICMP;
+    }
+    description
+      "Service protocol types";
+  }
+
+  // grouping statements
+  grouping name-port-instance-config {
+    description
+      "Instance of a name / port pair";
+
+    leaf name {
+      type string;
+      description
+        "Name associated with the value";
+    }
+
+    leaf port {
+      type oc-inet:port-number;
+      description
+        "Port associated with the name";
+    }
+  }
+
+  grouping name-value-instance-config {
+    description
+      "Instance of a name / value pair.  Only one type of [value, configmap-name, or secret-name] is expected
+      to be associated with the name";
+
+    leaf name {
+      type string;
+      description
+        "Name associated with the value";
+    }
+
+    leaf value {
+      type string;
+      description
+        "String value or reference to a value associated with the name, as indicated by the type";
+    }
+
+    leaf type {
+      type identityref {
+        base "oc-k8s-types:VALUE_TYPE";
+      }
+      default oc-k8s-types:STRING;
+      description
+        "Type of the value stored in this list entry";
+    }
+
+    leaf resource {
+      when "../type != 'oc-k8s-types:STRING'" {
+        description
+          "Valid when the type indicates a reference to another configuration data resource";
+      }
+      type string;
+      description
+        "Name of the ConfigMap or Secret resource in which this container's value is a key to the stored data";
+    }
+  }
+
+  grouping name-value-list-config {
+    description
+      "Generic list of name / value data configuration in which value may include a valueFrom concept
+      referring to a configmap or secret instance";
+
+    container name-value-pairs {
+      description
+        "Data container holding the list of name / value pairs";
+
+      list pair {
+        key "name";
+        description
+          "Name for this name / value pair";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the name for this pair";
+        }
+
+        container config {
+          description
+            "Name / value pair data";
+          uses name-value-instance-config;
+        }
+      }
+    }
+  }
+
+  grouping name-port-list-config {
+    description
+      "Generic list of name / port data configuration";
+
+    container name-port-pairs {
+      description
+        "Data container holding the list of name / port pairs";
+
+      list pair {
+        key "name";
+        description
+          "Name for this name / port pair";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the name for this pair";
+        }
+
+        container config {
+          description
+            "Name / port pair data";
+          uses name-port-instance-config;
+        }
+      }
+    }
+  }
+}

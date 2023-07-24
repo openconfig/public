@@ -1,0 +1,50 @@
+submodule openconfig-kubernetes-state {
+
+  belongs-to openconfig-kubernetes {
+    prefix "oc-k8s";
+  }
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-kubernetes-types { prefix oc-k8s-types; }
+  import openconfig-inet-types { prefix oc-inet; }
+
+  // meta
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    netopenconfig@googlegroups.com";
+
+  description
+    "This sub-module contains groupings that define the state data for the openconfig-kubernetes Yang model.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2023-06-01" {
+    description
+      "Initial public release";
+    reference "0.1.0";
+  }
+
+  grouping cluster-state {
+    description
+      "State data for the entire cluster";
+
+    leaf control-plane-url {
+      type oc-inet:url;
+      description
+        "Location of the control plane instance for this cluster";
+    }
+    leaf service-discovery-application {
+      type oc-inet:url;
+      description
+        "Application providing service discovery for this cluster";
+    }
+    leaf service-discovery-url {
+      type oc-inet:url;
+      description
+        "Location of the service discovery instance for this cluster";
+    }
+  }
+}
