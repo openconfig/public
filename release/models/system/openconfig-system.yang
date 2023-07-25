@@ -47,7 +47,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.17.1";
+  oc-ext:openconfig-version "0.18.0";
+
+    revision "2023-07-19" {
+    description
+      "Added the system-mac leaf.";
+    reference "0.18.0";
+  }
 
   revision "2023-06-16" {
     description
@@ -977,9 +983,9 @@ module openconfig-system {
     }
   }
 
-  grouping system-routing-macaddr-config {
+  grouping system-macaddr-config {
     description
-      "Configuration data for system's routing MAC addresses.";
+      "Configuration data for system's MAC addresses.";
 
     leaf routing-mac {
       type oc-yang:mac-address;
@@ -996,6 +1002,12 @@ module openconfig-system {
         MAC address that system owns. For instance, it's allocation could
         be managed by an external controller.";
     }
+
+    leaf system-mac {
+      type oc-yang:mac-address;
+      description
+        "Configured or assigned MAC address for the system.";
+    }
   }
 
   grouping system-macaddr-top {
@@ -1008,17 +1020,17 @@ module openconfig-system {
 
       container config {
         description
-          "Configuration data for routing MAC address.";
+          "Configuration data for MAC addresses.";
 
-        uses system-routing-macaddr-config;
+        uses system-macaddr-config;
       }
 
       container state {
         config false;
         description
-          "Operational state data for routing MAC address.";
+          "Operational state data for MAC addresses.";
 
-        uses system-routing-macaddr-config;
+        uses system-macaddr-config;
       }
     }
   }
