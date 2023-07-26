@@ -22,7 +22,14 @@ module openconfig-rsvp-sr-ext {
     existing OpenConfig segment routing (SR) and RSVP-TE models
     where required.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.3.1";
+  
+  revision "2019-07-09" {
+    description
+      "Renamed last-calculated-sr-utilisation to 
+       last-calculated-sr-traffic.";
+    reference "0.3.1";
+  }
 
   revision "2019-07-09" {
     description
@@ -379,15 +386,16 @@ module openconfig-rsvp-sr-ext {
     leaf last-calculated-time {
       type oc-types:timeticks64;
       description
-        "The time at which the last calculated value for bandwidth
-        utilisation was performed. The value is expressed relative
-        to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+        "The time at which the last calculated values for segment 
+        routing traffic was performed. The value is expressed 
+        relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
     }
 
-    leaf last-calculated-sr-utilisation {
+    leaf last-calculated-sr-traffic {
       type uint64;
+      units "kbps";
       description
-        "The last calculated value of the Segment Routing  utilisation
+        "The last calculated value of the Segment Routing traffic
         (taken post any averaging or adjustment that occurs). This
         value is updated regardless of whether the value was flooded
         or not.";
