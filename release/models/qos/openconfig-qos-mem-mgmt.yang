@@ -29,7 +29,14 @@ submodule openconfig-qos-mem-mgmt {
       per-queue basis, and determine how packets are marked/dropped within
       the queue instantiation.";
 
-  oc-ext:openconfig-version "0.9.1";
+  oc-ext:openconfig-version "0.10.0";
+
+  revision "2023-07-26" {
+    description
+      "Add buffer management parameters in time unts (microseconds).
+       Make profiles reusable across LAGs and PHY of different speed";
+    reference "0.10.0";
+  }
 
   revision "2023-04-25" {
     description
@@ -221,7 +228,19 @@ submodule openconfig-qos-mem-mgmt {
       units bytes;
       description
         "This is the dedicated buffer that is carved for the queue, this is the minimum
-        number of bytes reserved for this queue.";
+        number of bytes reserved for this queue.
+        This leaf is mutualy exclusive with dedicated-buffer-temporal leaf";
+    }
+
+    leaf dedicated-buffer-temporal {
+      type uint64;
+      units microseconds;
+      description
+        "This is the dedicated buffer that is carved for the queue. The the minimum
+        number of bytes reserved for this queue is calculated by multiplying by interface speed
+        queue is attached to and queues minimum, guarantaed transmit share (derived
+        form WRR schedulers weights. For strict priority, 6% share is asumed); 
+        This leaf is mutualy exclusive with dedicated-buffer leaf";
     }
 
     leaf use-shared-buffer {
@@ -246,7 +265,21 @@ submodule openconfig-qos-mem-mgmt {
       description
         "If the shared-buffer-limit-type is STATIC, then static-shared-buffer-limit is
         the maximum number of bytes that the queue is allowed to use from the shared
-        pool.";
+        pool.
+        This leaf is mutualy exclusive with static-shared-buffer-limit-temporal leaf.";
+    }
+
+    leaf static-shared-buffer-limit-temporal {
+      type uint32;
+      units microseconds;
+      description
+        "If the shared-buffer-limit-type is STATIC, then static-shared-buffer-limit-temporal is
+        the maximum number of bytes that the queue is allowed to use from the shared
+        pool. 
+        The the number of bytes is calculated by multiplying static-shared-buffer-limit-temporal
+        by interface speed the queue is attached to and queues minimum, guarantaed transmit share
+        (derived form WRR schedulers weights. For strict priority, 6% share is asumed); 
+        This leaf is mutualy exclusive with static-shared-buffer-limit leaf.";
     }
 
     leaf dynamic-limit-scaling-factor {
