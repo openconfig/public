@@ -44,21 +44,7 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.5.0";
-
-  revision "2023-07-14" {
-    description
-      "Move counters which apply to both interfaces and subinterfaces to
-      a common grouping.  Deprecate physical counters from subinterface";
-    reference "3.5.0";
-  }
-
-  revision "2023-06-30" {
-    description
-      "Deprecate IPv6 router advertisment config suppress leaf and add config
-      mode leaf.";
-    reference "3.4.0";
-  }
+  oc-ext:openconfig-version "3.3.0";
 
   revision "2023-04-12" {
     description
@@ -68,7 +54,7 @@ module openconfig-if-ip {
 
   revision "2023-02-06" {
     description
-      "Add IPv6 link-local configuration.";
+      "Add ipv6 link-local configuration.";
     reference "3.2.0";
   }
 
@@ -237,6 +223,42 @@ module openconfig-if-ip {
         "Packet and byte counters for IP transmission and
         reception for the address family.";
 
+
+      leaf in-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of IP packets received for the specified
+          address family, including those received in error";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
+
+      leaf in-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of octets received in input IP packets
+          for the specified address family, including those received
+          in error.";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
+
+      leaf in-error-pkts {
+        // TODO: this counter combines several error conditions --
+        // could consider breaking them out to separate leaf nodes
+        type oc-yang:counter64;
+        description
+          "Number of IP packets discarded due to errors for the
+          specified address family, including errors in the IP
+          header, no route found to the IP destination, invalid
+          address, unknown protocol, etc.";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
+
       leaf in-forwarded-pkts {
         type oc-yang:counter64;
         description
@@ -257,6 +279,57 @@ module openconfig-if-ip {
           not their final IP destination and for which the
           device attempted to find a route to forward them to that
           final destination.";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
+
+      leaf in-discarded-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of input IP packets for the
+          specified address family, for which no problems were
+          encountered to prevent their continued processing, but
+          were discarded (e.g., for lack of buffer space).";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
+
+      leaf out-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of IP packets for the
+          specified address family that the device supplied
+          to the lower layers for transmission.  This includes
+          packets generated locally and those forwarded by the
+          device.";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
+
+      leaf out-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of octets in IP packets for the
+          specified address family that the device
+          supplied to the lower layers for transmission.  This
+          includes packets generated locally and those forwarded by
+          the device.";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
+
+      leaf out-error-pkts {
+        // TODO: this counter combines several error conditions --
+        // could consider breaking them out to separate leaf nodes
+        type oc-yang:counter64;
+        description
+          "Number of IP packets for the specified address family
+          locally generated and discarded due to errors, including
+          no route found to the IP destination.";
         reference
           "RFC 4293 - Management Information Base for the
           Internet Protocol (IP)";
@@ -283,8 +356,23 @@ module openconfig-if-ip {
           "RFC 4293 - Management Information Base for the
           Internet Protocol (IP)";
       }
+
+      leaf out-discarded-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of output IP packets for the
+          specified address family for which no problem was
+          encountered to prevent their transmission to their
+          destination, but were discarded (e.g., for lack of
+          buffer space).";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
     }
+
   }
+
 
 
   grouping ipv4-global-config {
@@ -851,15 +939,6 @@ module openconfig-if-ip {
     description
       "Configuration parameters for IPv6 router advertisements.";
 
-    leaf enable {
-      type boolean;
-      default true;
-      description
-        "If set to false, all IPv6 router advertisement functions are
-        disabled.  The local system will not transmit router advertisement
-        messages and will not respond to router solicitation messages.";
-    }
-
     leaf interval {
       type uint32;
       units seconds;
@@ -878,33 +957,11 @@ module openconfig-if-ip {
     }
 
     leaf suppress {
-      status deprecated;
       type boolean;
       default false;
       description
         "When set to true, router advertisement neighbor discovery
         messages are not transmitted on this interface.";
-    }
-
-    leaf mode {
-      type enumeration {
-        enum ALL {
-          description
-            "The system will transmit unsolicited router advertisement
-            messages and respond to router solicitation requests.";
-        }
-        enum DISABLE_UNSOLICITED_RA {
-          description
-            "Unsolicted router advertisement messages are not transmitted on
-            this interface.  Responses to router solicitation messages will
-            be transmitted.";
-        }
-      }
-      default "ALL";
-      description
-        "Mode controls which set of behaviors the local system should perform
-        to support IPv6 router advertisements.";
-      reference "RFC4861: Neighbor Discovery for IP version 6 (IPv6)";
     }
 
     leaf managed {
