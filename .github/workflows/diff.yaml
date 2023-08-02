@@ -11,14 +11,14 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: Make sure all backward-incompatible changes are covered by version changes.
       run: |
         readonly HEAD=${{ github.event.pull_request.head.sha }}
         readonly BASE="$(git merge-base origin/main "${HEAD}")"
-        echo "HEAD is $HEAD"
-        echo "BASE is $BASE"
 
         BASEREPODIR=public_base
         git clone "https://github.com/openconfig/public.git" "${BASEREPODIR}" --branch "${BASE}"
