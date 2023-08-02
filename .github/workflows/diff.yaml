@@ -17,6 +17,8 @@ jobs:
       run: |
         readonly HEAD=${{ github.event.pull_request.head.sha }}
         readonly BASE="$(git merge-base origin/main "${HEAD}")"
+        echo $HEAD
+        echo $BASE
 
         BASEREPODIR=public_base
         git clone "https://github.com/openconfig/public.git" "${BASEREPODIR}" --branch "${BASE}"
