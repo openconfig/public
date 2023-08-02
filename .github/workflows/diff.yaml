@@ -1,0 +1,29 @@
+name: OpenConfig YANG Diff
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: Backward Incompatibility Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Make sure all backward-incompatible changes are covered by version changes.
+      run: |
+        readonly HEAD=${{ github.event.pull_request.head.sha }}
+        readonly BASE="$(git merge-base origin/main "${HEAD}")"
+
+        BASEREPODIR=public_base
+        git clone "git@github.com:public.git" "${BASEREPODIR}" --branch "${BASE}"
+        oldroot="${BASEREPODIR}"
+        newroot=.
+        oldfiles=$(find "${oldroot}"/release/models -name '*.yang' | tr '\n' ',')
+        newfiles=$(find "${newroot}"/release/models -name '*.yang' | tr '\n' ',')
+
+        go install github.com/openconfig/models-ci@diff-cli
+        models-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
