@@ -26,7 +26,10 @@ jobs:
         readonly BASE="$(git merge-base origin/master "${HEAD}")"
 
         BASEREPODIR=public_base
-        git clone "https://github.com/openconfig/public.git" "${BASEREPODIR}" --branch "${BASE}"
+        git clone "https://github.com/openconfig/public.git" "${BASEREPODIR}"
+        cd "${BASEREPODIR}"
+        git checkout "${BASE}"
+        cd ..
         oldroot="${BASEREPODIR}"
         newroot=.
         oldfiles=$(find "${oldroot}"/release/models -name '*.yang' | tr '\n' ',')
