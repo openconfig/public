@@ -20,6 +20,10 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Install models-ci
+      run: |
+        go install github.com/openconfig/models-ci@94a63b5
+
     - name: Make sure all backward-incompatible changes are covered by version changes.
       run: |
         readonly HEAD=${{ github.event.pull_request.head.sha }}
@@ -36,8 +40,4 @@ jobs:
         oldfiles=$(find "${oldroot}"/release/models -name '*.yang' | tr '\n' ',')
         newfiles=$(find "${newroot}"/release/models -name '*.yang' | tr '\n' ',')
 
-        go install github.com/openconfig/models-ci@94a63b5
-
-    - name: Make sure all backward-incompatible changes are covered by version changes.
-      run: |
         models-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
