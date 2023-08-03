@@ -42,8 +42,10 @@ jobs:
 
         models-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
 
-        leafchanges=$(models-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}")
-        echo "{leafchanges}={${leafchanges}}" >> "$GITHUB_ENV"
+        EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+        echo "leafchanges<<$EOF" >> "$GITHUB_ENV"
+        models-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_ENV"
+        echo "$EOF" >> "$GITHUB_ENV"
 
     - name: Post comment listing YANG leaf changes
       uses: actions/github-script@v6
