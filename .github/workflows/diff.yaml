@@ -41,16 +41,15 @@ jobs:
         oldfiles=$(find "${oldroot}"/release/models -name '*.yang' | tr '\n' ',')
         newfiles=$(find "${newroot}"/release/models -name '*.yang' | tr '\n' ',')
 
-        openconfig-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
-
         #echo "-----------List of all YANG node changes-----------" >> "$GITHUB_OUTPUT"
         #openconfig-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_OUTPUT"
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         echo "leafchanges<<$EOF" >> "$GITHUB_ENV"
         openconfig-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_ENV"
-        openconfig-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
         echo "$EOF" >> "$GITHUB_ENV"
         #body: "${{ env.leafchanges }}"
+
+        openconfig-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
 
     - name: Find Comment
       if: always()
