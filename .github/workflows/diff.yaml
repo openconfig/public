@@ -8,7 +8,6 @@ jobs:
   build:
     name: Backward Incompatibility Check
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
     - name: Install go
@@ -53,6 +52,7 @@ jobs:
         #body: "${{ env.leafchanges }}"
 
     - name: Find Comment
+      if: always()
       uses: peter-evans/find-comment@v2
       id: fc
       with:
@@ -61,6 +61,7 @@ jobs:
         body-includes: -----------List of all YANG node changes-----------
 
     - name: Create or update comment
+      if: always()
       uses: peter-evans/create-or-update-comment@v3
       with:
         comment-id: ${{ steps.fc.outputs.comment-id }}
