@@ -41,3 +41,17 @@ jobs:
         newfiles=$(find "${newroot}"/release/models -name '*.yang' | tr '\n' ',')
 
         models-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
+
+        leafchanges=$(models-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}")
+		echo "{leafchanges}={${leafchanges}}" >> "$GITHUB_ENV"
+
+      - name: Post comment listing YANG leaf changes
+		uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "${{ env.leafchanges }}"
+            })
