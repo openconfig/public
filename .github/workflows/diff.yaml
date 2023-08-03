@@ -46,6 +46,7 @@ jobs:
         echo "leafchanges<<$EOF" >> "$GITHUB_ENV"
         models-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_ENV"
         echo "$EOF" >> "$GITHUB_ENV"
+        #body: "${{ env.leafchanges }}"
 
     - name: Post comment listing YANG leaf changes
       uses: actions/github-script@v6
@@ -55,6 +56,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-              #body: "${{ env.leafchanges }}"
             body: "Just a test"
           })
