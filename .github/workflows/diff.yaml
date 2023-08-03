@@ -22,7 +22,7 @@ jobs:
 
     - name: Install openconfig-ci CLI
       run: |
-        go install github.com/openconfig/models-ci/openconfig-ci@2401790
+        go install github.com/openconfig/models-ci/openconfig-ci@88da8da
 
     - name: Make sure all backward-incompatible changes are covered by version changes.
       id: check
@@ -38,17 +38,15 @@ jobs:
         git checkout "${HEAD}"
         oldroot="${BASEREPODIR}"
         newroot=.
-        oldfiles=$(find "${oldroot}"/release/models -name '*.yang' | tr '\n' ',')
-        newfiles=$(find "${newroot}"/release/models -name '*.yang' | tr '\n' ',')
 
         echo "yang-changes-title=## List of all YANG node changes" >> "$GITHUB_ENV"
 
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         echo "leafchanges<<$EOF" >> "$GITHUB_ENV"
-        openconfig-ci diff --github-comment --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_ENV"
+        openconfig-ci diff --github-comment --oldp "${oldroot}/third_party" --oldroot "${oldroot}/release/models" --newp "${newroot}/third_party" --newroot "${newroot}/release/models" >> "$GITHUB_ENV"
         echo "$EOF" >> "$GITHUB_ENV"
 
-        openconfig-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
+        openconfig-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldroot "${oldroot}/release/models" --newp "${newroot}/third_party" --newroot "${newroot}/release/models"
 
     - name: Find Comment
       if: always()
