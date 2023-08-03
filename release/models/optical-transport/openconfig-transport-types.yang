@@ -22,7 +22,13 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.18.1";
+  oc-ext:openconfig-version "0.19.0";
+
+  revision "2023-07-24" {
+    description
+      "Add SFP_DD and DSFP form factor identities.";
+    reference "0.19.0";
+  }
 
   revision "2023-02-08" {
     description
@@ -865,6 +871,22 @@ module openconfig-transport-types {
     description
       "Small form-factor pluggable transceiver supporting up to
       50 Gb/s signal";
+  }
+
+  identity SFP_DD {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "SFP-DD electrical interfaces will employ 2 lanes that operate up
+      25 Gbps NRZ modulation or 56 Gbps PAM4 modulation, providing
+      solutions up to 50 Gbps or 112 Gbps PAM4 aggregate";
+    reference "http://sfp-dd.com";
+  }
+
+  identity DSFP {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "A transceiver implementing the DSFP Transceiver specification";
+    reference "https://dsfpmsa.org/";
   }
 
   identity XFP {

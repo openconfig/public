@@ -25,11 +25,17 @@ module openconfig-wifi-phy {
   description
     "Model for managing PHY layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "1.2.1";
+  oc-ext:openconfig-version "1.2.2";
+
+  revision "2023-05-26" {
+    description
+      "Minor cleanup in descriptions.";
+    reference "1.2.2";
+  }
 
   revision "2023-04-25" {
     description
-      "Update description for neighbor RSSI to specify as a negative numberr";
+      "Update description for neighbor RSSI to specify as a negative number.";
     reference "1.2.1";
   }
 
@@ -53,7 +59,7 @@ module openconfig-wifi-phy {
 
   revision "2020-03-24" {
     description
-      "Update namespace based on new directory structure";
+      "Update namespace based on new directory structure.";
     reference "0.4.2";
   }
 
@@ -248,7 +254,7 @@ module openconfig-wifi-phy {
       type uint8;
       description
         "Sets the number of associated stations after which the radio
-        should not perform scanning";
+        should not perform scanning.";
     }
 
     leaf scanning-defer-traffic {
@@ -331,7 +337,7 @@ module openconfig-wifi-phy {
     leaf rx-noise-channel-utilization {
       type oc-types:percentage;
          description
-           "Received channel-utilization percentage due to Noise.";
+           "Received channel-utilization percentage due to noise.";
     }
 
     leaf tx-dot11-channel-utilization {
@@ -344,7 +350,7 @@ module openconfig-wifi-phy {
       type oc-types:percentage;
       description
         "Received channel utilization due to 802.11 frames NOT destined to a
-        BSS on this AP ('Overlapping BSS')";
+        BSS on this AP ('Overlapping BSS').";
     }
   }
 
@@ -359,7 +365,7 @@ module openconfig-wifi-phy {
       leaf failed-fcs-frames {
         type oc-yang:counter64;
         description
-          "Number of frames that failed the FCS";
+          "Number of frames that failed the FCS.";
       }
 
       // Tx Counters
@@ -390,7 +396,7 @@ module openconfig-wifi-phy {
     leaf rssi {
       type int8;
       description
-       "The RSSI of this neighboring BSSID, expressed as a negative number";
+       "The RSSI of this neighboring BSSID, expressed as a negative number.";
     }
 
     leaf channel {
@@ -491,7 +497,7 @@ module openconfig-wifi-phy {
         key "bssid";
         config false;
         description
-          "The mac address, or BSSID, of a neighbor, and
+          "The MAC address, or BSSID, of a neighbor, and
           their corresponding RSSI.";
 
         leaf bssid {
@@ -499,7 +505,7 @@ module openconfig-wifi-phy {
             path "../state/bssid";
           }
           config false;
-          description "Reference to neighbor bssid.";
+          description "Reference to neighbor BSSID.";
         }
 
         container state {
@@ -546,7 +552,7 @@ module openconfig-wifi-phy {
         container config {
           description
             "Configurable items at the global, radio interface
-            level";
+            level.";
 
           uses radio-common-config;
         }
@@ -554,7 +560,7 @@ module openconfig-wifi-phy {
         container state {
           config false;
           description
-            "Operational state data at the global radio level";
+            "Operational state data at the global radio level.";
 
           uses radio-common-config;
           uses radio-common-state;
