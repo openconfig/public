@@ -22,7 +22,7 @@ jobs:
 
     - name: Install openconfig-ci CLI
       run: |
-        go install github.com/openconfig/models-ci/openconfig-ci@65fa792
+        go install github.com/openconfig/models-ci/openconfig-ci@312f8d6
 
     - name: Make sure all backward-incompatible changes are covered by version changes.
       id: check
@@ -68,5 +68,5 @@ jobs:
         issue-number: ${{ github.event.pull_request.number }}
         body: |
           -----------List of all YANG node changes-----------
-          ${{ env.leafchanges }}
+          "${{ env.leafchanges }}"
         edit-mode: replace
