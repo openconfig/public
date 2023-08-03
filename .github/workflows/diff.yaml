@@ -22,9 +22,10 @@ jobs:
 
     - name: Install models-ci CLI
       run: |
-        go install github.com/openconfig/models-ci@15b19a4
+        go install github.com/openconfig/models-ci/openconfig-ci@65fa792
 
     - name: Make sure all backward-incompatible changes are covered by version changes.
+      id: check
       run: |
         readonly HEAD=${{ github.event.pull_request.head.sha }}
         readonly BASE="$(git merge-base origin/master "${HEAD}")"
@@ -42,19 +43,28 @@ jobs:
 
         models-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
 
+        #echo "-----------List of all YANG node changes-----------" >> "$GITHUB_OUTPUT"
+        #models-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_OUTPUT"
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         echo "leafchanges<<$EOF" >> "$GITHUB_ENV"
         models-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_ENV"
         echo "$EOF" >> "$GITHUB_ENV"
         #body: "${{ env.leafchanges }}"
 
-    - name: Post comment listing YANG leaf changes
-      uses: actions/github-script@v6
+    - name: Find Comment
+      uses: peter-evans/find-comment@v2
+      id: fc
       with:
-        script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: "Just a test"
-          })
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: -----------List of all YANG node changes-----------
+
+    - name: Create or update comment
+      uses: peter-evans/create-or-update-comment@v3
+      with:
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: |
+          -----------List of all YANG node changes-----------
+          ${{ env.leafchanges }}
+        edit-mode: replace
