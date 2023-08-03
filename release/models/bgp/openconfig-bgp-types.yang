@@ -688,6 +688,33 @@ module openconfig-bgp-types {
       expression patterns";
   }
 
+  typedef bgp-color-match-type {
+    type enumeration {
+      enum SPECIFIC {
+        description
+          "Type 0: Specific Endpoint Match: Request match for the 
+          endpoint that is the BGP NH";
+      }
+      enum SPECIFIC_OR_NULL {
+        description
+          "Type 1: Specific or Null Endpoint Match: Request match
+          for either the endpoint that is the BGP NH or a null
+          endpoint (e.g., like a default gateway)";
+      }
+      enum ANY {
+        description
+          "Type 2: Specific, Null, or Any Endpoint Match: Request
+          match for either the endpoint that is the BGP NH or with
+          a null or any endpoint";
+      }
+    }
+    description
+      "Type definition for BGP color extended community types.";
+    reference 
+      "RFC9012 and draft-ietf-idr-segment-routing-te-policy-23.";
+  }
+
+
   typedef bgp-origin-attr-type {
     type enumeration {
       enum IGP {
