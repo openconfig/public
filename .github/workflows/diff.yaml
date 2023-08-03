@@ -41,6 +41,8 @@ jobs:
         oldfiles=$(find "${oldroot}"/release/models -name '*.yang' | tr '\n' ',')
         newfiles=$(find "${newroot}"/release/models -name '*.yang' | tr '\n' ',')
 
+        echo "yang-changes-title='## List of all YANG node changes'" >> "$GITHUB_ENV"
+
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         echo "leafchanges<<$EOF" >> "$GITHUB_ENV"
         openconfig-ci diff --github-comment --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_ENV"
@@ -55,7 +57,7 @@ jobs:
       with:
         issue-number: ${{ github.event.pull_request.number }}
         comment-author: 'github-actions[bot]'
-        body-includes: -----------List of all YANG node changes-----------
+        body-includes: ${{ env.yang-changes-title }}
 
     - name: Create or update comment
       if: always()
@@ -64,6 +66,6 @@ jobs:
         comment-id: ${{ steps.fc.outputs.comment-id }}
         issue-number: ${{ github.event.pull_request.number }}
         body: |
-          \#\# -----------List of all YANG node changes-----------
+          ${{ env.yang-changes-title }}
           ${{ env.leafchanges }}
         edit-mode: replace
