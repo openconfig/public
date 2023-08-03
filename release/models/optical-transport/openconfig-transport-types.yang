@@ -22,7 +22,14 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.19.0";
+  oc-ext:openconfig-version "0.20.0";
+
+  revision "2023-08-03" {
+    description
+      "Add QSFP56 and QSFP56_DD form factor identities and
+      deprecated QSFP56_DD_TYPE1 and QSFP56_DD_TYPE2 form factor identities.";
+    reference "0.20.0";
+  }
 
   revision "2023-07-24" {
     description
@@ -824,8 +831,25 @@ module openconfig-transport-types {
       channels";
   }
 
+  identity QSFP56 {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP pluggable optic with support for up to 4x56G physical
+      channels";
+  }
+
+  identity QSFP56_DD {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP-DD electrical interfaces will employ 8 lanes that operate up to
+      25 Gbps NRZ modulation or 50 Gbps PAM4 modulation, providing
+      solutions up to 200 Gbps or 400 Gbps aggregate";
+    reference "http://qsfp-dd.com";
+  }
+
   identity QSFP56_DD_TYPE1 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
+    status deprecated;
     description
       "QSFP DD pluggable optic with support for up to 8x56G physical
       channels. Type 1 uses eight optical and electrical signals.";
@@ -833,6 +857,7 @@ module openconfig-transport-types {
 
   identity QSFP56_DD_TYPE2 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
+    status deprecated;
     description
       "QSFP DD pluggable optic with support for up to 4x112G physical
       channels. Type 2 uses four optical and eight electrical
@@ -876,7 +901,7 @@ module openconfig-transport-types {
   identity SFP_DD {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
     description
-      "SFP-DD electrical interfaces will employ 2 lanes that operate up
+      "SFP-DD electrical interfaces will employ 2 lanes that operate up to
       25 Gbps NRZ modulation or 56 Gbps PAM4 modulation, providing
       solutions up to 50 Gbps or 112 Gbps PAM4 aggregate";
     reference "http://sfp-dd.com";
