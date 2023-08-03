@@ -22,7 +22,7 @@ jobs:
 
     - name: Install openconfig-ci CLI
       run: |
-        go install github.com/openconfig/models-ci/openconfig-ci@312f8d6
+        go install github.com/openconfig/models-ci/openconfig-ci@742647c
 
     - name: Make sure all backward-incompatible changes are covered by version changes.
       id: check
@@ -41,13 +41,10 @@ jobs:
         oldfiles=$(find "${oldroot}"/release/models -name '*.yang' | tr '\n' ',')
         newfiles=$(find "${newroot}"/release/models -name '*.yang' | tr '\n' ',')
 
-        #echo "-----------List of all YANG node changes-----------" >> "$GITHUB_OUTPUT"
-        #openconfig-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_OUTPUT"
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         echo "leafchanges<<$EOF" >> "$GITHUB_ENV"
         openconfig-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_ENV"
         echo "$EOF" >> "$GITHUB_ENV"
-        #body: "${{ env.leafchanges }}"
 
         openconfig-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
 
@@ -68,5 +65,5 @@ jobs:
         issue-number: ${{ github.event.pull_request.number }}
         body: |
           -----------List of all YANG node changes-----------
-          "${{ env.leafchanges }}"
+          ${{ env.leafchanges }}
         edit-mode: replace
