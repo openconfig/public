@@ -26,18 +26,15 @@ jobs:
         readonly BASE="$(git merge-base origin/master "${HEAD}")"
 
         BASEREPODIR=public_base
-        #git clone "https://github.com/openconfig/public.git" "${BASEREPODIR}"
-        #cd "${BASEREPODIR}"
         mkdir -p "${BASEREPODIR}/release"
         git checkout "${BASE}"
         cp -r release/models "${BASEREPODIR}/release" 
         cp -r third_party "${BASEREPODIR}" 
         git checkout "${HEAD}"
-        #cd ..
         oldroot="${BASEREPODIR}"
         newroot=.
         oldfiles=$(find "${oldroot}"/release/models -name '*.yang' | tr '\n' ',')
         newfiles=$(find "${newroot}"/release/models -name '*.yang' | tr '\n' ',')
 
-        go install github.com/openconfig/models-ci@94a63b5
+        go install github.com/openconfig/models-ci@94a63b5 > /dev/null
         models-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
