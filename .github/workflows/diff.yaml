@@ -43,7 +43,7 @@ jobs:
 
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         echo "leafchanges<<$EOF" >> "$GITHUB_ENV"
-        openconfig-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_ENV"
+        openconfig-ci diff --github-comment --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_ENV"
         echo "$EOF" >> "$GITHUB_ENV"
 
         openconfig-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
