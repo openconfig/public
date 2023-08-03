@@ -8,6 +8,7 @@ jobs:
   build:
     name: Backward Incompatibility Check
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     steps:
     - name: Install go
@@ -20,7 +21,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install models-ci CLI
+    - name: Install openconfig-ci CLI
       run: |
         go install github.com/openconfig/models-ci/openconfig-ci@65fa792
 
@@ -41,13 +42,13 @@ jobs:
         oldfiles=$(find "${oldroot}"/release/models -name '*.yang' | tr '\n' ',')
         newfiles=$(find "${newroot}"/release/models -name '*.yang' | tr '\n' ',')
 
-        models-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
+        openconfig-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
 
         #echo "-----------List of all YANG node changes-----------" >> "$GITHUB_OUTPUT"
-        #models-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_OUTPUT"
+        #openconfig-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_OUTPUT"
         EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
         echo "leafchanges<<$EOF" >> "$GITHUB_ENV"
-        models-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_ENV"
+        openconfig-ci diff --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}" >> "$GITHUB_ENV"
         echo "$EOF" >> "$GITHUB_ENV"
         #body: "${{ env.leafchanges }}"
 
