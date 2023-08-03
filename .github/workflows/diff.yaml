@@ -22,7 +22,7 @@ jobs:
 
     - name: Install models-ci CLI
       run: |
-        go install github.com/openconfig/models-ci@94a63b5
+        go install github.com/openconfig/models-ci@15b19a4
 
     - name: Make sure all backward-incompatible changes are covered by version changes.
       run: |
@@ -40,6 +40,4 @@ jobs:
         oldfiles=$(find "${oldroot}"/release/models -name '*.yang' | tr '\n' ',')
         newfiles=$(find "${newroot}"/release/models -name '*.yang' | tr '\n' ',')
 
-        echo "-----------------------------"
         models-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldfiles "${oldfiles}" --newp "${newroot}/third_party" --newfiles "${newfiles}"
-        echo "-----------------------------"
