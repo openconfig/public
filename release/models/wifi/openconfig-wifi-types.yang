@@ -22,30 +22,48 @@ module openconfig-wifi-types {
     that are used in the openconfig-wifi modules. It can be
     imported by any module to make use of these types.";
 
-  oc-ext:openconfig-version "0.1.2";
+  oc-ext:openconfig-version "1.1.1";
+
+  revision "2022-05-26" {
+    description
+      "Fix typos in descriptions.";
+    reference "1.1.1";
+  }
+
+  revision "2022-03-24" {
+    description
+      "Update model to support operation in 6 GHz frequency.";
+    reference "1.1.0";
+  }
+
+  revision "2021-08-02" {
+    description
+      "Add OFDMA in client capabilities.";
+    reference "1.0.0";
+  }
 
   revision "2020-05-19" {
     description
-      "Update namespace per new directory structure";
+      "Update namespace per new directory structure.";
     reference "0.1.2";
   }
 
   revision "2020-03-24" {
     description
-      "Update namespace and fix BETTER_CHANNEL enum";
+      "Update namespace and fix BETTER_CHANNEL enum.";
     reference "0.1.1";
   }
 
   revision "2017-07-25" {
     description
-      "Initial revision";
+      "Initial revision.";
     reference "0.1.0";
   }
 
   //typdef statements
   typedef channels-type {
     type uint8 {
-      range "1..14 | 36 | 40 | 44| 48 | 52 | 56 | 60 | 64 | 100 | 104 | 108 | 112 | 116 | 120 | 124 | 128 | 132 | 136 | 140 | 144 | 149 | 153 | 157 | 161 | 165";
+      range "1..14 | 17 | 21 | 25 | 29 | 33 | 36 | 37 | 40 | 41 | 44 | 45 | 48 | 49 | 52 | 53 | 56 | 57 | 60 | 61 | 64 | 65 | 69 | 73 | 77 | 81 | 85 | 89 | 93 | 97 | 100 | 101 | 104 | 105 | 108 | 109 | 112 | 113 | 116 | 117 | 120 | 121 | 124 | 125 | 128 | 129 | 132 | 133 | 136 | 137 | 140 | 141 | 144 | 145 | 149 | 153 | 157 | 161 | 165 | 169 | 173 | 177 | 181 | 185 | 189 | 193 | 197 | 201 | 205 | 209 | 213 | 217 | 221 | 225 | 229 | 233";
     }
     description
       "Type to specify all the WiFi channels available for use. This is
@@ -69,13 +87,13 @@ module openconfig-wifi-types {
   identity L2AUTH_REQD {
     base CLIENT_STATE;
     description
-      "Client has Assocated, but not L2 Authenticated (e.g. 802.1X)";
+      "Client has Associated, but not L2 Authenticated (e.g. 802.1X)";
   }
 
   identity L3AUTH_REQD {
     base CLIENT_STATE;
     description
-      "Client has Assocated, but not L3 Authenticated (e.g. Captive Portal)";
+      "Client has Associated, but not L3 Authenticated (e.g. Captive Portal).";
   }
 
   identity DHCP_REQD {
@@ -112,14 +130,14 @@ module openconfig-wifi-types {
   identity DHCP_FAILURE {
     base CLIENT_STATE;
     description
-      "Client has Associated & Authenticated but has failed to recieve an IP
+      "Client has Associated & Authenticated but has failed to receive an IP
       address, utilizing DHCP.";
   }
 
   identity POWERSAVE {
     base CLIENT_STATE;
     description
-      "AP has recieved a PS frame, indicating the client is currently in a
+      "AP has received a PS frame, indicating the client is currently in a
       powersave state.";
   }
 
@@ -159,62 +177,62 @@ module openconfig-wifi-types {
 
   identity RATE_1MB {
     base DATA_RATE;
-    description "1 Mbps DSSS PHY";
+    description "1 Mbps DSSS PHY.";
   }
 
   identity RATE_2MB {
     base DATA_RATE;
-    description "2 Mbps DSSS PHY";
+    description "2 Mbps DSSS PHY.";
   }
 
   identity RATE_5.5MB {
     base DATA_RATE;
-    description "5.5 Mbps DSSS PHY";
+    description "5.5 Mbps DSSS PHY.";
   }
 
   identity RATE_6MB {
     base DATA_RATE;
-    description "6 Mbps OFDM PHY";
+    description "6 Mbps OFDM PHY.";
   }
 
   identity RATE_9MB {
     base DATA_RATE;
-    description "9 Mbps OFDM PHY";
+    description "9 Mbps OFDM PHY.";
   }
 
   identity RATE_11MB {
     base DATA_RATE;
-    description "11 Mbps DSSS PHY";
+    description "11 Mbps DSSS PHY.";
   }
 
   identity RATE_12MB {
     base DATA_RATE;
-    description "12 Mbps OFDM PHY";
+    description "12 Mbps OFDM PHY.";
   }
 
   identity RATE_18MB {
     base DATA_RATE;
-    description "18 Mbps OFDM PHY";
+    description "18 Mbps OFDM PHY.";
   }
 
   identity RATE_24MB {
     base DATA_RATE;
-    description "24 Mbps OFDM PHY";
+    description "24 Mbps OFDM PHY.";
   }
 
   identity RATE_36MB {
     base DATA_RATE;
-    description "36 Mbps OFDM PHY";
+    description "36 Mbps OFDM PHY.";
   }
 
   identity RATE_48MB {
     base DATA_RATE;
-    description "48 Mbps OFDM PHY";
+    description "48 Mbps OFDM PHY.";
   }
 
   identity RATE_54MB {
     base DATA_RATE;
-    description "54 Mbps OFDM PHY";
+    description "54 Mbps OFDM PHY.";
   }
 
   identity OPERATING_FREQUENCY {
@@ -235,17 +253,30 @@ module openconfig-wifi-types {
     base OPERATING_FREQUENCY;
     description
       "The Radio or SSID will be dual-band; operating in
-      both 2.4 & 5GHz frequencies.
+      both 2.4 & 5GHz frequencies.";
+  }
 
-      Dual-band Radio typically refers to a Monitor-mode radio, hopping
-      between frequencies, dwelling for a configurable amount of time on
-      each frequency.";
+  identity FREQ_6GHZ {
+    base OPERATING_FREQUENCY;
+    description "The Radio or SSID will operate at 6GHz only.";
+  }
+
+  identity FREQ_5_6_GHZ {
+    base OPERATING_FREQUENCY;
+    description "The Radio or SSID will be dual-band; operating in both 5 &
+    6GHz frequencies.";
+  }
+
+  identity FREQ_2_5_6_GHZ {
+    base OPERATING_FREQUENCY;
+    description "The Radio or SSID will be tri-band; operating in 2.4, 5 and
+    6GHz frequencies.";
   }
 
   identity CLIENT_CAPABILITIES {
     description
-      "Client capabilities, as reported by Assoc. Req. or
-      Probe Req. frames.";
+      "Client capabilities, as reported by Association Request or
+      Probe Request frames.";
   }
 
   identity MU_BEAMFORMER {
@@ -253,9 +284,14 @@ module openconfig-wifi-types {
     description "Whether this STA can MU-MIMO Beamform.";
   }
 
-    identity MU_BEAMFORMEE {
+  identity MU_BEAMFORMEE {
     base CLIENT_CAPABILITIES;
     description "Whether this STA can Rx MU-MIMO Beamformed frames.";
+  }
+
+  identity OFDMA {
+    base CLIENT_CAPABILITIES;
+    description "Whether this STA can use OFDMA.";
   }
 
   identity DOT_11R {
@@ -269,8 +305,13 @@ module openconfig-wifi-types {
     base CLIENT_CAPABILITIES;
     description
       "Whether this STA supports 802.11v BSS Transition. Note, must
-      be enabled on BSS for this to be accurate; unless Probe Req.
-      are observied in addition to Assoc. Req.";
+      be enabled on BSS for this to be accurate; unless Probe Request
+      are observed in addition to Association Request.";
+  }
+
+  identity MFP {
+    base CLIENT_CAPABILITIES;
+    description "Whether this STA can use Management Frame Protection.";
   }
 
   identity CHANGE_REASON_TYPE {
@@ -281,20 +322,20 @@ module openconfig-wifi-types {
   identity DFS {
     base CHANGE_REASON_TYPE;
     description
-      "DFS hit occured.";
+      "DFS hit occurred.";
   }
 
   identity NOISE {
     base CHANGE_REASON_TYPE;
     description
-      "Excessive amounts of non-802.11 Noise occured.";
+      "Excessive amounts of non-802.11 Noise occurred.";
   }
 
   identity ERRORS {
     base CHANGE_REASON_TYPE;
     description
       "Excessive reception of frames which
-      failed the FCS occured.";
+      failed the FCS occurred.";
   }
 
   identity BETTER_CHANNEL {

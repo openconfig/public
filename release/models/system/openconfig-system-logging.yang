@@ -10,7 +10,7 @@ module openconfig-system-logging {
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-inet-types { prefix oc-inet; }
-
+  import openconfig-network-instance { prefix oc-ni; }
 
   // meta
   organization "OpenConfig working group";
@@ -23,7 +23,19 @@ module openconfig-system-logging {
     "This module defines configuration and operational state data
     for common logging facilities on network systems.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2023-05-04" {
+    description
+      "removing LOG_DESTINATION_TYPE identities";
+    reference "0.5.0";
+  }
+
+  revision "2022-12-29" {
+    description
+      "Add network-instance for remote logging servers";
+    reference "0.4.1";
+  }
 
   revision "2018-11-21" {
     description
@@ -220,35 +232,6 @@ module openconfig-system-logging {
       "IETF RFC 5424 - The Syslog Protocol";
   }
 
-  identity LOG_DESTINATION_TYPE {
-    description
-      "Base identity for destination for logging messages";
-  }
-
-  identity DEST_CONSOLE {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to the console";
-  }
-
-  identity DEST_BUFFER {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to and in-memory circular buffer";
-  }
-
-  identity DEST_FILE {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to a local file";
-  }
-
-  identity DEST_REMOTE {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to a remote syslog server";
-  }
-
   // typedef statements
 
     typedef syslog-severity {
@@ -424,6 +407,13 @@ module openconfig-system-logging {
       type oc-inet:ip-address;
       description
         "Source IP address for packets to the log server";
+    }
+
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "The network instance used to reach the log server.  If no
+        instance is specified, DEFAULT_INSTANCE is used.";
     }
 
     leaf remote-port {

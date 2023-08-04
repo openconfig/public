@@ -44,7 +44,32 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.0.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2023-06-30" {
+    description
+      "Deprecate IPv6 router advertisment config suppress leaf and add config
+      mode leaf.";
+    reference "3.4.0";
+  }
+
+  revision "2023-04-12" {
+    description
+      "Add ipv4 address type configuration.";
+    reference "3.3.0";
+  }
+
+  revision "2023-02-06" {
+    description
+      "Add IPv6 link-local configuration.";
+    reference "3.2.0";
+  }
+
+  revision "2022-11-09" {
+    description
+      "Add additional IPv6 router-advertisement features.";
+    reference "3.1.0";
+  }
 
   revision "2019-01-08" {
     description
@@ -159,6 +184,24 @@ module openconfig-if-ip {
     }
     description
       "The origin of a neighbor entry.";
+  }
+
+  typedef ipv4-address-type {
+    type enumeration {
+      enum PRIMARY {
+        description
+          "The primary address on the interface. There can only be one primary
+          address associated on an interface.";
+      }
+      enum SECONDARY {
+        description
+          "Secondary address on an interface. There can be multiple secondary
+          addresses associated on an interface.";
+      }
+    }
+
+    description
+      "The type of an IPv4 address.";
   }
 
   // grouping statements
@@ -378,7 +421,6 @@ module openconfig-if-ip {
   }
 
   grouping ipv4-address-config {
-
     description
       "Per IPv4 adresss configuration data for the
       interface.";
@@ -395,6 +437,16 @@ module openconfig-if-ip {
       }
       description
        "The length of the subnet prefix.";
+    }
+
+    leaf type {
+      type ipv4-address-type;
+      default PRIMARY;
+      description
+        "Specifies the explicit type of the IPv4 address being assigned
+        to the interface. By default, addresses are assumed to be a primary address.
+        Where secondary addresses is to be configured, this leaf should be set
+        to SECONDARY.";
     }
   }
 
@@ -508,6 +560,17 @@ module openconfig-if-ip {
       description
         "The length of the subnet prefix.";
     }
+
+    leaf type {
+      type oc-inet:ipv6-address-type;
+      default GLOBAL_UNICAST;
+      description
+        "Specifies the explicit type of the IPv6 address being assigned
+        to the interface. By default, addresses are assumed to be
+        global unicast.  Where a link-local address is to be explicitly
+        configured, this leaf should be set to LINK_LOCAL.";
+    }
+
   }
 
   grouping ipv6-address-state {
@@ -883,6 +946,15 @@ module openconfig-if-ip {
     description
       "Configuration parameters for IPv6 router advertisements.";
 
+    leaf enable {
+      type boolean;
+      default true;
+      description
+        "If set to false, all IPv6 router advertisement functions are
+        disabled.  The local system will not transmit router advertisement
+        messages and will not respond to router solicitation messages.";
+    }
+
     leaf interval {
       type uint32;
       units seconds;
@@ -901,11 +973,111 @@ module openconfig-if-ip {
     }
 
     leaf suppress {
+      status deprecated;
       type boolean;
       default false;
       description
         "When set to true, router advertisement neighbor discovery
         messages are not transmitted on this interface.";
+    }
+
+    leaf mode {
+      type enumeration {
+        enum ALL {
+          description
+            "The system will transmit unsolicited router advertisement
+            messages and respond to router solicitation requests.";
+        }
+        enum DISABLE_UNSOLICITED_RA {
+          description
+            "Unsolicted router advertisement messages are not transmitted on
+            this interface.  Responses to router solicitation messages will
+            be transmitted.";
+        }
+      }
+      default "ALL";
+      description
+        "Mode controls which set of behaviors the local system should perform
+        to support IPv6 router advertisements.";
+      reference "RFC4861: Neighbor Discovery for IP version 6 (IPv6)";
+    }
+
+    leaf managed {
+      type boolean;
+      default false;
+      description
+        "When set to true, the managed address configuration (M) flag is set in
+        the advertised router advertisement. The M flag indicates that there are
+        addresses available via DHCPv6.";
+      reference "RFC4861: Neighbor Discovery for IPv6, section 4.2";
+    }
+
+    leaf other-config {
+      type boolean;
+      default false;
+      description
+        "When set to true, the other configuration (O) flag is set in the
+        advertised router advertisement. The O flag indicates that there is
+        other configuration available via DHCPv6 (e.g., DNS servers).";
+      reference "RFC4861: Neighbor Discovery for IPv6, section 4.2";
+    }
+  }
+
+  grouping ipv6-ra-prefix-config {
+    description
+      "Configuration parameters for an individual prefix within an IPv6
+      router advertisement.";
+
+    leaf prefix {
+      type oc-inet:ipv6-prefix;
+      description
+        "IPv6 prefix to be advertised within the router advertisement
+        message.";
+    }
+
+    leaf valid-lifetime {
+      type uint32;
+      units seconds;
+      description
+        "The length of time that the prefix is valid relative to the time
+        the packet was sent.";
+      reference "RFC4861: Neighbor Discovery for IPv6, section 4.6.2";
+    }
+
+    leaf preferred-lifetime {
+      type uint32;
+      units seconds;
+      description
+        "The length of time that the address within the prefix remains
+        in the preferred state, i.e., unrestricted use is allowed by
+        upper-layer protocols. See RFC4862 for a complete definition
+        of preferred behaviours.";
+      reference "RFC4861: Neighbor Discovery for IPv6, section 4.6.2";
+    }
+
+    leaf disable-advertisement {
+      type boolean;
+      description
+        "When set to true, the prefix is not advertised within
+        router advertisement messages that are sent as a result of
+        router soliciation messages.";
+    }
+
+    leaf disable-autoconfiguration {
+      type boolean;
+      description
+        "When set to true, the prefix is marked as not to be used for stateless
+        address configuration. This is achieved by setting the autonomous address
+        configuration bit for the prefix.";
+      reference "RFC4861: Neighbor Discovery for IPv6, section 4.6.1";
+    }
+
+    leaf enable-onlink {
+      type boolean;
+      description
+        "When set to true, the prefix is marked as being on link by setting the
+        L-bit for the prefix within a router advertisement.";
+      reference "RFC4861: Neighbor Discovery for IPv6, section 4.6.1";
     }
   }
 
@@ -1141,6 +1313,52 @@ module openconfig-if-ip {
             "Operational state parameters relating to router
              advertisements for IPv6.";
           uses ipv6-ra-config;
+        }
+
+        container prefixes {
+          description
+            "Container for a list of prefixes that are included in the
+            router advertisement message.";
+
+          list prefix {
+            key "prefix";
+
+            description
+              "List of prefixes that are to be included in the IPv6
+              router-advertisement messages for the interface. The list
+              is keyed by the IPv6 prefix in CIDR representation.
+
+              Prefixes that are listed are those that are to be
+              advertised in router advertisement messages. Where there
+              are IPv6 global addresses configured on an interface and
+              the prefix is not listed in the prefix list, it MUST NOT
+              be advertised in the router advertisement message.";
+
+            leaf prefix {
+              type leafref {
+                path "../config/prefix";
+              }
+              description
+                "Reference to the IPv6 prefix key for the prefix list.";
+            }
+
+            container config {
+              description
+                "Configuration parameters corresponding to an IPv6 prefix
+                within the router advertisement.";
+
+              uses ipv6-ra-prefix-config;
+            }
+
+            container state {
+              config false;
+              description
+                "Operational state parameters corresponding to an IPv6 prefix
+                within the router advertisement.";
+
+              uses ipv6-ra-prefix-config;
+            }
+          }
         }
       }
 

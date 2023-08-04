@@ -25,7 +25,49 @@ submodule openconfig-qos-interfaces {
     configuration and operational state associated with
     interfaces.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.9.1";
+
+  revision "2023-04-25" {
+    description
+      "Clarify interface-ref usage.";
+    reference "0.9.1";
+  }
+
+  revision "2023-04-17" {
+    description
+      "Add support for relative RED min-threshold and max-threshold values.";
+    reference "0.9.0";
+  }
+
+  revision "2023-02-17" {
+    description
+      "Add queue identifier.";
+    reference "0.8.0";
+  }
+
+  revision "2023-02-08" {
+    description
+      "Remove incorrect output placement of interface-ref";
+    reference "0.7.0";
+  }
+
+  revision "2023-01-28" {
+    description
+      "Split groupings in interfaces for better leaf reuse.";
+    reference "0.6.1";
+  }
+
+  revision "2022-09-13" {
+    description
+      "Add queue octet drop counter.";
+    reference "0.6.0";
+  }
+
+  revision "2021-08-28" {
+    description
+      "Revision updating memory management profile WRED and RED configuration.";
+    reference "0.5.0";
+  }
 
   revision "2021-04-28" {
     description
@@ -88,6 +130,13 @@ submodule openconfig-qos-interfaces {
       description
         "Reference to match terms in the classifier";
     }
+
+    uses qos-interface-classifier-match-counters-state;
+  }
+
+  grouping qos-interface-classifier-match-counters-state {
+    description
+      "Grouping for counters relating to QoS classifier match terms.";
 
     leaf matched-packets {
       type oc-yang:counter64;
@@ -314,6 +363,12 @@ submodule openconfig-qos-interfaces {
       type oc-yang:counter64;
       description
         "Number of packets dropped by the queue due to overrun";
+    }
+
+    leaf dropped-octets {
+      type oc-yang:counter64;
+      description
+        "Number of octets dropped by the queue due to overrun";
     }
   }
 
@@ -828,7 +883,7 @@ submodule openconfig-qos-interfaces {
     container output {
       description
         "Top-level container for QoS data related to the egress
-        interface";
+        interface.";
 
       container config {
         description
@@ -846,7 +901,6 @@ submodule openconfig-qos-interfaces {
         uses qos-interface-output-state;
       }
 
-      uses oc-if:interface-ref;
       uses qos-interface-classifier-top;
       uses qos-interface-queue-root-top;
       uses qos-interface-scheduler-top;
@@ -865,7 +919,12 @@ submodule openconfig-qos-interfaces {
       list interface {
         key "interface-id";
         description
-          "List of interfaces referenced by QoS entities.";
+          "List of interfaces referenced by QoS entities.
+
+           The interface referenced is based on the interface and
+           subinterface leaves within the interface-ref container -
+           which reference an entry in the /interfaces/interface list -
+           and should not rely on the value of the list key.";
 
         leaf interface-id {
           type leafref {

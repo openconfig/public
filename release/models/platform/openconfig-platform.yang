@@ -11,7 +11,9 @@ module openconfig-platform {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-alarm-types { prefix oc-alarm-types; }
   import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-types { prefix oc-types; }
 
+  include openconfig-platform-common;
 
   // meta
   organization "OpenConfig working group";
@@ -63,7 +65,75 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.13.0";
+  oc-ext:openconfig-version "0.23.0";
+
+  revision "2023-02-13" {
+    description
+      "Refactor resource utilization threshold config into a separate grouping.
+      Update 'utilization resource' to 'resource utilization'.";
+    reference "0.23.0";
+  }
+
+  revision "2022-12-20" {
+     description
+        "Add threshold and threshold-exceeded for resource usage.";
+      reference "0.22.0";
+   }
+
+  revision "2022-12-19" {
+    description
+      "Update last-high-watermark timestamp documentation.";
+    reference "0.21.1";
+  }
+
+  revision "2022-09-26" {
+    description
+      "Add state data for base-mac-address.";
+    reference "0.21.0";
+  }
+
+  revision "2022-08-31" {
+    description
+      "Add new state data for component CLEI code.";
+    reference "0.20.0";
+  }
+
+  revision "2022-07-28" {
+    description
+      "Add container for controller card component";
+    reference "0.19.0";
+  }
+
+  revision "2022-07-11" {
+    description
+      "Add switchover ready";
+    reference "0.18.0";
+  }
+
+  revision "2022-06-10" {
+    description
+      "Specify units and epoch for switchover and reboot times.";
+    reference "0.17.0";
+  }
+
+  revision "2022-04-21" {
+    description
+      "Add platform utilization.";
+    reference "0.16.0";
+  }
+
+  revision "2022-02-02" {
+    description
+      "Add new state data for component reboot and
+      switchover.";
+    reference "0.15.0";
+  }
+
+  revision "2021-08-13" {
+    description
+      "Add container for PCIe error statistics";
+    reference "0.14.0";
+  }
 
   revision "2021-01-18" {
     description
@@ -393,6 +463,14 @@ module openconfig-platform {
         (field replaceable unit)";
     }
 
+    leaf clei-code {
+      type string;
+      description
+        "Common Language Equipment Identifier (CLEI) code of the
+        component.  This should be present in particular if the
+        component is also an FRU (field replaceable unit)";
+    }
+
     leaf removable {
       type boolean;
       description
@@ -430,6 +508,76 @@ module openconfig-platform {
         corresponding subcomponent reference from the parent
         component.";
     }
+
+    leaf redundant-role {
+      type oc-platform-types:component-redundant-role;
+      description
+        "For components that have redundant roles (e.g. two
+        supervisors in a device, one as primary the other as secondary),
+        this reports the role of the component.";
+    }
+
+    container last-switchover-reason {
+      description
+        "For components that have redundant roles (e.g. two
+        supervisors in a device, one as primary the other as secondary),
+        this reports the reason of the last change of the
+        component's role.";
+
+      uses oc-platform-types:component-redundant-role-switchover-reason;
+    }
+
+    leaf last-switchover-time {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+      description
+        "For components that have redundant roles (e.g. two
+        supervisors in a device, one as primary the other as
+        secondary), this reports the time of the last change of
+        the component's role. The value is the timestamp in
+        nanoseconds relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+
+    }
+
+    leaf last-reboot-reason {
+      type identityref {
+        base oc-platform-types:COMPONENT_REBOOT_REASON;
+      }
+      description
+        "This reports the reason of the last reboot of the component.";
+    }
+
+    leaf last-reboot-time {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+      description
+        "This reports the time of the last reboot of the component. The
+        value is the timestamp in nanoseconds relative to the Unix Epoch
+        (Jan 1, 1970 00:00:00 UTC).";
+    }
+
+    leaf switchover-ready {
+      type boolean;
+      description
+        "For components that have redundant roles, this reports a value
+        that indicates if the component is ready to support failover.
+
+        The components with a redundant-role should reflect the overall
+        system's switchover status.  For example, two supervisors in a
+        device, one as primary and the other as secondary, should both
+        report the same value.";
+    }
+
+    leaf base-mac-address {
+      type oc-yang:mac-address;
+      description
+        "This is a MAC address representing the root or primary MAC
+        address for a component.  Components such as CHASSIS and
+        CONTROLLER_CARD are expected to provide a base-mac-address.  The
+        base mac-address for CHASSIS and a PRIMARY CONTROLLER_CARD may
+        contain the same value.";
+    }
+
   }
 
   grouping platform-component-temp-alarm-state {
@@ -528,6 +676,235 @@ module openconfig-platform {
     }
   }
 
+  grouping pcie-uncorrectable-errors {
+    description
+      "PCIe uncorrectable error statistics.";
+
+    leaf total-errors {
+      type oc-yang:counter64;
+      description
+        "Total number of uncorrectable errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf undefined-errors {
+      type oc-yang:counter64;
+      description
+        "Number of undefined errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf data-link-errors {
+      type oc-yang:counter64;
+      description
+        "Number of data-link errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf surprise-down-errors {
+      type oc-yang:counter64;
+      description
+        "Number of unexpected link down errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf poisoned-tlp-errors {
+      type oc-yang:counter64;
+      description
+        "Number of poisoned TLP errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf flow-control-protocol-errors {
+      type oc-yang:counter64;
+      description
+        "Number of flow control protocol errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf completion-timeout-errors {
+      type oc-yang:counter64;
+      description
+        "Number of completion timeout errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf completion-abort-errors {
+      type oc-yang:counter64;
+      description
+        "Number of completion abort errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf unexpected-completion-errors {
+      type oc-yang:counter64;
+      description
+        "Number of unexpected completion errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf receiver-overflow-errors  {
+      type oc-yang:counter64;
+      description
+        "Number of receiver overflow errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf malformed-tlp-errors  {
+      type oc-yang:counter64;
+      description
+        "Number of malformed TLP errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf ecrc-errors  {
+      type oc-yang:counter64;
+      description
+        "Number of ECRC errors detected by PCIe device since the system
+        booted, according to PCIe AER driver.";
+    }
+
+    leaf unsupported-request-errors {
+      type oc-yang:counter64;
+      description
+        "Number of unsupported request errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf acs-violation-errors {
+      type oc-yang:counter64;
+      description
+        "Number of access control errors detected by PCIe device since
+        the system booted, according to PCIe AER driver.";
+    }
+
+    leaf internal-errors {
+      type oc-yang:counter64;
+      description
+        "Number of internal errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf blocked-tlp-errors {
+      type oc-yang:counter64;
+      description
+        "Number of blocked TLP errors detected by PCIe device since
+        the system booted, according to PCIe AER driver.";
+    }
+
+    leaf atomic-op-blocked-errors {
+      type oc-yang:counter64;
+      description
+        "Number of atomic operation blocked errors detected by PCIe
+        device since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf tlp-prefix-blocked-errors {
+      type oc-yang:counter64;
+      description
+        "Number of TLP prefix blocked errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+  }
+
+  grouping pcie-correctable-errors {
+    description
+      "PCIe correctable error statistics.";
+
+    leaf total-errors {
+      type oc-yang:counter64;
+      description
+        "Total number of correctable errors detected by PCIe device
+        since the system booted, according to PCIe AER driver.";
+    }
+
+    leaf receiver-errors {
+      type oc-yang:counter64;
+      description
+        "Number of receiver errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf bad-tlp-errors {
+      type oc-yang:counter64;
+      description
+        "Number of TLPs with bad LCRC detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf bad-dllp-errors {
+      type oc-yang:counter64;
+      description
+        "Number of DLLPs with bad LCRC detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf relay-rollover-errors {
+      type oc-yang:counter64;
+      description
+        "Number of relay rollover errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf replay-timeout-errors {
+      type oc-yang:counter64;
+      description
+        "Number of replay timeout errors detected by PCIe device since the
+        system booted, according to PCIe AER driver.";
+    }
+
+    leaf advisory-non-fatal-errors {
+      type oc-yang:counter64;
+      description
+        "Number of advisory non fatal errors detected by PCIe device since
+        the system booted, according to PCIe AER driver.";
+    }
+
+    leaf internal-errors {
+      type oc-yang:counter64;
+      description
+        "Number of internal errors detected by PCIe device since the system
+        booted, according to PCIe AER driver.";
+    }
+
+    leaf hdr-log-overflow-errors {
+      type oc-yang:counter64;
+      description
+        "Number of header log overflow errors detected by PCIe device since
+        the system booted, according to PCIe AER driver.";
+    }
+  }
+
+  grouping platform-component-pcie-state {
+    description
+      "Per-component PCIe error statistics";
+
+    container pcie {
+      description
+        "Components that are connected to the system over the Peripheral
+        Component Interconnect Express (PCIe), report the fatal, non-fatal
+        and correctable PCIe error counts.";
+
+      container fatal-errors {
+        description
+          "The count of the fatal PCIe errors.";
+        uses pcie-uncorrectable-errors;
+      }
+
+      container non-fatal-errors {
+        description
+          "The count of the non-fatal PCIe errors.";
+        uses pcie-uncorrectable-errors;
+      }
+
+      container correctable-errors {
+        description
+          "The count of the correctable PCIe errors.";
+        uses pcie-correctable-errors;
+      }
+    }
+  }
+
   grouping platform-anchors-top {
     description
       "This grouping is used to add containers for components that
@@ -551,6 +928,8 @@ module openconfig-platform {
         description
           "Operational state data for chassis components";
       }
+
+      uses platform-resource-utilization-top;
     }
 
 // TODO(aashaikh): linecard container is already defined in
@@ -705,6 +1084,8 @@ module openconfig-platform {
         description
           "Operational state data for chip components";
       }
+
+      uses platform-resource-utilization-top;
     }
 
     container backplane {
@@ -737,6 +1118,25 @@ module openconfig-platform {
         config false;
         description
           "Operational state data for software module components";
+      }
+    }
+
+    container controller-card {
+      description
+        "Data for controller card components, i.e., for components
+        with type=CONTROLLER_CARD";
+
+      container config {
+        description
+          "Configuration data for controller card components. Note that disabling
+          power to the primary supervisor should be rejected, and the operator is
+          required to perform a switchover first.";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for controller card components";
       }
     }
   }
@@ -781,6 +1181,11 @@ module openconfig-platform {
           uses platform-component-temp-state;
           uses platform-component-memory-state;
           uses platform-component-power-state;
+          uses platform-component-pcie-state {
+            when "./type = 'oc-platform-types:STORAGE' or " +
+              "'oc-platform-types:INTEGRATED_CIRCUIT' or " +
+              "'oc-platform-types:FRU'";
+          }
         }
 
         uses platform-component-properties-top;

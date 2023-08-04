@@ -7,6 +7,7 @@ module openconfig-macsec {
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-macsec-types { prefix macsec-types; }
   import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-keychain { prefix "oc-keychain"; }
 
   organization
     "OpenConfig working group";
@@ -17,10 +18,22 @@ module openconfig-macsec {
     "This module defines configuration and state data for
      MACsec IEEE Std 802.1AE-2018.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "1.1.0";
   oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2023-06-08" {
+    description
+      "Support rx-late-pkts leaf.";
+    reference "1.1.0";
+  }
+
+  revision "2022-04-28" {
+    description
+      "Use global key chain model.";
+    reference "1.0.0";
+  }
 
   revision "2020-05-01" {
     description
@@ -136,59 +149,6 @@ module openconfig-macsec {
     }
   }
 
-  grouping macsec-mka-key-chain-config {
-    description
-      "MKA Key chain config grouping";
-
-      leaf name {
-        type string;
-        description
-          "MKA Key-chain name";
-      }
-  }
-
-  grouping macsec-mka-key-chain-top {
-    description
-      "MKA key chain top level grouping";
-
-    container key-chains {
-      description
-        "Enclosing container for the MKA key chains";
-
-      list key-chain {
-        key "name";
-
-        description
-          "MKA Key chain name";
-
-        leaf name {
-          type leafref {
-            path "../config/name";
-          }
-          description
-            "Reference to the MKA Key chain name";
-        }
-
-        container config {
-          description
-          "Configuration of the MKA key chain";
-
-          uses macsec-mka-key-chain-config;
-        }
-
-        container state {
-          config false;
-          description
-          "Operational state data for MKA key chain";
-
-          uses macsec-mka-key-chain-config;
-        }
-
-        uses macsec-mka-key-top;
-      }
-    }
-  }
-
   grouping macsec-mka-interface-config {
     description
       "MKA interface config grouping";
@@ -203,7 +163,8 @@ module openconfig-macsec {
 
     leaf key-chain {
       type leafref {
-        path "/macsec/mka/key-chains/key-chain/name";
+        path "/oc-keychain:keychains/oc-keychain:keychain/" +
+           "oc-keychain:name";
       }
       description
         "Configure Key Chain name";
@@ -463,6 +424,15 @@ module openconfig-macsec {
         "MACsec interface level Receive No SCI Packets counter.
          This counter will increment if MACsec is enabled on interface and
          incoming packet does not have SCI field in MACsec tag.";
+    }
+
+    leaf rx-late-pkts {
+      type oc-yang:counter64;
+      description
+        "MACsec interface level Receive Late Packets counter.
+        This counter will increment if MACsec is enabled on the interface and
+        packet number of incoming packet is less than the lowest acceptable
+        packet number and replay protection is enabled.";
     }
   }
 
@@ -812,7 +782,6 @@ module openconfig-macsec {
         "The MKA";
 
       uses macsec-mka-policy-top;
-      uses macsec-mka-key-chain-top;
       uses macsec-mka-global-top;
     }
   }
