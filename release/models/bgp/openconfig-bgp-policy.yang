@@ -568,13 +568,15 @@ module openconfig-bgp-policy {
         container config {
           description "Extended community member configuration.";
 
-          uses typed-ext-community-config;
+          uses ext-community-set-member-config;
         }
         container state {
-          description "";
           config false;
-          
-          uses typed-ext-community-config;
+
+          description "State for BGP extended community set members";
+
+          uses ext-community-set-member-config;
+          uses ext-community-set-member-state;
         }
 
       }
@@ -583,7 +585,7 @@ module openconfig-bgp-policy {
     uses oc-rpol:match-set-options-group;
   }
 
-  grouping typed-ext-community-config {
+  grouping ext-community-set-member-config {
     description
     "Configuration data for strongly typed BGP extended communities.";
 
@@ -707,6 +709,10 @@ module openconfig-bgp-policy {
       }
     }
 
+  }
+  grouping ext-community-set-member-state {
+    description
+    "Operational state data for strongly typed BGP extended community sets.";
   }
 
   grouping ext-community-set-state {
