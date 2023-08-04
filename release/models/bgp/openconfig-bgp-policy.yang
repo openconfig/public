@@ -561,12 +561,21 @@ module openconfig-bgp-policy {
           "";
 
         leaf id {
-          type uint16;
+          type leafref {
+            path "../config/id";
+          }
           description
-            "Represents an index of a member entry.";
+            "Reference to list key";
         }
+
         container config {
           description "Extended community member configuration.";
+
+          leaf id {
+            type uint16;
+            description
+              "Represents an index of a member entry.";
+          }
 
           uses ext-community-set-member-config;
         }
