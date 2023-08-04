@@ -552,43 +552,19 @@ module openconfig-bgp-policy {
         removed.";
     }
 
-    container members {
-      description
-        "Container for the list of extended community members.";
-      list member {
-        key "id";
-        description
-          "";
-
-        leaf id {
-          type leafref {
-            path "../config/id";
-          }
-          description
-            "Reference to list key";
+    leaf-list ext-community-member-id {
+      leaf {
+        type leafref {
+          path "../members/member/id";
         }
-
-        container config {
-          description "Extended community member configuration.";
-
-          leaf id {
-            type uint16;
-            description
-              "Represents an index of a member entry.";
-          }
-
-          uses ext-community-set-member-config;
-        }
-        container state {
-          config false;
-
-          description "State for BGP extended community set members";
-
-          uses ext-community-set-member-config;
-          uses ext-community-set-member-state;
-        }
-
       }
+      description
+        "Members of the extended community set.
+        For an ADD operation these are the communities that will be added;
+        For REMOVE or REPLACE operations then matching communities will
+        be removed unless match-set-options is INVERT which will
+        reverse this to mean that anything that does not match will be
+        removed.";
     }
 
     uses oc-rpol:match-set-options-group;
@@ -597,6 +573,12 @@ module openconfig-bgp-policy {
   grouping ext-community-set-member-config {
     description
     "Configuration data for strongly typed BGP extended communities.";
+
+    leaf id {
+      type uint16;
+      description
+        "Represents an index of a member entry.";
+    }
 
     container asn-type {
       description
@@ -768,6 +750,40 @@ module openconfig-bgp-policy {
           uses ext-community-set-config;
           uses ext-community-set-state;
         }
+
+        container members {
+          description
+            "Container for the list of extended community members.";
+          list member {
+            key "id";
+            description
+              "";
+
+            leaf id {
+              type leafref {
+                path "../config/id";
+              }
+              description
+                "Reference to list key";
+            }
+
+            container config {
+              description "Extended community member configuration.";
+
+              uses ext-community-set-member-config;
+            }
+            container state {
+              config false;
+
+              description "State for BGP extended community set members";
+
+              uses ext-community-set-member-config;
+              uses ext-community-set-member-state;
+            }
+
+          }
+        }
+
       }
     }
   }
