@@ -566,9 +566,14 @@ module openconfig-bgp-policy {
             "Represents an index of a member entry.";
         }
         container config {
-          description
-            "Extended community member configuration.";
+          description "Extended community member configuration.";
 
+          uses typed-ext-community-config;
+        }
+        container state {
+          description "";
+          config false;
+          
           uses typed-ext-community-config;
         }
 
@@ -598,8 +603,7 @@ module openconfig-bgp-policy {
     }
 
     container ip-type {
-      description
-        "RFC5668 section 2 BGP extended community.";
+      description "RFC5668 section 2 BGP extended community.";
 
       leaf ip-address {
         type oc-inet:ip-address;
