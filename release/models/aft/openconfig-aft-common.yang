@@ -27,8 +27,9 @@ submodule openconfig-aft-common {
 
   revision "2023-05-25" {
     description
-      "Add next-hop-group-name and auto-size in NHG AFT entry state
-       and Add ttl and tos in NH AFT entry state for telemetry";
+      "Add gre and mpls containers under next-hops aft entry state.
+       Add ttl and tos under gre, mpls and ip-in-ip aft entry state
+       for telemetry.";
     reference "2.4.0";
   }
 
@@ -211,6 +212,33 @@ submodule openconfig-aft-common {
             description
               "State parameters relating to IP-in-IP encapsulation.";
             uses aft-common-entry-nexthop-ipip-state;
+            uses aft-common-entry-nexthop-encap-outer-header-state;
+          }
+        }
+
+        container gre {
+          description
+            "When specified, the packet has an GRE header applied to it before
+             forwarding to the specified next-hop.";
+
+          container state {
+            config false;
+            description
+              "State parameters relating to GRE encapsulation.";
+            uses aft-common-entry-nexthop-encap-outer-header-state;
+          }
+        }
+
+        container mpls {
+          description
+            "When specified, the packet has an MPLS header applied to it before
+             forwarding to the specified next-hop.";
+
+          container state {
+            config false;
+            description
+              "State parameters relating to MPLS encapsulation.";
+            uses aft-common-entry-nexthop-encap-outer-header-state;
           }
         }
 
@@ -366,20 +394,6 @@ submodule openconfig-aft-common {
          specified network-instance.";
     }
 
-    leaf ttl {
-      type uint32;
-      description
-        "The TTL value used by the hardware pipeline while forwarding
-         a packet to the specified next-hop.";
-    }
-
-    leaf tos {
-      type uint16;
-      description
-        "The TOS value used by the hardware pipeline while forwarding
-         a packet to the specified next-hop.";
-    }
-
     uses aft-common-install-protocol;
   }
 
@@ -397,6 +411,29 @@ submodule openconfig-aft-common {
       type oc-inet:ip-address;
       description
         "Destination IP address to use for the encapsulated packet.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-encap-outer-header-state {
+    description
+      "Outer header fields of encapsulation applied on a next-hop";
+
+    leaf ttl {
+      type uint32;
+      description
+        "This leaf reflects the configured TTL value that is used in the outer
+         header during packet encapsulation. When this leaf is not set, the TTL
+         value of the inner packet is copied over as the outer packet's TTL
+         value during encapsulation.";
+    }
+
+    leaf tos {
+      type uint16;
+      description
+        "This leaf reflects the configured TOS value that is used in the outer
+         header during packet encapsulation. When this leaf is not set, the TOS
+         value of the inner packet is copied over as the outer packet's TOS
+         value during encapsulation.";
     }
   }
 
