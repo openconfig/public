@@ -679,21 +679,18 @@ module openconfig-bgp-policy {
             "Enclosing container for list of extended community members";
 
         list member {
-            key "id";
-            description 
-              "List of members";
+            key "index";
+            description
+              "List of members in an external community set.  Each entry
+              is identified by an index.";
 
-          leaf id {
+          leaf index {
               type leafref {
-                  path "../config/id";
+                  path "../config/index";
               }
               description
-                  "Members of the extended community set.
-                  For an ADD operation these are the communities that will be added;
-                  For REMOVE or REPLACE operations then matching communities will
-                  be removed unless match-set-options is INVERT which will
-                  reverse this to mean that anything that does not match will be
-                  removed.";
+                  "Reference to the index for the member of an extended
+                  community set.";
           }
 
           container config {
@@ -715,54 +712,47 @@ module openconfig-bgp-policy {
               "RFC4360 section 3.1 or 3.2 BGP extended community.";
 
               container config {
-                  uses ext-community-asn-value-config;
+                  uses ext-community-asn-type-config;
               }
               container state {
                   config false;
-                  uses ext-community-asn-value-config;
+                  uses ext-community-asn-type-config;
               }
-
           }
 
           container ip-type {
               description "RFC5668 section 2 BGP extended community.";
 
-              leaf ip-address {
-              type oc-inet:ip-address;
-              description "IPv4 address.";
+              container config {
+                  uses ext-community-ip-type-config;
               }
-
-              leaf value {
-              type uint16;
-              description "Assigned value for this community.";
+              container state {
+                  config false;
+                  uses ext-community-ip-type-config;
               }
           }
 
           container link-bw {
               description "draft-ietf-idr-link-bandwidth-07";
 
-              leaf asn {
-              type oc-inet:as-number;
-              description "Autonomous system number.";
+              container config {
+                  uses ext-community-link-bw-config;
               }
-
-              leaf bps {
-              type uint64;
-              description "Bandwidth in bits per second.";
+              container state {
+                  config false;
+                  uses ext-community-link-bw-config;
               }
           }
 
           container route-target {
               description "RFC4360 section 4 BGP extended community.";
 
-              leaf asn {
-              type oc-inet:as-number;
-              description "Autonomous system number.";
+              container config {
+                  uses ext-community-route-target-config;
               }
-
-              leaf value {
-              type uint16;
-              description "Assigned value for this community.";
+              container state {
+                  config false;
+                  uses ext-community-route-target-config;
               }
           }
 
@@ -770,14 +760,12 @@ module openconfig-bgp-policy {
               description "RFC4360 section 4 using IP address as BGP extended
               community.";
 
-              leaf ip-address {
-              type oc-inet:ip-address;
-              description "IPv4 address.";
+              container config {
+                  uses ext-community-route-target-ip-config;
               }
-
-              leaf value {
-              type uint16;
-              description "Assigned value for this community.";
+              container state {
+                  config false;
+                  uses ext-community-route-target-ip-config;
               }
           }
 
@@ -785,14 +773,12 @@ module openconfig-bgp-policy {
               description
               "RFC4360 section 5 BGP extended community using an ASN.";
 
-              leaf asn {
-              type oc-inet:as-number;
-              description "Autonomous system number.";
+              container config {
+                  uses ext-community-route-origin-config;
               }
-
-              leaf value {
-              type uint16;
-              description "Assigned value for this community.";
+              container state {
+                  config false;
+                  uses ext-community-route-origin-config;
               }
           }
 
@@ -801,15 +787,12 @@ module openconfig-bgp-policy {
               "RFC4360 section 5  BGP extended community using an IP
               address.";
 
-              leaf match-type {
-              type oc-bgp-types:bgp-color-match-type;
-              description "Specifies the match criteria between BGP NH and
-              SR policy endpoint";
+              container config {
+                  uses ext-community-route-origin-ip-config;
               }
-
-              leaf value {
-              type uint32;
-              description "Assigned value for this community.";
+              container state {
+                  config false;
+                  uses ext-community-route-origin-ip-config;
               }
           }
 
@@ -818,14 +801,12 @@ module openconfig-bgp-policy {
               "RFC9012 BGP color extended community and
               draft-ietf-idr-segment-routing-te-policy.";
 
-              leaf ip-address {
-              type oc-inet:ip-address;
-              description "IPv4 address.";
+              container config {
+                  uses ext-community-color-config;
               }
-
-              leaf value {
-              type uint16;
-              description "Assigned value for this community.";
+              container state {
+                  config false;
+                  uses ext-community-color-config;
               }
           }
         }
@@ -834,7 +815,7 @@ module openconfig-bgp-policy {
 
   }
 
-grouping ext-community-asn-value-config {
+grouping ext-community-asn-type-config {
     leaf asn {
         type oc-inet:as-number;
         description "Autonomous system number.";
@@ -846,11 +827,96 @@ grouping ext-community-asn-value-config {
     }
 }
 
+grouping ext-community-ip-type-config {
+    leaf asn {
+        type oc-inet:ip-address;
+        description "IPv4 Address for the community.";
+    }
+
+    leaf value {
+        type    uint16;
+        description "Assigned value for this community.";
+    }
+}
+
+grouping ext-community-link-bw-config {
+  leaf asn {
+    type oc-inet:as-number;
+    description "Autonomous system number.";
+  }
+
+  leaf bps {
+    type uint64;
+    description "Bandwidth in bits per second.";
+  }
+}
+
+grouping ext-community-route-target-config {
+  leaf asn {
+    type oc-inet:as-number;
+    description "Autonomous system number.";
+  }
+
+  leaf value {
+    type uint16;
+    description "Assigned value for this community.";
+  }
+}
+
+grouping ext-community-route-target-ip-config {
+  leaf ip-address {
+    type oc-inet:ip-address;
+    description "IPv4 address.";
+  }
+
+  leaf value {
+    type uint16;
+    description "Assigned value for this community.";
+  }
+}
+
+grouping ext-community-route-origin-config {
+  leaf asn {
+    type oc-inet:as-number;
+    description "Autonomous system number.";
+  }
+
+  leaf value {
+    type uint16;
+    description "Assigned value for this community.";
+  }
+}
+
+grouping ext-community-route-origin-ip-config {
+  leaf ip-address {
+    type oc-inet:ip-address;
+    description "IPv4 address.";
+  }
+
+  leaf value {
+    type uint16;
+    description "Assigned value for this community.";
+  }
+}
+
+grouping ext-community-color-config {
+  leaf match-type {
+    type oc-bgp-types:bgp-color-match-type;
+    description "Specifies the match criteria between BGP NH and
+    SR policy endpoint";
+  }
+
+  leaf value {
+    type uint32;
+    description "Assigned value for this community.";
+  }
+}
+
   grouping ext-community-member-config {
     description
-    "Configuration data for strongly typed BGP extended communities.";
+    "Configuration data for typed BGP extended communities.";
 
-    leaf id {
+    leaf index {
       type uint16;
       mandatory true;
       description
@@ -860,7 +926,7 @@ grouping ext-community-asn-value-config {
 
   grouping ext-community-member-state {
     description
-    "Operational state data for strongly typed BGP extended community sets.";
+    "Operational state data for typed BGP extended community sets.";
   }
 
 
