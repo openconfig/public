@@ -105,7 +105,15 @@ module openconfig-ap-interfaces {
 
           uses oc-if:interface-phys-config;
           uses oc-if:interface-common-state;
-          uses oc-if:interface-counters-state;
+
+          container counters {
+            description
+              "A collection of interface specific statistics entitites which are
+              not common to subinterfaces.";
+
+            uses oc-if:interface-common-counters-state;
+            uses oc-if:interface-counters-state;
+          }
         }
       }
     }
