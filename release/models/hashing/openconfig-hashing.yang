@@ -44,15 +44,30 @@ module openconfig-hashing {
             uses oc-pkt-match:ipv4-protocol-fields-config;
             uses oc-pkt-match:ipv6-protocol-fields-config;
             uses oc-pkt-match:transport-fields-config;
+            container ipv4 {                                                    
+               uses oc-pkt-match:ipv4-protocol-fields-config;                    
+            }                                                                   
+            container ipv6 {                                                    
+                uses oc-pkt-match:ipv6-protocol-fields-config;                    
+            }                                                                   
+            container transport {                                               
+                uses oc-pkt-match:transport-fields-config;                        
+            }
         }
 
         container state {
             config false;
             description
               "Operational state data at the hashing inputs level.";
-            uses oc-pkt-match:ipv4-protocol-fields-config;
-            uses oc-pkt-match:ipv6-protocol-fields-config;
-            uses oc-pkt-match:transport-fields-config;
+            container ipv4 {                                                    
+               uses oc-pkt-match:ipv4-protocol-fields-config;                    
+            }                                                                   
+            container ipv6 {                                                    
+                uses oc-pkt-match:ipv6-protocol-fields-config;                    
+            }                                                                   
+            container transport {                                               
+                uses oc-pkt-match:transport-fields-config;                        
+            }
         }
     }
 
