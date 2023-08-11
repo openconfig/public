@@ -24,7 +24,37 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "9.1.0";
+  oc-ext:openconfig-version "9.4.1";
+
+  revision "2023-06-27" {
+    description
+      "Clarify bgp remote-port description";
+    reference "9.4.1";
+  }
+
+  revision "2023-04-01" {
+    description
+      "Add support for BGP large communities [rfc8092] in
+      send-community.
+      Leaf send-community was replaced by the leaf-list
+      send-community-type to allow the combination of different
+      community types";
+    reference "9.4.0";
+  }
+
+  revision "2023-03-31" {
+    description
+      "Allow configuring send-community per AFI-SAFI at
+       neighbor/peer-group.";
+    reference "9.3.0";
+  }
+
+  revision "2022-12-12" {
+    description
+      "Removed the default of enabled leaf of AFI-SAFI
+      at neighbor/peer-group to support BGP inheritance model.";
+    reference "9.2.0";
+  }
 
   revision "2022-05-21" {
     description
@@ -171,9 +201,9 @@ submodule openconfig-bgp-common-multiprotocol {
     }
   }
 
-  grouping bgp-common-mp-afi-safi-config {
+  grouping bgp-common-mp-global-afi-safi-config {
     description
-      "Configuration parameters used for all BGP AFI-SAFIs";
+      "Configuration parameters used for all BGP global AFI-SAFIs";
 
     leaf afi-safi-name {
       type identityref {
@@ -185,6 +215,35 @@ submodule openconfig-bgp-common-multiprotocol {
     leaf enabled {
       type boolean;
       default false;
+      description
+        "This leaf indicates whether the AFI-SAFI is enabled for all
+        neighbors or groups.";
+    }
+
+    leaf-list send-community-type {
+      type oc-bgp-types:community-type;
+      description
+        "Specify which types of community should be sent to the
+        neighbor or group. The default is to not send the
+        community attribute. This takes precedence over the neighbor
+        or group configuration";
+    }
+  }
+
+  grouping bgp-common-mp-afi-safi-config {
+    description
+      "Configuration parameters used for all BGP neighbors
+      or groups AFI-SAFIs";
+
+    leaf afi-safi-name {
+      type identityref {
+        base oc-bgp-types:AFI_SAFI_TYPE;
+      }
+      description "AFI,SAFI";
+    }
+
+    leaf enabled {
+      type boolean;
       description
         "This leaf indicates whether the AFI-SAFI is
         enabled for the neighbor or group";

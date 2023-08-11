@@ -24,7 +24,20 @@ module openconfig-platform-port {
     "This module defines data related to PORT components in the
     openconfig-platform model";
 
-  oc-ext:openconfig-version "0.4.2";
+  oc-ext:openconfig-version "1.0.1";
+
+  revision "2023-03-22" {
+    description
+      "Clarify use of the interface-ref type.";
+    reference "1.0.1";
+  }
+
+  revision "2023-01-19" {
+    description
+      "Add clarification of the definition of a physical channel, and
+      example configurations.";
+    reference "1.0.0";
+  }
 
   revision "2021-10-01" {
     description
@@ -129,7 +142,10 @@ module openconfig-platform-port {
         to the interfaces in this breakout group. This leaf need
         not be set if there is only one breakout group where all
         the interfaces are of equal speed and have equal number
-        of physical channels";
+        of physical channels.
+
+        The physical channels referred to by this leaf are
+        electrical channels towards the transceiver.";
     }
   }
 
@@ -154,24 +170,94 @@ module openconfig-platform-port {
            interfaces of different speeds and different number of
            physical channels, it can breakout a 400G OSFP port with
            8 physical channels (with support for 25G NRZ, 50G PAM4
-           and 100G PAM4) in the following configuration:
-
-           100G + 100G + 200G -> 1 interface with 2 physical channels
-           and 1 interface with 4 physical channels and 1 interface with
+           and 100G PAM4) into  mixed speed interfaces. Particularly, to
+           break out into two 100G ports with different modulation, and a 200G
+           port, a user must configure 1 interface with 2 physical channels
+          1 interface with 4 physical channels and 1 interface with
            2 physical channels. With this configuration the interface in
            1st breakout group would use 50G PAM4 modulation, interface
            in 2nd breakout group would use 25G NRZ modulation and the
            interface in 3rd breakout group would use 100G PAM4 modulation
            This configuration would result in 3 entries in the breakout
-           groups list.
+           groups list. The example configuration for this case is shown below:
+
+              {
+                \"groups\": {
+                  \"group\": [
+                    {
+                      \"config\": {
+                        \"breakout-speed\": \"SPEED_100GB\",
+                        \"index\": 0,
+                        \"num-breakouts\": 1,
+                        \"num-physical-channels\": 2
+                      },
+                      \"index\": 0
+                    },
+                    {
+                      \"config\": {
+                        \"breakout-speed\": \"SPEED_100GB\",
+                        \"index\": 1,
+                        \"num-breakouts\": 1,
+                        \"num-physical-channels\": 4
+                      },
+                      \"index\": 1
+                    },
+                    {
+                      \"config\": {
+                        \"breakout-speed\": \"SPEED_200GB\",
+                        \"index\": 2,
+                        \"num-breakouts\": 1,
+                        \"num-physical-channels\": 2
+                      },
+                      \"index\": 2
+                    }
+                  ]
+                }
+              }
 
            When a device does not have the capability to break a port
            into interfaces of different speeds and different number of
-           physical channels, it would breakout a 400G OSFP port with
-           8 physical channels in the following configuration:
+           physical channels, in order to  breakout a 400G OSFP port with
+           8 physical channels into 50G breakout ports it would use 8 interfaces
+           with 1 physical channel each. This would result in 1 entry in the
+           breakout groups list. The example configuration for this case is
+           shown below:
 
-           50G -> 8 interfaces with 1 physical channel each, this would
-           result in 1 entry in the breakout groups list.";
+            {
+              \"groups\": {
+                \"group\": [
+                  {
+                    \"config\": {
+                      \"breakout-speed\": \"SPEED_50GB\",
+                      \"index\": 0,
+                      \"num-breakouts\": 8,
+                      \"num-physical-channels\": 1
+                    },
+                    \"index\": 0
+                  }
+                ]
+              }
+            }
+
+           Similarly, if a 400G-DR4 interface (8 electrical channels at 50Gbps)
+           is to be broken out into 4 100Gbps ports, the following configuration
+           is used:
+
+            {
+              \"groups\": {
+                \"group\": [
+                  {
+                    \"config\": {
+                      \"breakout-speed\": \"SPEED_100GB\",
+                      \"index\": 0,
+                      \"num-breakouts\": 4,
+                      \"num-physical-channels\": 2
+                    },
+                    \"index\": 0
+                  }
+                ]
+              }
+            }";
 
         list group {
           key "index";

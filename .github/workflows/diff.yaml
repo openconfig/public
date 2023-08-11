@@ -1,0 +1,42 @@
+name: Breaking Changes
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: major version update check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.x'
+
+    - name: Check out code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Install openconfig-ci CLI
+      run: |
+        go install github.com/openconfig/models-ci/openconfig-ci@c880ed2
+
+    - name: Make sure all backward-incompatible changes are covered by version changes.
+      id: check
+      run: |
+        readonly HEAD=${{ github.event.pull_request.head.sha }}
+        readonly BASE="$(git merge-base origin/master "${HEAD}")"
+
+        BASEREPODIR=public_base
+        mkdir -p "${BASEREPODIR}/release"
+        git checkout "${BASE}"
+        cp -r release/models "${BASEREPODIR}/release" 
+        cp -r third_party "${BASEREPODIR}" 
+        git checkout "${HEAD}"
+        oldroot="${BASEREPODIR}"
+        newroot=.
+
+        openconfig-ci diff --disallowed-incompats --oldp "${oldroot}/third_party" --oldroot "${oldroot}/release/models" --newp "${newroot}/third_party" --newroot "${newroot}/release/models"

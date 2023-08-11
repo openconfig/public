@@ -20,7 +20,13 @@ submodule openconfig-aft-ipv4 {
     "Submodule containing definitions of groupings for the abstract
     forwarding tables for IPv4.";
 
-  oc-ext:openconfig-version "2.2.0";
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2023-04-19" {
+    description
+      "Add atomic attribute to AFT containers.";
+    reference "2.3.0";
+  }
 
   revision "2022-06-16" {
     description
@@ -136,6 +142,7 @@ submodule openconfig-aft-ipv4 {
     list ipv4-entry {
       key "prefix";
 
+      oc-ext:telemetry-atomic;
       description
         "List of the IPv4 unicast entries within the abstract
         forwarding table. This list is keyed by the destination IPv4

@@ -28,7 +28,13 @@ submodule openconfig-aft-pf {
     fields other than the destination address that is used in
     other forwarding tables.";
 
-  oc-ext:openconfig-version "2.2.0";
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2023-04-19" {
+    description
+      "Add atomic attribute to AFT containers.";
+    reference "2.3.0";
+  }
 
   revision "2022-06-16" {
     description
@@ -145,6 +151,7 @@ submodule openconfig-aft-pf {
     list policy-forwarding-entry {
       key "index";
 
+      oc-ext:telemetry-atomic;
       description
         "List of the policy forwarding entries within the abstract
         forwarding table. Each entry is uniquely identified by an

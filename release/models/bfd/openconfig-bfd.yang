@@ -26,7 +26,13 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.2.4";
+  oc-ext:openconfig-version "0.2.5";
+
+  revision "2023-02-06" {
+    description
+      "Clarify interface references.";
+    reference "0.2.5";
+  }
 
   revision "2022-06-28" {
     description
@@ -634,7 +640,11 @@ module openconfig-bfd {
           key "id";
 
           description
-            "Per-interface configuration and state parameters for BFD.";
+            "Per-interface configuration and state parameters for BFD.
+             The interface referenced is based on the interface and
+             subinterface leaves within the interface-ref container -
+             which reference an entry in the /interfaces/interface list -
+             and should not rely on the value of the list key.";
 
           leaf id {
             type leafref {
