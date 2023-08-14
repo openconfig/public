@@ -25,7 +25,13 @@ submodule openconfig-qos-interfaces {
     configuration and operational state associated with
     interfaces.";
 
-  oc-ext:openconfig-version "0.9.1";
+  oc-ext:openconfig-version "0.10.0";
+
+  revision "2023-06-30" {
+    description
+      "Change interface queue name to a leaf-ref";
+    reference "0.10.0";
+  }
 
   revision "2023-04-25" {
     description
@@ -284,19 +290,19 @@ submodule openconfig-qos-interfaces {
       interface, this is re-used across input/output queues.";
 
     leaf name {
-      // TODO(robjs): Previously we proposed that the queue name here is
-      // only a queue that has been configured. However, in some cases we
-      // may want to have queues that have not been configured exist.
-      //type leafref {
-      //  path "../../../../../../queues/queue/config/name";
-      //}
-      type string;
+      type leafref {
+        // current loc: /qos/interfaces/interface/input/queues/queue/config
+        path "../../../../../../queues/queue/config/name";
+      };
       description
         "Reference to the queue associated with this interface.
         A queue may be explicitly configured, or implicitly created
         by the system based on default queues that are instantiated
         by a hardware component, or are assumed to be default on
-        the system.";
+        the system.
+        In the case that the queue is implicitly created by the system,
+        the queue name should still exist in the /qos tree and usable
+        for a leaf reference.";
     }
   }
 
