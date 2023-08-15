@@ -25,6 +25,12 @@ submodule openconfig-aft-common {
 
   oc-ext:openconfig-version "2.4.0";
 
+  revision "2023-08-15" {
+    description
+      "Add next-hop-group-name and auto-size in NHG AFT entry state.";
+    reference "2.4.0";
+  }
+
   revision "2023-05-25" {
     description
       "Add gre and mpls containers under next-hops aft entry state.
@@ -635,6 +641,22 @@ submodule openconfig-aft-common {
         identifier. If the identifier of the next-hop-group
         is changed, all AFT entries that reference it must
         also be updated.";
+    }
+
+    leaf next-hop-group-name {
+      type string;
+      description
+       "Where applicable, this leaf is a unique identifier string for the
+        next-hop-group. It is an arbitrary name for the group, that is
+        supported by vendors and is exposed for telemetry.";
+    }
+
+    leaf auto-size {
+      type boolean;
+      description
+       "Where applicable, this leaf is a indicator of the
+        next-hop-group size being automatically determined or is it
+        configured to a fixed size.";
     }
 
     leaf programmed-id {
