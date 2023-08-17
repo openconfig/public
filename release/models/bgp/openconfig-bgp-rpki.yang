@@ -1,0 +1,461 @@
+submodule openconfig-bgp-rpki {
+
+  belongs-to openconfig-bgp {
+    prefix "oc-bgp";
+  }
+
+  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-types { prefix oc-types; }
+  import ietf-yang-types { prefix yang; }
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-bgp-types { prefix oc-bgp-types; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+   description
+    "This sub-module describes groupings for the Resource Public Key
+    Infrastructure (RPKI) to Router Protocol. A router uses RPKI to
+    verify the origin autonomous system of BGP announcements.
+    The authoritative data of the RPKI is stored in a public
+    distributed set of servers, which is fetched by caches local
+    to the router. The router directly communicates with the local
+    caches using the RPKI to router protocol";
+
+  oc-ext:openconfig-version "9.5.1";
+
+  revision "2023-08-17" {
+    description
+      "Added RPKI to router protocol support";
+    reference "9.5.1";
+  }
+
+  identity RPKI_PROTOCOL {
+    description
+      "RPKI protocol version running on the cache server";
+  }
+
+  identity VERSION_0 {
+     base RPKI_PROTOCOL;
+     description
+       "Protocol version 0";
+  }
+
+  identity VERSION_1 {
+     base RPKI_PROTOCOL;
+     description
+       "Protocol version 1";
+  }
+
+  grouping rpki-cache-connection-data-state {
+    description
+      "State information relating to the connection with the RPKI
+       cache server";
+    leaf transport-protocol {
+      type identityref {
+        base oc-bgp-types:TRANSPORT_PROTOCOL;
+      }
+      description
+        "IP transport protocol used for cache server communication";
+    }
+    leaf last-update-sync-timestamp {
+      type oc-types:timeticks64;
+      description
+        "Time of last serial sync with cache server in UTC";
+    }
+    leaf last-full-sync-timestamp {
+      type oc-types:timeticks64;
+      description
+        "Time of last reset sync with cache server in UTC";
+    }
+    leaf last-serial-query-timestamp {
+      type oc-types:timeticks64;
+      description
+        "Time of last serial query sent to cache server in UTC";
+    }
+    leaf last-reset-query-timestamp {
+      type oc-types:timeticks64;
+      description
+        "Time of last reset query sent to cache server in UTC";
+    }
+    leaf last-config-change-timestamp {
+      type oc-types:timeticks64;
+      description
+        "Time of last host, port, VRF or local interface change in UTC";
+    }
+    leaf last-error-timestamp {
+      type oc-types:timeticks64;
+      description
+        "Time of sending/receiving protocol error to/from cache
+         server in UTC";
+    }
+    leaf last-connection-error-timestamp {
+      type oc-types:timeticks64;
+      description
+        "Time of last connection error to cache server in UTC";
+    }
+    leaf last-connection-timestamp {
+      type oc-types:timeticks64;
+      description
+        "Time of last connection to cache server in UTC";
+    }
+    leaf error-reason {
+      type string;
+      description
+        "Reason for error in connection";
+    }
+  }
+
+  grouping rpki-cache-pdu-error-counters-common-state {
+    description
+      "Counters of error PDUs that originate from router or cache
+       server";
+    leaf corrupt-data {
+      type yang:zero-based-counter64;
+      description
+        "Corrupt data PDU count";
+    }
+    leaf internal-error {
+      type yang:zero-based-counter64;
+      description
+        "Internal error PDU count";
+    }
+    leaf unsupported-protocol-version {
+      type yang:zero-based-counter64;
+      description
+        "Unsupported protocol version PDU count";
+    }
+    leaf unsupported-pdu-type {
+      type yang:zero-based-counter64;
+      description
+        "Unsupported PDU type count";
+    }
+    leaf unexpected-protocol-version {
+      type yang:zero-based-counter64;
+      description
+        "Unexpected protocol version PDU count";
+    }
+  }
+
+  grouping rpki-cache-pdu-error-counters-recv-state {
+     description
+      "Counters of error PDUs that are received from cache";
+    leaf no-data-available {
+      type yang:zero-based-counter64;
+      description
+        "No data available PDU count";
+    }
+    leaf invalid-request {
+      type yang:zero-based-counter64;
+      description
+        "Invalid request PDU count";
+    }
+  }
+
+  grouping rpki-cache-pdu-error-counters-sent-state {
+    description
+      "Counters of error PDUs that originate from router";
+    leaf withdrawal-unknown-record {
+      type yang:zero-based-counter64;
+      description
+        "Withdrawal of unknown record PDU count";
+    }
+    leaf duplicate-announcement-received {
+      type yang:zero-based-counter64;
+      description
+        "Duplicate announcement received PDU count";
+    }
+  }
+
+  grouping rpki-cache-pdu-counters-sent-state {
+     description
+      "Counters of PDUs that originate from router";
+     leaf reset-query {
+        type yang:zero-based-counter64;
+        description
+          "Reset query PDU count";
+      }
+      leaf serial-query {
+        type yang:zero-based-counter64;
+        description
+          "Serial query PDU count";
+      }
+  }
+  grouping rpki-cache-pdu-counters-recv-state {
+     description
+      "Counters of PDUs that are received from cache";
+      leaf serial-notify {
+        type yang:zero-based-counter64;
+        description
+          "Serial notify PDU count";
+      }
+      leaf cache-response {
+        type yang:zero-based-counter64;
+        description
+          "Cache response PDU count";
+      }
+      leaf ipv4-prefix {
+        type yang:zero-based-counter64;
+        description
+          "IPv4 prefix PDU count";
+      }
+      leaf ipv6-prefix {
+        type yang:zero-based-counter64;
+        description
+          "Ipv6 prefix PDU count";
+      }
+      leaf end-of-data {
+        type yang:zero-based-counter64;
+        description
+          "End of data PDU count";
+      }
+      leaf cache-reset {
+        type yang:zero-based-counter64;
+        description
+          "Cache reset PDU count";
+      }
+  }
+
+  grouping rpki-cache-protocol-state {
+    description
+      "State parameters related to the RPKI to router protocol";
+    leaf protocol {
+      type identityref {
+        base RPKI_PROTOCOL;
+      }
+      description
+        "RPKI to router protocol version";
+    }
+    leaf refresh-interval {
+      type oc-types:timeticks64;
+      description
+        "Number of seconds between cache server polls";
+    }
+    leaf retry-interval {
+      type oc-types:timeticks64;
+      description
+        "Number of seconds between poll error and cache server poll";
+    }
+    leaf expire-interval {
+      type oc-types:timeticks64;
+      description
+        "Number of seconds to retain data synced from cache server";
+    }
+    leaf session-id {
+      type uint16;
+      description
+        "Session ID for this cache server";
+    }
+    leaf serial-number {
+      type yang:counter32;
+      description
+        "Serial number for the last successful sync";
+    }
+  }
+
+  grouping rpki-cache-config {
+    description
+      "Configuration parameters related to a base cache server";
+    leaf name {
+      type string;
+      description
+        "Name of cache server";
+    }
+  }
+
+  grouping rpki-cache-state {
+    description
+      "State parameters related to a cache server";
+
+    leaf cache-state {
+      type identityref {
+        base oc-bgp-types:RPKI_CACHE_STATE;
+      }
+      description
+        "Cache server state";
+    }
+    leaf host {
+      type oc-inet:host;
+      description
+        "IP address or hostname of cache server";
+    }
+    leaf preference {
+      type uint8;
+      description
+        "Cache server preference. Lower value means higher preference";
+    }
+    leaf port {
+      type oc-inet:port-number;
+      description
+        "Cache server port number";
+    }
+    leaf ip4-roa-count {
+      type uint32;
+      description
+        "IPv4 Route Origination Authorization count";
+    }
+    leaf ip6-roa-count {
+      type uint32;
+      description
+        "IPv6 Route Origination Authorization count";
+    }
+  }
+  grouping rpki-cache-protocol-top {
+    description
+      "Parameters related to the RPKI to router protocol with a cache
+       server";
+    container protocol {
+        description
+          "Protocol parameters used with cache server";
+          container state {
+             config false;
+             description
+               "State information relating to the RPKI to router
+                protocol";
+
+             uses rpki-cache-protocol-state;
+          }
+      }
+   }
+
+  grouping rpki-cache-connection-data-top {
+    description
+      "Parameters related to the communication with a cache server";
+      container connection-data {
+        description
+          "Information resulting from communication with cache server";
+          container state {
+             config false;
+             description
+               "State information relating to cache server communication";
+
+             uses rpki-cache-connection-data-state;
+          }
+      }
+  }
+
+  grouping rpki-cache-pdu-error-counters-top {
+     description
+       "Parameters related to PDU error counts for a cache server";
+     container pdu-error-counters {
+       description
+         "PDU error counter parameters resulting from communication with
+          cache server";
+       container received {
+          description
+            "Counts of error PDUs that are receivied from cache server";
+          container state {
+            config false;
+            description
+              "State information of PDU error counters";
+
+            uses rpki-cache-pdu-error-counters-common-state;
+            uses rpki-cache-pdu-error-counters-recv-state;
+          }
+        }
+       container sent {
+          description
+            "Counts of error PDUs that originate from router";
+          container state {
+            config false;
+            description
+              "State information of PDU error counters";
+
+            uses rpki-cache-pdu-error-counters-common-state;
+            uses rpki-cache-pdu-error-counters-sent-state;
+          }
+        }
+     }
+  }
+
+  grouping rpki-cache-pdu-counters-top {
+    description
+      "Parameters related to PDU counts for a cache server";
+    container pdu-counters {
+      description
+        "PDU counter parameters resulting from communication with
+         cache server";
+      container received {
+        description
+          "Counts of PDUs that are receivied from cache
+           server";
+        container state {
+           config false;
+           description
+             "State information of PDU counters";
+
+           uses rpki-cache-pdu-counters-recv-state;
+        }
+      }
+      container sent {
+        description
+          "Counts of PDUs that originate from router";
+        container state {
+            config false;
+            description
+              "State information of PDU counters";
+
+            uses rpki-cache-pdu-counters-sent-state;
+         }
+      }
+    }
+  }
+
+  grouping rpki-cache-list {
+    description
+      "Parameters related to cache servers";
+    container caches {
+      description
+        "List of Rpki cache servers";
+      list cache {
+        key "name";
+        description
+          "List of cache servers configured on the system,
+           identified by name";
+        leaf name {
+          type leafref {
+             path "../config/name";
+          }
+          description
+            "Reference to the name of the cache server used as key
+             in the cache list";
+         }
+         container config {
+           config true;
+           description
+             "Configuration parameters relating to the cache server";
+
+           uses rpki-cache-config;
+         }
+         container state {
+           config false;
+           description
+             "State information relating to the cache server";
+
+           uses rpki-cache-config;
+           uses rpki-cache-state;
+         }
+
+         uses rpki-cache-connection-data-top;
+         uses rpki-cache-protocol-top;
+         uses rpki-cache-pdu-counters-top;
+         uses rpki-cache-pdu-error-counters-top;
+      }
+    }
+  }
+
+  grouping bgp-global-rpki-top {
+    description
+      "Top level grouping for the RPKI to router protocol";
+    container rpki {
+      description
+        "State for RPKI to router protocol";
+
+      uses rpki-cache-list;
+    }
+  }
+}
