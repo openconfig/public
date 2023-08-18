@@ -23,7 +23,7 @@ module openconfig-if-aggregate {
   description
     "Model for managing aggregated (aka bundle, LAG) interfaces.";
 
-  oc-ext:openconfig-version "2.5.4";
+  oc-ext:openconfig-version "2.5.0";
 
   revision "2023-08-15" {
     description
@@ -31,7 +31,7 @@ module openconfig-if-aggregate {
       container for individual interface link aggregation parameters at
       /interfaces/interface/ethernet/aggregation. Add port-priority to said
       container";
-    reference "2.5.4";
+    reference "2.5.0";
   }
 
   revision "2022-06-28" {
@@ -210,10 +210,10 @@ module openconfig-if-aggregate {
       belonging to a logical aggregate / LAG";
 
     leaf aggregate-id {
-      status deprecated;
       type leafref {
         path "/oc-if:interfaces/oc-if:interface/oc-if:name";
       }
+      status deprecated;
       description
         "Specify the logical aggregate interface to which
         this interface belongs";
@@ -236,7 +236,6 @@ module openconfig-if-aggregate {
 
     leaf port-priority {
       type uint16;
-      default "32768";
       description
         "This interface's priority in its aggregate interface";
     }
@@ -260,10 +259,9 @@ module openconfig-if-aggregate {
       }
 
       container state {
+        config false;
         description
           "Operational state for interface's aggregation parameters";
-
-        config false;
 
         uses aggregation-ethernet-config;
       }
