@@ -23,7 +23,16 @@ module openconfig-if-aggregate {
   description
     "Model for managing aggregated (aka bundle, LAG) interfaces.";
 
-  oc-ext:openconfig-version "2.4.4";
+  oc-ext:openconfig-version "2.5.4";
+
+  revision "2023-08-15" {
+    description
+      "Deprecate ethernet interface's aggregate-id and move it into a separate
+      container for individual interface link aggregation parameters at
+      /interfaces/interface/ethernet/aggregation. Add port-priority to said
+      container";
+    reference "2.5.4";
+  }
 
   revision "2022-06-28" {
     description
@@ -201,12 +210,63 @@ module openconfig-if-aggregate {
       belonging to a logical aggregate / LAG";
 
     leaf aggregate-id {
+      status deprecated;
       type leafref {
         path "/oc-if:interfaces/oc-if:interface/oc-if:name";
       }
       description
         "Specify the logical aggregate interface to which
         this interface belongs";
+    }
+  }
+
+  grouping aggregation-ethernet-config {
+    description
+      "Adds configuration items for dedicated aggregation container
+      for Ethernet interfaces belonging to a logical aggregate / LAG";
+
+    leaf aggregate-id {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description
+        "Specify the logical aggregate interface to which
+        this interface belongs";
+    }
+
+    leaf port-priority {
+      type uint16;
+      default "32768";
+      description
+        "This interface's priority in its aggregate interface";
+    }
+  }
+
+  grouping aggregation-ethernet-top {
+    description
+      "Top level configuration and state data for Ethernet interface's
+      aggregation parameters";
+
+    container aggregation {
+      description
+        "Configuration and operational state data for Ethernet interface's
+        aggregation parameters";
+
+      container config {
+        description
+          "Configuration for interface's aggregation parameters";
+
+        uses aggregation-ethernet-config;
+      }
+
+      container state {
+        description
+          "Operational state for interface's aggregation parameters";
+
+        config false;
+
+        uses aggregation-ethernet-config;
+      }
     }
   }
 
@@ -224,6 +284,13 @@ module openconfig-if-aggregate {
           "active when the interface is set to type LAG";
       }
     }
+  }
+
+  augment "/oc-if:interfaces/oc-if:interface/oc-eth:ethernet" {
+    description
+      "Adds LAG settings container for individual Ethernet interfaces";
+
+    uses aggregation-ethernet-top;
   }
 
   augment "/oc-if:interfaces/oc-if:interface/oc-eth:ethernet/" +
