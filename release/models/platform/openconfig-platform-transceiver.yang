@@ -66,7 +66,13 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.12.0";
+  oc-ext:openconfig-version "0.13.0";
+
+  revision "2023-08-22" {
+    description
+      "Add transceiver module temperature.";
+    reference "0.13.0";
+  }
 
   revision "2023-06-27" {
     description
@@ -327,6 +333,15 @@ module openconfig-platform-transceiver {
         Specification (CMIS).";
 
       reference "QSFP-DD CMIS 5.0 Table 8-122";
+    }
+
+    container module-temperature {
+      description
+        "Temperature of the transceiver unit. If avg/min/max statistics
+        are not supported, the target is expected to just supply the
+        instant value.";
+
+      uses oc-platform-types:avg-min-max-instant-stats-precision1-celsius;
     }
 
     container laser-temperature {
