@@ -1,0 +1,147 @@
+module openconfig-if-hash {
+    yang-version "1";
+    // namespace
+    namespace "http://openconfig.net/yang/openconfig-if-hash";
+    prefix "oc-hashing";
+    // import some basic types
+    import openconfig-extensions { prefix oc-ext; }
+    import openconfig-packet-match { prefix oc-pkt-match; }
+    // meta
+    organization "OpenConfig working group";
+    contact
+      "OpenConfig working group
+      netopenconfig@googlegroups.com";
+    description
+      "Model for managing hashing profiles that would be referenced by the
+      interfaces model.
+      IETF code is subject to the following copyright and license:
+      Copyright (c) IETF Trust and the persons identified as authors of
+      the code.
+      All rights reserved.
+      Redistribution and use in source and binary forms, with or without
+      modification, is permitted pursuant to, and subject to the license
+      terms contained in, the Simplified BSD License set forth in
+      Section 4.c of the IETF Trust's Legal Provisions Relating
+      to IETF Documents (http://trustee.ietf.org/license-info).";
+    oc-ext:openconfig-version "1.0.0";
+    revision "2023-08-08" {
+        description "Initial hashing model.";
+        reference "1.0.0";
+    }
+    // OpenConfig specific extensions for module metadata.
+    oc-ext:regexp-posix;
+    oc-ext:catalog-organization "openconfig";
+    oc-ext:origin "openconfig";
+    grouping hashing-inputs {
+        description
+          "Top level container for inputs to be used for hashing profiles.";
+        container config {
+            description
+              "Configurable items at the hashing inputs level.";
+            uses oc-pkt-match:ipv4-protocol-fields-config;
+            uses oc-pkt-match:ipv6-protocol-fields-config;
+            uses oc-pkt-match:transport-fields-config;
+        }
+        container state {
+            config false;
+            description
+              "Operational state data at the hashing inputs level.";
+            uses oc-pkt-match:ipv4-protocol-fields-config;
+            uses oc-pkt-match:ipv6-protocol-fields-config;
+            uses oc-pkt-match:transport-fields-config;
+        }
+    }
+    grouping hashing-profile-config {
+        description
+          "Configuration data for hashing profiles.";
+        leaf name {
+            type string;
+            description
+              "The name of the hashing profile.
+              When a configured user-controlled profile is created by the
+              system, it is instantiated with the same name in the
+              /profiles/profile[name]/state list.";
+        }
+        leaf algorithm {
+            default CRC;
+            type enumeration {
+                enum CRC {
+                    description
+                      "CRC hashing algorithm.";
+                }
+                enum CRC_32LO {
+                  description
+                    "CRC_32LO hashing algorithm.";
+                }
+                enum CRC_32HI {
+                  description
+                    "CRC_32HI hashing algorithm.";
+                }
+                enum CRC_CCITT {
+                  description
+                    "CRC using CCITT polynomial based hash algorithm.";
+                }
+                enum CRC_XOR {
+                  description
+                    "Combination of CRC and XOR based hash algorithm.";
+                }
+                enum XOR {
+                  description
+                    "XOR-based hash algorithm.";
+                }
+                enum RANDOM {
+                  description
+                    "Random-based hash algorithm.";
+                }
+            }
+            description
+              "The algorithm used when calculating a hash based on packet headers";
+        }
+        leaf offset {
+            type uint64;
+            description
+              "The offset used when calculating the hash algorithm";
+        }
+        leaf seed {
+            type uint64;
+            description
+              "The seed used to initialize the hash algorithm";
+        }
+        uses hashing-inputs;
+    }
+    grouping hashing-top {
+        description
+          "Top level grouping for hashing configuration and operational state
+          data.";
+        container profiles {
+            description
+              "Top level container for hashing, including configuration and
+              state data.";
+            list profile {
+                key "name";
+                description
+                  "The list of named profiles to be used on the device.";
+                leaf name {
+                    type leafref {
+                        path "../config/name";
+                    }
+                    description
+                      "References the name of the hashing profile.";
+                }
+                container config {
+                    description
+                      "Configurable items at the global hash profile level.";
+                    uses hashing-profile-config;
+                }
+                container state {
+                    config false;
+                    description
+                      "Operational state data at the global hash profile
+                      level.";
+                    uses hashing-profile-config;
+                }
+            }
+        }
+    }
+   // uses hashing-top;
+}
