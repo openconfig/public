@@ -22,8 +22,13 @@ submodule openconfig-ospfv2-lsdb {
     "An OpenConfig model for the Open Shortest Path First (OSPF)
     version 2 link-state database (LSDB)";
 
-  oc-ext:openconfig-version "0.4.3";
+  oc-ext:openconfig-version "0.5.0";
 
+  revision "2023-08-25" {
+    description
+      "Add leaf metric to lsdb-summary-lsa-state.";
+    reference "0.5.0";
+}
   revision "2023-08-09" {
     description
       "Update interface key to use interface-id type";
@@ -1218,6 +1223,13 @@ submodule openconfig-ospfv2-lsdb {
         "The mask of the network described by the Summary LSA
         represented as a CIDR mask.";
     }
+
+    leaf metric {
+      type oc-ospf-types:ospf-metric;
+      description
+        "The cost of utilising the summary link specified independent of TOS.";
+    }
+
   }
 
   grouping ospfv2-lsdb-asexternal-lsa-common-parameters {
