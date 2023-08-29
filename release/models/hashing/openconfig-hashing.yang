@@ -204,13 +204,6 @@ module openconfig-hashing {
                     description
                       "Configurable items at the global hash policy level.";
 
-                    container hash-field-modes {
-                        description
-                            "Configurable items at the hashing inputs level.";
-                        container config {
-                            uses hashing-inputs;
-                        }
-                    }
                     uses hashing-policy-config;
                 }
                 container state {
@@ -219,14 +212,23 @@ module openconfig-hashing {
                       "Operational state data at the global hash policy
                       level.";
 
-                    container hash-field-modes {
+                    uses hashing-policy-config;
+                }
+                container hash-field-modes {
+                    description
+                        "Container for specifying inputs to be used when
+                        calculating the hash.";
+                    container config {
                         description
                             "Configurable items at the hashing inputs level.";
-                        container state {
-                            uses hashing-inputs;
-                        }
+                        uses hashing-inputs;
                     }
-                    uses hashing-policy-config;
+                    container state {
+                        config false;
+                        description "Operational state data at the hashing
+                            inputs level.";
+                        uses hashing-inputs;
+                    }
                 }
             }
         }
