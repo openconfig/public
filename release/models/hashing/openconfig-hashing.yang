@@ -175,12 +175,6 @@ module openconfig-hashing {
               "The seed used to initialize the hash algorithm";
         }
 
-        container hash-field-modes {
-            description
-              "Configurable items at the hashing inputs level.";
-            uses hashing-inputs;
-        }
-
     }
 
     grouping hashing-top {
@@ -209,6 +203,14 @@ module openconfig-hashing {
                 container config {
                     description
                       "Configurable items at the global hash policy level.";
+
+                    container hash-field-modes {
+                        description
+                            "Configurable items at the hashing inputs level.";
+                        container config {
+                            uses hashing-inputs;
+                        }
+                    }
                     uses hashing-policy-config;
                 }
                 container state {
@@ -217,6 +219,13 @@ module openconfig-hashing {
                       "Operational state data at the global hash policy
                       level.";
 
+                    container hash-field-modes {
+                        description
+                            "Configurable items at the hashing inputs level.";
+                        container state {
+                            uses hashing-inputs;
+                        }
+                    }
                     uses hashing-policy-config;
                 }
             }
