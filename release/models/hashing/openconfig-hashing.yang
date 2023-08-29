@@ -1,5 +1,4 @@
 module openconfig-hashing {
-
     yang-version "1";
 
     // namespace
@@ -9,6 +8,7 @@ module openconfig-hashing {
 
     // import some basic types
     import openconfig-extensions { prefix oc-ext; }
+ //   import openconfig-packet-match { prefix oc-pkt-match; }
 
     // meta
     organization "OpenConfig working group";
@@ -30,8 +30,91 @@ module openconfig-hashing {
     }
 
     // OpenConfig specific extensions for module metadata.
+    oc-ext:regexp-posix;
     oc-ext:catalog-organization "openconfig";
     oc-ext:origin "openconfig";
+
+    typedef hash-field-type-ipv4 {
+        type enumeration {
+            enum NONE {
+                description "Do not use any IPv4 fields in the
+                    calculation of the hash.";
+            }
+            enum SRC_ADDRESS {
+                description "Use only the IPv4 source address in the
+                    calculation of the hash.";
+            }
+            enum DST_ADDRESS {
+                description "Use only the IPv4 destination address in the
+                    calculation of the hash.";
+            }
+            enum BOTH {
+                description "Use both the IPv4 source and
+                    destination addresses in the calculation of the
+                    hash.";
+            }
+            enum TARGET_DEFINED {
+                description "Use the default fields that are used by
+                    the device for calculating the hash.";
+            }
+        }
+    }
+
+    typedef hash-field-type-ipv6 {
+        type enumeration {
+            enum NONE {
+                description "Do not use any IPv6 fields in the
+                    calculation of the hash.";
+            }
+            enum SRC_ADDRESS {
+                description "Use only the IPv6 source address in the
+                    calculation of the hash.";
+            }
+            enum DST_ADDRESS {
+                description "Use only the IPv6 destination address in the
+                    calculation of the hash.";
+            }
+            enum BOTH {
+                description "Use both the IPv6 source and
+                    destination addresses in the calculation of the
+                    hash.";
+            }
+            enum TARGET_DEFINED {
+                description "Use the default fields that are used by
+                    the device for calculating the hash.";
+            }
+            enum FLOW_LABEL {
+                description "Use the flow label in the IPv6 header
+                    to calculate the hash.";
+            }
+        }
+    }
+
+    typedef hash-field-type-transport {
+        type enumeration {
+            enum NONE {
+                description "Do not use any transport fields in the
+                    calculation of the hash.";
+            }
+            enum SRC_PORT {
+                description "Use only the source port from the
+                    transport header in the calculation of the hash.";
+            }
+            enum DST_PORT {
+                description "Use only the destination port from the
+                    transport header in the calculation of the hash.";
+            }
+            enum BOTH {
+                description "Use both the source and
+                    destination ports from the transport header in
+                    the calculation of the hash.";
+            }
+            enum TARGET_DEFINED {
+                description "Use the default fields that are used by
+                    the device for calculating the hash.";
+            }
+        }
+    }
 
     grouping hashing-inputs {
         description
@@ -39,90 +122,20 @@ module openconfig-hashing {
 
         container hash-field-modes {
             description
-                "Fields to be used when calculating the hash.";
+              "Configurable items at the hashing inputs level.";
             leaf ipv4 {
-                type enumeration {
-                    enum NONE {
-                        description "Do not use any IPv4 fields in the
-                            calculation of the hash.";
-                    }
-                    enum SRC_ADDRESS {
-                        description "Use only the IPv4 source address in the
-                            calculation of the hash.";
-                    }
-                    enum DST_ADDRESS {
-                        description "Use only the IPv4 destination address in the
-                            calculation of the hash.";
-                    }
-                    enum BOTH {
-                        description "Use both the IPv4 source and
-                            destination addresses in the calculation of the
-                            hash.";
-                    }
-                    enum TARGET_DEFINED {
-                        description "Use the default fields that are used by
-                            the device for calculating the hash.";
-                    }
-                }
+                type hash-field-type-ipv4;
                 description "The IPv4 fields that should be used to
                     compute the hash.";
             }
             leaf ipv6 {
-                type enumeration {
-                    enum NONE {
-                        description "Do not use any IPv6 fields in the
-                            calculation of the hash.";
-                    }
-                    enum SRC_ADDRESS {
-                        description "Use only the IPv6 source address in the
-                            calculation of the hash.";
-                    }
-                    enum DST_ADDRESS {
-                        description "Use only the IPv6 destination address in the
-                            calculation of the hash.";
-                    }
-                    enum BOTH {
-                        description "Use both the IPv6 source and
-                            destination addresses in the calculation of the
-                            hash.";
-                    }
-                    enum TARGET_DEFINED {
-                        description "Use the default fields that are used by
-                            the device for calculating the hash.";
-                    }
-                    enum FLOW_LABEL {
-                        description "Use the flow label in the IPv6 header
-                            to calculate the hash.";
-                    }
-                }
+                type hash-field-type-ipv6;
                 description "The IPv6 fields that should be used to
                     compute the hash.";
             }
             leaf transport-ports {
-                type enumeration {
-                    enum NONE {
-                        description "Do not use any transport fields in the
-                            calculation of the hash.";
-                    }
-                    enum SRC_PORT {
-                        description "Use only the source port from the
-                            transport header in the calculation of the hash.";
-                    }
-                    enum DST_PORT {
-                        description "Use only the destination port from the
-                            transport header in the calculation of the hash.";
-                    }
-                    enum BOTH {
-                        description "Use both the source and
-                            destination ports from the transport header in
-                            the calculation of the hash.";
-                    }
-                    enum TARGET_DEFINED {
-                        description "Use the default fields that are used by
-                            the device for calculating the hash.";
-                    }
-                }
-                description "The trasport layer fields that should be used to
+                type hash-field-type-transport;
+                description "The transport layer fields that should be used to
                     compute the hash.";
             }
         }
@@ -203,4 +216,6 @@ module openconfig-hashing {
             }
         }
     }
+
+    uses hashing-top;
 }
