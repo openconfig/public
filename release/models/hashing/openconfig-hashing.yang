@@ -123,26 +123,22 @@ module openconfig-hashing {
 
     grouping hashing-inputs {
         description
-          "Top level container for inputs to be used for hashing policies.";
+            "Top level container for inputs to be used for hashing policies.";
 
-        container hash-field-modes {
-            description
-              "Configurable items at the hashing inputs level.";
-            leaf ipv4 {
-                type hash-field-type-ipv4;
-                description "The IPv4 fields that should be used to
-                    compute the hash.";
-            }
-            leaf ipv6 {
-                type hash-field-type-ipv6;
-                description "The IPv6 fields that should be used to
-                    compute the hash.";
-            }
-            leaf transport-ports {
-                type hash-field-type-transport;
-                description "The transport layer fields that should be used to
-                    compute the hash.";
-            }
+        leaf ipv4 {
+            type hash-field-type-ipv4;
+            description "The IPv4 fields that should be used to
+                compute the hash.";
+        }
+        leaf ipv6 {
+            type hash-field-type-ipv6;
+            description "The IPv6 fields that should be used to
+                compute the hash.";
+        }
+        leaf transport-ports {
+            type hash-field-type-transport;
+            description "The transport layer fields that should be used to
+                compute the hash.";
         }
     }
 
@@ -179,6 +175,12 @@ module openconfig-hashing {
               "The seed used to initialize the hash algorithm";
         }
 
+        container hash-field-modes {
+            description
+              "Configurable items at the hashing inputs level.";
+            uses hashing-inputs;
+        }
+
     }
 
     grouping hashing-top {
@@ -208,7 +210,6 @@ module openconfig-hashing {
                     description
                       "Configurable items at the global hash policy level.";
                     uses hashing-policy-config;
-                    uses hashing-inputs;
                 }
                 container state {
                     config false;
@@ -217,7 +218,6 @@ module openconfig-hashing {
                       level.";
 
                     uses hashing-policy-config;
-                    uses hashing-inputs;
                 }
             }
         }
