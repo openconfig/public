@@ -8,7 +8,6 @@ module openconfig-hashing {
 
     // import some basic types
     import openconfig-extensions { prefix oc-ext; }
- //   import openconfig-packet-match { prefix oc-pkt-match; }
 
     // meta
     organization "OpenConfig working group";
@@ -58,6 +57,8 @@ module openconfig-hashing {
                     the device for calculating the hash.";
             }
         }
+        description "The IPv4 fields that should be used to
+            compute the hash.";
     }
 
     typedef hash-field-type-ipv6 {
@@ -88,6 +89,8 @@ module openconfig-hashing {
                     to calculate the hash.";
             }
         }
+        description "The IPv6 fields that should be used to
+            compute the hash.";
     }
 
     typedef hash-field-type-transport {
@@ -114,6 +117,8 @@ module openconfig-hashing {
                     the device for calculating the hash.";
             }
         }
+        description "The trasport layer fields that should be used to
+            compute the hash.";
     }
 
     grouping hashing-inputs {
@@ -174,7 +179,6 @@ module openconfig-hashing {
               "The seed used to initialize the hash algorithm";
         }
 
-        uses hashing-inputs;
     }
 
     grouping hashing-top {
@@ -204,6 +208,7 @@ module openconfig-hashing {
                     description
                       "Configurable items at the global hash policy level.";
                     uses hashing-policy-config;
+                    uses hashing-inputs;
                 }
                 container state {
                     config false;
@@ -212,6 +217,7 @@ module openconfig-hashing {
                       level.";
 
                     uses hashing-policy-config;
+                    uses hashing-inputs;
                 }
             }
         }
