@@ -25,7 +25,13 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "5.4.0";
+  oc-ext:openconfig-version "5.5.0";
+
+  revision "2023-08-17" {
+    description
+      "Add identities related to RPKI";
+    reference "5.5.0";
+  }
 
   revision "2023-03-31" {
     description
@@ -360,6 +366,83 @@ module openconfig-bgp-types {
       community value";
     reference "RFC3765";
   }
+
+  identity TRANSPORT_PROTOCOL {
+     description
+       "IP transport Protocol type";
+  }
+
+  identity TCP {
+     base TRANSPORT_PROTOCOL;
+     description
+       "Transmission Control Protocol";
+  }
+
+  identity TLS {
+    base TRANSPORT_PROTOCOL;
+    description
+      "Transport Layer Security";
+  }
+
+  identity RPKI_CACHE_STATE {
+    description
+      "Operational state of the RPKI cache server";
+  }
+
+  identity RPKI_CACHE_IDLE {
+    base RPKI_CACHE_STATE;
+    description
+      "Initial cache state";
+  }
+
+  identity RPKI_CACHE_CONNECTED {
+    base RPKI_CACHE_STATE;
+    description
+      "Connected but not synced";
+  }
+
+  identity RPKI_CACHE_REQUEST_ROA_RESET {
+    base RPKI_CACHE_STATE;
+    description
+      "Sent a reset query";
+  }
+
+  identity RPKI_CACHE_REQUEST_ROA_UPDATE {
+    base RPKI_CACHE_STATE;
+    description
+      "Sent a serial query";
+  }
+
+  identity RPKI_CACHE_SYNCING {
+    base RPKI_CACHE_STATE;
+    description
+      "Processing Route Origin Authorizations";
+  }
+
+  identity RPKI_CACHE_SYNCED {
+    base RPKI_CACHE_STATE;
+    description
+      "Cache is synced";
+  }
+
+  identity RPKI_CACHE_DISABLED {
+    base RPKI_CACHE_STATE;
+    description
+      "Protocol error";
+  }
+
+  identity RPKI_CACHE_DISCONNECTED {
+    base RPKI_CACHE_STATE;
+    description
+      "TCP/PAM error";
+  }
+
+  identity RPKI_CACHE_MISCONFIGURED {
+    base RPKI_CACHE_STATE;
+    description
+      "Invalid configuration";
+  }
+
 
   typedef bgp-session-direction {
     type enumeration {
