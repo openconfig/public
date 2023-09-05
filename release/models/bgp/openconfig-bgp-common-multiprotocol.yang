@@ -24,7 +24,14 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "9.4.1";
+  oc-ext:openconfig-version "9.5.0";
+
+  revision "2023-09-05" {
+    description
+      "Allow configuring VPN label allocation for received paths
+      to IPv4 and IPv6 Unicast L3VPN AFI-SAFI.";
+    reference "9.5.0";
+  }
 
   revision "2023-06-27" {
     description
@@ -574,6 +581,8 @@ submodule openconfig-bgp-common-multiprotocol {
       "Common configuration applied across L3VPN for IPv4
        and IPv6";
 
+    uses bgp-common-mp-l3vpn-ipv4-ipv6-unicast-common-config;
+
     // placeholder -- specific configuration options that are generic
     // across IPv[46] unicast address families.
     uses bgp-common-mp-all-afi-safi-common;
@@ -698,6 +707,19 @@ submodule openconfig-bgp-common-multiprotocol {
       default "false";
       description
         "If set to true, send the default-route to the neighbor(s)";
+    }
+  }
+
+  grouping bgp-common-mp-l3vpn-ipv4-ipv6-unicast-common-config {
+    description
+      "Common configuration parameters applied across L3VPN for IPv4
+       and IPv6";
+
+    leaf allocate-vpn-label-received-paths {
+      type boolean;
+      description
+        "This leaf indicates whether the allocation of
+        locally computed VPN label is enabled for received VPN paths";
     }
   }
 }
