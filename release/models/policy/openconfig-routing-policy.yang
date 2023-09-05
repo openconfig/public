@@ -55,8 +55,12 @@ module openconfig-routing-policy {
     statement has either accept-route or reject-route actions, policy
     evaluation of the current policy definition stops, and no further
     policy definitions in the chain are evaluated.  If the action
-    statement has the continue action, policy evaluation proceeds to
-    the next statement. Continue is the default policy result action.
+    statement has the NEXT-STATEMENT action, policy evaluation proceeds
+    to the next statement. If the action statement has the NEXT-POLICY
+    action, evaluation of statements within the current policy stops.
+    Any modifications to a route are preserved and evaluation proceeds
+    to the next policy, if any.  The NEXT-STATEMENT is the default
+    policy result action.
 
     If the condition is not satisfied, then evaluation proceeds to
     the next policy statement.  If none of the policy statement
@@ -177,12 +181,17 @@ module openconfig-routing-policy {
         description "Policy rejects the route and evaluation of the
         current policy definition stops.";
       }
-      enum CONTINUE {
+      enum NEXT-STATEMENT {
         description "Evaluation of the policy will continue to the
         next statement.";
       }
+      enum NEXT-POLICY {
+        description "Evaluation of statements in current policy will
+        stop.  Any modifications to the route are preserved and
+        evaluation proceeds to the next policy.";
+      }
     }
-    default CONTINUE;
+    default NEXT-STATEMENT;
     description
       "Type used to specify route disposition in
       a policy chain.";
