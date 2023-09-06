@@ -644,7 +644,7 @@ module openconfig-interfaces {
     }
   }
 
-grouping interface-common-counters-state {
+  grouping interface-common-counters-state {
     description
       "Operational state representing interface counters and statistics
       applicable to (physical) interfaces and (logical) subinterfaces.";
@@ -951,6 +951,15 @@ grouping interface-common-counters-state {
         between up and down since the time the device restarted
         or the last-clear time, whichever is most recent.";
       oc-ext:telemetry-on-change;
+    }
+
+    leaf resets {
+      type oc-yang:counter64;
+      description
+        "Number of times the interface hardware has been reset.  The
+        triggers and effects of this event are hardware-specifc.";
+      oc-ext:telemetry-on-change;
+
     }
   }
 
