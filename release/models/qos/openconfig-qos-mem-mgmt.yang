@@ -29,7 +29,13 @@ submodule openconfig-qos-mem-mgmt {
       per-queue basis, and determine how packets are marked/dropped within
       the queue instantiation.";
 
-  oc-ext:openconfig-version "0.10.0";
+  oc-ext:openconfig-version "0.10.1";
+
+  revision "2023-09-06" {
+    description
+      "Clarification on WRED weight in case it is not present";
+    reference "0.10.1";
+  }
 
   revision "2023-07-26" {
     description
@@ -398,8 +404,8 @@ submodule openconfig-qos-mem-mgmt {
         The previous average is more important for high values of n. Peaks
         and lows in queue size are smoothed by a high value. For low values
         of n, the average queue size is close to the current queue size.
-        
-        When this leaf is not present, implementation default value is 
+
+        When this leaf is not present, implementation default value is
         applied.";
     }
 
