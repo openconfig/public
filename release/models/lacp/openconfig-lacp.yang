@@ -162,12 +162,6 @@ module openconfig-lacp {
     description
       "Operational status data for the member interfaces";
 
-    leaf interface {
-      type oc-if:base-interface-ref;
-      description
-        "Reference to interface member of the LACP aggregate";
-    }
-
     leaf activity {
       type lacp-activity-type;
       description "Indicates participant is active or passive";
@@ -248,12 +242,6 @@ module openconfig-lacp {
       description
         "Port number of the partner (remote) port for this member
         port";
-    }
-
-    leaf port-priority {
-      type uint16;
-      description
-        "Member interface's priority in its aggregate interface.";
     }
 
     leaf partner-port-priority {
@@ -371,6 +359,7 @@ grouping aggregation-lacp-members-statistics {
           description
             "Operational state data for aggregate members";
 
+          uses aggregation-lacp-members-config;
           uses aggregation-lacp-members-state;
           uses aggregation-lacp-members-statistics;
         }
