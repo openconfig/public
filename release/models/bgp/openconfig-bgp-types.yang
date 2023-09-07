@@ -25,7 +25,13 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "5.4.0";
+  oc-ext:openconfig-version "5.5.0";
+
+  revision "2023-09-06" {
+    description
+      "Add GRACEFUL_SHUTDOWN as a BGP_WELL_KNOWN_STD_COMMUNITY";
+    reference "5.4.0";
+  }
 
   revision "2023-03-31" {
     description
@@ -359,6 +365,15 @@ module openconfig-bgp-types {
       from bilateral peer sessions when they are tagged with this
       community value";
     reference "RFC3765";
+  }
+
+  identity GRACEFUL_SHUTDOWN {
+    base BGP_WELL_KNOWN_STD_COMMUNITY;
+    description
+      "An autonomous system which supports the graceful shutdown
+      receiver procedure receiving NLRI tagged with this community
+      will set LOCAL_PREF to a low value for those NLRI.";
+    reference "RFC8326";
   }
 
   typedef bgp-session-direction {
