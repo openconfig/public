@@ -1,0 +1,684 @@
+module openconfig-kubernetes {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/system/kubernetes";
+
+  prefix "oc-k8s";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-kubernetes-types { prefix oc-k8s-types; }
+  import openconfig-inet-types { prefix oc-inet; }
+
+  // Include submodules:
+  // openconfig-kubernetes-state contains groupings to represent with kubectl get
+  // and other commands can represent
+  include openconfig-kubernetes-state;
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines configuration and operational state data
+    related to a system Kubernetes cluster.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+
+  revision "2023-06-01" {
+    description
+      "Initial public release";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // identity statements
+
+  // typedef statements
+
+  // grouping statements
+  grouping container-instance-config {
+    description
+      "Configuration of a container instance with all data necessary to install and activate";
+
+    leaf name {
+      type string;
+      description
+        "Name for the container instantiated in the cluster";
+    }
+
+    leaf image {
+      type string;
+      description
+        "Image name to be instantiated for this container";
+    }
+
+    container environment-variables {
+      description
+        "Environment variables to be set for this container";
+
+      uses oc-k8s-types:name-value-list-config;
+    }
+
+    container ports {
+      description
+        "List of ports to be exposed for a container";
+
+      uses oc-k8s-types:name-port-list-config;
+    }
+  }
+
+  grouping match-labels-config {
+    description
+      "Match label configuration information for the selector";
+
+    leaf app {
+      type string;
+      description
+        "Label name for this match";
+    }
+  }
+
+  grouping selector-config {
+    description
+      "Selector information provided for a deployment";
+
+    uses match-labels-config;
+  }
+
+  grouping labels-config {
+    description
+      "Label information provided for an object";
+
+    leaf app {
+      type string;
+      description
+        "Label name for this object";
+    }
+  }
+
+  grouping annotations-config {
+    description
+      "Additional information provided for an object";
+
+    leaf description {
+      type string;
+      description
+        "Summary description of this object";
+    }
+  }
+
+  grouping service-port-config {
+    description
+      "Service port configuration";
+
+    leaf port {
+      type oc-inet:port-number;
+      mandatory true;
+      description
+        "Port service is listening on in the container";
+    }
+
+    leaf protocol {
+      type oc-k8s-types:service-protocol-type;
+      mandatory true;
+      description
+        "Protocol type of this service specification";
+    }
+
+    leaf target-port {
+      type oc-inet:port-number;
+      mandatory true;
+      description
+        "Port exposed outside of the container for this service";
+    }
+
+    leaf node-port {
+      type oc-inet:port-number;
+      description
+        "Port exposed outside of the container for this service when service type is NodePort";
+    }
+  }
+
+  grouping metadata-config {
+     description
+      "Additional information provided for an object or resource.  Metadata is used in a number of object and
+      resource definitions with differing parameters dependent on context.";
+
+    leaf name {
+      type string;
+      description
+        "Reference name for a resource or object.  Name is not required so that an application may choose to
+        utilize the containing instance name as the metadata name and reduce the required configuration data.";
+    }
+
+    leaf namespace {
+      type string;
+      description
+        "Namespace distinguisher for this resource or object";
+    }
+
+    leaf resource-version {
+      type string;
+      description
+        "Version reference for this resource or object";
+    }
+
+    leaf uid {
+      type string;
+      description
+        "User identification reference for this resource or object";
+    }
+
+    leaf creation-timestamp {
+      type string;
+      description
+        "Unformatted timestamp reference for the creation of this resource or object";
+    }
+
+    container labels {
+      description
+        "Labels associated with this resource or object";
+      uses labels-config;
+    }
+
+    container annotations {
+      description
+        "Annotations associated with this resource or object";
+      uses annotations-config;
+    }
+  }
+
+  grouping service-ports-config {
+    description
+      "Configuration of the ports utilized by this service";
+
+    container ports {
+      description
+        "Ports utilized by this service";
+
+      list port {
+        key "port";
+        description
+          "Port number utilized by the service";
+
+        leaf port {
+          type leafref {
+            path "../config/port";
+          }
+          description
+            "Reference to the service port configuration";
+        }
+
+        container config {
+          description
+            "Port configuration for a service";
+          uses service-port-config;
+        }
+      }
+    }
+  }
+
+  grouping container-spec-config {
+    description
+      "Configuration for all containers to be instantiated in the system";
+
+    container containers {
+      description
+        "Containers to be instatiated for this cluster";
+
+      list container {
+        key "name";
+        description
+          "Container to be instantiated";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the container configuration for a cluster";
+        }
+
+        container config {
+          description
+            "Configuration data for a Kubernetes object";
+          uses container-instance-config;
+        }
+      }
+    }
+  }
+
+  grouping template-config {
+    description
+      "Deployment template configuration";
+
+    container metadata {
+      description
+        "Metadata describing this instance";
+      uses metadata-config;
+    }
+
+    container spec {
+      description
+        "Specfication of the container(s) to execute in this deployment";
+      uses container-spec-config;
+    }
+  }
+
+  grouping service-spec-config {
+    description
+      "Services definition for the containers to be instantiated in the system";
+
+    leaf type {
+      type identityref {
+        base "oc-k8s-types:SERVICE_TYPE";
+      }
+      description
+        "Type of service to be instantiated";
+    }
+
+    container selector {
+      description
+        "Service selector configuration";
+      uses selector-config;
+    }
+
+    uses service-ports-config;
+
+  }
+
+  grouping deployment-spec-config {
+    description
+      "Deployment intent for the containers to be instantiated in the system";
+
+    leaf replicas {
+      type uint16;
+      default 1;
+      description
+        "Number of instances of this deployment to provide N-1 redundancy protection";
+    }
+
+    container selector {
+      description
+        "Deployment selector configuration";
+      uses selector-config;
+    }
+
+    container template {
+      description
+        "Template for container instantiation intent";
+      uses template-config;
+    }
+  }
+
+  grouping secret-config {
+    description
+      "Kubernetes 'Secret' configuration that defines key / value pairs used in a cluster";
+
+    leaf api-version {
+      type oc-k8s-types:api-version-type;
+      default V1;
+      description
+        "API version specified for this object";
+    }
+
+    container metadata {
+      description
+        "Metadata describing this instance";
+      uses metadata-config;
+    }
+
+    leaf type {
+      type identityref {
+        base "oc-k8s-types:SECRET_DATA_TYPE";
+      }
+      default oc-k8s-types:OPAQUE;
+      description
+        "Data representation type for the secrets";
+    }
+
+    container data {
+      description
+        "Key / value pairs definition expected to be base64 encoded";
+      uses oc-k8s-types:name-value-list-config;
+    }
+  }
+
+  grouping object-secret-config {
+    description
+      "Object type SECRET configuration";
+
+    container secret {
+      description "Container for cluster Secret configuration";
+
+      uses secret-config;
+    }
+  }
+
+  grouping configmap-config {
+    description
+      "Kubernetes 'ConfigMap' configuration that defines key / value pairs used in a cluster";
+
+    leaf api-version {
+      type oc-k8s-types:api-version-type;
+      default V1;
+      description
+        "API version specified for this object";
+    }
+
+    container metadata {
+      description
+        "Metadata describing this instance";
+      uses metadata-config;
+    }
+
+    container data {
+      description
+        "Key / value pairs definition";
+      uses oc-k8s-types:name-value-list-config;
+    }
+  }
+
+  grouping object-configmap-config {
+    description
+      "Object type POD configuration";
+
+    container config-map {
+      description "Container for cluster ConfigMap configuration";
+
+      uses configmap-config;
+    }
+  }
+
+  grouping pod-config {
+    description
+      "Kubernetes 'Pod' configuration that defines one or more containers running an application";
+
+    leaf api-version {
+      type oc-k8s-types:api-version-type;
+      default V1;
+      description
+        "API version specified for this object";
+    }
+
+    container metadata {
+      description
+        "Metadata describing this instance";
+      uses metadata-config;
+    }
+
+    container spec {
+      description
+        "Specfication of the container(s) to execute in this pod";
+      uses container-spec-config;
+    }
+  }
+
+  grouping object-pod-config {
+    description
+      "Object type POD configuration";
+
+    container pod {
+      description "Container for specific pod object configuration";
+
+      uses pod-config;
+    }
+  }
+
+  grouping service-config {
+    description
+      "Kubernetes 'Service' configuration that makes pods accessible on the network";
+
+    leaf api-version {
+      type oc-k8s-types:api-version-type;
+      default V1;
+      description
+        "API version specified for this object";
+    }
+
+    container metadata {
+      description
+        "Metadata describing this instance";
+      uses metadata-config;
+    }
+
+    container spec {
+      description
+        "Specfication of the container(s) to execute in this pod";
+      uses service-spec-config;
+    }
+  }
+
+  grouping object-service-config {
+    description
+      "Object type SERVICE configuration";
+
+    container service {
+      description "Container for specific service object configuration";
+
+      uses service-config;
+    }
+  }
+
+  grouping deployment-config {
+    description
+      "Kubernetes 'Deployment' configuration to declare intended state of replicas and pods";
+
+    leaf api-version {
+      type oc-k8s-types:apps-api-version-type;
+      default APPSV1;
+      description
+        "Apps/API version specified for this object";
+    }
+
+    container metadata {
+      description
+        "Metadata describing this instance";
+      uses metadata-config;
+    }
+
+    container spec {
+      description
+        "Specfication of the the deployment of container(s) to execute, include the intent of replication";
+
+      uses deployment-spec-config;
+    }
+  }
+
+  grouping object-deployment-config {
+    description
+      "Object type DEPLOYMENT configuration";
+
+    container deployment {
+      description "Container for specific deployment object configuration";
+
+      uses deployment-config;
+    }
+  }
+
+  grouping object-config {
+    description
+      "Highest level Kubernetes data model structure representing a resource or service";
+
+    leaf name {
+      type string;
+      description
+        "Name of Kubernetes object defined in this configuration.";
+    }
+
+    leaf kind {
+      type identityref {
+        base "oc-k8s-types:RESOURCE_OBJECT_TYPE";
+      }
+      mandatory true;
+      description
+        "Type of Kubernetes object type defined in this configuration.";
+    }
+
+    uses object-pod-config {
+      when "./kind = 'oc-k8s-types:POD'" {
+        description
+          "Pod-specific configuration";
+      }
+    }
+    uses object-deployment-config {
+      when "./kind = 'oc-k8s-types:DEPLOYMENT'" {
+        description
+          "Deployment-specific configuration";
+      }
+    }
+    uses object-service-config {
+      when "./kind = 'oc-k8s-types:SERVICE'" {
+        description
+          "Service-specific configuration";
+      }
+    }
+    uses object-configmap-config {
+      when "./kind = 'oc-k8s-types:CONFIG_MAP'" {
+        description
+          "ConfigMap-specific configuration";
+      }
+    }
+    uses object-secret-config {
+      when "./kind = 'oc-k8s-types:SECRET'" {
+        description
+          "Secret-specific configuration";
+      }
+    }
+  }
+
+  grouping objects-top {
+    description
+      "Top-level grouping for resources and services modeled for a Kubernetes cluster";
+
+    container objects {
+      description
+        "Resources and services modeled for a Kubernetes cluster";
+
+      list object {
+        key "name";
+        description
+          "List of objects to be instantiated for this cluster";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the configuration of a resource or service object";
+        }
+
+        container config {
+          description
+            "Configuration data for a Kubernetes object";
+          uses object-config;
+        }
+      }
+    }
+  }
+
+  grouping cluster-config {
+    description
+      "Configuration data for a Kubernetes cluster.  Models the data may ultimately be represented
+      in a set of manifest files for instantiating and operating the cluster";
+
+    leaf name {
+      type string;
+      description
+        "Name for this cluster configuration, primarily used as the key for the list of clusters
+        in the data model, but also likely to be used in forming identifying file names and other
+        system artifacts.  Examples of possible different clusters per system include 'production',
+        'dev', etc.";
+    }
+
+    uses objects-top;
+
+  }
+
+  grouping clusters-top {
+    description
+      "Top-level grouping for cluster container with list of clusters";
+
+    container clusters {
+      description
+        "Container for the list of Kubernetes clusters in the system";
+
+      list cluster {
+        key "name";
+        description
+          "List of clusters to be instantiated in the system";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the configuration of specific cluster";
+        }
+
+        container config {
+          description
+            "Configuration data for a Kubernetes object";
+          uses cluster-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for a Kubernetes cluster";
+          uses cluster-config;
+          uses cluster-state;
+        }
+      }
+    }
+  }
+
+  grouping kubernetes-clusters-top {
+    description
+      "Top-level grouping for Kubernetes cluster configuration and management";
+
+    uses clusters-top;
+  }
+
+  grouping kubernetes-operations-top {
+    description
+      "Top-level grouping for standardized Kubernetes operations and placeholder for augmentation for
+      application-specific operations";
+
+    container operations {
+    }
+  }
+
+  grouping kubernetes-top {
+    description
+      "Top-level grouping for system Kubernetes configuration and management";
+
+    container kubernetes {
+      description
+        "Container for Kubernetes configuration and management";
+
+      uses kubernetes-clusters-top;
+      uses kubernetes-operations-top;
+    }
+  }
+
+
+  // data definition statements
+
+  // augment statements
+
+  // rpc statements
+
+  // notification statements
+}
