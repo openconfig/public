@@ -1,6 +1,6 @@
 # Intergrated Circuit aggregated pipeline counters guide
 ## Introduction
-This gude discuss semantcs of different counters provided under 
+This gude discuss semantics of different counters provided under 
 `openconfig-platform/components/component/integrated-circuit/pipeline-counters` container.
 The "Integrated Circuit" or I-C, in this document is abstract term refering ASIC or NPUs (or combination of both) that provides packet processing capabilities.
 
@@ -86,11 +86,13 @@ Drops assotiated tith QoS queue tail or AQM are result of egress interface conge
 The OpenConfig definition for `congestion-aggregate` clerly excludes "queue drop counters". It has also perfect sens to not coult QoS queue drops under this `congestion-aggregate` in order to keep it a clear signal of hitting I-C performance limitations, rather then blend it with basic, simple egress interface speed limitations.
 
 ### Per-Block drop copunters
-[TODO] more detailed description
+[TODO] more detailed description for standard OpenConfig drop counters defined for Interface-, Lookup-, Queueing-, Fabric-  and Host-Interface- blocks. Also discuss relationship with Control plane traffic packets/octets counters.
 ### Vendor extensions
 Please refer to [Vendor-Specific Augmentation for Pipeline Counter](vendor_counter_guide.md)
 ## Error counters
 This counters do not counts packets of bytes. They counte error events per block.
 [TODO] more detailed description
 ## Control plane traffic packets/octets counters
-[TODO] more detailed description
+[TODO] more detailed description. Also discuss relationship with Host-Interface block counters.
+### Standard OpenConfig counters
+### Vendor extensions
