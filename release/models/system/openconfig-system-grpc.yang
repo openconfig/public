@@ -22,9 +22,15 @@ module openconfig-system-grpc {
     to be included in the list.";
 
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.0.1";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2023-09-19" {
+    description
+      "Minor patch to remove transport-security default of true";
+    reference "1.0.1";
+  }
 
   revision "2022-04-19" {
     description
@@ -152,11 +158,11 @@ module openconfig-system-grpc {
 
     leaf transport-security {
       type boolean;
-      default true;
       description
-        "Use gRPC transport security (e.g., SSL or TLS). Enabled by default.
-        This leaf allows transport security to be disabled for use cases that
-        are not supported, such as lab testing.";
+        "Use gRPC transport security (e.g., SSL or TLS). It is
+        recommended that transport-security be enabled at all times
+        except for use cases that are not supported, such as lab
+        testing.";
     }
 
     leaf certificate-id {
