@@ -24,6 +24,7 @@ module: openconfig-platform
                     +--ro oc-ppc:urpf-aggregate?                oc-yang:counter64
 ```
 #### urpf-aggregate
+> From OpenConfig definition:\
 >This aggregation of counters represents the conditions in which packets are dropped due to failing uRPF lookup check. This counter and the packet-processing-aggregate counter should be incremented for each uRPF packet drop.
 
 This counter counts packet discarded as resutlt of Unicast Reverse Path Forwarding verification. ([RFC2827](https://datatracker.ietf.org/doc/html/rfc2827), [RFC3704](https://datatracker.ietf.org/doc/html/rfc3704)).
@@ -32,6 +33,7 @@ This counter counts packet discarded as resutlt of Unicast Reverse Path Forwardi
 The increments of this counter are typically signal of some form of attack with spoofed sourec address. Typically dDOS class.
 
 #### packet-processing-aggregate
+> From OpenConfig definition:\
 > This aggregation of counters represents the conditions in which packets are dropped due to legitimate forwarding decisions (ACL drops, No Route etc.)
 
 This counter counts packet discarded as resutlt of processing **non-corrupted packtet** against **legitimate, non-corrupted** state of I-C program (FIB content, ACL content, rate-limiting token-bucktes) which mandate packet drop. The examples of this class of discard are:
@@ -53,9 +55,10 @@ If prolonged packet drops are found to be caused by lack of FIB entry for incomm
 If implemetation supports `urpf-aggregate` counter, packets discarded due to uRPF should not be counted as `packet-processing-aggregate`. Else, uRPF discarded oacket should be counted against this counter.
 
 #### congestion-aggregate
->This tracks the aggregation of all counters where the expected conditions of packet drops due to internal congestion in some block of the hardware that may not be visible in through other congestion indicators like interface discards or queue drop counters.
+> From OpenConfig definition:\
+>This tracks the aggregation of all counters where the expected conditions of packet drops due to internal congestion in some block of the hardware that **may not be visible** in through other congestion indicators like interface discards or **queue drop counters**.
 
-This counter counts packet discarded as resutlt of exceedding performance limits of Integrated-Circuit. 
+This counter counts packet discarded as resutlt of exceedding performance limits of Integrated-Circuit, when it sprocess non-corruptec packets against to legitimate, non-corrupted progreamming state of I-C.
 
 The typial example is overloading given IC with higher packet rate (pps) then given chip can handle. For exeple, let's assume chip X can process 3.6bps of incomming traffic and 2000 Mpps. However if averange incoming packet size is 150B, at full ingress rate this become 3000Mpps. Hence 1/3 of packets would be cropped and should be counted against `congestion-aggregate`.
 
@@ -64,13 +67,24 @@ Another example is the case when some I_C data bus is too narrow/slow for handli
 Yet another example is the case where extreemly large and long ACL/filter requires more cycles to process then NPU is bugeted for. 
 
 ##### Usability
-
+The increments of this counter are signal of given Integrated Circuit being overhelmed by incomming traffic and complexity of packet processing that is required. 
 
 #### adverse-aggregate
-This captures the aggregation of all counters where the switch is unexpectedly dropping packets. Occurrence of these drops on a stable (no recent hardware or config changes) and otherwise healthy switch needs further investigation.
+> From OpenConfig definition:\
+> This captures the aggregation of all counters where the switch is **unexpectedly** dropping packets. Occurrence of these drops on a stable (no recent hardware or config changes) and otherwise healthy switch needs further investigation.
 
+This counter counts packet discarded as resutlt of **corrupted** programming state in I-C or **corrupted** data structures of packet descriptors.
+
+Note: corrupted packet recived on ingress interface should be counted separatly in `/interfaces/interface/state/counters/in-errors` and NOT counted as `adverse-aggregate`. This is because incomming corrupted packets are NOT a signal of adverse state of given I-C (but rather of upstream system). Therefore it is better not to count such drops as `adverse-aggregate` to keep it clean signal of I-C adverse state.
+
+
+##### Usability
+The increments of this counter are generally signall of some hardware defect (e.g. memory errors or signal integrity issues) or (micro)code softwafe defects. 
 
 #### Queue tail and AQM drops exeption discussion.
+Drops assotiated tith QoS queue tail or AQM are result of egress interface congestion. What is NOT the same as I-C congestion, and shoudl be considered normal, expected state from platform (router) point of view. It may be not expected state form Network design point of view but this perspective is not what individual network device is aware of.
+The OpenConfig definition for `congestion-aggregate` clerly excludes "queue drop counters". It has also perfect sens to not coult QoS queue drops under this `congestion-aggregate` in order to keep it a clear signal of hitting I-C performance limitations, rather then blend it with basic, simple egress interface speed limitations.
+
 ### Per-Block drop copunters
 [TODO] more detailed description
 ### Vendor extensions
