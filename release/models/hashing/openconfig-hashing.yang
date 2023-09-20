@@ -203,6 +203,13 @@ module openconfig-hashing {
             description
                 "The seed used to initialize the hash algorithm";
         }
+
+        leaf algorithm {
+            type string;
+            description
+                "The name of hash algorithm. This algorithm MUST
+                be a supported algorithm";
+        }
     }
 
     grouping hashing-top {
@@ -255,12 +262,6 @@ module openconfig-hashing {
                         config false;
                         description "Operational state data at the hashing
                             inputs level.";
-                        leaf-list supported-algorithms {
-                            description
-                                "List of the supported algorithms for supported
-                                algorithms.";
-                            type string;
-                        }
                         uses hashing-inputs;
                     }
                     container ipv4-fields {
@@ -271,35 +272,43 @@ module openconfig-hashing {
                         description "ipv6 hashing input fields.";
                         uses ipv6-fields-top;
                     }
-                    container algorithm {
-                        description "algorithm information for hashing input.";
-                        container config {
-                            uses algorithms-top;
-                        }
-                        container state {
-                            config false;
-                            uses algorithms-top;
-                        }
-                    } 
                 }
             }
         }
     }
 
-    grouping algorithms-top {
-        leaf name {
-            type string;
+    grouping supported-algorithms-top {
+        description
+            "Top-level container of the supported algorithms for supported
+            algorithms.";
+        container supported-algorithms {
+            config false;
             description
-                "The name of hash algorithm. This algorithm MUST
-                be a supported algorithm";
+                "Container of the supported algorithms for supported
+                algorithms.";
+            list supported-algorithm {
+                key "name";
+
+                description
+                    "List of the supported algorithms for supported
+                    algorithms.";
+                
+                leaf name {
+                    type string;
+                    description
+                        "Name of the supported algorithm.";
+                }
+
+                leaf description {
+                    type string;
+                    description
+                        "description of the supported algorithm.";
+                }
+            }
         }
 
-        leaf description {
-            type string;
-            description
-                "description of the supported algorithm.";
-        }
     }
-    
+
+    uses supported-algorithms-top;
     uses hashing-top;
 }
