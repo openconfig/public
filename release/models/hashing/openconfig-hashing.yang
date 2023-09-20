@@ -277,6 +277,20 @@ module openconfig-hashing {
         }
     }
 
+    grouping supported-algorithms-state {
+        description
+            "Top-level container for the supported algorithms.";
+        leaf name {
+            type string;
+            description
+                "Name of the supported algorithm.";
+        }
+        leaf description {
+            type string;
+            description
+                "Description of the supported algorithm.";
+        }
+    }
     grouping supported-algorithms-top {
         description
             "Top-level container of the supported algorithms for supported
@@ -294,15 +308,18 @@ module openconfig-hashing {
                     algorithms.";
                 
                 leaf name {
-                    type string;
+                    type leafref {
+                        path "../state/name";
+                    }
                     description
-                        "Name of the supported algorithm.";
+                        "Reference to the supported algorithm list key.";
                 }
 
-                leaf description {
-                    type string;
+                container state {
                     description
-                        "description of the supported algorithm.";
+                        "Operational data for the supported algorithm.";
+                    config false;
+                    uses supported-algorithms-state;
                 }
             }
         }
