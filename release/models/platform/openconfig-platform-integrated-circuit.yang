@@ -171,41 +171,10 @@ module openconfig-platform-integrated-circuit {
     }
   }
 
-  grouping integrated-circuit-hash-algoritms {
-    list hash-algoritm {
-      key "name";
-      leaf name {
-        type string;
-      }
-      container state {
-        config false;
-        description
-          "Operational state parameters relating to integrated circuit
-          hashing algorithm.";
-
-        uses integrated-circuit-hash-algoritms-state;
-      }
-    }
-  }
-
-  grouping integrated-circuit-hash-algoritms-state {
-    leaf name {
-      type string;
-    }
-    leaf description {
-      type string;
-    }
-  }
-
   augment "/oc-platform:components/oc-platform:component/oc-platform:integrated-circuit" {
     description
       "Augment integrated circuit components with backplane-facing capacity and memory errors.";
     uses backplane-facing-capacity-structural;
     uses integrated-circuit-memory;
-    container hashing-algoritms {
-      description
-        "Hashing algorithm information used by CI.";
-      uses integrated-circuit-hash-algoritms;
-    }
   }
 }
