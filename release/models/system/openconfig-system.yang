@@ -48,7 +48,12 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.17.2";
+  oc-ext:openconfig-version "0.17.3";
+
+  revision "2023-09-20" {
+    description "Add hashing policy module.";
+    reference "0.17.3";
+  }
 
   revision "2023-08-28" {
     description "Add leaf for referencing a hashing policy.";
@@ -319,7 +324,7 @@ module openconfig-system {
 
     leaf hashing-policy {
       type leafref {
-          path "/oc-hashing:policies/oc-hashing:policy/oc-hashing:name";
+          path "/oc-hashing:policies/oc-hashing:hashing-policy/oc-hashing:name";
       }
       description "The system default hashing policy to be used when hashing packets.";
     }
@@ -1250,6 +1255,12 @@ module openconfig-system {
     }
   }
 
+  grouping system-hashing-algorithm-top {
+    description
+      "Top level system hashing algorithm.";
+    uses oc-hashing:hashing-top;
+  }
+
   grouping system-top {
     description
       "Top level system data containers";
@@ -1288,6 +1299,7 @@ module openconfig-system {
       uses system-macaddr-top;
       uses system-memory-top;
       uses system-ntp-top;
+      uses system-hashing-algorithm-top;
     }
   }
 

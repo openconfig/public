@@ -28,70 +28,9 @@ module openconfig-hashing {
         reference "0.1.0";
     }
 
-    // OpenConfig specific extensions for module metadata.
-    oc-ext:regexp-posix;
     oc-ext:catalog-organization "openconfig";
     oc-ext:origin "openconfig";
 
-    typedef hash-field-type-ipv4 {
-        type enumeration {
-            enum NONE {
-                description "Do not use any IPv4 fields in the
-                    calculation of the hash.";
-            }
-            enum SRC_ADDRESS {
-                description "Use only the IPv4 source address in the
-                    calculation of the hash.";
-            }
-            enum DST_ADDRESS {
-                description "Use only the IPv4 destination address in the
-                    calculation of the hash.";
-            }
-            enum BOTH {
-                description "Use both the IPv4 source and
-                    destination addresses in the calculation of the
-                    hash.";
-            }
-            enum TARGET_DEFINED {
-                description "Use the default fields that are used by
-                    the device for calculating the hash.";
-            }
-        }
-        description "The IPv4 fields that should be used to
-            compute the hash.";
-    }
-
-    typedef hash-field-type-ipv6 {
-        type enumeration {
-            enum NONE {
-                description "Do not use any IPv6 fields in the
-                    calculation of the hash.";
-            }
-            enum SRC_ADDRESS {
-                description "Use only the IPv6 source address in the
-                    calculation of the hash.";
-            }
-            enum DST_ADDRESS {
-                description "Use only the IPv6 destination address in the
-                    calculation of the hash.";
-            }
-            enum BOTH {
-                description "Use both the IPv6 source and
-                    destination addresses in the calculation of the
-                    hash.";
-            }
-            enum TARGET_DEFINED {
-                description "Use the default fields that are used by
-                    the device for calculating the hash.";
-            }
-            enum FLOW_LABEL {
-                description "Use the flow label in the IPv6 header
-                    to calculate the hash.";
-            }
-        }
-        description "The IPv6 fields that should be used to
-            compute the hash.";
-    }
     typedef hash-field-type-transport {
         type enumeration {
             enum NONE {
@@ -123,21 +62,119 @@ module openconfig-hashing {
     grouping hashing-inputs {
         description
             "Top level container for inputs to be used for hashing policies.";
-
-        leaf ipv4 {
-            type hash-field-type-ipv4;
-            description "The IPv4 fields that should be used to
-                compute the hash.";
-        }
-        leaf ipv6 {
-            type hash-field-type-ipv6;
-            description "The IPv6 fields that should be used to
-                compute the hash.";
-        }
         leaf transport-ports {
             type hash-field-type-transport;
             description "The transport layer fields that should be used to
                 compute the hash.";
+        }
+    }
+
+    grouping ipv4-fields-config {
+        description "The IPv4 fields that should be used to
+            compute the hash.";
+        leaf ipv4-none {
+            type boolean;
+            description "Do not use any IPv4 fields in the
+                calculation of the hash.";
+        }
+        leaf ipv4-src-address {
+            type boolean;
+            description "Use only the IPv4 source address in the
+                calculation of the hash.";
+        }
+        leaf ipv4-dst-address {
+            type boolean;
+            description "Use only the IPv4 destination address in the
+                calculation of the hash.";
+        }
+        leaf ipv4-both {
+            type boolean;
+            description "Use both the IPv4 source and
+                destination addresses in the calculation of the
+                hash.";
+        }
+        leaf ipv4-target-define {
+            type boolean;
+            description "Use the default fields that are used by
+                the device for calculating the hash.";
+        }
+        leaf ipv4-ingress-subinterface {
+            type boolean;
+            description "Use the ingress subinterface identifired
+                in the calculation of the hash.";
+        }
+    }
+
+    grouping ipv4-fields-top {
+        description
+            "Top-level container of hashing input for ipv4";
+        container config {
+            description
+                "Configuration data of hashing input for ipv6";
+            uses ipv4-fields-config;
+        }
+        container state {
+            description
+                "Operational data of hashing input for ipv6";
+            config false;
+            uses ipv4-fields-config;
+        }
+    }
+
+    grouping ipv6-fields-config {
+        description "The IPv6 fields that should be used to
+            compute the hash.";
+        leaf ipv6-none {
+            type boolean;
+            description "Do not use any IPv6 fields in the
+                calculation of the hash.";
+        }
+        leaf ipv6-src-address {
+            type boolean;
+            description "Use only the IPv6 source address in the
+                calculation of the hash.";
+        }
+        leaf ipv6-dst-address {
+            type boolean;
+            description "Use only the IPv6 destination address in the
+                calculation of the hash.";
+        }
+        leaf ipv6-both {
+            type boolean;
+            description "Use both the IPv6 source and
+                destination addresses in the calculation of the
+                hash.";
+        }
+        leaf ipv6-target-define {
+            type boolean;
+            description "Use the default fields that are used by
+                the device for calculating the hash.";
+        }
+        leaf ipv6-flow-label {
+            type boolean;
+            description "Use the flow label in the IPv6 header
+                to calculate the hash.";
+        }
+        leaf ipv6-ingress-subinterface {
+            type boolean;
+            description "Use the ingress subinterface identifired in the
+                calculation of the hash.";
+        }
+    }
+
+    grouping ipv6-fields-top {
+        description
+            "Top-level container of hashing input for ipv4";
+        container config {
+            description
+                "Configuration data of hashing input for ipv4";
+            uses ipv6-fields-config;
+        }
+        container state {
+            description
+                "Operational data of hashing input for ipv4";
+            config false;
+            uses ipv6-fields-config;
         }
     }
 
@@ -154,12 +191,6 @@ module openconfig-hashing {
               /policies/policy[name]/state list.";
         }
 
-        leaf algorithm {
-            type string;
-            description
-              "The algorithm used when calculating a hash based on packet headers";
-        }
-
         leaf offset {
             type uint64;
             description
@@ -170,7 +201,12 @@ module openconfig-hashing {
         leaf seed {
             type uint64;
             description
-              "The seed used to initialize the hash algorithm";
+                "The seed used to initialize the hash algorithm";
+        }
+        leaf-list supported-algorithms {
+            type string;
+            description
+                "The list of hash algorithm";
         }
     }
 
@@ -179,12 +215,12 @@ module openconfig-hashing {
           "Top level grouping for hashing configuration and operational state
           data.";
 
-        container policies {
+        container hashing-policies {
             description
               "Top level container for hashing, including configuration and
               state data.";
 
-            list policy {
+            list hashing-policy {
                 key "name";
 
                 description
@@ -225,6 +261,14 @@ module openconfig-hashing {
                         description "Operational state data at the hashing
                             inputs level.";
                         uses hashing-inputs;
+                    }
+                    container ipv4-fields {
+                        description "ipv4 hashing input fields.";
+                        uses ipv4-fields-top;
+                    }
+                    container ipv6-fields {
+                        description "ipv6 hashing input fields.";
+                        uses ipv6-fields-top;
                     }
                 }
             }
