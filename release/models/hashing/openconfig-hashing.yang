@@ -191,7 +191,7 @@ module openconfig-hashing {
               /policies/policy[name]/state list.";
         }
 
-        leaf offset {
+        leaf rotation {
             type uint64;
             description
                 "The number of bits to rotate the output of the hash algorithm by
@@ -203,17 +203,19 @@ module openconfig-hashing {
             description
                 "The seed used to initialize the hash algorithm";
         }
-        leaf-list supported-algorithms {
+
+        leaf algorithm {
             type string;
             description
-                "The list of hash algorithm";
+                "The name of hash algorithm. This algorithm MUST
+                be a supported algorithm";
         }
     }
 
     grouping hashing-top {
         description
-          "Top level grouping for hashing configuration and operational state
-          data.";
+            "Top level grouping for hashing configuration and operational state
+            data.";
 
         container hashing-policies {
             description
@@ -275,5 +277,38 @@ module openconfig-hashing {
         }
     }
 
+    grouping supported-algorithms-top {
+        description
+            "Top-level container of the supported algorithms for supported
+            algorithms.";
+        container supported-algorithms {
+            config false;
+            description
+                "Container of the supported algorithms for supported
+                algorithms.";
+            list supported-algorithm {
+                key "name";
+
+                description
+                    "List of the supported algorithms for supported
+                    algorithms.";
+                
+                leaf name {
+                    type string;
+                    description
+                        "Name of the supported algorithm.";
+                }
+
+                leaf description {
+                    type string;
+                    description
+                        "description of the supported algorithm.";
+                }
+            }
+        }
+
+    }
+
+    uses supported-algorithms-top;
     uses hashing-top;
 }
