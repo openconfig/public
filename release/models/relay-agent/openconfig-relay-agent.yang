@@ -52,6 +52,29 @@ module openconfig-relay-agent {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
+  // typedef statements
+  typedef ipv4-helper-source {
+    type union {
+      type inet:ipv4-address;
+      type oc-if:interface-id;
+    }
+
+    description
+      "IP address or interface whose IP address is to be used as source in relayed
+      DHCP requests";
+  }
+
+  typedef ipv6-helper-source {
+    type union {
+      type inet:ipv6-address;
+      type oc-if:interface-id;
+    }
+
+    description
+      "IPv6 address or interface whose IPv6 address is to be used as source in relayed
+      DHCP requests";
+  }
+
   // grouping statements
 
   grouping agent-information-ipv4-common-config {
@@ -624,6 +647,44 @@ module openconfig-relay-agent {
 
   }
 
+  grouping relay-agent-ipv4-helper-address-config {
+    description
+      "Configuration options for an IP helper-address";
+
+    leaf address {
+      type inet:ip-address;
+      description
+        "IP helper address to relay DHCP requests to";
+    }
+
+    leaf source {
+      type ipv4-helper-source;
+
+      description
+        "IP address or interface whose IP address is to be used as source in
+	relayed DHCP requests";
+    }
+  }
+
+  grouping relay-agent-ipv6-helper-address-config {
+    description
+      "Configuration options for an IPv6 helper-address";
+
+    leaf address {
+      type inet:ipv6-address;
+      description
+        "IPv6 helper address to relay DHCPv6 requests to";
+    }
+
+    leaf source {
+      type ipv6-helper-source;
+
+      description
+        "IPv6 address or interface whose IPv6 address is to be used as source in
+	relayed DHCPv6 requests";
+    }
+  }
+
   grouping relay-agent-ipv4-interfaces-config {
     description
       "Configuration data for interfaces enabled for relaying";
@@ -644,12 +705,48 @@ module openconfig-relay-agent {
 
     leaf-list helper-address {
       type inet:ip-address;
+      status deprecated;
       description
         "List of IPv4 or IPv6 addresses of DHCP servers to which the
         relay agent should forward DHCPv4 requests.  The relay agent is
         expected to forward DHCPv4/BOOTP requests to all listed
         server addresses when DHCPv4 relaying is enabled globally, or
         on the interface.";
+    }
+
+    container helper-addresses {
+      description
+        "Enclosing container for helper addresses";
+      list helper-address {
+	key "address";
+	description
+          "List of IP helper addresses configured on this interface";
+
+	leaf address {
+          type leafref {
+            path "../config/address";
+          }
+          description
+            "Reference to list key representing IP helper address";
+        }
+
+
+	container config {
+	  description
+	    "Configuration data for IP helper address";
+
+	  uses relay-agent-ipv4-helper-address-config;
+	}
+
+	container state {
+	  config false;
+
+	  description
+	    "Operational state for IP helper address";
+
+	  uses relay-agent-ipv4-helper-address-config;
+	}
+      }
     }
   }
 
@@ -736,6 +833,7 @@ module openconfig-relay-agent {
 
     leaf-list helper-address {
       type inet:ipv6-address;
+      status deprecated;
       description
         "List of IPv6 addresses of DHCP servers to which the
         relay agent should forward DHCPv6 requests.  The relay agent
@@ -800,6 +898,41 @@ module openconfig-relay-agent {
 
           uses relay-agent-ipv6-interfaces-config;
           uses relay-agent-ipv6-interfaces-state;
+        }
+
+        container helper-addresses {
+          description
+            "Enclosing container for IPv6 helper addresses";
+          list helper-address {
+           key "address";
+           description
+              "List of IPv6 helper addresses configured on this interface";
+    
+           leaf address {
+              type leafref {
+                path "../config/address";
+              }
+              description
+                "Reference to list key representing IP helper address";
+            }
+    
+    
+           container config {
+             description
+               "Configuration data for IP helper address";
+    
+             uses relay-agent-ipv6-helper-address-config;
+           }
+    
+           container state {
+             config false;
+    
+             description
+               "Operational state for IP helper address";
+    
+             uses relay-agent-ipv6-helper-address-config;
+           }
+          }
         }
 
         uses oc-if:interface-ref;
