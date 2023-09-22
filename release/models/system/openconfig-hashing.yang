@@ -8,7 +8,7 @@ module openconfig-hashing {
 
     // import some basic types
     import openconfig-extensions { prefix oc-ext; }
-    import openconfig-system {prefix oc-system;}
+    import openconfig-system {prefix oc-sys;}
 
     // meta
     organization "OpenConfig working group";
@@ -207,7 +207,7 @@ module openconfig-hashing {
         }
     }
 
-    grouping hashing-top {
+    grouping hashing-policy-top {
         description
             "Top level grouping for hashing configuration and operational state
             data.";
@@ -321,11 +321,17 @@ module openconfig-hashing {
         }
     }
 
-    augment "/oc-system:system" {
+    grouping hashing-top {
         description
-            "Hashing algorithms and hashing policies";
-
+            "Top-level container for Hashing algorithms and hashing policies";
         uses supported-algorithms-top;
+        uses hashing-policy-top;
+    }
+    
+    augment "/oc-sys:system" {
+        description
+            "Augment for Hashing algorithms and hashing policies";
+        
         uses hashing-top;
     }
 }
