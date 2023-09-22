@@ -53,8 +53,18 @@ module openconfig-hashing {
                     hash.";
             }
             enum TARGET_DEFINED {
-                description "Use the default fields that are used by
-                    the device for calculating the hash.";
+                description "Use fields that are defined by the device for
+                calculating the hash.  Use of this enum is expected when the
+                target contains some default or hardcoded selection of fields
+                which are not described by this model.  For example,
+                implementation may select only a portion of the bits in the
+                source and destination ip address fields.  Which bits are used
+                may not be exposed and may not be configurable by the user, by
+                the OPERATING_SYSTEM or by the INTEGRATED_CIRCUIT.  If a
+                TARGET_DEFINED mode isn't available on an implementation, an
+                UNIMPLEMENTED (12) error should be returned if it is attempted
+                to be used.";
+
             }
         }
         description "The IPv4 fields that should be used to
@@ -293,11 +303,11 @@ module openconfig-hashing {
         uses supported-algorithms-top;
         uses hashing-policy-top;
     }
-    
+
     augment "/oc-sys:system" {
         description
             "Augment for Hashing algorithms and hashing policies";
-        
+
         uses hashing-top;
     }
 
