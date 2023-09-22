@@ -13,6 +13,7 @@ module openconfig-interfaces {
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-transport-types { prefix oc-opt-types; }
+  import openconfig-hashing { prefix oc-hashing; }
 
   // meta
   organization "OpenConfig working group";
@@ -51,7 +52,12 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.5.0";
+  oc-ext:openconfig-version "3.6.0";
+
+  revision "2023-11-03" {
+    description "Add leaf for referencing a hashing policy.";
+    reference "3.6.0";
+  }
 
   revision "2023-07-14" {
     description
@@ -432,6 +438,14 @@ module openconfig-interfaces {
         the specified mode.";
     }
 
+    leaf hashing-policy {
+        type leafref {
+            path "/oc-hashing:policies/oc-hashing:policy/oc-hashing:name";
+        }
+        description "The hashing policy to be used when hashing packets coming
+            in on the interface.";
+    }
+    
     uses interface-common-config;
   }
 
