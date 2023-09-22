@@ -27,7 +27,15 @@ module openconfig-relay-agent {
     packets.  The supports both DHCP and DHCPv6 and device-wide and
     per-interface settings.";
 
-  oc-ext:openconfig-version "0.1.2";
+  oc-ext:openconfig-version "2.0.0";
+
+  revision "2023-09-22" {
+    description
+      "Replace helper-address leaf-list with keyed list and attribute for
+      source interface or IP address";
+    reference "2.0.0";
+  }
+
 
   revision "2023-02-06" {
     description
@@ -907,7 +915,7 @@ module openconfig-relay-agent {
            key "address";
            description
               "List of IPv6 helper addresses configured on this interface";
-    
+
            leaf address {
               type leafref {
                 path "../config/address";
@@ -915,21 +923,20 @@ module openconfig-relay-agent {
               description
                 "Reference to list key representing IP helper address";
             }
-    
-    
+
            container config {
              description
                "Configuration data for IP helper address";
-    
+
              uses relay-agent-ipv6-helper-address-config;
            }
-    
+
            container state {
              config false;
-    
+
              description
                "Operational state for IP helper address";
-    
+
              uses relay-agent-ipv6-helper-address-config;
            }
           }
