@@ -66,6 +66,26 @@ module openconfig-hashing {
                 to be used.";
 
             }
+            enum TRANS_NONE {
+                description "Do not use any transport fields in the
+                    calculation of the hash.";
+            }
+            enum TRANS_SRC_PORT {
+                description "Use only the source port from the
+                    transport header in the calculation of the hash.";
+            }
+            enum TRANS_DST_PORT {
+                description "Use only the destination port from the
+                    transport header in the calculation of the hash.";
+            }
+            enum TRANS_BOTH {
+                description "Use both the source and
+                    destination ports from the transport header in
+                    the calculation of the hash.";
+            }
+            enum TRANS_TARGET_DEFINED {
+                description "Use transport fields that are defined by the device for calculating the hash.  Use of this enum is expected when the target contains some default or hardcoded selection of fields which are not described by this model.  For example, an implementation may select only a portion of the bits in the port number fields or may only support fields for a limited set of transports.  Which transports and bits are used may not be exposed and may not be configurable by the user, by the OPERATING_SYSTEM or by the INTEGRATED_CIRCUIT.  If a TARGET_DEFINED mode isn't available on an implementation, an UNIMPLEMENTED (12) error should be returned if it is attempted to be used..";
+            }
         }
         description "The IPv4 fields that should be used to
             compute the hash.";
@@ -98,35 +118,28 @@ module openconfig-hashing {
                 description "Use the flow label in the IPv6 header
                     to calculate the hash.";
             }
-        }
-        description "The IPv6 fields that should be used to
-            compute the hash.";
-    }
-
-    typedef hash-field-type-transport {
-        type enumeration {
-            enum NONE {
+            enum TRANS_NONE {
                 description "Do not use any transport fields in the
                     calculation of the hash.";
             }
-            enum SRC_PORT {
+            enum TRANS_SRC_PORT {
                 description "Use only the source port from the
                     transport header in the calculation of the hash.";
             }
-            enum DST_PORT {
+            enum TRANS_DST_PORT {
                 description "Use only the destination port from the
                     transport header in the calculation of the hash.";
             }
-            enum BOTH {
+            enum TRANS_BOTH {
                 description "Use both the source and
                     destination ports from the transport header in
                     the calculation of the hash.";
             }
-            enum TARGET_DEFINED {
+            enum TRANS_TARGET_DEFINED {
                 description "Use transport fields that are defined by the device for calculating the hash.  Use of this enum is expected when the target contains some default or hardcoded selection of fields which are not described by this model.  For example, an implementation may select only a portion of the bits in the port number fields or may only support fields for a limited set of transports.  Which transports and bits are used may not be exposed and may not be configurable by the user, by the OPERATING_SYSTEM or by the INTEGRATED_CIRCUIT.  If a TARGET_DEFINED mode isn't available on an implementation, an UNIMPLEMENTED (12) error should be returned if it is attempted to be used..";
             }
         }
-        description "The transport layer fields that should be used to
+        description "The IPv6 fields that should be used to
             compute the hash.";
     }
 
@@ -144,13 +157,6 @@ module openconfig-hashing {
             description "The IPv6 fields that should be used to
                 compute the hash.";
         }
-
-        leaf transport-ports {
-            type hash-field-type-transport;
-            description "The transport layer fields that should be used to
-                compute the hash.";
-        }
-
         uses ingress-interface-top;
     }
 
