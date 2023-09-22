@@ -98,11 +98,7 @@ module openconfig-hashing {
             description "Use the default fields that are used by
                 the device for calculating the hash.";
         }
-        leaf ipv4-ingress-subinterface {
-            type boolean;
-            description "Use the ingress subinterface identifired
-                in the calculation of the hash.";
-        }
+        uses ingress-interface-top;
     }
 
     grouping ipv4-fields-top {
@@ -118,6 +114,14 @@ module openconfig-hashing {
                 "Operational data of hashing input for ipv6";
             config false;
             uses ipv4-fields-config;
+        }
+    }
+
+    grouping ingress-interface-top {
+        leaf ingress-interface {
+            type boolean;
+            description "Use the ingress subinterface identifired in the
+                calculation of the hash.";
         }
     }
 
@@ -155,11 +159,7 @@ module openconfig-hashing {
             description "Use the flow label in the IPv6 header
                 to calculate the hash.";
         }
-        leaf ipv6-ingress-subinterface {
-            type boolean;
-            description "Use the ingress subinterface identifired in the
-                calculation of the hash.";
-        }
+        uses ingress-interface-top;
     }
 
     grouping ipv6-fields-top {
