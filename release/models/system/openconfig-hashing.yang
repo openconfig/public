@@ -8,6 +8,7 @@ module openconfig-hashing {
 
     // import some basic types
     import openconfig-extensions { prefix oc-ext; }
+    import openconfig-system {prefix oc-system;}
 
     // meta
     organization "OpenConfig working group";
@@ -290,12 +291,12 @@ module openconfig-hashing {
             "Top-level container of the supported algorithms for supported
             algorithms.  The list of algorithms are expected to be defined by
             the target device.";
-        container supported-algorithms {
+        container hashing-algorithms {
             config false;
             description
                 "Container of the supported algorithms for supported
                 algorithms.";
-            list supported-algorithm {
+            list hashing-algorithm {
                 key "name";
 
                 description
@@ -318,9 +319,13 @@ module openconfig-hashing {
                 }
             }
         }
-
     }
 
-    uses supported-algorithms-top;
-    uses hashing-top;
+    augment "/oc-system:system" {
+        description
+            "Hashing algorithms and hashing policies";
+
+        uses supported-algorithms-top;
+        uses hashing-top;
+    }
 }
