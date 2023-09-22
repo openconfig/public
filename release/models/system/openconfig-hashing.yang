@@ -15,12 +15,12 @@ module openconfig-hashing {
     organization "OpenConfig working group";
 
     contact
-      "OpenConfig working group
-      netopenconfig@googlegroups.com";
+        "OpenConfig working group
+        netopenconfig@googlegroups.com";
 
     description
-      "Model for managing hashing policies that would be referenced by the
-      interfaces model.";
+        "Model for managing hashing policies that would be referenced by the
+        interfaces model.";
 
 
     oc-ext:openconfig-version "0.1.0";
@@ -33,153 +33,73 @@ module openconfig-hashing {
     oc-ext:catalog-organization "openconfig";
     oc-ext:origin "openconfig";
 
-    typedef hash-field-type-ipv4 {
-        type enumeration {
-            enum NONE {
-                description "Do not use any IPv4 fields in the
-                    calculation of the hash.";
-            }
-            enum SRC_ADDRESS {
-                description "Use only the IPv4 source address in the
-                    calculation of the hash.";
-            }
-            enum DST_ADDRESS {
-                description "Use only the IPv4 destination address in the
-                    calculation of the hash.";
-            }
-            enum BOTH {
-                description "Use both the IPv4 source and
-                    destination addresses in the calculation of the
-                    hash.";
-            }
-            enum TARGET_DEFINED {
-                description "Use fields that are defined by the device for
-                calculating the hash.  Use of this enum is expected when the
-                target contains some default or hardcoded selection of fields
-                which are not described by this model.  For example,
-                implementation may select only a portion of the bits in the
-                source and destination ip address fields.  Which bits are used
-                may not be exposed and may not be configurable by the user, by
-                the OPERATING_SYSTEM or by the INTEGRATED_CIRCUIT.  If a
-                TARGET_DEFINED mode isn't available on an implementation, an
-                UNIMPLEMENTED (12) error should be returned if it is attempted
-                to be used.";
-
-            }
-            enum TRANS_NONE {
-                description "Do not use any transport fields in the
-                    calculation of the hash.";
-            }
-            enum TRANS_SRC_PORT {
-                description "Use only the source port from the
-                    transport header in the calculation of the hash.";
-            }
-            enum TRANS_DST_PORT {
-                description "Use only the destination port from the
-                    transport header in the calculation of the hash.";
-            }
-            enum TRANS_BOTH {
-                description "Use both the source and
-                    destination ports from the transport header in
-                    the calculation of the hash.";
-            }
-            enum TRANS_TARGET_DEFINED {
-                description "Use transport fields that are defined by the device for calculating the hash.  Use of this enum is expected when the target contains some default or hardcoded selection of fields which are not described by this model.  For example, an implementation may select only a portion of the bits in the port number fields or may only support fields for a limited set of transports.  Which transports and bits are used may not be exposed and may not be configurable by the user, by the OPERATING_SYSTEM or by the INTEGRATED_CIRCUIT.  If a TARGET_DEFINED mode isn't available on an implementation, an UNIMPLEMENTED (12) error should be returned if it is attempted to be used..";
-            }
-        }
-        description "The IPv4 fields that should be used to
-            compute the hash.";
-    }
-
-    typedef hash-field-type-ipv6 {
-        type enumeration {
-            enum NONE {
-                description "Do not use any IPv6 fields in the
-                    calculation of the hash.";
-            }
-            enum SRC_ADDRESS {
-                description "Use only the IPv6 source address in the
-                    calculation of the hash.";
-            }
-            enum DST_ADDRESS {
-                description "Use only the IPv6 destination address in the
-                    calculation of the hash.";
-            }
-            enum BOTH {
-                description "Use both the IPv6 source and
-                    destination addresses in the calculation of the
-                    hash.";
-            }
-            enum TARGET_DEFINED {
-                description "Use the default fields that are used by
-                    the device for calculating the hash.";
-            }
-            enum FLOW_LABEL {
-                description "Use the flow label in the IPv6 header
-                    to calculate the hash.";
-            }
-            enum TRANS_NONE {
-                description "Do not use any transport fields in the
-                    calculation of the hash.";
-            }
-            enum TRANS_SRC_PORT {
-                description "Use only the source port from the
-                    transport header in the calculation of the hash.";
-            }
-            enum TRANS_DST_PORT {
-                description "Use only the destination port from the
-                    transport header in the calculation of the hash.";
-            }
-            enum TRANS_BOTH {
-                description "Use both the source and
-                    destination ports from the transport header in
-                    the calculation of the hash.";
-            }
-            enum TRANS_TARGET_DEFINED {
-                description "Use transport fields that are defined by the device for calculating the hash.  Use of this enum is expected when the target contains some default or hardcoded selection of fields which are not described by this model.  For example, an implementation may select only a portion of the bits in the port number fields or may only support fields for a limited set of transports.  Which transports and bits are used may not be exposed and may not be configurable by the user, by the OPERATING_SYSTEM or by the INTEGRATED_CIRCUIT.  If a TARGET_DEFINED mode isn't available on an implementation, an UNIMPLEMENTED (12) error should be returned if it is attempted to be used..";
-            }
-        }
-        description "The IPv6 fields that should be used to
-            compute the hash.";
-    }
-
     grouping hashing-inputs {
         description
             "Top level container for inputs to be used for hashing policies.";
-
-        leaf ipv4 {
-            type hash-field-type-ipv4;
-            description "The IPv4 fields that should be used to
-                compute the hash.";
+        
+        leaf protocol-type {
+            type boolean;
+            description
+            "Specification of ipv4 or ipv6.";
         }
-        leaf ipv6 {
-            type hash-field-type-ipv6;
-            description "The IPv6 fields that should be used to
-                compute the hash.";
-        }
-        uses ingress-interface-top;
     }
 
-    grouping ingress-interface-top {
-        description "Top-level container for ingress subinterface.";
-        leaf ingress-interface {
+    grouping ipv4-ipv6-inputs-top {
+        description
+            "The top level container for ipv4 and ipv6 header
+            fields used for the hash computation.";
+
+        leaf src-addr {
             type boolean;
-            description "Use the ingress subinterface identifired in the
+            description
+                "Use the source address in the calculation of the hash.";
+        }
+
+        leaf dst-addr {
+            type boolean;
+            description
+                "Use the destination address in the calculation of the hash.";
+        }
+
+        leaf src-port {
+            type boolean;
+            description
+                "Use the source port from the transport header in the calculation
+                of the hash.";
+        }
+
+        leaf dst-port {
+            type boolean;
+            description
+                "Use the destination port from the transport header in the
                 calculation of the hash.";
+        }
+    }
+
+    grouping ipv6-inputs-top {
+        description
+            "The top level container specifially for ipv6 header
+            fields used for the hash computation.";
+
+        leaf flow-label {
+            type boolean;
+            description
+                "Use the flow label in the IPv6 header
+                to calculate the hash.";
         }
     }
 
     grouping hashing-policy-config {
         description
-          "Configuration data for hashing policies.";
+            "Configuration data for hashing policies.";
 
         leaf name {
             type string;
             description
-              "The name of the hashing policy.
-              When a configured user-controlled policy is created by the
-              system, it is instantiated with the same name in the
-              /system/hashing-policies/hashing-policy/name list.";
+                "The name of the hashing policy.
+                When a configured user-controlled policy is created by the
+                system, it is instantiated with the same name in the
+                /system/hashing-policies/hashing-policy/name list.";
         }
 
         leaf seed {
@@ -203,50 +123,101 @@ module openconfig-hashing {
 
         container hashing-policies {
             description
-              "Top level container for hashing, including configuration and
-              state data.";
+                "Top level container for hashing, including configuration and
+                state data.";
 
             list hashing-policy {
                 key "name";
 
                 description
-                  "The list of named policies to be used on the device.";
+                    "The list of named policies to be used on the device.";
 
                 leaf name {
                     type leafref {
                         path "../config/name";
                     }
                     description
-                      "References the name of the hashing policy.";
+                        "References the name of the hashing policy.";
                 }
                 container config {
                     description
-                      "Configurable items at the global hash policy level.";
+                        "Configurable items at the global hash policy level.";
 
                     uses hashing-policy-config;
                 }
                 container state {
                     config false;
                     description
-                      "Operational state data at the global hash policy
-                      level.";
+                        "Operational state data at the global hash policy
+                        level.";
 
                     uses hashing-policy-config;
                 }
+
                 container hash-field-modes {
                     description
                         "Container for specifying inputs to be used when
                         calculating the hash.";
-                    container config {
+                    container ingress-interface {
                         description
-                            "Configurable items at the hashing inputs level.";
-                        uses hashing-inputs;
-                    }
-                    container state {
-                        config false;
-                        description "Operational state data at the hashing
-                            inputs level.";
-                        uses hashing-inputs;
+                            "Container for ingress subinterface.";
+                        container config {
+                            description
+                                "Configurable items at the hashing inputs level.";
+                            uses hashing-inputs;
+                        }
+                        container state {
+                            config false;
+                            description 
+                                "Operational state data at the hashing
+                                inputs level.";
+                            uses hashing-inputs;
+                        }
+
+                        container ipv4 {
+                            description 
+                                "The IPv4 fields that should be used to
+                                compute the hash.";
+                            container config {
+                                description 
+                                    "Configurable data at the hashing
+                                    inputs level for IPv4.";
+                                uses ipv4-ipv6-inputs-top;
+                            }
+
+                            container state {
+                                config false;
+                                description
+                                    "Operational state data at the hashing
+                                    inputs level for IPv4.";
+                                uses ipv4-ipv6-inputs-top;
+                            }
+                        }
+
+                        container ipv6 {
+                            description
+                                "The IPv6 fields that should be used to
+                                compute the hash.";
+
+                            container config {
+                                description
+                                    "Configurable data at the hashing
+                                    inputs level for IPv6.";
+
+                                uses ipv4-ipv6-inputs-top;
+                                uses ipv6-inputs-top;
+                            }
+
+                            container state {
+                                config false;
+                                description
+                                    "Operational state data at the hashing
+                                    inputs level for IPv6.";
+
+                                uses ipv4-ipv6-inputs-top;
+                                uses ipv6-inputs-top;
+                            }
+                        }
                     }
                 }
             }
@@ -272,6 +243,13 @@ module openconfig-hashing {
             "Top-level container of the supported algorithms for supported
             algorithms.  The list of algorithms are expected to be defined by
             the target device.";
+        uses vendor-hashing-algorithms;
+    }
+
+    grouping hashing-algo-top {
+        description
+            "Top level container of the supported algorithms for supported
+            algorithms.";
         container hashing-algorithms {
             config false;
             description
@@ -286,7 +264,7 @@ module openconfig-hashing {
 
                 leaf name {
                     type leafref {
-                        path "../state/name";
+                        path ../state/name;
                     }
                     description
                         "Reference to the supported algorithm list key.";
@@ -296,9 +274,44 @@ module openconfig-hashing {
                     description
                         "Operational data for the supported algorithm.";
                     config false;
-                    uses supported-algorithms-state;
+
+                    leaf name {
+                        type string;
+                        description
+                            "Name of the supported algorithm.";
+                    }
+
+                    leaf description {
+                        type string;
+                        description
+                            "Description of the supported algorithm.";
+                    }
                 }
             }
+        }
+    }
+
+    grouping vendor-hashing-algorithms {
+        description
+            "Supported hashing algorithms per vender.";
+        container vendor {
+            description
+                "Specify the vendor. Each vendor should have its own set of
+                supported algorithms. For each supported algorithm, a name
+                and a description should be defined. An implementation must
+                augment this model using the schema described in the
+                vendor_counter_guide reference.
+
+                e.g.
+                augment /system/vendor {
+                    container <vendor name> {
+                        container <platform name> {
+                        uses hashing-algo-top;
+                        }
+                    }
+                }";
+            reference
+                "https://github.com/openconfig/public/tree/master/doc/vendor_counter_guide.md";
         }
     }
 
