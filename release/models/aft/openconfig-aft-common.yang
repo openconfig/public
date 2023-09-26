@@ -25,17 +25,9 @@ submodule openconfig-aft-common {
 
   oc-ext:openconfig-version "2.4.0";
 
-  revision "2023-08-15" {
+  revision "2023-09-26" {
     description
       "Add next-hop-group-name in NHG AFT entry state.";
-    reference "2.4.0";
-  }
-
-  revision "2023-05-25" {
-    description
-      "Add gre and mpls containers under next-hops aft entry state.
-       Add ttl and tos under gre, mpls and ip-in-ip aft entry state
-       for telemetry.";
     reference "2.4.0";
   }
 
@@ -218,33 +210,6 @@ submodule openconfig-aft-common {
             description
               "State parameters relating to IP-in-IP encapsulation.";
             uses aft-common-entry-nexthop-ipip-state;
-            uses aft-common-entry-nexthop-encap-outer-header-state;
-          }
-        }
-
-        container gre {
-          description
-            "When specified, the packet has an GRE header applied to it before
-             forwarding to the specified next-hop.";
-
-          container state {
-            config false;
-            description
-              "State parameters relating to GRE encapsulation.";
-            uses aft-common-entry-nexthop-encap-outer-header-state;
-          }
-        }
-
-        container mpls {
-          description
-            "When specified, the packet has an MPLS header applied to it before
-             forwarding to the specified next-hop.";
-
-          container state {
-            config false;
-            description
-              "State parameters relating to MPLS encapsulation.";
-            uses aft-common-entry-nexthop-encap-outer-header-state;
           }
         }
 
@@ -417,29 +382,6 @@ submodule openconfig-aft-common {
       type oc-inet:ip-address;
       description
         "Destination IP address to use for the encapsulated packet.";
-    }
-  }
-
-  grouping aft-common-entry-nexthop-encap-outer-header-state {
-    description
-      "Outer header fields of encapsulation applied on a next-hop";
-
-    leaf ttl {
-      type uint8;
-      description
-        "This leaf reflects the configured/default TTL value that is used in the
-         outer header during packet encapsulation. When this leaf is not set,
-         the TTL value of the inner packet is copied over as the outer packet's
-         TTL value during encapsulation.";
-    }
-
-    leaf tos {
-      type uint8;
-      description
-        "This leaf reflects the configured/default TOS value that is used in the
-         outer header during packet encapsulation. When this leaf is not set,
-         the TOS value of the inner packet is copied over as the outer packet's
-         TOS value during encapsulation.";
     }
   }
 
