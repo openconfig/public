@@ -23,12 +23,12 @@ module openconfig-system-logging {
     "This module defines configuration and operational state data
     for common logging facilities on network systems.";
 
-  oc-ext:openconfig-version "0.5.1";
+  oc-ext:openconfig-version "0.6.0";
 
 revision "2023-07-20" {
     description
       "adding VTY and local files as logging destinations";
-    reference "0.5.1";
+    reference "0.6.0";
   }
 
   revision "2023-05-04" {
@@ -488,7 +488,7 @@ revision "2023-07-20" {
         length 0..255;
       }
       description
-        "filename prefix. It is expected that implementation may append to it timestamp, serial-number or other type of identifier";
+        "A name used for the file.  It is expected that an implementation may append timestamp, serial-number or other identifier to the filename.";
     }
 
     leaf path {
@@ -496,14 +496,15 @@ revision "2023-07-20" {
         length 0..255;
       }
       description
-        "path to the folder where logfile is stored. May include drive identifier is implementation requires";
+        "The fully specified path of the folder where the logfile is stored.  The path is implementation specific
+        and may include attributes such as a drive identifier.";
     }
 
     leaf count {
       type uint32;
       default 1;
       description
-        "Used for logfile rotation. maximum number of files of given filename-prefix stored. Default value: 1. ";
+        "Used for logfile rotation.   When the max-size limit is reached the active file is rotated.  Log files are rotated the number of times defined by this leaf.  The default value of 1 indicates that there will be one rotation file and one active file.  A 0 value indicates old versions are removed rather than rotated.";
     }
 
     leaf max-size {
