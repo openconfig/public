@@ -511,14 +511,20 @@ revision "2023-07-20" {
       type uint32;
       default 1000;
       description
-        "Maximum size logfile may grow to. When logfile reach this size it need to be closed, save, and new file open or future log storage. If needed oldest logfile of same prefix shall be deleted to";
+        "Maximum size in Bytes, logfile may grow to. When logfile reach this size it triggers log rotation.
+        The log file need to be save, closed, and new file open or future log storage.
+        If needed oldest logfile of same prefix shall be deleted to";
     }
 
     leaf max-open-time {
       type uint32;
       default 1440;
       description
-        "Maximum time, in minutes, the logfile can be open. When expires, it need to be closed, save, and new file open or future log storage. If needed oldest logfile of same prefix shall be deleted to ";
+        "Maximum time, in minutes, the logfile can be open. When expires, 
+        it triggers log rotation.
+        Actions are same ans when log file reaches its max-size. 
+        it need to be closed, save, and new file open or future log storage. 
+        If needed oldest logfile of same prefix shall be deleted to ";
     }
   }
 
@@ -566,17 +572,13 @@ revision "2023-07-20" {
         container config {
           description
             "Configuration data for logfile";
-
           uses logging-file-config;
         }
 
         container state {
-
           config false;
-
           description
             "Operational state data for logfile servers";
-
           uses logging-file-config;
           uses logging-file-state;
         }
@@ -602,16 +604,12 @@ revision "2023-07-20" {
       }
 
       container state {
-
         config false;
-
         description
           "Operational state data for console logging";
-
         uses logging-console-config;
         uses logging-console-state;
       }
-
       uses logging-selectors-top;
     }
   }
