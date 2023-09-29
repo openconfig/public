@@ -87,7 +87,14 @@ module openconfig-routing-policy {
     default value for the default-(import|export)-policy leaf must be
     applied.  See RFC6020 7.6.1 which applies to this model.";
 
-  oc-ext:openconfig-version "3.4.1";
+  oc-ext:openconfig-version "3.4.2";
+
+  revision "2023-11-01" {
+    description
+      "Refactor apply policy to separate default policy in it's own common
+      set of groupings";
+    reference "3.4.2";
+  }
 
   revision "2023-10-24" {
     description
@@ -1211,6 +1218,11 @@ module openconfig-routing-policy {
         for the current peer group, neighbor, address family,
         etc.";
     }
+  }
+
+  grouping default-policy-import-config {
+    description
+      "Configuration data for default import policy";
 
     leaf default-import-policy {
       type default-policy-type;
@@ -1219,7 +1231,6 @@ module openconfig-routing-policy {
         "explicitly set a default policy if no policy definition
         in the import policy chain is satisfied.";
     }
-
   }
 
   grouping apply-policy-export-config {
@@ -1241,6 +1252,11 @@ module openconfig-routing-policy {
         for the current peer group, neighbor, address family,
         etc.";
     }
+  }
+
+  grouping default-policy-export-config {
+    description
+      "Configuration data for default export policy";
 
     leaf default-export-policy {
       type default-policy-type;
@@ -1251,19 +1267,34 @@ module openconfig-routing-policy {
     }
   }
 
-
   grouping apply-policy-config {
     description
       "Configuration data for routing policies";
 
     uses apply-policy-import-config;
     uses apply-policy-export-config;
-
+    uses default-policy-config;
   }
 
+  grouping default-policy-config {
+    description
+      "Configuration data for default routing policies";
 
+    uses default-policy-import-config;
+    uses default-policy-export-config;
+  }
 
   grouping apply-policy-state {
+    description
+      "Operational state associated with routing policy";
+
+    uses default-policy-state;
+
+    //TODO: identify additional state data beyond the intended
+    //policy configuration.
+  }
+
+  grouping default-policy-state {
     description
       "Operational state associated with routing policy";
 
@@ -1299,6 +1330,35 @@ module openconfig-routing-policy {
 
         uses apply-policy-config;
         uses apply-policy-state;
+      }
+    }
+  }
+
+  grouping default-policy-group {
+     description
+      "Top level container for default routing policy applications.";
+
+    container apply-policy {
+      description
+        "Anchor point for routing policies in the model.
+        Import and export policies are with respect to the local
+        routing table, i.e., export (send) and import (receive),
+        depending on the context.";
+
+      container config {
+        description
+          "Policy configuration data.";
+
+        uses default-policy-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state for routing policy";
+
+        uses default-policy-config;
+        uses default-policy-state;
       }
     }
   }
