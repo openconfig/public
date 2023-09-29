@@ -442,7 +442,8 @@ revision "2023-07-20" {
 
     container remote-servers {
       description
-        "Enclosing container for the list of remote log servers";
+        "Enclosing container for the list of remote log 
+         servers";
 
       list remote-server {
         key "host";
@@ -488,7 +489,9 @@ revision "2023-07-20" {
         length 0..255;
       }
       description
-        "A name used for the file.  It is expected that an implementation may append timestamp, serial-number or other identifier to the filename.";
+        "A name used for the file.  It is expected that an
+        implementation may append timestamp, serial-number or
+        other identifier to the filename.";
     }
 
     leaf path {
@@ -496,23 +499,31 @@ revision "2023-07-20" {
         length 0..255;
       }
       description
-        "The fully specified path of the folder where the logfile is stored.  The path is implementation specific
+        "The fully specified path of the folder where the 
+        logfile is stored.  The path is implementation specific
         and may include attributes such as a drive identifier.";
     }
 
-    leaf count {
+    leaf rotate {
       type uint32;
-      default 1;
+      default 0;
       description
-        "Used for logfile rotation.   When the max-size limit is reached the active file is rotated.  Log files are rotated the number of times defined by this leaf.  The default value of 1 indicates that there will be one rotation file and one active file.  A 0 value indicates old versions are removed rather than rotated.";
+        "Used for logfile rotation.
+         Log files are rotated the number of times defined by
+         this leaf.
+         The default value of 1 indicates that there will be one
+         rotation file and one active file.  A 0 value indicates 
+         old versions are removed rather than rotated.";
     }
 
     leaf max-size {
       type uint32;
       default 1000;
       description
-        "Maximum size in Bytes, logfile may grow to. When logfile reach this size it triggers log rotation.
-        The log file need to be save, closed, and new file open or future log storage.
+        "Used for logfile rotation.
+        Maximum size in Bytes, logfile may grow to. When logfile
+        reach this size it triggers log rotation. The log file need to
+        be save, closed, and new file open or future log storage.
         If needed oldest logfile of same prefix shall be deleted to";
     }
 
@@ -520,11 +531,13 @@ revision "2023-07-20" {
       type uint32;
       default 1440;
       description
-        "Maximum time, in minutes, the logfile can be open. When expires, 
+        "Used for logfile rotation.
+        Maximum time, in minutes, the logfile can be open. When expires, 
         it triggers log rotation.
         Actions are same ans when log file reaches its max-size. 
-        it need to be closed, save, and new file open or future log storage. 
-        If needed oldest logfile of same prefix shall be deleted to ";
+        it need to be closed, save, and new file open or future log 
+        storage. If needed oldest logfile of same prefix shall be
+        deleted to ";
     }
   }
 
@@ -536,7 +549,8 @@ revision "2023-07-20" {
         length 0..511;
       }
       description
-        "the currently active/open filename prepended by folder path and including suffix appended to filename-prefix by system";
+        "the currently active/open filename prepended by folder path
+        and including suffix appended to filename-prefix by system";
     }
   }
 
