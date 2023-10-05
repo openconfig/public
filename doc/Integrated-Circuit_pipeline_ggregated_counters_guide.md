@@ -1,8 +1,8 @@
 # Intergrated Circuit aggregated pipeline counters guide
 ## Introduction
-This gude discuss semantics of different counters provided under 
+This guide discusses semantics of different counters provided under the
 `openconfig-platform/components/component/integrated-circuit/pipeline-counters` container.
-The "Integrated Circuit" or I-C, in this document is abstract term refering ASIC or NPUs (or combination of both) that provides packet processing capabilities.
+The `INTEGRATED_CIRCUIT` or I-C, in this document refers to the OpenConfig [INTEGRATED_CIRCUIT](https://github.com/openconfig/public/blob/5d38d8531ef9c5b998262207eb6dbdae8968f9fe/release/models/platform/openconfig-platform-types.yang#L346) component type which is typically an ASIC or NPU (or combination of both) that provides packet processing capabilities.
 
 ## Per-block packets/octets counters
 [TODO] more detailed description
@@ -79,11 +79,12 @@ Note: corrupted packet recived on ingress interface should be counted separatly 
 
 
 ##### Usability
-The increments of this counter are generally signall of some hardware defect (e.g. memory errors or signal integrity issues) or (micro)code softwafe defects. 
+The increments of this counter are generally a signal of a hardware defect (e.g. memory errors or signal integrity issues) or (micro)code software defects. 
 
 #### Queue tail and AQM drops exeption discussion.
-Drops assotiated tith QoS queue tail or AQM are result of egress interface congestion. What is NOT the same as I-C congestion, and shoudl be considered normal, expected state from platform (router) point of view. It may be not expected state form Network design point of view but this perspective is not what individual network device is aware of.
-The OpenConfig definition for `congestion-aggregate` clerly excludes "queue drop counters". It has also perfect sens to not coult QoS queue drops under this `congestion-aggregate` in order to keep it a clear signal of hitting I-C performance limitations, rather then blend it with basic, simple egress interface speed limitations.
+Drops associated with QoS queue tail or AQM are the result of egress interface congestion.   This is NOT the same as I-C congestion, and should be counted using /interfaces counters as it is expected state from the platform (router) point of view. It may be not expected state from a network design point of view but from the INTEGRATED_CIRCUIT, it is behaving according to design.   
+
+The OpenConfig definition for [congestion-aggregate](https://github.com/openconfig/public/blob/5d38d8531ef9c5b998262207eb6dbdae8968f9fe/release/models/platform/openconfig-platform-pipeline-counters.yang#L1096-L1099) excludes "queue drop counters". It desirable to  not count QoS queue drops under this `congestion-aggregate` in order to maintain a clear signal of hitting I-C performance limitations, rather then blend it with basic, simple egress interface speed limitations.
 
 ### Per-Block drop copunters
 [TODO] more detailed description for standard OpenConfig drop counters defined for Interface-, Lookup-, Queueing-, Fabric-  and Host-Interface- blocks. Also discuss relationship with Control plane traffic packets/octets counters.
