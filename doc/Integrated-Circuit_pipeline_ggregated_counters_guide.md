@@ -7,7 +7,7 @@ The `INTEGRATED_CIRCUIT` or I-C, in this document refers to the OpenConfig [INTE
 ## Per-block packets/octets counters
 [TODO] more detailed description
 ## Drop packets/octets counters
-The drop container collects counters related to packet dropped for varouus reasons and in varous places inside "Integrated Circuit".
+The `/components/component/integrated-circuit/pipeline-counters/drop` container collects counters related to packets dropped by the `INTEGRATED_CIRCUIT`.
 ### Aggregated drop counters
 These 4 counters should cover all packets dropped by the IC which are not already covered by the /interfaces tree.   For example, a packet which is dropped due to QoS policy for WRED should be counted only by the appropriate /interfaces path [dropped-pkts](https://github.com/openconfig/public/blob/5d38d8531ef9c5b998262207eb6dbdae8968f9fe/release/models/qos/openconfig-qos-interfaces.yang#L375).    
 
