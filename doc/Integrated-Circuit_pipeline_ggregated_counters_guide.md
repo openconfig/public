@@ -9,7 +9,9 @@ The `INTEGRATED_CIRCUIT` or I-C, in this document refers to the OpenConfig [INTE
 ## Drop packets/octets counters
 The drop container collects counters related to packet dropped for varouus reasons and in varous places inside "Integrated Circuit".
 ### Aggregated drop counters
-This 4 counters should cover all packets dropped inside I-C with one exeption - packet driopped due to QoS queue tail-drop or AQM (RED/WRED).  Aggregated drop couters are modeled as below:
+These 4 counters should cover all packets dropped by the IC which are not already covered by the /interfaces tree.   For example, a packet which is dropped due to QoS policy for WRED should be counted only by the appropriate /interfaces path [dropped-pkts](https://github.com/openconfig/public/blob/5d38d8531ef9c5b998262207eb6dbdae8968f9fe/release/models/qos/openconfig-qos-interfaces.yang#L375).    
+
+Aggregated drop counters are modeled as below:
 ```
 module: openconfig-platform
   +--rw components
