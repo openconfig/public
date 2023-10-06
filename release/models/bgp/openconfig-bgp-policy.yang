@@ -28,7 +28,13 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "6.1.1";
+  oc-ext:openconfig-version "6.2.0";
+
+  revision "2023-10-06" {
+    description
+    "Add PEER_ADDRESS to bgp-next-hop-type";
+    reference "6.2.0";
+  }
 
   revision "2023-03-27" {
     description
@@ -154,6 +160,11 @@ module openconfig-bgp-policy {
         enum SELF {
           description "special designation for local router's own
           address, i.e., next-hop-self";
+        }
+        enum PEER_ADDRESS {
+          description "The ip address of the peer should be used.
+          This enum is efficient to use when setting the next hop
+          in a policy applied to a peer group.";
         }
       }
     }
