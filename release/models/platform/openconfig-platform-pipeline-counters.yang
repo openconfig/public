@@ -1120,13 +1120,13 @@ module openconfig-platform-pipeline-counters {
         1/3 of packets would be cropped and should be counted against
         congestion-aggregate.
 
-        Another example is the case when some I_C data bus is too narrow/slow
-        for handling traffic. For example let's assume chip X needs to sent
-        3Tbps of it's ingress traffic to external buffer memory, which has only
-        2Tbps access I/O. It this case pactes would be discarded, because of
-        internal congestion of memory I/O bus. Note, this packet are discarded
-        even if queues are very little used, hence this are NOT QoS queue
-        tail-drops nor WRED drops.
+        Another example is the case when some INTEGRATED_CIRCUIT internal data bus is 
+        too narrow/slow for handling traffic. For example let's assume chip X needs to send
+        3Tbps of traffic to an external buffer memory which has only 2Tbps access I/O.  In 
+        this case packets would be discarded, because of congestion of memory I/O bus 
+        which is part of the INTEGRATED_CIRCUIT.  Depending on the design of the
+        INTEGRATED_CIRCUIT, packets could be discarded even if interface queues are 
+        not full, hence this scenario is NOT treated as QoS queue tail-drops nor WRED drops.
 
         Yet another example is the case where extreemly large and long
         ACL/filter requires more cycles to process then NPU is bugeted for. ";
