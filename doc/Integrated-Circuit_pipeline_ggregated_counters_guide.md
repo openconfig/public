@@ -60,8 +60,8 @@ The OpenConfig definition for [congestion-aggregate](https://github.com/openconf
 ### Vendor extensions
 Please refer to [Vendor-Specific Augmentation for Pipeline Counter](vendor_counter_guide.md)
 ## Error counters
-This counters **do not** counts **packets or bytes**.
-They counte error events per block.
+These leafs **do not** count **packets or bytes**.
+They count error events.
 
 For example corruption of on chip, HBM or chip external memory buffers (soft-error) which also are not already counted as queue drops for interfaces.
 
