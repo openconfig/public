@@ -1088,16 +1088,17 @@ module openconfig-platform-pipeline-counters {
         unexpectedly dropping packets. Occurrence of these drops on a stable
         (no recent hardware or config changes) and otherwise healthy
         switch needs further investigation.
-        This counter counts packet discarded as resutlt of **corrupted** 
-        programming state in I-C or **corrupted** data structures of packet
-        descriptors.
+        This leaf counts packet discarded as result of corrupted
+        programming state in an INTEGRATED_CIRCUIT or corrupted data 
+        structures of packet descriptors.
 
-        Note: corrupted packet recived on ingress interface should be counted
-        separatly in `/interfaces/interface/state/counters/in-errors` and
-        NOT counted as `adverse-aggregate`. This is because incomming corrupted
-        packets are NOT a signal of adverse state of given I-C (but rather of
-        upstream system). Therefore it is better not to count such drops as
-       `adverse-aggregate` to keep it clean signal of I-C adverse state.";
+        Note: corrupted packets received on ingress interfaces should be counted
+        in `/interfaces/interface/state/counters/in-errors` and NOT counted as 
+        adverse-aggregate. This is because incoming corrupted packets are NOT
+        a signal of adverse state of an INTEGRATED_CIRCUIT but rather of an
+        entity adjacent to the Interface, such as a cable or transceiver). Therefore
+        such drops SHOULD NOT be counted as adverse-aggregate to preserve
+        a clean signal of INTEGRATED_CIRCUIT adverse state.";
     }
 
     leaf congestion-aggregate {
