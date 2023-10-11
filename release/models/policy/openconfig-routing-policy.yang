@@ -51,16 +51,18 @@ module openconfig-routing-policy {
     Evaluation of each policy definition proceeds by evaluating its
     corresponding individual policy statements in order.  When a
     condition statement in a policy statement is satisfied, the
-    corresponding action statement is executed.  If the action
-    statement has a final disposition configured as policy result, either accept-route or reject-route,
-    evaluation of the current policy definition stops after having executed all the defined actions , and no further policy statements are evaluated. In case there is a policy chain, no further 
-    policy definitions in the chain are evaluated.  If the action
-    statement has the NEXT_STATEMENT action, policy evaluation proceeds
-    to the next statement. If the action statement has the NEXT-POLICY
-    action, evaluation of statements within the current policy stops.
-    Any modifications to a route are preserved and evaluation proceeds
-    to the next policy, if any.  The NEXT_STATEMENT is the default
-    policy result action.
+    corresponding action statement is executed.
+
+    If the action statement has either accept-route or reject-route actions,
+    policy evaluation of the current policy definition stops, all
+    modifications to the route are applied and no further statements in the
+    policy are evaluated. In case there is a policy chain, no further policy
+    definitions in the chain are evaluated.  If the action statement has
+    the NEXT_STATEMENT action, policy evaluation proceeds to the next
+    statement.  If the action statement has the NEXT-POLICY action all
+    the modifications to the route are applied, evaluation of statements
+    within the current policy stops and the next policy in the chain is
+    evaluated.
 
     If the condition is not satisfied, then evaluation proceeds to
     the next policy statement.  If none of the policy statement
@@ -83,13 +85,7 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
-  oc-ext:openconfig-version "3.4.0";
-
-  revision "2023-08-31" {
-    description
-      "Add 'continue' to policy-result-type.";
-    reference "3.4.0";
-  }
+  oc-ext:openconfig-version "3.3.0";
 
   revision "2022-05-24" {
     description
@@ -191,10 +187,9 @@ module openconfig-routing-policy {
         evaluation proceeds to the next policy.";
       }
     }
-    default NEXT_STATEMENT;
     description
       "Type used to specify route disposition in
-      a policy chain.";
+      a policy chain";
   }
 
 
