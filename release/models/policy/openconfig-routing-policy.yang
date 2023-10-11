@@ -77,7 +77,16 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2022-10-11" {
+    description
+      "Adding explicit policy statement action of NEXT_STATEMENT. Defining
+      default policy statement action as REJECT.
+      Clarify behaviour if given route is not explicitly accepted or rejected in
+      any of statement of any of policies on the list";
+    reference "3.4.0";
+  }
 
   revision "2022-05-24" {
     description
@@ -166,6 +175,14 @@ module openconfig-routing-policy {
       }
       enum REJECT_ROUTE {
         description "Policy rejects the route";
+      }
+      enum NEXT_STATEMENT {
+        description "Route is passed to next statement for evaluation.
+          If current statement is last in policy, route is passed to next policy
+          (if exists).
+          If current statement is last one in last policy, route is REJECTED,
+          unless other configuration or standard (e.g. RFC8212) state 
+          different explicitly";
       }
     }
     description
@@ -738,9 +755,10 @@ module openconfig-routing-policy {
 
     leaf policy-result {
       type policy-result-type;
+      default NEXT_STATEMENT;
       description
         "Select the final disposition for the route, either
-        accept or reject.";
+        accept, reject or pass to next statement for evaluation.";
     }
   }
 
