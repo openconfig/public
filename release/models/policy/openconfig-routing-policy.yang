@@ -56,10 +56,10 @@ module openconfig-routing-policy {
     accept-route or reject-route, evaluation of the current policy definition
     stops, and no further policy statements are evaluated. In case there is a
     policy chain, no further policy definitions in the chain are evaluated.
-    
+
     If the action statement has the NEXT_STATEMENT policy result, all the
     defined actions are exectued and policy evaluation proceeds to the next
-    statement. If the action statement has NEXT-POLICY as the policy result,
+    statement.  If the action statement has NEXT-POLICY as the policy result,
     there is no final disposition of the route, all the defined actions are
     executed, evaluation of statements within the current policy stops and
     evaluation proceeds to the next policy in the chain, if any.  The
@@ -86,7 +86,13 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2023-10-11" {
+    description
+      "Add NEXT_STATEMENT and NEXT_POLICY policy-result-type enums.";
+    reference "3.4.0";
+  }
 
   revision "2022-05-24" {
     description
