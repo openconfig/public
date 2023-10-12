@@ -77,7 +77,16 @@ module openconfig-routing-policy {
     the remaining conditions (using a modified route if the
     subroutine performed any changes to the route).";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.3.1";
+
+  revision "2022-10-12" {
+    description
+      "Clarification of semantics of default-import-policy,
+      default-export-policy leaves.
+      
+      Adding RFC8212 default-policy-type enum";
+    reference "3.3.1";
+  }
 
   revision "2022-05-24" {
     description
@@ -152,6 +161,13 @@ module openconfig-routing-policy {
       enum REJECT_ROUTE {
         description
           "Default policy to reject the route";
+      }
+      enum RFC8212 {
+        description
+          "Default policy to RFC8212. Applicable to BGP only.
+          It reject routes on eBGP session and accept on iBGP
+          if used in reference form other protocol implementation
+          shall returns error.";
       }
     }
     description
@@ -1186,8 +1202,14 @@ module openconfig-routing-policy {
       type default-policy-type;
       default REJECT_ROUTE;
       description
-        "explicitly set a default policy if no policy definition
-        in the import policy chain is satisfied.";
+        "explicitly set a default action on route if:
+        - import-policy leaf list is empty.
+        - route does not satisfy condition in any statement of
+          any policiey on inport-policy leaf-list.
+        - route does satisfy condition in some statements of
+          of some policies on inpolrt-policy leaf-list, but all 
+          this statements do not provid route disposition
+          action (accept or reject).";
     }
 
   }
@@ -1216,8 +1238,14 @@ module openconfig-routing-policy {
       type default-policy-type;
       default REJECT_ROUTE;
       description
-        "explicitly set a default policy if no policy definition
-        in the export policy chain is satisfied.";
+        "explicitly set a default action on route if:
+        - import-policy leaf list is empty.
+        - route does not satisfy condition in any statement of
+          any policiey on inport-policy leaf-list.
+        - route does satisfy condition in some statements of
+          of some policies on inpolrt-policy leaf-list, but all 
+          this statements do not provid route disposition
+          action (accept or reject).";
     }
   }
 
