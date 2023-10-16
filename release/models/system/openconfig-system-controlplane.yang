@@ -315,12 +315,34 @@ module openconfig-system-controlplane {
                 augment /system/control-plane-traffice/ingress/embaded-limits/vendor {
                   container <vendor name> {
                     container <platform name> {
-                      container state {
-                        leaf counter-a {
-                          uses system-controlplane-embadaed-limits-traffic-state;
+                      container <traffic-bucket-name>
+                        container config {
+                          leaf packet-max-rate {
+                              ...
+                           }
+                          leaf packet-burst-count {
+                             ...
+                          }
+                          ...
                         }
-                        leaf counter-b {
-                          uses system-controlplane-embadaed-limits-traffic-state;
+                        container state {
+                            leaf packet-max-rate {
+                              ...
+                            }
+                            leaf packet-burst-count {
+                              ...
+                            }
+                            ...
+                            leaf abstract-bucket {
+                              type string;
+                              description
+                                "One of abstract buckets defined under ../abstaract-buckets/,
+                                such 'bgp' or 'L2control'.
+                                This self-documentation allows client to assotiate vendor
+                                counter with vendor-neutral, abstract coares counter";
+                            }
+                            uses system-controlplane-embadaed-limits-traffic-state;
+                          }
                         }
                       }
                     }
