@@ -45,9 +45,16 @@ module openconfig-system-controlplane {
        The specified control-plane ACL is applied to traffic received by the
        control-plane of the system.";
 
-    oc-ext:openconfig-version "0.2.0";
+    oc-ext:openconfig-version "0.3.0";
     oc-ext:catalog-organization "openconfig";
     oc-ext:origin "openconfig";
+
+    revision "2023-10-16" {
+      description
+        "Add embaded-limits container for  vendor-neutral, abstract expression 
+        of platform build-in protection limits";
+      reference "0.3.0";
+    }
 
     revision "2023-03-03" {
       description
@@ -79,9 +86,11 @@ module openconfig-system-controlplane {
           uses system-controlplane-acl-common-top;
 
           container qos {
+            deprecated;
             description
               "Configuration and operational state relating to QoS policies
-              that are applied to control-plane traffic.";
+              that are applied to control-plane traffic.
+              DEPRECATED in favor of embaded-limits container";
 
             container classifier {
               description
