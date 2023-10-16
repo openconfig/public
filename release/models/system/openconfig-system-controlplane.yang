@@ -51,7 +51,7 @@ module openconfig-system-controlplane {
 
     revision "2023-10-16" {
       description
-        "Add embaded-limits container for  vendor-neutral, abstract expression 
+        "Add embaded-limits container for  vendor-neutral, abstract expression
         of platform build-in protection limits";
       reference "0.3.0";
     }
@@ -210,7 +210,7 @@ module openconfig-system-controlplane {
           }
           container embaded-limits {
             description
-              "Each platform  and vendor has some implementation of 
+              "Each platform  and vendor has some implementation of
               embaded protection of control-plane, that is software running on
               general purpose CPU, against excessive ingress rate of incomming
               traffic.
@@ -221,35 +221,35 @@ module openconfig-system-controlplane {
               processing as well as packets droped due to embaded control plane
               protection rules.
               Furthermore, this container provides anchor point for vendor
-              extension that sould provide more detailed vendor and platform 
+              extension that sould provide more detailed vendor and platform
               specific view and ability to modify some attributes of embaded
               control plane protection rules (e.g. packet rate limits and burst
               sizes).
               ";
             container abstaract-buckets {
               container bgp {
-                description 
+                description
                   "BGP protocol packets with destination of this device";
                 container state {
                   uses system-controlplane-embadaed-limits-traffic-state;
                 }
               }
               container rsvp {
-                description 
+                description
                   "RSVP protocol packets passing this device";
                 uses system-controlplane-embadaed-limits-traffic-state;
               }
               container L3Routing {
-                description 
+                description
                   "Traffic with destination of this device, of all L3 routing
-                  protocols expet bgp and rsvp, which have their own conters 
+                  protocols expet bgp and rsvp, which have their own conters
                   - ISIS, OSPF, LDP, PIM, etc";
                 container state {
                   uses system-controlplane-embadaed-limits-traffic-state;
                 }
               }
               container L3Control {
-                description 
+                description
                   "Traffic with destination of this device, of L3 control
                   protocols: ICMP, VRRP, ARP, IPv6 ND, BFD, MPLS-OAM, IGMP, etc";
                 container state {
@@ -257,7 +257,7 @@ module openconfig-system-controlplane {
                 }
               }
               container L2control {
-                description 
+                description
                   "Traffic with destination of this device, of L2 control
                   protocols. E.g. LACP, LLDP, Eth-OAM, BPDU";
                 container state {
@@ -265,18 +265,18 @@ module openconfig-system-controlplane {
                 }
               }
               container trap-exeption {
-                description 
+                description
                   "Traffic with destination other then given device, that are not
-                  forwarded but send to Control Plane for further processing. 
+                  forwarded but send to Control Plane for further processing.
                   Examples are: TTL=1, egress MTU exceeded and DF set, no next-hop
-                  L2 address known - ARP/ND triggering, no match in FIB - ICMP no 
+                  L2 address known - ARP/ND triggering, no match in FIB - ICMP no
                   route to destination generattion, etc";
                 container state {
                   uses system-controlplane-embadaed-limits-traffic-state;
                 }
               }
               container sample-redirect {
-                description 
+                description
                   "Packets with destination other then given device, that are
                   intercepted to control plane via policy (e.g. P4RT) or samples of
                   this trafpackets send to control plane for further processing (sFlow,
@@ -286,8 +286,8 @@ module openconfig-system-controlplane {
                 }
               }
               container management {
-                description 
-                  "Traffic targeted this device used management - ssh, 
+                description
+                  "Traffic targeted this device used management - ssh,
                   telnet, ftp, gN*, snmp, netconf, rest, etc";
                 container state {
                   uses system-controlplane-embadaed-limits-traffic-state;
@@ -301,8 +301,8 @@ module openconfig-system-controlplane {
               }
             }
             container vendor {
-              description 
-                "An anchor point for vendor and platform specific 
+              description
+                "An anchor point for vendor and platform specific
                 extensions.
                 As each platform  and vendor has different implementation and internal
                 parts where packets may be dropped at any point in time. Providing
@@ -327,7 +327,7 @@ module openconfig-system-controlplane {
                   }
 
                 In addition to above, more granular packet/octet counters, also information
-                about rate limit and allowd burst size for each bucket should be exposed. 
+                about rate limit and allowd burst size for each bucket should be exposed.
                 Furthermore ability to configure rate limit and allowd burst size for each
                 bucket could be exposed.";
             }
