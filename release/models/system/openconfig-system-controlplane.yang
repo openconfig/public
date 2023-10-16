@@ -227,17 +227,30 @@ module openconfig-system-controlplane {
               sizes).
               ";
             container abstaract-buckets {
+              description 
+                "vendor-neutral, abstract, coarse,
+                  system-level view into packets delivered to control-plane for
+                  processing as well as packets droped due to embaded control plane
+                  protection rules.";
               container bgp {
                 description
                   "BGP protocol packets with destination of this device";
                 container state {
+                  description
+                    "control-plane protection bgp counters";
+                  config false;
                   uses system-controlplane-embadaed-limits-traffic-state;
                 }
               }
               container rsvp {
                 description
                   "RSVP protocol packets passing this device";
-                uses system-controlplane-embadaed-limits-traffic-state;
+                container state {
+                  description
+                    "control-plane protection rsvp counters";
+                  config false;
+                  uses system-controlplane-embadaed-limits-traffic-state;
+                }
               }
               container L3Routing {
                 description
@@ -245,6 +258,9 @@ module openconfig-system-controlplane {
                   protocols expet bgp and rsvp, which have their own conters
                   - ISIS, OSPF, LDP, PIM, etc";
                 container state {
+                  description
+                    "control-plane protection L3 routing protocols counters";
+                  config false;
                   uses system-controlplane-embadaed-limits-traffic-state;
                 }
               }
@@ -253,6 +269,9 @@ module openconfig-system-controlplane {
                   "Traffic with destination of this device, of L3 control
                   protocols: ICMP, VRRP, ARP, IPv6 ND, BFD, MPLS-OAM, IGMP, etc";
                 container state {
+                  description
+                    "control-plane protection L2 control protocols counters";
+                  config false;
                   uses system-controlplane-embadaed-limits-traffic-state;
                 }
               }
@@ -261,6 +280,9 @@ module openconfig-system-controlplane {
                   "Traffic with destination of this device, of L2 control
                   protocols. E.g. LACP, LLDP, Eth-OAM, BPDU";
                 container state {
+                  description
+                    "control-plane protection L2 control protocols counters";
+                  config false;
                   uses system-controlplane-embadaed-limits-traffic-state;
                 }
               }
@@ -272,6 +294,9 @@ module openconfig-system-controlplane {
                   L2 address known - ARP/ND triggering, no match in FIB - ICMP no
                   route to destination generattion, etc";
                 container state {
+                  description
+                    "control-plane protection trap and exeption packets counters";
+                  config false;
                   uses system-controlplane-embadaed-limits-traffic-state;
                 }
               }
@@ -282,6 +307,9 @@ module openconfig-system-controlplane {
                   this trafpackets send to control plane for further processing (sFlow,
                   IPFIX, etc.)";
                 container state {
+                  description
+                    "control-plane protection sampled and redirected packets counters";
+                  config false;
                   uses system-controlplane-embadaed-limits-traffic-state;
                 }
               }
@@ -290,12 +318,18 @@ module openconfig-system-controlplane {
                   "Traffic targeted this device used management - ssh,
                   telnet, ftp, gN*, snmp, netconf, rest, etc";
                 container state {
+                  description
+                    "control-plane protection management traffic counters";
+                  config false;
                   uses system-controlplane-embadaed-limits-traffic-state;
                 }
               }
               container remaining {
                 description "all other packets send to control plane";
                 container state {
+                  description
+                    "control-plane protection remaining packet counters";
+                  config false;
                   uses system-controlplane-embadaed-limits-traffic-state;
                 }
               }
