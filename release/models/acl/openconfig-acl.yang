@@ -189,6 +189,21 @@ module openconfig-acl {
       "Drop the packet and send an ICMP error message to the source";
   }
 
+  identity RATE_LIMIT {
+    base FORWARDING_ACTION;
+    description
+      "Rate limit traffic matching thie term. The rate-limit name must
+      be also provided.";
+  }
+
+  identity NEXT_ENTRY {
+    base FORWARDING_ACTION;
+    description
+      "Execute other action againts matching packet (e.g. log) and pass it
+        to subsequent entry of acl-set.
+        If there is no subsequent entry, drop packet.";
+  }
+
   identity LOG_ACTION {
     description
       "Base identity for defining the destination for logging
@@ -207,6 +222,66 @@ module openconfig-acl {
       "No logging";
   }
 
+  identity CNTR_RL_SCOPE {
+    description "Define how instances of counter, rate-limit are instantiated
+    in dataplane (INTEGRATED_CIRCUIT), and scope of sharing it among multiple
+    counting, rate-limiting acl-set and it's entries";
+  }
+
+  identity CNTR_RL_NONE {
+    base CNTR_RL_SCOPE;
+    description " No counting, rate-limiting is applied for traffic matching
+    given ACL entry";
+  }
+
+  identity CNTR_RL_TERM {
+    base CNTR_RL_SCOPE;
+    description "The counter, rte-limit instance is created per (entry,
+    acl-set, acl-set attachment point)";
+  }
+
+  identity CNTR_RL_ACL_SET {
+    base CNTR_RL_SCOPE;
+    description 
+    "The counter, rte-limit instance is created per (
+      acl-set, acl-set attachment point). For all entries of same acl-set
+      referencing same counter name or rate-limit name in action, shared
+      counter, rate-limit is provided";
+  }
+
+  identity CNTR_RL_ATTACHMENT {
+    base CNTR_RL_SCOPE;
+    description 
+    "The counter, rte-limit instance is created per acl-set attachment point.
+      For all entries of all acl-set attached to given point (e.g. 
+      /acl/interface/interface-ref or system/control-plane-traffic/)
+      referencing same counter name or rate-limit name in action, shared
+      counter, rate-limit is provided";
+  }
+
+  identity CNTR_RL_SYSTEM {
+    base CNTR_RL_SCOPE;
+    description 
+    "Single counter, rte-limit instance is created.
+      For all entries of all acl-set attached to all point, referencing same
+      counter name or rate-limit name in action, shared counter, rate-limit
+      is provided";
+  }
+
+  identity RL_TYPE {
+    description "Define type of named rate-limit";
+  }
+
+  identity RL_1R2C {
+    base RL_TYPE;
+    description " One Rate Two Color rate limit";
+  }
+
+  identity RL_2R3C {
+    base RL_TYPE;
+    description "Two Rate Three Color rate limit";
+  }
+ 
   identity ACL_COUNTER_CAPABILITY {
     description
       "Base identity for system to indicate how it is able to report
@@ -293,6 +368,50 @@ module openconfig-acl {
         must be specified for each ACL entry";
     }
 
+    continer rate-limit {
+      description: "";
+      leaf name {
+        description "name of rate limit to be applied";
+        mandatory true;
+        type leafref {
+        // we are at
+        // /acl/acl-sets/acl-set/acl-entries/acl-entry/actions/config/rate-limit
+        path "../../../../../../../rate-limits/"  +
+             "rate-limit/config/name";
+      }
+      }
+
+      leaf scope {
+        description 
+        "Define scope of rate-limit. It allows shared rate-limit
+          of trafifc matching multiple terms of multiple filters. Primary
+          reason for shared rate-limit is INTEGRATED_CIRCUIT resource
+          conservation.
+          Default value .";
+        defult CNTR_RL_TERM;
+        type identityref {
+          base CNTR_RL_SCOPE;
+        }
+      }
+    }
+
+    leaf log-action {
+      type identityref {
+        base LOG_ACTION;
+      }
+      default LOG_NONE;
+      description
+        "Specifies the log action and destination for
+        matched packets.  The default is not to log the
+        packet.
+        DEPRECATED";
+    }
+    uses action-modifier-config;
+  }
+
+  grouping action-modifier-config {
+    description "";
+
     leaf log-action {
       type identityref {
         base LOG_ACTION;
@@ -304,7 +423,32 @@ module openconfig-acl {
         packet.";
     }
 
+    //leaf traffic-group {
+    //  description "";
+    //  leafref ; TODO_RJS
+    //}
 
+    container counter {
+      description "";
+      leaf name {
+        description "Name of counter; for counters of CNTR_RL_TERM scoper
+        can be omitted and if specified shallbe ignored.
+        ";
+        type string;
+      }
+
+      leaf scope {
+        description 
+        "Define scope of counter. It allows shared counting
+         of packet form multiple terms of multiple filters. Primary reason for
+         shared counters is INTEGRATED_CIRCUIT resource conservation.
+         Default value disables counting.";
+        default CNTR_RL_NONE;
+        identityref {
+          base CNTR_RL_SCOPE;
+        }
+      }
+    }
   }
 
   grouping action-state {
@@ -875,6 +1019,140 @@ module openconfig-acl {
     }
   }
 
+  grouping rate-limit-config {
+    leaf name {
+      description
+      "";
+      type string;
+    }
+    leaf type {
+      description
+      "";
+      defult RL_1R2C;
+      type identityref {
+        base RL_TYPE;
+      }
+      leaf cir {
+        type uint64;
+        units bps;
+        description
+          "Committed information rate for commited token
+          bucket.  This value represents the rate at which
+          tokens are added to the commited bucket.";
+      }
+      leaf cbs {
+        type uint32;
+        units bytes;
+        description
+          "Committed burst size for the commited token bucket.
+          This value represents the depth of the token
+          bucket.";
+      }
+      leaf pir {
+        type uint64;
+        units bps;
+        description
+          "Peak information rate for commited token
+          bucket.  This value represents the rate at which
+          tokens are added to the commited bucket.
+          The rate-limit/type must be RL_2R3C";
+      }
+      leaf pbs {
+        type uint32;
+        units bytes;
+        description
+          "Peak burst size for the peak token bucket.
+          This value represents the depth of the token
+          bucket.
+          The rate-limit/type must be RL_2R3C";
+      }
+      container conform-action {
+        description
+          "Action to be applied to the packets that are served within the CIR
+           of the policer.
+           All packets that receive a token from this commited bucket have
+           all actions specified applied to them";
+        leaf forwarding-action {
+          type identityref {
+            base FORWARDING_ACTION;
+          }
+          mandatory true;
+          default ACCEPT;
+          description
+            "Specifies the forwarding action.  Only one forwarding action
+            can be specified. Only ACCEPT, REJECT or DENY acions are allowed";
+        }
+        uses action-modifier-config;
+      }
+      container exceed-action {
+        description
+          "Action to be applied to the packets that are served above CIR but,
+           if rate-limit type is RL_2R3C, within the PIR of the policer.
+           All packets that do not receive token from commited bucket and 
+           receive a token from peak bucket have all actions specified 
+           applied to them";
+        leaf forwarding-action {
+          type identityref {
+            base FORWARDING_ACTION;
+          }
+          mandatory true;
+          default ACCEPT;
+          description
+            "Specifies the forwarding action.  Only one forwarding action
+            can be specified. Only ACCEPT, REJECT or DENY acions are allowed";
+        }
+        uses action-modifier-config;
+      }
+      container violate-action {
+        description
+          "Action to be applied to the packets that are served above PIR
+           of the policer.
+           All packets that receive a token from this peak bucket have
+           all actions specified applied to them.
+           The rate-limit/type must be RL_2R3C";
+        leaf forwarding-action {
+          type identityref {
+            base FORWARDING_ACTION;
+          }
+          default ACCEPT;
+          description
+            "Specifies the forwarding action.  Only one forwarding action
+            can be specified. Only ACCEPT, REJECT or DENY acions are allowed";
+        }
+        uses action-modifier-config;
+      }
+    }
+  }
+
+  grouping acl-rate-limit-top {
+    description 
+    "";
+    container rate-limits {
+      description
+      "";
+      list rate-limit{
+        description
+        "";
+        key: "name"
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+        }
+        container config {
+          description
+          "";
+          uses rate-limit-config;
+        }
+        container state {
+          description
+          "";
+          uses rate-limit-config;
+        }
+      };
+
+    }
+  }
 
   grouping acl-config {
     description
@@ -923,6 +1201,7 @@ module openconfig-acl {
 
       uses acl-set-top;
       uses acl-interfaces-top;
+      uses acl-rate-limit-top;
     }
   }
 
