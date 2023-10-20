@@ -226,7 +226,7 @@ module openconfig-system-controlplane {
               control plane protection rules (e.g. packet rate limits and burst
               sizes).
               ";
-            container abstaract-buckets {
+            container abstaract-counters {
               description
                 "vendor-neutral, abstract, aggregated,
                   system-level view into packets delivered to control-plane for
@@ -349,7 +349,7 @@ module openconfig-system-controlplane {
                 augment /system/control-plane-traffice/ingress/built-in-limits/vendor {
                   container <vendor name> {
                     container <platform name> {
-                      container <traffic-bucket-name>
+                      container <traffic-counter-name>
                         container config {
                           leaf packet-max-rate {
                               ...
@@ -370,7 +370,7 @@ module openconfig-system-controlplane {
                             leaf aggregate-counter {
                               type string;
                               description
-                                \"One of abstract buckets defined under ../abstaract-buckets/,
+                                \"One of abstract counters defined under ../abstaract-counters/,
                                 such 'bgp' or 'L2control'.
                                 This self-documentation allows client to assotiate vendor
                                 counter with vendor-neutral, abstract coares counter\";
@@ -383,9 +383,9 @@ module openconfig-system-controlplane {
                   }
 
                 In addition to above, more granular packet/octet counters, also information
-                about rate limit and allowd burst size for each bucket should be exposed.
+                about rate limit and allowd burst size for each counter should be exposed.
                 Furthermore ability to configure rate limit and allowd burst size for each
-                bucket could be exposed.";
+                counter could be exposed.";
             }
           }
         }
