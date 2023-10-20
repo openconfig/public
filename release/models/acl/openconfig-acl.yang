@@ -242,7 +242,7 @@ module openconfig-acl {
 
   identity CNTR_RL_ACL_SET {
     base CNTR_RL_SCOPE;
-    description 
+    description
     "The counter, rte-limit instance is created per (
       acl-set, acl-set attachment point). For all entries of same acl-set
       referencing same counter name or rate-limit name in action, shared
@@ -251,9 +251,9 @@ module openconfig-acl {
 
   identity CNTR_RL_ATTACHMENT {
     base CNTR_RL_SCOPE;
-    description 
+    description
     "The counter, rte-limit instance is created per acl-set attachment point.
-      For all entries of all acl-set attached to given point (e.g. 
+      For all entries of all acl-set attached to given point (e.g.
       /acl/interface/interface-ref or system/control-plane-traffic/)
       referencing same counter name or rate-limit name in action, shared
       counter, rate-limit is provided";
@@ -261,7 +261,7 @@ module openconfig-acl {
 
   identity CNTR_RL_SYSTEM {
     base CNTR_RL_SCOPE;
-    description 
+    description
     "Single counter, rte-limit instance is created.
       For all entries of all acl-set attached to all point, referencing same
       counter name or rate-limit name in action, shared counter, rate-limit
@@ -281,7 +281,7 @@ module openconfig-acl {
     base RL_TYPE;
     description "Two Rate Three Color rate limit";
   }
- 
+
   identity ACL_COUNTER_CAPABILITY {
     description
       "Base identity for system to indicate how it is able to report
@@ -382,7 +382,7 @@ module openconfig-acl {
       }
 
       leaf scope {
-        description 
+        description
         "Define scope of rate-limit. It allows shared rate-limit
           of trafifc matching multiple terms of multiple filters. Primary
           reason for shared rate-limit is INTEGRATED_CIRCUIT resource
@@ -438,7 +438,7 @@ module openconfig-acl {
       }
 
       leaf scope {
-        description 
+        description
         "Define scope of counter. It allows shared counting
          of packet form multiple terms of multiple filters. Primary reason for
          shared counters is INTEGRATED_CIRCUIT resource conservation.
@@ -522,6 +522,37 @@ module openconfig-acl {
         interface is not required to also provide an aggregate count,
         e.g., per entry -- the user is expected to be able implement
         the required aggregation if such a count is needed.";
+    }
+
+    // rate-limit counters
+    leaf conformed-packets {
+      description "";
+      type oc-yang:counter64;
+    }
+
+    leaf conformed-octets {
+      description "";
+      type oc-yang:counter64;
+    }
+
+    leaf exceeding-packets {
+      description "";
+      type oc-yang:counter64;
+    }
+
+    leaf exceeding-octets {
+      description "";
+      type oc-yang:counter64;
+    }
+
+    leaf violating-packets {
+      description "";
+      type oc-yang:counter64;
+    }
+
+    leaf violating-octets {
+      description "";
+      type oc-yang:counter64;
     }
 
   }
@@ -729,6 +760,24 @@ module openconfig-acl {
   grouping interface-acl-entries-config {
     description
       "Configuration data for per-interface ACLs";
+    leaf rate-limit-name{
+      description "";
+      type string;
+    }
+
+    leaf forwarding-action {
+      description "";
+      type identityref {
+        base FORWARDING_ACTION;
+      }
+    }
+
+    leaf rate-limit-scope{
+      description "";
+      type identityref {
+        base CNTR_RL_SCOPE;
+      }
+    }
 
   }
 
@@ -1088,8 +1137,8 @@ module openconfig-acl {
         description
           "Action to be applied to the packets that are served above CIR but,
            if rate-limit type is RL_2R3C, within the PIR of the policer.
-           All packets that do not receive token from commited bucket and 
-           receive a token from peak bucket have all actions specified 
+           All packets that do not receive token from commited bucket and
+           receive a token from peak bucket have all actions specified
            applied to them";
         leaf forwarding-action {
           type identityref {
@@ -1125,7 +1174,7 @@ module openconfig-acl {
   }
 
   grouping acl-rate-limit-top {
-    description 
+    description
     "";
     container rate-limits {
       description
