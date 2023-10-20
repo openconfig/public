@@ -52,7 +52,7 @@ module openconfig-system-controlplane {
     revision "2023-10-16" {
       description
         "Add embedded-limits container for  vendor-neutral, abstract expression
-        of platform build-in protection limits";
+        of platform built-in protection limits";
       reference "0.3.0";
     }
 
@@ -90,7 +90,7 @@ module openconfig-system-controlplane {
             description
               "Configuration and operational state relating to QoS policies
               that are applied to control-plane traffic.
-              DEPRECATED in favor of build-in-limits container";
+              DEPRECATED in favor of built-in-limits container";
 
             container classifier {
               description
@@ -208,10 +208,10 @@ module openconfig-system-controlplane {
               }
             }
           }
-          container build-in-limits {
+          container built-in-limits {
             description
               "Each platform  and vendor has some implementation of
-              build-in protection of control-plane, that is software running on
+              built-in protection of control-plane, that is software running on
               general purpose CPU, against excessive ingress rate of incomming
               traffic.
               These implementations may vary significantly among vendors and
@@ -222,7 +222,7 @@ module openconfig-system-controlplane {
               protection rules.
               Furthermore, this container provides an anchor point for vendor
               extension to provide more detailed platform
-              specific view and ability to modify some attributes of build-in
+              specific view and ability to modify some attributes of built-in
               control plane protection rules (e.g. packet rate limits and burst
               sizes).
               ";
@@ -230,7 +230,7 @@ module openconfig-system-controlplane {
               description
                 "vendor-neutral, abstract, aggregated,
                   system-level view into packets delivered to control-plane for
-                  processing as well as packets droped due to build-in control plane
+                  processing as well as packets droped due to built-in control plane
                   protection rules.";
               container bgp {
                 description
@@ -239,7 +239,7 @@ module openconfig-system-controlplane {
                   description
                     "control-plane protection bgp counters";
                   config false;
-                  uses system-controlplane-build-in-limits-traffic-state;
+                  uses system-controlplane-built-in-limits-traffic-state;
                 }
               }
               container rsvp {
@@ -249,7 +249,7 @@ module openconfig-system-controlplane {
                   description
                     "control-plane protection rsvp counters";
                   config false;
-                  uses system-controlplane-build-in-limits-traffic-state;
+                  uses system-controlplane-built-in-limits-traffic-state;
                 }
               }
               container l3-routing {
@@ -261,7 +261,7 @@ module openconfig-system-controlplane {
                   description
                     "control-plane protection L3 routing protocols counters";
                   config false;
-                  uses system-controlplane-build-in-limits-traffic-state;
+                  uses system-controlplane-built-in-limits-traffic-state;
                 }
               }
               container l3-control {
@@ -272,7 +272,7 @@ module openconfig-system-controlplane {
                   description
                     "control-plane protection L2 control protocols counters";
                   config false;
-                  uses system-controlplane-build-in-limits-traffic-state;
+                  uses system-controlplane-built-in-limits-traffic-state;
                 }
               }
               container l2-control {
@@ -283,7 +283,7 @@ module openconfig-system-controlplane {
                   description
                     "control-plane protection L2 control protocols counters";
                   config false;
-                  uses system-controlplane-build-in-limits-traffic-state;
+                  uses system-controlplane-built-in-limits-traffic-state;
                 }
               }
               container trap-exeption {
@@ -297,7 +297,7 @@ module openconfig-system-controlplane {
                   description
                     "control-plane protection trap and exeption packets counters";
                   config false;
-                  uses system-controlplane-build-in-limits-traffic-state;
+                  uses system-controlplane-built-in-limits-traffic-state;
                 }
               }
               container sample-redirect {
@@ -310,7 +310,7 @@ module openconfig-system-controlplane {
                   description
                     "control-plane protection sampled and redirected packets counters";
                   config false;
-                  uses system-controlplane-build-in-limits-traffic-state;
+                  uses system-controlplane-built-in-limits-traffic-state;
                 }
               }
               container management {
@@ -321,7 +321,7 @@ module openconfig-system-controlplane {
                   description
                     "control-plane protection management traffic counters";
                   config false;
-                  uses system-controlplane-build-in-limits-traffic-state;
+                  uses system-controlplane-built-in-limits-traffic-state;
                 }
               }
               container remaining {
@@ -330,7 +330,7 @@ module openconfig-system-controlplane {
                   description
                     "control-plane protection remaining packet counters";
                   config false;
-                  uses system-controlplane-build-in-limits-traffic-state;
+                  uses system-controlplane-built-in-limits-traffic-state;
                 }
               }
             }
@@ -343,10 +343,10 @@ module openconfig-system-controlplane {
                 vendor-specific counters provides better visibility into control-plane
                 traffic.
                 The recommended usage of this container is to create an augment at
-                /system/control-plane-traffice/ingress/build-in-limits/vendor that contains additional
+                /system/control-plane-traffice/ingress/built-in-limits/vendor that contains additional
                 vendor/platform specific containers.
                 e.g.
-                augment /system/control-plane-traffice/ingress/build-in-limits/vendor {
+                augment /system/control-plane-traffice/ingress/built-in-limits/vendor {
                   container <vendor name> {
                     container <platform name> {
                       container <traffic-bucket-name>
@@ -375,7 +375,7 @@ module openconfig-system-controlplane {
                                 This self-documentation allows client to assotiate vendor
                                 counter with vendor-neutral, abstract coares counter\";
                             }
-                            uses system-controlplane-build-in-limits-traffic-state;
+                            uses system-controlplane-built-in-limits-traffic-state;
                           }
                         }
                       }
@@ -560,7 +560,7 @@ module openconfig-system-controlplane {
 
         uses system-controlplane-top;
     }
-    grouping system-controlplane-build-in-limits-traffic-state {
+    grouping system-controlplane-built-in-limits-traffic-state {
       description "";
       leaf accepted-pkts {
         type int64;
