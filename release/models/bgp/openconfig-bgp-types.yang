@@ -25,7 +25,23 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "5.3.1";
+  oc-ext:openconfig-version "5.5.0";
+
+  revision "2023-09-06" {
+    description
+      "Add GRACEFUL_SHUTDOWN as a BGP_WELL_KNOWN_STD_COMMUNITY";
+    reference "5.5.0";
+  }
+
+  revision "2023-03-31" {
+    description
+      "Add support for BGP large communities [rfc8092] in
+      send-community
+
+      Types impacted:
+      - community-type";
+    reference "5.4.0";
+  }
 
   revision "2021-08-06" {
     description
@@ -349,6 +365,16 @@ module openconfig-bgp-types {
       from bilateral peer sessions when they are tagged with this
       community value";
     reference "RFC3765";
+  }
+
+  identity GRACEFUL_SHUTDOWN {
+    base BGP_WELL_KNOWN_STD_COMMUNITY;
+    description
+      "An autonomous system which supports the graceful shutdown
+      receiver procedure receiving NLRI tagged with this community
+      will set LOCAL_PREF to a low value for those NLRI.  This
+      community has a value of 0xFFFF0000.";
+    reference "RFC8326";
   }
 
   typedef bgp-session-direction {
@@ -713,23 +739,34 @@ module openconfig-bgp-types {
   typedef community-type {
     type enumeration {
       enum STANDARD {
-        description "Send only standard communities";
+        description "Send standard communities";
       }
       enum EXTENDED {
-        description "Send only extended communities";
+        description "Send extended communities";
+      }
+      enum LARGE {
+        description "Send large communities";
       }
       enum BOTH {
-        description "Send both standard and extended communities";
+        description
+            "Send both standard and extended communities.
+            This value has been deprecated because the node is now
+            a leaf-list.";
+        status deprecated;
       }
       enum NONE {
-        description "Do not send any community attribute";
+        description
+            "Do not send any community attribute.
+            This value has been deprecated because the node is now
+            a leaf-list.";
+        status deprecated;
       }
     }
     description
       "type describing variations of community attributes:
       STANDARD: standard BGP community [rfc1997]
       EXTENDED: extended BGP community [rfc4360]
-      BOTH: both standard and extended community";
+      LARGE: large BGP community [rfc8092]";
   }
 
 

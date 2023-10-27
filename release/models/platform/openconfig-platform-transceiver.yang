@@ -66,7 +66,19 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.11.0";
+  oc-ext:openconfig-version "0.13.0";
+
+revision "2023-08-30" {
+    description
+      "Add transceiver module temperature thresholds";
+    reference "0.13.0";
+  }
+
+  revision "2023-06-27" {
+    description
+      "Add tx bias and voltage thresholds";
+    reference "0.12.0";
+  }
 
   revision "2023-05-03" {
     description
@@ -439,7 +451,9 @@ module openconfig-platform-transceiver {
 
     container thresholds {
       description
-        "Enclosing container for transceiver alarm thresholds.";
+        "Enclosing container for transceiver alarm thresholds.
+        Each threshold is compared to the instant value of the
+        measured parameter corresponding to the threshold";
 
       list threshold {
         key "severity";
@@ -802,6 +816,54 @@ module openconfig-platform-transceiver {
       units dBm;
       description
         "The lower power threshold for the laser input power.";
+    }
+    leaf laser-bias-current-upper{
+      description
+        "The upper threshold for the laser bias current.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units mA;
+    }
+    leaf laser-bias-current-lower{
+      description
+        "The lower threshold for the laser bias current.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units mA;
+    }
+    leaf supply-voltage-upper{
+      description
+        "The upper threshold for the transceiver supply voltage.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units volts;
+    }
+    leaf supply-voltage-lower{
+      description
+        "The lower threshold for the transceiver supply voltage.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units volts;
+    }
+    leaf module-temperature-lower {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The lower temperature threshold for the transceiver module.";
+    }
+    leaf module-temperature-upper {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The upper temperature threshold for the transceiver module.";
     }
   }
 

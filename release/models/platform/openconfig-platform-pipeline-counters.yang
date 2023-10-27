@@ -65,9 +65,15 @@ module openconfig-platform-pipeline-counters {
     5 blocks, is to have the abililty to receive all drop counters from
     all 5 blocks, for example, with one request.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2023-09-26" {
+    description
+      "Add no-route aggregate drop counter.";
+    reference "0.5.0";
+  }
 
   revision "2023-02-03" {
     description
@@ -1114,6 +1120,16 @@ module openconfig-platform-pipeline-counters {
         packets are dropped due to failing uRPF lookup check.  This counter
         and the packet-processing-aggregate counter should be incremented
         for each uRPF packet drop.";
+    }
+
+    leaf no-route {
+      type oc-yang:counter64;
+      description
+        "This aggregation of counters represents the conditions in which
+        packets are dropped due to no FIB entry for this ipv4 or ipv6 lookup.
+
+        This counter and the packet-processing-aggregate counter should be
+        incremented for each no-route packet drop.";
     }
 
   }

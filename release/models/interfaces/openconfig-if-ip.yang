@@ -44,7 +44,20 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.5.0";
+
+  revision "2023-08-14" {
+    description
+      "Add multicast counters for IPv4, IPv6.";
+    reference "3.5.0";
+  }
+
+revision "2023-06-30" {
+    description
+      "Deprecate IPv6 router advertisment config suppress leaf and add config
+      mode leaf.";
+    reference "3.4.0";
+  }
 
   revision "2023-04-12" {
     description
@@ -54,7 +67,7 @@ module openconfig-if-ip {
 
   revision "2023-02-06" {
     description
-      "Add ipv6 link-local configuration.";
+      "Add IPv6 link-local configuration.";
     reference "3.2.0";
   }
 
@@ -245,6 +258,31 @@ module openconfig-if-ip {
           Internet Protocol (IP)";
       }
 
+      leaf in-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of IP packets received for the specified
+          address family that are multicast packets.
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 4293: Management Information Base for the Internet
+          Protocol (IP) - ipSystemStatsHCInMcastPkts";
+      }
+
+      leaf in-multicast-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of octets received in input IP
+           multicast packets for the specified address
+           family, including those received in error.";
+        reference
+          "RFC 4293: Management Information Base for the Internet
+          Protocol (IP) - ipSystemStatsHCInMcastOctets";
+        }
+
       leaf in-error-pkts {
         // TODO: this counter combines several error conditions --
         // could consider breaking them out to separate leaf nodes
@@ -315,6 +353,32 @@ module openconfig-if-ip {
           "The total number of octets in IP packets for the
           specified address family that the device
           supplied to the lower layers for transmission.  This
+          includes packets generated locally and those forwarded by
+          the device.";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
+
+      leaf out-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of IP multicast packets transmitted.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)
+            - ipSystemStatsHCOutMcastPkts";
+      }
+
+      leaf out-multicast-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of IP multicast octets transmitted.  This
           includes packets generated locally and those forwarded by
           the device.";
         reference
@@ -939,6 +1003,15 @@ module openconfig-if-ip {
     description
       "Configuration parameters for IPv6 router advertisements.";
 
+    leaf enable {
+      type boolean;
+      default true;
+      description
+        "If set to false, all IPv6 router advertisement functions are
+        disabled.  The local system will not transmit router advertisement
+        messages and will not respond to router solicitation messages.";
+    }
+
     leaf interval {
       type uint32;
       units seconds;
@@ -957,11 +1030,33 @@ module openconfig-if-ip {
     }
 
     leaf suppress {
+      status deprecated;
       type boolean;
       default false;
       description
         "When set to true, router advertisement neighbor discovery
         messages are not transmitted on this interface.";
+    }
+
+    leaf mode {
+      type enumeration {
+        enum ALL {
+          description
+            "The system will transmit unsolicited router advertisement
+            messages and respond to router solicitation requests.";
+        }
+        enum DISABLE_UNSOLICITED_RA {
+          description
+            "Unsolicted router advertisement messages are not transmitted on
+            this interface.  Responses to router solicitation messages will
+            be transmitted.";
+        }
+      }
+      default "ALL";
+      description
+        "Mode controls which set of behaviors the local system should perform
+        to support IPv6 router advertisements.";
+      reference "RFC4861: Neighbor Discovery for IP version 6 (IPv6)";
     }
 
     leaf managed {
