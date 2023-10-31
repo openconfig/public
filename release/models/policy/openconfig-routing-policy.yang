@@ -80,9 +80,21 @@ module openconfig-routing-policy {
     policy.  Similarly, a reject-route action returns false.  If the
     subroutine returns true, the calling policy continues to evaluate
     the remaining conditions (using a modified route if the
-    subroutine performed any changes to the route).";
+    subroutine performed any changes to the route).
 
-  oc-ext:openconfig-version "3.4.0";
+    If a routing protocol is defined and the related
+    apply-policy/default-(import|export)-policy leaf is not set, the
+    default value for the default-(import|export)-policy leaf must be
+    applied.  See RFC6020 7.6.1 which applies to this model.";
+
+  oc-ext:openconfig-version "3.4.1";
+
+  revision "2023-10-24" {
+    description
+      "Clarify the use of default-(import|export)-policy when no policy
+      is applied to a protocol.";
+    reference "3.4.1";
+  }
 
   revision "2023-10-11" {
     description
