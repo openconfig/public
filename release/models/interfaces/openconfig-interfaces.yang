@@ -51,7 +51,13 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.5.0";
+  oc-ext:openconfig-version "3.6.0";
+  revision "2023-08-29" {
+      description
+        "Add augment for penalty-based additive-increase, exponential-decrease link damping algorithm.";
+      reference
+        "3.6.0";
+  }
 
   revision "2023-07-14" {
     description
@@ -493,6 +499,75 @@ module openconfig-interfaces {
 
         uses interface-phys-holdtime-config;
         uses interface-phys-holdtime-state;
+      }
+    }
+  }
+
+  grouping interface-link-damping-config {
+    description
+      "Configuration data for interface link damping settings.";
+
+    leaf max-suppress-time {
+      type uint32;
+      units milliseconds;
+      default 0;
+      description
+        "Maximum time an interface can remain damped since the last link down event no matter how unstable it has been prior to this period of stability. In a damped state, the interface’s state change will not be advertised.";
+    }
+
+    leaf decay-half-life {
+      type uint32;
+      units milliseconds;
+      default 0;
+        description
+          "The amount of time after which an interface’s penalty is decreased by half. Decay-half-time should not be more than max-suppress-time.";
+    }
+
+    leaf suppress-threshold {
+      type uint32;
+      default 0;
+        description
+          "The accumulated penalty that triggers the damping of an interface. A value of 0 indicates config is disabled.";
+    }
+
+    leaf reuse-threshold {
+      type uint32;
+      default 0;
+      description
+        "When the accumulated penalty decreases to this reuse threshold, the interface is not damped anymore. Interface state changes are advertised to applications. A value of 0 indicates config is disabled.";
+    }
+
+    leaf flap-penalty {
+      type uint32;
+      default 0;
+      description
+        "A penalty that each down event costs. A value of 0 indicates the config is disabled.";
+    }
+  }
+  grouping interface-link-damping-state {
+    description
+      "Operational state data for interface link damping settings.";
+  }
+  grouping link-damping-top {
+    description
+      "Top level grouping for link damping parameters.";
+
+    container penalty-based-aied {
+      description
+        "Top level container to suppress UP->DOWN link events using a penalty based additive-increase, exponential-decrease algorithm.";
+
+      container config {
+        description
+          "Configuration data for link damping settings.";
+          uses interface-link-damping-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for link damping settings.";
+        uses interface-link-damping-config;
+        uses interface-link-damping-state;
       }
     }
   }
@@ -1221,7 +1296,16 @@ module openconfig-interfaces {
           }
         }
 
-        uses interface-phys-holdtime-top;
+        uses interface-phys-holdtime-top {
+          when "./penalty-based-aied/config/suppress-threshold = 0
+          or ./penalty-based-aied/config/reuse-threshold = 0
+          or ./penalty-based-aied/config/flap-penalty = 0" {
+          description
+            "Hold time and penalty-based-aied are two algorithms to suppress
+            link transitions and must be mutually exclusive.";
+          }
+        }
+        uses link-damping-top;
         uses subinterfaces-top;
       }
     }
