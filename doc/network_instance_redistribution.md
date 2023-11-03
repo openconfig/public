@@ -22,7 +22,8 @@ In numerous use cases an operator wishes to take routes that exist in one protoc
 
 In those implementations that maintain a (virtual-) RIB per protocol, the operator must configure explicit connections between these tables, usually alongside a policy to allow such inter-protocol advertisement to occur. While no such configuration is required in those implementations that utilise a single RIB, it is notable that even in these implementations a protocol will not advertise another protocol's routes from the RIB by default (since such a setup would mean that for instance, the BGP DFZ would be re-advertised into the IGP at peering edge devices, which is clearly not desirable). Instead, an operator must create explicit configuration that matches routes installed into the RIB by a particular protocol, and then "import" these routes into the protocol that is expected to advertise them.
 
-In this latter case, the use of an import policy within a particular protocol instance is equivalent to the former - with the only difference being the context in which the policy is defined.   With a table per protocol, an explicit configuration of redistributing routes from protocol A to protocol B is specified.  In the latter case, the target protocol (protocol B) is specified, and a policy is used to select the source protocols from which routes may be imported for advertisement.
+In this latter case, the use of an import policy within a particular protocol instance is equivalent to the former - with the only difference being the context in which the policy is defined.   With a table per protocol, an explicit configuration of redistributing routes from protocol A to protocol B is specified.  In the latter case, the target protocol (protocol B) is specified, and a policy is used to select the source protocols from which routes may be imported for advertisement. 
+In both cases, it is important that the destination protocol (protocol B) in this case only place the redistributed routes from the source protocol (protocol A in this case) in its "advertisement RIB view", but do not use those routes in the active/installed/forwarding route selection process and,consequently, do not place them in the FIB (forwarding information base).
 
 ## OpenConfig Approach to Protocol RIB Interconnection
 
@@ -34,6 +35,8 @@ An OpenConfig `routing-policy` is specified along with the connection - allowing
  * Modifications to attributes of matching routes result in the imported routes in the destination protocol's RIB being modified, but do not modify the source protocol's RIB.
 
 It is expected that protocol-specific attributes (e.g., BGP communities) are set by such an import policy, allowing routes that are redistributed to carry information relating to their source (e.g., an IGP route may be tagged with a specific community using policy to indicate its provenance).
+
+In the absense of an import-policy for table-connections, default-import-policy should take effect. In the absence of both, no routes should be allowed to be redistributed.
 
 ## Examples of OpenConfig Network instance
 
