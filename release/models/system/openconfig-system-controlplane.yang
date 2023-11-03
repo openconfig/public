@@ -349,31 +349,31 @@ module openconfig-system-controlplane {
                 augment /system/control-plane-traffice/ingress/built-in-limits/vendor {
                   container <vendor name> {
                     container <platform name> {
-                      container <traffic-counter-name>
+                      container <traffic-group-name>
                         container config {
                           leaf packet-max-rate {
                               ...
                            }
-                          leaf packet-burst-count {
+                          leaf packet-burst-size {
                              ...
                           }
                           ...
-                        }
-                        container state {
+                          }
+                          container state {
                             leaf packet-max-rate {
                               ...
                             }
-                            leaf packet-burst-count {
+                            leaf packet-burst-size {
                               ...
                             }
                             ...
-                            leaf aggregate-counter {
+                            leaf aggregate-counter-name {
                               type string;
                               description
                                 \"One of abstract counters defined under ../abstaract-counters/,
                                 such 'bgp' or 'L2control'.
-                                This self-documentation allows client to assotiate vendor
-                                counter with vendor-neutral, abstract coares counter\";
+                                This self-documentation allows client to assotiate multiple vendor
+                                counters with vendor-neutral, abstract coarse counter\";
                             }
                             uses system-controlplane-built-in-limits-traffic-state;
                           }
