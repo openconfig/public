@@ -3,7 +3,7 @@ module openconfig-aft-summary {
 
   namespace "http://openconfig.net/yang/aft-summary";
 
-  prefix "oc-rtsummary";
+  prefix "oc-aftsummary";
 
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-yang-types { prefix "oc-yang-types"; }
@@ -86,34 +86,34 @@ module openconfig-aft-summary {
 
   grouping aft-summary-ipv4 {
     description
-      "Grouping of all route summaries for ipv4.";
+      "Grouping of all aft summaries for ipv4.";
       container ipv4-unicast {
         description
-          "Container for ipv4 unicast route summary by protocol type.";
+          "Container for ipv4 unicast aft summary by protocol type.";
         uses aft-summary;
       }
   }
 
   grouping aft-summary-ipv6 {
     description
-      "Grouping of all route summaries for ipv6.";
+      "Grouping of all aft summaries for ipv6.";
       container ipv6-unicast {
         description
-          "Container for ipv4 route counts by protocol type.";
+          "Container for ipv6 aft counts by protocol type.";
         uses aft-summary;
       }
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:afts" {
     description
-      "Augment the afts model with the route summary container.";
+      "Augment the afts model with the aft summary container.";
 
     container aft-summaries {
       uses aft-summary-ipv4;
       uses aft-summary-ipv6;
 
       description
-        "Route summary for the network instance.";
+        "Aft summary for the network instance.";
     }
   }
 
