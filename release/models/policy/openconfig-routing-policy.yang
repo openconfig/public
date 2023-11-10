@@ -1290,7 +1290,13 @@ module openconfig-routing-policy {
         "Anchor point for routing policies in the model.
         Import and export policies are with respect to the local
         routing table, i.e., export (send) and import (receive),
-        depending on the context.";
+        depending on the context.
+        If none of leaf in this container is set, policies and 
+        default-policies are inherited form upper peer-group or
+        global configuration. If non of leaf is set in this 
+        conatiner in peer-greoup and global configuration, 
+        ROUTE_REJECT action is taken (implicit default value of 
+        default-(import|export)-policy";
 
       container config {
         description
