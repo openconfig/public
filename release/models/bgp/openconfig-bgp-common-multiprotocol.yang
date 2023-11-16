@@ -587,10 +587,21 @@ submodule openconfig-bgp-common-multiprotocol {
       "Common configuration applied across L3VPN for IPv4
        and IPv6";
 
-    uses bgp-common-mp-l3vpn-ipv4-ipv6-unicast-common-config;
+    // specific configuration options that are generic
+    // accross L3VPN IPv[46] unicast address families.
+    container config {
+      description
+        "Configuration parameters for L3VPN IPv[46] Unicast AFI-SAFI options";
+      uses bgp-common-mp-l3vpn-ipv4-ipv6-unicast-common-config;
+    }
 
-    // placeholder -- specific configuration options that are generic
-    // across IPv[46] unicast address families.
+    container state {
+      config false;
+      description
+        "State information for L3VPN IPv[46] Unicast parameters";
+      uses bgp-common-mp-l3vpn-ipv4-ipv6-unicast-common-config;
+    }
+    
     uses bgp-common-mp-all-afi-safi-common;
   }
 
@@ -718,8 +729,8 @@ submodule openconfig-bgp-common-multiprotocol {
 
   grouping bgp-common-mp-l3vpn-ipv4-ipv6-unicast-common-config {
     description
-      "Common configuration parameters applied across L3VPN for IPv4
-       and IPv6";
+      "Common configuration parameters for L3VPN IPv4 Unicast
+       and L3VPN IPv6 Unicast address families";
 
     leaf allocate-vpn-label-received-paths {
       type boolean;
