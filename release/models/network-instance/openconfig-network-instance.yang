@@ -48,7 +48,26 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.1.1";
+  oc-ext:openconfig-version "4.2.2";
+
+  revision "2023-11-03" {
+    description
+      "Add reference URL for Route Redistribution rules";
+    reference "4.2.2";
+  }
+
+  revision "2023-11-01" {
+    description
+      "Refactor apply policy to separate default policy in it's own common
+      set of groupings";
+    reference "4.2.1";
+  }
+
+  revision "2023-09-07" {
+    description
+      "Add L2RIB Per Producer Next-Hop Capability";
+    reference "4.2.0";
+  }
 
   revision "2023-08-09" {
     description
@@ -473,6 +492,10 @@ module openconfig-network-instance {
               table implies that routes that match the policy specified
               for the connection are available for the destination
               protocol to advertise, or match within its policies.";
+
+            reference
+              "Route Redistribution in OpenConfig Network Instance:
+              https://github.com/openconfig/public/blob/master/doc/network_instance_redistribution.md#interconnection-of-protocol-ribs";
 
             leaf src-protocol {
               type leafref {
@@ -1217,6 +1240,7 @@ module openconfig-network-instance {
     }
 
     uses oc-rpol:apply-policy-import-config;
+    uses oc-rpol:default-policy-import-config;
   }
 
   grouping network-instance-config {
