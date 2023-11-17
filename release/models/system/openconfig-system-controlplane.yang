@@ -78,6 +78,32 @@ module openconfig-system-controlplane {
 
           uses system-controlplane-acl-common-top;
 
+          container network-instances {
+            list network-instance {
+              key name;
+              leaf name {
+                description "network-instance context traffic is processed";
+                type string;
+              }
+              container config {
+                description "";
+                leaf name {
+                  description "";
+                  type string;
+                }
+              }
+              container state {
+                description "";
+                leaf name {
+                  description "";
+                  type string;
+                }
+              }
+              uses  system-controlplane-acl-common-top;
+
+            }
+          }
+
           container qos {
             description
               "Configuration and operational state relating to QoS policies
