@@ -36,11 +36,17 @@ module openconfig-hashing {
     grouping hashing-inputs {
         description
             "Top level container for inputs to be used for hashing policies.";
-        
-        leaf protocol-type {
+
+        leaf ingress-interface {
+            type boolean;
+            description 
+                "Use the ingress subinterface identifired in the
+                calculation of the hash.";
+        }
+        leaf ip-protocol-type {
             type boolean;
             description
-            "Specification of ipv4 or ipv6.";
+                "Specification of ipv4 or ipv6.";
         }
     }
 
@@ -158,67 +164,65 @@ module openconfig-hashing {
                     description
                         "Container for specifying inputs to be used when
                         calculating the hash.";
-                    container ingress-interface {
+
+                    container config {
                         description
-                            "Container for ingress subinterface.";
+                            "Configurable items at the hashing inputs level.";
+                        uses hashing-inputs;
+                    }
+                    container state {
+                        config false;
+                        description
+                            "Operational state data at the hashing
+                            inputs level.";
+                        uses hashing-inputs;
+                    }
+
+                    container ipv4 {
+                        description
+                            "The IPv4 fields that should be used to
+                            compute the hash.";
                         container config {
                             description
-                                "Configurable items at the hashing inputs level.";
-                            uses hashing-inputs;
+                                "Configurable data at the hashing
+                                inputs level for IPv4.";
+                            uses ipv4-ipv6-inputs-top;
                         }
+
                         container state {
                             config false;
-                            description 
-                                "Operational state data at the hashing
-                                inputs level.";
-                            uses hashing-inputs;
-                        }
-
-                        container ipv4 {
-                            description 
-                                "The IPv4 fields that should be used to
-                                compute the hash.";
-                            container config {
-                                description 
-                                    "Configurable data at the hashing
-                                    inputs level for IPv4.";
-                                uses ipv4-ipv6-inputs-top;
-                            }
-
-                            container state {
-                                config false;
-                                description
-                                    "Operational state data at the hashing
-                                    inputs level for IPv4.";
-                                uses ipv4-ipv6-inputs-top;
-                            }
-                        }
-
-                        container ipv6 {
                             description
-                                "The IPv6 fields that should be used to
-                                compute the hash.";
-
-                            container config {
-                                description
-                                    "Configurable data at the hashing
-                                    inputs level for IPv6.";
-
-                                uses ipv4-ipv6-inputs-top;
-                                uses ipv6-inputs-top;
-                            }
-
-                            container state {
-                                config false;
-                                description
-                                    "Operational state data at the hashing
-                                    inputs level for IPv6.";
-
-                                uses ipv4-ipv6-inputs-top;
-                                uses ipv6-inputs-top;
-                            }
+                                "Operational state data at the hashing
+                                inputs level for IPv4.";
+                            uses ipv4-ipv6-inputs-top;
                         }
                     }
+
+                    container ipv6 {
+                        description
+                            "The IPv6 fields that should be used to
+                            compute the hash.";
+
+                        container config {
+                            description
+                                "Configurable data at the hashing
+                                inputs level for IPv6.";
+
+                            uses ipv4-ipv6-inputs-top;
+                            uses ipv6-inputs-top;
+                        }
+
+                        container state {
+                            config false;
+                            description
+                                "Operational state data at the hashing
+                                inputs level for IPv6.";
+
+                            uses ipv4-ipv6-inputs-top;
+                            uses ipv6-inputs-top;
+                        }
+                    }
+                
                 }
             }
         }
@@ -306,7 +310,7 @@ module openconfig-hashing {
                 augment /system/vendor {
                     container <vendor name> {
                         container <platform name> {
-                        uses hashing-algo-top;
+                            uses hashing-algo-top;
                         }
                     }
                 }";
