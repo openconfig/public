@@ -52,7 +52,7 @@ steps:
     git clone git@github.com:openconfig/models-ci.git /go/src/github.com/openconfig/models-ci
     cd /go/src/github.com/openconfig/models-ci
     # Modify the major version to update models-ci version.
-    branch=$(git tag -l 'v9*' | sort -V | tail -1)
+    branch=$(git tag -l 'v13.*' | sort -V | tail -1)
     git checkout $branch
   volumes:
   - name: 'ssh'
@@ -89,7 +89,6 @@ steps:
     -pr-number=$_PR_NUMBER
     -skipped-validators=confd,yanglint
     -extra-pyang-versions=2.2.1
-    #-compat-report=yanglint
     -branch=$BRANCH_NAME
   secretEnv: ['GITHUB_ACCESS_TOKEN']
   env:
@@ -213,16 +212,6 @@ steps:
   id: 'oc-pyang'
 
 ############### GOYANG/YGOT ###############
-- name: 'golang'
-  entrypoint: 'go'
-  args: ['install', 'github.com/openconfig/ygot/generator@latest']
-  volumes:
-  - name: 'gopath'
-    path: /go
-  env:
-  - 'GOPATH=/go'
-  waitFor: ['go path creation']
-  id: 'goyang-ygot prep'
 - name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/goyang-ygot/test.sh"]
@@ -237,8 +226,26 @@ steps:
   - 'COMMIT_SHA=$COMMIT_SHA'
   - '_REPO_SLUG=$_REPO_SLUG'
   - 'BRANCH_NAME=$BRANCH_NAME'
-  waitFor: ['validator prep', 'goyang-ygot prep', 'oc-pyang']
+  waitFor: ['validator prep', 'go path creation', 'oc-pyang']
   id: 'goyang-ygot'
+
+############### YGNMI ###############
+- name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
+  entrypoint: 'bash'
+  args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/ygnmi/test.sh"]
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  volumes:
+  - name: 'gopath'
+    path: /go
+  env:
+  - 'GOPATH=/go'
+  - '_PR_NUMBER=$_PR_NUMBER'
+  - '_MODEL_ROOT=$_MODEL_ROOT'
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - '_REPO_SLUG=$_REPO_SLUG'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  waitFor: ['validator prep', 'go path creation', 'oc-pyang']
+  id: 'ygnmi'
 
 ############### PYANG ###############
 - name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
