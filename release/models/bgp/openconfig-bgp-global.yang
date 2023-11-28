@@ -7,6 +7,7 @@ submodule openconfig-bgp-global {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-routing-policy { prefix oc-rpol; }
 
   // Include common submodules
   include openconfig-bgp-common;
@@ -26,7 +27,13 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "9.4.1";
+  oc-ext:openconfig-version "9.5.0";
+
+  revision "2023-11-01" {
+    description
+      "Add default apply policy to global and per afi-safi config.";
+    reference "9.5.0";
+  }
 
   revision "2023-06-27" {
     description
@@ -397,6 +404,7 @@ submodule openconfig-bgp-global {
       uses bgp-common-global-group-use-multiple-paths;
       uses bgp-common-structure-neighbor-group-add-paths;
       uses bgp-global-mp-all-afi-safi-list-contents;
+      uses oc-rpol:default-policy-group;
     }
   }
 
@@ -482,6 +490,7 @@ submodule openconfig-bgp-global {
     }
 
     uses bgp-global-dynamic-neighbors;
+    uses oc-rpol:default-policy-group;
   }
 
 }
