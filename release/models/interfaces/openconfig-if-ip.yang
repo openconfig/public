@@ -44,9 +44,15 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.4.0";
+  oc-ext:openconfig-version "3.5.0";
 
-  revision "2023-06-30" {
+  revision "2023-08-14" {
+    description
+      "Add multicast counters for IPv4, IPv6.";
+    reference "3.5.0";
+  }
+
+revision "2023-06-30" {
     description
       "Deprecate IPv6 router advertisment config suppress leaf and add config
       mode leaf.";
@@ -252,6 +258,31 @@ module openconfig-if-ip {
           Internet Protocol (IP)";
       }
 
+      leaf in-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of IP packets received for the specified
+          address family that are multicast packets.
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 4293: Management Information Base for the Internet
+          Protocol (IP) - ipSystemStatsHCInMcastPkts";
+      }
+
+      leaf in-multicast-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of octets received in input IP
+           multicast packets for the specified address
+           family, including those received in error.";
+        reference
+          "RFC 4293: Management Information Base for the Internet
+          Protocol (IP) - ipSystemStatsHCInMcastOctets";
+        }
+
       leaf in-error-pkts {
         // TODO: this counter combines several error conditions --
         // could consider breaking them out to separate leaf nodes
@@ -322,6 +353,32 @@ module openconfig-if-ip {
           "The total number of octets in IP packets for the
           specified address family that the device
           supplied to the lower layers for transmission.  This
+          includes packets generated locally and those forwarded by
+          the device.";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)";
+      }
+
+      leaf out-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of IP multicast packets transmitted.
+
+          Discontinuities in the value of this counter can occur
+          at re-initialization of the management system, and at
+          other times as indicated by the value of
+          'last-clear'.";
+        reference
+          "RFC 4293 - Management Information Base for the
+          Internet Protocol (IP)
+            - ipSystemStatsHCOutMcastPkts";
+      }
+
+      leaf out-multicast-octets {
+        type oc-yang:counter64;
+        description
+          "The total number of IP multicast octets transmitted.  This
           includes packets generated locally and those forwarded by
           the device.";
         reference
