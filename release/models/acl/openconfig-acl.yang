@@ -414,8 +414,6 @@ module openconfig-acl {
         base CNTR_RL_SCOPE;
       }
     }
-
-    uses action-modifier-config;
   }
 
   grouping action-modifier-config {
@@ -432,35 +430,24 @@ module openconfig-acl {
         packet.";
     }
 
-    container counter {
-      description "";
- // [TODO rszarecki] Cleanup. Not needed.
- //     leaf name {
- //       description "Name of counter; for counters of CNTR_RL_ENTRY_ATTACH scope
- //       can be omitted and if specified shallbe ignored.
- //       ";
- //       type string;
- //     }
+    leaf counter-enable {
+      description
+        "Controls if counters are instantiated at all. May be usfull for
+        hardware resource control";
+      type boolean;
+      // default of TRUE allows for backward compatibility
+      default true;
+    }
 
-      leaf enabled {
-        description
-          "Controls if counters are instantiated at all. May be usfull for
-          hardware resource control";
-        type boolean;
-        // default of TRUE allows for backward compatibility
-        default true;
-      }
-
-      leaf scope {
-        description
-        "Define scope of counter. It allows shared counting
-         of packet form multiple terms of multiple filters. Primary reason for
-         shared counters is INTEGRATED_CIRCUIT resource conservation.
-         Default value disables counting.";
-        default CNTR_RL_ENTRY_ATTACH;
-        type identityref {
-          base CNTR_RL_SCOPE;
-        }
+    leaf counter-scope {
+      description
+      "Define scope of counter. It allows shared counting
+       of packet form multiple terms of multiple filters. Primary reason for
+       shared counters is INTEGRATED_CIRCUIT resource conservation.
+       Default value disables counting.";
+      default CNTR_RL_ENTRY_ATTACH;
+      type identityref {
+        base CNTR_RL_SCOPE;
       }
     }
   }
@@ -484,6 +471,7 @@ module openconfig-acl {
         description
           "Config data for ACL actions";
         uses action-config;
+        uses action-modifier-config;
       }
 
       container state {
@@ -491,6 +479,7 @@ module openconfig-acl {
         description
           "State information for ACL actions";
         uses action-config;
+        uses action-modifier-config;
         uses action-state;
       }
     }
