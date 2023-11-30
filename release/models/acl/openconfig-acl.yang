@@ -391,31 +391,30 @@ module openconfig-acl {
         must be specified for each ACL entry";
     }
 
-    container rate-limit {
+    leaf rate-limit-name {
       description "attachment point for rate limit action";
-      leaf name {
         description "name of rate limit to be applied";
-        mandatory true;
-        type leafref {
+      mandatory true;
+      type leafref {
         // we are at
         // /acl/acl-sets/acl-set/acl-entries/acl-entry/actions/config/rate-limit
         path "../../../../../../../../rate-limits/rate-limit/config/name";
       }
-      }
+    }
 
-      leaf scope {
-        description
+    leaf rate-limit-scope {
+      description
         "Define scope of rate-limit. It allows shared rate-limit
-          of trafifc matching multiple terms of multiple filters. Primary
-          reason for shared rate-limit is INTEGRATED_CIRCUIT resource
-          conservation.
-          Default value .";
-        default CNTR_RL_ENTRY_ATTACH;
-        type identityref {
-          base CNTR_RL_SCOPE;
-        }
+        of trafifc matching multiple terms of multiple filters. Primary
+        reason for shared rate-limit is INTEGRATED_CIRCUIT resource
+        conservation.
+        Default value .";
+      default CNTR_RL_ENTRY_ATTACH;
+      type identityref {
+        base CNTR_RL_SCOPE;
       }
     }
+
     uses action-modifier-config;
   }
 
