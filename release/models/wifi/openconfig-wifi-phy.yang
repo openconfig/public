@@ -25,7 +25,13 @@ module openconfig-wifi-phy {
   description
     "Model for managing PHY layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "0.4.2";
+  oc-ext:openconfig-version "0.4.3";
+
+  revision "2023-11-30" {
+    description
+      "Add allowed-max-eirp radio state leaf.";
+    reference "0.4.3";
+  }
 
   revision "2020-03-24" {
     description
@@ -298,6 +304,13 @@ module openconfig-wifi-phy {
       type oc-types:percentage;
       description
         "Transmit channel-utilization percentage.";
+    }
+
+    leaf allowed-max-eirp {
+      type uint8;
+      units dBm;
+      description
+        "Maximum allowed transmit eirp of this radio + antenna, in dBm.";
     }
   }
 
