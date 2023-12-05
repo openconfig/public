@@ -1,0 +1,83 @@
+module openconfig-if-rates {
+
+  yang-version "1";
+
+  namespace "http://openconfig.net/yang/interfaces/rates";
+
+  prefix "oc-if-rates";
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-types { prefix "oc-types"; }
+  import openconfig-interfaces { prefix "oc-if"; }
+
+  organization
+    "OpenConfig working group";
+
+  contact
+    "www.openconfig.net";
+
+  description
+    "This module adds operational state for interface rates.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision 2023-12-05 {
+    description
+      "Augment of /interfaces/interface to include interface rates.";
+    reference
+      "0.1.0";
+  }
+
+  grouping interface-rates-state {
+    description
+      "Grouping of interface rates with different direction and units";
+
+    leaf out-bits-rate {
+      type oc-types:ieeefloat32;
+      units "bps";
+      description
+        "The calculated transmitted rate of the interface, measured in bits
+        per second.";
+    }
+
+    leaf in-bits-rate {
+      type oc-types:ieeefloat32;
+      units "bps";
+      description
+        "The calculated received rate of the interface, measured in bits
+        per second.";
+    }
+
+    leaf out-pkts-rate {
+      type oc-types:ieeefloat32;
+      units "pps";
+      description
+        "The calculated transmitted rate of the interface, measured in packets
+        per second.";
+    }
+
+    leaf in-pkts-rate {
+      type oc-types:ieeefloat32;
+      units "pps";
+      description
+        "The calculated received rate of the interface, measured in packets
+        per second.";
+    }
+  }
+
+  augment "/oc-if:interfaces/oc-if:interface" {
+    description
+      "Adds interface rates.";
+    container rates {
+      description
+        "Enclosing container for interface rates.";
+      container state {
+            config false;
+            description
+               "Enclosing container for operational state representing
+               interface rates.";
+            uses interface-rates-state;
+      }
+    }
+  }
+}
