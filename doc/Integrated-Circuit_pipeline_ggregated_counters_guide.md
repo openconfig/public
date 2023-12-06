@@ -28,7 +28,7 @@ module: openconfig-platform
 #### urpf-aggregate
 
 ##### Usability
-The increments of this counter are typically signal of some form of attack with spoofed sourec address. Typically dDOS class.
+The increments of this counter are typically signal of some form of attack with spoofed source address. Typically dDOS class.
 
 #### packet-processing-aggregate
 
