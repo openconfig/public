@@ -29,7 +29,7 @@ module openconfig-wifi-phy {
 
   revision "2023-11-30" {
     description
-      "Add allowed-max-eirp radio state leaf.";
+      "Add allowed-max-eirp and allowed-max-txpower radio state leaves.";
     reference "0.4.3";
   }
 
@@ -310,7 +310,14 @@ module openconfig-wifi-phy {
       type uint8;
       units dBm;
       description
-        "Maximum allowed transmit eirp of this radio + antenna, in dBm.";
+        "Maximum allowed transmit eirp of this radio + antenna, of the current channel, in dBm.";
+    }
+
+    leaf allowed-max-txpower {
+      type uint8;
+      units dBm;
+      description
+        "Maximum allowed transmit power of this radio, of the current channel, in dBm.";
     }
   }
 
