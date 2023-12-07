@@ -67,7 +67,25 @@ module openconfig-rib-bgp {
     eligible for sending (advertising) to the neighbor after output
     policy rules have been applied.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.9.0";
+
+  revision "2022-12-20" {
+    description
+      "Convert as-segment and as4-segment to keyed lists.";
+    reference "0.9.0";
+  }
+
+  revision "2022-06-06" {
+    description
+      "Revert IETF types in favor of oc-inet types";
+    reference "0.8.1";
+  }
+
+  revision "2021-06-21" {
+    description
+      "Add L2VPN-EVPN BGP RIB Support";
+    reference "0.8.0";
+  }
 
   revision "2019-10-15" {
     description
@@ -221,6 +239,19 @@ module openconfig-rib-bgp {
 
             uses ipvX-srte-policy-locrib-top;
             uses ipvX-srte-policy-adjrib-top;
+          }
+
+          container l2vpn-evpn {
+            when "../afi-safi-name = 'oc-bgpt:L2VPN_EVPN'" {
+              description
+                "Include this container for l2vpn evpn route-types";
+            }
+            description
+              "Routing tables for l2vpn evpn -- active when the
+              afi-safi name is l2vpn-evpn";
+
+            uses l2vpn-evpn-loc-rib-top;
+            uses l2vpn-evpn-adj-rib-top;
           }
         }
       }

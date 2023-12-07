@@ -27,7 +27,13 @@ module openconfig-relay-agent {
     packets.  The supports both DHCP and DHCPv6 and device-wide and
     per-interface settings.";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.1.2";
+
+  revision "2023-02-06" {
+    description
+      "Clarify usage of interface-ref.";
+    reference "0.1.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -87,7 +93,6 @@ module openconfig-relay-agent {
       }
 
       container state {
-
         config false;
 
         description
@@ -164,7 +169,6 @@ module openconfig-relay-agent {
       }
 
       container state {
-
         config false;
 
         description
@@ -282,7 +286,6 @@ module openconfig-relay-agent {
       }
 
       container state {
-
         config false;
 
         description
@@ -312,7 +315,6 @@ module openconfig-relay-agent {
       }
 
       container state {
-
         config false;
 
         description
@@ -377,7 +379,6 @@ module openconfig-relay-agent {
       }
 
       container state {
-
         config false;
 
         description
@@ -422,7 +423,6 @@ module openconfig-relay-agent {
       }
 
       container state {
-
         config false;
 
         description
@@ -678,7 +678,12 @@ module openconfig-relay-agent {
         key "id";
         description
           "List of interfaces on which the relay agent is
-          configured.";
+           configured.
+
+           The interface referenced is based on the interface and
+           subinterface leaves within the interface-ref container -
+           which reference an entry in the /interfaces/interface list -
+           and should not rely on the value of the list key.";
 
         leaf id {
           type leafref {
@@ -696,7 +701,6 @@ module openconfig-relay-agent {
         }
 
         container state {
-
           config false;
 
           description
@@ -766,7 +770,12 @@ module openconfig-relay-agent {
         key "id";
         description
           "List of interfaces on which the relay agent is
-          configured.";
+           configured.
+
+           The interface referenced is based on the interface and
+           subinterface leaves within the interface-ref container -
+           which reference an entry in the /interfaces/interface list -
+           and should not rely on the value of the list key.";
 
         leaf id {
           type leafref {
@@ -784,7 +793,6 @@ module openconfig-relay-agent {
         }
 
         container state {
-
           config false;
 
           description

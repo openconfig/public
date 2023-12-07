@@ -1,6 +1,6 @@
 module openconfig-system-grpc {
   yang-version "1";
-  
+
   namespace "http://openconfig.net/yang/system-grpc";
   prefix "oc-sys-grpc";
 
@@ -22,10 +22,23 @@ module openconfig-system-grpc {
     to be included in the list.";
 
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "1.0.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
- 
+
+  revision "2022-04-19" {
+    description
+      "Description and default value updates for grpc-server
+      implementation guidance.";
+    reference "1.0.0";
+  }
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "0.1.1";
+  }
+
   revision 2021-03-30 {
     description
       "Initial revision.";
@@ -51,7 +64,7 @@ module openconfig-system-grpc {
     container grpc-servers {
       description
         "List of gRPC servers that can be configured on the device.";
-  
+
       list grpc-server {
         key "name";
 
@@ -59,7 +72,7 @@ module openconfig-system-grpc {
           "The list of gRPC servers that are running on the device. Each
           instance within this list corresponds to an individual gRPC listener
           that listens on a single TCP port on the specified addresses.
-          Where there are multiple services that run on a single port, these 
+          Where there are multiple services that run on a single port, these
           are enabled through the service leaf-list which uses the GRPC_SERVICE
           identity to list the supported service types.";
 
@@ -74,10 +87,10 @@ module openconfig-system-grpc {
         container config {
           description
             "Configuration parameters relating to the gRPC service.";
-  
+
           uses grpc-server-config;
           }
-        
+
         container state {
           config false;
           description
@@ -92,12 +105,19 @@ module openconfig-system-grpc {
     description
       "Configuration parameters corresponding to an individual gRPC
       server.";
-  
+
     leaf name {
       type string;
+      default "DEFAULT";
       description
         "The name of the gRPC server instance that is running on
-        the local system.";
+        the local system.
+
+        If the operator does not designate a name for the protocol
+        instance (e.g. config), the implementation should use the
+        name of 'DEFAULT' (e.g. state).  In addition, for
+        implementations that support a single gRPC server instance,
+        the default value is recommended for consistency.";
     }
 
     leaf-list services {
@@ -116,7 +136,7 @@ module openconfig-system-grpc {
         for each protocol that is based on gRPC that is available on the
         device.";
     }
-      
+
     leaf enable {
       type boolean;
       description
@@ -152,7 +172,7 @@ module openconfig-system-grpc {
       description
         "When set to true, metadata authentication is enabled for the gRPC server.
         In this mode of operation, gRPC metadata is used to carry authentication
-        credentials as per the specification in 
+        credentials as per the specification in
         https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-authentication.md#credentials-and-authentication.";
     }
 
@@ -183,7 +203,7 @@ module openconfig-system-grpc {
   augment "/oc-sys:system" {
     description
       "Add gRPC service configuration to the openconfig-system model.";
-    
+
     uses grpc-service-structural;
   }
 }

@@ -58,9 +58,90 @@ module openconfig-bgp {
         +-> neighbor
           +-> [ neighbor config ]
           +-> [ optional pointer to peer-group ]
-          +-> AFI / SAFI [ per-AFI overrides ]";
+          +-> AFI / SAFI [ per-AFI overrides ]
 
-  oc-ext:openconfig-version "6.1.0";
+    Most BGP features can be configured at multiple levels in the BGP
+    configuration level hierarchy. The common inheritance model allows
+    the more specific configuration (e.g. neighbor) to inherit from or
+    override the less specific configuration (e.g. global).
+    Leaf present at one level overrides leafs present at higher levels,
+    whereas leaf not present inherits its value from the leaf present
+    at the next higher level in the hierarchy.";
+
+  oc-ext:openconfig-version "9.5.0";
+
+  revision "2023-11-01" {
+    description
+      "Add default apply policy to global and per afi-safi config.";
+    reference "9.5.0";
+  }
+
+  revision "2023-06-27" {
+    description
+      "Clarify bgp remote-port description";
+    reference "9.4.1";
+  }
+
+  revision "2023-04-01" {
+    description
+      "Add support for BGP large communities [rfc8092] in
+      send-community.
+      Leaf send-community was replaced by the leaf-list
+      send-community-type to allow the combination of different
+      community types";
+    reference "9.4.0";
+  }
+
+  revision "2023-03-31" {
+    description
+      "Allow configuring send-community per AFI-SAFI at
+       neighbor/peer-group.";
+    reference "9.3.0";
+  }
+
+  revision "2022-12-12" {
+    description
+      "Removed the default of enabled leaf of AFI-SAFI
+      at neighbor/peer-group to support BGP inheritance model.";
+    reference "9.2.0";
+  }
+
+  revision "2022-05-21" {
+    description
+      "Added extended-next-hop-encoding leaf.";
+    reference "9.1.0";
+  }
+
+  revision "2022-04-26" {
+    description
+      "Transition decimal64 types to uint16 for various BGP timers";
+    reference "9.0.0";
+  }
+
+  revision "2022-03-21" {
+    description
+      "Add BGP port";
+    reference "8.1.0";
+  }
+
+  revision "2021-12-01" {
+    description
+      "Add prefix-limit-received, add prefix-limit
+      state nodes, change/relocate restart-timer";
+    reference "8.0.0";
+  }
+
+  revision "2021-10-21" {
+    description
+      "Removal of top-level /bgp container";
+    reference "7.0.0";
+  }
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "6.1.1";
+  }
 
   revision "2021-03-17" {
     description
@@ -154,7 +235,7 @@ module openconfig-bgp {
     reference "2.0.1";
   }
 
-    // OpenConfig specific extensions for module metadata.
+  // OpenConfig specific extensions for module metadata.
   oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
@@ -188,7 +269,5 @@ module openconfig-bgp {
       uses oc-bgprib:bgp-rib-top;
     }
   }
-
-  uses bgp-top;
 
 }
