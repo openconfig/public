@@ -26,7 +26,39 @@ module openconfig-wifi-mac {
   description
     "Model for managing MAC layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "1.3.1";
+
+  revision "2023-05-26" {
+    description
+      "Adds clarity to various descriptions.  Unit type for tx/rx phy-rate,
+       client frequency, etc.";
+    reference "1.3.1";
+  }
+
+  revision "2023-02-14" {
+    description
+      "Adds totals to retry metrics to calculate retry percentages.";
+    reference "1.3.0";
+  }
+
+  revision "2023-01-17" {
+    description
+      "Splits client phy-rate leaf into rx/tx phy-rate leaves.  Marks phy-rate
+      as deprecated.";
+    reference "1.2.0";
+  }
+
+  revision "2022-03-24" {
+    description
+      "Update model to support operation in 6 GHz frequency.";
+    reference "1.1.0";
+  }
+
+  revision "2021-08-02" {
+    description
+      "Update tx/rx MCS rates, add AX as client connection mode.";
+    reference "1.0.0";
+  }
 
   revision "2020-03-24" {
     description
@@ -37,13 +69,13 @@ module openconfig-wifi-mac {
   revision "2018-12-19" {
     description
       "Frequency-specific data-rates, fix client connection-time,
-      fix client ipv6 addresses, remove mobility-domain.";
+      fix client IPv6 addresses, remove mobility-domain.";
     reference "0.4.0";
   }
 
   revision "2018-07-16" {
     description
-      "Reorginize bssid-counters and add BSSID references. Add
+      "Reorganize bssid-counters and add BSSID references. Add
       vlan-list.";
     reference "0.3.0";
   }
@@ -57,7 +89,7 @@ module openconfig-wifi-mac {
 
   revision "2017-07-25" {
     description
-      "Initial revision";
+      "Initial revision.";
     reference "0.1.0";
   }
 
@@ -111,7 +143,7 @@ module openconfig-wifi-mac {
       default "oc-wifi-types:FREQ_2_5_GHZ";
       description
         "Operating frequency of this SSID. When none specified, the
-        default is dual-band.";
+        default is dual-band 2.4 and 5 GHz.";
     }
 
     leaf-list basic-data-rates-2g {
@@ -144,6 +176,21 @@ module openconfig-wifi-mac {
       }
       description
         "5GHz Supported data-rates for the SSID.";
+    }
+    leaf-list basic-data-rates-6g {
+      type identityref {
+        base oc-wifi-types:DATA_RATE;
+      }
+      description
+        "6GHz Basic data-rates for the SSID.";
+    }
+
+    leaf-list supported-data-rates-6g {
+      type identityref {
+        base oc-wifi-types:DATA_RATE;
+      }
+      description
+        "6GHz Supported data-rates for the SSID.";
     }
     // MCS rates explicitly absent, as they are typically not pruned.
 
@@ -202,8 +249,25 @@ module openconfig-wifi-mac {
           description
             "WPA2-Enterprise with 802.1X authentication.";
         }
+        enum ENHANCED_OPEN {
+          description
+            "Open authentication with Opportunistic Wireless Encryption.";
+        }
+        enum WPA3_SAE {
+          description
+            "WPA3-SAE using Simultaneous Authentication of Equals (SAE).";
+        }
+        enum WPA3_ENTERPRISE {
+          description
+            "WPA3-Enterprise with 802.1X SHA-256 authentication key
+             management.";
+        }
+        enum WPA3_ENTERPRISE_192_BIT {
+          description
+            "WPA3-Enterprise with 802.1X SHA-384 authentication key
+             management.";
+        }
       }
-      default "OPEN";
       description
         "The type of Layer2 authentication in use.";
     }
@@ -217,17 +281,30 @@ module openconfig-wifi-mac {
       }
       description
         "The passphrase used on this WPA2-Personal SSID.";
-     }
+    }
+
+    leaf wpa3-psk {
+      when "../opmode = 'WPA3_SAE'";
+      type string {
+        length "8..63";
+      }
+      description
+        "The passphrase used on this WPA3-SAE SSID.";
+    }
 
     leaf server-group {
-      when "../opmode = 'WPA2_ENTERPRISE' or ../opmode =
-      'WPA2_PERSONAL'";
+      when "../opmode = 'WPA2_ENTERPRISE' or
+      ../opmode = 'WPA2_PERSONAL' or
+      ../opmode = 'WPA3_ENTERPRISE' or
+      ../opmode = 'WPA3_ENTERPRISE_192_BIT' or
+      ../opmode = 'WPA3_SAE'";
       type string;
         description
           "Specifies the RADIUS server-group to be used,
           as defined in the openconfig-aaa.yang model.
 
-          Including WPA2_PERSONAL as it can be accompained by MAB.";
+          Including WPA2_PERSONAL and WPA3_SAE as they can be accompanied by
+          MAB.";
     }
 
     leaf dva {
@@ -247,13 +324,13 @@ module openconfig-wifi-mac {
     leaf qbss-load {
       type boolean;
       description
-        "Advertisement of the QBSS Load Information ELement.";
+        "Advertisement of the QBSS Load Information Element.";
     }
 
     leaf advertise-apname {
       type boolean;
       description
-        "Advertise the AP hostname in Beacon and Probe Resp. frames.";
+        "Advertise the AP hostname in Beacon and Probe Response frames.";
     }
 
     leaf csa {
@@ -287,6 +364,16 @@ module openconfig-wifi-mac {
       type boolean;
       description
         "Enable/disable Opportunistic Key Caching.";
+    }
+
+    leaf mfp {
+      when "../opmode = 'WPA3_ENTERPRISE' or ../opmode =
+      'WPA3_ENTERPRISE_192_BIT' or ../opmode =
+      'WPA3_SAE' or ../opmode = 'ENHANCED_OPEN'";
+      type boolean;
+      mandatory true;
+      description
+        "Management Frame Protection is required for WPA3 and OWE.";
     }
   }
 
@@ -334,7 +421,7 @@ module openconfig-wifi-mac {
       type uint16;
       description
         "Specify the mobility domain id (MDID) where PMK-R0
-        distribution will occur. Specifically, which APs will recieve
+        distribution will occur. Specifically, which APs will receive
         PMK-R0 if using 802.11r (FT).";
     }
 
@@ -485,7 +572,7 @@ module openconfig-wifi-mac {
             path "../state/radio-id";
           }
           description
-            "References the configured id of the radio";
+            "References the configured id of the radio.";
         }
 
         container state {
@@ -536,7 +623,7 @@ module openconfig-wifi-mac {
       leaf rx-bss-dot11-channel-utilization {
         type oc-types:percentage;
         description
-          "Recieve channel utilization percent caused by reception of
+          "receive channel utilization percent caused by reception of
           any 802.11 frame within this BSS.";
       }
 
@@ -555,7 +642,7 @@ module openconfig-wifi-mac {
       container rx-data-dist {
         description
           "The distribution of Data frame sizes in bytes of
-          successfully recieved AMPDU, or MPDU for non-aggregated,
+          successfully received AMPDU, or MPDU for non-aggregated,
           frames. The distribution should characterize frame sizes
           starting at 64 bytes or less with the bin size doubling for
           each successive bin to a maximum of 1MB or larger, as
@@ -766,6 +853,18 @@ module openconfig-wifi-mac {
           description
             "Rx Data frames at MCS 9.";
         }
+
+        leaf mcs10 {
+          type oc-yang:counter64;
+          description
+            "Rx Data frames at MCS 10.";
+        }
+
+        leaf mcs11 {
+          type oc-yang:counter64;
+          description
+            "Rx Data frames at MCS 11.";
+        }
       }
 
       leaf rx-retries {
@@ -775,11 +874,24 @@ module openconfig-wifi-mac {
           within this BSS.";
       }
 
+      leaf rx-total-frames {
+        type oc-yang:counter64;
+        description
+          "Total number of received frames within this BSS.";
+      }
+
       leaf rx-retries-data {
         type oc-yang:counter64;
         description
-          "Number of received QoS Data frames with the Retry bit set";
+          "Number of received QoS Data frames with the Retry bit set.";
       }
+
+      leaf rx-total-data {
+        type oc-yang:counter64;
+        description
+          "Number of received QoS Data frames.";
+      }
+
       leaf rx-retries-subframe {
         type oc-yang:counter64;
         description
@@ -787,10 +899,16 @@ module openconfig-wifi-mac {
           and require retransmission.";
       }
 
+      leaf rx-total-subframe {
+        type oc-yang:counter64;
+        description
+          "Total Aggregated MPDUs received.";
+      }
+
       leaf rx-bytes-data {
         type oc-yang:counter64;
         description
-          "Bytes received from QoS Data frames";
+          "Bytes received from QoS Data frames.";
       }
 
       // Tx Counters
@@ -1026,19 +1144,43 @@ module openconfig-wifi-mac {
             description
               "Tx Data frames at MCS 9.";
         }
+
+        leaf mcs10 {
+          type oc-yang:counter64;
+            description
+              "Tx Data frames at MCS 10.";
+        }
+
+        leaf mcs11 {
+          type oc-yang:counter64;
+            description
+              "Tx Data frames at MCS 11.";
+        }
       }
 
       leaf tx-retries {
         type oc-yang:counter64;
         description
-          "Number of frames transmitted with the Retry bit set";
+          "Number of frames transmitted with the Retry bit set.";
+      }
+
+      leaf tx-total-frames {
+        type oc-yang:counter64;
+        description
+          "Number of frames transmitted.";
       }
 
       leaf tx-retries-data {
         type oc-yang:counter64;
         description
           "Number of transmitted QoS Data frames with the Retry bit
-          set";
+          set.";
+      }
+
+      leaf tx-total-data {
+        type oc-yang:counter64;
+        description
+          "Number of transmitted QoS Data frames.";
       }
 
       leaf tx-retries-subframe {
@@ -1048,10 +1190,16 @@ module openconfig-wifi-mac {
           and require retransmission.";
       }
 
+        leaf tx-total-subframe {
+        type oc-yang:counter64;
+        description
+          "Aggregated MPDUs total frames transmitted.";
+      }
+
       leaf tx-bytes-data {
         type oc-yang:counter64;
         description
-          "Bytes transmitted from QoS Data frames";
+          "Bytes transmitted from QoS Data frames.";
       }
       // Total Counters
       leaf bss-channel-utilization {
@@ -1097,10 +1245,22 @@ module openconfig-wifi-mac {
           "Rx retried frames from this client.";
       }
 
+      leaf rx-total {
+        type oc-yang:counter64;
+        description
+          "Rx frames from this client.";
+      }
+
       leaf tx-retries {
         type oc-yang:counter64;
         description
           "Tx retried frames to this client.";
+      }
+
+      leaf tx-total {
+        type oc-yang:counter64;
+        description
+          "Tx frames to this client.";
       }
     }
   }
@@ -1134,7 +1294,7 @@ module openconfig-wifi-mac {
         type string;
         description
           "Username of Client; can be outer-identity (if PEAP),
-          CN of certificate (if EAP-TLS) etc.";
+          CN of certificate (if EAP-TLS), etc.";
       }
 
       leaf hostname {
@@ -1244,7 +1404,7 @@ module openconfig-wifi-mac {
         type int8;
         description
           "The RSSI of this client in dBm. Expressed as negative
-          number";
+          number.";
       }
 
       leaf snr {
@@ -1261,8 +1421,21 @@ module openconfig-wifi-mac {
 
       leaf phy-rate {
         type uint16;
+        status deprecated;
         description
           "Last used PHY rate of connected client.";
+      }
+
+      leaf rx-phy-rate {
+        type uint16;
+        description
+          "Last used PHY rate received from connected client in Mbps.";
+      }
+
+      leaf tx-phy-rate {
+        type uint16;
+        description
+          "Last used PHY rate transmitted to connected client in Mbps.";
       }
 
       leaf connection-mode {
@@ -1287,6 +1460,10 @@ module openconfig-wifi-mac {
             description
               "Client connected using 802.11ac.";
           }
+          enum AX {
+            description
+              "Client connected using 802.11ax.";
+          }
         }
         description
           "802.11 protocol used for the client's connection.";
@@ -1295,8 +1472,8 @@ module openconfig-wifi-mac {
       leaf frequency {
         type uint8;
         description
-          "Frequency the client is utilizing. Typically, 2.4 or
-          5[GHz].";
+          "Frequency the client is utilizing. Typically, 2 for a client
+           connecting over 2.4GHz, 5 and 6 for 5/6GHz respectively.";
       }
     }
   }
@@ -1488,30 +1665,30 @@ module openconfig-wifi-mac {
 
   grouping ssid-top {
     description
-      "Top-level grouping for ssid configuration and operational state
+      "Top-level grouping for SSID configuration and operational state
       data.";
 
     container ssids {
       description
-        "Top level container for ssids, including configuration
+        "Top level container for SSIDs, including configuration
         and state data.";
 
       list ssid {
         key "name";
         description
-          "The list of named ssids on the APs.";
+          "The list of named SSIDs on the APs.";
 
         leaf name {
           type leafref {
             path "../config/name";
           }
           description
-            "References the configured name of the ssid";
+            "References the configured name of the SSID.";
         }
 
         container config {
           description
-            "Configurable items at the global, ssid level";
+            "Configurable items at the global, SSID level";
 
           uses ssid-common-config;
         }
@@ -1519,7 +1696,7 @@ module openconfig-wifi-mac {
         container state {
           config false;
           description
-            "Operational state data at the ssid level";
+            "Operational state data at the SSID level";
 
           uses ssid-common-config;
         }

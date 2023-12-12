@@ -22,7 +22,50 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.14.0";
+  oc-ext:openconfig-version "0.20.0";
+
+  revision "2023-08-03" {
+    description
+      "Add QSFP56 and QSFP56_DD form factor identities and
+      deprecated QSFP56_DD_TYPE1 and QSFP56_DD_TYPE2 form factor identities.";
+    reference "0.20.0";
+  }
+
+  revision "2023-07-24" {
+    description
+      "Add SFP_DD and DSFP form factor identities.";
+    reference "0.19.0";
+  }
+
+  revision "2023-02-08" {
+    description
+      "Add ETH_100GBASE_DR PMD type";
+    reference "0.18.1";
+  }
+
+  revision "2022-12-05" {
+    description
+      "Fix trailing whitespace";
+    reference "0.17.1";
+  }
+
+  revision "2022-10-18" {
+    description
+      "Add ETH_400GMSA_PSM4 PMD type";
+    reference "0.17.0";
+  }
+
+  revision "2022-09-26" {
+    description
+      "Add SFP28 and SFP56 form factor identities.";
+    reference "0.16.0";
+  }
+
+  revision "2021-07-29" {
+    description
+      "Add several avg-min-max-instant-stats groupings";
+    reference "0.15.0";
+  }
 
   revision "2021-03-22" {
     description
@@ -434,6 +477,160 @@ module openconfig-transport-types {
     uses oc-types:min-max-time;
   }
 
+  grouping avg-min-max-instant-stats-precision1-mhz {
+    description
+      "Common grouping for recording frequency values in MHz with
+      1 decimal precision. Values include the instantaneous, average,
+      minimum, and maximum statistics. Statistics are computed and
+      reported based on a moving time interval (e.g., the last 30s).
+      If supported by the device, the time interval over which the
+      statistics are computed, and the times at which the minimum and
+      maximum values occurred, are also reported.";
+
+    leaf instant {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units MHz;
+      description
+        "The instantaneous value of the statistic.";
+    }
+
+    leaf avg {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units MHz;
+      description
+        "The arithmetic mean value of the statistic over the
+        time interval.";
+    }
+
+    leaf min {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units MHz;
+      description
+        "The minimum value of the statistic over the time interval.";
+    }
+
+    leaf max {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units MHz;
+      description
+        "The maximum value of the statistic over the time interval.";
+    }
+
+    uses oc-types:stat-interval-state;
+    uses oc-types:min-max-time;
+  }
+
+  grouping avg-min-max-instant-stats-precision1-krads {
+    description
+      "Common grouping for recording kiloradian per second (krad/s) values
+      with 1 decimal precision. Values include the instantaneous,
+      average, minimum, and maximum statistics. Statistics are computed
+      and reported based on a moving time interval (e.g., the last 30s).
+      If supported by the device, the time interval over which the
+      statistics are computed, and the times at which the minimum and
+      maximum values occurred, are also reported.";
+
+    leaf instant {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "krad/s";
+      description
+        "The instantaneous value of the statistic.";
+    }
+
+    leaf avg {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "krad/s";
+      description
+        "The arithmetic mean value of the statistic over the
+        time interval.";
+    }
+
+    leaf min {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "krad/s";
+      description
+        "The minimum value of the statistic over the time interval.";
+    }
+
+    leaf max {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "krad/s";
+      description
+        "The maximum value of the statistic over the time interval.";
+    }
+
+    uses oc-types:stat-interval-state;
+    uses oc-types:min-max-time;
+  }
+
+  grouping avg-min-max-instant-stats-precision2-pct {
+    description
+      "Common grouping for percentage statistics with 2 decimal precision.
+      Values include the instantaneous, average, minimum, and maximum
+      statistics. Statistics are computed and reported based on a moving
+      time interval (e.g., the last 30s). If supported by the device,
+      the time interval over which the statistics are computed, and the
+      times at which the minimum and maximum values occurred, are also
+      reported.";
+
+    leaf instant {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units percentage;
+      description
+        "The instantaneous value of the statistic.";
+    }
+
+    leaf avg {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units percentage;
+      description
+        "The arithmetic mean value of the statistic over the
+        time interval.";
+    }
+
+    leaf min {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units percentage;
+      description
+        "The minimum value of the statistic over the time interval.";
+    }
+
+    leaf max {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units percentage;
+      description
+        "The maximum value of the statistic over the time interval.";
+    }
+
+    uses oc-types:stat-interval-state;
+    uses oc-types:min-max-time;
+  }
+
+
   // identity statements
 
   identity TRIBUTARY_PROTOCOL_TYPE {
@@ -634,8 +831,25 @@ module openconfig-transport-types {
       channels";
   }
 
+  identity QSFP56 {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP pluggable optic with support for up to 4x56G physical
+      channels";
+  }
+
+  identity QSFP56_DD {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP-DD electrical interfaces will employ 8 lanes that operate up to
+      25 Gbps NRZ modulation or 50 Gbps PAM4 modulation, providing
+      solutions up to 200 Gbps or 400 Gbps aggregate";
+    reference "http://qsfp-dd.com";
+  }
+
   identity QSFP56_DD_TYPE1 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
+    status deprecated;
     description
       "QSFP DD pluggable optic with support for up to 8x56G physical
       channels. Type 1 uses eight optical and electrical signals.";
@@ -643,6 +857,7 @@ module openconfig-transport-types {
 
   identity QSFP56_DD_TYPE2 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
+    status deprecated;
     description
       "QSFP DD pluggable optic with support for up to 4x112G physical
       channels. Type 2 uses four optical and eight electrical
@@ -667,6 +882,36 @@ module openconfig-transport-types {
     description
       "Enhanced small form-factor pluggable transceiver supporting
       up to 16 Gb/s signals, including 10 GbE and OTU2";
+  }
+
+  identity SFP28 {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "Small form-factor pluggable transceiver supporting up to
+      25 Gb/s signal";
+  }
+
+  identity SFP56 {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "Small form-factor pluggable transceiver supporting up to
+      50 Gb/s signal";
+  }
+
+  identity SFP_DD {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "SFP-DD electrical interfaces will employ 2 lanes that operate up to
+      25 Gbps NRZ modulation or 56 Gbps PAM4 modulation, providing
+      solutions up to 50 Gbps or 112 Gbps PAM4 aggregate";
+    reference "http://sfp-dd.com";
+  }
+
+  identity DSFP {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "A transceiver implementing the DSFP Transceiver specification";
+    reference "https://dsfpmsa.org/";
   }
 
   identity XFP {
@@ -859,6 +1104,11 @@ module openconfig-transport-types {
     description "Ethernet compliance code: 100GBASE_FR";
   }
 
+  identity ETH_100GBASE_DR {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 100GBASE_DR";
+  }
+
   identity ETH_400GBASE_ZR {
     base ETHERNET_PMD_TYPE;
     description "Ethernet compliance code: 400GBASE_ZR";
@@ -882,6 +1132,11 @@ module openconfig-transport-types {
   identity ETH_400GBASE_DR4 {
     base ETHERNET_PMD_TYPE;
     description "Ethernet compliance code: 400GBASE_DR4";
+  }
+
+  identity ETH_400GMSA_PSM4 {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 400GMSA_PSM4";
   }
 
   identity ETH_UNDEFINED {

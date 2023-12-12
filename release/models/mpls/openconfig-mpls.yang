@@ -70,8 +70,37 @@ module openconfig-mpls {
                +------+      |ROUTING|      +-----+
                              +-------+
     ";
+  oc-ext:openconfig-version "3.4.0";
 
-  oc-ext:openconfig-version "3.2.1";
+  revision "2023-07-25" {
+    description
+      "Added record-route-enabled to MPLS p2p tunnel config";
+    reference "3.4.0";
+  }
+
+  revision "2023-04-28" {
+    description
+      "Fixed typo in cspf-tiebreaker leaf description";
+    reference "3.3.2";
+  }
+
+  revision "2023-04-25" {
+    description
+      "Clarify usage of interface-ref.";
+    reference "3.3.1";
+  }
+
+  revision "2022-02-11" {
+    description
+      "Add lsp-path PCE control mode";
+    reference "3.3.0";
+  }
+
+  revision "2021-07-28" {
+    description
+      "Add prefix to qualify when statements.";
+    reference "3.2.2";
+  }
 
   revision "2021-06-16" {
     description
@@ -426,7 +455,12 @@ module openconfig-mpls {
     list interface {
       key "interface-id";
       description
-        "List of TE interfaces";
+        "List of TE interfaces.
+
+         The interface referenced is based on the interface and
+         subinterface leaves within the interface-ref container -
+         which reference an entry in the /interfaces/interface list -
+         and should not rely on the value of the list key.";
 
       leaf interface-id {
         type leafref {
@@ -573,13 +607,20 @@ module openconfig-mpls {
     description
       "Top level grouping for attributes
       for MPLS-enabled interfaces.";
+
     container interface-attributes {
       description
         "Parameters related to MPLS interfaces";
+
       list interface {
         key "interface-id";
         description
-          "List of TE interfaces";
+          "List of MPLS-enabled interfaces.
+
+           The interface referenced is based on the interface and
+           subinterface leaves within the interface-ref container -
+           which reference an entry in the /interfaces/interface list -
+           and should not rely on the value of the list key.";
 
         leaf interface-id {
           type leafref {

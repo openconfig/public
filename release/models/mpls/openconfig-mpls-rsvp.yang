@@ -28,7 +28,26 @@ module openconfig-mpls-rsvp {
      parameters and LSP-specific configuration for constrained-path
      LSPs";
 
-  oc-ext:openconfig-version "3.0.2";
+  oc-ext:openconfig-version "4.0.1";
+
+  revision "2023-02-06" {
+    description
+      "Clarify use of interface-ref.";
+    reference "4.0.1";
+  }
+
+  revision "2022-03-27" {
+    description
+      "Change authentication-key to routing-password type, Add new
+      authentication-type to indicate hashing algorithm.";
+    reference "4.0.0";
+  }
+
+  revision "2021-07-28" {
+    description
+      "Add prefix to qualify when statements.";
+    reference "3.0.3";
+  }
 
   revision "2020-02-04" {
     description
@@ -343,15 +362,18 @@ module openconfig-mpls-rsvp {
         "Enables RSVP authentication on the node.";
     }
 
-    leaf authentication-key {
-      type string {
-        // Juniper supports 1..16 while
-        // Cisco has a much bigger range, up to 60.
-        length "1..32";
+    leaf authentication-type {
+      type identityref {
+        base oc-mplst:RSVP_AUTH_TYPE;
       }
       description
-        "authenticate RSVP signaling
-         messages";
+        "RSVP message authentication algorithm type";
+    }
+
+    leaf authentication-key {
+      type oc-types:routing-password;
+      description
+        "Authenticate RSVP signaling messages";
       reference
         "RFC 2747: RSVP Cryptographic Authentication";
     }
@@ -518,7 +540,12 @@ module openconfig-mpls-rsvp {
         list interface {
           key "interface-id";
           description
-            "list of per-interface RSVP configurations";
+            "List of per-interface RSVP configurations.
+
+             The interface referenced is based on the interface and
+             subinterface leaves within the interface-ref container -
+             which reference an entry in the /interfaces/interface list -
+             and should not rely on the value of the list key.";
 
           leaf interface-id {
             type leafref {
@@ -574,7 +601,7 @@ module openconfig-mpls-rsvp {
       "properties of RSVP point-to-point paths";
 
     leaf source {
-      when "../signaling-protocol = 'PATH_SETUP_RSVP'" {
+      when "../signaling-protocol = 'oc-mplst:PATH_SETUP_RSVP'" {
         description
           "When the signaling protocol is RSVP-TE ";
       }
@@ -584,7 +611,7 @@ module openconfig-mpls-rsvp {
     }
 
     leaf soft-preemption {
-      when "../signaling-protocol = 'PATH_SETUP_RSVP'" {
+      when "../signaling-protocol = 'oc-mplst:PATH_SETUP_RSVP'" {
         description
           "When the signaling protocol is RSVP-TE ";
       }
@@ -603,7 +630,7 @@ module openconfig-mpls-rsvp {
       an LSP tunnel";
 
     leaf setup-priority {
-      when "../signaling-protocol = 'PATH_SETUP_RSVP'" {
+      when "../signaling-protocol = 'oc-mplst:PATH_SETUP_RSVP'" {
         description
           "When the signaling protocol is RSVP-TE ";
       }
@@ -620,7 +647,7 @@ module openconfig-mpls-rsvp {
     }
 
     leaf hold-priority {
-      when "../signaling-protocol = 'PATH_SETUP_RSVP'" {
+      when "../signaling-protocol = 'oc-mplst:PATH_SETUP_RSVP'" {
         description
            "When the signaling protocol is RSVP-TE ";
       }
@@ -644,7 +671,7 @@ module openconfig-mpls-rsvp {
 
     leaf setup-priority {
       when "../../../../../" +
-        "config/signaling-protocol = 'PATH_SETUP_RSVP'" {
+        "config/signaling-protocol = 'oc-mplst:PATH_SETUP_RSVP'" {
         description
           "When the signaling protocol is RSVP-TE ";
       }
@@ -662,7 +689,7 @@ module openconfig-mpls-rsvp {
 
     leaf hold-priority {
       when "../../../../../" +
-        "config/signaling-protocol = 'PATH_SETUP_RSVP'" {
+        "config/signaling-protocol = 'oc-mplst:PATH_SETUP_RSVP'" {
         description
            "When the signaling protocol is RSVP-TE ";
       }
@@ -687,7 +714,7 @@ module openconfig-mpls-rsvp {
 
     leaf retry-timer {
       when "../../../../../" +
-        "config/signaling-protocol = 'PATH_SETUP_RSVP'" {
+        "config/signaling-protocol = 'oc-mplst:PATH_SETUP_RSVP'" {
         description
         "When the signaling protocol is RSVP-TE ";
       }

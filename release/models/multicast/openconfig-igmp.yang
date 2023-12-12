@@ -26,7 +26,13 @@ module openconfig-igmp {
   description
     "An OpenConfig model for Internet Group Management Protocol (IGMP).";
 
-   oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.3.1";
+
+  revision "2023-02-03" {
+    description
+      "Clarify use of interface-ref.";
+    reference "0.3.1";
+  }
 
   revision "2021-05-17" {
     description
@@ -303,7 +309,12 @@ module openconfig-igmp {
         key "interface-id";
         description
           "This container defines interface IGMP configuration and
-          state information.";
+          state information.
+
+          The interface referenced is based on the interface and
+          subinterface leaves within the interface-ref container -
+          which reference an entry in the /interfaces/interface list -
+          and should not rely on the value of the list key.";
 
         leaf interface-id {
           type leafref {
