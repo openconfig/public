@@ -910,6 +910,7 @@ module openconfig-evpn {
             description
               "Container for state parameters related to this VTEP peer";
             uses evpn-endpoint-peer-state;
+	    uses evpn-endpoint-peer-vxlan-counters;
         }
       }
     }
@@ -986,6 +987,59 @@ module openconfig-evpn {
     leaf router-mac {
       type oc-yang:mac-address;
       description "MAC address of the remote VTEP";
+    }
+  }
+
+  grouping evpn-endpoint-peer-vxlan-counters {
+    description
+      "Grouping for operational state regarding traffic encapsulated on local
+      device and directed towards a specific VTEP.";
+    container counters {
+      description
+        "Operational state regarding traffic encapsulated on local
+        device and directed towards a specific VTEP.";
+      leaf total-encap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of packets encapsulated on the local
+          device that are directed towards a specific VTEP.";
+      }
+      leaf total-encap-bytes {
+        type oc-yang:counter64;
+        description
+          "The total number of bytes encapsulated on the local
+          device that are directed towards a specific VTEP.";
+      }
+      leaf total-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of packets from a specific VTEP
+          that are decapsulated on the local device.";
+      }
+      leaf total-decap-bytes {
+        type oc-yang:counter64;
+        description
+          "The total number of bytes from a specific VTEP
+          that are decapsulated on the local device.";
+      }
+      leaf bum-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of BUM packets from a specific VTEP
+          that are decapsulated on the local device.";
+      }
+      leaf drop-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated packets from a specific VTEP
+          that have been dropped locally.";
+      }
+      leaf except-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated packets from a specific VTEP
+          that hit an exceptional condition.";
+      }
     }
   }
 
