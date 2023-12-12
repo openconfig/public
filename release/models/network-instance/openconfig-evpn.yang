@@ -40,7 +40,13 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2023-12-12" {
+   description
+     "Add vni-peer-group container";
+   reference   "0.7.0";
+  }
 
   revision "2023-07-12" {
    description
@@ -911,6 +917,49 @@ module openconfig-evpn {
               "Container for state parameters related to this VTEP peer";
             uses evpn-endpoint-peer-state;
         }
+        container vni-peer-group {
+          config false;
+          description
+            "Container for associating ingress and egress VNIs to router MACs";
+          list vni-peer-group {
+            key "cp-vni egress-vni";
+            description
+              "List of VNI peer groups";
+            leaf cp-vni {
+              type leafref {
+                path "../state/cp-vni";
+              }
+              description
+                "A reference to the control-plane VNI for the VNI peer group";
+            }
+            leaf egress-vni {
+              type leafref {
+                path "../state/egress-vni";
+              }
+              description
+                "A reference to the egress VNI for the VNI peer group";
+            }
+
+            container state {
+              description "State container for the VNI peer group";
+              config false;
+
+              leaf cp-vni {
+                type oc-evpn-types:vni-id;
+                description
+                  "The control-plane VNI discovered behind this peer VTEP";
+              }
+              leaf egress-vni {
+                type oc-evpn-types:vni-id;
+                description "Egress VNI associated with the remote VTEP";
+              }
+              leaf router-mac {
+                type oc-yang:mac-address;
+                description "MAC address of the remote VTEP";
+              }
+            }
+          }
+        }
       }
     }
 
@@ -978,6 +1027,7 @@ module openconfig-evpn {
 
     leaf-list control-plane-vnis {
       type oc-evpn-types:vni-id;
+      status deprecated;
       description
         "The control-plane VNIs are all of the VNIs that are discovered by the
         control-plane behind this peer VTEP";
@@ -985,6 +1035,7 @@ module openconfig-evpn {
 
     leaf router-mac {
       type oc-yang:mac-address;
+      status deprecated;
       description "MAC address of the remote VTEP";
     }
   }
