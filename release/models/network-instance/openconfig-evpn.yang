@@ -42,9 +42,9 @@ module openconfig-evpn {
 
   oc-ext:openconfig-version "0.7.0";
 
-  revision "2023-12-27" {
+  revision "2024-02-01" {
    description
-     "Add VxLan counters";
+     "Add counters under endpoint-peer and endpoint-vni";
    reference   "0.7.0";
   }
 
@@ -916,8 +916,11 @@ module openconfig-evpn {
             description
               "Container for state parameters related to this VTEP peer";
             uses evpn-endpoint-peer-state;
-	    uses evpn-endpoint-peer-vxlan-counters;
-        }
+            uses evpn-endpoint-counters;
+	      }
+
+        uses ipv4-top;
+        uses ipv6-top;
       }
     }
 
@@ -946,6 +949,9 @@ module openconfig-evpn {
             "Container for state parameters related to this L2VNI or L3VNI";
           uses evpn-endpoint-vni-state;
         }
+
+        uses ipv4-top;
+        uses ipv6-top;
       }
     }
   }
@@ -996,55 +1002,96 @@ module openconfig-evpn {
     }
   }
 
-  grouping evpn-endpoint-peer-vxlan-counters {
+  grouping evpn-endpoint-counters {
     description
-      "Grouping for operational state regarding traffic encapsulated on local
-      device and directed towards a specific VTEP.";
+      "Grouping for Operational state regarding encapsulated traffic.";
     container counters {
       description
-        "Operational state regarding traffic encapsulated on local
-        device and directed towards a specific VTEP.";
+        "Operational state regarding encapsulated traffic.";
       leaf total-encap-pkts {
         type oc-yang:counter64;
         description
-          "The total number of packets encapsulated on the local
-          device that are directed towards a specific VTEP.";
+          "The total number of encapsulated packets.";
       }
       leaf total-encap-bytes {
         type oc-yang:counter64;
         description
-          "The total number of bytes encapsulated on the local
-          device that are directed towards a specific VTEP.";
+          "The total number of encapsulated bytes.";
+      }
+      leaf bum-encap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of encapsulated BUM packets.";
       }
       leaf total-decap-pkts {
         type oc-yang:counter64;
         description
-          "The total number of packets from a specific VTEP
-          that are decapsulated on the local device.";
+          "The total number of decapsulated packets.";
       }
       leaf total-decap-bytes {
         type oc-yang:counter64;
         description
-          "The total number of bytes from a specific VTEP
-          that are decapsulated on the local device.";
+          "The total number of decapsulated bytes.";
+      }
+      leaf unicast-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated unicast packets.";
       }
       leaf bum-decap-pkts {
         type oc-yang:counter64;
         description
-          "The total number of BUM packets from a specific VTEP
-          that are decapsulated on the local device.";
+          "The total number of decapsulated BUM packets.";
+      }
+      leaf bum-decap-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of decapsulated BUM packets received via underlay multicast.";
+      }
+      leaf bum-decap-ir-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of decapsulated BUM packets received via underlay ingress replication.";
       }
       leaf drop-decap-pkts {
         type oc-yang:counter64;
         description
-          "The total number of decapsulated packets from a specific VTEP
-          that have been dropped locally.";
+          "The total number of decapsulated packets that have been dropped locally.";
       }
       leaf except-decap-pkts {
         type oc-yang:counter64;
         description
-          "The total number of decapsulated packets from a specific VTEP
-          that hit an exceptional condition.";
+          "The total number of decapsulated packets that hit an exceptional condition.";
+      }
+    }
+  }
+
+  grouping ipv4-top {
+    description
+      "Grouping for Operational state of IPv4 address family.";
+    container ipv4 {
+      description
+        "Parameters for the IPv4 address family.";
+      container state {
+        config false;
+        description
+          "Top level IPv4 operational state data.";
+        uses evpn-endpoint-counters;
+      }
+    }
+  }
+
+  grouping ipv6-top {
+    description
+      "Grouping for Operational state of IPv6 address family.";
+    container ipv6 {
+      description
+        "Parameters for the IPv6 address family.";
+      container state {
+        config false;
+        description
+          "Top level IPv6 operational state data.";
+        uses evpn-endpoint-counters;
       }
     }
   }
