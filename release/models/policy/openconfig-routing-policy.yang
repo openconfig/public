@@ -85,7 +85,34 @@ module openconfig-routing-policy {
     If a routing protocol is defined and the related
     apply-policy/default-(import|export)-policy leaf is not set, the
     default value for the default-(import|export)-policy leaf must be
-    applied.  See RFC6020 7.6.1 which applies to this model.";
+    applied.  See RFC6020 7.6.1 which applies to this model.
+
+    Policy inherience in BGP
+    The policy chain and default-(import|export)-policy could be 
+    attached at 6 levels:
+    0. global
+    1. global/afi-safi
+    2. peer-group/
+    3. peer-group/afi-safi
+    4. neighbor/
+    5. neighbor/afi-safi
+    Evalualtion starts on highest level of specific - 
+    level 5 neighbor/afi-safi - and follow logic:
+    
+    1. if policy (chain) is explicitly configured - execute it. For
+      routes neither accepted or rejected:
+      1.1. if default-(import|export)-policy is explicitly configured, 
+        are subject to this acrion (accept or reject)
+      1.2. elese, are subject to 
+        implicit default value default-(import|export)-policy (reject)
+    2 if policy (chain) is NOT explicitly configured, For all routes:
+      2.1. if default-(import|export)-policy is explicitly configured, 
+        are subject to this action (accept or reject)
+      2.2. eleseif level != 0 (global), are subject to 
+        policy and default inherited less specific level (level -1)
+      2.3. elese, are subject to 
+        implicit default value default-(import|export)-policy (reject)
+    ";
 
   oc-ext:openconfig-version "3.4.3";
 
