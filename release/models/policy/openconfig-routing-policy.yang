@@ -88,7 +88,7 @@ module openconfig-routing-policy {
     applied.  See RFC6020 7.6.1 which applies to this model.
 
     Policy inherience in BGP
-    The policy chain and default-(import|export)-policy could be 
+    The policy chain and default-(import|export)-policy could be
     attached at 6 levels:
     0. global/apply-policy
     1.   global/afi-safi/apply-policy
@@ -96,20 +96,21 @@ module openconfig-routing-policy {
     3.       peer-group/afi-safi/apply-policy
     4.         neighbor/apply-policy
     5.           neighbor/afi-safi/apply-policy
-    Evalualtion starts on highest level of specific - 
+    Evalualtion starts on highest level of specific -
     level 5 neighbor/afi-safi - and follow logic:
-    
+  
     1. if policy (chain) is explicitly configured - execute it. For
       routes neither accepted or rejected:
-      1.1. if default-(import|export)-policy is explicitly configured, 
+      1.1. if default-(import|export)-policy is explicitly configured,
         are subject to this acrion (accept or reject)
-      1.2. elese, are subject to 
-        implicit default value default-(import|export)-policy (reject)
+      1.2. elese, are subject to implicit default value
+        default-(import|export)-policy (reject)
     2 if policy (chain) is NOT explicitly configured, For all routes:
-      2.1. if default-(import|export)-policy is explicitly configured, 
+      2.1. if default-(import|export)-policy is explicitly configured,
         are subject to this action (accept or reject)
-      2.2. eleseif level != 0 (global), are subject to 
-        policy and default inherited less specific level (level -1)
+      2.2. eleseif level != 0 (global), are subject to policy and
+        default-(import|export)-policy inherited less specific level
+        (level -1)
       2.3. elese, are subject to 
         implicit default value default-(import|export)-policy (reject)
     ";
