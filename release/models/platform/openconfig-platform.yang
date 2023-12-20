@@ -65,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.23.0";
+  oc-ext:openconfig-version "0.24.0";
+
+  revision "2023-11-28" {
+    description
+      "Add model-name";
+    reference "0.24.0";
+  }
 
   revision "2023-02-13" {
     description
@@ -461,6 +467,14 @@ module openconfig-platform {
         "System-assigned part number for the component.  This should
         be present in particular if the component is also an FRU
         (field replaceable unit)";
+    }
+
+    leaf model-name {
+      type string;
+      description
+        "A human readable string describing the model of a component.
+        This string is optional and should only be populated if part-no
+        is also populated.";
     }
 
     leaf clei-code {

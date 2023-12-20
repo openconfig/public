@@ -2,6 +2,7 @@
 [![OpenConfig Linter](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:oc-pyang.svg)](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:oc-pyang.html)
 [![pyangbind](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:pyangbind.svg)](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:pyangbind.html)
 [![goyang/ygot](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:goyang-ygot.svg)](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:goyang-ygot.html)
+[![ygnmi](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:ygnmi.svg)](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:ygnmi.html)
 [![yanglint](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:yanglint.svg)](https://storage.googleapis.com/openconfig/compatibility-badges/openconfig-public:yanglint.html)
 
 # OpenConfig

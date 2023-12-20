@@ -77,7 +77,14 @@ module openconfig-terminal-device {
     ports per linecard, separate linecards for client and line ports,
     etc.).";
 
-  oc-ext:openconfig-version "1.9.0";
+  oc-ext:openconfig-version "1.9.1";
+
+  revision "2023-12-13" {
+    description
+      "Add reference to the terminal-device-properties-guide.md doc for
+      operational-mode.";
+    reference "1.9.1";
+  }
 
   revision "2021-07-29" {
     description
@@ -1289,6 +1296,8 @@ module openconfig-terminal-device {
       // Ideally, this leaf should be a leafref to the supported
       // operational modes, but YANG 1.0 does not allow a r/w
       // leaf to be a leafref to a r/o leaf.
+      reference
+         "https://github.com/openconfig/public/blob/master/doc/terminal-device-properties-guide.md";
     }
 
     leaf line-port {

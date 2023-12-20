@@ -52,9 +52,14 @@ module openconfig-routing-policy {
     corresponding individual policy statements in order.  When a
     condition statement in a policy statement is satisfied, the
     corresponding action statement is executed.  If the action
-    statement has either accept-route or reject-route actions, policy
-    evaluation of the current policy definition stops, and no further
-    policy definitions in the chain are evaluated.
+    statement has a final disposition configured as policy result, either
+    accept-route or reject-route, evaluation of the current policy definition
+    stops, and no further policy statements are evaluated. In case there is a
+    policy chain, no further policy definitions in the chain are evaluated.
+
+    If the action statement has the NEXT_STATEMENT policy result, all the
+    defined actions are executed and policy evaluation proceeds to the next
+    statement.  The NEXT_STATEMENT is the default policy result action.
 
     If the condition is not satisfied, then evaluation proceeds to
     the next policy statement.  If none of the policy statement
@@ -75,9 +80,34 @@ module openconfig-routing-policy {
     policy.  Similarly, a reject-route action returns false.  If the
     subroutine returns true, the calling policy continues to evaluate
     the remaining conditions (using a modified route if the
-    subroutine performed any changes to the route).";
+    subroutine performed any changes to the route).
 
-  oc-ext:openconfig-version "3.3.0";
+    If a routing protocol is defined and the related
+    apply-policy/default-(import|export)-policy leaf is not set, the
+    default value for the default-(import|export)-policy leaf must be
+    applied.  See RFC6020 7.6.1 which applies to this model.";
+
+  oc-ext:openconfig-version "3.4.2";
+
+  revision "2023-11-01" {
+    description
+      "Refactor apply policy to separate default policy in it's own common
+      set of groupings";
+    reference "3.4.2";
+  }
+
+  revision "2023-10-24" {
+    description
+      "Clarify the use of default-(import|export)-policy when no policy
+      is applied to a protocol.";
+    reference "3.4.1";
+  }
+
+  revision "2023-10-11" {
+    description
+      "Add NEXT_STATEMENT policy-result-type enum value.";
+    reference "3.4.0";
+  }
 
   revision "2022-05-24" {
     description
@@ -162,12 +192,19 @@ module openconfig-routing-policy {
   typedef policy-result-type {
     type enumeration {
       enum ACCEPT_ROUTE {
-        description "Policy accepts the route";
+        description "Policy accepts the route and evaluation of the
+        current policy definition stops.";
       }
       enum REJECT_ROUTE {
-        description "Policy rejects the route";
+        description "Policy rejects the route and evaluation of the
+        current policy definition stops.";
+      }
+      enum NEXT_STATEMENT {
+        description "Any modifications of the route are preserved and the evaluation of the policy will continue to the
+        next statement.";
       }
     }
+    default NEXT_STATEMENT;
     description
       "Type used to specify route disposition in
       a policy chain";
@@ -1181,6 +1218,11 @@ module openconfig-routing-policy {
         for the current peer group, neighbor, address family,
         etc.";
     }
+  }
+
+  grouping default-policy-import-config {
+    description
+      "Configuration data for default import policy";
 
     leaf default-import-policy {
       type default-policy-type;
@@ -1189,7 +1231,6 @@ module openconfig-routing-policy {
         "explicitly set a default policy if no policy definition
         in the import policy chain is satisfied.";
     }
-
   }
 
   grouping apply-policy-export-config {
@@ -1211,6 +1252,11 @@ module openconfig-routing-policy {
         for the current peer group, neighbor, address family,
         etc.";
     }
+  }
+
+  grouping default-policy-export-config {
+    description
+      "Configuration data for default export policy";
 
     leaf default-export-policy {
       type default-policy-type;
@@ -1221,19 +1267,34 @@ module openconfig-routing-policy {
     }
   }
 
-
   grouping apply-policy-config {
     description
       "Configuration data for routing policies";
 
     uses apply-policy-import-config;
     uses apply-policy-export-config;
-
+    uses default-policy-config;
   }
 
+  grouping default-policy-config {
+    description
+      "Configuration data for default routing policies";
 
+    uses default-policy-import-config;
+    uses default-policy-export-config;
+  }
 
   grouping apply-policy-state {
+    description
+      "Operational state associated with routing policy";
+
+    uses default-policy-state;
+
+    //TODO: identify additional state data beyond the intended
+    //policy configuration.
+  }
+
+  grouping default-policy-state {
     description
       "Operational state associated with routing policy";
 
@@ -1269,6 +1330,35 @@ module openconfig-routing-policy {
 
         uses apply-policy-config;
         uses apply-policy-state;
+      }
+    }
+  }
+
+  grouping default-policy-group {
+     description
+      "Top level container for default routing policy applications.";
+
+    container apply-policy {
+      description
+        "Anchor point for routing policies in the model.
+        Import and export policies are with respect to the local
+        routing table, i.e., export (send) and import (receive),
+        depending on the context.";
+
+      container config {
+        description
+          "Policy configuration data.";
+
+        uses default-policy-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state for routing policy";
+
+        uses default-policy-config;
+        uses default-policy-state;
       }
     }
   }
