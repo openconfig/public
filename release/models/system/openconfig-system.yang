@@ -47,7 +47,14 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.17.1";
+  oc-ext:openconfig-version "0.17.2";
+
+  revision "2023-12-19" {
+    description
+      "Update descriptions of root-delay and root-dispersion for accuracy and
+      clarity.";
+    reference "0.17.2";
+  }
 
   revision "2023-06-16" {
     description
@@ -754,30 +761,23 @@ module openconfig-system {
 
     leaf root-delay {
       type uint32;
-      // TODO: reconsider units for these values -- the spec defines
-      // rootdelay and rootdisperson as 2 16-bit integers for seconds
-      // and fractional seconds, respectively.  This gives a
-      // precision of ~15 us (2^-16).  Using milliseconds here based
-      // on what implementations typically provide and likely lack
-      // of utility for less than millisecond precision with NTP
-      // time sync.
       units "milliseconds";
       description
-        "The round-trip delay to the server, in milliseconds.";
+        "The total round-trip delay to the reference clock, in milliseconds.";
       reference
         "RFC 5905 - Network Time Protocol Version 4: Protocol and
-        Algorithms Specification";
+        Algorithms Specification, Section 7.3";
     }
 
     leaf root-dispersion {
       type uint64;
       units "milliseconds";
       description
-        "Dispersion (epsilon) represents the maximum error inherent
-        in the measurement";
+        "The maximum error inherent in the measurement, accumulated over the
+        stratum levels from the reference clock.";
       reference
         "RFC 5905 - Network Time Protocol Version 4: Protocol and
-        Algorithms Specification";
+        Algorithms Specification, Section 4";
     }
 
     leaf offset {
