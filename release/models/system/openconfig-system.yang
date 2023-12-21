@@ -47,7 +47,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.17.1";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2023-12-20" {
+    description
+      "Change type of NTP offset to int64, and clarify its description.";
+    reference "1.0.0";
+  }
 
   revision "2023-06-16" {
     description
@@ -781,11 +787,14 @@ module openconfig-system {
     }
 
     leaf offset {
-      type uint64;
+      type int64;
       units "milliseconds";
       description
         "Estimate of the current time offset from the peer.  This is
-        the time difference between the local and reference clock.";
+        the time difference of the peer's clock minus the local clock.";
+      reference
+        "RFC 5905 - Network Time Protocol Version 4: Protocol and
+        Algorithms Specification, Section 8";
     }
 
     leaf poll-interval {
