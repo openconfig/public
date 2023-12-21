@@ -51,7 +51,8 @@ module openconfig-system {
 
   revision "2023-12-20" {
     description
-      "Change type of NTP offset to int64, and clarify its description.";
+      "Change NTP offset, root-delay, and root-dispersion to int64 nanoseconds,
+      and update their descriptions for accuracy and clarity.";
     reference "1.0.0";
   }
 
@@ -759,36 +760,29 @@ module openconfig-system {
     }
 
     leaf root-delay {
-      type uint32;
-      // TODO: reconsider units for these values -- the spec defines
-      // rootdelay and rootdisperson as 2 16-bit integers for seconds
-      // and fractional seconds, respectively.  This gives a
-      // precision of ~15 us (2^-16).  Using milliseconds here based
-      // on what implementations typically provide and likely lack
-      // of utility for less than millisecond precision with NTP
-      // time sync.
-      units "milliseconds";
+      type int64;
+      units "nanoseconds";
       description
-        "The round-trip delay to the server, in milliseconds.";
+        "The total round-trip delay to the reference clock, in nanoseconds.";
       reference
         "RFC 5905 - Network Time Protocol Version 4: Protocol and
-        Algorithms Specification";
+        Algorithms Specification, Section 7.3";
     }
 
     leaf root-dispersion {
-      type uint64;
-      units "milliseconds";
+      type int64;
+      units "nanoseconds";
       description
-        "Dispersion (epsilon) represents the maximum error inherent
-        in the measurement";
+        "The maximum error inherent in the measurement, accumulated over the
+        stratum levels from the reference clock.";
       reference
         "RFC 5905 - Network Time Protocol Version 4: Protocol and
-        Algorithms Specification";
+        Algorithms Specification, Section 4";
     }
 
     leaf offset {
       type int64;
-      units "milliseconds";
+      units "nanoseconds";
       description
         "Estimate of the current time offset from the peer.  This is
         the time difference of the peer's clock minus the local clock.";
