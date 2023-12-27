@@ -8,12 +8,12 @@ module openconfig-bgp-policy {
   prefix "oc-bgp-pol";
 
   // import some basic types
+  import openconfig-types { prefix "oc-types"; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-routing-policy {prefix oc-rpol; }
   import openconfig-policy-types { prefix oc-pol-types; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
   import openconfig-extensions { prefix oc-ext; }
-
 
   // meta
   organization
@@ -672,7 +672,7 @@ module openconfig-bgp-policy {
 
   grouping ext-community-members-top {
     description
-      "Top-level grouping for members of an external community set";
+      "Top-level grouping for members of an extended community set";
 
     container members {
         description
@@ -681,7 +681,7 @@ module openconfig-bgp-policy {
         list member {
             key "index";
             description
-              "List of members in an external community set.  Each entry
+              "List of members in an extended community set.  Each entry
               is identified by an index.";
 
           leaf index {
@@ -709,7 +709,7 @@ module openconfig-bgp-policy {
 
           container asn-type {
               description
-              "RFC4360 section 3.1 or 3.2 BGP extended community.";
+              "RFC4360 section 3.1 or 3.2 BGP extended community with 2 byte ASN.";
 
               container config {
                   description "Config for asn-type extended community.";
@@ -719,6 +719,21 @@ module openconfig-bgp-policy {
                   description "State for asn-type extended community.";
                   config false;
                   uses ext-community-asn-type-config;
+              }
+          }
+
+          container asn4-type {
+              description
+              "RFC4360 section 3.1 or 3.2 BGP extended community with 4 byte ASN.";
+
+              container config {
+                  description "Config for asn-type extended community.";
+                  uses ext-community-asn4-type-config;
+              }
+              container state {
+                  description "State for asn-type extended community.";
+                  config false;
+                  uses ext-community-asn4-type-config;
               }
           }
 
@@ -840,24 +855,37 @@ grouping ext-community-asn-type-config {
   description "Grouping for asn-type extended community config.";
   leaf asn {
       type oc-inet:as-number;
-      description "Autonomous system number.";
+      description "2 byte Autonomous system number.";
   }
 
   leaf value {
-      type    uint16;
+      type uint32;
+      description "Assigned value for this community.";
+  }
+}
+
+grouping ext-community-asn4-type-config {
+  description "Grouping for asn4-type extended community config.";
+  leaf asn {
+      type oc-inet:as-number;
+      description "4 Byte autonomous system number.";
+  }
+
+  leaf value {
+      type uint16;
       description "Assigned value for this community.";
   }
 }
 
 grouping ext-community-ip-type-config {
   description "Grouping for ip-type extended community config.";
-  leaf asn {
+  leaf ip-address {
     type oc-inet:ip-address;
     description "IPv4 Address for the community.";
   }
 
   leaf value {
-    type    uint16;
+    type uint16;
     description "Assigned value for this community.";
   }
 }
@@ -870,7 +898,7 @@ grouping ext-community-link-bw-config {
   }
 
   leaf bps {
-    type uint64;
+    type oc-types:ieeefloat32;
     description "Bandwidth in bits per second.";
   }
 }
@@ -891,8 +919,8 @@ grouping ext-community-route-target-config {
 grouping ext-community-route-target-ip-config {
   description "Grouping for route-target-ip extended community
   config.";
-  leaf ip-address {
-    type oc-inet:ip-address;
+  leaf ipv4-address {
+    type oc-inet:ipv4-address;
     description "IPv4 address.";
   }
 
@@ -917,8 +945,8 @@ grouping ext-community-route-origin-config {
 
 grouping ext-community-route-origin-ip-config {
   description "Grouping for route-origin-ip extended community config.";
-  leaf ip-address {
-    type oc-inet:ip-address;
+  leaf ipv4-address {
+    type oc-inet:ipv4-address;
     description "IPv4 address.";
   }
 
