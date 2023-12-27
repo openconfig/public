@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "2.3.0";
+  oc-ext:openconfig-version "2.4.0";
+
+  revision "2023-09-26" {
+    description
+      "Add next-hop-group-name in NHG AFT entry state.";
+    reference "2.4.0";
+  }
 
   revision "2023-04-19" {
     description
@@ -577,6 +583,14 @@ submodule openconfig-aft-common {
         identifier. If the identifier of the next-hop-group
         is changed, all AFT entries that reference it must
         also be updated.";
+    }
+
+    leaf next-hop-group-name {
+      type string;
+      description
+        "Where applicable, this leaf is a unique identifier string for the
+        next-hop-group. It is an arbitrary name for the group, that is
+        supported by vendors and is exposed for telemetry.";
     }
 
     leaf programmed-id {
