@@ -618,6 +618,21 @@ submodule openconfig-bgp-common {
       container ebgp {
         description
           "Multipath parameters for eBGP";
+        container link-bandwidth-ext-community {
+          description
+            "Usage of DMZ Link-Bandwidth extended community";
+          container config {
+            description
+            "Configuration parameters relating to usage of link-bandwidth";
+            uses bgp-common-use-multiple-paths-link-bandwidth-config;
+          }
+          container state {
+            config false;
+            description
+            "State information relating to usage of link-bandwidth";
+            uses bgp-common-use-multiple-paths-link-bandwidth-config;
+          }
+        }
         container config {
           description
             "Configuration parameters relating to eBGP multipath";
@@ -639,7 +654,7 @@ submodule openconfig-bgp-common {
             "Usage of DMZ Link-Bandwidth extended community";
           container config {
             description
-            "Configuration parameters relating to usage of link-bandwidth"
+            "Configuration parameters relating to usage of link-bandwidth";
             uses bgp-common-use-multiple-paths-link-bandwidth-config;
           }
           container state {
