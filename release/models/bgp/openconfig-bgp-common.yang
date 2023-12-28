@@ -24,7 +24,14 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.5.0";
+  oc-ext:openconfig-version "9.6.0";
+
+  revision "2023-12-28" {
+    description
+      "Add support for controling use of link-bandwidth extended
+      community for BGP multipath.";
+    reference "9.6.0";
+  }
 
   revision "2023-11-01" {
     description
@@ -627,6 +634,21 @@ submodule openconfig-bgp-common {
       container ibgp {
         description
           "Multipath parameters for iBGP";
+        container link-bandwidth-ext-community {
+          description
+            "Usage of DMZ Link-Bandwidth extended community";
+          container config {
+            description
+            "Configuration parameters relating to usage of link-bandwidth"
+            uses bgp-common-use-multiple-paths-link-bandwidth-config;
+          }
+          container state {
+            config false;
+            description
+            "State information relating to usage of link-bandwidth";
+            uses bgp-common-use-multiple-paths-link-bandwidth-config;
+          }
+        }
         container config {
           description
             "Configuration parameters relating to iBGP multipath";
@@ -639,6 +661,21 @@ submodule openconfig-bgp-common {
           uses bgp-common-use-multiple-paths-ibgp-config;
         }
       }
+    }
+  }
+
+  grouping bgp-common-use-multiple-paths-link-bandwidth-config {
+    description
+      "Parameters controlling usage of  of DMZ Link-Bandwidth
+      extended community in pultipath RIB/FIB formation";
+    leaf enable {
+      type boolean;
+      default "false";
+      description
+      "When set to TRUE, BGP multiplepath shall distributed traffic
+      load among contributing routes proportionally to value of
+      Local Administrator subfield of link-bandwidth extended
+      community [draft-ietf-idr-link-bandwidth-07]";
     }
   }
 
