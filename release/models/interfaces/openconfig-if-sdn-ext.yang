@@ -52,13 +52,46 @@ module openconfig-if-sdn-ext {
         administratively disabling the interface -- in particular, the
         interface is expected to participate in L2 protocols such as
         LLDP or LACP even if it blocked from forwarding traffic.
-        Some rules to follow when a port/bundle is set for Forwarding-viable=False,
-          1. Given that L2 protocols like LACP should be allowed to be transmitted and received on such ports, a device mustn't consider such ports in the calculation for minimum number of links required for an aggregate bundle when such a configuration exists on the box. Hence, the device musn't disable the bundle because the minimum number of member links requirement is not met for the bundle.
-          2. While it is required that L2 protocols like LLDP, LACP, P4RT must be allowed for transmit and receive on such ports/bundles, CLNS protocol is an exception and must be treated as per the requirement for L3 protocols below.
-          3. L3 packets, control-plane as well as data-plane must be received but not transmitted on such ports/bundles. By doing so, expectation is that the other end of the connection ceases to use its respective ports for transmit and receive when either the dead-timer or the hold-down timer of its L3 protocol expires. 
-          4. An implementation should follow rule#3 even when the subject port/bundle is the last resort of communication for the device.";
+        Some rules to follow when a port/bundle is set for 
+        Forwarding-viable=False:
+          1. Given that L2 protocols like LACP should be allowed to be 
+          transmitted and received on such ports, a device mustn't consider 
+          such ports in the calculation for minimum number of links required 
+          for an aggregate bundle when such a configuration exists on the box.
+          Hence, the device musn't disable the bundle because the minimum
+          number of member links requirement is not met for the bundle.
+          2. While it is required that L2 protocols like LLDP, LACP, P4RT must
+          be allowed for transmit and receive on such ports/bundles, CLNS
+          protocol is an exception and must be treated as per the requirement
+          for L3 protocols below.
+          3. L3 packets, control-plane as well as data-plane must be received
+          but not transmitted on such ports/bundles. By doing so, expectation
+          is that the other end of the connection ceases to use its respective
+          ports for transmit and receive when either the dead-timer or the
+          hold-down timer of its L3 protocol expires. 
+          4. An implementation should follow rule#3 even when the subject
+          port/bundle is the last resort of communication for the device.";
     }
   }
+
+You, 46 min
+how did u do that?
+
+Rahul Unnikrishnan, 45 min
+manually
+i can see the column width in text editor
+
+You, 45 min
+ok, ... 🙂
+what is the expected width
+?
+
+Rahul Unnikrishnan, 44 min
+i've seen Dan Ameme changing my python script width to <80 columns.
+so i did that here too
+also the max width previously in the file was 79. so setting it to <79 or less seemed safe
+
+
 
   augment "/oc-if:interfaces/oc-if:interface/oc-if:config" {
     description
