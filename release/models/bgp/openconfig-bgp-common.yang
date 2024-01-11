@@ -683,14 +683,16 @@ submodule openconfig-bgp-common {
     description
       "Parameters controlling usage of  of DMZ Link-Bandwidth
       extended community in pultipath RIB/FIB formation";
-    leaf enable {
+    leaf enabled {
       type boolean;
-      default "true";
       description
       "When set to TRUE, BGP multiplepath shall distributed traffic
       load among contributing routes proportionally to value of
       Local Administrator subfield of link-bandwidth extended
-      community [draft-ietf-idr-link-bandwidth-07]";
+      community [draft-ietf-idr-link-bandwidth-07].
+      This leaf has no effect if BGP multi-path is disabled or
+      if maximum-path attribute of BGP multi-path value is set 
+      to 1";
     }
   }
 
