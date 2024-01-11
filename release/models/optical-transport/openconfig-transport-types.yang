@@ -26,8 +26,10 @@ module openconfig-transport-types {
 
   revision "2023-08-03" {
     description
-      "Add new PMDs: ETH_100GBASE_ER4L (MSA 100GBASE-ER4 Lite),
-      ETH_1GBASE_LX10. 100GBASE-CR4 and 40GGBASE-CR4 for DACs";
+      "Added form factors QSFP28_DD and CSFP. 
+       Added new PMDs: ETH_100GBASE_ER4L (MSA 100GBASE-ER4 Lite),
+       ETH_1GBASE_LX10.
+       Added References for 100GBASE-CR4 and 40GGBASE-CR4 for DACs";
      "0.21.0";
   }
 
@@ -838,6 +840,14 @@ module openconfig-transport-types {
       channels";
   }
 
+  identity QSFP28_DD {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP-DD with electrical interfaces consisting of 8 lanes that operate at up to
+      25 Gbps with NRZ modulation";
+    reference "http://qsfp-dd.com";
+  }
+
   identity QSFP56 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
     description
@@ -851,7 +861,7 @@ module openconfig-transport-types {
       "QSFP-DD electrical interfaces will employ 8 lanes that operate up to
       25 Gbps NRZ modulation or 50 Gbps PAM4 modulation, providing
       solutions up to 200 Gbps or 400 Gbps aggregate";
-     "http://qsfp-dd.com";
+     reference "http://qsfp-dd.com";
   }
 
   identity QSFP56_DD_TYPE1 {
@@ -890,6 +900,16 @@ module openconfig-transport-types {
       "Enhanced small form-factor pluggable transceiver supporting
       up to 16 Gb/s signals, including 10 GbE and OTU2";
   }
+
+  identity CSFP {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "Compact Small form-factor pluggable transceiver. It is a version
+      of SFP with the same mechanical form factor allowing two independent
+      bidirectional channels per port.";
+  }
+
+
 
   identity SFP28 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
