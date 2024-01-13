@@ -27,9 +27,10 @@ module openconfig-bgp-types {
 
   oc-ext:openconfig-version "5.6.0";
 
-  revision "2023-12-26" {
+  revision "2024-01-12" {
     description
-      "Add link bandwidth extended community type";
+      "Introduce structured BGP communities and add link bandwidth extended
+      community type.  Deprecate string based community types.";
     reference "5.6.0";
   }
 
@@ -411,10 +412,7 @@ module openconfig-bgp-types {
 
 
   typedef bgp-std-community-type {
-    // TODO: further refine restrictions and allowed patterns
-    // 4-octet value:
-    //  <as number> 2 octets
-    //  <community value> 2 octets
+    status deprecated;
     type union {
       type uint32 {
       // per RFC 1997, 0x00000000 - 0x0000FFFF and 0xFFFF0000 -
@@ -439,6 +437,7 @@ module openconfig-bgp-types {
   }
 
   typedef bgp-ext-community-type {
+    status deprecated;
     type union {
       type string {
         // Type 1: 2-octet global and 4-octet local

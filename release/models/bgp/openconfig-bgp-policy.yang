@@ -30,10 +30,10 @@ module openconfig-bgp-policy {
 
   oc-ext:openconfig-version "6.4.0";
 
-  revision "2023-12-26" {
+  revision "2024-01-12" {
     description
-      "Add strongly typed bgp extended communities.  Deprecate
-      string typed extended bgp communities.";
+      "Introduce structured BGP communities and add link bandwidth extended
+      community type.  Deprecate string based community types.";
     reference "6.4.0";
   }
 
@@ -1014,8 +1014,8 @@ grouping ext-community-asn4-type-config {
 
 grouping ext-community-ip-type-config {
   description "Grouping for ip-type extended community config.";
-  leaf ip-address {
-    type oc-inet:ip-address;
+  leaf ipv4-address {
+    type oc-inet:ipv4-address;
     description "IPv4 Address for the community.";
   }
 
