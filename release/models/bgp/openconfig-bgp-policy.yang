@@ -28,7 +28,18 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "6.2.0";
+  oc-ext:openconfig-version "6.3.0";
+
+  revision "2023-10-23" {
+    description
+      "Revert revision 2019-02-01.
+      Move match-set-options of BGP community and BGP extended community from
+      defined-sets/bgp-defined-sets/community-set and
+      defined-sets/bgp-defined-sets/ext-community-set back to
+      policy-definitions/statements/.../bgp-conditions
+      for consistency across sets.";
+    reference "6.3.0";
+  }
 
   revision "2023-10-03" {
     description
@@ -244,12 +255,113 @@ module openconfig-bgp-policy {
     }
   }
 
+  grouping match-community-config {
+    description
+      "Configuration data for match conditions on community set";
+
+    leaf community-set {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
+          "oc-bgp-pol:bgp-defined-sets/oc-bgp-pol:community-sets/" +
+          "oc-bgp-pol:community-set/oc-bgp-pol:community-set-name";
+      }
+      description "References a defined community set";
+    }
+    uses oc-rpol:match-set-options-group;
+  }
+
+  grouping match-community-state {
+    description
+      "Operational state data for match conditions on community set";
+  }
+
+  grouping match-community-top {
+    description
+      "Top-level grouping for match conditions on community set";
+
+    container match-community-set {
+      description
+        "Match a referenced community set according to the logic
+        defined in the match-set-options leaf";
+
+      container config {
+        description
+          "Configuration data for match conditions on community set";
+
+        uses match-community-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for match conditions on community set";
+
+        uses match-community-config;
+        uses match-community-state;
+      }
+    }
+  }
+
+  grouping match-ext-community-config {
+    description
+      "Configuration data for match conditions on extended community set";
+
+    leaf ext-community-set {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
+          "oc-bgp-pol:bgp-defined-sets/oc-bgp-pol:ext-community-sets/" +
+          "oc-bgp-pol:ext-community-set/oc-bgp-pol:ext-community-set-name";
+      }
+      description "References a defined extended community set";
+    }
+    uses oc-rpol:match-set-options-group;
+  }
+
+  grouping match-ext-community-state {
+    description
+      "Operational state data for match conditions on extended community set";
+  }
+
+  grouping match-ext-community-top {
+    description
+      "Top-level grouping for match conditions on extended community set";
+
+    container match-ext-community-set {
+      description
+        "Match a referenced extended community set according to the logic
+        defined in the match-set-options leaf";
+
+      container config {
+        description
+          "Configuration data for match conditions on extended community set";
+
+        uses match-ext-community-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for match conditions on extended
+          community set";
+
+        uses match-ext-community-config;
+        uses match-ext-community-state;
+      }
+    }
+  }
+
   grouping bgp-match-set-conditions {
     description
       "Condition statement definitions for checking membership in a
       defined set";
 
     uses match-as-path-top;
+    uses match-community-top;
+    uses match-ext-community-top;
   }
 
   grouping community-count-config {
@@ -391,6 +503,7 @@ module openconfig-bgp-policy {
     }
 
     leaf community-set {
+      status deprecated;
       type leafref {
         path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
           "oc-bgp-pol:bgp-defined-sets/oc-bgp-pol:community-sets/" +
@@ -401,6 +514,7 @@ module openconfig-bgp-policy {
     }
 
     leaf ext-community-set {
+      status deprecated;
       type leafref {
         path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
           "oc-bgp-pol:bgp-defined-sets/oc-bgp-pol:ext-community-sets/" +
@@ -477,7 +591,13 @@ module openconfig-bgp-policy {
         removed.";
     }
 
-    uses oc-rpol:match-set-options-group;
+    leaf match-set-options {
+      status deprecated;
+      type oc-pol-types:match-set-options-type;
+      description
+        "Optional parameter that governs the behaviour of the
+        match operation";
+    }
   }
 
   grouping community-set-state {
@@ -553,7 +673,13 @@ module openconfig-bgp-policy {
         removed.";
     }
 
-    uses oc-rpol:match-set-options-group;
+    leaf match-set-options {
+      status deprecated;
+      type oc-pol-types:match-set-options-type;
+      description
+        "Optional parameter that governs the behaviour of the
+        match operation";
+    }
   }
 
   grouping ext-community-set-state {
