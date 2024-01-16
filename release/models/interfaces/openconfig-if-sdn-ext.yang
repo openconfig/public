@@ -49,16 +49,14 @@ module openconfig-if-sdn-ext {
         traffic. This allows a logical aggregate to continue to be
         used with partial capacity, for example.  Note that setting
         `forwarding-viable = false` is not equivalent to
-        administratively disabling the interface -- in particular, the
-        interface is expected to participate in L2 protocols such as
-        LLDP or LACP even if it blocked from forwarding traffic.
+        administratively disabling the interface.
         Some rules to follow when a port/bundle is set for 
         Forwarding-viable=False:
           1. Given that L2 protocols like LACP should be allowed to be 
           transmitted and received on such ports, a device mustn't consider 
           such ports in the calculation for minimum number of links required 
           for an aggregate bundle when such a configuration exists on the box.
-          Hence, the device musn't disable the bundle because the minimum
+          Hence, the device mustn't disable the bundle because the minimum
           number of member links requirement is not met for the bundle.
           2. L2 protocols like LLDP, LACP must be allowed for transmit and 
           receive on such ports/bundles, IS-IS should be handled as per the 
