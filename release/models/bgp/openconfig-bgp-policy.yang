@@ -1103,6 +1103,30 @@ grouping ext-community-color-config {
     type uint32;
     description "Assigned value for this community.";
   }
+
+  leaf flags {
+    type enumeration {
+      enum MATCH_BGP_NH {
+        description "Type 0: Specific Endpoint Match.  Requests match for
+        the endpoint that is the BGP NH.";
+      }
+      enum MATCH_BGP_NH_OR_NULL {
+        description "Type 1: Specific or Null Endpoint Match. Requests
+        match for either the endpoint that is the BGP NH or a null endpoint
+        (e.g., like a default gateway).";
+      }
+      enum MATCH_ANY {
+        description "Type 2: Specific, Null, or Any Endpoint Match.  Requests
+        match for either the endpoint that is the BGP NH or with a null or
+        any endpoint.";
+      }
+    }
+    description "Flags represents the Color-Only Type field which indicates
+     matching criteria between BGP NH and SR Policy endpoint in addition to
+     the matching of the color value.";
+
+    reference "https://datatracker.ietf.org/doc/html/draft-ietf-idr-segment-routing-te-policy-26#name-color-extended-community";
+  }
 }
 
   grouping ext-community-member-config {
