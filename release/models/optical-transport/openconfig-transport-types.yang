@@ -22,7 +22,13 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.20.0";
+  oc-ext:openconfig-version "0.21.0";
+
+  revision "2024-01-16" {
+    description
+      "Update loopback-mode types.";
+    reference "0.21.0";
+  }
 
   revision "2023-08-03" {
     description
@@ -179,17 +185,29 @@ module openconfig-transport-types {
         description
           "No loopback is applied";
       }
-      enum FACILITY {
+      enum ASIC_MAC_LOCAL {
         description
-          "A loopback which directs traffic normally transmitted
-          on the port back to the device as if received on the same
-          port from an external source.";
+          "A port internal loopback at MAC module. The loopback directs
+          traffic normally transmitted on the port back to the device as
+          if received on the same port from an external source.";
       }
-      enum TERMINAL {
+      enum ASIC_MAC_REMOTE {
         description
-          "A loopback which directs traffic received from an external
-          source on the port back out the transmit side of the same
-          port.";
+          "A port external loopback at MAC module. The loopback which
+          directs traffic received from an external source on the port
+          back out the transmit side of the same port.";
+      }
+      enum ASIC_PHY_LOCAL {
+        description
+          "A port internal loopback at PHY module. The loopback directs
+          traffic normally transmitted on the port back to the device as
+          if received on the same port from an external source.";
+      }
+      enum ASIC_PHY_REMOTE {
+        description
+          "A port external loopback at PHY module. The loopback which
+          directs traffic received from an external source on the port
+          back out the transmit side of the same port.";
       }
     }
     default NONE;
