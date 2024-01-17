@@ -51,7 +51,15 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.6.0";
+  oc-ext:openconfig-version "3.7.0";
+
+  revision "2023-11-06" {
+      description
+        "Clarify description for admin-status TESTING.";
+      reference
+        "3.7.0";
+  }
+
   revision "2023-08-29" {
       description
         "Add augment for penalty-based additive-increase, exponential-decrease link damping algorithm.";
@@ -600,11 +608,16 @@ module openconfig-interfaces {
             "Not ready to pass packets and not in some test mode.";
         }
         enum TESTING {
-          //TODO: This is generally not supported as a configured
-          //admin state, though it's in the standard interfaces MIB.
-          //Consider removing it.
           description
-            "In some test mode.";
+            "The interface should be treated as if in admin-down state for
+            control plane protocols.  In addition, while in TESTING state the
+            device should remove the interface from aggregate interfaces.
+            An interface transition to the TESTING state based on a qualification
+            workflow, or internal device triggered action - such as the gNOI Link
+            Qualification service";
+            reference
+              "gNOI Link Qualification Service
+               https://github.com/openconfig/gnoi/blob/main/packet_link_qualification/index.md";
         }
       }
       //TODO:consider converting to an identity to have the
@@ -636,7 +649,7 @@ module openconfig-interfaces {
         enum TESTING {
           value 3;
           description
-            "In some test mode.  No operational packets can
+            "In test mode.  No operational packets can
              be passed.";
         }
         enum UNKNOWN {
