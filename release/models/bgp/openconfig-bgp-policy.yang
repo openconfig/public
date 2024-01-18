@@ -583,6 +583,7 @@ module openconfig-bgp-policy {
     }
 
     leaf-list community-member {
+      status deprecated;
       type union {
         type oc-bgp-types:bgp-std-community-type;
         type oc-bgp-types:bgp-community-regexp-type;
@@ -651,6 +652,7 @@ module openconfig-bgp-policy {
           uses community-set-state;
         }
       }
+      uses community-members-top;
     }
   }
 
@@ -805,6 +807,90 @@ module openconfig-bgp-policy {
     }
   }
 
+  grouping community-members-top {
+    description
+      "Top-level grouping for members of a standard community set";
+
+    container members {
+        description
+            "Enclosing container for list of standard community members";
+
+        list member {
+            key "index";
+            description
+              "List of members in an extended community set.  Each entry
+              is identified by an index.";
+
+          leaf index {
+              type leafref {
+                  path "../config/index";
+              }
+              description
+                  "Reference to the index for the member of an standard
+                  community set.";
+          }
+
+          container config {
+            description "Standard community member configuration.";
+
+            uses community-member-config;
+          }
+
+          container state {
+            config false;
+            description "State for BGP standard community set members";
+
+            uses community-member-config;
+            uses community-member-state;
+          }
+
+          container asn-type {
+            description
+            "RFC4360 section 3.1 or 3.2 BGP extended community with 2 byte ASN.";
+
+            container config {
+              description "Config for asn-type extended community.";
+              uses community-asn-type-config;
+            }
+            container state {
+              description "State for asn-type extended community.";
+              config false;
+              uses community-asn-type-config;
+            }
+          }
+        }
+    }
+  }
+
+  grouping community-member-config {
+    description
+    "Configuration data for BGP standard communities.";
+
+    leaf index {
+      type uint16;
+      description
+        "Represents an index of a member entry.";
+    }
+  }
+
+  grouping community-member-state {
+    description
+    "Operational state data for BGP standard community sets.";
+  }
+
+  grouping community-asn-type-config {
+    description "Grouping for asn-type standard community config.";
+    leaf asn {
+      type oc-inet:as-number;
+      description "2 byte Autonomous system number.";
+    }
+
+    leaf value {
+      type uint32;
+      description "Assigned value for this community.";
+    }
+  }
+
   grouping ext-community-members-top {
     description
       "Top-level grouping for members of an extended community set";
@@ -840,21 +926,6 @@ module openconfig-bgp-policy {
 
             uses ext-community-member-config;
             uses ext-community-member-state;
-          }
-
-          container asn-type {
-              description
-              "RFC4360 section 3.1 or 3.2 BGP extended community with 2 byte ASN.";
-
-              container config {
-                  description "Config for asn-type extended community.";
-                  uses ext-community-asn-type-config;
-              }
-              container state {
-                  description "State for asn-type extended community.";
-                  config false;
-                  uses ext-community-asn-type-config;
-              }
           }
 
           container asn4-type {
@@ -985,19 +1056,6 @@ module openconfig-bgp-policy {
         }
       }
   }
-
-grouping ext-community-asn-type-config {
-  description "Grouping for asn-type extended community config.";
-  leaf asn {
-      type oc-inet:as-number;
-      description "2 byte Autonomous system number.";
-  }
-
-  leaf value {
-      type uint32;
-      description "Assigned value for this community.";
-  }
-}
 
 grouping ext-community-asn4-type-config {
   description "Grouping for asn4-type extended community config.";
