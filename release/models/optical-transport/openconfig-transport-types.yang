@@ -22,12 +22,21 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.21.0";
+  oc-ext:openconfig-version "0.22.0";
 
-  revision "2024-01-16" {
+  revision "2024-01-17" {
     description
       "Update loopback-mode types.";
-    reference "0.21.0";
+    reference "0.22.0";
+  }
+  
+  revision "2024-01-16" {
+    description
+      "Added form factors QSFP28_DD and CSFP.
+       Added new PMDs: ETH_100GBASE_ER4L (MSA 100GBASE-ER4 Lite),
+       ETH_1GBASE_LX10.
+       Added References for 100GBASE-CR4 and 40GGBASE-CR4 for DACs";
+     reference "0.21.0";
   }
 
   revision "2023-08-03" {
@@ -849,6 +858,14 @@ module openconfig-transport-types {
       channels";
   }
 
+  identity QSFP28_DD {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP-DD with electrical interfaces consisting of 8 lanes that operate at up to
+      25 Gbps with NRZ modulation";
+    reference "http://qsfp-dd.com";
+  }
+
   identity QSFP56 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
     description
@@ -901,6 +918,16 @@ module openconfig-transport-types {
       "Enhanced small form-factor pluggable transceiver supporting
       up to 16 Gb/s signals, including 10 GbE and OTU2";
   }
+
+  identity CSFP {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "Compact Small form-factor pluggable transceiver. It is a version
+      of SFP with the same mechanical form factor allowing two independent
+      bidirectional channels per port.";
+  }
+
+
 
   identity SFP28 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
@@ -1007,6 +1034,12 @@ module openconfig-transport-types {
       "Ethernet compliance codes (PMD) supported by transceivers";
   }
 
+  identity ETH_1000BASE_LX10 {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: ETH_1000BASE_LX10";
+    reference "802.3ah-2004(CL59)";
+  }
+
   identity ETH_10GBASE_LRM {
     base ETHERNET_PMD_TYPE;
     description "Ethernet compliance code: 10GBASE_LRM";
@@ -1034,7 +1067,10 @@ module openconfig-transport-types {
 
   identity ETH_40GBASE_CR4 {
     base ETHERNET_PMD_TYPE;
-    description "Ethernet compliance code: 40GBASE_CR4";
+    description "Ethernet compliance code: 40GBASE_CR4.
+    This PMD is used in Direct Attach Cables (DAC)
+    and Active Optical Cables (AOC)";
+    reference "IEEE 802.3ba 40GBASE-CR4";
   }
 
   identity ETH_40GBASE_SR4 {
@@ -1092,6 +1128,11 @@ module openconfig-transport-types {
     description "Ethernet compliance code: 100GBASE_LR4";
   }
 
+  identity ETH_100GBASE_ER4L {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 100GBASE_ER4L";
+  }
+
   identity ETH_100GBASE_ER4 {
     base ETHERNET_PMD_TYPE;
     description "Ethernet compliance code: 100GBASE_ER4";
@@ -1114,7 +1155,10 @@ module openconfig-transport-types {
 
   identity ETH_100GBASE_CR4 {
     base ETHERNET_PMD_TYPE;
-    description "Ethernet compliance code: 100GBASE_CR4";
+    description "Ethernet compliance code: 100GBASE_CR4.
+      This PMD is used in Direct Attach Cables (DAC)
+      and Active Optical Cables (AOC)";
+    reference "IEEE 802.3bj 100GBASE-CR4";
   }
 
   identity ETH_100GBASE_FR {
