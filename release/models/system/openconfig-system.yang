@@ -47,12 +47,18 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "2.0.0";
 
   revision "2023-12-20" {
     description
       "Change NTP offset, root-delay, and root-dispersion to int64 nanoseconds,
       and update their descriptions for accuracy and clarity.";
+    reference "2.0.0";
+  }
+
+  revision "2023-10-26" {
+    description
+      "Add up-time leaf and promote module to version 1.0.";
     reference "1.0.0";
   }
 
@@ -376,6 +382,14 @@ module openconfig-system {
         type oc-yang:date-and-time;
         description
           "The current system date and time.";
+    }
+
+    leaf up-time {
+        type oc-types:timeticks64;
+        units "nanoseconds";
+        description
+          "The amount of time since the network operating system was
+          initialized.";
     }
 
     leaf boot-time {
