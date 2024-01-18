@@ -31,7 +31,14 @@ module openconfig-inet-types {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2024-01-05" {
+    description
+      "Change ipv6-address-zoned typedef to conform to W3C standard
+      regex pattern.";
+    reference "0.7.0";
+  }
 
   revision "2023-02-06" {
     description
@@ -198,7 +205,7 @@ module openconfig-inet-types {
         pattern
           // Must support compression through different lengths
           // therefore this regexp is complex.
-          '^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|'         +
+          '(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|'          +
           '([0-9a-fA-F]{1,4}:){1,7}:|'                        +
           '([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|'        +
           '([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|' +
@@ -207,7 +214,7 @@ module openconfig-inet-types {
           '([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|' +
           '[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|'      +
           ':((:[0-9a-fA-F]{1,4}){1,7}|:)'                     +
-          ')(%[a-zA-Z0-9_]+)$';
+          ')(%[a-zA-Z0-9_]+)';
         oc-ext:posix-pattern
           // Must support compression through different lengths
           // therefore this regexp is complex.
