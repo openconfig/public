@@ -21,7 +21,13 @@ module openconfig-types {
     are used across OpenConfig models. It can be imported by modules
     that make use of these types.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2024-01-19" {
+    description
+      "Add posix-regex type.";
+    reference "0.7.0";
+  }
 
   revision "2019-04-16" {
     description
@@ -99,6 +105,14 @@ module openconfig-types {
       OpenConfig models. Further discussion is required to
       consider the type of regular expressions that are to be
       supported. An initial proposal is POSIX compatible.";
+  }
+
+  typedef posix-eregexp {
+    type string;
+    description
+      "This is a string which represents an extended POSIX
+      regular expression.";
+    reference "IEEE Std 1003.1-2017";
   }
 
   typedef timeticks64 {
