@@ -25,7 +25,14 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "5.5.0";
+  oc-ext:openconfig-version "5.6.0";
+
+  revision "2024-01-12" {
+    description
+      "Introduce structured BGP communities and add link bandwidth extended
+      community type.  Deprecate string based community types.";
+    reference "5.6.0";
+  }
 
   revision "2023-09-06" {
     description
@@ -405,10 +412,7 @@ module openconfig-bgp-types {
 
 
   typedef bgp-std-community-type {
-    // TODO: further refine restrictions and allowed patterns
-    // 4-octet value:
-    //  <as number> 2 octets
-    //  <community value> 2 octets
+    status deprecated;
     type union {
       type uint32 {
       // per RFC 1997, 0x00000000 - 0x0000FFFF and 0xFFFF0000 -
@@ -433,6 +437,7 @@ module openconfig-bgp-types {
   }
 
   typedef bgp-ext-community-type {
+    status deprecated;
     type union {
       type string {
         // Type 1: 2-octet global and 4-octet local
@@ -646,13 +651,39 @@ module openconfig-bgp-types {
   }
 
   typedef bgp-community-regexp-type {
-    // TODO: needs more work to decide what format these regexps can
-    // take.
+    status deprecated;
     type oc-types:std-regexp;
     description
       "Type definition for communities specified as regular
       expression patterns";
   }
+
+  typedef bgp-color-match-type {
+    type enumeration {
+      enum SPECIFIC {
+        description
+          "Type 0: Specific Endpoint Match: Request match for the
+          endpoint that is the BGP NH";
+      }
+      enum SPECIFIC_OR_NULL {
+        description
+          "Type 1: Specific or Null Endpoint Match: Request match
+          for either the endpoint that is the BGP NH or a null
+          endpoint (e.g., like a default gateway)";
+      }
+      enum ANY {
+        description
+          "Type 2: Specific, Null, or Any Endpoint Match: Request
+          match for either the endpoint that is the BGP NH or with
+          a null or any endpoint";
+      }
+    }
+    description
+      "Type definition for BGP color extended community types.";
+    reference
+      "RFC9012 and draft-ietf-idr-segment-routing-te-policy-23.";
+  }
+
 
   typedef bgp-origin-attr-type {
     type enumeration {

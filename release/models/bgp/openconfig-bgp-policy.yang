@@ -8,12 +8,12 @@ module openconfig-bgp-policy {
   prefix "oc-bgp-pol";
 
   // import some basic types
+  import openconfig-types { prefix "oc-types"; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-routing-policy {prefix oc-rpol; }
   import openconfig-policy-types { prefix oc-pol-types; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
   import openconfig-extensions { prefix oc-ext; }
-
 
   // meta
   organization
@@ -28,7 +28,14 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "6.3.0";
+  oc-ext:openconfig-version "6.4.0";
+
+  revision "2024-01-12" {
+    description
+      "Introduce structured BGP communities and add link bandwidth extended
+      community type.  Deprecate string based community types.";
+    reference "6.4.0";
+  }
 
   revision "2023-10-23" {
     description
@@ -576,6 +583,7 @@ module openconfig-bgp-policy {
     }
 
     leaf-list community-member {
+      status deprecated;
       type union {
         type oc-bgp-types:bgp-std-community-type;
         type oc-bgp-types:bgp-community-regexp-type;
@@ -634,16 +642,17 @@ module openconfig-bgp-policy {
         }
 
         container state {
-
           config false;
-
           description
             "Operational state data for BGP community sets";
 
           uses community-set-config;
           uses community-set-state;
         }
+
+        uses community-members-top;
       }
+
     }
   }
 
@@ -659,6 +668,7 @@ module openconfig-bgp-policy {
     }
 
     leaf-list ext-community-member {
+      status deprecated;
       type union {
         type oc-bgp-types:bgp-ext-community-type;
         type oc-bgp-types:bgp-community-regexp-type;
@@ -682,6 +692,7 @@ module openconfig-bgp-policy {
     }
   }
 
+
   grouping ext-community-set-state {
     description
       "Operational state data for extended BGP community sets";
@@ -693,8 +704,7 @@ module openconfig-bgp-policy {
 
     container ext-community-sets {
       description
-        "Enclosing container for list of extended BGP community
-        sets";
+        "Enclosing container for list of extended BGP community sets";
 
       list ext-community-set {
         key "ext-community-set-name";
@@ -717,15 +727,16 @@ module openconfig-bgp-policy {
         }
 
         container state {
-
           config false;
-
           description
             "Operational state data for extended BGP community sets";
 
           uses ext-community-set-config;
           uses ext-community-set-state;
         }
+
+      uses ext-community-members-top;
+
       }
     }
   }
@@ -795,6 +806,449 @@ module openconfig-bgp-policy {
       }
     }
   }
+
+  grouping community-members-top {
+    description
+      "Top-level grouping for members of a standard community set";
+
+    container members {
+        description
+            "Enclosing container for list of standard community members";
+
+        list member {
+            key "index";
+            description
+              "List of members in an extended community set.  Each entry
+              is identified by an index.";
+
+          leaf index {
+              type leafref {
+                  path "../config/index";
+              }
+              description
+                  "Reference to the index for the member of an standard
+                  community set.";
+          }
+
+          container config {
+            description "Standard community member configuration.";
+
+            uses community-member-config;
+          }
+
+          container state {
+            config false;
+            description "State for BGP standard community set members";
+
+            uses community-member-config;
+            uses community-member-state;
+          }
+
+          container asn-type {
+            description
+            "RFC4360 section 3.1 BGP community with 2 byte ASN.";
+
+            container config {
+              description "Config for asn-type extended community.";
+              uses community-asn-type-config;
+            }
+            container state {
+              description "State for asn-type extended community.";
+              config false;
+              uses community-asn-type-config;
+            }
+          }
+
+          container asn-regex-type {
+            description
+            "A regex used to match RFC4360 section 3.1 BGP community with 2 byte ASN.";
+
+            container config {
+              description "Config for asn-regex-type community.";
+              uses community-regex-type-config;
+            }
+            container state {
+              description "State for asn-regex-type community.";
+              config false;
+              uses community-regex-type-config;
+            }
+          }
+
+        }
+    }
+  }
+
+  grouping community-member-config {
+    description
+    "Configuration data for BGP standard communities.";
+
+    leaf index {
+      type uint16;
+      description
+        "Represents an index of a member entry.";
+    }
+  }
+
+  grouping community-member-state {
+    description
+    "Operational state data for BGP standard community sets.";
+  }
+
+  grouping community-asn-type-config {
+    description "Grouping for asn-type standard community config.";
+
+    leaf asn {
+      type oc-inet:as-number;
+      description "2 byte Autonomous system number.";
+    }
+
+    leaf value {
+      type uint32;
+      description "Assigned value for this community.";
+    }
+  }
+
+  grouping community-regex-type-config {
+    description "Grouping for community regular expression config.";
+
+    leaf regex {
+      type oc-types:posix-eregexp;
+      description "A regex string used to match BGP communities.  A single
+      regex string should be matched against a list of BGP communities
+      each represented as [0-9]+:[0-9]+ and space separated.  The community
+      entries are not order dependent.";
+    }
+  }
+
+  grouping ext-community-members-top {
+    description
+      "Top-level grouping for members of an extended community set";
+
+    container members {
+        description
+            "Enclosing container for list of extended community members";
+
+        list member {
+            key "index";
+            description
+              "List of members in an extended community set.  Each entry
+              is identified by an index.";
+
+          leaf index {
+              type leafref {
+                  path "../config/index";
+              }
+              description
+                  "Reference to the index for the member of an extended
+                  community set.";
+          }
+
+          container config {
+            description "Extended community member configuration.";
+
+            uses ext-community-member-config;
+          }
+
+          container state {
+            config false;
+            description "State for BGP extended community set members";
+
+            uses ext-community-member-config;
+            uses ext-community-member-state;
+          }
+
+          container asn4-type {
+              description
+              "RFC4360 section 3.2 BGP extended community with 4 byte ASN.";
+
+              container config {
+                  description "Config for asn-type extended community.";
+                  uses ext-community-asn4-type-config;
+              }
+              container state {
+                  description "State for asn-type extended community.";
+                  config false;
+                  uses ext-community-asn4-type-config;
+              }
+          }
+
+          container asn4-regex-type {
+            description
+            "A regular expression used to match RFC4360 section 3.2 BGP
+            extended community with 4 byte ASN.";
+
+            container config {
+              description "Config for asn4-regex-type extended community.";
+              uses community-regex-type-config;
+            }
+            container state {
+              description "State for asn4-regex-type extended community.";
+              config false;
+              uses community-regex-type-config;
+            }
+          }
+
+          container ip-type {
+              description "RFC5668 section 2 BGP extended community.";
+
+              container config {
+                  description "Config for ip-type extended community.";
+                  uses ext-community-ip-type-config;
+              }
+              container state {
+                  description "State for ip-type extended community.";
+                  config false;
+                  uses ext-community-ip-type-config;
+              }
+          }
+
+          container link-bw {
+              description "Container for link bandwidth extended community
+              as defined by draft-ietf-idr-link-bandwidth-07";
+
+              container config {
+                  description "Config for link bandwidth extended community.";
+                  uses ext-community-link-bw-config;
+              }
+              container state {
+                  description "State for link bandwidth extended community.";
+                  config false;
+                  uses ext-community-link-bw-config;
+              }
+          }
+
+          container route-target {
+              description "RFC4360 section 4 BGP extended community.";
+
+              container config {
+                  description "Config for route target extended community.";
+                  uses ext-community-route-target-config;
+              }
+              container state {
+                  description "State for route target extended community.";
+                  config false;
+                  uses ext-community-route-target-config;
+              }
+          }
+
+          container route-target-ip {
+              description "RFC4360 section 4 using IP address as BGP extended
+              community.";
+
+              container config {
+                  description "Config for route target extended community
+                  using an IP address.";
+                  uses ext-community-route-target-ip-config;
+              }
+              container state {
+                  description "State for route target extended community
+                  using an IP address.";
+                  config false;
+                  uses ext-community-route-target-ip-config;
+              }
+          }
+
+          container route-origin {
+              description
+              "RFC4360 section 5 BGP extended community using an ASN.";
+
+              container config {
+                  description "Config for route origin extended community";
+                  uses ext-community-route-origin-config;
+              }
+              container state {
+                  description "State for route origin extended community";
+                  config false;
+                  uses ext-community-route-origin-config;
+              }
+          }
+
+          container route-origin-ip {
+              description
+              "RFC4360 section 5  BGP extended community using an IP
+              address.";
+
+              container config {
+                  description "Config for route origin extended
+                  community using an IP address";
+                  uses ext-community-route-origin-ip-config;
+              }
+              container state {
+                  description "State for route origin extended
+                  community using an IP address";
+                  config false;
+                  uses ext-community-route-origin-ip-config;
+              }
+          }
+
+          container color {
+              description
+              "BGP color extended community defined by RFC9012 and
+              draft-ietf-idr-segment-routing-te-policy.";
+
+              container config {
+                  description "Config for BGP color extended community
+                  defined by RFC9012";
+                  uses ext-community-color-config;
+              }
+              container state {
+                  description "State for BGP color extended community
+                  defined by RFC9012";
+                  config false;
+                  uses ext-community-color-config;
+              }
+          }
+        }
+      }
+  }
+
+grouping ext-community-asn4-type-config {
+  description "Grouping for asn4-type extended community config.";
+  leaf asn {
+      type oc-inet:as-number;
+      description "4 Byte autonomous system number.";
+  }
+
+  leaf value {
+      type uint16;
+      description "Assigned value for this community.";
+  }
+}
+
+grouping ext-community-ip-type-config {
+  description "Grouping for ip-type extended community config.";
+  leaf ipv4-address {
+    type oc-inet:ipv4-address;
+    description "IPv4 Address for the community.";
+  }
+
+  leaf value {
+    type uint16;
+    description "Assigned value for this community.";
+  }
+}
+
+grouping ext-community-link-bw-config {
+  description "Grouping for link bandwidth extended community config.";
+  leaf asn {
+    type oc-inet:as-number;
+    description "Autonomous system number.";
+  }
+
+  leaf bandwidth {
+    type oc-types:ieeefloat32;
+    description "Bandwidth in bytes per second.";
+  }
+}
+
+grouping ext-community-route-target-config {
+  description "Grouping for route-target extended community config.";
+  leaf asn {
+    type oc-inet:as-number;
+    description "Autonomous system number.";
+  }
+
+  leaf value {
+    type uint16;
+    description "Assigned value for this community.";
+  }
+}
+
+grouping ext-community-route-target-ip-config {
+  description "Grouping for route-target-ip extended community
+  config.";
+  leaf ipv4-address {
+    type oc-inet:ipv4-address;
+    description "IPv4 address.";
+  }
+
+  leaf value {
+    type uint16;
+    description "Assigned value for this community.";
+  }
+}
+
+grouping ext-community-route-origin-config {
+  description "Grouping for origin extended community config.";
+  leaf asn {
+    type oc-inet:as-number;
+    description "Autonomous system number.";
+  }
+
+  leaf value {
+    type uint16;
+    description "Assigned value for this community.";
+  }
+}
+
+grouping ext-community-route-origin-ip-config {
+  description "Grouping for route-origin-ip extended community config.";
+  leaf ipv4-address {
+    type oc-inet:ipv4-address;
+    description "IPv4 address.";
+  }
+
+  leaf value {
+    type uint16;
+    description "Assigned value for this community.";
+  }
+}
+
+grouping ext-community-color-config {
+  description "Grouping for color extended community config.";
+  leaf match-type {
+    type oc-bgp-types:bgp-color-match-type;
+    description "Specifies the match criteria between BGP NH and
+    SR policy endpoint";
+  }
+
+  leaf value {
+    type uint32;
+    description "Assigned value for this community.";
+  }
+
+  leaf flags {
+    type enumeration {
+      enum MATCH_BGP_NH {
+        description "Type 0: Specific Endpoint Match.  Requests match for
+        the endpoint that is the BGP NH.";
+      }
+      enum MATCH_BGP_NH_OR_NULL {
+        description "Type 1: Specific or Null Endpoint Match. Requests
+        match for either the endpoint that is the BGP NH or a null endpoint
+        (e.g., like a default gateway).";
+      }
+      enum MATCH_ANY {
+        description "Type 2: Specific, Null, or Any Endpoint Match.  Requests
+        match for either the endpoint that is the BGP NH or with a null or
+        any endpoint.";
+      }
+    }
+    description "Flags represents the Color-Only Type field which indicates
+     matching criteria between BGP NH and SR Policy endpoint in addition to
+     the matching of the color value.";
+
+    reference "https://datatracker.ietf.org/doc/html/draft-ietf-idr-segment-routing-te-policy-26#name-color-extended-community";
+  }
+}
+
+  grouping ext-community-member-config {
+    description
+    "Configuration data for typed BGP extended communities.";
+
+    leaf index {
+      type uint16;
+      description
+        "Represents an index of a member entry.";
+    }
+  }
+
+  grouping ext-community-member-state {
+    description
+    "Operational state data for typed BGP extended community sets.";
+  }
+
+
 
   // augment statements
 
