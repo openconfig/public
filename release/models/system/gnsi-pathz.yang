@@ -1,0 +1,298 @@
+module gnsi-pathz {
+    yang-version 1.1;
+    namespace "https://github.com/openconfig/gnsi/pathz/yang";
+    prefix gnsi-pathz;
+
+    import openconfig-system {
+        prefix oc-sys;
+    }
+    import openconfig-system-grpc {
+        prefix oc-sys-grpc;
+    }
+    import openconfig-types {
+        prefix oc-types;
+    }
+    import openconfig-yang-types {
+        prefix oc-yang;
+    }
+
+    organization
+        "Google LLC";
+
+    contact
+        "Google LLC";
+
+    description
+        "This module provides a data model for the metadata of
+        OpenConfig-path-based authorization policies installed on a networking
+        device.";
+
+    revision 2022-10-30 {
+        description
+            "Adds success/failure counters.";
+        reference "0.2.0";
+    }
+
+    revision 2022-01-17 {
+        description
+            "Initial revision.";
+        reference "0.1.0";
+    }
+
+    typedef version {
+        type string;
+        description
+            "The version ID of the OpenConfig-path-based authorization policy
+            as provided by the OpenConfig-path-based Authorization Policy
+            Manager when the policy was pushed. This leaf persists through
+            a reboot.";
+    }
+
+    typedef created-on {
+        type oc-types:timeticks64;
+        description
+            "The creation time of the OpenConfig-path-based authorization policy
+            as reported by the OpenConfig-path-based Authorization Policy
+            manager when the policy was pushed to the device. This value is
+            reported as nanoseconds since epoch (January 1st, 1970 00:00:00 GMT).
+            This leaf persists through a reboot.";
+    }
+
+    // gRPC server related definitions.
+    grouping counters {
+        description
+            "A collection of counters that were collected by the gNSI.pathz
+            module while evaluating access to an OpenConfig path.";
+
+        leaf access-rejects {
+            type oc-yang:counter64;
+            description
+                "The total number of times the gNSI.pathz module denied access
+                to an OpenConfig path.";
+        }
+        leaf last-access-reject {
+            type oc-types:timeticks64;
+            description
+                "A timestamp of the last time the gNSI.pathz denied access to
+                an OpenConfig path";
+        }
+        leaf access-accepts {
+            type oc-yang:counter64;
+            description
+                "The total number of times the gNSI.pathz module allowed access
+                to an OpenConfig path.";
+        }
+        leaf last-access-accept {
+            type oc-types:timeticks64;
+            description
+                "A timestamp of the last time the gNSI.pathz allowed access to
+                an OpenConfig path";
+        }
+    }
+
+    grouping gnmi-pathz-policy-success-failure-counters {
+        description
+          "A collection of counters collected by the gNSI.pathz module.";
+
+        container gnmi-pathz-policy-counters {
+            config false;
+
+            uses gnmi-pathz-policy-xpath-success-failure-counters;
+        }
+    }
+
+    grouping gnmi-pathz-policy-xpath-success-failure-counters {
+        description
+            "A collection of per-OpenConfig path counters.";
+
+        container paths {
+            description
+                "A collection of per-OpenConfig path counters.";
+
+            list path {
+                key xpath;
+                leaf xpath {
+                    type leafref {
+                        path "../state/xpath";
+                    }
+                    description
+                        "A OpenConfig schema path (xpath) the counter were
+                        collected for.";
+                }
+                container state {
+                    leaf xpath {
+                        type string;
+                        description
+                            "A OpenConfig schema path (xpath) the counter were
+                            collected for.";
+                    }
+                    container reads {
+                        description
+                            "The counter were collected while
+                            performing a read operation on the
+                            `xpath`.";
+                        uses counters;
+                    }
+                    container writes {
+                        description
+                            "The counter were collected while
+                            performing a write operation on the
+                            `xpath`.";
+                        uses counters;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping grpc-server-gnmi-pathz-policy-state {
+        description
+            "gNMI server OpenConfig-path-based authorization policy
+            freshness-related data.";
+
+        leaf gnmi-pathz-policy-version {
+            type version;
+            description
+                "The version of the OpenConfig-path-based authorization policy
+                that is used by this gNMI server.";
+        }
+        leaf gnmi-pathz-policy-created-on {
+            type created-on;
+            description
+                "The timestamp of the moment when the OpenConfig-path-based
+                authorization policy that is currently used by this gNMI server
+                was created.";
+        }
+    }
+
+    grouping gnmi-pathz-policy-state {
+        description
+            "Operational state data for a gNMI OpenConfig-path-based
+            authorization policy.";
+        leaf instance {
+            type enumeration {
+                enum ACTIVE {
+                    value 1;
+                    description
+                        "The policy that is currently used by the gNMI service
+                        to authorize access.";
+                }
+                enum SANDBOX {
+                    value 2;
+                    description
+                        "The most recent policy that has been uploaded during
+                        the Rotation() RPC. If there is no Rotate() RPC in
+                        progress, then referring to this instance of the policy
+                        will result in an error.";
+                }
+            }
+            description
+                "The instance identifier of the gNMI OpenConfig-path-based
+                authorization policy.";
+        }
+        leaf version {
+            type version;
+            description
+                "The version of the gNMI OpenConfig-path-based authorization
+                policy.";
+        }
+        leaf created-on {
+            type created-on;
+            description
+                "The timestamp of the moment when the policy was
+                created.";
+        }
+    }
+
+    grouping gnmi-pathz-policies {
+        description
+            "Collection of OpenConfig-path-based authorization policies that
+             have been installed on the device using the gNSI OpenConfig-path-
+             based authorization policy management service.
+             Each OpenConfig-path-based authorization policy listed here is
+             identified by its status (either ACTIVE or SANDBOX) and has its
+             version and creation date/time listed.";
+
+        container policies {
+            config false;
+            description
+                "Information about freshness of an OpenConfig-path-based
+                 authorization policy that have been installed
+                 on the device using the gNSI OpenConfig-path-based
+                 authorization policy management service.";
+
+            list policy {
+                key instance;
+                ordered-by system;
+                description
+                    "Information about the OpenConfig-path-based authorization
+                     policy that is identified by the `instance`.";
+                leaf instance {
+                    type leafref {
+                        path "../state/instance";
+                    }
+                    description
+                        "The ID of the OpenConfig-path-based authorization
+                         policy.";
+                }
+                container state {
+                    description
+                        "Operational state data for an OpenConfig-path-based
+                         authorization policies.";
+
+                    uses gnmi-pathz-policy-state;
+                }
+            }
+        }
+    }
+
+    grouping system-gnmi-pathz-policies {
+        description
+            "Collection of OpenConfig-path-based authorization policies that
+             have been installed on the device using the gNSI OpenConfig-path-
+             based authorization policy management service.
+             Each policy listed here is identified by its status (either ACTIVE
+             or SANDBOX) and has its version and creation date/time listed.";
+
+        container gnmi-pathz-policies {
+            config false;
+            description
+                "Collection of OpenConfig-path-based authorization policies that
+                have been installed on the device using the gNSI OpenConfig-
+                path-based authorization policy management service.
+                Each policy listed here is identified by its status (either
+                ACTIVE or SANDBOX) and has its version and creation date/time
+                listed.";
+
+            uses gnmi-pathz-policies;
+        }
+    }
+
+    // Augments section.
+
+    augment "/oc-sys:system" {
+        description
+            "Collection of OpenConfig-path-based authorization policies that
+             have been installed on the device using the gNSI OpenConfig-path-
+             based authorization policy management service.
+             Each policy listed here is identified by its status (either ACTIVE
+             or SANDBOX) and has its version and creation date/time listed.";
+
+        uses system-gnmi-pathz-policies;
+    }
+    augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
+            "oc-sys-grpc:state" {
+        description
+            "A gNMI server OpenConfig-path-based authorization policy freshness
+            information.";
+
+        uses grpc-server-gnmi-pathz-policy-state;
+    }
+    augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
+        description
+            "A gNMI server OpenConfig-path-based authorization policy
+             success/failure counters.";
+
+            uses gnmi-pathz-policy-success-failure-counters;
+    }
+}
