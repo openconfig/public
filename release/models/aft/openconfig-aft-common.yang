@@ -23,7 +23,15 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "2.4.0";
+  oc-ext:openconfig-version "2.5.0";
+
+  revision "2024-01-26" {
+    description
+      "Add gre container under next-hops aft entry state.
+       Add src-ip, dst-ip and ttl under gre aft entry state
+       for telemetry.";
+    reference "2.5.0";
+  }
 
   revision "2023-09-26" {
     description
@@ -213,6 +221,20 @@ submodule openconfig-aft-common {
           }
         }
 
+        container gre {
+          description
+            "When specified, the packet has an GRE
+            (Generic Routing Encapsulation)header applied to
+            it before forwarding to the specified next-hop.";
+
+          container state {
+            config false;
+            description
+              "State parameters relating to GRE encapsulation.";
+            uses aft-common-entry-nexthop-gre-state;
+          }
+        }
+
         uses oc-if:interface-ref-state;
       }
     }
@@ -382,6 +404,37 @@ submodule openconfig-aft-common {
       type oc-inet:ip-address;
       description
         "Destination IP address to use for the encapsulated packet.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-gre-state {
+    description
+      "GRE encapsulation applied on a next-hop";
+
+    leaf src-ip {
+      type union {
+        type oc-inet:ip-address;
+        type string;
+      }
+      description
+        "Source IP address to use for the encapsulated packet. This
+         may be expressed as either an IP address or reference
+         to the name of an interface.";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address to use for the encapsulated packet.";
+    }
+
+    leaf ttl {
+      type uint8;
+      description
+        "This leaf reflects the configured/default TTL value that is used in the
+         outer header during packet encapsulation. When this leaf is not set,
+         the TTL value of the inner packet is copied over as the outer packet's
+         TTL value during encapsulation.";
     }
   }
 
