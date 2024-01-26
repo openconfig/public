@@ -120,7 +120,7 @@ module openconfig-gnsi-pathz {
         "A collection of per-OpenConfig path counters.";
 
       list path {
-        key xpath;
+        key "xpath";
         leaf xpath {
           type leafref {
             path "../state/xpath";
@@ -232,7 +232,7 @@ module openconfig-gnsi-pathz {
         authorization policy management service.";
 
       list policy {
-        key instance;
+        key "instance";
         ordered-by system;
         description
           "Information about the OpenConfig-path-based authorization
@@ -298,8 +298,7 @@ module openconfig-gnsi-pathz {
 
     uses grpc-server-gnmi-pathz-policy-state;
   }
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
-          "oc-sys-grpc:state" {
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
     description
       "A gNMI server OpenConfig-path-based authorization policy
       success/failure counters.";

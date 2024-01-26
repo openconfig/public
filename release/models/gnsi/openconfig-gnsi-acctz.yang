@@ -152,16 +152,29 @@ module openconfig-gnsi-acctz {
         to a RPC.";
 
       leaf service {
-        type service-request;
+        type leafref {
+          path "../state/service";
+        }
       }
       leaf type {
-        type service-type;
+        type leafref {
+          path "../state/type";
+        }
       }
-      leaf records {
-        type oc-yang:counter64;
-        description
-          "The total number of records produced for the service-request
-          type.";
+
+      container state {
+        leaf service {
+          type service-request;
+        }
+        leaf type {
+          type service-type;
+        }
+        leaf records {
+          type oc-yang:counter64;
+          description
+            "The total number of records produced for the service-request
+            type.";
+        }
       }
     }
   }
@@ -171,22 +184,28 @@ module openconfig-gnsi-acctz {
       "A collection of counters from the gNSI.acctz module.";
 
     container acctz-counters {
+      config false;
       description
         "A collection of counters from the gNSI.acctz module
         for acctz clients and sources.";
-      config false;
 
-      leaf last-cleared-on {
-        type oc-types:timeticks64;
+      container state {
         description
-          "The last time that the counters were cleared (reset to
-          zero). This value is reported as nanoseconds since epoch
-          (January 1st, 1970 00:00:00 GMT).";
+          "Operational state relating to acctz-counters.";
+
+        leaf last-cleared-on {
+          type oc-types:timeticks64;
+          description
+            "The last time that the counters were cleared (reset to
+            zero). This value is reported as nanoseconds since epoch
+            (January 1st, 1970 00:00:00 GMT).";
+        }
+
+        container client-counters {
+          uses client-counters;
+        }
       }
 
-      container client-counters {
-        uses client-counters;
-      }
       container source-counters {
         uses source-counters;
       }
@@ -194,8 +213,7 @@ module openconfig-gnsi-acctz {
   }
 
   // Augments section.
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
-    "oc-sys-grpc:state" {
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
     description
       "Counters collected by the gNSI.acctz module.";
 
