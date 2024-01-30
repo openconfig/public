@@ -69,7 +69,9 @@ module openconfig-platform {
 
   revision "2024-01-30" {
     description
-      "Add rules for controller-card power-off";
+      "Add rules for controller-card power-off
+       Also introduces last-poweroff-reason container
+       and last-poweroff-time leaf";
     reference "0.25.0";
   }
 
@@ -535,6 +537,36 @@ module openconfig-platform {
         "For components that have redundant roles (e.g. two
         supervisors in a device, one as primary the other as secondary),
         this reports the role of the component.";
+    }
+
+    container last-poweroff-reason {
+      description
+        "Records last power-off reason for a component.";
+
+      uses oc-platform-types:component-last-power-off-reason-trigger;
+    }
+
+    leaf last-poweroff-time {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+      description
+        "This reports the time of the last shutdown of the component. 
+         The value is the timestamp in nanoseconds relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC). 
+         If a system is rebooted and after the configuration is loaded, say the controller-card is identified 
+         to be shutdown in configuration, the card should be powered-off and "last-power-off-time" 
+         leaf should be recorded.";
+    }
+
+    leaf last-switchover-time {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+      description
+        "For components that have redundant roles (e.g. two
+        supervisors in a device, one as primary the other as
+        secondary), this reports the time of the last change of
+        the component's role. The value is the timestamp in
+        nanoseconds relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+
     }
 
     container last-switchover-reason {
