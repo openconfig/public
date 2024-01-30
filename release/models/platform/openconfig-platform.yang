@@ -1181,21 +1181,31 @@ module openconfig-platform {
       container config {
         description
           "Configuration data for controller card components. 
-          Note that when a controller-card's 'config/power-admin-state' is set to 
-          'POWER_DISABLED`, the NOS is expected to follow the below rules:
+          Note that when a controller-card's 
+          'config/power-admin-state' is set to 'POWER_DISABLED`, 
+          the NOS is expected to follow the below rules:
 
-          1. Only a CONTROLLER_CARD in state redundant-role SECONDARY will honor 
-             config/power-admin-state set to POWER_DISABLED. If the controller-card's 'redundant-role' 
-             is 'PRIMARY', and it's 'config/power-admin-state' is set to 'POWER_DISABLED`, the NOS should allow 
-             the configuration. However, the change should take effect only on the next reboot. 
+          1. Only a CONTROLLER_CARD in state redundant-role
+             SECONDARY will honor config/power-admin-state set to
+             POWER_DISABLED. If the controller-card's
+             'redundant-role' is 'PRIMARY', and it's 
+             'config/power-admin-state' is set to 'POWER_DISABLED`, 
+             the NOS should allow the configuration. However, 
+             the change should take effect only on the next reboot. 
              Following scenarios in context
           
-             Scenario#1: Let's say controller0 is PRIMARY and controller1 is SECONDARY and controller1 
-             receives an operator driven change of config/power-admin-state = POWER_DISABLED, then 
-             controller0 will power-off controller1 immediately.  The leaf state/power-admin-state should also 
-             be POWER_DISABLED. The boolean flag state/is-powered-off should also show up as TRUE. 
-             The state/last-poweroff-reason/trigger should show as USER_INITIATED. Also the NOS can update the 
-             leaf /state/last-poweroff-reason/details. The leaf state/last-poweroff-time should record the time 
+             Scenario#1: Let's say controller0 is PRIMARY and
+             controller1 is SECONDARY and controller1 receives an 
+             operator driven change of 
+             config/power-admin-state = POWER_DISABLED, then 
+             controller0 will power-off controller1 immediately.  
+             The leaf state/power-admin-state should also 
+             be POWER_DISABLED. The boolean flag 
+             state/is-powered-off should also show up as TRUE. 
+             The state/last-poweroff-reason/trigger should show as 
+             USER_INITIATED. Also the NOS can update the 
+             leaf /state/last-poweroff-reason/details. 
+             The leaf state/last-poweroff-time should record the time 
              when the card was powered-off. Following paths:
 
              /components/component[name=controller0]/state/redundant-role, PRIMARY
@@ -1207,12 +1217,19 @@ module openconfig-platform {
              /components/component[name=controller1]/state/last-poweroff-reason/details, "User initiated Shutdown"
              /components/component[name=controller0]/state/last-poweroff-time, 1706590714681765937
 
-             Scenario#2: If controller0 is PRIMARY and controller1 is SECONDARY and if controller0 is set to 
-             config/power-admin-state = POWER_DISABLED by an operator, then controller0 will stay powered-on until the next reboot. 
-             The leaf state/power-admin-state should show as POWER_DIABLED. The boolean flag however, state/is-powered-off 
-             should show as FALSE. The state/last-poweroff-reason/trigger should show as USER_INITIATED. Also the NOS can 
-             update the leaf /state/last-poweroff-reason/details. The leaf state/last-poweroff-time should record the time 
-             when the card powers-off post the next reboot. Following paths
+             Scenario#2: If controller0 is PRIMARY and controller1 
+             is SECONDARY and if controller0 is set to 
+             config/power-admin-state = POWER_DISABLED 
+             by an operator, then controller0 will stay powered-on 
+             until the next reboot. The leaf state/power-admin-state 
+             should show as POWER_DIABLED. The boolean flag however, 
+             state/is-powered-off should show as FALSE. 
+             The state/last-poweroff-reason/trigger should show as
+              USER_INITIATED. Also the NOS can 
+             update the leaf /state/last-poweroff-reason/details. 
+             The leaf state/last-poweroff-time should record the time 
+             when the card powers-off post the next reboot. 
+             Following paths
 
              /components/component[name=controller0]/state/redundant-role, PRIMARY
              /components/component[name=controller1]/state/redundant-role, SECONDARY
@@ -1223,25 +1240,29 @@ module openconfig-platform {
              /components/component[name=controller0]/state/last-poweroff-reason/details, "User initiated Shutdown"
              /components/component[name=controller0]/state/last-poweroff-time, 1706590714681765937
 
-          2. A controller-card which is in state/redundant-role=SECONDARY and is config/power-admin-state=POWER_DISABLED should 
-            remain powered off, even after a reboot. It is possible that after a reboot, both the controller cards are powered-on. 
-            However as soon as the configuration is loaded the NOS should power-off the subject controller-card.
+          2. A controller-card which is in 
+             state/redundant-role=SECONDARY and is 
+             config/power-admin-state=POWER_DISABLED should remain 
+             powered off, even after a reboot. It is possible that 
+             after a reboot, both the controller cards are 
+             powered-on. However as soon as the configuration is 
+             loaded the NOS should power-off the subject 
+             controller-card.
 
-          3. A CONTROLLER_CARD in redundant-role SECONDARY and state/power-admin-state = POWER_DISABLED cannot transition to redundant-role PRIMARY. 
-             If the PRIMARY CONTROLLER_CARD goes down, the device will be offline.
+          3. A CONTROLLER_CARD in redundant-role SECONDARY and 
+             state/power-admin-state = POWER_DISABLED cannot 
+             transition to redundant-role PRIMARY. If the PRIMARY 
+             CONTROLLER_CARD goes down, the device will be offline.
 
-          4. When a controller card boots up and loads it’s configuration, power-admin-state may be set to POWER_DISABLED. The CONTROLLER_CARD should 
-             then power off and never enter into any controller card primary/secondary election process. This also means that an implementation  
-             shouldn't start a controller card election process until the configuration is loaded and consumed.";
+          4. When a controller card boots up and loads it’s 
+             configuration, power-admin-state may be set to 
+             POWER_DISABLED. The CONTROLLER_CARD should 
+             then power off and never enter into any controller card
+             primary/secondary election process. This also means 
+             that an implementation shouldn't start a controller 
+             card election process until the configuration is loaded 
+             and consumed.";
       }
-
-      container state {
-        config false;
-        description
-          "Operational state data for controller card components";
-      }
-    }
-  }
 
   grouping platform-component-top {
     description
