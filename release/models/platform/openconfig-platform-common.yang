@@ -232,9 +232,16 @@ submodule openconfig-platform-common {
       type oc-platform-types:component-power-type;
       default POWER_ENABLED;
       description
-        "Enable or disable power to the component";
+        "This leaf would reflect the configuration in config/power-admin-state leaf. 
+         In other words, this leaf reflects what the NOS expects the state of the component should be.";
     }
-  }
+
+    leaf is-powered-off {
+      type oc-platform-types:boolean;
+      default TRUE;
+      description
+        "This leaf reports the state of a component if it is powered-off or powered-on.";
+    }
 
   // data definition statements
 
