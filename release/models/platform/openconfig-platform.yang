@@ -1232,14 +1232,25 @@ module openconfig-platform {
              when the card powers-off post the next reboot. 
              Following paths
 
+             At the time POWER_DISABLED is set:
+             
              /components/component[name=controller0]/state/redundant-role, PRIMARY
-             /components/component[name=controller1]/state/redundant-role, SECONDARY
              /components/component[name=controller0]/controller-card/config/power-admin-state, POWER_DISABLED
+             /components/component[name=controller0]/controller-card/state/power-admin-state, POWER_ENABLED
+             /components/component[name=controller1]/state/redundant-role, SECONDARY
              /components/component[name=controller1]/controller-card/state/power-admin-state, POWER_ENABLED
-             /components/component[name=controller0]/controller-card/state/is-powered-off, FALSE
+             
+             After controller0 transitions to redundant-role SECONDARY:
+
+             /components/component[name=controller0]/state/redundant-role, SECONDARY
+             /components/component[name=controller0]/controller-card/config/power-admin-state, POWER_DISABLED
+             /components/component[name=controller0]/controller-card/state/power-admin-state, POWER_DISABLED
              /components/component[name=controller0]/state/last-poweroff-reason/trigger, USER_INITIATED
              /components/component[name=controller0]/state/last-poweroff-reason/details, "User initiated Shutdown"
              /components/component[name=controller0]/state/last-poweroff-time, 1706590714681765937
+             /components/component[name=controller1]/state/redundant-role, PRIMARY
+             /components/component[name=controller1]/controller-card/state/power-admin-state, POWER_ENABLED
+
 
           2. A controller-card which is in 
              state/redundant-role=SECONDARY and is 
