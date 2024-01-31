@@ -225,7 +225,9 @@ submodule openconfig-aft-common {
           description
             "When specified, the packet has an GRE
             (Generic Routing Encapsulation)header applied to
-            it before forwarding to the specified next-hop.";
+            it before forwarding to the specified next-hop.
+            encapsulate-header leaf should be set to GRE for this
+            to apply";
 
           container state {
             config false;
@@ -412,10 +414,7 @@ submodule openconfig-aft-common {
       "GRE encapsulation applied on a next-hop";
 
     leaf src-ip {
-      type union {
-        type oc-inet:ip-address;
-        type string;
-      }
+      type oc-inet:ip-address;
       description
         "Source IP address to use for the encapsulated packet. This
          may be expressed as either an IP address or reference
