@@ -8,6 +8,7 @@ module openconfig-bgp-policy {
   prefix "oc-bgp-pol";
 
   // import some basic types
+  import openconfig-types { prefix oc-types; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-routing-policy {prefix oc-rpol; }
   import openconfig-policy-types { prefix oc-pol-types; }
@@ -28,7 +29,12 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "6.3.0";
+  oc-ext:openconfig-version "6.4.0";
+
+  revision "2024-01-31" {
+    description
+    "Add regex-match to community-set.";
+  }
 
   revision "2023-10-23" {
     description
@@ -589,6 +595,14 @@ module openconfig-bgp-policy {
         be removed unless match-set-options is INVERT which will
         reverse this to mean that anything that does not match will be
         removed.";
+    }
+
+    leaf regex-match {
+      type oc-types:posix-eregexp;
+      description "A regex string used to match BGP communities.
+      This regex should be matched against a string which lists
+      BGP communities each represented as [0-9]+:[0-9]+ and space
+      separated.  The BGP community entries are not order dependent.";
     }
 
     leaf match-set-options {
