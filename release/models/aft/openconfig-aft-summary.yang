@@ -6,7 +6,6 @@ module openconfig-aft-summary {
   prefix "oc-aftsummary";
 
   import openconfig-extensions { prefix "oc-ext"; }
-  import openconfig-yang-types { prefix "oc-yang-types"; }
   import openconfig-policy-types { prefix "oc-pol-types"; }
   import openconfig-network-instance { prefix "oc-ni"; }
 
@@ -21,7 +20,13 @@ module openconfig-aft-summary {
     "This module provides summary of aft entry counts per protocol type for each network
     instance.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2024-01-12" {
+    description
+      "Change count of entries from counter64 to uint64.";
+    reference "0.2.0";
+  }
 
   revision "2023-11-09" {
     description
@@ -49,7 +54,7 @@ module openconfig-aft-summary {
       leaf aft-entries {
         description
           "Total number of entries in the aft.";
-        type oc-yang-types:counter64;
+        type uint64;
       }
     }
   }
