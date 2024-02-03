@@ -57,14 +57,22 @@ module openconfig-if-sdn-ext {
           for an aggregate bundle when such a configuration exists on the box.
           Hence, the device mustn't disable the bundle because the minimum
           number of member links requirement is not met for the bundle.
+
           2. L2 protocols like LLDP, LACP must be allowed for transmit and 
           receive on such ports/bundles, IS-IS PDUs should be handled as per the 
           requirements for L3 packets below.
+
           3. L3 packets, control-plane as well as data-plane must be received
-          but not transmitted on such ports/bundles. By doing so, expectation
-          is that the other end of the connection ceases to use its respective
-          ports for transmit and receive when either the dead-timer or the
-          hold-down timer of its L3 protocol expires. 
+          but not transmitted on such ports/bundles. Since the port is receiving 
+          L3 packets, inflight traffic will continue to be delivered to its destination 
+          post FIB lookup.
+          Given that the router is not allowed to transmit L3 control plane packets 
+          on such a port with its FV set to false, if this is a singleton port, OR if 
+          all member interfaces in a bundle are ever set to be FV=False, 
+          expectations are that the remote end of the connection will have its L3 protocol's 
+          dead-interval OR hold-down timer expired taking down the adjacency/peering on 
+          that connection.
+
           4. An implementation should follow rule#3 even when the subject
           port/bundle is the last resort of communication for the device.";
     }
