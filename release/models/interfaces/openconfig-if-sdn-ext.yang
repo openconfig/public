@@ -64,11 +64,11 @@ module openconfig-if-sdn-ext {
 
           3. L3 packets, control-plane as well as data-plane must be received
           but not transmitted on such ports/bundles. Since the port is receiving 
-          L3 packets, inflight traffic will continue to be delivered to its destination 
-          post FIB lookup.
-          Given that the router is not allowed to transmit L3 control plane packets 
-          on such a port with its FV set to false, if this is a singleton port, OR if 
-          all member interfaces in a bundle are ever set to be FV=False, 
+          L3 packets, inflight data-plane traffic will continue to be delivered to its 
+          destination post FIB lookup. Also, received control-plane traffic should be 
+          handled normally. Given that the router is not allowed to transmit L3 control-plane 
+          packets on such a port with its FV set to false, if this is a singleton 
+          port, OR if all member interfaces in a bundle are ever set to be FV=False, 
           expectations are that the remote end of the connection will have its L3 protocol's 
           dead-interval OR hold-down timer expired taking down the adjacency/peering on 
           that connection.
