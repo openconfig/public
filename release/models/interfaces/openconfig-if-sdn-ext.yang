@@ -51,12 +51,9 @@ module openconfig-if-sdn-ext {
         equivalent to administratively disabling the interface.
         Some rules to follow when an interface or aggregate interface is set for 
         Forwarding-viable=False:
-          1. Given that L2 protocols like LACP should be allowed to be 
-          transmitted and received on such ports, a device mustn't consider 
-          such ports in the calculation for minimum number of links required 
-          for an aggregate bundle when such a configuration exists on the box.
-          Hence, the device mustn't disable the bundle because the minimum
-          number of member links requirement is not met for the bundle.
+          1. When forwarding-viable is FALSE the interface oper-state should still 
+          reflect the L2 status, which when UP should be treated as such for 
+          aggregate interface `min-links` checks.
 
           2. L2 protocols like LLDP, LACP must be allowed for transmit and 
           receive on such ports/bundles, IS-IS PDUs should be handled as per the 
