@@ -229,24 +229,6 @@ steps:
   waitFor: ['validator prep', 'go path creation', 'oc-pyang']
   id: 'goyang-ygot'
 
-############### YGNMI ###############
-- name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
-  entrypoint: 'bash'
-  args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/ygnmi/test.sh"]
-  secretEnv: ['GITHUB_ACCESS_TOKEN']
-  volumes:
-  - name: 'gopath'
-    path: /go
-  env:
-  - 'GOPATH=/go'
-  - '_PR_NUMBER=$_PR_NUMBER'
-  - '_MODEL_ROOT=$_MODEL_ROOT'
-  - 'COMMIT_SHA=$COMMIT_SHA'
-  - '_REPO_SLUG=$_REPO_SLUG'
-  - 'BRANCH_NAME=$BRANCH_NAME'
-  waitFor: ['validator prep', 'go path creation', 'oc-pyang']
-  id: 'ygnmi'
-
 ############### PYANG ###############
 - name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
   entrypoint: 'bash'
@@ -282,6 +264,24 @@ steps:
     path: /go
   waitFor: ['validator prep', 'oc-pyang']
   id: 'pyangbind'
+
+############### YGNMI ###############
+- name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
+  entrypoint: 'bash'
+  args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/ygnmi/test.sh"]
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  volumes:
+  - name: 'gopath'
+    path: /go
+  env:
+  - 'GOPATH=/go'
+  - '_PR_NUMBER=$_PR_NUMBER'
+  - '_MODEL_ROOT=$_MODEL_ROOT'
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - '_REPO_SLUG=$_REPO_SLUG'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  waitFor: ['validator prep', 'go path creation', 'oc-pyang', 'pyangbind'] # wait for pyangbind to avoid possible OOM.
+  id: 'ygnmi'
 
 ############### COMPATIBILITY REPORT ###############
 - name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
