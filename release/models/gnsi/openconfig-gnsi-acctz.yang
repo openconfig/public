@@ -115,29 +115,34 @@ module openconfig-gnsi-acctz {
       "A collection of counters that were collected by the gNSI.acctz
       module while servicing acctz clients.";
 
-    leaf history-istruncated {
-      type oc-yang:counter64;
+    container client-counters {
       description
-        "The total number of times that a RecordRequest resulted in
-        a RecordResponse being marked history-istruncated.  ie: a
-        request was made for a timestamp that did not exist in the
-        history.";
-    }
-    leaf idle-timeouts {
-      type oc-yang:counter64;
-      description
-        "The total number of times that a client was disconnected
-        due to missing keepalives (ie: RecordRequests).";
-    }
-    leaf record-requests {
-      type oc-yang:counter64;
-      description
-        "The total number of RecordRequest RPCs that have been received.";
-    }
-    leaf record-responses {
-      type oc-yang:counter64;
-      description
-        "The total number of RecordResponse RPCs that have been sent.";
+        "A collection of counters that were collected by the gNSI.acctz
+        module while servicing acctz clients.";
+      leaf history-istruncated {
+        type oc-yang:counter64;
+        description
+          "The total number of times that a RecordRequest resulted in
+          a RecordResponse being marked history-istruncated.  ie: a
+          request was made for a timestamp that did not exist in the
+          history.";
+      }
+      leaf idle-timeouts {
+        type oc-yang:counter64;
+        description
+          "The total number of times that a client was disconnected
+          due to missing keepalives (ie: RecordRequests).";
+      }
+      leaf record-requests {
+        type oc-yang:counter64;
+        description
+          "The total number of RecordRequest RPCs that have been received.";
+      }
+      leaf record-responses {
+        type oc-yang:counter64;
+        description
+          "The total number of RecordResponse RPCs that have been sent.";
+      }
     }
   }
 
@@ -147,36 +152,52 @@ module openconfig-gnsi-acctz {
       "A collection of counters for gNSI.acctz record production per
       service request type.";
 
-    list source-records {
-      key "service type";
-      // unique "service type";
+    container source-counters {
       description
-        "The total number of times the gNSI.authz module denied access
-        to a RPC.";
+        "A collection of counters for gNSI.acctz record production per
+        service request type.";
+      list source-records {
+        key "service type";
+        // unique "service type";
+        description
+          "The total number of times the gNSI.authz module denied access
+          to a RPC.";
 
-      leaf service {
-        type leafref {
-          path "../state/service";
-        }
-      }
-      leaf type {
-        type leafref {
-          path "../state/type";
-        }
-      }
-
-      container state {
         leaf service {
-          type service-request;
+          type leafref {
+            path "../state/service";
+          }
+          description
+            "service request type for the gNSI.acctz record.";
         }
         leaf type {
-          type service-type;
-        }
-        leaf records {
-          type oc-yang:counter64;
+          type leafref {
+            path "../state/type";
+          }
           description
-            "The total number of records produced for the service-request
-            type.";
+            "service request application enum for the gNSI.acctz record.";
+        }
+
+        container state {
+          description
+            "Operational state for gNSI.acctz counters of record production per
+            service request type.";
+          leaf service {
+            type service-request;
+            description
+              "service request type for the gNSI.acctz record.";
+          }
+          leaf type {
+            type service-type;
+            description
+              "service request application enum for the gNSI.acctz record.";
+          }
+          leaf records {
+            type oc-yang:counter64;
+            description
+              "The total number of records produced for the service-request
+              type.";
+          }
         }
       }
     }
@@ -204,14 +225,10 @@ module openconfig-gnsi-acctz {
             (January 1st, 1970 00:00:00 GMT).";
         }
 
-        container client-counters {
-          uses client-counters;
-        }
+        uses client-counters;
       }
 
-      container source-counters {
-        uses source-counters;
-      }
+      uses source-counters;
     }
   }
 

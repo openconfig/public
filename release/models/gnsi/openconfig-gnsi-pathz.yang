@@ -109,6 +109,8 @@ module openconfig-gnsi-pathz {
 
     container gnmi-pathz-policy-counters {
       config false;
+      description
+        "A collection of per-OpenConfig path counters.";
 
       uses gnmi-pathz-policy-xpath-success-failure-counters;
     }
@@ -120,9 +122,11 @@ module openconfig-gnsi-pathz {
 
     container paths {
       description
-        "A collection of per-OpenConfig path counters.";
+        "Container for a collection of per-OpenConfig path counters.";
 
       list path {
+        description
+          "List for a collection of per-OpenConfig path counters.";
         key "name";
         leaf name {
           type leafref {
@@ -136,6 +140,8 @@ module openconfig-gnsi-pathz {
             https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-path-conventions.md";
         }
         container state {
+          description
+            "Operational state for per-OpenConfig path counters.";
           leaf name {
             type string;
             description
