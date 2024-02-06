@@ -16,6 +16,9 @@ module openconfig-gnsi-authz {
   import openconfig-yang-types {
     prefix oc-yang;
   }
+  import openconfig-gnsi {
+    prefix oc-gnsi;
+  }
   organization
     "OpenConfig Working Group";
 
@@ -123,14 +126,29 @@ module openconfig-gnsi-authz {
             path "../state/name";
           }
           description
-            "The name of the RPC the counters were collected for.";
+            "The name of the RPC the counters were collected for.
+
+            The name MUST match the HTTP/2 Path header value in
+            https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md#requests
+
+            For example,
+            /gnmi.gNMI/Subscribe
+            /gnoi.healthz.Healthz/Get
+            ";
         }
         container state {
           leaf name {
             type string;
             description
-              "The name of the RPC the counters were collected
-              for.";
+            "The name of the RPC the counters were collected for.
+
+            The name MUST match the HTTP/2 Path header value in
+            https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md#requests
+
+            For example,
+            /gnmi.gNMI/Subscribe
+            /gnoi.healthz.Healthz/Get
+            ";
           }
           uses counters;
         }
@@ -180,6 +198,7 @@ module openconfig-gnsi-authz {
   }
 
   augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
+    when "config/services[contains(., 'oc-gnsi:GNSI')] = 'oc-gnsi:GNSI'";
     description
       "Counters collected while evaluating access to a gRPC server using
       the gNSI.authz authorization policy.";

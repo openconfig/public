@@ -16,6 +16,9 @@ module openconfig-gnsi-certz {
   import openconfig-yang-types {
     prefix oc-yang;
   }
+  import openconfig-gnsi {
+    prefix oc-gnsi;
+  }
   organization
     "OpenConfig Working Group";
 
@@ -114,6 +117,9 @@ module openconfig-gnsi-certz {
     }
   }
 
+  /* TODO: move to a system-wide subtree:
+   * https://github.com/openconfig/public/pull/1037#discussion_r1465874610
+   * https://github.com/openconfig/public/pull/1037#discussion_r1465876021
   grouping grpc-server-credentials-state {
     description
       "gRPC server credentials freshness-related data.";
@@ -186,9 +192,11 @@ module openconfig-gnsi-certz {
 
     uses grpc-server-credentials-state;
   }
+  */
 
   augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
           "oc-sys-grpc:state" {
+    when "services[contains(., 'oc-gnsi:GNSI')] = 'oc-gnsi:GNSI'";
     uses grpc-server-acctz-counters;
   }
 }

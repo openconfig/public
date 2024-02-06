@@ -16,6 +16,9 @@ module openconfig-gnsi-acctz {
   import openconfig-yang-types {
     prefix oc-yang;
   }
+  import openconfig-gnsi {
+    prefix oc-gnsi;
+  }
   organization
     "OpenConfig Working Group";
 
@@ -214,6 +217,7 @@ module openconfig-gnsi-acctz {
 
   // Augments section.
   augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
+    when "config/services[contains(., 'oc-gnsi:GNSI')] = 'oc-gnsi:GNSI'";
     description
       "Counters collected by the gNSI.acctz module.";
 
