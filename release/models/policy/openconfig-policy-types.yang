@@ -24,7 +24,13 @@ module openconfig-policy-types {
     policy.  It can be imported by modules that contain protocol-
     specific policy conditions and actions.";
 
-  oc-ext:openconfig-version "3.2.3";
+  oc-ext:openconfig-version "3.2.4";
+
+  revision "2024-02-12" {
+    description
+      "Add INSTALL_PROTOCOL_TYPE other.";
+    reference "3.2.4";
+  }
 
   revision "2022-11-08" {
     description
@@ -282,5 +288,14 @@ module openconfig-policy-types {
       and the derived LOCAL route is
 
       10.244.136.79/32.";
+  }
+
+  identity OTHER {
+    base INSTALL_PROTOCOL_TYPE;
+    description
+      "Another type of route.
+
+      The protocol or agent that installed the route does not have an 
+      identity defined by OpenConfig.";
   }
 }
