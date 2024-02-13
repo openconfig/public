@@ -51,30 +51,25 @@ module openconfig-if-sdn-ext {
         equivalent to administratively disabling the interface.
         Some rules to follow when an interface or aggregate interface is set for 
         Forwarding-viable=False:
-          1. When forwarding-viable is FALSE `/interfaces/interface/state/oper-status` should 
-          reflect the L2 status, which when UP should be treated as such for 
+          1. When forwarding-viable is FALSE `/interfaces/interface/state/oper-status` 
+          should reflect the L2 status, which when UP should be treated as such for 
           aggregate interface `min-links` checks.
 
           2. L2 protocols like LLDP, LACP must be allowed for transmit and 
           receive on such ports/bundles, IS-IS PDUs should be handled as per the 
           requirements for L3 packets below.
 
-          3. L3 packets, control-plane as well as data-plane must be received
-          but not transmitted on such ports/bundles. Since the port is receiving 
+          3. For L3 packets, control-plane as well as data-plane packets must be 
+          received but not transmitted on such ports/bundles. Since the port is receiving 
           L3 packets, inflight data-plane traffic will continue to be delivered to its 
-          destination post FIB lookup. Also, received control-plane traffic should be 
-          handled normally. Given that the router is not allowed to transmit L3 control-plane 
-          packets (for protocols like IS-IS and BGP) on such a port with its FV set to false, 
-          if this is a singleton port, OR if all member interfaces in a bundle are ever set to be 
-          FV=False, expectations are that the remote end of the connection will have its L3 
-          protocol's dead-interval OR hold-down timer expired taking down the adjacency/peering on 
-          that connection. 
-          This by no means suggests that the peer should stop using the interface/s for 
-          forwarding traffic and may can continue to do so if an external programming entity has 
-          placed forwarding rules with the subject interface/s as the next-hop. 
-          In this scenario, the subject router where the FV was set to false
-          may continue to receive traffic over such interfaces indefinitley and hence 
-          must continue to forward the traffic as such.
+          destination post FIB lookup. Also, received control-plane traffic must be 
+          handled normally. Therefore, when all ports in a bundle are set to FV=False,
+          it is possible that the dead-interval or Hold-down timer of L3 protocols like 
+          IS-IS/BGP on the peer router may expire taking down the adjacency or peering 
+          on that connection. However, the peer may still continue to use the bundle for 
+          forwarding traffic towards the subject router if the peer's forwarding table 
+          is programmed by an external programming entity. In this scenario, the subject 
+          router will continue to recieve traffic indefinitely on such a bundle.
 
           4. An implementation should follow rule #3 even when the subject
           interface is the last resort of communication for the device.";
