@@ -60,16 +60,18 @@ module openconfig-if-sdn-ext {
           requirements for L3 packets below.
 
           3. For L3 packets, control-plane as well as data-plane packets must be 
-          received but not transmitted on such ports/bundles. Since the port is receiving 
-          L3 packets, inflight data-plane traffic will continue to be delivered to its 
-          destination post FIB lookup. Also, received control-plane traffic must be 
-          handled normally. Therefore, when all ports in a bundle are set to FV=False,
-          it is possible that the dead-interval or Hold-down timer of L3 protocols like 
-          IS-IS/BGP on the peer router may expire taking down the adjacency or peering 
-          on that connection. However, the peer may still continue to use the bundle for 
-          forwarding traffic towards the subject router if the peer's forwarding table 
-          is programmed by an external programming entity. In this scenario, the subject 
-          router will continue to recieve traffic indefinitely on such a bundle.
+          received but not transmitted on such ports/bundles. Since the port 
+          is receiving L3 packets, inflight data-plane traffic will continue to 
+          be delivered to its destination post FIB lookup. Also, received 
+          control-plane traffic must be handled normally. Therefore, when all 
+          ports in a bundle are set to FV=False, it is possible that the 
+          dead-interval or Hold-down timer of L3 protocols like IS-IS/BGP on the 
+          peer router may expire taking down the adjacency or peering on that 
+          connection. However, the peer may still continue to use the bundle for 
+          forwarding traffic towards the subject router if the peer's forwarding 
+          table is programmed by an external programming entity. In this scenario, 
+          the subject router will continue to recieve traffic indefinitely on 
+          such a bundle.
 
           4. An implementation should follow rule #3 even when the subject
           interface is the last resort of communication for the device.";
