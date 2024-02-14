@@ -32,9 +32,11 @@ module openconfig-gnsi-authz {
 
   oc-ext:openconfig-version "0.4.0";
 
-  revision 2024-01-25 {
+  revision 2024-02-13 {
     description
-      "Major style updates.";
+      "Major style updates and move to openconfig/public from openconfig/gnsi.
+      Last commit at
+      https://github.com/openconfig/gnsi/commit/347935aac66135d5649dadb9583ed0914578aab0";
     reference "0.4.0";
   }
 
@@ -200,7 +202,7 @@ module openconfig-gnsi-authz {
   }
 
   augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
-    when "boolean(config/services[contains(., 'oc-gnsi:GNSI')])";
+    when "config[contains(services, 'oc-gnsi:GNSI')]/enable = 'true'";
     description
       "Counters collected while evaluating access to a gRPC server using
       the gNSI.authz authorization policy.";

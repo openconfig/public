@@ -296,9 +296,9 @@ module openconfig-gnsi-pathz {
   // Augments section.
 
   augment "/oc-sys:system" {
-    when "boolean(oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" +
-        "/oc-sys-grpc:config" +
-        "/oc-sys-grpc:services[contains(., 'oc-gnsi:GNSI')])";
+    when "oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" +
+        "/oc-sys-grpc:config[contains(oc-sys-grpc:services, 'oc-gnsi:GNSI')]" +
+        "/oc-sys-grpc:enable = 'true'";
     description
       "Collection of OpenConfig-path-based authorization policies that
       have been installed on the device using the gNSI OpenConfig-path-
@@ -308,9 +308,9 @@ module openconfig-gnsi-pathz {
 
     uses system-gnmi-pathz-policies;
   }
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
-          "oc-sys-grpc:state" {
-    when "boolean(services[contains(., 'oc-gnsi:GNSI')])";
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" +
+          "/oc-sys-grpc:state" {
+    when "../config[contains(services, 'oc-gnsi:GNSI')]/enable = 'true'";
     description
       "A gNMI server OpenConfig-path-based authorization policy freshness
       information.";
@@ -318,7 +318,8 @@ module openconfig-gnsi-pathz {
     uses grpc-server-gnmi-pathz-policy-state;
   }
   augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
-    when "boolean(config/services[contains(., 'oc-gnsi:GNSI')])";
+    when "oc-sys-grpc:config[contains(oc-sys-grpc:services, 'oc-gnsi:GNSI')]" +
+        "/oc-sys-grpc:enable = 'true'";
     description
       "A gNMI server OpenConfig-path-based authorization policy
       success/failure counters.";
