@@ -66,7 +66,13 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.13.0";
+  oc-ext:openconfig-version "0.14.0";
+
+revision "2023-08-30" {
+    description
+      "Clariy transceiver module threshold for input-power.";
+    reference "0.14.0";
+  }
 
 revision "2023-08-30" {
     description
@@ -451,9 +457,11 @@ revision "2023-08-30" {
 
     container thresholds {
       description
-        "Enclosing container for transceiver alarm thresholds.
-        Each threshold is compared to the instant value of the
-        measured parameter corresponding to the threshold";
+        "Enclosing container for transceiver alarm thresholds. Each threshold
+        is compared to the instant value of the measured parameter
+        corresponding to the threshold. For optical input power, the
+        threshold applies only to the physical-channel(s).  This threshold
+        does not apply to the aggregate transceiver input-power.";
 
       list threshold {
         key "severity";
