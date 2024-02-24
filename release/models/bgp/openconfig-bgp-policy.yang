@@ -602,9 +602,7 @@ module openconfig-bgp-policy {
         against each community associated with a prefix one community
         at a time.  Communities must be represented as strings in formats
         conforming to oc-bgp-types:bgp-std-community-type.  For example:
-        - `1000:1000` for a standard community
-        - `route-origin:1000:1000` for the origin type extended community,
-        and so on.";
+        `1000:1000` for a standard community";
     }
 
     leaf match-set-options {
@@ -689,8 +687,12 @@ module openconfig-bgp-policy {
         reverse this to mean that anything that does not match will be
         removed.
 
-        For MATCH operations a regexp type should be evaluated against
-        each community associated with a prefix one community at a time.";
+        For MATCH operations the posix-eregexp type should be evaluated
+        against each community associated with a prefix one community
+        at a time.  Communities must be represented as strings in formats
+        conforming to oc-bgp-types:bgp-ext-community-type.  For example:
+        `route-origin:1000:1000` for the origin type extended community,
+        and so on.";
     }
 
     leaf match-set-options {
