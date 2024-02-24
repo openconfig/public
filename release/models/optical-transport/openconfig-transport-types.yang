@@ -22,7 +22,13 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.21.0";
+  oc-ext:openconfig-version "0.22.0";
+
+  revision "2024-01-17" {
+    description
+      "Update loopback-mode types.";
+    reference "0.22.0";
+  }
 
   revision "2024-01-16" {
     description
@@ -190,15 +196,41 @@ module openconfig-transport-types {
       }
       enum FACILITY {
         description
-          "A loopback which directs traffic normally transmitted
-          on the port back to the device as if received on the same
-          port from an external source.";
+          "A port internal loopback at ASIC level. The loopback directs
+          traffic normally transmitted on the port back to the device as
+          if received on the same port from an external source. Note this
+          mode is used when internal loopback does NOT specify MAC or PHY.";
       }
       enum TERMINAL {
         description
-          "A loopback which directs traffic received from an external
-          source on the port back out the transmit side of the same
-          port.";
+          "A port external loopback at ASIC level. The loopback which
+          directs traffic received from an external source on the port
+          back out the transmit side of the same port. Note this mode is
+          used when external loopback does NOT specify MAC or PHY";
+      }
+      enum ASIC_PHY_LOCAL {
+        description
+          "A port internal loopback at PHY module. The loopback directs
+          traffic normally transmitted on the port back to the device as
+          if received on the same port from an external source.";
+      }
+      enum ASIC_PHY_REMOTE {
+        description
+          "A port external loopback at PHY module. The loopback which
+          directs traffic received from an external source on the port
+          back out the transmit side of the same port.";
+      }
+      enum ASIC_MAC_LOCAL {
+        description
+          "A port internal loopback at MAC module. The loopback directs
+          traffic normally transmitted on the port back to the device as
+          if received on the same port from an external source.";
+      }
+      enum ASIC_MAC_REMOTE {
+        description
+          "A port external loopback at MAC module. The loopback which
+          directs traffic received from an external source on the port
+          back out the transmit side of the same port.";
       }
     }
     default NONE;

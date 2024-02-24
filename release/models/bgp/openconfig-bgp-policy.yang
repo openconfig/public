@@ -37,6 +37,12 @@ module openconfig-bgp-policy {
     reference "7.0.0";
   }
 
+  revision "2023-12-19" {
+    description
+    "Add PEER_ADDRESS to bgp-next-hop-type.";
+    reference "6.4.0";
+  }
+
   revision "2023-10-23" {
     description
       "Revert revision 2019-02-01.
@@ -181,6 +187,11 @@ module openconfig-bgp-policy {
         enum SELF {
           description "special designation for local router's own
           address, i.e., next-hop-self";
+        }
+        enum PEER_ADDRESS {
+          description "The ip address of the peer should be used.
+          This enum is efficient to use when setting the next hop
+          in a policy applied to a peer group.";
         }
       }
     }
