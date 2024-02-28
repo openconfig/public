@@ -942,12 +942,32 @@ module openconfig-isis {
       for IS-IS";
     }
 
+    reference
+      "RFC 5306: Restart Signaling for IS-IS; RFC 5706: Restart Signaling
+      for IS-IS";
+  }
+
+  grouping isis-graceful-restart-level-config {
+    description
+      "This grouping defines ISIS graceful restart configuration relevant
+      for ISIS level/LSDB";
+
     leaf restart-time {
       type int64;
       default 30;
       description
         "Value of RFC5306/RFC8706 T2 timer";
     }
+
+    reference
+      "RFC 5306: Restart Signaling for IS-IS; RFC 5706: Restart Signaling
+      for IS-IS";
+  }
+
+  grouping isis-graceful-restart-interface-config {
+    description
+      "This grouping defines ISIS graceful restart configuration relevant
+      for ISIS interface/adjacency";
 
     leaf interface-timer {
       type int64;
@@ -1167,6 +1187,8 @@ module openconfig-isis {
 
         uses admin-config;
         uses isis-graceful-restart-config;
+        uses isis-graceful-restart-level-config;
+        uses isis-graceful-restart-interface-config;
       }
 
       container state {
@@ -1176,6 +1198,8 @@ module openconfig-isis {
 
         uses admin-config;
         uses isis-graceful-restart-config;
+        uses isis-graceful-restart-level-config;
+        uses isis-graceful-restart-interface-config;
       }
     }
 
@@ -1543,7 +1567,7 @@ module openconfig-isis {
           "This container defines ISIS graceful-restart configuration.";
 
         uses admin-config;
-        uses isis-graceful-restart-config;
+        uses isis-graceful-restart-level-config;
       }
 
       container state {
@@ -1552,7 +1576,7 @@ module openconfig-isis {
           "This container defines state information for ISIS graceful-restart.";
 
         uses admin-config;
-        uses isis-graceful-restart-config;
+        uses isis-graceful-restart-level-config;
       }
     }
 
@@ -1788,6 +1812,26 @@ module openconfig-isis {
         "This container defines ISIS authentication.";
 
       uses isis-hello-authentication-group;
+    }
+
+    container graceful-restart {
+      description
+        "This container defines ISIS Graceful Restart for interface";
+
+      contanet config {
+        description
+          "This container defines interface config parameters for ISIS
+          graceful-restart.";
+
+        uses isis-graceful-restart-interface-config;
+      }
+      contanet state {
+        config false;
+        description
+          "This container defines information for ISIS graceful-restart.";
+
+        uses isis-graceful-restart-interface-config;
+      }
     }
   }
 
