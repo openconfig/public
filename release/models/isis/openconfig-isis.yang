@@ -932,6 +932,16 @@ module openconfig-isis {
         retaining forwarding information during a remote speaker's restart.";
     }
 
+    leaf non-planed-only {
+      type boolean;
+      description
+        "When this leaf is set to TRUE, planned restart procedures, as
+        described in RFV8706 are not used.";
+      reference
+      "RFC 5706: Restart Signaling
+      for IS-IS";
+    }
+
     leaf restart-time {
       type int64;
       default 30;
@@ -939,9 +949,8 @@ module openconfig-isis {
         "Value of RFC5306/RFC8706 T2 timer";
     }
 
-    leaf interface-time {
+    leaf interface-timer {
       type int64;
-      default 3;
       description
         "Value of RFC5306/RFC8706 T1 timer";
     }
