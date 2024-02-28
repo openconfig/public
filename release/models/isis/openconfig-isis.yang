@@ -925,7 +925,31 @@ module openconfig-isis {
         graceful restart procedures during its own restart, but supports
         retaining forwarding information during a remote speaker's restart.";
     }
-    reference "RFC 5306: Restart Signaling for IS-IS.";
+
+    leaf restart-time {
+      type int64;
+      default 30;
+      description
+        "Value of RFC5306/RFC8706 T2 timer";
+    }
+
+    leaf interface-time {
+      type int64;
+      default 3;
+      description
+        "Value of RFC5306/RFC8706 T1 timer";
+
+    leaf interface-time-expirations {
+      type int64;
+      description
+        "Number of times T1 expires before IIH without Restart TLV's RR flag
+        set is sent. That is GR helper is not supported by adjacents
+        Inermediate System";
+    }
+
+    reference 
+      "RFC 5306: Restart Signaling for IS-IS; RFC 5706: Restart Signaling
+      for IS-IS";
   }
 
   // configuration context containers
@@ -1492,6 +1516,28 @@ module openconfig-isis {
       uses isis-base-level-config;
       uses isis-metric-style-config;
       uses isis-authentication-check-config;
+    }
+
+    container graceful-restart {
+      description
+        "This container defines ISIS Graceful Restart.";
+
+      container config {
+        description
+          "This container defines ISIS graceful-restart configuration.";
+
+        uses admin-config;
+        uses isis-graceful-restart-config;
+      }
+
+      container state {
+        config false;
+        description
+          "This container defines state information for ISIS graceful-restart.";
+
+        uses admin-config;
+        uses isis-graceful-restart-config;
+      }
     }
 
     container system-level-counters {
