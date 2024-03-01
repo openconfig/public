@@ -22,9 +22,15 @@ module openconfig-system-grpc {
     to be included in the list.";
 
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.0.1";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2024-03-01" {
+    description
+      "gNOI service identity.";
+    reference "1.0.1";
+  }
 
   revision "2022-04-19" {
     description
@@ -54,6 +60,12 @@ module openconfig-system-grpc {
     base GRPC_SERVICE;
     description
       "gNMI: gRPC Network Management Interface";
+  }
+
+  identity GNOI {
+    base GRPC_SERVICE;
+    description
+      "gNOI: gRPC Network Operations Interface";
   }
 
   grouping grpc-service-structural {
