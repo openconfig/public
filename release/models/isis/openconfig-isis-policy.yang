@@ -26,7 +26,13 @@ module openconfig-isis-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2023-11-02" {
+    description
+      "Fixing metric type leafs for action and condition branches.";
+    reference "0.8.0";
+  }
 
   revision "2023-04-28" {
     description
@@ -151,10 +157,10 @@ module openconfig-isis-policy {
         within it";
     }
 
-    leaf set-metric-type {
+    leaf match-metric-type {
       type isis-types:metric-type;
       description
-        "Set the type of the route to redistribute to INTERNAL or EXTERNAL";
+        "Matches the type of the route to redistribute to INTERNAL or EXTERNAL";
     }
   }
 
@@ -195,20 +201,16 @@ module openconfig-isis-policy {
     }
 
     leaf set-metric-type {
-      type isis-types:level-number;
-      status deprecated;
+      type isis-types:metric-type;
       description
-        "Formerly this leaf sets the type of metric that is to be specified
-        when the set-metric leaf is specified.  This leaf is DEPRECATED
-        due to being assigned the wrong type. Use set-metric-style-type
-        instead.";
+        "This leaf sets the type of metric that is to be specified
+        when the set-metric leaf is specified";
     }
 
     leaf set-metric-style-type {
       type isis-types:metric-style;
       description
-        "Set the type of metric that is to be specified when the
-        set metric leaf is specified";
+        "Set the style of the metric";
     }
 
     leaf set-metric {
