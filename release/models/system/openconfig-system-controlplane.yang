@@ -318,27 +318,34 @@ module openconfig-system-controlplane {
                       container <traffic-group-name>
                         container config {
                           leaf packet-max-rate {
+                            type int64;
+                            description "Packet rate in packets-per-second";
                               ...
                             }
                           leaf packet-burst-size {
+                            type int64;
+                            description "Burst size in Bytes";
                               ...
                           }
                           ...
                           }
                           container state {
                             leaf packet-max-rate {
+                              type int64;
+                              description "Packet rate in packets-per-second";
                               ...
                             }
                             leaf packet-burst-size {
+                              type int64;
+                              description "Burst size in Bytes";
                               ...
                             }
                             ...
                             leaf aggregate-counter-name {
                               type leaf-ref;
                               description
-                                \"One of built-in counters defined under
-                                ../built-in-limits/state/counters/,
-                                such 'bgp' or 'l2-control'.
+                                \"One of built-in counters defined under ../built-in-limits/state/counters/,
+                                such 'bgp-aggregate' or 'l2-control-aggregate'.
                                 This self-documentation allows client to asssociate multiple vendor
                                 counters with vendor-neutral, abstract, aggregated counters.\";
                             }
