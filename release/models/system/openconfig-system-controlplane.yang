@@ -232,167 +232,126 @@ module openconfig-system-controlplane {
               control plane protection rules (e.g. packet rate limits and burst
               sizes).
               ";
-            container abstaract-counters {
+            container state {
               description
                 "Vendor-neutral, abstract and aggregated system-level counters for
                  packets sent to the control-plane which may be dropped or accepted 
                  for processing as defined by built-in control plane traffic limiting rules.";
-              container bgp {
-                description
-                  "BGP protocol packets with destination of this device.";
-                container state {
-                  description
-                    "control-plane protection bgp counters";
-                  config false;
-                  uses system-controlplane-built-in-limits-traffic-state;
+              config false;
+              container counters {
+                  container bgp-aggregate {
+                    description
+                      "BGP protocol packets with destination of this device.";
+                    uses system-controlplane-built-in-limits-traffic-state;
+                  }
+                  container rsvp-aggregate {
+                    description
+                      "RSVP protocol packets passing this device";
+                    uses system-controlplane-built-in-limits-traffic-state;
+                  }
+                  container l3-routing-aggregate {
+                    description
+                      "Traffic with destination of this device, of all L3 routing
+                      protocols except bgp and rsvp, which have their own counters,
+                      for example: ISIS, OSPF, LDP, PIM, etc.";
+
+                    uses system-controlplane-built-in-limits-traffic-state;
+                  }
+                  container l3-control-aggregate {
+                    description
+                      "Layer 3 control plane traffic with destination of this device which 
+                      are not routing protocols and do not have an explicit container
+                      already identified.  For example: ICMP, VRRP, IPv6 ND, BFD, 
+                      MPLS-OAM, IGMP, etc";
+                    uses system-controlplane-built-in-limits-traffic-state;
+                  }
+                  container l2-control-aggregate {
+                    description
+                      "Layer 2 control traffic with destination of this device, for 
+                      example: ARP, LACP, LLDP, Eth-OAM, BPDU, etc.";
+                    uses system-controlplane-built-in-limits-traffic-state;
+                  }
+                  container trap-exeption-aggregate {
+                    description
+                      "Traffic with destination other than the given device which are not
+                      forwarded but punted to the device control plane for processing.
+                      Examples are: TTL=1, egress MTU exceeded and DF set, no next-hop
+                      L2 address known - ARP/ND triggering, no match in FIB - ICMP no
+                      route to destination generation, etc";
+                    uses system-controlplane-built-in-limits-traffic-state;
+                  }
+                  container sample-redirect-aggregate {
+                    description
+                      "Packets with destination other than the given device which are
+                      punted to the control plane via user provided policy (e.g. P4RT) 
+                      or configuration such as packet mirroring or packet sampling.  
+                      For example, port mirroring, sFlow, IPFIX, etc.";
+                    uses system-controlplane-built-in-limits-traffic-state;
+                  }
+                  container management-aggregate {
+                    description
+                      "Traffic targeted this device used management - ssh,
+                      telnet, ftp, gN*, snmp, netconf, rest, etc";
+                    uses system-controlplane-built-in-limits-traffic-state;
+                  }
+                  container remaining-aggregate {
+                    description "all other packets send to control plane";
+                    uses system-controlplane-built-in-limits-traffic-state;
+                  }
                 }
-              }
-              container rsvp {
-                description
-                  "RSVP protocol packets passing this device";
-                container state {
+                container vendor {
                   description
-                    "control-plane protection rsvp counters";
-                  config false;
-                  uses system-controlplane-built-in-limits-traffic-state;
-                }
-              }
-              container l3-routing {
-                description
-                  "Traffic with destination of this device, of all L3 routing
-                  protocols except bgp and rsvp, which have their own counters,
-                  for example: ISIS, OSPF, LDP, PIM, etc.";
-                container state {
-                  description
-                    "control-plane protection L3 routing protocols counters";
-                  config false;
-                  uses system-controlplane-built-in-limits-traffic-state;
-                }
-              }
-              container l3-control {
-                description
-                  "Layer 3 control plane traffic with destination of this device which 
-                  are not routing protocols and do not have an explicit container
-                  already identified.  For example: ICMP, VRRP, IPv6 ND, BFD, 
-                  MPLS-OAM, IGMP, etc";
-                container state {
-                  description
-                    "Layer 3 protocol control-plane limit counters.";
-                  config false;
-                  uses system-controlplane-built-in-limits-traffic-state;
-                }
-              }
-              container l2-control {
-                description
-                  "Layer 2 control traffic with destination of this device, for 
-                  example: ARP, LACP, LLDP, Eth-OAM, BPDU, etc.";
-                container state {
-                  description
-                    "Layer 2 protocol control-plane limit counters";
-                  config false;
-                  uses system-controlplane-built-in-limits-traffic-state;
-                }
-              }
-              container trap-exeption {
-                description
-                  "Traffic with destination other than the given device which are not
-                  forwarded but punted to the device control plane for processing.
-                  Examples are: TTL=1, egress MTU exceeded and DF set, no next-hop
-                  L2 address known - ARP/ND triggering, no match in FIB - ICMP no
-                  route to destination generation, etc";
-                container state {
-                  description
-                    "Trap and exception control-plane limit counters.";
-                  config false;
-                  uses system-controlplane-built-in-limits-traffic-state;
-                }
-              }
-              container sample-redirect {
-                description
-                  "Packets with destination other than the given device which are
-                  punted to the control plane via user provided policy (e.g. P4RT) 
-                  or configuration such as packet mirroring or packet sampling.  
-                  For example, port mirroring, sFlow, IPFIX, etc.";
-                container state {
-                  description
-                    "control-plane protection sampled and redirected packets counters";
-                  config false;
-                  uses system-controlplane-built-in-limits-traffic-state;
-                }
-              }
-              container management {
-                description
-                  "Traffic targeted this device used management - ssh,
-                  telnet, ftp, gN*, snmp, netconf, rest, etc";
-                container state {
-                  description
-                    "control-plane protection management traffic counters";
-                  config false;
-                  uses system-controlplane-built-in-limits-traffic-state;
-                }
-              }
-              container remaining {
-                description "all other packets send to control plane";
-                container state {
-                  description
-                    "control-plane protection remaining packet counters";
-                  config false;
-                  uses system-controlplane-built-in-limits-traffic-state;
-                }
-              }
-            }
-            container vendor {
-              description
-                "An anchor point for vendor and platform specific
-                extensions.
-                As each platform  and vendor has different implementation and internal
-                parts where packets may be dropped at any point in time. Providing
-                vendor-specific counters provides better visibility into control-plane
-                traffic.
-                The recommended usage of this container is to create an augment at
-                /system/control-plane-traffic/ingress/built-in-limits/vendor that contains additional
-                vendor/platform specific containers.
-                e.g.
-                augment /system/control-plane-traffice/ingress/built-in-limits/vendor {
-                  container <vendor name> {
-                    container <platform name> {
-                      container <traffic-group-name>
-                        container config {
-                          leaf packet-max-rate {
+                    "An anchor point for vendor and platform specific
+                    extensions.
+                    As each platform  and vendor has different implementation and internal
+                    parts where packets may be dropped at any point in time. Providing
+                    vendor-specific counters provides better visibility into control-plane
+                    traffic.
+                    The recommended usage of this container is to create an augment at
+                    /system/control-plane-traffic/ingress/built-in-limits/vendor that contains additional
+                    vendor/platform specific containers.
+                    e.g.
+                    augment /system/control-plane-traffice/ingress/built-in-limits/vendor {
+                      container <vendor name> {
+                        container <platform name> {
+                          container <traffic-group-name>
+                            container config {
+                              leaf packet-max-rate {
+                                  ...
+                               }
+                              leaf packet-burst-size {
+                                 ...
+                              }
                               ...
-                           }
-                          leaf packet-burst-size {
-                             ...
-                          }
-                          ...
-                          }
-                          container state {
-                            leaf packet-max-rate {
-                              ...
+                              }
+                              container state {
+                                leaf packet-max-rate {
+                                  ...
+                                }
+                                leaf packet-burst-size {
+                                  ...
+                                }
+                                ...
+                                leaf aggregate-counter-name {
+                                  type string;
+                                  description
+                                    "One of built-in counters defined under ../built-in-limits/state/counters/,
+                                    such 'bgp' or 'l2-control'.
+                                    This self-documentation allows client to asssociate multiple vendor
+                                    counters with vendor-neutral, abstract, aggregated counters.";
+                                }
+                                uses system-controlplane-built-in-limits-traffic-state;
+                              }
                             }
-                            leaf packet-burst-size {
-                              ...
-                            }
-                            ...
-                            leaf aggregate-counter-name {
-                              type string;
-                              description
-                                "One of built-in counters defined under ../built-in-limits/state/counters/,
-                                such 'bgp' or 'l2-control'.
-                                This self-documentation allows client to asssociate multiple vendor
-                                counters with vendor-neutral, abstract, aggregated counters.";
-                            }
-                            uses system-controlplane-built-in-limits-traffic-state;
                           }
                         }
                       }
-                    }
-                  }
-
-                In addition to above, more granular packet/octet counters, also information
-                about rate limit and allowd burst size for each counter should be exposed.
-                Furthermore ability to configure rate limit and allowd burst size for each
-                counter could be exposed.";
+    
+                    In addition to above, more granular packet/octet counters, also information
+                    about rate limit and allowd burst size for each counter should be exposed.
+                    Furthermore ability to configure rate limit and allowd burst size for each
+                    counter could be exposed.";
+                }
             }
           }
         }
@@ -568,22 +527,22 @@ module openconfig-system-controlplane {
         uses system-controlplane-top;
     }
     grouping system-controlplane-built-in-limits-traffic-state {
-      description "";
+      description "Packets and Bypes counters for accepted and discarded traffic";
       leaf accepted-pkts {
         type int64;
-        description "";
+        description "Packet passed to Control Plane for processing";
       }
       leaf accepted-octets {
         type int64;
-        description "";
+        description "Bytes passed to Control Plane for processing";
       }
       leaf dropped-pkts {
         type int64;
-        description "";
+        description "Packet discarded";
       }
       leaf dropped-octets {
         type int64;
-        description "";
+        description "Bytes discarded";
       }
     }
 }
