@@ -25,7 +25,44 @@ submodule openconfig-qos-interfaces {
     configuration and operational state associated with
     interfaces.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.11.2";
+
+  revision "2023-10-13" {
+    description
+      "Fix revision statement date";
+    reference "0.11.2";
+  }
+
+  revision "2023-10-08" {
+    description
+      "Clarification on WRED weight in case it is not present";
+    reference "0.11.1";
+  }
+
+  revision "2023-09-15" {
+    description
+      "Add support for ECN counters";
+    reference "0.11.0";
+  }
+
+  revision "2023-07-26" {
+    description
+      "Add buffer management parameters in time unts (microseconds).
+       Make profiles reusable across LAGs and PHY of different speed";
+    reference "0.10.0";
+  }
+
+  revision "2023-04-25" {
+    description
+      "Clarify interface-ref usage.";
+    reference "0.9.1";
+  }
+
+  revision "2023-04-17" {
+    description
+      "Add support for relative RED min-threshold and max-threshold values.";
+    reference "0.9.0";
+  }
 
   revision "2023-02-17" {
     description
@@ -350,13 +387,53 @@ submodule openconfig-qos-interfaces {
     leaf dropped-pkts {
       type oc-yang:counter64;
       description
-        "Number of packets dropped by the queue due to overrun";
+        "Number of packets dropped by the queue due to overrun, that is tail-drop
+        or AMQ (RED, WRED, etc) induced drops as indicated by the attached
+        queue-management-profile";
     }
 
     leaf dropped-octets {
       type oc-yang:counter64;
       description
-        "Number of octets dropped by the queue due to overrun";
+        "Number of octets dropped by the queue due to overrun, that is tail-drop
+        or AMQ (RED, WRED, etc) induced drops as indicated by the attached
+        queue-management-profile";
+    }
+
+    leaf ecn-marked-pkts {
+      type oc-yang:counter64;
+      description
+        "number of packets for which ECN codepoint has been changed from ECT to CE";
+    }
+
+    leaf ecn-marked-octets {
+      type oc-yang:counter64;
+      description
+        "Number of octets for which ECN codepoint has been changed from ECT to CE";
+    }
+
+    leaf ecn-selected-pkts {
+      type oc-yang:counter64;
+      description
+        "Number of packets selected by AQM
+
+        For RED/WRED AQM this counter counts:
+        - all packets enqueued while queue utilization was greater then max-threshold
+        - packs enqueued while queue utilization was between min-threshold and max-threshold, with probability derived from RED/WRED slope
+
+        Packets are counted regardless of its ECN codepoint";
+    }
+
+    leaf ecn-selected-octets {
+      type oc-yang:counter64;
+      description
+        "Number of octets of packets selected by AQM
+
+        For RED/WRED AQM this counter counts:
+        - all octets enqueued while queue utilization was greater then max-threshold
+        - octets enqueued while queue utilization was between min-threshold and max-threshold, with probability derived from RED/WRED slope
+
+        Octets are counted regardless of its ECN codepoint";
     }
   }
 
@@ -871,7 +948,7 @@ submodule openconfig-qos-interfaces {
     container output {
       description
         "Top-level container for QoS data related to the egress
-        interface";
+        interface.";
 
       container config {
         description
@@ -907,7 +984,12 @@ submodule openconfig-qos-interfaces {
       list interface {
         key "interface-id";
         description
-          "List of interfaces referenced by QoS entities.";
+          "List of interfaces referenced by QoS entities.
+
+           The interface referenced is based on the interface and
+           subinterface leaves within the interface-ref container -
+           which reference an entry in the /interfaces/interface list -
+           and should not rely on the value of the list key.";
 
         leaf interface-id {
           type leafref {

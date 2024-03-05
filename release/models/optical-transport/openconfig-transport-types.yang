@@ -22,7 +22,35 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.18.1";
+  oc-ext:openconfig-version "0.22.0";
+
+  revision "2024-01-17" {
+    description
+      "Update loopback-mode types.";
+    reference "0.22.0";
+  }
+
+  revision "2024-01-16" {
+    description
+      "Added form factors QSFP28_DD and CSFP.
+       Added new PMDs: ETH_100GBASE_ER4L (MSA 100GBASE-ER4 Lite),
+       ETH_1GBASE_LX10.
+       Added References for 100GBASE-CR4 and 40GGBASE-CR4 for DACs";
+     reference "0.21.0";
+  }
+
+  revision "2023-08-03" {
+    description
+      "Add QSFP56 and QSFP56_DD form factor identities and
+      deprecated QSFP56_DD_TYPE1 and QSFP56_DD_TYPE2 form factor identities.";
+    reference "0.20.0";
+  }
+
+  revision "2023-07-24" {
+    description
+      "Add SFP_DD and DSFP form factor identities.";
+    reference "0.19.0";
+  }
 
   revision "2023-02-08" {
     description
@@ -168,15 +196,41 @@ module openconfig-transport-types {
       }
       enum FACILITY {
         description
-          "A loopback which directs traffic normally transmitted
-          on the port back to the device as if received on the same
-          port from an external source.";
+          "A port internal loopback at ASIC level. The loopback directs
+          traffic normally transmitted on the port back to the device as
+          if received on the same port from an external source. Note this
+          mode is used when internal loopback does NOT specify MAC or PHY.";
       }
       enum TERMINAL {
         description
-          "A loopback which directs traffic received from an external
-          source on the port back out the transmit side of the same
-          port.";
+          "A port external loopback at ASIC level. The loopback which
+          directs traffic received from an external source on the port
+          back out the transmit side of the same port. Note this mode is
+          used when external loopback does NOT specify MAC or PHY";
+      }
+      enum ASIC_PHY_LOCAL {
+        description
+          "A port internal loopback at PHY module. The loopback directs
+          traffic normally transmitted on the port back to the device as
+          if received on the same port from an external source.";
+      }
+      enum ASIC_PHY_REMOTE {
+        description
+          "A port external loopback at PHY module. The loopback which
+          directs traffic received from an external source on the port
+          back out the transmit side of the same port.";
+      }
+      enum ASIC_MAC_LOCAL {
+        description
+          "A port internal loopback at MAC module. The loopback directs
+          traffic normally transmitted on the port back to the device as
+          if received on the same port from an external source.";
+      }
+      enum ASIC_MAC_REMOTE {
+        description
+          "A port external loopback at MAC module. The loopback which
+          directs traffic received from an external source on the port
+          back out the transmit side of the same port.";
       }
     }
     default NONE;
@@ -818,8 +872,33 @@ module openconfig-transport-types {
       channels";
   }
 
+  identity QSFP28_DD {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP-DD with electrical interfaces consisting of 8 lanes that operate at up to
+      25 Gbps with NRZ modulation";
+    reference "http://qsfp-dd.com";
+  }
+
+  identity QSFP56 {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP pluggable optic with support for up to 4x56G physical
+      channels";
+  }
+
+  identity QSFP56_DD {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP-DD electrical interfaces will employ 8 lanes that operate up to
+      25 Gbps NRZ modulation or 50 Gbps PAM4 modulation, providing
+      solutions up to 200 Gbps or 400 Gbps aggregate";
+    reference "http://qsfp-dd.com";
+  }
+
   identity QSFP56_DD_TYPE1 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
+    status deprecated;
     description
       "QSFP DD pluggable optic with support for up to 8x56G physical
       channels. Type 1 uses eight optical and electrical signals.";
@@ -827,6 +906,7 @@ module openconfig-transport-types {
 
   identity QSFP56_DD_TYPE2 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
+    status deprecated;
     description
       "QSFP DD pluggable optic with support for up to 4x112G physical
       channels. Type 2 uses four optical and eight electrical
@@ -853,6 +933,16 @@ module openconfig-transport-types {
       up to 16 Gb/s signals, including 10 GbE and OTU2";
   }
 
+  identity CSFP {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "Compact Small form-factor pluggable transceiver. It is a version
+      of SFP with the same mechanical form factor allowing two independent
+      bidirectional channels per port.";
+  }
+
+
+
   identity SFP28 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
     description
@@ -865,6 +955,22 @@ module openconfig-transport-types {
     description
       "Small form-factor pluggable transceiver supporting up to
       50 Gb/s signal";
+  }
+
+  identity SFP_DD {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "SFP-DD electrical interfaces will employ 2 lanes that operate up to
+      25 Gbps NRZ modulation or 56 Gbps PAM4 modulation, providing
+      solutions up to 50 Gbps or 112 Gbps PAM4 aggregate";
+    reference "http://sfp-dd.com";
+  }
+
+  identity DSFP {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "A transceiver implementing the DSFP Transceiver specification";
+    reference "https://dsfpmsa.org/";
   }
 
   identity XFP {
@@ -942,6 +1048,12 @@ module openconfig-transport-types {
       "Ethernet compliance codes (PMD) supported by transceivers";
   }
 
+  identity ETH_1000BASE_LX10 {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: ETH_1000BASE_LX10";
+    reference "802.3ah-2004(CL59)";
+  }
+
   identity ETH_10GBASE_LRM {
     base ETHERNET_PMD_TYPE;
     description "Ethernet compliance code: 10GBASE_LRM";
@@ -969,7 +1081,10 @@ module openconfig-transport-types {
 
   identity ETH_40GBASE_CR4 {
     base ETHERNET_PMD_TYPE;
-    description "Ethernet compliance code: 40GBASE_CR4";
+    description "Ethernet compliance code: 40GBASE_CR4.
+    This PMD is used in Direct Attach Cables (DAC)
+    and Active Optical Cables (AOC)";
+    reference "IEEE 802.3ba 40GBASE-CR4";
   }
 
   identity ETH_40GBASE_SR4 {
@@ -1027,6 +1142,11 @@ module openconfig-transport-types {
     description "Ethernet compliance code: 100GBASE_LR4";
   }
 
+  identity ETH_100GBASE_ER4L {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 100GBASE_ER4L";
+  }
+
   identity ETH_100GBASE_ER4 {
     base ETHERNET_PMD_TYPE;
     description "Ethernet compliance code: 100GBASE_ER4";
@@ -1049,7 +1169,10 @@ module openconfig-transport-types {
 
   identity ETH_100GBASE_CR4 {
     base ETHERNET_PMD_TYPE;
-    description "Ethernet compliance code: 100GBASE_CR4";
+    description "Ethernet compliance code: 100GBASE_CR4.
+      This PMD is used in Direct Attach Cables (DAC)
+      and Active Optical Cables (AOC)";
+    reference "IEEE 802.3bj 100GBASE-CR4";
   }
 
   identity ETH_100GBASE_FR {

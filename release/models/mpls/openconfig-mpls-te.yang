@@ -30,7 +30,25 @@ submodule openconfig-mpls-te {
     signaling protocol or mechanism (see related submodules for
     signaling protocol-specific configuration).";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2023-07-25" {
+    description
+      "Added record-route-enabled to MPLS p2p tunnel config";
+    reference "3.4.0";
+  }
+
+  revision "2023-04-28" {
+    description
+      "Fixed typo in cspf-tiebreaker leaf description";
+    reference "3.3.2";
+  }
+
+  revision "2023-04-25" {
+    description
+      "Add clarifying comments on use of interface-ref.";
+    reference "3.3.1";
+  }
 
   revision "2022-02-11" {
     description
@@ -792,6 +810,11 @@ submodule openconfig-mpls-te {
       description
         "P2P tunnel destination address";
     }
+    leaf record-route-enabled {
+      type boolean;
+      description
+        "Enables recording a path on an LSP using the record route object (RRO)";
+    }
   }
 
   grouping p2p-path-state {
@@ -872,7 +895,7 @@ submodule openconfig-mpls-te {
       type cspf-tie-breaking;
       description
         "Determine the tie-breaking method to choose between
-        equally desirable paths during CSFP computation";
+        equally desirable paths during CSPF computation";
     }
 
     leaf path-computation-server {
@@ -889,8 +912,8 @@ submodule openconfig-mpls-te {
         "Reference to the address of a previously configured
         external path computation server.";
     }
-	
-	leaf path-control {
+
+    leaf path-control {
       type oc-pcep:lsp-control-type;
       description
         "Set the LSP path control mode as PCE_DELEGATED

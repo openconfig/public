@@ -30,7 +30,58 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "9.2.0";
+  oc-ext:openconfig-version "9.7.1";
+
+  revision "2023-12-28" {
+    description
+      "Clarification to last-prefix-limit-exceeded in description";
+          reference "9.7.1";
+  }
+
+  revision "2023-12-28" {
+    description
+      "Add support for controling use of link-bandwidth extended
+      community for BGP multipath.";
+          reference "9.7.0";
+  }
+
+  revision "2023-11-02" {
+    description
+      "Fix revision '2023-03-31': send-community-type was added to the
+       wrong grouping.
+      Allow configuring send-community per AFI-SAFI at
+       neighbor/peer-group.";
+    reference "9.6.0";
+  }
+
+  revision "2023-11-01" {
+    description
+      "Add default apply policy to global and per afi-safi config.";
+    reference "9.5.0";
+  }
+
+  revision "2023-06-27" {
+    description
+      "Clarify bgp neighbor-port, remote-port and local-port descriptions";
+    reference "9.4.1";
+  }
+
+  revision "2023-04-01" {
+    description
+      "Add support for BGP large communities [rfc8092] in
+      send-community.
+      Leaf send-community was replaced by the leaf-list
+      send-community-type to allow the combination of different
+      community types";
+    reference "9.4.0";
+  }
+
+  revision "2023-03-31" {
+    description
+      "Allow configuring send-community per AFI-SAFI at
+       neighbor/peer-group.";
+    reference "9.3.0";
+  }
 
   revision "2022-12-12" {
     description
@@ -180,7 +231,8 @@ submodule openconfig-bgp-neighbor {
         type oc-inet:port-number;
         default 179;
         description
-          "Port number of the BGP peer";
+          "Destination TCP port number of the BGP peer when initiating a
+          session from the local router";
     }
 
     leaf enabled {
@@ -349,7 +401,8 @@ submodule openconfig-bgp-neighbor {
       type oc-types:timeticks64;
       description
         "This timestamp indicates the time that the BGP session last
-        violated a configured max prefix-limit for any AFI/SAFI combination
+        violated a configured recived (pre-policy) or accepted (post-policy)
+        max prefix-limit for any AFI/SAFI combination
         on the session.  The value is the timestamp in nanoseconds relative
         to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).
 
@@ -443,7 +496,7 @@ submodule openconfig-bgp-neighbor {
     leaf local-port {
       type oc-inet:port-number;
       description
-        "Local TCP port being used for the TCP session supporting
+        "Local, source TCP port being used for the TCP session supporting
         the BGP session";
     }
 
@@ -457,8 +510,11 @@ submodule openconfig-bgp-neighbor {
     leaf remote-port {
       type oc-inet:port-number;
       description
-        "Remote port being used by the peer for the TCP session
-        supporting the BGP session";
+        "The source TCP port being used by the peer for the TCP session
+        supporting the BGP session.  This is expected to be the same value
+        as the configured neighbor-port if the local device initiated the
+        connection or a different TCP port if the peer initiated the TCP
+        session.";
     }
   }
 

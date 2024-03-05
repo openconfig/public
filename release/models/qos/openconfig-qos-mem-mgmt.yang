@@ -29,7 +29,44 @@ submodule openconfig-qos-mem-mgmt {
       per-queue basis, and determine how packets are marked/dropped within
       the queue instantiation.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.11.2";
+
+  revision "2023-10-13" {
+    description
+      "Fix revision statement date";
+    reference "0.11.2";
+  }
+
+  revision "2023-10-08" {
+    description
+      "Clarification on WRED weight in case it is not present";
+    reference "0.11.1";
+  }
+
+  revision "2023-09-15" {
+    description
+      "Add support for ECN counters";
+    reference "0.11.0";
+  }
+
+revision "2023-07-26" {
+    description
+      "Add buffer management parameters in time unts (microseconds).
+       Make profiles reusable across LAGs and PHY of different speed";
+    reference "0.10.0";
+  }
+
+  revision "2023-04-25" {
+    description
+      "Clarify interface-ref usage.";
+    reference "0.9.1";
+  }
+
+  revision "2023-04-17" {
+    description
+      "Add support for relative RED min-threshold and max-threshold values.";
+    reference "0.9.0";
+  }
 
   revision "2023-02-17" {
     description
@@ -209,7 +246,20 @@ submodule openconfig-qos-mem-mgmt {
       units bytes;
       description
         "This is the dedicated buffer that is carved for the queue, this is the minimum
-        number of bytes reserved for this queue.";
+        number of bytes reserved for this queue.
+        This leaf is mutualy exclusive with dedicated-buffer-temporal leaf";
+    }
+
+    leaf dedicated-buffer-temporal {
+      type uint64;
+      units microseconds;
+      description
+        "This is the dedicated buffer that is carved for the queue. The the minimum
+        number of bytes reserved for this queue is calculated by multiplying by interface speed
+        queue is attached to and queues minimum, guarantaed transmit share (derived
+        form WRR schedulers weights).
+        This leaf shouldbot be used for strict priority scheduled queues.
+        This leaf is mutualy exclusive with dedicated-buffer leaf";
     }
 
     leaf use-shared-buffer {
@@ -234,7 +284,22 @@ submodule openconfig-qos-mem-mgmt {
       description
         "If the shared-buffer-limit-type is STATIC, then static-shared-buffer-limit is
         the maximum number of bytes that the queue is allowed to use from the shared
-        pool.";
+        pool.
+        This leaf is mutualy exclusive with static-shared-buffer-limit-temporal leaf.";
+    }
+
+    leaf static-shared-buffer-limit-temporal {
+      type uint32;
+      units microseconds;
+      description
+        "If the shared-buffer-limit-type is STATIC, then static-shared-buffer-limit-temporal is
+        the maximum number of bytes that the queue is allowed to use from the shared
+        pool.
+        The the number of bytes is calculated by multiplying static-shared-buffer-limit-temporal
+        by interface speed the queue is attached to and queues minimum, guarantaed transmit share
+        (derived form WRR schedulers weights).
+        This leaf shouldbot be used for strict priority scheduled queues.
+        This leaf is mutualy exclusive with static-shared-buffer-limit leaf.";
     }
 
     leaf dynamic-limit-scaling-factor {
@@ -271,18 +336,40 @@ submodule openconfig-qos-mem-mgmt {
       type uint64;
       units bytes;
       description
-        "The mininum threshold parameter for a RED-managed queue. When the
-        average queue length is less than minth, all packets are admitted
-        to the queue.";
+        "The mininum threshold parameter for a RED-managed queue in bytes.
+        When the average queue length is less than minth, all packets are admitted
+        to the queue.  Mututally exclusive with min-threshold-percent and
+        max-threshold-percent.";
     }
 
     leaf max-threshold {
       type uint64;
       units bytes;
       description
-        "The maximum threshold parameter for a RED-managed queue. When the
-        average queue length exceeds the maxth value, all packets are
-        dropped (or marked if ECN is enabled).";
+        "The maximum threshold parameter for a RED-managed queue in bytes.
+        When the average queue length exceeds the maxth value, all packets are
+        dropped (or marked if ECN is enabled).  Mutually exclusive with
+        min-threshold-percent and max-threshold-percent.";
+    }
+
+    leaf min-threshold-percent {
+      type uint64;
+      units oc-types:percentage;
+      description
+        "The mininum threshold parameter for a RED-managed queue in percent.
+        When the average queue length is less than minth, all packets are
+        admitted to the queue.  Mutually exclusive with min-threshold and
+        max-threshold.";
+    }
+
+    leaf max-threshold-percent {
+      type uint64;
+      units oc-types:percentage;
+      description
+        "The maximum threshold parameter for a RED-managed queue in percent.
+        When the average queue length exceeds the maxth value, all packets
+        are dropped (or marked if ECN is enabled).  Mutually exclusive with
+        min-threshold and max-threshold.";
     }
 
     leaf enable-ecn {
@@ -328,7 +415,10 @@ submodule openconfig-qos-mem-mgmt {
 
         The previous average is more important for high values of n. Peaks
         and lows in queue size are smoothed by a high value. For low values
-        of n, the average queue size is close to the current queue size.";
+        of n, the average queue size is close to the current queue size.
+
+        When this leaf is not present, implementation default value is
+        applied.";
     }
 
     leaf max-drop-probability-percent {

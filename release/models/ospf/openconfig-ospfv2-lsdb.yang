@@ -22,7 +22,37 @@ submodule openconfig-ospfv2-lsdb {
     "An OpenConfig model for the Open Shortest Path First (OSPF)
     version 2 link-state database (LSDB)";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.1";
+
+  revision "2023-11-01" {
+    description
+      "Refactor apply policy to separate default policy in it's own common
+      set of groupings";
+    reference "0.5.1";
+  }
+
+  revision "2023-08-25" {
+    description
+      "Add leaf metric to lsdb-summary-lsa-state.";
+    reference "0.5.0";
+}
+  revision "2023-08-09" {
+    description
+      "Update interface key to use interface-id type";
+    reference "0.4.3";
+  }
+
+  revision "2023-07-05" {
+    description
+      "Fix typo in experimental-te leaf description.";
+    reference "0.4.2";
+  }
+
+  revision "2023-03-06" {
+    description
+      "Clarify use of interface-ref.";
+    reference "0.4.1";
+  }
 
   revision "2022-02-10" {
     description
@@ -1200,6 +1230,13 @@ submodule openconfig-ospfv2-lsdb {
         "The mask of the network described by the Summary LSA
         represented as a CIDR mask.";
     }
+
+    leaf metric {
+      type oc-ospf-types:ospf-metric;
+      description
+        "The cost of utilising the summary link specified independent of TOS.";
+    }
+
   }
 
   grouping ospfv2-lsdb-asexternal-lsa-common-parameters {
@@ -1780,7 +1817,7 @@ submodule openconfig-ospfv2-lsdb {
       type boolean;
       default false;
       description
-        "When this leaf is set to ture, the advertising system supports the
+        "When this leaf is set to true, the advertising system supports the
         experimental extensions to OSPF for TE described in RFC4973";
       reference "RFC4973";
     }

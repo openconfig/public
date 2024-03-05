@@ -24,7 +24,65 @@ submodule openconfig-network-instance-l2 {
     Layer 2 network instance configuration and operational state
     parameters.";
 
-  oc-ext:openconfig-version "4.0.1";
+  oc-ext:openconfig-version "4.4.0";
+
+  revision "2024-02-27" {
+    description
+      "Clarify metric to be used for route redistribution when
+      disable-metric-propagation is set to true.";
+    reference "4.4.0";
+  }
+
+  revision "2023-12-13" {
+    description
+      "Expand when statement for connection-points endpoints";
+    reference "4.3.0";
+  }
+
+  revision "2023-11-03" {
+    description
+      "Add reference URL for Route Redistribution rules";
+    reference "4.2.2";
+  }
+
+  revision "2023-11-01" {
+    description
+      "Refactor apply policy to separate default policy in it's own common
+      set of groupings";
+    reference "4.2.1";
+  }
+
+  revision "2023-09-07" {
+    description
+      "Add L2RIB Per Producer Next-Hop Capability";
+    reference "4.2.0";
+  }
+
+  revision "2023-08-09" {
+    description
+      "Update interface key to use interface-id type";
+    reference "4.1.1";
+  }
+
+  revision "2023-07-12" {
+    description
+      "Moved ethernet-segments to top level
+      container.";
+    reference "4.1.0";
+  }
+
+  revision "2023-04-25" {
+    description
+      "Clarify use of interface-ref.";
+    reference "4.0.3";
+  }
+
+  revision "2023-03-15" {
+    description
+      "Clarify that tables are to be deleted by the
+      network operating system";
+    reference "4.0.2";
+  }
 
   revision "2023-02-07" {
     description
@@ -519,6 +577,7 @@ submodule openconfig-network-instance-l2 {
             }
           }
         }
+        uses l2ni-l2rib-common-next-hop-group-state;
         uses l2ni-l2rib-common-next-hop-state;
       }
 
@@ -580,6 +639,7 @@ submodule openconfig-network-instance-l2 {
             }
           }
         }
+        uses l2ni-l2rib-common-next-hop-group-state;
         uses l2ni-l2rib-common-next-hop-state;
       }
     }
@@ -682,7 +742,10 @@ submodule openconfig-network-instance-l2 {
 
     leaf esi {
       type oc-evpn-types:esi;
-      description "Ethernet Segment Identifier for local and remote routes";
+      description
+        "Ethernet Segment Identifier (ESI) for local and remote routes.
+         ESI is used to resolve the next-hop-group. All mac-addresses
+         learned with the same ESI should point to the same next-hop-group";
     }
 
     leaf sticky {
@@ -695,7 +758,15 @@ submodule openconfig-network-instance-l2 {
       type leafref {
         path "../../../../../../next-hops/next-hop/index";
       }
+      status deprecated;
       description "Leafref next-hop for the MAC-IP table entry";
+    }
+
+    leaf-list next-hop-group {
+      type leafref {
+        path "../../../../../../next-hop-groups/next-hop-group/id";
+      }
+      description "Leafref next-hop-group for the MAC-IP table entry";
     }
   }
 
@@ -731,11 +802,115 @@ submodule openconfig-network-instance-l2 {
             type oc-evpn-types:evi-id;
             description "Next hop label representing the l2vni for the route";
           }
+          leaf esi {
+            type oc-evpn-types:esi;
+            description "Ethernet Segment Identifier (ESI)";
+            reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+          }
+          leaf resolved {
+            type boolean;
+            description
+              "Indicates if the path is eligible for forwarding as per evpn mass
+               withdraw procedures as defined in RFC 7432";
+          }
           uses oc-if:interface-ref-common;
         }
       }
     }
   }
+
+  grouping l2ni-l2rib-common-next-hop-group-state {
+    description "L2RIB Common Next Hop Group Attributes Operational State Data Grouping";
+
+    container next-hop-groups {
+      description "Surrounding container for groups of L2RIB next-hops.";
+      list next-hop-group {
+        key "id";
+        description
+          "An individual set of next-hops grouped into a common group.
+           Each entry within an L2RIB can optionally point to a
+           next-hop-group.";
+
+        leaf id {
+          type leafref {
+            path "../state/id";
+          }
+          description
+            "A reference to a unique identifier for the next-hop-group.";
+        }
+        container state {
+          description "State container for common next-hop-group attributes";
+          config false;
+          leaf id {
+            type uint64;
+            description
+              "A unique identifier for the next-hop-group. This index is not
+               expected to be consistent across reboots, or reprogramming of
+               the next-hop-group. When updating a next-hop-group, if the group
+               is removed by the system or assigned an alternate identifier, the
+               system should send telemetry notifications deleting the previous
+               identifier. If the identifier of the next-hop-group is changed,
+               all L2RIB entries that reference it must also be updated.";
+          }
+          leaf esi {
+            type oc-evpn-types:esi;
+            description "Ethernet Segment Identifier (ESI)";
+            reference "RFC7432: BGP MPLS-Based Ethernet VPN";
+          }
+          leaf type {
+            type enumeration {
+              enum ESI {
+                description
+                  "Per ESI pathlist next-hop-group used for evpn mass withdraw procedures as defined in RFC 7432";
+              }
+              enum ESI_EVI {
+                description
+                  "Per ESI,EVI pathlist next-hop-group used for evpn aliasing procedures as defined in RFC 7432";
+              }
+              enum BASE_ECMP {
+                description
+                  "Base ECMP next-hop-group used in absence of evpn aliasing";
+              }
+            }
+            description "Type of next-hop-group";
+          }
+        }
+        container next-hops {
+          description
+            "Surrounding container for the list of next-hops within the next-hop-group.";
+          list next-hop {
+            key "index";
+            description
+              "An individual next-hop within the next-hop-group. Each next-hop is a
+               reference to an entry within the next-hop list.";
+
+            leaf index {
+              type leafref {
+                path "../state/index";
+              }
+              description
+                "A reference to the index for the next-hop within the the next-hop-group.";
+            }
+            container state {
+              description
+                "Operational state parameters related to a next-hop within the next-hop-group.";
+              config false;
+              leaf index {
+                type leafref {
+                  path "../../../../../../next-hops/next-hop/index";
+                }
+                description
+                  "A reference to the identifier for the next-hop to which the entry in the
+                   next-hop group corresponds.";
+              }
+            }
+          }
+        }
+
+      }
+    }
+  }
+
   grouping l2ni-l2rib-mac-table-producer-state {
     description "L2RIB MAC Table Operational State Data Grouping";
 

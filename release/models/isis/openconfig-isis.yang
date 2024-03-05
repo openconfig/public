@@ -54,7 +54,32 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.5.0";
+  oc-ext:openconfig-version "1.6.2";
+
+  revision "2024-02-20" {
+    description
+      "Fix typo in RFC reference for adjacency-state.";
+    reference "1.6.2";
+  }
+
+  revision "2023-11-01" {
+    description
+      "Refactor apply policy to separate default policy in it's own common
+      set of groupings";
+    reference "1.6.1";
+  }
+
+  revision "2023-05-01" {
+    description
+      "Add ISIS total-lsps counter.";
+    reference "1.6.0";
+  }
+
+  revision "2023-04-25" {
+    description
+      "Clarify use of the interface-ref type.";
+    reference "1.5.1";
+  }
 
   revision "2023-03-27" {
     description
@@ -966,6 +991,7 @@ module openconfig-isis {
       "Policy governing the propagation of prefixes between levels.";
 
     uses oc-rpol:apply-policy-import-config;
+    uses oc-rpol:default-policy-import-config;
   }
 
   grouping isis-mpls-config {
@@ -1244,7 +1270,12 @@ module openconfig-isis {
       key "interface-id";
 
       description
-        "This list contains ISIS interfaces.";
+        "This list contains ISIS interfaces.
+
+        The interface referenced is based on the interface and
+        subinterface leaves within the interface-ref container -
+        which reference an entry in the /interfaces/interface list -
+        and should not rely on the value of the list key.";
 
       leaf interface-id {
         type leafref {
@@ -1802,7 +1833,7 @@ module openconfig-isis {
       type oc-isis-types:isis-interface-adj-state;
       description
         "P2P 3-way ISIS adjacency state(up, down, init, failed).";
-      reference "RFC4303. TLV 240.";
+      reference "RFC5303: TLV 240.";
     }
 
     leaf up-timestamp {
@@ -2023,6 +2054,12 @@ module openconfig-isis {
   grouping system-level-counters-state {
     description
       "IS-IS counters that are relevant to the system IS-IS context.";
+
+    leaf total-lsps {
+      type oc-yang:counter32;
+      description
+        "Number of LSPs in the database at the system level.";
+    }
 
     leaf corrupted-lsps {
       type oc-yang:counter32;
