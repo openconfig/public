@@ -299,60 +299,61 @@ module openconfig-system-controlplane {
                     uses system-controlplane-built-in-limits-traffic-state;
                   }
                 }
-                container vendor {
-                  description
-                    "An anchor point for vendor and platform specific
-                    extensions.
-                    As each platform  and vendor has different implementation and internal
-                    parts where packets may be dropped at any point in time. Providing
-                    vendor-specific counters provides better visibility into control-plane
-                    traffic.
-                    The recommended usage of this container is to create an augment at
-                    /system/control-plane-traffic/ingress/built-in-limits/vendor that contains additional
-                    vendor/platform specific containers.
-                    e.g.
-                    augment /system/control-plane-traffice/ingress/built-in-limits/vendor {
-                      container <vendor name> {
-                        container <platform name> {
-                          container <traffic-group-name>
-                            container config {
+              }
+              container vendor {
+                description
+                  "An anchor point for vendor and platform specific
+                  extensions.
+                  As each platform  and vendor has different implementation and internal
+                  parts where packets may be dropped at any point in time. Providing
+                  vendor-specific counters provides better visibility into control-plane
+                  traffic.
+                  The recommended usage of this container is to create an augment at
+                  /system/control-plane-traffic/ingress/built-in-limits/vendor that contains additional
+                  vendor/platform specific containers.
+                  e.g.
+                  augment /system/control-plane-traffice/ingress/built-in-limits/vendor {
+                    container <vendor name> {
+                      container <platform name> {
+                        container <traffic-group-name>
+                          container config {
+                            leaf packet-max-rate {
+                                ...
+                              }
+                            leaf packet-burst-size {
+                                ...
+                            }
+                            ...
+                            }
+                            container state {
                               leaf packet-max-rate {
-                                  ...
-                               }
+                                ...
+                              }
                               leaf packet-burst-size {
-                                 ...
+                                ...
                               }
                               ...
+                              leaf aggregate-counter-name {
+                                type string;
+                                description
+                                  \"One of built-in counters defined under
+                                  ../built-in-limits/state/counters/,
+                                  such 'bgp' or 'l2-control'.
+                                  This self-documentation allows client to asssociate multiple vendor
+                                  counters with vendor-neutral, abstract, aggregated counters.\";
                               }
-                              container state {
-                                leaf packet-max-rate {
-                                  ...
-                                }
-                                leaf packet-burst-size {
-                                  ...
-                                }
-                                ...
-                                leaf aggregate-counter-name {
-                                  type string;
-                                  description
-                                    \"One of built-in counters defined under
-                                    ../built-in-limits/state/counters/,
-                                    such 'bgp' or 'l2-control'.
-                                    This self-documentation allows client to asssociate multiple vendor
-                                    counters with vendor-neutral, abstract, aggregated counters.\";
-                                }
-                                uses system-controlplane-built-in-limits-traffic-state;
-                              }
+                              uses system-controlplane-built-in-limits-traffic-state;
                             }
                           }
                         }
                       }
+                    }
 
-                    In addition to above, more granular packet/octet counters, also information
-                    about rate limit and allowd burst size for each counter should be exposed.
-                    Furthermore ability to configure rate limit and allowd burst size for each
-                    counter could be exposed.";
-                }
+                  In addition to above, more granular packet/octet counters, also information
+                  about rate limit and allowd burst size for each counter should be exposed.
+                  Furthermore ability to configure rate limit and allowd burst size for each
+                  counter could be exposed.";
+              }
             }
           }
         }
