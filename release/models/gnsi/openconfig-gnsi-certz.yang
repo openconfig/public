@@ -30,7 +30,13 @@ module openconfig-gnsi-certz {
     "This module provides a data model for the metadata of gRPC credentials
     installed on a networking device.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision 2024-03-05 {
+    description
+      "rename access/reject counters";
+    reference "0.6.0";
+  }
 
   revision 2024-02-13 {
     description
@@ -87,36 +93,36 @@ module openconfig-gnsi-certz {
       "A collection of counters that were collected while evaluating
       access to the gRPC server.";
 
-    container certz-counters {
+    container counters {
       config false;
       description
-        "A collection of counters that were collected by the gRPC during
-        the authentication process.";
+      "A collection of counters that were collected by the gRPC during
+      the authentication process.";
 
-      leaf access-rejects {
+      leaf connection-rejects {
         type oc-yang:counter64;
         description
-          "The total number of times a TLS handshake failure has occurred and
-          the gRPC server denied access a client.";
+        "The total number of times that gRPC clients have failed
+        in establishing a connection to the server.";
       }
-      leaf last-access-reject {
+      leaf last-connection-reject {
         type oc-types:timeticks64;
         description
-          "A timestamp of the last time the gRPC denied access to
-          the server.";
+        "A timestamp of the last time a gRPC client failed
+        in establishing a connection to the server.";
       }
-      leaf access-accepts {
+      leaf connection-accepts {
         type oc-yang:counter64;
         description
-          "The total number of times a successful TLS handshake is completed
-          and the gPRC server allows access to a client.";
+        "The total number of times that gRPC clients have succeeded
+        in establishing a connection to the server.";
       }
-      leaf last-access-accept {
+      leaf last-connection-accept {
         type oc-types:timeticks64;
         description
-          "A timestamp of the last time the gRPC allowed access to
-          the server.";
-      }
+        "A timestamp of the last time a gRPC client succeeded
+        in establishing a connection to the server.";
+        }
     }
   }
 
