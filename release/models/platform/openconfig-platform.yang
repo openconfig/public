@@ -543,30 +543,22 @@ module openconfig-platform {
       description
         "Records last power-off reason for a component.";
 
-      uses oc-platform-types:component-last-power-off-reason-trigger;
+      uses oc-platform-types:component-last-power-off-reason;
     }
 
     leaf last-poweroff-time {
       type oc-types:timeticks64;
       units "nanoseconds";
       description
-        "This reports the time of the last shutdown of the component. 
-         The value is the timestamp in nanoseconds relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC). 
-         If a system is rebooted and after the configuration is loaded, say the controller-card is identified 
-         to be shutdown in configuration, the card should be powered-off and 'last-power-off-time' 
-         leaf should be recorded.";
-    }
-
-    leaf last-switchover-time {
-      type oc-types:timeticks64;
-      units "nanoseconds";
-      description
-        "For components that have redundant roles (e.g. two
-        supervisors in a device, one as primary the other as
-        secondary), this reports the time of the last change of
-        the component's role. The value is the timestamp in
-        nanoseconds relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
-
+        "This records the last time a component was directly powered 
+         down. The value is a Unix Epoch timestamp (nanoseconds since 
+         Jan 1, 1970 00:00:00 UTC). Components can be powered down in 
+         various ways, including:
+         - Configuration change
+         - Operational command
+         - Power failures
+         This field is not updated during reboots; those are tracked 
+         in the 'last-reboot-time' leaf.";
     }
 
     container last-switchover-reason {
@@ -605,7 +597,8 @@ module openconfig-platform {
       description
         "This reports the time of the last reboot of the component. The
         value is the timestamp in nanoseconds relative to the Unix Epoch
-        (Jan 1, 1970 00:00:00 UTC).";
+        (Jan 1, 1970 00:00:00 UTC). This timer is not updated during 
+        power shutdowns; those are tracked in `last-poweroff-time` leaf.";
     }
 
     leaf switchover-ready {
@@ -1190,8 +1183,8 @@ module openconfig-platform {
              POWER_DISABLED. If the controller-card's
              'redundant-role' is 'PRIMARY', and it's 
              'config/power-admin-state' is set to 'POWER_DISABLED`, 
-             the NOS should allow the configuration. However, 
-             the change should take effect only on the next reboot. 
+             the NOS must allow the configuration. However, 
+             the change must take effect only on the next reboot. 
              Following scenarios in context
           
              Scenario#1: Let's say controller0 is PRIMARY and
@@ -1199,14 +1192,13 @@ module openconfig-platform {
              operator driven change of 
              config/power-admin-state = POWER_DISABLED, then 
              controller0 will power-off controller1 immediately.  
-             The leaf state/power-admin-state should also 
-             be POWER_DISABLED. The boolean flag 
-             state/is-powered-off should also show up as TRUE. 
-             The state/last-poweroff-reason/trigger should show as 
-             USER_INITIATED. Also the NOS can update the 
-             leaf /state/last-poweroff-reason/details. 
-             The leaf state/last-poweroff-time should record the time 
-             when the card was powered-off. Following paths:
+             The leaf state/power-admin-state for controller1 must 
+             also be POWER_DISABLED. The 
+             'state/last-poweroff-reason/trigger' should show as 
+             USER_INITIATED. The NOS may optionally update 
+             /state/last-poweroff-reason/details. 
+             state/last-poweroff-time should record the time 
+             when the card was powered-off. For example:
 
              /components/component[name=controller0]/state/redundant-role, PRIMARY
              /components/component[name=controller0]/controller-card/config/power-admin-state, POWER_ENABLED
@@ -1223,16 +1215,14 @@ module openconfig-platform {
              config/power-admin-state = POWER_DISABLED 
              by an operator, then controller0 will stay powered-on 
              until the next reboot. The leaf state/power-admin-state 
-             should show as POWER_DIABLED. The boolean flag however, 
-             state/is-powered-off should show as FALSE. 
-             The state/last-poweroff-reason/trigger should show as
-              USER_INITIATED. Also the NOS can 
-             update the leaf /state/last-poweroff-reason/details. 
-             The leaf state/last-poweroff-time should record the time 
-             when the card powers-off post the next reboot. 
-             Following paths
+             must show as POWER_ENABLED. 
+             The state/last-poweroff-reason/trigger should show as 
+             USER_INITIATED. Also the NOS can update the leaf 
+             /state/last-poweroff-reason/details. The leaf 
+             state/last-poweroff-time should record the time 
+             when the card powers-off post the next reboot. For example: 
 
-             At the time POWER_DISABLED is set:
+             When controller0 is PRIMARY
              
              /components/component[name=controller0]/state/redundant-role, PRIMARY
              /components/component[name=controller0]/controller-card/config/power-admin-state, POWER_DISABLED
@@ -1249,6 +1239,7 @@ module openconfig-platform {
              /components/component[name=controller0]/state/last-poweroff-reason/details, "User initiated Shutdown"
              /components/component[name=controller0]/state/last-poweroff-time, 1706590714681765937
              /components/component[name=controller1]/state/redundant-role, PRIMARY
+             /components/component[name=controller1]/controller-card/config/power-admin-state, POWER_ENABLED
              /components/component[name=controller1]/controller-card/state/power-admin-state, POWER_ENABLED
 
 
@@ -1258,7 +1249,7 @@ module openconfig-platform {
              powered off, even after a reboot. It is possible that 
              after a reboot, both the controller cards are 
              powered-on. However as soon as the configuration is 
-             loaded the NOS should power-off the subject 
+             loaded, the system should power-off the subject 
              controller-card.
 
           3. A CONTROLLER_CARD in redundant-role SECONDARY and 
