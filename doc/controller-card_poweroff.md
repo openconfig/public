@@ -1,6 +1,6 @@
-## Objective:
+## Controller Card Power Control
 
-This document introduces the concept of persistent shutdown of controller-cards in switches/routers with dual controller-cards, outlines rules to determine its use and proposes new telemetry counters to support the feature.
+This document describes operational use cases, rules and telemetry for power control of `CONTROLLER-CARD` components in network devices using OpenConfig.```
 
 
 ## Possible use cases for the gNMI approach:
