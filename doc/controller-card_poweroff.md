@@ -19,7 +19,7 @@ Electrical power for a CONTROLLER_CARD can be turned off using the OC-Path [/com
 
 
 
-1. Only a CONTROLLER_CARD in state redundant-roleSECONDARY will honor config/power-admin-state set toPOWER_DISABLED. If the controller-card's'redundant-role' is 'PRIMARY', and it's 'config/power-admin-state' is set to 'POWER_DISABLED', the NOS must allow the configuration. However, the change must take effect only on the next reboot. Following scenarios in context
+1. Only a CONTROLLER_CARD in `state/redundant-role` 'SECONDARY' will honor a change in `config/power-admin-state` to POWER_DISABLED. If the controller-card's `redundant-role` is 'PRIMARY', and its `config/power-admin-state` is set to 'POWER_DISABLED', the NOS must allow the configuration. However, the `state/power-admin-state` should remain as 'POWER_ENABLED'.  A change in `state/power-admin-state` must take effect only on the next reboot or if the CONTROLLER_CARD becomes 'SECONDARY'. Examples of scenarios include:
              
 `Scenario#1:`
 
