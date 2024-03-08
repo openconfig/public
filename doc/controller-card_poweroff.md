@@ -39,7 +39,7 @@ Let's say controller-card0 is PRIMARY and controller-card1 is SECONDARY and cont
 
 ### Scenario 2 - Power off primary CONTROLLER_CARD
     
-If controller-card0 is PRIMARY and controller-card1 is SECONDARY and if controller-card0 is set to config/power-admin-state = POWER_DISABLED by an operator, then controller-card0 will stay powered-on until the next reboot. The leaf state/power-admin-state must show as POWER_ENABLED. The state/last-poweroff-reason/trigger should show as USER_INITIATED. Also the NOS can update the leaf /state/last-poweroff-reason/details. The leaf state/last-poweroff-time should record the time when the card powers-off post the next reboot. For example: 
+If controller-card0 is PRIMARY and controller-card1 is SECONDARY and if controller-card0 is set to config/power-admin-state = POWER_DISABLED by an operator, then controller-card0 will stay powered-on until the next reboot. `state/power-admin-state` must show as POWER_ENABLED. If a reboot of the PRIMARY CONTROLLER_CARD occurs,  `state/last-poweroff-time` should record the time when the card powers-off, `state/last-poweroff-reason/trigger` should show as USER_INITIATED and `/state/last-poweroff-reason/details` may be updated. For example: 
 
 When controller-card0 is PRIMARY:
 
