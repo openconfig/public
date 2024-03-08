@@ -15,7 +15,7 @@ This document describes operational use cases, rules and telemetry for power con
 
 ## Proposed Rules
 
-Idea here is that the subject controller-card can be disabled using the OC-Path [/components/component/controller-card/config/power-admin-state](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-config-power-admin-state) by setting its value to POWER\_DISABLED. Following rules:
+Electrical power for a CONTROLLER_CARD can be turned off using the OC-Path [/components/component/controller-card/config/power-admin-state](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-config-power-admin-state) and setting its value to POWER\_DISABLED.  The following rules regarding CONTROLLER_CARD redundancy and changes to `power-admin-state` should be followed by the device:
 
 
 
