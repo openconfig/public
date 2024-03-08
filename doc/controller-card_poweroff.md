@@ -13,7 +13,7 @@ This document describes operational use cases, rules and telemetry for power con
 4. Following an RMA, if a new issue arises or the original problem remains, operators may instruct field techs to leave the replacement card installed. This allows for replacement upon arrival or controlled troubleshooting. In these cases, the ability to control the card's operational state is advantageous.
 
 
-## Proposed Rules
+## CONTROLLER_CARD power and redundancy requirements 
 
 Electrical power for a CONTROLLER_CARD can be turned off using the OC-Path [/components/component/controller-card/config/power-admin-state](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-config-power-admin-state) and setting its value to POWER\_DISABLED.  The following rules regarding CONTROLLER_CARD redundancy and changes to `power-admin-state` should be followed by the device:
 
