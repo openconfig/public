@@ -28,8 +28,7 @@ module openconfig-bgp-types {
 
   revision "2024-02-01" {
     description
-      "Remove unused bgp-community-regexp-type in favor of
-      oc-types:posix-eregexp";
+      "Modify bgp-community-regexp-type.";
     reference "6.0.0";
   }
 
@@ -680,6 +679,18 @@ module openconfig-bgp-types {
     reference
       "RFC 4360 - BGP Extended Communities Attribute
        RFC 5668 - 4-Octet AS Specific BGP Extended Community";
+  }
+
+  typedef bgp-community-regexp-type {
+    type oc-types:posix-eregexp;
+    description
+      "Type definition for communities specified as regular
+      expression patterns.  The regular expression must be a
+      POSIX extended regular expression with some limitations
+      which are commonly found in device implementations described
+      in draft-ietf-idr-bgp-model";
+    reference 
+      "https://datatracker.ietf.org/doc/html/draft-ietf-idr-bgp-model";
   }
 
   typedef bgp-origin-attr-type {
