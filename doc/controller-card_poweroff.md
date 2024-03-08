@@ -3,7 +3,7 @@
 This document describes operational use cases, rules and telemetry for power control of `CONTROLLER-CARD` components in network devices using OpenConfig.```
 
 
-## Possible use cases for the gNMI approach:
+## Operational use cases for CONTROLLER_CARD power control
 
 
 
