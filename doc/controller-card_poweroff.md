@@ -81,7 +81,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
     **Response:**
 
 
-    In this scenario the expectations are that the implementation takes steps to initiate a controller-card switchover operation. Therefore, the standby controller card takes over the PRIMARY role and the system stabilizes allowing for gRPC connections to be established. In this situation if the operator pushes a gNMI configuration to shutdown the SECONDARY card, the PRIMARY card must be able to power-off the SECONDARY controller-card. In this scenario the implementation (depending on their architecture) may also initiate a shutdown of the faulty card from the new PRIMARY card.
+    In this scenario the expectations are that the implementation takes steps to initiate a controller-card switchover operation. Therefore, the standby controller card takes over the PRIMARY role and the system stabilizes allowing for gRPC connections to be established. In this situation if the operator pushes a configuration to shutdown the SECONDARY card, the PRIMARY card must be able to power-off the SECONDARY controller-card. In this scenario the implementation (depending on their architecture) may also initiate a shutdown of the faulty card from the new PRIMARY card.
 
 2. Since the operation relies on configuration, it is possible that the failure scenario may kick in before the configuration takes effect post a reboot.
 
