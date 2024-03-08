@@ -21,7 +21,7 @@ Electrical power for a CONTROLLER_CARD can be turned off using the OC-Path [/com
 
 1. Only a CONTROLLER_CARD in `state/redundant-role` 'SECONDARY' will honor a change in `config/power-admin-state` to POWER_DISABLED. If the controller-card's `redundant-role` is 'PRIMARY', and its `config/power-admin-state` is set to 'POWER_DISABLED', the NOS must allow the configuration. However, the `state/power-admin-state` should remain as 'POWER_ENABLED'.  A change in `state/power-admin-state` must take effect only on the next reboot or if the CONTROLLER_CARD becomes 'SECONDARY'. Examples of scenarios include:
              
-`Scenario#1:`
+### Scenario 1 - Power off a secondary CONTROLLER_CARD
 
 Let's say controller-card0 is PRIMARY and controller-card1 is SECONDARY and controller-card1 receives an operator driven change of config/power-admin-state = POWER_DISABLED, then controller-card0 will power-off controller-card1 immediately.  The leaf state/power-admin-state for controller-card1 must also be POWER_DISABLED. The 'state/last-poweroff-reason/trigger' should show as USER_INITIATED. The NOS may optionally update /state/last-poweroff-reason/details. state/last-poweroff-time should record the time when the card was powered-off. For example:
 
