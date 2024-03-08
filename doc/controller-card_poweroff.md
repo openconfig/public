@@ -92,7 +92,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
 
 
 
-3. Both controller-cards are functional and the the secondary controller card is attempted to be shutdown
+3. Both controller-cards are functional and the the secondary controller card is attempted to be powered off.
 
     **Response:**
 
