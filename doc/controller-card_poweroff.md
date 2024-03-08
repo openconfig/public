@@ -121,7 +121,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
     **Response:**
 
 
-    This is as per expectations so inserting a new card into the chassis can happen anytime. However, bringing it online happens only in a controlled environment using a gNMI config push operation of `/components/component[controller-card#]/controller-card/config/power-admin-state = POWER_ENABLED`
+    This is as per expectations so inserting a new card into the chassis can happen anytime. However, bringing it online happens only in a controlled environment using a configuration change to set `/components/component[controller-card#]/controller-card/config/power-admin-state = POWER_ENABLED`
 
 
 7. Both controller-cards present during the initial boot operation. However, the controller card that is configured as "POWER\_DISABLED" boots up sooner than the other card and takes over the ACTIVE role.
