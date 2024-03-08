@@ -239,10 +239,10 @@ module openconfig-platform-types {
     leaf details {
       type string;
       description
-        "Records detailed description of why the power-off happened.
-        For example, when system initiated the power-off, this leaf
-        can be used to record the specific reason, e.g. due to critical errors 
-        leading to bootloop on a controller-card ";
+        "Provides a detailed reason for component power-off. 
+        For system-initiated power-offs, this field can include 
+        specific causes (e.g., critical errors resulting in a 
+        controller-card bootloop).";
     }
   }
 
@@ -508,6 +508,29 @@ module openconfig-platform-types {
     description
       "A generic type reflecting whether a hardware component
       is powered on or off";
+  }
+
+  identity COMPONENT_POWEROFF_REASON {
+    description
+      "Base entity for component power-off reasons.";
+  }
+
+  identity POWEROFF_USER_INITIATED {
+    base COMPONENT_POWEROFF_REASON;
+    description
+      "User initiated the power-off of the component.";
+  }
+
+  identity POWEROFF_POWER_FAILURE {
+    base COMPONENT_POWEROFF_REASON;
+    description
+      "The component powered-off due to power failure.";
+  }
+
+  identity POWEROFF_SYSTEM_INITIATED {
+    base COMPONENT_POWEROFF_REASON;
+    description
+      "The component is powered-off by system."
   }
 
   identity COMPONENT_REBOOT_REASON {
