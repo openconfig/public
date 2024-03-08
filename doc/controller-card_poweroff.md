@@ -7,7 +7,7 @@ This document describes operational use cases, rules and telemetry for power con
 
 
 
-1. Operator suspects faulty system behavior due to faulty hardware and wants to take it offline so they can revisit the issue in a maintenance window. But while this happens, the operator also wants to ensure that the card stays disabled across reboots so that the subject card does not take a primary role after reboot.
+1. Operator suspects a network device issue is occurring due faults on a CONTROLLER_CARD.  The operator wants to quickly disable the CONTROLLER_CARD and later, troubleshoot the issue in a maintenance window. The operator also wants to ensure that the card stays disabled even if the device is rebooted.
 2. It is possible that the faulty controller card is in a boot loop and the operator finds it best to disable the card to prevent undesired state. Expectations are also that the state persists even post a system reboot.
 3. Operator feels it important to keep the card shutdown to prevent unexpected outcomes post the physical swap of the faulty/alerting card so the operator can online the card in a controlled environment post replacement.
 4. Following an RMA, if a new issue arises or the original problem remains, operators may instruct field techs to leave the replacement card installed. This allows for replacement upon arrival or controlled troubleshooting. In these cases, the ability to control the card's operational state is advantageous.
