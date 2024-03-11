@@ -9,7 +9,7 @@ This document describes operational use cases, rules and telemetry for power con
    
    a. It is possible that the faulty controller card is in a boot loop and the operator finds it best to disable the card to prevent undesired state. Expectations are also that the power remains disabled  even after a system reboot.
    
-   b. CPU overheating, memory errors or hardware problems with certain components of the PRIMARY card may require the operator to proactively power-off the card and not let it be online during regular operation until RMA is completed.
+   b. CPU overheating, memory errors or other hardware problems with the PRIMARY card may require the operator to proactively power-off the card and not let it be online during regular operation until replacement of the hardware is completed.
    
 3. Operator feels it important to keep the card shutdown to prevent unexpected outcomes post the physical swap of the faulty/alerting card so the operator can online the card in a controlled environment post replacement.
 
