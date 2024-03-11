@@ -5,8 +5,6 @@ This document describes operational use cases, rules and telemetry for power con
 
 ## Operational use cases for CONTROLLER_CARD power control
 
-
-
 1. Operator suspects a network device issue is occurring due to faults on a CONTROLLER_CARD. The operator wants to quickly disable the CONTROLLER_CARD and later, troubleshoot the issue in a maintenance window. The operator also wants to ensure that the card stays disabled even if the device is rebooted. Some example scenarios below:
    
    a. It is possible that the faulty controller card is in a boot loop and the operator finds it best to disable the card to prevent undesired state. Expectations are also that the state persists even post a system reboot.
