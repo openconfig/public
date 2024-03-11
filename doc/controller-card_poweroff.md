@@ -1,6 +1,6 @@
 ## Controller Card Power Control
 
-This document describes operational use cases, rules and telemetry for power control of `CONTROLLER-CARD` components in network devices using OpenConfig.```
+This document describes operational use cases, rules and telemetry for power control of `CONTROLLER-CARD` components in network devices using OpenConfig.
 
 
 ## Operational use cases for CONTROLLER_CARD power control
