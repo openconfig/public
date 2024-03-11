@@ -24,7 +24,7 @@ Electrical power for a CONTROLLER_CARD can be configured off using the OC-Path [
              
 ### Scenario 1 - Power off a secondary CONTROLLER_CARD
 
-Let's say controller-card0 is PRIMARY and controller-card1 is SECONDARY and controller-card1 receives an operator driven change of config/power-admin-state = POWER_DISABLED, then controller-card0 will power-off controller-card1 immediately.  The leaf state/power-admin-state for controller-card1 must also be POWER_DISABLED. The 'state/last-poweroff-reason/trigger' should show as USER_INITIATED. The NOS may optionally update /state/last-poweroff-reason/details. state/last-poweroff-time should record the time when the card was powered-off. For example:
+Let's say controller-card0 is PRIMARY and controller-card1 is SECONDARY and controller-card1 receives an operator driven change of config/power-admin-state = POWER_DISABLED, then controller-card0 will power-off controller-card1 immediately.  The leaf state/power-admin-state for controller-card1 must also be POWER_DISABLED. The 'state/last-poweroff-reason/trigger' should show as USER_INITIATED. The NOS may optionally update state/last-poweroff-reason/details. state/last-poweroff-time should record the time when the card was powered-off. For example:
 
 ```
 /components/component[name=controller0]/state/redundant-role, PRIMARY
