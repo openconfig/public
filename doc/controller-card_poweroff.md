@@ -101,7 +101,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
     The shutdown can be initiated by pushing the command [/components/component[controller-card#]/controller-card/config/power-admin-state = POWER\_DISABLED](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-config-power-admin-state) to the box. As a result, the secondary controller card whose [/components/component/state/redundant-role](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-state-redundant-role) is SECONDARY
 
 
-    will be shutdown and its [/components/component[controller-card#]/controller-card/state/power-admin-state](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-state-power-admin-state) will change to "POWER\_DISABLED". This configuration is expected to stay sticky in the box and when the device reboots, the subject controller-card is expected to remain Powered-off.
+    will be shutdown and its [/components/component[name="my_secondary_controller-card"]/controller-card/state/power-admin-state](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-state-power-admin-state) will change to "POWER\_DISABLED".  If the configuration is saved and when the device reboots, the subject controller-card is expected to remain powered off.
 
 4. Both controller-cards are functional and the the primary controller card is attempted to be shutdown
 
