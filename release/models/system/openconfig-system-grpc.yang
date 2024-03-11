@@ -26,6 +26,11 @@ module openconfig-system-grpc {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
+  revision "2024-03-11" {
+    description
+     "add tls-profile-name, deprecate certificate-id"
+  }
+
   revision "2022-04-19" {
     description
       "Description and default value updates for grpc-server
@@ -161,10 +166,19 @@ module openconfig-system-grpc {
 
     leaf certificate-id {
       type string;
+      status deprecated;
       description
         "Name of the certificate that is associated with the gRPC service. The
         certificate ID is provisioned through other interfaces to the device, such
         as the gNOI certificate management service.";
+    }
+
+    leaf tls-profile-name {
+      type string;
+      description
+        "Name of the logical grouping of any
+        certificate+key/chained certificates/trusted CAs/CRLs,
+        which are associated with the gRPC server";
     }
 
     leaf metadata-authentication {

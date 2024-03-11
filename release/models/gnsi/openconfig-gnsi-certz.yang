@@ -30,13 +30,7 @@ module openconfig-gnsi-certz {
     "This module provides a data model for the metadata of gRPC credentials
     installed on a networking device.";
 
-  oc-ext:openconfig-version "0.7.0";
-
-  revision 2024-03-07 {
-    description
-      "add leaf to configure ssl-profile-id";
-    reference "0.7.0";
-  }
+  oc-ext:openconfig-version "0.6.0";
 
   revision 2024-03-05 {
     description
@@ -132,18 +126,6 @@ module openconfig-gnsi-certz {
     }
   }
 
-  grouping grpc-server-certz-ssl-profile-config {
-    description
-      "gRPC server ssl profile configuration";
-
-    leaf ssl-profile-id {
-      type string;
-      description
-        "The ID of this gRPC server's SSL profile
-        as used by the gNSI Certz service";
-    }
-  }
-
   // TODO(earies): move to a system-wide subtree:
   // https://github.com/openconfig/public/issues/1049
   grouping grpc-server-credentials-state {
@@ -201,8 +183,12 @@ module openconfig-gnsi-certz {
         "The timestamp of the moment when the authentication policy
         that is currently used by this gRPC server was created.";
     }
-
-    uses grpc-server-certz-ssl-profile-config;
+    leaf ssl-profile-id {
+      type string;
+      description
+        "The ID of this gRPC server's SSL profile
+        as used by the gNSI Certz service";
+    }
   }
 
   // Augments section.
@@ -222,14 +208,5 @@ module openconfig-gnsi-certz {
     uses grpc-server-certz-counters;
     description
       "gNSI certz server access counters.";
-  }
-
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
-          "oc-sys-grpc:config" {
-    when "../config[contains(services, 'oc-gnsi:GNSI')]/enable = 'true'";
-    description
-      "gRPC server ssl profile configuration";
-
-    uses grpc-server-certz-ssl-profile-config;
   }
 }
