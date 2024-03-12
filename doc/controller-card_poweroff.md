@@ -72,12 +72,9 @@ After controller-card0 transitions to redundant-role SECONDARY:
 
 4. When a controller card boots up and loads it’s configuration, power-admin-state may be set to POWER_DISABLED. The CONTROLLER_CARD should then power off and never enter into any controller card primary/secondary election process. This also means that an implementation shouldn't start a controller card election process until the configuration is loaded and consumed.
 
-5. If the chassis has a single controller card and it was configured for config/power-admin-state=POWER_DISABLED, as per Rule#1 above, its state/power-admin-state will stay as POWER_ENABLED given that its state/redundant-role=PRIMARY. However during the next reboot, if the chassis continues to have only one controller-card then it must ignore the configuration of config/power-admin-state=POWER_DISABLED and continue to bootup as PRIMARY. In this situation though, the implementation must send a Syslog message of the severity "Warning" to inform the Operator about the situation. Post reboot, the config/power-admin-state=POWER_DISABLED will stay as is and state/power-admin-state will continue to show as POWER_ENABLED. In this case, state/last-poweroff-time, state/last-poweroff-reason/trigger and state/last-poweroff-reason/details must not be updated
-
+5. If the chassis has a single controller card and it was configured for config/power-admin-state=POWER_DISABLED, as per Rule#1 above, its state/power-admin-state will stay as POWER_ENABLED given that its state/redundant-role=PRIMARY. However during the next warm reboot, if the chassis continues to have only one controller-card then it must ignore the configuration of config/power-admin-state=POWER_DISABLED and continue to bootup as PRIMARY. In this situation though, the implementation must send a Syslog message of the severity "Warning" to inform the Operator about the situation. Post reboot, the config/power-admin-state=POWER_DISABLED will stay as is and state/power-admin-state will continue to show as POWER_ENABLED. In this case, if it was a warm reboot then the following must not be updated, state/last-poweroff-time, state/last-poweroff-reason/trigger and state/last-poweroff-reason/details. The same leaves must be updated for cold reboots.
 
 ## Concerns and possible failure scenarios
-
-
 
 1. If a PRIMARY card malfunctions and ends up in a bootloop, would this approach help?
 
@@ -140,4 +137,18 @@ After controller-card0 transitions to redundant-role SECONDARY:
     **Response:**
    
     If during reboot the device continues to have a single controller-card, then Rule#5 above should be followed.
+
+9. According to Rule#5, a controller-card must ignore the configuration of `config/power-admin-state=POWER_DISABLED` and must continue with its boot process if it is the only controller-card in the chassis. This also means that, under split-brain situations when the communication between the controller-cards is broken, the option to use config/power-admin-state=POWER_DISABLED for one of the cards may not help post reboot?
+
+   **Response**
+
+    Lets walk through this situation to set the right context. We have a dual controller-card system which due to some reason (Hardware/Soaftware failure) got in to a split-brain scenaio. As per the question here, the operator decides to use `config/power-admin-state=POWER_DISABLED` command on one of the cards, somehow intiatiates a reboot process (Cold or Warm) and expects that the controller-card with `config/power-admin-state=POWER_DISABLED` stays diabled post reboot. There are several assumptions and nuances to this situation:
+
+   a. One of the assumptions is that, the device is in a split-brain situation and would still allow connections for a configuration change.
+   
+   b. If somehow "9.a" above works, since the controller-card expects itself to be the master, it will not power-down immediately as per Rule#1 above. Therefore the Chassis would need to be cold booted.
+
+Now after the system reboots following "b", if we consider that the original problem of broken communication between the controller-cards persists, the configration of `config/power-admin-state=POWER_DISABLED` on one of the controller-cards wouldn't help because of Rule#5 above. However, it is expected that the implementation has other hardware/software means to gracefully handle the split-brain situation. The proposal here to allow for power-disable of a controller-card using configuration has no impact whatsoever on the implementations ability to handle split-brain like conditions. 
+   
+   
    
