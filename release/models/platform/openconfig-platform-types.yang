@@ -235,8 +235,14 @@ module openconfig-platform-types {
       }
       type component-last-poweroff-reason-trigger;
       description        
-        "Records the generic triggers, e.g. user or system
-        initiated the power-off.";
+        "Records the generic triggers for the last poweroff
+        event. Component power-off can be triggered 
+        in various ways,
+           - USER_INITIATED
+           - SYSTEM_INITIATED
+           - POWER_FAILURE
+        This field is not updated during reboots; those are 
+        tracked in the 'last-reboot-reason' leaf.";
     }
 
     leaf details {
@@ -592,4 +598,24 @@ module openconfig-platform-types {
     description
       "Records how the role switchover is triggered.";
   }
+
+  typedef component-last-poweroff-reason-trigger {
+      type enumeration {
+        enum USER_INITIATED {
+          description
+            "User initiated the power-off, e.g. via command line.";
+        }
+        enum SYSTEM_INITIATED {
+          description
+            "The system initiated the power-off, e.g. due to
+            critical errors in the component of the primary role.";
+        }
+        enum POWER_FAILURE {
+          description
+            "The last power-off was due to power failure";
+        }
+      }
+      description
+        "Records how the last power-off was triggered.";
+    }
 }
