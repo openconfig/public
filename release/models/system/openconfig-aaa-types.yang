@@ -22,7 +22,13 @@ module openconfig-aaa-types {
     "This module defines shared types for data related to AAA
     (authentication, authorization, accounting).";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.4.2";
+
+  revision "2024-03-12" {
+    description
+      "Add password-mode-type.";
+    reference "0.4.2";
+  }
 
   revision "2018-11-21" {
     description
@@ -166,6 +172,28 @@ module openconfig-aaa-types {
         6 | SHA-512
 
       These may not all be supported by a target device.";
+  }
+
+  typedef password-mode-type {
+    type enumeration {
+      enum PASSWORD_DISABLED {
+        description
+          "The user cannot use password to log in.";
+      }
+      enum PASSWORD_NOT_REQUIRED {
+        description
+          "The user can log in without entering a password.";
+      }
+      enum PASSWORD_REQUIRED {
+        description
+          "The user is required to log in with a password, and
+          the password is hashed and stored in the system. If
+          choosing this mode, the operator should also supply
+          the user password, as a hashed value or cleartext.";
+      }
+    }
+    description
+      "Configure the mode of the password for user.";
   }
 
 
