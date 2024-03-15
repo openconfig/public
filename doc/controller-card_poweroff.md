@@ -74,6 +74,8 @@ After controller-card0 transitions to redundant-role SECONDARY:
 
 5. If the chassis has a single controller card and it was configured for config/power-admin-state=POWER_DISABLED, as per Rule#1 above, its state/power-admin-state will stay as POWER_ENABLED given that its state/redundant-role=PRIMARY. However during the next warm reboot, if the chassis continues to have only one controller-card then it must ignore the configuration of config/power-admin-state=POWER_DISABLED and continue to bootup as PRIMARY. In this situation though, the implementation must send a Syslog message of the severity "Warning" to inform the Operator about the situation. Post reboot, the config/power-admin-state=POWER_DISABLED will stay as is and state/power-admin-state will continue to show as POWER_ENABLED. In this case, if it was a warm reboot then the following must not be updated, state/last-poweroff-time, state/last-poweroff-reason/trigger and state/last-poweroff-reason/details. The same leaves must be updated for cold reboots.
 
+
+
 ## Concerns and possible failure scenarios
 
 1. If a PRIMARY card malfunctions and ends up in a bootloop, would this approach help?
