@@ -16,11 +16,11 @@ This document describes operational use cases, rules and telemetry for power con
 
 ## CONTROLLER_CARD power and redundancy requirements 
 
-Electrical power for a CONTROLLER_CARD can be configured off using the OC-Path [/components/component/controller-card/config/power-admin-state](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-config-power-admin-state) and setting its value to POWER\_DISABLED.  The following rules regarding CONTROLLER_CARD redundancy and changes to `power-admin-state` should be followed by the device:
+Electrical power for a CONTROLLER_CARD can be configured off using the OC-Path [/components/component/controller-card/config/power-admin-state](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-config-power-admin-state) and setting its value to POWER\_DISABLED.  The following rules regarding CONTROLLER_CARD redundancy and changes to `power-admin-state` must be followed by the device:
 
 
 
-1. Only a CONTROLLER_CARD in `state/redundant-role` 'SECONDARY' will honor a change in `config/power-admin-state` to POWER_DISABLED. If the controller-card's `redundant-role` is 'PRIMARY', and its `config/power-admin-state` is set to 'POWER_DISABLED', the NOS must allow the configuration. However, the `state/power-admin-state` should remain as 'POWER_ENABLED'.  A change in `state/power-admin-state` must take effect only on the next reboot or if the CONTROLLER_CARD becomes 'SECONDARY'. Examples of scenarios include:
+1. Only a CONTROLLER_CARD in `state/redundant-role` 'SECONDARY' will honor a change in `config/power-admin-state` to POWER_DISABLED. If the controller-card's `redundant-role` is 'PRIMARY', and its `config/power-admin-state` is set to 'POWER_DISABLED', the NOS must allow the configuration. However, the `state/power-admin-state` must remain as 'POWER_ENABLED'.  A change in `state/power-admin-state` must take effect only on the next reboot or if the CONTROLLER_CARD is 'SECONDARY'. Examples of scenarios include:
              
 ### Scenario 1 - Power off a secondary CONTROLLER_CARD
 
@@ -40,7 +40,7 @@ Let's say controller-card0 is PRIMARY and controller-card1 is SECONDARY and cont
 
 ### Scenario 2 - Power off primary CONTROLLER_CARD
     
-If controller-card0 is PRIMARY and controller-card1 is SECONDARY and if controller-card0 is set to config/power-admin-state = POWER_DISABLED by an operator, then controller-card0 will stay powered-on until the next reboot. `state/power-admin-state` must show as POWER_ENABLED. If a reboot of the PRIMARY CONTROLLER_CARD occurs,  `state/last-poweroff-time` should record the time when the card powers-off, `state/last-poweroff-reason/trigger` should show as USER_INITIATED and `/state/last-poweroff-reason/details` may be updated. For example: 
+If controller-card0 is PRIMARY and controller-card1 is SECONDARY and if controller-card0 is set to config/power-admin-state = POWER_DISABLED by an operator, then controller-card0 will stay powered-on until the next reboot. `state/power-admin-state` must show as POWER_ENABLED. If a reboot of the PRIMARY CONTROLLER_CARD occurs,  `state/last-poweroff-time` must record the time when the card powers-off, `state/last-poweroff-reason/trigger` must show as USER_INITIATED and `/state/last-poweroff-reason/details` may be updated. For example: 
 
 When controller-card0 is PRIMARY:
 
@@ -66,15 +66,21 @@ After controller-card0 transitions to redundant-role SECONDARY:
 /components/component[name=controller1]/controller-card/state/power-admin-state, POWER_ENABLED
 ```
 
-2. A controller-card which is in state/redundant-role=SECONDARY and is config/power-admin-state=POWER_DISABLED should remain powered off, even after a reboot. It is possible that after a reboot, both the controller cards are powered-on. However as soon as the configuration is loaded, the system should power-off the subject controller-card.
+2. A controller-card which is in state/redundant-role=SECONDARY and is config/power-admin-state=POWER_DISABLED must remain powered off, even after a reboot. It is possible that after a reboot, both the controller cards are powered-on. However as soon as the configuration is loaded, the system must power-off the subject controller-card.
 
 3. A CONTROLLER_CARD in redundant-role SECONDARY and state/power-admin-state = POWER_DISABLED cannot transition to redundant-role PRIMARY. If the PRIMARY CONTROLLER_CARD goes down, the device will be offline.
 
-4. When a controller card boots up and loads it’s configuration, power-admin-state may be set to POWER_DISABLED. The CONTROLLER_CARD should then power off and never enter into any controller card primary/secondary election process. This also means that an implementation shouldn't start a controller card election process until the configuration is loaded and consumed.
+4. When a controller card boots up and loads it’s configuration, power-admin-state may be set to POWER_DISABLED. The CONTROLLER_CARD must then power off and never enter into any controller card primary/secondary election process. This also means that an implementation shouldn't start a controller card election process until the configuration is loaded and consumed.
 
-5. If the chassis has a single controller card and it was configured for config/power-admin-state=POWER_DISABLED, as per Rule#1 above, its state/power-admin-state will stay as POWER_ENABLED given that its state/redundant-role=PRIMARY. However during the next warm reboot, if the chassis continues to have only one controller-card then it must ignore the configuration of config/power-admin-state=POWER_DISABLED and continue to bootup as PRIMARY. In this situation though, the implementation must send a Syslog message of the severity "Warning" to inform the Operator about the situation. Post reboot, the config/power-admin-state=POWER_DISABLED will stay as is and state/power-admin-state will continue to show as POWER_ENABLED. In this case, if it was a warm reboot then the following must not be updated, state/last-poweroff-time, state/last-poweroff-reason/trigger and state/last-poweroff-reason/details. The same leaves must be updated for cold reboots.
+	**Note:-** If an implementation's architecture do not allow for controlling the order in which the configuration is loaded and the PRIMARY/SECONDARY election process, then this rule can be relaxed as long as the implementation has proper arrangements to power-off the controller-card with `config/power-admin-state=POWER_DISABLED` configuration during reboots (Warm/Cold). 
+   
+
+5. If the chassis has a single controller card and it was configured for config/power-admin-state=POWER_DISABLED, as per Rule#1 above, its state/power-admin-state will stay as POWER_ENABLED given that its state/redundant-role=PRIMARY. However during the next warm/cold reboot, if the chassis continues to have only one controller-card then it must ignore the configuration of config/power-admin-state=POWER_DISABLED and continue to bootup as PRIMARY. In this situation though, the implementation must send a Syslog message of the severity "Warning" to inform the Operator about the situation. Post reboot, the config/power-admin-state=POWER_DISABLED will stay as is and state/power-admin-state will continue to show as POWER_ENABLED. In this case, if it was a warm reboot then the following must not be updated, state/last-poweroff-time, state/last-poweroff-reason/trigger and state/last-poweroff-reason/details. The same leaves must be updated for cold reboots.
 
 
+## Flowchart on the Rules above:
+
+![Overview of the expected behavior](img/controller_card_poweroff.png)
 
 ## Concerns and possible failure scenarios
 
@@ -83,7 +89,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
     **Response:**
 
 
-    In this scenario the expectations are that the implementation takes steps to initiate a controller-card switchover operation. Therefore, the standby controller card takes over the PRIMARY role and the system stabilizes allowing for gRPC connections to be established. In this situation if the operator pushes a configuration to shutdown the SECONDARY card, the PRIMARY card must be able to power-off the SECONDARY controller-card. In this scenario the implementation (depending on their architecture) may also initiate a shutdown of the faulty card from the new PRIMARY card.
+    In this scenario the expectations are that the implementation takes steps to initiate a controller-card switchover operation. Therefore, the standby controller card takes over the PRIMARY role and the system stabilizes allowing for gRPC connections to be established. In this situation if the operator pushes a configuration to shutdown the SECONDARY card, the PRIMARY card must be able to power-off the SECONDARY controller-card. In this scenario, the implementation (depending on their architecture) may also initiate a shutdown of the faulty card from the new PRIMARY card.
 
 2. Since the operation relies on configuration, it is possible that the failure scenario may kick in before the configuration takes effect post a reboot.
 
@@ -99,10 +105,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
     **Response:**
 
 
-    The shutdown can be initiated by pushing the command [/components/component[controller-card#]/controller-card/config/power-admin-state = POWER\_DISABLED](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-config-power-admin-state) to the box. As a result, the secondary controller card whose [/components/component/state/redundant-role](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-state-redundant-role) is SECONDARY
-
-
-    will be shutdown and its [/components/component[name="my_secondary_controller-card"]/controller-card/state/power-admin-state](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-state-power-admin-state) will change to "POWER\_DISABLED".  If the configuration is saved and when the device reboots, the subject controller-card is expected to remain powered off.
+    The shutdown can be initiated by pushing the command [/components/component[controller-card#]/controller-card/config/power-admin-state = POWER\_DISABLED](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-config-power-admin-state) to the box. As a result, the secondary controller card whose [/components/component/state/redundant-role](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-state-redundant-role) is SECONDARY will be shutdown and its [/components/component[name="my_secondary_controller-card"]/controller-card/state/power-admin-state](https://openconfig.net/projects/models/schemadocs/yangdoc/openconfig-platform.html#components-component-controller-card-state-power-admin-state) will change to "POWER\_DISABLED".  If the configuration is saved and when the device reboots, the subject controller-card is expected to remain powered off.
 
 4. Both controller-cards are functional and the the primary controller card is attempted to be shutdown
 
@@ -123,7 +126,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
     **Response:**
 
 
-    The new card should remain powered off.  Power should only be enabled on the new card by a configuration change to set `/components/component[controller-card#]/controller-card/config/power-admin-state = POWER_ENABLED`
+    The new card must remain powered off.  Power should only be enabled on the new card by a configuration change to set `/components/component[controller-card#]/controller-card/config/power-admin-state = POWER_ENABLED`
 
 
 7. Both controller-cards present during the initial boot operation. However, the controller card that is configured as "POWER\_DISABLED" boots up sooner than the other card and takes over the ACTIVE role.
@@ -131,7 +134,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
     **Response:**
 
 
-    The controller cards should never take PRIMARY/SECONDARY roles unless the configuration is fully loaded and processed. Hence, once the configuration is loaded, the card configured to be "POWER\_DISABLED" should shutdown. The only exception is when it is the only controller card in the chassis. In which case, Rule#5 above must be followed.
+    Follow Rule#4 above. The only exception is when it is the only controller card in the chassis. In the latter case, Rule#5 above must be followed.
 
 
 8. Say we have a situation whereby, A dual controller card device is functional, secondary is powered off by changing power-admin-state to POWER\_DISABLED. Later, the PRIMARY card is removed and the system goes offline. If the device is rebooted (for example via externally removing and reapplying power ), what should happen?
@@ -140,7 +143,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
    
     If during reboot the device continues to have a single controller-card, then Rule#5 above should be followed.
 
-9. According to Rule#5, a controller-card must ignore the configuration of `config/power-admin-state=POWER_DISABLED` and must continue with its boot process if it is the only controller-card in the chassis. This also means that, under split-brain situations when the communication between the controller-cards is broken, the option to use config/power-admin-state=POWER_DISABLED for one of the cards may not help post reboot?
+9. According to Rule#5, a controller-card must ignore the configuration of `config/power-admin-state=POWER_DISABLED` and must continue with its boot process if it is the only controller-card in the chassis. This also means that, under split-brain situations when the communication between the controller-cards is broken, the option to use `config/power-admin-state=POWER_DISABLED` for one of the cards may not help post reboot?
 
    **Response**
 
@@ -148,9 +151,9 @@ After controller-card0 transitions to redundant-role SECONDARY:
 
    a. One of the assumptions is that, the device is in a split-brain situation and would still allow connections for a configuration change.
    
-   b. If somehow "9.a" above works, since the controller-card expects itself to be the master, it will not power-down immediately as per Rule#1 above. Therefore the Chassis would need to be cold booted.
+   b. If somehow "9.a" above works, since both the controller-cards expect to be the master, none will power-down immediately as per Rule#1 above. Therefore the Chassis would need to be cold booted.
 
-Now after the system reboots following "b", if we consider that the original problem of broken communication between the controller-cards persists, the configration of `config/power-admin-state=POWER_DISABLED` on one of the controller-cards wouldn't help because of Rule#5 above. However, it is expected that the implementation has other hardware/software means to gracefully handle the split-brain situation. The proposal here to allow for power-disable of a controller-card using configuration has no impact whatsoever on the implementations ability to handle split-brain like conditions. 
+Now after the system reboots following "9.b", if we consider that the original problem of broken communication between the controller-cards persists, the configration of `config/power-admin-state=POWER_DISABLED` on one of the controller-cards wouldn't help because of Rule#5 above. However, it is expected that the implementation has other hardware/software means to gracefully handle the split-brain situation. The proposal here to allow for power-disable of a controller-card using configuration has no impact whatsoever on the implementations ability to handle split-brain like conditions. 
    
    
    
