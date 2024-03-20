@@ -622,6 +622,14 @@ module openconfig-platform {
         "The threshold value for high temperature.";
     }
 
+    leaf alarm-severity-low {
+        type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The severity of the current low temperature alarm.";
+    }
+
     leaf alarm-threshold-high {
       type decimal64 {
         fraction-digits 1;
@@ -629,6 +637,14 @@ module openconfig-platform {
       units celsius;
       description
         "The threshold value for low temperature.";
+    }
+
+    leaf alarm-severity-high {
+        type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The severity of the current high temperature alarm.";
     }
 
     leaf alarm-threshold {
@@ -639,7 +655,8 @@ module openconfig-platform {
     }
 
     leaf alarm-severity {
-      type identityref {
+        status deprecated;
+        type identityref {
         base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
       }
       description
