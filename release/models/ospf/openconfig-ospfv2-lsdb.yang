@@ -229,21 +229,11 @@ grouping ospfv2-lsdb-router-lsa-link-state-specification {
       including the link metric (which is referred to as TOS 0).";
   }
 
-  uses ospfv2-lsdb-generic-lsa-tos-metric-structure;
 }
 
   grouping ospfv2-lsdb-router-lsa-link-specification {
     description
       "Attributes used to identify links within OSPFv2 router lsa.";
-
-    leaf link-id {
-      type yang:dotted-quad;
-      status obsolete;
-      description
-        "The identifier for the link specified. This leaf is
-        obsolete because a router-lsa contains a list of links.
-        The links container should be used instand of link-id.";
-    }
 
     container links {
       description
@@ -270,6 +260,8 @@ grouping ospfv2-lsdb-router-lsa-link-state-specification {
 
           uses ospfv2-lsdb-router-lsa-link-state-specification;
         }
+        uses ospfv2-lsdb-generic-lsa-tos-metric-structure;
+
       }
     }
   }
@@ -1260,6 +1252,15 @@ grouping ospfv2-lsdb-router-lsa-link-state-specification {
   grouping ospfv2-lsdb-router-lsa-state {
     description
       "Parameters of the router LSA";
+
+    leaf link-id {
+      type yang:dotted-quad;
+      status obsolete;
+      description
+        "The identifier for the link specified. This leaf is
+        obsolete because a router-lsa contains a list of links.
+        The links container should be used instand of link-id.";
+    }
 
     leaf metric {
       type oc-ospf-types:ospf-metric;
