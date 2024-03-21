@@ -186,6 +186,52 @@ submodule openconfig-ospfv2-lsdb {
 
   }
 
+grouping ospfv2-lsdb-router-lsa-link-state-specification {
+
+  leaf link-id {
+    type yang:dotted-quad;
+    description
+      "The identifier for the link specified. The value of the link
+      identifier is dependent upon the type of the LSA. The value is
+      specified to be, per sub-type:
+        1) Neighbouring router's router ID.
+        2) IP address of DR.
+        3) IP network address.
+        4) Neighbouring router router's ID.";
+  }
+
+  leaf type {
+    type identityref {
+      base "oc-ospf-types:ROUTER_LSA_TYPES";
+    }
+    description
+      "The sub-type of the Router LSA.";
+  }
+
+  leaf link-data {
+    type union {
+      type yang:dotted-quad;
+      type uint32;
+    }
+    description
+      "The data associated with the link type. The value is
+      dependent upon the subtype of the LSA. When the connection is
+      to a stub network it represents the mask; for p2p connections
+      that are unnumbered it represents the ifIndex value of the
+      router's interface; for all other connections it represents
+      the local system's IP address";
+  }
+
+  leaf number-tos-metrics {
+    type uint16;
+    description
+      "The number of different TOS metrics given for this link, not
+      including the link metric (which is referred to as TOS 0).";
+  }
+
+  uses ospfv2-lsdb-generic-lsa-tos-metric-structure;
+}
+
   grouping ospfv2-lsdb-router-lsa-link-specification {
     description
       "Attributes used to identify links within OSPFv2 router lsa.";
@@ -200,54 +246,30 @@ submodule openconfig-ospfv2-lsdb {
     }
 
     container links {
+      description
+        "Container for list of Router LSA links.";
+
+
       list link {
         key "link-id";
         description
           "A router-lsa may have multiple link-id entries.";
 
         leaf link-id {
-          type yang:dotted-quad;
-          description
-            "The identifier for the link specified. The value of the link
-            identifier is dependent upon the type of the LSA. The value is
-            specified to be, per sub-type:
-              1) Neighbouring router's router ID.
-              2) IP address of DR.
-              3) IP network address.
-              4) Neighbouring router router's ID.";
-        }
-
-        leaf type {
-          type identityref {
-            base "oc-ospf-types:ROUTER_LSA_TYPES";
+          type leafref {
+            path "../state/link-id";
           }
           description
-            "The sub-type of the Router LSA.";
+            "Reference to the type of service identifier which is
+            specified in the LSA";
         }
 
-        leaf link-data {
-          type union {
-            type yang:dotted-quad;
-            type uint32;
-          }
+        container state {
           description
-            "The data associated with the link type. The value is
-            dependent upon the subtype of the LSA. When the connection is
-            to a stub network it represents the mask; for p2p connections
-            that are unnumbered it represents the ifIndex value of the
-            router's interface; for all other connections it represents
-            the local system's IP address";
+            "Per-link parameters for a router-lsa.";
+
+          uses ospfv2-lsdb-router-lsa-link-state-specification;
         }
-
-        leaf number-tos-metrics {
-          type uint16;
-          description
-            "The number of different TOS metrics given for this link, not
-            including the link metric (which is referred to as TOS 0).";
-        }
-
-        uses ospfv2-lsdb-generic-lsa-tos-metric-structure;
-
       }
     }
   }
