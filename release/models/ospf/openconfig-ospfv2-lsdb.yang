@@ -184,6 +184,15 @@ submodule openconfig-ospfv2-lsdb {
     description
       "Attributes used to identify links within OSPFv2 router lsa.";
 
+    leaf link-id {
+      type yang:dotted-quad;
+      status obsolete;
+      description
+        "The identifier for the link specified. This leaf is 
+        obsolete because a router-lsa contains a list of links.
+        The links container should be used instand of link-id.";
+    }
+
     container links {
       list link {
         key "link-id";
