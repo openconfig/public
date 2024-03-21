@@ -324,6 +324,25 @@ submodule openconfig-qos-interfaces {
         the system.";
     }
   }
+  
+  typedef packet-type {
+    description
+      "This type defines type of packets that flow through a queue within an interface.";
+    type enumeration {
+      enum UC {
+        description
+          "This enum describes unicast packet type.";
+      }
+      enum MC {
+        description
+          "This enum describes multicast packet type.";
+      }
+      enum MIXEDUCMC {
+        description
+          "This enum describes either unicast or multicast packet type.";
+      }
+    }
+  }
 
   grouping qos-interface-queue-root-config {
     description
@@ -434,6 +453,18 @@ submodule openconfig-qos-interfaces {
         - octets enqueued while queue utilization was between min-threshold and max-threshold, with probability derived from RED/WRED slope
 
         Octets are counted regardless of its ECN codepoint";
+    }
+    
+    leaf dropped-octets {
+      type oc-yang:counter64;
+      description
+        "Number of octets dropped by the queue due to overrun.";
+    }
+    
+    leaf queue-type {
+      type packet-type;
+      description
+        "Indicates the type of packets that are currently flowing through the queue.";
     }
   }
 
