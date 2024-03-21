@@ -22,7 +22,15 @@ module openconfig-telemetry {
     "Data model which creates the configuration for the telemetry
      systems and functions on the device.";
 
-  oc-ext:openconfig-version "0.5.1";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2023-01-05" {
+    description
+      "Move sample-interval, heartbeat-interval and
+      suppress-redundant dynamic-subscription fields
+      to per sensor-path.";
+    reference "0.6.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -448,9 +456,6 @@ module openconfig-telemetry {
 
                 uses telemetry-subscription-config;
                 uses telemetry-stream-destination-config;
-                uses telemetry-stream-frequency-config;
-                uses telemetry-heartbeat-config;
-                uses telemetry-suppress-redundant-config;
                 uses telemetry-qos-marking-config;
                 uses telemetry-stream-protocol-config;
                 uses telemetry-stream-encoding-config;
@@ -516,6 +521,10 @@ module openconfig-telemetry {
            values";
           //May not be necessary. Could remove.
       }
+
+      uses telemetry-stream-frequency-config;
+      uses telemetry-heartbeat-config;
+      uses telemetry-suppress-redundant-config;
   }
 
   grouping telemetry-heartbeat-config {
