@@ -22,7 +22,13 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.23.0";
+  oc-ext:openconfig-version "0.24.0";
+
+  revision "2024-03-20" {
+    description
+      "FlexO support and 800GBE support.";
+     reference "0.24.0";
+  }
 
   revision "2024-03-12" {
     description
@@ -808,6 +814,11 @@ module openconfig-transport-types {
     description "400G Ethernet protocol";
   }
 
+  identity PROT_800GE {
+    base TRIBUTARY_PROTOCOL_TYPE;
+    description "800G Ethernet protocol";
+  }
+
   identity PROT_OTSIG {
     base TRIBUTARY_PROTOCOL_TYPE;
     description "Optical tributary signal group protocol";
@@ -816,6 +827,11 @@ module openconfig-transport-types {
   identity PROT_ODUFLEX_CBR {
     base TRIBUTARY_PROTOCOL_TYPE;
     description "ODU Flex with CBR protocol";
+  }
+
+  identity PROT_FLEXO {
+    base TRIBUTARY_PROTOCOL_TYPE;
+    description "FlexO protocol";
   }
 
   identity PROT_ODUFLEX_GFP {
@@ -998,7 +1014,7 @@ module openconfig-transport-types {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
     description
       "Octal small form factor pluggable transceiver supporting
-      400 Gb/s.";
+      400 Gb/s or 800 Gb/s.";
   }
 
   identity NON_PLUGGABLE {
