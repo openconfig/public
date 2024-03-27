@@ -22,7 +22,13 @@ submodule openconfig-ospfv2-lsdb {
     "An OpenConfig model for the Open Shortest Path First (OSPF)
     version 2 link-state database (LSDB)";
 
-  oc-ext:openconfig-version "0.5.1";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2024-03-21" {
+    description
+      "Refactor router-lsa link-id to a list of links.";
+    reference "0.6.0";
+  }
 
   revision "2023-11-01" {
     description
@@ -178,6 +184,88 @@ submodule openconfig-ospfv2-lsdb {
         the local system's IP address";
     }
 
+  }
+
+grouping ospfv2-lsdb-router-lsa-link-state-specification {
+  description
+    "Attributes used to identify router-lsa links within OSPFv2.";
+
+  leaf link-id {
+    type yang:dotted-quad;
+    description
+      "The identifier for the link specified. The value of the link
+      identifier is dependent upon the type of the LSA. The value is
+      specified to be, per sub-type:
+        1) Neighbouring router's router ID.
+        2) IP address of DR.
+        3) IP network address.
+        4) Neighbouring router router's ID.";
+  }
+
+  leaf type {
+    type identityref {
+      base "oc-ospf-types:ROUTER_LSA_TYPES";
+    }
+    description
+      "The sub-type of the Router LSA.";
+  }
+
+  leaf link-data {
+    type union {
+      type yang:dotted-quad;
+      type uint32;
+    }
+    description
+      "The data associated with the link type. The value is
+      dependent upon the subtype of the LSA. When the connection is
+      to a stub network it represents the mask; for p2p connections
+      that are unnumbered it represents the ifIndex value of the
+      router's interface; for all other connections it represents
+      the local system's IP address";
+  }
+
+  leaf number-tos-metrics {
+    type uint16;
+    description
+      "The number of different TOS metrics given for this link, not
+      including the link metric (which is referred to as TOS 0).";
+  }
+
+}
+
+  grouping ospfv2-lsdb-router-lsa-link-specification {
+    description
+      "Attributes used to identify links within OSPFv2 router lsa.";
+
+    container links {
+      description
+        "Container for list of Router LSA links.";
+
+
+      list link {
+        key "link-id";
+        description
+          "A router-lsa may have multiple link-id entries.";
+
+        leaf link-id {
+          type leafref {
+            path "../state/link-id";
+          }
+          description
+            "Reference to the type of service identifier which is
+            specified in the LSA";
+        }
+
+        container state {
+          description
+            "Per-link parameters for a router-lsa.";
+
+          uses ospfv2-lsdb-router-lsa-link-state-specification;
+        }
+        uses ospfv2-lsdb-generic-lsa-tos-metric-structure;
+
+      }
+    }
   }
 
   grouping ospfv2-lsdb-common-unknown-tlv {
@@ -360,8 +448,8 @@ submodule openconfig-ospfv2-lsdb {
           "State parameters of the router LSA";
         uses ospfv2-lsdb-router-lsa-state;
       }
+      uses ospfv2-lsdb-router-lsa-link-specification;
 
-      uses ospfv2-lsdb-generic-lsa-tos-metric-structure;
     }
   }
 
@@ -1167,16 +1255,6 @@ submodule openconfig-ospfv2-lsdb {
     description
       "Parameters of the router LSA";
 
-    leaf type {
-      type identityref {
-        base "oc-ospf-types:ROUTER_LSA_TYPES";
-      }
-      description
-        "The sub-type of the Router LSA.";
-    }
-
-    uses ospfv2-lsdb-common-link-specification;
-
     leaf metric {
       type oc-ospf-types:ospf-metric;
       description
@@ -1187,13 +1265,6 @@ submodule openconfig-ospfv2-lsdb {
       type uint16;
       description
         "The number of links that are described within the LSA";
-    }
-
-    leaf number-tos-metrics {
-      type uint16;
-      description
-        "The number of different TOS metrics given for this link, not
-        including the link metric (which is referred to as TOS 0).";
     }
   }
 
