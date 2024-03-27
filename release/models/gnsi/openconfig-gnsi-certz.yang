@@ -30,12 +30,18 @@ module openconfig-gnsi-certz {
     "This module provides a data model for the metadata of gRPC credentials
     installed on a networking device.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision 2024-03-14 {
+    description
+      "remove ssl-profile-id comment";
+    reference "0.7.0";
+  }
 
   revision 2024-03-05 {
     description
       "rename access/reject counters";
-    reference "0.6.0";
+    reference "0.7.0";
   }
 
   revision 2024-02-13 {
@@ -183,9 +189,6 @@ module openconfig-gnsi-certz {
         "The timestamp of the moment when the authentication policy
         that is currently used by this gRPC server was created.";
     }
-    // TODO(earies): Consider aligning this with grpc-server key after moving
-    // to a system-wide subtree:
-    // https://github.com/openconfig/public/issues/1050
     leaf ssl-profile-id {
       type string;
       description
