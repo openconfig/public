@@ -54,7 +54,13 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.6.2";
+  oc-ext:openconfig-version "1.7.0";
+
+  revision "2024-02-28" {
+    description
+      "ISIS graceful-restart timers and per-level configuration.";
+    reference "1.7.0";
+  }
 
   revision "2024-02-20" {
     description
@@ -925,7 +931,60 @@ module openconfig-isis {
         graceful restart procedures during its own restart, but supports
         retaining forwarding information during a remote speaker's restart.";
     }
-    reference "RFC 5306: Restart Signaling for IS-IS.";
+
+    leaf non-planned-only {
+      type boolean;
+      description
+        "When this leaf is set to TRUE, planned restart procedures as
+        described in RFC 8706 are not used.";
+      reference
+      "RFC 5706: Restart Signaling for IS-IS";
+    }
+
+    reference
+      "RFC 5306: Restart Signaling for IS-IS; RFC 5706: Restart Signaling
+      for IS-IS";
+  }
+
+  grouping isis-graceful-restart-level-config {
+    description
+      "This grouping defines ISIS graceful restart configuration relevant
+      for ISIS level/LSDB";
+
+    leaf restart-time {
+      type uint16;
+      default 30;
+      description
+        "Value of RFC5306/RFC8706 T2 timer";
+    }
+
+    reference
+      "RFC 5306: Restart Signaling for IS-IS; RFC 5706: Restart Signaling
+      for IS-IS";
+  }
+
+  grouping isis-graceful-restart-interface-config {
+    description
+      "This grouping defines ISIS graceful restart configuration relevant
+      for ISIS interface/adjacency";
+
+    leaf interface-timer {
+      type uint16;
+      description
+        "Value of RFC5306/RFC8706 T1 timer";
+    }
+
+    leaf interface-time-expirations {
+      type int64;
+      description
+        "Number of times T1 expires before IIH without Restart TLV's RR flag
+        set is sent. That is GR helper is not supported by adjacents
+        Inermediate System";
+    }
+
+    reference
+      "RFC 5306: Restart Signaling for IS-IS; RFC 5706: Restart Signaling
+      for IS-IS";
   }
 
   // configuration context containers
@@ -1127,6 +1186,8 @@ module openconfig-isis {
 
         uses admin-config;
         uses isis-graceful-restart-config;
+        uses isis-graceful-restart-level-config;
+        uses isis-graceful-restart-interface-config;
       }
 
       container state {
@@ -1136,6 +1197,8 @@ module openconfig-isis {
 
         uses admin-config;
         uses isis-graceful-restart-config;
+        uses isis-graceful-restart-level-config;
+        uses isis-graceful-restart-interface-config;
       }
     }
 
@@ -1401,6 +1464,25 @@ module openconfig-isis {
         uses isis-bfd-config;
       }
     }
+    container graceful-restart {
+      description
+        "This container defines ISIS Graceful Restart for interface";
+
+      container config {
+        description
+          "This container defines interface config parameters for ISIS
+          graceful-restart.";
+
+        uses isis-graceful-restart-interface-config;
+      }
+      container state {
+        config false;
+        description
+          "This container defines information for ISIS graceful-restart.";
+
+        uses isis-graceful-restart-interface-config;
+      }
+    }
   }
 
   grouping isis-bfd-config {
@@ -1492,6 +1574,28 @@ module openconfig-isis {
       uses isis-base-level-config;
       uses isis-metric-style-config;
       uses isis-authentication-check-config;
+    }
+
+    container graceful-restart {
+      description
+        "This container defines ISIS Graceful Restart.";
+
+      container config {
+        description
+          "This container defines ISIS graceful-restart configuration.";
+
+        uses admin-config;
+        uses isis-graceful-restart-level-config;
+      }
+
+      container state {
+        config false;
+        description
+          "This container defines state information for ISIS graceful-restart.";
+
+        uses admin-config;
+        uses isis-graceful-restart-level-config;
+      }
     }
 
     container system-level-counters {
