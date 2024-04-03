@@ -26,9 +26,9 @@ module openconfig-ethernet-segments {
 
   oc-ext:openconfig-version "0.2.0";
 
-  revision "2024-05-08" {
+  revision "2024-06-10" {
     description
-      "Added ability to allow configuring es-import-route-target for an ES";
+      "Added ability to allow configuring es-import-route-target for a type-0 ES";
     reference "0.2.0";
   }
 
@@ -207,6 +207,10 @@ grouping evpn-ethernet-segment-df-config {
     }
 
     leaf es-import-route-target {
+      when "../esi = 'oc-evpn-types:TYPE_0_OPERATOR_CONFIGURED'" {
+        description
+          "For Type-0 ESIs, manually specify an ES-import route target";
+      }
       type oc-yang-types:mac-address;
       description
         "Received ES routes with an ES-Import extended community set to this value
