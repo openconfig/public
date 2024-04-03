@@ -8,6 +8,7 @@ module openconfig-ethernet-segments {
 
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-interfaces { prefix oc-if; }
+  import openconfig-yang-types { prefix oc-yang-types; }
   import openconfig-evpn-types { prefix oc-evpn-types; }
 
   // meta
@@ -23,7 +24,13 @@ module openconfig-ethernet-segments {
      The ethernet segments are used in EVPN services are
      defined for the whole device";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2024-05-08" {
+    description
+      "Added ability to allow configuring es-import-route-target for an ES";
+    reference "0.2.0";
+  }
 
   revision "2021-06-28" {
    description
@@ -197,6 +204,15 @@ grouping evpn-ethernet-segment-df-config {
         traffic in the Ethernet Segment.";
       reference
         "RFC 7432: BGP MPLS-Based Ethernet VPN";
+    }
+
+    leaf es-import-route-target {
+      type oc-yang-types:mac-address;
+      description
+        "Received ES routes with an ES-Import extended community set to this value
+        are imported into this ethernet segment";
+      reference
+        "RFC 7432: BGP MPLS-Based Ethernet VPN Section 7.6";
     }
 
     uses oc-if:interface-ref-common;
