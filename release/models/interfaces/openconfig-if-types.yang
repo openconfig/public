@@ -1,0 +1,52 @@
+module openconfig-if-types {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/interfaces/types";
+
+  prefix "oc-if-types";
+
+  import openconfig-extensions { prefix "oc-ext"; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Types associated with a interface";
+
+  oc-ext:openconfig-version "3.7.1";
+
+  revision "2024-03-14" {
+    description
+      "Add layer types";
+    reference "3.7.1";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // identity statements
+  identity interface_layer {
+    description
+      "A base identity which can be extended to indicate different
+      layers supported by an interface.";
+  }
+
+  identity L2 {
+    base interface_layer;
+    description
+      "Layer 2 Switching/Bridging interface";
+  }
+
+  identity L3 {
+    base interface_layer;
+    description
+      "Layer 3 Routing interface";
+  }
+}

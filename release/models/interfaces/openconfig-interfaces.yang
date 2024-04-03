@@ -13,6 +13,7 @@ module openconfig-interfaces {
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-transport-types { prefix oc-opt-types; }
+  import openconfig-if-types { prefix oc-if-types; }
 
   // meta
   organization "OpenConfig working group";
@@ -51,7 +52,14 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.7.0";
+  oc-ext:openconfig-version "3.8.0";
+
+  revision "2024-04-03" {
+      description
+        "Add layer leaf to interface to indicate the layer at which the interface operates.";
+      reference
+        "3.8.0";
+  }
 
   revision "2023-11-06" {
       description
@@ -342,6 +350,23 @@ module openconfig-interfaces {
         datastore.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifAlias";
+    }
+
+    leaf enabled {
+      type boolean;
+      default "true";
+      description
+        "This leaf contains the configured, desired state of the
+        interface.
+        Systems that implement the IF-MIB use the value of this
+        leaf in the 'running' datastore to set
+        IF-MIB.ifAdminStatus to 'up' or 'down' after an ifEntry
+        has been initialized, as described in RFC 2863.
+        Changes in this leaf in the 'running' datastore are
+        reflected in ifAdminStatus, but if ifAdminStatus is
+        changed over SNMP, this leaf is not affected.";
+      reference
+        "RFC 2863: The Interfaces Group MIB - ifAdminStatus";
     }
 
     leaf enabled {
