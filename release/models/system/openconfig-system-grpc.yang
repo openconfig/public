@@ -8,6 +8,7 @@ module openconfig-system-grpc {
   import openconfig-system { prefix oc-sys; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-network-instance { prefix oc-ni; }
+  import openconfig-yang-types { prefix oc-yang; }
 
   organization
     "OpenConfig working group";
@@ -207,6 +208,33 @@ module openconfig-system-grpc {
     }
   }
 
+  grouping grpc-counters {
+    description
+      "Top-level container for gRPC counters.";
+    container counters {
+      description
+        "Operational data for gRPC counters.";
+      uses grpc-counters-top;
+    }
+  }
+
+  grouping grpc-counters-top {
+    description
+      "Top-level container of operational data for gRPC counters.";
+
+    leaf bytes-sent {
+      type oc-yang:counter64;
+      description
+        "The total number of bytes sent to the client.";
+    }
+
+    leaf packets-sent {
+      type oc-yang:counter64;
+      description
+        "The total number of packets sent to the client.";
+    }
+  }
+
   grouping grpc-server-connections-state {
     description
       "Operational data for gRPC server connections.";
@@ -260,6 +288,7 @@ module openconfig-system-grpc {
             "Operational state data for gRPC connections.";
 
           uses grpc-server-connections-state;
+          uses grpc-counters;
         }
       }
     }

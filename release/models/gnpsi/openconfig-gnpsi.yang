@@ -44,49 +44,27 @@ module openconfig-gnpsi {
     reference "0.1.0";
   }
 
-  grouping gnpsi-counters {
-    description
-      "Top-level container for gNPSI counters.";
-    container counters {
-      description
-        "Operational data for gNPSI counters.";
-      uses gnpsi-counters-top;
-    }
-  }
-
   grouping gnpsi-counters-top {
     description
       "Top-level container of operational data for gNPSI counters.";
 
-    leaf bytes-sent {
-      type oc-yang:counter64;
-      description
-        "The total number of bytes sampled and sent to the
-        client.";
-    }
-
-    leaf packets-sent {
-      type oc-yang:counter64;
-      description
-        "The total number of packets sampled and sent to the
-        client.";
-    }
-
     leaf packets-error {
       type oc-yang:counter64;
       description
-        "The total number of error packets failed to be sampled
-        and sent to the client.";
+        "Error packets/datagram failed to be sent out by gNPSI
+        service for a specific client.";
     }
   }
 
   augment "/oc-sys:system/oc-sys-grpc:grpc-servers" +
       "/oc-sys-grpc:grpc-server/oc-sys-grpc:connections" +
-      "/oc-sys-grpc:connection/oc-sys-grpc:state" {
+      "/oc-sys-grpc:connection/oc-sys-grpc:state" +
+      "/oc-sys-grpc:counters" {
     description
       "Augment of gNPSI server counters to system module";
-    when "../../../oc-sys-grpc:config/oc-sys-grpc:services = 'oc-gnpsit:GNPSI'";
+    when "../../../../oc-sys-grpc:config/oc-sys-grpc:services " +
+      "= 'oc-gnpsit:GNPSI'";
 
-    uses gnpsi-counters;
+    uses gnpsi-counters-top;
   }
 }
