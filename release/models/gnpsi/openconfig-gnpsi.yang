@@ -47,11 +47,12 @@ module openconfig-gnpsi {
   grouping gnpsi-counters-top {
     description
       "Top-level container of operational data for gNPSI counters.";
-    leaf sample-send-error {
+    leaf flow-send-error {
       type oc-yang:counter64;
       description
-        "A count of errors the gnpsi server encountered when sending
-        a packet sample to a grpc client.";
+        "A count of errors the gnpsi server encountered when sending a
+        flow message to a grpc client.  In sflow this is an sflow datagram.
+        In ipfix, this represents an IPFIX message.";
     }
   }
 
