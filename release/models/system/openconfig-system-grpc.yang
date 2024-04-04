@@ -8,7 +8,6 @@ module openconfig-system-grpc {
   import openconfig-system { prefix oc-sys; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-network-instance { prefix oc-ni; }
-  import openconfig-yang-types { prefix oc-yang; }
 
   organization
     "OpenConfig working group";
@@ -23,15 +22,9 @@ module openconfig-system-grpc {
     to be included in the list.";
 
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "1.0.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
-
-  revision "2024-04-23" {
-    description
-      "Add support for gNPSI counters.";
-    reference "1.1.0";
-  }
 
   revision "2022-04-19" {
     description
@@ -61,12 +54,6 @@ module openconfig-system-grpc {
     base GRPC_SERVICE;
     description
       "gNMI: gRPC Network Management Interface";
-  }
-
-  identity GNPSI {
-    base GRPC_SERVICE;
-    description
-      "gNPSI: gRPC Network Packet Sampling Interface";
   }
 
   grouping grpc-service-structural {
@@ -110,100 +97,7 @@ module openconfig-system-grpc {
             "Operational state relating to the gRPC service.";
           uses grpc-server-config;
         }
-
-        uses clients-top;
       }
-    }
-  }
-
-  grouping clients-top {
-    description
-      "Top-level grouping for data related to gNPSI clients.";
-
-    container clients {
-      config false;
-      description
-        "Enclosing container for list of gNPSI clients.";
-
-      list client {
-        key "address port";
-        description
-          "List of gNPSI clients to send sampling data.  Packet
-          samples are sent to all clients specified.";
-
-        leaf address {
-          type leafref {
-            path "../state/address";
-          }
-          description
-            "Reference to address list key.";
-        }
-
-        leaf port {
-          type leafref {
-            path "../state/port";
-          }
-          description
-            "Reference to port list key.";
-        }
-
-        container state {
-          config false;
-          description
-            "Operational state data for gNPSI clients.";
-
-          uses grpc-server-clients-state;
-
-          container counters {
-            description
-              "Operational data for gNPSI counters.";
-            uses gnpsi-counters-top;
-          }
-        }
-      }
-    }
-  }
-
-  grouping gnpsi-counters-top {
-    description
-      "Top-level container of operational data for gNPSI counters.";
-
-    leaf bytes-sent {
-      type oc-yang:counter64;
-      description
-        "The total number of bytes sampled and sent to the
-        client.";
-    }
-
-    leaf packets-sent {
-      type oc-yang:counter64;
-      description
-        "The total number of packets sampled and sent to the
-        client.";
-    }
-
-    leaf packets-error {
-      type oc-yang:counter64;
-      description
-        "The total number of error packets failed to be sampled
-        and sent to the client.";
-    }
-  }
-
-  grouping grpc-server-clients-state {
-    description
-      "Operational data for gRPC server clients.";
-
-    leaf address {
-      type oc-inet:ip-address;
-      description
-        "IPv4/IPv6 address of the gRPC server client.";
-    }
-
-    leaf port {
-      type oc-inet:port-number;
-      description
-        "UDP port number for the gRPC server client.";
     }
   }
 
