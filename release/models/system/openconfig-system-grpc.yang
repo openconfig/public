@@ -23,7 +23,7 @@ module openconfig-system-grpc {
     to be included in the list.";
 
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
@@ -157,7 +157,12 @@ module openconfig-system-grpc {
             "Operational state data for gNPSI clients.";
 
           uses grpc-server-clients-state;
-          uses gnpsi-counters-top;
+
+          container counters {
+            description
+              "Operational data for gNPSI counters.";
+            uses gnpsi-counters-top;
+          }
         }
       }
     }
@@ -165,7 +170,7 @@ module openconfig-system-grpc {
 
   grouping gnpsi-counters-top {
     description
-      "Operational data for gNPSI counters.";
+      "Top-level container of operational data for gNPSI counters.";
 
     leaf bytes-sent {
       type oc-yang:counter64;
