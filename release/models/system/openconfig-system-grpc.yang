@@ -22,9 +22,15 @@ module openconfig-system-grpc {
     to be included in the list.";
 
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2024-05-20" {
+    description
+      "Add support for gRPC connections.";
+    reference "1.1.0";
+  }
 
   revision "2022-04-19" {
     description
@@ -97,6 +103,7 @@ module openconfig-system-grpc {
             "Operational state relating to the gRPC service.";
           uses grpc-server-config;
         }
+        uses connections-top;
       }
     }
   }
@@ -197,6 +204,64 @@ module openconfig-system-grpc {
       description
         "The network instance within which the gRPC server is listening.
         When unspecified, the DEFAULT_INSTANCE should be used.";
+    }
+  }
+
+  grouping grpc-server-connections-state {
+    description
+      "Operational data for gRPC server connections.";
+
+    leaf address {
+      type oc-inet:ip-address;
+      description
+        "IPv4/IPv6 address of the gRPC server connection.";
+    }
+
+    leaf port {
+      type oc-inet:port-number;
+      description
+        "UDP port number for the gRPC server connection.";
+    }
+  }
+
+  grouping connections-top {
+    description
+      "Top-level grouping for data related to gRPC connections.";
+
+    container connections {
+      config false;
+      description
+        "Enclosing container for list of gRPC connections.";
+
+      list connection {
+        key "address port";
+        description
+          "List of gRPC connections";
+
+        leaf address {
+          type leafref {
+            path "../state/address";
+          }
+          description
+            "Reference to address list key.";
+        }
+
+        leaf port {
+          type leafref {
+            path "../state/port";
+          }
+          description
+            "Reference to port list key.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for gRPC connections.";
+
+          uses grpc-server-connections-state;
+        }
+      }
     }
   }
 
