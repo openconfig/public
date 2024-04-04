@@ -1,0 +1,176 @@
+module openconfig-sampling-gnpsi {
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/sampling/gnpsi";
+
+  prefix "oc-gnpsi";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-sampling { prefix oc-sampling; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines configuration and operational state data
+    related to gRPC Network Packet Sampling Interface.";
+
+  revision "2024-04-01" {
+    description
+      "Initial revision";
+    reference "1.0.0";
+  }
+
+  oc-ext:openconfig-version "1.0.0";
+
+  grouping gnpsi-collectors-config {
+    description
+      "Configuration data for gNPSI collectors.";
+
+    leaf address {
+      type oc-inet:ip-address;
+      description
+        "IPv4/IPv6 address of the gNPSI collector.";
+    }
+
+    leaf port {
+      type oc-inet:port-number;
+      default 6343;
+      description
+        "UDP port number for the gNPSI collector.";
+    }
+  }
+
+    grouping gnpsi-collectors-state {
+    description
+      "Configuration data for gNPSI collectors.";
+
+    leaf bytes-sent {
+      type oc-yang:counter64;
+      description
+        "The total number of bytes sampled and sent to the
+        collector.";
+    }
+
+    leaf packets-sent {
+      type oc-yang:counter64;
+      description
+        "The total number of packets sampled and sent to the
+        collector.";
+    }
+
+    leaf packets-error {
+      type oc-yang:counter64;
+      description
+        "The total number of error packets failed to be sampled
+        and sent to the collector.";
+    }
+  }
+
+  grouping gnpsi-collectors-top {
+    description
+      "Top-level grouping for data related to gNPSI collectors.";
+
+    container collectors {
+      description
+        "Enclosing container for list of gNPSI collectors.";
+
+      list collector {
+        key "address port";
+        description
+          "List of gNPSI collectors to send sampling data.  Packet
+          samples are sent to all collectors specified.";
+
+        leaf address {
+          type leafref {
+            path "../config/address";
+          }
+          description
+            "Reference to address list key.";
+        }
+
+        leaf port {
+          type leafref {
+            path "../config/port";
+          }
+          description
+            "Reference to port list key.";
+        }
+
+        container config {
+          description
+            "Configuration data for gNPSI collectors.";
+
+          uses gnpsi-collectors-config;
+        }
+
+        container state {
+
+          config false;
+
+          description
+            "Operational state data for gNPSI collectors.";
+
+          uses gnpsi-collectors-config;
+          uses gnpsi-collectors-state;
+        }
+      }
+    }
+  }
+
+  grouping gnpsi-global-config {
+    description
+      "Configuration data for global gNPSI";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "Enables or disables gRPC Network Packet Sampling Interface for the device.";
+    }
+  }
+
+  grouping gnpsi-global-top {
+    description
+      "Top-level grouping for global gNPSI";
+
+    container gnpsi{
+      description
+        "Top-level container for gNPSI data.";
+
+      container config {
+        description
+          "Configuration data for global gNPSI.";
+
+        uses gnpsi-global-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for global gNPSI.";
+
+        uses gnpsi-global-config;
+      }
+
+      uses gnpsi-collectors-top;
+    }
+  }
+
+  augment "/oc-sampling:sampling" {
+    description
+      "Add gNPSI configuration/state to the openconfig-sampling model.";
+
+    uses gnpsi-global-top;
+  }
+}
