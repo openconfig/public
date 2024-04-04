@@ -10,7 +10,8 @@ module openconfig-sampling-gnpsi {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-yang-types { prefix oc-yang; }
-  import openconfig-sampling { prefix oc-sampling; }
+  import openconfig-system { prefix oc-sys; }
+  import openconfig-system-grpc { prefix oc-sys-grpc; }
 
   // meta
   organization "OpenConfig working group";
@@ -26,7 +27,7 @@ module openconfig-sampling-gnpsi {
   revision "2024-04-01" {
     description
       "Initial revision";
-    reference "1.0.0";
+    reference "0.1.0";
   }
 
   oc-ext:openconfig-version "1.0.0";
@@ -113,51 +114,10 @@ module openconfig-sampling-gnpsi {
     }
   }
 
-  grouping gnpsi-global-config {
-    description
-      "Configuration data for global gNPSI";
-
-    leaf enabled {
-      type boolean;
-      default false;
-      description
-        "Enables or disables gRPC Network Packet Sampling Interface for the device.";
-    }
-  }
-
-  grouping gnpsi-global-top {
-    description
-      "Top-level grouping for global gNPSI";
-
-    container gnpsi{
-      description
-        "Top-level container for gNPSI data.";
-
-      container config {
-        description
-          "Configuration data for global gNPSI.";
-
-        uses gnpsi-global-config;
-      }
-
-      container state {
-
-        config false;
-
-        description
-          "Operational state data for global gNPSI.";
-
-        uses gnpsi-global-config;
-      }
-
-      uses gnpsi-collectors-top;
-    }
-  }
-
-  augment "/oc-sampling:sampling" {
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
     description
       "Add gNPSI configuration/state to the openconfig-sampling model.";
 
-    uses gnpsi-global-top;
+    uses gnpsi-collectors-top;
   }
 }
