@@ -31,9 +31,10 @@ module openconfig-sampling-gnpsi {
 
   oc-ext:openconfig-version "1.0.0";
 
-  grouping gnpsi-collectors-config {
+
+  grouping gnpsi-collectors-state {
     description
-      "Configuration data for gNPSI collectors.";
+      "Operational data for gNPSI collectors.";
 
     leaf address {
       type oc-inet:ip-address;
@@ -47,11 +48,6 @@ module openconfig-sampling-gnpsi {
       description
         "UDP port number for the gNPSI collector.";
     }
-  }
-
-    grouping gnpsi-collectors-state {
-    description
-      "Configuration data for gNPSI collectors.";
 
     leaf bytes-sent {
       type oc-yang:counter64;
@@ -80,6 +76,7 @@ module openconfig-sampling-gnpsi {
       "Top-level grouping for data related to gNPSI collectors.";
 
     container collectors {
+      config false;
       description
         "Enclosing container for list of gNPSI collectors.";
 
@@ -91,7 +88,7 @@ module openconfig-sampling-gnpsi {
 
         leaf address {
           type leafref {
-            path "../config/address";
+            path "../state/address";
           }
           description
             "Reference to address list key.";
@@ -99,27 +96,17 @@ module openconfig-sampling-gnpsi {
 
         leaf port {
           type leafref {
-            path "../config/port";
+            path "../state/port";
           }
           description
             "Reference to port list key.";
         }
 
-        container config {
-          description
-            "Configuration data for gNPSI collectors.";
-
-          uses gnpsi-collectors-config;
-        }
-
         container state {
-
           config false;
-
           description
             "Operational state data for gNPSI collectors.";
 
-          uses gnpsi-collectors-config;
           uses gnpsi-collectors-state;
         }
       }
