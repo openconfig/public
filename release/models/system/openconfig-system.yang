@@ -47,7 +47,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.0.0";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2024-04-08" {
+    description
+      "Add mount-point counter io-errors.";
+    reference "2.1.0";
+  }
 
   revision "2023-12-20" {
     description
@@ -371,6 +377,24 @@ module openconfig-system {
       units megabytes;
       description
         "The amount of space currently in use on the filesystem.";
+    }
+
+    container counters {
+      description
+        "Counters for tracking filesystem errors";
+        uses system-mount-point-error-counters;
+    }
+
+  }
+
+  grouping system-mount-point-error-counters {
+    description
+      "Counters for system memory errors.";
+
+    leaf io-errors {
+      type uint64;
+      description
+        "Input/Output errors reading and writing to filesystem.";
     }
   }
 
