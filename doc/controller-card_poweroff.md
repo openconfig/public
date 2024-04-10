@@ -11,7 +11,7 @@ This document describes operational use cases, rules and telemetry for power con
    
    b. CPU overheating, memory errors or other hardware problems with the PRIMARY card may require the operator to proactively power-off the card and not let it be online during regular operation until replacement of the hardware is completed.
    
-3. Operator feels it important to keep the card shutdown to prevent unexpected outcomes post the physical swap of the faulty/alerting card so the operator can online the card in a controlled environment post replacement.
+2. Operator feels it important to keep the card shutdown to prevent unexpected outcomes post the physical swap of the faulty/alerting card so the operator can online the card in a controlled environment post replacement.
 
 
 ## CONTROLLER_CARD power and redundancy requirements 
@@ -40,7 +40,7 @@ Let's say controller-card0 is PRIMARY and controller-card1 is SECONDARY and cont
 
 ### Scenario 2 - Power off primary CONTROLLER_CARD
     
-If controller-card0 is PRIMARY and controller-card1 is SECONDARY and if controller-card0 is set to config/power-admin-state = POWER_DISABLED by an operator, then controller-card0 will stay powered-on until the next reboot. `state/power-admin-state` must show as POWER_ENABLED. If a reboot of the PRIMARY CONTROLLER_CARD occurs,  `state/last-poweroff-time` must record the time when the card powers-off, `state/last-poweroff-reason/trigger` must show as USER_INITIATED and `/state/last-poweroff-reason/details` may be updated. For example: 
+1. If controller-card0 is PRIMARY and controller-card1 is SECONDARY and if controller-card0 is set to config/power-admin-state = POWER_DISABLED by an operator, then controller-card0 will stay powered-on until the next reboot. `state/power-admin-state` must show as POWER_ENABLED. If a reboot of the PRIMARY CONTROLLER_CARD occurs,  `state/last-poweroff-time` must record the time when the card powers-off, `state/last-poweroff-reason/trigger` must show as USER_INITIATED and `/state/last-poweroff-reason/details` may be updated. For example: 
 
 When controller-card0 is PRIMARY:
 
@@ -75,8 +75,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
 	**Note:-** If an implementation's architecture do not allow for controlling the order in which the configuration is loaded and the PRIMARY/SECONDARY election process, then this rule can be relaxed as long as the implementation has proper arrangements to power-off the controller-card with `config/power-admin-state=POWER_DISABLED` configuration during reboots (Warm/Cold). 
    
 
-5. If the chassis has a single controller card and it was configured for config/power-admin-state=POWER_DISABLED, as per Rule#1 above, its state/power-admin-state will stay as POWER_ENABLED given that its state/redundant-role=PRIMARY. However during the next warm/cold reboot, if the chassis continues to have only one controller-card then it must ignore the configuration of config/power-admin-state=POWER_DISABLED and continue to bootup as PRIMARY. In this situation though, the implementation must send a Syslog message of the severity "Warning" to inform the Operator about the situation. Post reboot, the config/power-admin-state=POWER_DISABLED will stay as is and state/power-admin-state will continue to show as POWER_ENABLED. In this case, if it was a warm reboot then the following must not be updated, state/last-poweroff-time, state/last-poweroff-reason/trigger and state/last-poweroff-reason/details. The same leaves must be updated for cold reboots.
-
+5. On boot (cold or warm), if the chassis has a single controller card and it is configured for config/power-admin-state=POWER_DISABLED, as per Rule#1 above state/power-admin-state should be POWER_ENABLED given that a single CONTROLLER_CARD should have state/redundant-role=PRIMARY. The system must log a message using severity "Warning" to inform the Operator about the situation.
 
 ## Flowchart on the Rules above:
 
@@ -147,7 +146,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
 
    **Response**
 
-    Lets walk through this situation to set the right context. We have a dual controller-card system which due to some reason (Hardware/Soaftware failure) got in to a split-brain scenaio. As per the question here, the operator decides to use `config/power-admin-state=POWER_DISABLED` command on one of the cards, somehow intiatiates a reboot process (Cold or Warm) and expects that the controller-card with `config/power-admin-state=POWER_DISABLED` stays diabled post reboot. There are several assumptions and nuances to this situation:
+    Lets walk through this situation to set the right context. We have a dual controller-card system which due to some reason (Hardware/Soaftware failure) got in to a split-brain scenaio. As per the question here, the operator decides to use `config/power-admin-state=POWER_DISABLED` command on one of the cards, somehow intiatiates a reboot process (Cold or Warm) and expects that the controller-card with `config/power-admin-state=POWER_DISABLED` stays disabled post reboot. There are several assumptions and nuances to this situation:
 
    a. One of the assumptions is that, the device is in a split-brain situation and would still allow connections for a configuration change.
    
@@ -155,5 +154,8 @@ After controller-card0 transitions to redundant-role SECONDARY:
 
 Now after the system reboots following "9.b", if we consider that the original problem of broken communication between the controller-cards persists, the configration of `config/power-admin-state=POWER_DISABLED` on one of the controller-cards wouldn't help because of Rule#5 above. However, it is expected that the implementation has other hardware/software means to gracefully handle the split-brain situation. The proposal here to allow for power-disable of a controller-card using configuration has no impact whatsoever on the implementations ability to handle split-brain like conditions. 
    
+   ***Definition for Split-brain situation:*** 
+   `In network routers/switches that use redundant controller-cards for high availability, a split-brain scenario occurs when the primary and secondary cards lose communication with each other, and both believe they should be the active controller. Probable causees for a Split-brain scenario can be configuration error or software bug preventing exchange of control messages between the cards breaking the communication`
+
    
    
