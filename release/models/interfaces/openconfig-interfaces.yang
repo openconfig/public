@@ -51,7 +51,14 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.7.0";
+  oc-ext:openconfig-version "3.8.0";
+
+  revision "2024-04-10" {
+      description
+        "Add typedef interface-full-id.";
+      reference
+        "3.8.0";
+  }
 
   revision "2023-11-06" {
       description
@@ -195,6 +202,16 @@ module openconfig-interfaces {
       name a interface reference.  The id can be arbitrary but a
       useful convention is to use a combination of base interface
       name and subinterface index.";
+  }
+
+  typedef interface-full-id {
+    type string {
+      pattern '(.*)\.([0-9]{*})';
+      oc-ext:posix-pattern '^(.*)\.([0-9]{*})$';
+    }
+    description
+      "This is a string which identifies an interface + subinterface
+      index.";
   }
 
   // grouping statements
