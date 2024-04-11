@@ -1,3 +1,5 @@
+
+
 ## Controller Card Power Control
 
 This document describes operational use cases, rules and telemetry for power control of `CONTROLLER-CARD` components in network devices using OpenConfig.
@@ -79,7 +81,7 @@ After controller-card0 transitions to redundant-role SECONDARY:
 
 ## Flowchart on the Rules above:
 
-![Overview of the expected behavior](img/controller_card_poweroff.png)
+![Overview of the expected behavior](https://github.com/openconfig/public/tree/master/doc/img/controller_card.png?raw=true)
 
 ## Concerns and possible failure scenarios
 
