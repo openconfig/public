@@ -65,9 +65,15 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.24.0";
+  oc-ext:openconfig-version "0.25.0";
 
-  revision "2023-11-28" {
+   revision "2024-04-12" {
+    description
+      "Add parent-position.";
+    reference "0.25.0";
+  }
+
+ revision "2023-11-28" {
     description
       "Add model-name";
     reference "0.24.0";
@@ -403,12 +409,30 @@ module openconfig-platform {
 
     leaf location {
       type string;
+      status deprecated;
       description
         "System-supplied description of the location of the
         component within the system. This could be a bay position,
         slot number, socket location, etc. For component types that
         have an explicit slot-id attribute, such as linecards, the
-        system should populate the more specific slot-id.";
+        system should populate the more specific slot-id.
+        This leaf is deprecated and replaced by parent-position.";
+    }
+
+    leaf parent-position {
+      type string;
+      description
+        "System-supplied index to a position, port, slot, bay, 
+        socket, etc.  This string must only indicate the name
+        of the position, and not any indication of the name of the
+        parent component within the system.  Typically the position
+        is a number, but it is observed that some devices may use
+        letters or alphanumerics.  The position name should be the
+        same name used to physically identify the position.
+
+        For component types that have an explicit slot-id
+        attribute, such as linecards, the system should populate
+        the more specific slot-id.";
     }
 
     leaf description {
