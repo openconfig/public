@@ -64,24 +64,6 @@ module openconfig-platform-controller-card {
   augment "/oc-platform:components/oc-platform:component/" +
     "oc-platform:controller-card/oc-platform:config" {
     description
-      "Adding controller card data to physical inventory. This subtree
-      is only valid when the type of the component is CONTROLLER_CARD.";
-
-    uses controller-card-config;
-  }
-
-  augment "/oc-platform:components/oc-platform:component/" +
-    "oc-platform:controller-card/oc-platform:state" {
-    description
-      "Adding controller card data to physical inventory. This subtree
-      is only valid when the type of the component is CONTROLLER_CARD.";
-
-    uses controller-card-config;
-  }
-
-  augment "/oc-platform:components/oc-platform:component/" +
-    "oc-platform:controller-card/oc-platform:config" {
-        description
           "Configuration data for controller card components.
           A controller-card can be configured for persistent
           powered-off mode using the config/power-admin-state leaf.
@@ -91,6 +73,15 @@ module openconfig-platform-controller-card {
         reference
           "Rules around power-off configuration in controller-cards:
           https://github.com/openconfig/public/blob/master/doc/controller-card_poweroff.md";
+
+    uses controller-card-config;
+  }
+
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:controller-card/oc-platform:state" {
+    description
+      "Adding controller card data to physical inventory. This subtree
+      is only valid when the type of the component is CONTROLLER_CARD.";
 
     uses controller-card-config;
   }
