@@ -416,6 +416,7 @@ module openconfig-platform {
         slot number, socket location, etc. For component types that
         have an explicit slot-id attribute, such as linecards, the
         system should populate the more specific slot-id.
+
         This leaf is deprecated and replaced by parent-position.";
     }
 
@@ -425,14 +426,20 @@ module openconfig-platform {
         "System-supplied index to a position, port, slot, bay,
         socket, etc.  This string must only indicate the name
         of the position, and not any indication of the name of the
-        parent component within the system.  Typically the position
-        is a number, but it is observed that some devices may use
-        letters or alphanumerics.  The position name should be the
-        same name used to physically identify the position.
+        parent component within the system.  Instead, parent
+        component name should be present in the 'parent' leaf.
+        
+        Typically the parent-position is a number, but it is observed
+        that some devices may use letters or alphanumerics.  The
+        position name should be the same name used to physically
+        identify the position in documentation or printed on the
+        device.
 
-        For component types that have an explicit slot-id
-        attribute, such as linecards, the system should populate
-        the more specific slot-id.";
+        Some components with a parent may not have a parent-position.
+
+        For component types that have an explicit slot-id attribute,
+        such as linecards, the system should populate the more
+        specific slot-id.";
     }
 
     leaf description {
