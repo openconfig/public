@@ -79,6 +79,8 @@ After controller-card0 transitions to redundant-role SECONDARY:
 
 5. On boot (cold or warm), if the chassis has a single controller card and it is configured for config/power-admin-state=POWER_DISABLED, as per Rule#1 above state/power-admin-state should be POWER_ENABLED given that a single CONTROLLER_CARD should have state/redundant-role=PRIMARY. The system must log a message using severity "Warning" to inform the Operator about the situation.
 
+6. In a Dual controller-card scenario, if a config is pushed for config/power-admin-state=POWER_DISABLED for either both controller-cards simultaneously or for one of the controller-cards while the other controller-card in the system is already configured for config/power-admin-state=POWER_DISABLED, then the implementation Must fail the configuration commit operation with an error similar to: "Not allowed to have both controller-cards configured for power-admin-state = POWER_DISABLED"
+
 ## Flowchart on the Rules above:
 
 ![Overview of the expected behavior](https://github.com/openconfig/public/tree/master/doc/img/controller_card.png?raw=true)
