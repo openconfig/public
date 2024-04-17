@@ -13,6 +13,7 @@ module openconfig-interfaces {
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-transport-types { prefix oc-opt-types; }
+  import openconfig-if-types { prefix oc-if-types; }
 
   // meta
   organization "OpenConfig working group";
@@ -51,7 +52,14 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.7.0";
+  oc-ext:openconfig-version "3.8.0";
+
+  revision "2024-04-03" {
+      description
+        "Add layer leaf to interface to indicate the layer at which the interface operates.";
+      reference
+        "3.8.0";
+  }
 
   revision "2023-11-06" {
       description
@@ -363,6 +371,21 @@ module openconfig-interfaces {
         "RFC 2863: The Interfaces Group MIB - ifAdminStatus";
     }
 
+    leaf layer {
+      type identityref {
+        base oc-if-types:INTERFACE_LAYER;
+      }
+      description
+        "The network layer of the interface.
+
+        When an interface entry is created and the name of the
+        interface requires the interface to operate on a specific
+        network layer, the server MAY initialize the layer leaf
+        with a valid layer value.
+        If a client tries to set the layer of an interface to a
+        value that can never be used by the system, the server
+        MUST reject the request.";
+    }
   }
 
   grouping interface-phys-config {
