@@ -101,7 +101,6 @@ module openconfig-aaa {
   grouping aaa-servergroup-common-config {
     description
       "Configuration data for AAA server groups";
-    status deprecated;
 
     leaf name {
       type string;
@@ -117,12 +116,39 @@ module openconfig-aaa {
         "AAA server type -- all servers in the group must be of this
         type";
     }
+
+    list servers {
+      key "address port network-instance type";
+
+      leaf address {
+        type leafref {
+          path "/system/aaa/servers/server/address";
+        }
+      }
+
+      leaf port {
+        type leafref {
+          path "deref(../address)/../port";
+        }
+      }
+
+      leaf network-instance {
+        type leafref {
+          path "deref(../port)/../network-instance";
+        }
+      }
+
+      leaf type {
+        type leafref {
+          path "deref(../network-instance)/../type";
+        }
+      }
+    }
   }
 
   grouping aaa-servergroup-common-state {
     description
       "Operational state data for AAA server groups";
-    status deprecated;
 
     //TODO: add list of group members as opstate
   }
@@ -130,7 +156,6 @@ module openconfig-aaa {
   grouping aaa-servergroup-common-top {
     description
       "Top-level grouping for AAA server groups";
-    status deprecated;
 
     container server-groups {
       description
@@ -156,7 +181,6 @@ module openconfig-aaa {
             "Configuration data for each server group";
 
           uses aaa-servergroup-common-config {
-            status deprecated;
           }
         }
 
@@ -167,10 +191,8 @@ module openconfig-aaa {
             "Operational state data for each server group";
 
           uses aaa-servergroup-common-config {
-            status deprecated;
           }
           uses aaa-servergroup-common-state {
-            status deprecated;
           }
         }
 
@@ -981,10 +1003,8 @@ module openconfig-aaa {
       uses aaa-authentication-top;
       uses aaa-authorization-top;
       uses aaa-accounting-top;
-      uses aaa-servergroup-common-top {
-        status deprecated;
-      }
       uses aaa-server-list-top;
+      uses aaa-servergroup-common-top;
 
     }
   }
