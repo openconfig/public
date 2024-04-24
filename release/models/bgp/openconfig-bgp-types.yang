@@ -4,7 +4,6 @@ module openconfig-bgp-types {
   namespace "http://openconfig.net/yang/bgp-types";
 
   prefix "oc-bgp-types";
-
   import openconfig-types { prefix "oc-types"; }
   import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-extensions { prefix "oc-ext"; }
@@ -25,7 +24,13 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "5.6.0";
+  oc-ext:openconfig-version "6.0.0";
+
+  revision "2024-02-01" {
+    description
+      "Modify bgp-community-regexp-type.";
+    reference "6.0.0";
+  }
 
   revision "2023-12-26" {
     description
@@ -635,11 +640,15 @@ module openconfig-bgp-types {
         - route-origin:<2b ASN>:<4b value> per RFC4360 section 5
         - route-origin:<4b IPv4>:<2b value> per RFC4360 section 5
         - color:<CO bits>:<4b value> per draft-ietf-idr-segment-routing-te-policy
-          section 3";
+          section 3
+        - link-bandwidth:<2 byte asn>:<bandwidth_value> per
+          draft-ietf-idr-link-bandwidth-07";
+
     reference
       "RFC 4360 - BGP Extended Communities Attribute
        RFC 5668 - 4-Octet AS Specific BGP Extended Community
-       draft-ietf-idr-segment-routing-te-policy";
+       draft-ietf-idr-segment-routing-te-policy
+       draft-ietf-idr-link-bandwidth-07";
   }
 
   typedef bgp-ext-community-recv-type {
@@ -673,12 +682,15 @@ module openconfig-bgp-types {
   }
 
   typedef bgp-community-regexp-type {
-    // TODO: needs more work to decide what format these regexps can
-    // take.
-    type oc-types:std-regexp;
+    type oc-types:posix-eregexp;
     description
       "Type definition for communities specified as regular
-      expression patterns";
+      expression patterns.  The regular expression must be a
+      POSIX extended regular expression with some limitations
+      which are commonly found in device implementations described
+      in draft-ietf-idr-bgp-model.";
+    reference
+      "draft-ietf-idr-bgp-model";
   }
 
   typedef bgp-origin-attr-type {
