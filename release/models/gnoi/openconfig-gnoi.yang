@@ -1,7 +1,7 @@
-module openconfig-gnsi {
+module openconfig-gnoi {
   yang-version "1";
-  namespace "http://openconfig.net/yang/gnsi";
-  prefix "oc-gnsi";
+  namespace "http://openconfig.net/yang/gnoi";
+  prefix "oc-gnoi";
 
   import openconfig-extensions {
     prefix oc-ext;
@@ -19,12 +19,12 @@ module openconfig-gnsi {
     prefix oc-grpc-common;
   }
 
-  import openconfig-gnsi-types {
-    prefix oc-gnsit;
+  import openconfig-gnoi-types {
+    prefix oc-gnoi-types;
   }
 
   organization
-    "OpenConfig Working group";
+    "OpenConfig working group";
   contact
     "www.openconfig.net";
 
@@ -41,11 +41,11 @@ module openconfig-gnsi {
     reference "0.1.0";
   }
 
-  grouping gnsi-base {
+  grouping gnoi-base {
     description
       "";
 
-    container gnsi {
+    container gnoi {
       description
         "";
 
@@ -55,8 +55,8 @@ module openconfig-gnsi {
 
   augment "/oc-sys:system/oc-sys-grpc:grpc-servers" +
           "/oc-sys-grpc:grpc-server/oc-sys-grpc:services" {
-    when "../oc-sys-grpc:config/oc-sys-grpc:services = 'oc-gnsit:GNMI'";
+    when "../oc-sys-grpc:config/oc-sys-grpc:services = 'oc-gnoi-types:GNOI'";
 
-    uses gnsi-base;
+    uses gnoi-base;
   }
 }

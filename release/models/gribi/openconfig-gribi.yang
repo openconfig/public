@@ -1,12 +1,27 @@
 module openconfig-gribi {
   yang-version "1";
-
+  namespace "http://openconfig.net/yang/gribi";
   prefix "oc-gribi";
 
-  namespace "http://openconfig.net/yang/gribi";
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
 
-  import openconfig-extensions { prefix oc-ext; }
-  import openconfig-system-grpc { prefix oc-grpc; }
+  import openconfig-system {
+    prefix oc-sys;
+  }
+
+  import openconfig-system-grpc {
+    prefix oc-sys-grpc;
+  }
+
+  import openconfig-grpc-services-common {
+    prefix oc-grpc-common;
+  }
+
+  import openconfig-gribi-types {
+    prefix oc-gribit;
+  }
 
   organization
     "OpenConfig Working Group";
@@ -15,7 +30,7 @@ module openconfig-gribi {
     "www.openconfig.net";
 
   description
-    "This module defines a set of exdtensions that provide gRIBI (the gRPC
+    "This module defines a set of extensions that provide gRIBI (the gRPC
     RIB Interface) specific extensions to the OpenConfig data models.
     Specifically, the parameters for the configuration of the service, and
     configuration and state are added.
@@ -23,7 +38,13 @@ module openconfig-gribi {
     The gRIBI protobufs and documentation are published at
     https://github.com/openconfig/gribi.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision 2024-04-23 {
+    description
+      "";
+    reference "0.2.0";
+  }
 
   revision 2021-04-06 {
     description
@@ -31,9 +52,23 @@ module openconfig-gribi {
     reference "0.1.0";
   }
 
-  identity GRIBI {
-    base "oc-grpc:GRPC_SERVICE";
+  grouping gribi-base {
     description
-      "gRIBI: gRPC Routing Information Base Interface";
+      "";
+
+    container gribi {
+      description
+        "";
+
+      uses oc-grpc-common:common-services;
+    }
   }
+
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers" +
+          "/oc-sys-grpc:grpc-server/oc-sys-grpc:services" {
+    when "../oc-sys-grpc:config/oc-sys-grpc:services = 'oc-gribit:GRIBI'";
+
+    uses gribi-base;
+  }
+
 }

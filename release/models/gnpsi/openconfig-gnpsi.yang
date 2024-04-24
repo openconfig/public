@@ -1,7 +1,7 @@
-module openconfig-gnsi {
+module openconfig-gnpsi {
   yang-version "1";
-  namespace "http://openconfig.net/yang/gnsi";
-  prefix "oc-gnsi";
+  namespace "http://openconfig.net/yang/gnpsi";
+  prefix "oc-gnpsi";
 
   import openconfig-extensions {
     prefix oc-ext;
@@ -19,8 +19,8 @@ module openconfig-gnsi {
     prefix oc-grpc-common;
   }
 
-  import openconfig-gnsi-types {
-    prefix oc-gnsit;
+  import openconfig-gnpsi-types {
+    prefix oc-gnpsit;
   }
 
   organization
@@ -41,11 +41,11 @@ module openconfig-gnsi {
     reference "0.1.0";
   }
 
-  grouping gnsi-base {
+  grouping gnpsi-base {
     description
       "";
 
-    container gnsi {
+    container gnpsi {
       description
         "";
 
@@ -55,8 +55,8 @@ module openconfig-gnsi {
 
   augment "/oc-sys:system/oc-sys-grpc:grpc-servers" +
           "/oc-sys-grpc:grpc-server/oc-sys-grpc:services" {
-    when "../oc-sys-grpc:config/oc-sys-grpc:services = 'oc-gnsit:GNMI'";
+    when "../oc-sys-grpc:config/oc-sys-grpc:services = 'oc-gnpsit:GNPSI'";
 
-    uses gnsi-base;
+    uses gnpsi-base;
   }
 }

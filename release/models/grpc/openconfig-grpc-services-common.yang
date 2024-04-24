@@ -1,0 +1,57 @@
+module openconfig-grpc-services-common {
+  yang-version "1";
+  namespace "http://openconfig.net/yang/grpc/common";
+  prefix "oc-grpc-common";
+
+  import openconfig-extensions { prefix oc-ext; }
+
+  organization
+    "OpenConfig working group";
+  contact
+    "www.openconfig.net";
+
+  description
+    "";
+
+  oc-ext:openconfig-version "0.1.0";
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  revision 2024-03-10 {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  grouping common-config {
+    description
+      "";
+
+    leaf enable {
+      type boolean;
+      description
+        "";
+    }
+  }
+
+  grouping common-services {
+    description
+      "";
+
+    container config {
+      description
+        "";
+
+      uses common-config;
+    }
+
+    container state {
+      description
+        "";
+
+      config false;
+
+      uses common-config;
+    }
+  }
+}
