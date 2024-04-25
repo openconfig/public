@@ -22,7 +22,13 @@ module openconfig-wifi-types {
     that are used in the openconfig-wifi modules. It can be
     imported by any module to make use of these types.";
 
-  oc-ext:openconfig-version "1.1.2";
+  oc-ext:openconfig-version "1.1.3";
+
+  revision "2024-04-25" {
+    description
+      "Adding INACTIVE client_state";
+    reference "1.1.3";
+  }
 
   revision "2023-09-01" {
     description
@@ -152,6 +158,13 @@ module openconfig-wifi-types {
     description
       "This client has been blacklisted, through either L2 (MAC) or higher-level
       (signature) mechanisms.";
+  }
+
+  identity INACTIVE {
+    base CLIENT_STATE;
+    description
+      "Client is no longer active in the 802.11 state machine. Client data
+      remains in the client state, but client is no longer active on AP.";
   }
 
   identity AP_STATE {
