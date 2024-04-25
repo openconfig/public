@@ -69,7 +69,7 @@ module openconfig-platform {
 
    revision "2024-04-12" {
     description
-      "Add parent-position and deprecate location.";
+      "Add install-position and deprecate location.";
     reference "0.25.0";
   }
 
@@ -420,26 +420,40 @@ module openconfig-platform {
         This leaf is deprecated and replaced by parent-position.";
     }
 
-    leaf parent-position {
+    leaf install-position {
       type string;
       description
-        "System-supplied index to a position, port, slot, bay,
-        socket, etc.  This string must only indicate the name
-        of the position, and not any indication of the name of the
-        parent component within the system.  Instead, parent
-        component name should be present in the 'parent' leaf.
+        "System-supplied index to a position where this component is
+        installed.  The position may be referred in device documenation
+        as a port, slot, bay, socket, etc.  This string must only
+        indicate the name of the position, and not any indication of
+        the name of the parent component within the system.  Instead,
+        parent component name should be present in the 'parent' leaf.
 
-        Typically the parent-position is a number, but it is observed
+        Typically the install-position is a number, but it is observed
         that some devices may use letters or alphanumerics.  The
         position name should be the same name used to physically
         identify the position in documentation or printed on the
         device.
 
-        Some components with a parent may not have a parent-position.
+        Any component which is removable is expected to have
+        an install-position.  The ancestor component 
 
         For component types that have an explicit slot-id attribute,
-        such as linecards, the system should populate the more
+        such as LINECARD, the system should populate the more
         specific slot-id.";
+    }
+
+    leaf install-component {
+      type string;
+      description
+        "A component may have zero or more intermediate component
+        ancestors which do not represent the install-position.  This
+        leaf represents the ancestor component which contains the
+        'install-position'.  For example, in the component tree
+        'PORT -> INTEGRATED_CIRCUIT -> LINECARD', a PORT named 'eth1/2'
+        has an install-position of '2' relevant to the LINECARD, not
+        the intermediate INTEGRATED-CIRCUIT component.";
     }
 
     leaf description {
