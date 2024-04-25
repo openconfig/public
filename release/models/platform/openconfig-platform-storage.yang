@@ -1,0 +1,75 @@
+module openconfig-platform-storage {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/platform/storage";
+
+  prefix "oc-storage";
+
+  import openconfig-platform {
+    prefix oc-platform;
+  }
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+  import openconfig-yang-types {
+    prefix oc-yang;
+  }
+
+  // meta
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+     www.openconfig.net";
+
+  description
+    "This module defines data related to STORAGE components in the
+     OpenConfig platform model.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2024-04-24" {
+    description
+      "Initial revision.";
+    reference
+      "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // identity statements
+  // typedef statements
+  // grouping statements
+  grouping storage-state {
+    description
+      "Storage component state.  These counters are derived from the
+       linux kernel block layer statistics in /sys/block/<dev>/stat.";
+    reference
+      "https://www.kernel.org/doc/Documentation/block/stat.txt";
+
+    leaf io-errors {
+      type oc-yang:counter64;
+      description
+        "This values increments when an I/O request completes with a
+         failure.  This value corresponds to 'discard I/Os' om the linux
+         kernel block layer statistics.";
+    }
+  }
+
+  // data definition statements
+  // augment statements
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:storage/oc-platform:state" {
+    description
+      "Adding storage data to component model";
+
+    uses storage-state;
+  }
+}
+
