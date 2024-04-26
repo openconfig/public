@@ -455,10 +455,11 @@ module openconfig-platform {
         Note there may be zero or more intermediate components between
         the which do not represent the install-position.
 
-        For example, in the component tree
-        'PORT -> INTEGRATED_CIRCUIT -> LINECARD', a PORT named 'eth1/2'
-        has an install-position of '2' relevant to the LINECARD, not
-        the intermediate INTEGRATED-CIRCUIT component.";
+        For example, consider the component tree
+        PORT ['eth1/2']-> INTEGRATED_CIRCUIT ['npu1']-> LINECARD ['lc1'].
+        The PORT has an install-position of '2' and install-component named
+        'lc1'.  The intermediate INTEGRATED-CIRCUIT component is not
+        present in either install-position or install-component leaves.";
     }
 
     leaf description {
