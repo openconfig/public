@@ -65,7 +65,14 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.24.0";
+  oc-ext:openconfig-version "0.25.0";
+
+  revision "2024-03-05" {
+    description
+      "Add high and low temperature thresholds. Deprecate existing
+      temperature threshold.";
+    reference "0.25.0";
+  }
 
   revision "2023-11-28" {
     description
@@ -598,10 +605,6 @@ module openconfig-platform {
     description
       "Temperature alarm data for platform components";
 
-    // TODO(aashaikh): consider if these leaves could be in a
-    // reusable grouping (not temperature-specific); threshold
-    // may always need to be units specific.
-
     leaf alarm-status {
       type boolean;
       description
@@ -610,14 +613,50 @@ module openconfig-platform {
         cleared.";
     }
 
+    leaf alarm-threshold-lower {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The threshold value for high temperature.";
+    }
+
+    leaf alarm-severity-lower {
+        type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The severity of the current low temperature alarm.";
+    }
+
+    leaf alarm-threshold-upper {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The threshold value for low temperature.";
+    }
+
+    leaf alarm-severity-upper {
+        type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The severity of the current high temperature alarm.";
+    }
+
     leaf alarm-threshold {
+      status deprecated;
       type uint32;
       description
         "The threshold value that was crossed for this alarm.";
     }
 
     leaf alarm-severity {
-      type identityref {
+        status deprecated;
+        type identityref {
         base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
       }
       description
