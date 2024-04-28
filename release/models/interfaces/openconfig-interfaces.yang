@@ -51,7 +51,14 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.7.1";
+  oc-ext:openconfig-version "3.8.0";
+
+  revision "2024-04-28" {
+      description
+        "Add bridge-id to interfaces.";
+      reference
+        "3.8.0";
+  }
 
   revision "2024-04-04" {
       description
@@ -451,6 +458,15 @@ module openconfig-interfaces {
         "Sets the loopback type on the interface. Setting the
         mode to something besides NONE activates the loopback in
         the specified mode.";
+    }
+
+    leaf bridge-id {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description
+        "Specify the logical bridge interface to which
+        this interface belongs.";
     }
 
     uses interface-common-config;
