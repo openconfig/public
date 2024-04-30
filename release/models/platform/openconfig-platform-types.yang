@@ -22,11 +22,18 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "1.7.0";
+  oc-ext:openconfig-version "1.8.0";
 
-  revision "2024-04-12" {
+
+  revision "2024-04-30" {
     description
       "Add FAN_TRAY";
+    reference "1.8.0";
+  }
+
+  revision "2024-01-30" {
+    description
+      "Add component-last-poweroff-reason grouping";
     reference "1.7.0";
   }
 
@@ -222,6 +229,34 @@ module openconfig-platform-types {
 
     uses oc-types:stat-interval-state;
     uses oc-types:min-max-time;
+  }
+
+  grouping component-last-poweroff-reason {
+    description
+      "Common grouping for recording the reason of a component's
+      power-off state";
+
+    leaf trigger {
+      type component-last-poweroff-reason-trigger;
+      description
+        "Records the generic triggers for the last poweroff
+        event. Component power-off can be triggered
+        in various ways,
+           - USER_INITIATED
+           - SYSTEM_INITIATED
+           - POWER_FAILURE
+        This field is not updated during reboots; those are
+        tracked in the 'last-reboot-reason' leaf.";
+    }
+
+    leaf details {
+      type string;
+      description
+        "Provides a detailed reason for component power-off.
+        For system-initiated power-offs, this field can include
+        specific causes (e.g., critical errors resulting in a
+        controller-card bootloop).";
+    }
   }
 
   grouping component-redundant-role-switchover-reason {
@@ -550,4 +585,24 @@ module openconfig-platform-types {
     description
       "Records how the role switchover is triggered.";
   }
+
+  typedef component-last-poweroff-reason-trigger {
+      type enumeration {
+        enum USER_INITIATED {
+          description
+            "User initiated the power-off, e.g. via command line.";
+        }
+        enum SYSTEM_INITIATED {
+          description
+            "The system initiated the power-off, e.g. due to
+            critical errors in the component of the primary role.";
+        }
+        enum POWER_FAILURE {
+          description
+            "The last power-off was due to power failure.";
+        }
+      }
+      description
+        "Records how the last power-off was triggered.";
+    }
 }

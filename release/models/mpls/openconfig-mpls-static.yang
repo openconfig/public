@@ -10,6 +10,7 @@ submodule openconfig-mpls-static {
   import openconfig-mpls-types {prefix oc-mplst; }
   import openconfig-inet-types { prefix inet; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-interfaces { prefix oc-if; }
 
 
   // meta
@@ -23,7 +24,14 @@ submodule openconfig-mpls-static {
     "Defines static LSP configuration";
 
 
-  oc-ext:openconfig-version "3.4.0";
+  oc-ext:openconfig-version "3.5.0";
+
+  revision "2023-12-14" {
+    description
+      "Added additional attributes oc-if:interface-ref
+      and metric attributes to static lsp";
+    reference "3.5.0";
+  }
 
   revision "2023-07-25" {
     description
@@ -169,6 +177,15 @@ submodule openconfig-mpls-static {
       description
         "label value to push at the current hop for the
         LSP";
+    }
+
+    // interface-ref
+    uses oc-if:interface-ref-common;
+
+    leaf metric {
+      type uint8;
+      description
+        "Specifies metric value used for the MPLS route";
     }
   }
 
