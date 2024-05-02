@@ -116,34 +116,6 @@ module openconfig-aaa {
         "AAA server type -- all servers in the group must be of this
         type";
     }
-
-    list servers {
-      key "address port network-instance type";
-
-      leaf address {
-        type leafref {
-          path "/system/aaa/servers/server/address";
-        }
-      }
-
-      leaf port {
-        type leafref {
-          path "deref(../address)/../port";
-        }
-      }
-
-      leaf network-instance {
-        type leafref {
-          path "deref(../port)/../network-instance";
-        }
-      }
-
-      leaf type {
-        type leafref {
-          path "deref(../network-instance)/../type";
-        }
-      }
-    }
   }
 
   grouping aaa-servergroup-common-state {
@@ -151,6 +123,113 @@ module openconfig-aaa {
       "Operational state data for AAA server groups";
 
     //TODO: add list of group members as opstate
+  }
+
+  grouping aaa-servergroup-member-config {
+    description
+      "Common configuration data for server group member";
+
+    leaf address {
+      type leafref {
+        path "../../../../../../servers/server/address";
+      }
+      description
+        "Reference to the configured address of the server group member";
+    }
+
+    leaf port {
+      type leafref {
+        path "deref(../address)/../port";
+      }
+      description
+        "Reference to the configured port of the server group member";
+    }
+
+    leaf network-instance {
+      type leafref {
+        path "deref(../port)/../network-instance";
+      }
+      description
+        "Reference to the configured network-instance of the server group member";
+    }
+
+    leaf type {
+      type leafref {
+        path "deref(../network-instance)/../type";
+      }
+      description
+        "Reference to the configured type of the server group member";
+    }
+  }
+
+  grouping aaa-servergroup-member-state {
+    description
+      "Operational state data for server group member";
+  }
+
+  grouping aaa-servergroup-member-top {
+    description
+      "Top-level grouping for list of AAA servers";
+
+    container group-members {
+      description
+        "Enclosing container for server group members";
+
+      list group-member {
+        key "address port network-instance type";
+        description
+          "List of server group members";
+
+        leaf address {
+          type leafref {
+            path "../config/address";
+          }
+          description
+            "Reference to the configured address of the server group member";
+        }
+
+        leaf port {
+          type leafref {
+            path "../config/port";
+          }
+          description
+            "Reference to the configured port of the server group member";
+        }
+
+        leaf network-instance {
+          type leafref {
+            path "../config/network-instance";
+          }
+          description
+            "Reference to the configured network-instance of the server group member";
+        }
+
+        leaf type {
+          type leafref {
+            path "../config/type";
+          }
+          description
+            "Reference to the configured type of the server group member";
+        }
+
+        container config {
+          description
+            "Configuration data ";
+
+          uses aaa-servergroup-member-config;
+        }
+
+        container state {
+          config false;
+
+          description
+            "Operational state data ";
+
+          uses aaa-servergroup-member-config;
+          uses aaa-servergroup-common-state;
+        }
+      }
+    }
   }
 
   grouping aaa-servergroup-common-top {
@@ -192,6 +271,8 @@ module openconfig-aaa {
           uses aaa-servergroup-common-config;
           uses aaa-servergroup-common-state;
         }
+
+        uses aaa-servergroup-member-top;
 
         uses aaa-server-top {
           status deprecated;
@@ -266,18 +347,6 @@ module openconfig-aaa {
       description
         "Set the timeout in seconds on responses from the AAA
         server";
-    }
-
-    list server-group {
-      key "name";
-      description
-        "List of the server groups this server belongs to";
-
-      leaf name {
-        type string;
-        description
-          "Server group name";
-      }
     }
   }
 
