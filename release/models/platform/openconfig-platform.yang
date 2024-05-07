@@ -65,12 +65,12 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.25.0";
+oc-ext:openconfig-version "0.26.0";
 
-  revision "2024-04-24" {
+  revision "2024-05-07" {
     description
       "Add storage state io-errors.";
-    reference "0.25.0";
+    reference "0.26.0";
   }
 
   revision "2023-11-28" {
@@ -537,6 +537,27 @@ module openconfig-platform {
         this reports the role of the component.";
     }
 
+    container last-poweroff-reason {
+      description
+        "Records last power-off reason for a component.";
+
+      uses oc-platform-types:component-last-poweroff-reason;
+    }
+
+    leaf last-poweroff-time {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+      description
+        "This records the last time a component was directly powered
+         down. The value is a Unix Epoch timestamp (nanoseconds since
+         Jan 1, 1970 00:00:00 UTC). Component power-off can be:
+         - USER_INITIATED
+         - SYSTEM_INITIATED
+         - POWER_FAILURE
+         This field is not updated during reboots; those are tracked
+         in the 'last-reboot-time' leaf.";
+    }
+
     container last-switchover-reason {
       description
         "For components that have redundant roles (e.g. two
@@ -573,7 +594,8 @@ module openconfig-platform {
       description
         "This reports the time of the last reboot of the component. The
         value is the timestamp in nanoseconds relative to the Unix Epoch
-        (Jan 1, 1970 00:00:00 UTC).";
+        (Jan 1, 1970 00:00:00 UTC). This timer is not updated during
+        power shutdowns; those are tracked in 'last-poweroff-time' leaf.";
     }
 
     leaf switchover-ready {
@@ -1148,9 +1170,7 @@ module openconfig-platform {
 
       container config {
         description
-          "Configuration data for controller card components. Note that disabling
-          power to the primary supervisor should be rejected, and the operator is
-          required to perform a switchover first.";
+          "Configuration data for controller card components.";
       }
 
       container state {

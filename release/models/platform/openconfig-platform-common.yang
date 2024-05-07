@@ -20,11 +20,17 @@ submodule openconfig-platform-common {
     "This modules contains common groupings that are used in multiple
     components within the platform module.";
 
-  oc-ext:openconfig-version "0.25.0";
+  oc-ext:openconfig-version "0.26.0";
 
-  revision "2024-04-24" {
+  revision "2024-05-07" {
     description
       "Add storage state io-errors.";
+    reference "0.26.0";
+  }
+
+  revision "2024-01-30" {
+    description
+      "Updated description for component-power-type";
     reference "0.25.0";
   }
 
@@ -238,7 +244,11 @@ submodule openconfig-platform-common {
       type oc-platform-types:component-power-type;
       default POWER_ENABLED;
       description
-        "Enable or disable power to the component";
+        "When set to POWER_DISABLED, the component should be shut down by removing
+        electrical power.  This is intended to be used to prevent the component
+        from becoming active even after a reboot of the system. A component
+        (if controller-card) may not honor power-admin-state depending on rules
+        defined in the description of the component config container.";
     }
   }
 
