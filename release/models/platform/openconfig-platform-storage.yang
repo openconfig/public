@@ -49,7 +49,9 @@ module openconfig-platform-storage {
   grouping storage-state {
     description
       "Storage component state.  These counters are derived from the
-       linux kernel block layer statistics in /sys/block/<dev>/stat.";
+       linux kernel block layer statistics in /sys/block/<dev>/stat.
+       Implementations which do not use the linux kernel to access
+       storage should provide equivalent counters.";
     reference
       "https://www.kernel.org/doc/Documentation/block/stat.txt";
 
@@ -58,7 +60,9 @@ module openconfig-platform-storage {
       description
         "This values increments when an I/O request completes with a
          failure.  This value corresponds to 'discard I/Os' om the linux
-         kernel block layer statistics.";
+         kernel block layer statistics.  In non-linux implementations,
+         a count of I/O operations which could not be completed due to
+         an error accessing the storage device should be reported.";
     }
   }
 
