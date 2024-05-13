@@ -41,7 +41,13 @@ module openconfig-wavelength-router {
          target spectrum power profile over the full spectrum instead
          of individual media channels.";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2024-04-08" {
+    description
+      "Add attenuation-control-range to media channel config";
+    reference "1.2.0";
+  }
 
   revision "2021-07-26" {
     description
@@ -166,6 +172,29 @@ module openconfig-wavelength-router {
       target output power occurs gradually to minimize any power
       oscillations across the line system. These changes will happen
       within the order of minutes";
+  }
+
+  // identity statements
+  identity ATTENUATION_CONTROL_RANGE {
+    description
+      "The definition for different types of modes to specify
+       attenuation control range settings on a media channel";
+  }
+
+  identity CONTROL_RANGE_FULL {
+    base ATTENUATION_CONTROL_RANGE;
+    description
+      "Media channel power compensation range is not constrained,
+      and is limited by available WSS dynamic range. Operator does not
+      explicitly set the undershoot and overshoot compensation range";
+  }
+
+  identity CONTROL_RANGE_LIMITED {
+    base ATTENUATION_CONTROL_RANGE;
+    description
+      "Media channel undershoot and overshoot compensation ranges
+      are defined by max-undershoot-compensation and
+      max-overshoot-compensation";
   }
 
   identity ASE_CONTROL_MODE {
@@ -554,6 +583,19 @@ module openconfig-wavelength-router {
         is configured";
     }
 
+    leaf media-channel-injection-offset {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dB;
+      description
+        "Defines the optical power offset value relative to the
+        ASE injection threshold at which point ASE should be removed
+        and the media-channel should be injected. Requires
+        ase-injection-delta or ase-injection-threshold to be
+        configured";
+    }
+
     leaf attenuation-control-mode {
       type identityref {
         base ATTENUATION_CONTROL_MODE;
@@ -562,6 +604,46 @@ module openconfig-wavelength-router {
         "Sets the attenuation control mode for the media channel.
         The control mode defines the behavior of how the attenuation
         across a media channel is set";
+    }
+
+    leaf attenuation-control-range {
+      type identityref {
+        base ATTENUATION_CONTROL_RANGE;
+      }
+      description
+        "Sets the attenuation control range for the media channel.
+        The control range defines the amount of media channel
+        undershoot and overshoot compensation that will be applied
+        when performing power targeting to meet the defined output
+        port spectrum power profile";
+    }
+
+    leaf max-undershoot-compensation {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      when "../attenuation-control-range = 'CONTROL_RANGE_LIMITED'";
+      units dB;
+      description
+        "Defines the maximum allowable WSS attenuation adjustment
+        the system will use to compensate a channel with input power
+        lower than the defined target power at the input. This value
+        is measured relative to the baseline WSS attenuation
+        established for an individual media-channel";
+    }
+
+    leaf max-overshoot-compensation {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      when "../attenuation-control-range = 'CONTROL_RANGE_LIMITED'";
+      units dB;
+      description
+        "Defines the maximum allowable WSS attenuation adjustment
+        the system will use to compensate a channel with input power
+        higher than the defined target power at the input. This
+        value is measured relative to the baseline WSS attenuation
+        established for an individual media-channel";
     }
   }
 
