@@ -10,6 +10,7 @@ module openconfig-policy-types {
   // import some basic types
   import ietf-yang-types { prefix yang; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-yang-types { prefix oc-yang; }
 
   // meta
   organization
@@ -24,9 +25,15 @@ module openconfig-policy-types {
     policy.  It can be imported by modules that contain protocol-
     specific policy conditions and actions.";
 
-  oc-ext:openconfig-version "3.2.3";
+  oc-ext:openconfig-version "3.3.0";
 
-  revision "2022-11-08" {
+  revision "2024-05-14" {
+    description
+      "Add hex-string-prefixed to typedef tag-type.";
+    reference "3.3.0";
+  }
+
+revision "2022-11-08" {
     description
       "Add INSTALL_PROTOCOL_TYPE local.";
     reference "3.2.3";
@@ -165,6 +172,7 @@ module openconfig-policy-types {
     type union {
       type uint32;
       type yang:hex-string;
+      type oc-yang:hex-string-prefixed;
     }
     description "type for expressing route tags on a local system,
     including IS-IS and OSPF; may be expressed as either decimal or
