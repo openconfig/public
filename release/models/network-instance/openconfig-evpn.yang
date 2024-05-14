@@ -40,12 +40,24 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.9.0";
 
-  revision "2023-11-28" {
+  revision "2024-05-14" {
    description
      "Add configuration of VPWS identifier
      for EVPN Virtual Private Wire Services (RFC 8214)";
+     reference   "0.9.0";
+  }
+
+  revision "2024-04-03" {
+   description
+     "Add vni-peer-groups container";
+   reference   "0.8.0";
+  }
+
+  revision "2024-02-01" {
+   description
+     "Add counters under endpoint-peer and endpoint-vni";
    reference   "0.7.0";
   }
 
@@ -941,6 +953,50 @@ module openconfig-evpn {
             description
               "Container for state parameters related to this VTEP peer";
             uses evpn-endpoint-peer-state;
+            uses evpn-endpoint-counters;
+        }
+        container vni-peer-groups {
+          config false;
+          description
+            "Container for associating ingress and egress VNIs to router MACs";
+          list vni-peer-group {
+            key "cp-vni egress-vni";
+            description
+              "List of VNI peer groups";
+            leaf cp-vni {
+              type leafref {
+                path "../state/cp-vni";
+              }
+              description
+                "A reference to the control-plane VNI for the VNI peer group";
+            }
+            leaf egress-vni {
+              type leafref {
+                path "../state/egress-vni";
+              }
+              description
+                "A reference to the egress VNI for the VNI peer group";
+            }
+
+            container state {
+              description "State container for the VNI peer group";
+              config false;
+
+              leaf cp-vni {
+                type oc-evpn-types:vni-id;
+                description
+                  "The control-plane VNI discovered behind this peer VTEP";
+              }
+              leaf egress-vni {
+                type oc-evpn-types:vni-id;
+                description "Egress VNI associated with the remote VTEP";
+              }
+              leaf router-mac {
+                type oc-yang:mac-address;
+                description "MAC address of the remote VTEP";
+              }
+            }
+          }
         }
       }
     }
@@ -970,6 +1026,9 @@ module openconfig-evpn {
             "Container for state parameters related to this L2VNI or L3VNI";
           uses evpn-endpoint-vni-state;
         }
+
+        uses ipv4-top;
+        uses ipv6-top;
       }
     }
   }
@@ -1009,6 +1068,7 @@ module openconfig-evpn {
 
     leaf-list control-plane-vnis {
       type oc-evpn-types:vni-id;
+      status deprecated;
       description
         "The control-plane VNIs are all of the VNIs that are discovered by the
         control-plane behind this peer VTEP";
@@ -1016,7 +1076,102 @@ module openconfig-evpn {
 
     leaf router-mac {
       type oc-yang:mac-address;
+      status deprecated;
       description "MAC address of the remote VTEP";
+    }
+  }
+
+  grouping evpn-endpoint-counters {
+    description
+      "Grouping for Operational state regarding encapsulated traffic.";
+    container counters {
+      description
+        "Operational state regarding encapsulated traffic.";
+      leaf total-encap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of encapsulated packets.";
+      }
+      leaf total-encap-bytes {
+        type oc-yang:counter64;
+        description
+          "The total number of encapsulated bytes.";
+      }
+      leaf bum-encap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of encapsulated BUM packets.";
+      }
+      leaf total-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated packets.";
+      }
+      leaf total-decap-bytes {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated bytes.";
+      }
+      leaf unicast-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated unicast packets.";
+      }
+      leaf bum-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated BUM packets.";
+      }
+      leaf bum-decap-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of decapsulated BUM packets received via underlay multicast.";
+      }
+      leaf bum-decap-ir-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of decapsulated BUM packets received via underlay ingress replication.";
+      }
+      leaf drop-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated packets that have been dropped locally.";
+      }
+      leaf except-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated packets that hit an exceptional condition.";
+      }
+    }
+  }
+
+  grouping ipv4-top {
+    description
+      "Grouping for Operational state of IPv4 address family.";
+    container ipv4 {
+      description
+        "Parameters for the IPv4 address family.";
+      container state {
+        config false;
+        description
+          "Top level IPv4 operational state data.";
+        uses evpn-endpoint-counters;
+      }
+    }
+  }
+
+  grouping ipv6-top {
+    description
+      "Grouping for Operational state of IPv6 address family.";
+    container ipv6 {
+      description
+        "Parameters for the IPv6 address family.";
+      container state {
+        config false;
+        description
+          "Top level IPv6 operational state data.";
+        uses evpn-endpoint-counters;
+      }
     }
   }
 
