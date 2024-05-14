@@ -33,7 +33,13 @@ module openconfig-keychain {
     which may be then referenced by other models such as routing protocol
     management.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2024-10-14" {
+    description
+      "Update key-id to a union of hex-string-prefixed and uint64.";
+    reference "0.5.0";
+  }
 
   revision "2022-11-05" {
     description
@@ -194,7 +200,7 @@ module openconfig-keychain {
 
     leaf key-id {
       type union {
-        type oc-yang:hex-string {
+        type oc-yang:hex-string-prefixed {
           length "1..64";
         }
         type uint64;
