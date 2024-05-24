@@ -481,7 +481,7 @@ module openconfig-network-instance {
             between tables";
 
           list table-connection {
-            key "src-protocol dst-protocol address-family";
+            key "src-protocol src-name dst-protocol dst-name address-family";
 
             description
               "A list of connections between pairs of routing or
@@ -495,6 +495,7 @@ module openconfig-network-instance {
 
             reference
               "Route Redistribution in OpenConfig Network Instance:
+              // [TODO:rewrite to represent changes]
               https://github.com/openconfig/public/blob/master/doc/network_instance_redistribution.md#interconnection-of-protocol-ribs";
 
             leaf src-protocol {
@@ -502,9 +503,21 @@ module openconfig-network-instance {
                 path "../config/src-protocol";
               }
               description
-                "The name of the protocol associated with the table
+                "The protocol associated with the table
                 which should be utilised as the source of forwarding
                 or routing information";
+            }
+
+            leaf src-instance-name {
+              type leafref {
+                path "../config/src-instance-name";
+              }
+              description
+                "The name of the instance of protocol associated with the table
+                which should be utilised as the source of forwarding
+                or routing information.
+                If not specified and only one instance of given protocol is
+                configured, implementation may default to this instance.";
             }
 
             leaf dst-protocol {
@@ -512,8 +525,21 @@ module openconfig-network-instance {
                 path "../config/dst-protocol";
               }
               description
-                "The table to which routing entries should be
-                exported";
+                "The protocol associated with the table
+                which should be utilised as the destination of forwarding
+                or routing information";
+            }
+
+            leaf dst-instance-name {
+              type leafref {
+                path "../config/dst-instance-name";
+              }
+              description
+                "The name of the instance of protocol associated with the table
+                which should be utilised as the destination of forwarding
+                or routing information.
+                If not specified and only one instance of given protocol is
+                configured, implementation may default to this instance.";
             }
 
             leaf address-family {
@@ -598,33 +624,36 @@ module openconfig-network-instance {
             instance";
 
           list table {
-            key "protocol address-family";
+            key "protocol instance-name address-family";
 
             description
-              "A network instance manages one or more forwarding or
-              routing tables. These may reflect a Layer 2 forwarding
-              information base, a Layer 3 routing table, or an MPLS
-              LFIB.
+              "A network instance manages one or more 
+              routing tables. This tables represents control plane 
+              informations, and are separate for each tripple of:
+              - protocol information was learned form
+              - instance of above protocol
+              - address family and sub-family
 
               The table populated by a protocol within an instance is
-              identified by the protocol identifier (e.g., BGP, IS-IS)
-              and the address family (e.g., IPv4, IPv6) supported by
-              that protocol. Multiple instances of the same protocol
-              populate a single table -- such that
-              a single IS-IS or OSPF IPv4 table exists per network
-              instance.
+              identified by the protocol identifier (e.g., BGP, IS-IS),
+              protocol instane's name, the address family (e.g., IPv4,
+              IPv6) and subfamily supported by that protocol.
 
               An implementation is expected to create entries within
-              this list when the relevant protocol context is enabled.
-              i.e., when a BGP instance is created with IPv4 and IPv6
-              address families enabled, the protocol=BGP,
-              address-family=IPv4 table is created by the system. The
-	            removal of the table should not require additional or
+              this list when the relevant protocol context is enabled,
+              and destroy them when is disabled. 
+              i.e., when a BGP instance FOO is created with IPv4-unicst 
+              IPv4-multicast and IPv6-unicast
+              address families enabled, the (protocol=BGP, name=FOO
+              address-family=IPv4-UNICAST), (protocol=BGP, name=FOO
+              address-family=IPv4-MULTICAST) and (protocol=BGP, name=FOO
+              address-family=IPv6-UNICAST) tables are created by the system.
+              The removal of the table should not require additional or
 	            explicit configurations";
 
             leaf protocol {
               type leafref {
-                path "../config/protocol";
+                path "../state/protocol";
               }
               description
                 "A reference to the protocol that populates
@@ -633,19 +662,29 @@ module openconfig-network-instance {
 
             leaf address-family {
               type leafref {
-                path "../config/address-family";
+                path "../state/address-family";
               }
               description
                 "A reference to the address-family that the
                 table represents";
             }
 
-            container config {
+            leaf instance-name {
+              type leafref {
+                path "../state/instance-name";
+              }
               description
-                "Configuration parameters relating to the
-                table";
-              uses table-config;
+                "A reference to the instance of protocol that 
+                populates the table";
             }
+
+            // container config {
+            //  deprecated;
+            //  description
+            //    "Configuration parameters relating to the
+            //    table";
+            //  uses table-config;
+            //}
 
             container state {
               config false;
@@ -1111,6 +1150,14 @@ module openconfig-network-instance {
         "Reference to the protocol that the table is associated with.";
     }
 
+    leaf instance-name {
+      type leafref {
+        path "../../../../protocols/protocol/config/name";
+      }
+      description
+        "Reference to the protocol that the table is associated with.";
+    }
+
     leaf address-family {
       type identityref {
         base oc-types:ADDRESS_FAMILY;
@@ -1197,17 +1244,26 @@ module openconfig-network-instance {
     leaf src-protocol {
       type leafref {
         // we are at table-connections/table-connection/config/.
-        path "../../../../tables/table/config/protocol";
+        path "../../../../protocols/protocol/config/identifier";
       }
       description
         "The source protocol for the table connection";
     }
 
+    leaf src-instance-name {
+      type leafref {
+        // we are at table-connections/table-connection/config/.
+        path "../../../../protocols/protocol/config/name";
+      }
+      description
+        "The name of instance of source protocol for the table connection";
+    }
+
     leaf address-family {
       type leafref {
         // we are at table-connections/table-connection/config/.
-        path "../../../../tables/" +
-          "table[protocol=current()/../src-protocol]/" +
+        path "../../../../protocols/" +
+          "protocol[identifier=current()/../src-protocol]/" +
           "config/address-family";
       }
       description
@@ -1219,10 +1275,19 @@ module openconfig-network-instance {
 
     leaf dst-protocol {
       type leafref {
-        path "../../../../tables/table/config/protocol";
+        path "../../../../protocols/protocol/config/identifier";
       }
       description
         "The destination protocol for the table connection";
+    }
+
+    leaf dst-instance-name {
+      type leafref {
+        // we are at table-connections/table-connection/config/.
+        path "../../../../protocols/protocol/config/name";
+      }
+      description
+        "The name of instance of destination protocol for the table connection";
     }
 
     leaf disable-metric-propagation {
