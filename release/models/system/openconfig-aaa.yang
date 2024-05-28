@@ -135,36 +135,12 @@ module openconfig-aaa {
     description
       "Common configuration data for server group member";
 
-    leaf address {
+    leaf name {
       type leafref {
-        path "../../../../../../servers/server/address";
+        path "../../../../../../servers/server/name";
       }
       description
-        "Reference to the configured address of the server group member";
-    }
-
-    leaf port {
-      type leafref {
-        path "deref(../address)/../port";
-      }
-      description
-        "Reference to the configured port of the server group member";
-    }
-
-    leaf network-instance {
-      type leafref {
-        path "deref(../port)/../network-instance";
-      }
-      description
-        "Reference to the configured network-instance of the server group member";
-    }
-
-    leaf type {
-      type leafref {
-        path "deref(../network-instance)/../type";
-      }
-      description
-        "Reference to the configured type of the server group member";
+        "Reference to the name of the server group member";
     }
   }
 
@@ -182,40 +158,16 @@ module openconfig-aaa {
         "Enclosing container for server group members";
 
       list group-member {
-        key "address port network-instance type";
+        key "name";
         description
           "List of server group members";
 
-        leaf address {
+        leaf name {
           type leafref {
-            path "../config/address";
+            path "../config/name";
           }
           description
-            "Reference to the configured address of the server group member";
-        }
-
-        leaf port {
-          type leafref {
-            path "../config/port";
-          }
-          description
-            "Reference to the configured port of the server group member";
-        }
-
-        leaf network-instance {
-          type leafref {
-            path "../config/network-instance";
-          }
-          description
-            "Reference to the configured network-instance of the server group member";
-        }
-
-        leaf type {
-          type leafref {
-            path "../config/type";
-          }
-          description
-            "Reference to the configured type of the server group member";
+            "Reference to the name of the server group member";
         }
 
         container config {
@@ -323,7 +275,6 @@ module openconfig-aaa {
         "Name assigned to the server";
     }
 
-
     leaf address {
       type oc-inet:ip-address;
       description "Address of the authentication server";
@@ -423,42 +374,18 @@ module openconfig-aaa {
         "Enclosing container the list of servers";
 
       list server {
-        key "address port network-instance type";
+        key "name";
         description
           "List of AAA servers";
 
-        leaf address {
+        leaf name {
           type leafref {
-            path "../config/address";
+            path "../config/name";
           }
           description
-            "Reference to the configured address of the AAA server";
+            "Reference to the configured name of the AAA server";
         }
-
-        leaf port {
-          type leafref {
-            path "../config/port";
-          }
-          description
-            "Reference to the configured port of the AAA server";
-        }
-
-        leaf network-instance {
-          type leafref {
-            path "../config/network-instance";
-          }
-          description
-            "Reference to the configured network-instance of the AAA server";
-        }
-
-        leaf type {
-          type leafref {
-            path "../config/type";
-          }
-          description
-            "AAA server type";
-        }
-
+        
         container config {
           description
             "Configuration data ";
