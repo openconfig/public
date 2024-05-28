@@ -13,7 +13,7 @@ module openconfig-bgp-policy {
   import openconfig-policy-types { prefix oc-pol-types; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
   import openconfig-extensions { prefix oc-ext; }
-
+  import openconfig-types { prefix oc-types; }
 
   // meta
   organization
@@ -28,7 +28,20 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "6.3.0";
+  oc-ext:openconfig-version "7.0.0";
+
+  revision "2024-01-31" {
+    description
+      "Update community-sets/members/member union type by replacing
+      the bgp-regex type with posix-eregexp.";
+    reference "7.0.0";
+  }
+
+  revision "2023-12-19" {
+    description
+    "Add PEER_ADDRESS to bgp-next-hop-type.";
+    reference "6.4.0";
+  }
 
   revision "2023-10-23" {
     description
@@ -174,6 +187,11 @@ module openconfig-bgp-policy {
         enum SELF {
           description "special designation for local router's own
           address, i.e., next-hop-self";
+        }
+        enum PEER_ADDRESS {
+          description "The ip address of the peer should be used.
+          This enum is efficient to use when setting the next hop
+          in a policy applied to a peer group.";
         }
       }
     }
@@ -582,13 +600,20 @@ module openconfig-bgp-policy {
         type oc-bgp-types:bgp-well-known-community-type;
       }
       description
-        "members of the community set.
-        For an ADD operation these are the communities that will be added;
-        the regexp type is not valid in this operation.
+        "Members of the community set.
+        For an ADD operation these are the communities that will be
+        added.  The regexp type is not valid in this operation.
+
         For REMOVE or REPLACE operations then matching communities will
         be removed unless match-set-options is INVERT which will
         reverse this to mean that anything that does not match will be
-        removed.";
+        removed.
+
+        For MATCH operations the posix-eregexp type should be evaluated
+        against each community associated with a prefix one community
+        at a time.  Communities must be represented as strings in formats
+        conforming to oc-bgp-types:bgp-std-community-type.  For example:
+        `1000:1000` for a standard community";
     }
 
     leaf match-set-options {
@@ -661,16 +686,24 @@ module openconfig-bgp-policy {
     leaf-list ext-community-member {
       type union {
         type oc-bgp-types:bgp-ext-community-type;
-        type oc-bgp-types:bgp-community-regexp-type;
+        type oc-types:posix-eregexp;
       }
       description
-        "members of the extended community set
+        "Members of the extended community set.
         For an ADD operation these are the communities that will be added;
         the regexp type is not valid in this operation.
+
         For REMOVE or REPLACE operations then matching communities will
         be removed unless match-set-options is INVERT which will
         reverse this to mean that anything that does not match will be
-        removed.";
+        removed.
+
+        For MATCH operations the posix-eregexp type should be evaluated
+        against each community associated with a prefix one community
+        at a time.  Communities must be represented as strings in formats
+        conforming to oc-bgp-types:bgp-ext-community-type.  For example:
+        `route-origin:1000:1000` for the origin type extended community,
+        and so on.";
     }
 
     leaf match-set-options {

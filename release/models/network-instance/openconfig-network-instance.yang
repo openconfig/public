@@ -48,7 +48,20 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.2.2";
+  oc-ext:openconfig-version "4.4.0";
+
+  revision "2024-02-27" {
+    description
+      "Clarify metric to be used for route redistribution when
+      disable-metric-propagation is set to true.";
+    reference "4.4.0";
+  }
+
+  revision "2023-12-13" {
+    description
+      "Expand when statement for connection-points endpoints";
+    reference "4.3.0";
+  }
 
   revision "2023-11-03" {
     description
@@ -738,7 +751,8 @@ module openconfig-network-instance {
 
             container endpoints {
               when "../../../config/type = 'oc-ni-types:L2P2P' " +
-                 "or ../../../config/type = 'oc-ni-types:L2VSI'" {
+                 "or ../../../config/type = 'oc-ni-types:L2VSI'" +
+                 "or ../../../config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
                 description
                   "Configuration parameters to associate interfaces
                    into a common group for use in Layer 2 network
@@ -840,15 +854,10 @@ module openconfig-network-instance {
                   }
                 }
                 container vxlan {
-                    when "../config/type = 'oc-ni-types:VXLAN'" {
-                      description
-                        "Only include the vxlan configuration when
-                        the endpoint is specified to be vxlan";
-                    }
-                    description
-                      "Configuration and operational state parameters
-                      relating to a VXLAN tunnel end-point interface";
-                    uses oc-evpn:evpn-overlays-grp-top;
+                  description
+                    "Configuration and operational state parameters
+                    relating to a VXLAN tunnel end-point interface";
+                  uses oc-evpn:evpn-overlays-grp-top;
                 }
               }
             }
@@ -1300,8 +1309,8 @@ module openconfig-network-instance {
          - IS-IS metric may be reflected in BGP MED (and vice versa)
          - OSPF metric may be reflected in the BGP MED (and vice versa)
         When this leaf is set to true, this reflection behaviour MUST be
-        disabled, and rather the metric must be set to the default value,
-        or explicitly set by policy.";
+        disabled, and rather the metric must be set to '0' or explicitly
+        set by policy.";
     }
 
     uses oc-rpol:apply-policy-import-config;
