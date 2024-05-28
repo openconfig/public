@@ -40,7 +40,25 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2024-04-03" {
+   description
+     "Add vni-peer-groups container";
+   reference   "0.8.0";
+  }
+
+  revision "2024-02-01" {
+   description
+     "Add counters under endpoint-peer and endpoint-vni";
+   reference   "0.7.0";
+  }
+
+  revision "2023-07-12" {
+   description
+     "Removed ethernet segment";
+   reference   "0.6.0";
+  }
 
   revision "2023-03-08" {
    description
@@ -161,218 +179,7 @@ module openconfig-evpn {
     }
   }
 
-  grouping evpn-ethernet-segment-df-config {
-    description
-      "Configuration parameters for the Designated forwarding
-      Election";
 
-    leaf df-election-method {
-      type enumeration {
-        enum DEFAULT {
-          value 0;
-          description
-            "The default Designated Forwarder Election election method";
-        }
-        enum HIGHEST_RANDOM_WEIGHT {
-          value 1;
-          description
-            "The highest random weight (HRW) method";
-          reference
-            "RFC8584: Framework for Ethernet VPN Designated Forwarder
-            Election Extensibility";
-        }
-        enum PREFERENCE {
-          value 2;
-          description
-            "The preference based method";
-          reference
-            "RFC8584: Framework for Ethernet VPN Designated Forwarder
-            Election Extensibility";
-        }
-      }
-      description
-        "Select the Designated Forwarder Election (DF) election method";
-      reference
-        "RFC 7432: BGP MPLS-Based Ethernet VPN.
-        RFC 8584:Framework for Ethernet VPN Designated Forwarder
-        Election Extensibility";
-    }
-
-    leaf preference {
-      when "../df-election-method = 'PREFERENCE'" {
-      description
-        "The preference value is only applicable
-        to the preference based method";
-      }
-      type uint16;
-      description
-        "Defines a 2-octet value that indicates the PE
-        preference to become the DF in the Ethernet-Segment.";
-      reference
-        "RFC8584: Framework for Ethernet VPN Designated Forwarder
-        Election Extensibility";
-    }
-
-    leaf revertive {
-      when "../df-election-method = 'PREFERENCE'" {
-      description
-        "The revertive value is only applicable
-        to the preference method";
-      }
-      type boolean;
-      default true;
-      description
-        "The 'preempt' or 'revertive' behavior. This option will allow a
-        non-revertive behavior in the DF election.";
-      reference
-        "RFC8584: Framework for Ethernet VPN Designated Forwarder
-        Election Extensibility";
-    }
-
-    leaf election-wait-time {
-      when "../df-election-method = 'PREFERENCE'" {
-      description
-        "The Designated Forwarder Election wait-time is only applicable
-        to the preference method";
-      }
-      type uint32;
-      description
-        "Designated Forwarder Election wait-time. When the DF timer expires,
-        the PE device selects the DF based on the highest preference value";
-      reference
-        "RFC8584: Framework for Ethernet VPN Designated Forwarder
-        Election Extensibility";
-    }
-  }
-
-  grouping evpn-ethernet-segment-df-top {
-    description
-      "Top grouping for the configuration and state parameters
-      for the Designated forwarding Election";
-
-    container df-election {
-      description
-        "Top container for the configuration and state parameters
-        for the Designated forwarding Election";
-
-      container config {
-        description
-          "Configuration parameters for the Designated forwarding Election";
-
-        uses evpn-ethernet-segment-df-config;
-      }
-
-      container state {
-        description
-          "Configuration parameters for the Designated forwarding Election";
-        config false;
-
-        uses evpn-ethernet-segment-df-config;
-      }
-    }
-  }
-
-  grouping evpn-ethernet-segment-config {
-    description
-      "Configuration attributes for the Ethernet
-      Segment.";
-
-    leaf name {
-      type string;
-      description
-        "Ethernet Segment name";
-    }
-
-    leaf esi-type {
-      type oc-evpn-types:esi-type;
-      default "TYPE_0_OPERATOR_CONFIGURED";
-      description
-        "ESI Type is a 1-octet field (most significant octet) that
-        specifies the format of the remaining 9 octets (ESI Value).";
-      reference
-        "RFC 7432: BGP MPLS-Based Ethernet VPN page-16";
-    }
-
-    leaf esi {
-      type union {
-        type oc-evpn-types:esi;
-        type enumeration {
-          enum AUTO {
-            description
-              "This ESI type indicates an auto-generated ESI value.";
-            reference
-              "RFC 7432: BGP MPLS-Based Ethernet VPN";
-          }
-        }
-      }
-      description
-        "Ethernet Segment Identifier (ESI) value.
-        For ESI Type 0: The esi leaf value is directly configured by the operator.
-        For ESI Type 1: The AUTO enum must be used.
-        For ESI Type 2: The AUTO enum must be used.
-        For ESI Type 3: The directly configured or AUTO enum must be used.
-        For ESI Type 4: The directly configured or AUTO enum must be used.
-        For ESI Type 5: The directly configured or AUTO enum must be used.";
-      reference
-        "RFC 7432: BGP MPLS-Based Ethernet VPN.";
-    }
-
-    leaf redundancy-mode {
-      type identityref {
-        base oc-evpn-types:EVPN_REDUNDANCY_MODE;
-      }
-      description
-        "Multihoming options for load balancing of
-        traffic in the Ethernet Segment.";
-      reference
-        "RFC 7432: BGP MPLS-Based Ethernet VPN";
-    }
-
-    uses oc-if:interface-ref-common;
-  }
-
-  grouping evpn-ethernet-segment-top {
-    description
-      "Top-level grouping for ethernet segments. An Ethernet Segment
-      is referenced by a name and an ESI";
-
-    container ethernet-segments {
-      description
-        "Top-level container for ethernet segments. An Ethernet Segment
-        is referenced by a name and an ESI";
-
-      list ethernet-segment {
-        key "name";
-        description
-          "List of Ethernet Segments.";
-
-        leaf name {
-          type leafref {
-            path '../config/name';
-          }
-          description
-            "Ethernet Segment Name ";
-        }
-
-        container config {
-          description
-            "Configuration data for the Ethernet Segments.";
-
-          uses evpn-ethernet-segment-config;
-        }
-
-        container state {
-          config false;
-          description
-            "Operational state data for the Ethernet Segments.";
-
-          uses evpn-ethernet-segment-config;
-        }
-
-        uses evpn-ethernet-segment-df-top;
-      }
-    }
-  }
 
   /* Groupings related to the Layer 2 forwarding (aka MAC-VRF)*/
 
@@ -1115,6 +922,50 @@ module openconfig-evpn {
             description
               "Container for state parameters related to this VTEP peer";
             uses evpn-endpoint-peer-state;
+            uses evpn-endpoint-counters;
+        }
+        container vni-peer-groups {
+          config false;
+          description
+            "Container for associating ingress and egress VNIs to router MACs";
+          list vni-peer-group {
+            key "cp-vni egress-vni";
+            description
+              "List of VNI peer groups";
+            leaf cp-vni {
+              type leafref {
+                path "../state/cp-vni";
+              }
+              description
+                "A reference to the control-plane VNI for the VNI peer group";
+            }
+            leaf egress-vni {
+              type leafref {
+                path "../state/egress-vni";
+              }
+              description
+                "A reference to the egress VNI for the VNI peer group";
+            }
+
+            container state {
+              description "State container for the VNI peer group";
+              config false;
+
+              leaf cp-vni {
+                type oc-evpn-types:vni-id;
+                description
+                  "The control-plane VNI discovered behind this peer VTEP";
+              }
+              leaf egress-vni {
+                type oc-evpn-types:vni-id;
+                description "Egress VNI associated with the remote VTEP";
+              }
+              leaf router-mac {
+                type oc-yang:mac-address;
+                description "MAC address of the remote VTEP";
+              }
+            }
+          }
         }
       }
     }
@@ -1144,6 +995,9 @@ module openconfig-evpn {
             "Container for state parameters related to this L2VNI or L3VNI";
           uses evpn-endpoint-vni-state;
         }
+
+        uses ipv4-top;
+        uses ipv6-top;
       }
     }
   }
@@ -1183,6 +1037,7 @@ module openconfig-evpn {
 
     leaf-list control-plane-vnis {
       type oc-evpn-types:vni-id;
+      status deprecated;
       description
         "The control-plane VNIs are all of the VNIs that are discovered by the
         control-plane behind this peer VTEP";
@@ -1190,7 +1045,102 @@ module openconfig-evpn {
 
     leaf router-mac {
       type oc-yang:mac-address;
+      status deprecated;
       description "MAC address of the remote VTEP";
+    }
+  }
+
+  grouping evpn-endpoint-counters {
+    description
+      "Grouping for Operational state regarding encapsulated traffic.";
+    container counters {
+      description
+        "Operational state regarding encapsulated traffic.";
+      leaf total-encap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of encapsulated packets.";
+      }
+      leaf total-encap-bytes {
+        type oc-yang:counter64;
+        description
+          "The total number of encapsulated bytes.";
+      }
+      leaf bum-encap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of encapsulated BUM packets.";
+      }
+      leaf total-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated packets.";
+      }
+      leaf total-decap-bytes {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated bytes.";
+      }
+      leaf unicast-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated unicast packets.";
+      }
+      leaf bum-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated BUM packets.";
+      }
+      leaf bum-decap-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of decapsulated BUM packets received via underlay multicast.";
+      }
+      leaf bum-decap-ir-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of decapsulated BUM packets received via underlay ingress replication.";
+      }
+      leaf drop-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated packets that have been dropped locally.";
+      }
+      leaf except-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated packets that hit an exceptional condition.";
+      }
+    }
+  }
+
+  grouping ipv4-top {
+    description
+      "Grouping for Operational state of IPv4 address family.";
+    container ipv4 {
+      description
+        "Parameters for the IPv4 address family.";
+      container state {
+        config false;
+        description
+          "Top level IPv4 operational state data.";
+        uses evpn-endpoint-counters;
+      }
+    }
+  }
+
+  grouping ipv6-top {
+    description
+      "Grouping for Operational state of IPv6 address family.";
+    container ipv6 {
+      description
+        "Parameters for the IPv6 address family.";
+      container state {
+        config false;
+        description
+          "Top level IPv6 operational state data.";
+        uses evpn-endpoint-counters;
+      }
     }
   }
 
