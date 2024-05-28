@@ -431,7 +431,9 @@ oc-ext:openconfig-version "0.26.0";
     }
 
     leaf install-position {
-      type string;
+      type leafref {
+        path "../../../component/config/name";
+      }
       description
         "System-supplied index to a position where this component is
         installed.  The position may be referred in device documenation
@@ -457,7 +459,9 @@ oc-ext:openconfig-version "0.26.0";
     }
 
     leaf install-component {
-      type string;
+      type leafref {
+        path "../../../component/config/name";
+      }
       description
         "This leaf contains the name of the ancestor component which
         contains the 'install-position'.  This creates a distinct
