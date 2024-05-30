@@ -34,9 +34,9 @@ module openconfig-yang-types {
 
   oc-ext:openconfig-version "1.0.0";
 
-  revision "2023-12-07" {
+  revision "2024-05-30" {
     description
-      "Add hex-string-colon typedef";
+      "Add hex-string-prefixed typedef";
     reference "1.0.0";
   }
 
@@ -121,7 +121,8 @@ module openconfig-yang-types {
       oc-ext:posix-pattern '^[0-9a-fA-F]*$';
     }
     description
-      "A string consisting of a hexadecimal characters.";
+      "A string consisting of a hexadecimal characters.  This leaf is
+      deprecated and will be replaced by hex-string-prefixed";
   }
 
   typedef hex-string-prefixed {
@@ -131,7 +132,7 @@ module openconfig-yang-types {
     }
     description
       "A string encoding a hexadecimal number with a prefix of '0x' followed
-      by each byte delimited by a colon";
+      by a list of bytes.";
   }
 
   typedef counter32 {
