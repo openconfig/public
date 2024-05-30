@@ -1,0 +1,43 @@
+module openconfig-gnmi-types {
+  yang-version "1";
+  namespace "http://openconfig.net/yang/gnmi/types";
+  prefix "oc-gnmit";
+
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+
+  import openconfig-grpc-types {
+    prefix oc-grpct;
+  }
+
+  organization
+    "OpenConfig working group";
+  contact
+    "www.openconfig.net";
+
+  description
+    "This module adds configuration and operational state relating to gRPC
+    services running on a network device. The GRPC_SERVICE identity is used
+    to create an extensible list of services that can be instantiated, with
+    a base set defined in this module. New services can extend the identity
+    to be included in the list.";
+
+
+  oc-ext:openconfig-version "0.1.0";
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  revision 2024-04-23 {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  identity GNMI {
+    base oc-grpct:GRPC_SERVICE;
+    description
+      "gNMI: gRPC Network Management Interface";
+  }
+
+}

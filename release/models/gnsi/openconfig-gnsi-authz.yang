@@ -3,22 +3,30 @@ module openconfig-gnsi-authz {
   namespace "https://github.com/openconfig/yang/gnsi/authz";
   prefix oc-gnsi-authz;
 
-  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+
   import openconfig-system {
     prefix oc-sys;
   }
+
   import openconfig-system-grpc {
     prefix oc-sys-grpc;
   }
+
   import openconfig-types {
     prefix oc-types;
   }
+
   import openconfig-yang-types {
     prefix oc-yang;
   }
+
   import openconfig-gnsi {
     prefix oc-gnsi;
   }
+
   organization
     "OpenConfig Working Group";
 
@@ -31,6 +39,12 @@ module openconfig-gnsi-authz {
     authorization policies installed on a networking device.";
 
   oc-ext:openconfig-version "0.4.0";
+
+  revision 2024-04-23 {
+    description
+      "";
+    reference "";
+  }
 
   revision 2024-02-13 {
     description
@@ -191,8 +205,6 @@ module openconfig-gnsi-authz {
     }
   }
 
-  // Augments section.
-
   augment "/oc-sys:system/oc-sys:aaa/oc-sys:authorization/" +
     "oc-sys:state" {
       description
@@ -201,12 +213,21 @@ module openconfig-gnsi-authz {
       uses grpc-server-authz-policy-state;
   }
 
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
-    when "config[contains(services, 'oc-gnsi:GNSI')]/enable = 'true'";
+  grouping authz-base {
     description
-      "Counters collected while evaluating access to a gRPC server using
-      the gNSI.authz authorization policy.";
+      "";
 
-    uses grpc-server-authz-policy-success-failure-counters;
+    container authz {
+      description
+        "";
+
+      uses grpc-server-authz-policy-success-failure-counters;
+    }
+  }
+
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers" +
+          "/oc-sys-grpc:grpc-server/oc-sys-grpc:services/oc-gnsi:gnsi" {
+
+    uses authz-base;
   }
 }

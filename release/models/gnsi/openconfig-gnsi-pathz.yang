@@ -3,19 +3,26 @@ module openconfig-gnsi-pathz {
   namespace "https://github.com/openconfig/yang/gnsi/pathz";
   prefix oc-gnsi-pathz;
 
-  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+
   import openconfig-system {
     prefix oc-sys;
   }
+
   import openconfig-system-grpc {
     prefix oc-sys-grpc;
   }
+
   import openconfig-types {
     prefix oc-types;
   }
+
   import openconfig-yang-types {
     prefix oc-yang;
   }
+
   import openconfig-gnsi {
     prefix oc-gnsi;
   }
@@ -33,6 +40,12 @@ module openconfig-gnsi-pathz {
     device.";
 
   oc-ext:openconfig-version "0.3.0";
+
+  revision 2024-04-23 {
+    description
+      "";
+    reference "";
+  }
 
   revision 2024-02-13 {
     description
@@ -295,37 +308,23 @@ module openconfig-gnsi-pathz {
     }
   }
 
-  // Augments section.
-
-  augment "/oc-sys:system" {
-    when "oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" +
-        "/oc-sys-grpc:config[contains(oc-sys-grpc:services, 'oc-gnsi:GNSI')]" +
-        "/oc-sys-grpc:enable = 'true'";
+  grouping pathz-base {
     description
-      "Collection of OpenConfig-path-based authorization policies that
-      have been installed on the device using the gNSI OpenConfig-path-
-      based authorization policy management service.
-      Each policy listed here is identified by its status (either ACTIVE
-          or SANDBOX) and has its version and creation date/time listed.";
+      "";
 
-    uses system-gnmi-pathz-policies;
+    container pathz {
+      description
+        "";
+
+      uses grpc-server-gnmi-pathz-policy-state;
+      uses gnmi-pathz-policy-success-failure-counters;
+      uses system-gnmi-pathz-policies;
+    }
   }
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" +
-          "/oc-sys-grpc:state" {
-    when "../config[contains(services, 'oc-gnsi:GNSI')]/enable = 'true'";
-    description
-      "A gNMI server OpenConfig-path-based authorization policy freshness
-      information.";
 
-    uses grpc-server-gnmi-pathz-policy-state;
-  }
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
-    when "oc-sys-grpc:config[contains(oc-sys-grpc:services, 'oc-gnsi:GNSI')]" +
-        "/oc-sys-grpc:enable = 'true'";
-    description
-      "A gNMI server OpenConfig-path-based authorization policy
-      success/failure counters.";
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers" +
+          "/oc-sys-grpc:grpc-server/oc-sys-grpc:services/oc-gnsi:gnsi" {
 
-    uses gnmi-pathz-policy-success-failure-counters;
+    uses pathz-base;
   }
 }

@@ -3,22 +3,30 @@ module openconfig-gnsi-certz {
   namespace "https://github.com/openconfig/yang/gnsi/certz";
   prefix oc-gnsi-certz;
 
-  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+
   import openconfig-system {
     prefix oc-sys;
   }
+
   import openconfig-system-grpc {
     prefix oc-sys-grpc;
   }
+
   import openconfig-types {
     prefix oc-types;
   }
+
   import openconfig-yang-types {
     prefix oc-yang;
   }
+
   import openconfig-gnsi {
     prefix oc-gnsi;
   }
+
   organization
     "OpenConfig Working Group";
 
@@ -31,6 +39,12 @@ module openconfig-gnsi-certz {
     installed on a networking device.";
 
   oc-ext:openconfig-version "0.6.0";
+
+  revision 2024-04-23 {
+    description
+      "";
+    reference "";
+  }
 
   revision 2024-03-05 {
     description
@@ -194,22 +208,23 @@ module openconfig-gnsi-certz {
     }
   }
 
-  // Augments section.
-
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
-          "oc-sys-grpc:state" {
-    when "../config[contains(services, 'oc-gnsi:GNSI')]/enable = 'true'";
+  grouping certz-base {
     description
-      "A gRPC server credentials freshness information.";
+      "";
 
-    uses grpc-server-credentials-state;
+    container certz {
+      description
+        "";
+
+      uses grpc-server-credentials-state;
+      uses grpc-server-certz-counters;
+
+    }
   }
 
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
-          "oc-sys-grpc:state" {
-    when "../config[contains(services, 'oc-gnsi:GNSI')]/enable = 'true'";
-    uses grpc-server-certz-counters;
-    description
-      "gNSI certz server access counters.";
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers" +
+          "/oc-sys-grpc:grpc-server/oc-sys-grpc:services/oc-gnsi:gnsi" {
+
+    uses certz-base;
   }
 }

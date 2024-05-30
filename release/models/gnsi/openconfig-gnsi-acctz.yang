@@ -3,22 +3,30 @@ module openconfig-gnsi-acctz {
   namespace "https://github.com/openconfig/yang/gnsi/acctz";
   prefix oc-gnsi-acctz;
 
-  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+
   import openconfig-system {
     prefix oc-sys;
   }
+
   import openconfig-system-grpc {
     prefix oc-sys-grpc;
   }
+
   import openconfig-types {
     prefix oc-types;
   }
+
   import openconfig-yang-types {
     prefix oc-yang;
   }
+
   import openconfig-gnsi {
     prefix oc-gnsi;
   }
+
   organization
     "OpenConfig Working Group";
 
@@ -205,41 +213,44 @@ module openconfig-gnsi-acctz {
     }
   }
 
-  grouping grpc-server-acctz-counters {
+  grouping acctz-counters {
     description
       "A collection of counters from the gNSI.acctz module.";
 
-    container acctz-counters {
+    container counters {
       config false;
       description
         "A collection of counters from the gNSI.acctz module
         for acctz clients and sources.";
 
-      container state {
+      leaf last-cleared {
+        type oc-types:timeticks64;
         description
-          "Operational state relating to acctz-counters.";
-
-        leaf counters-last-cleared {
-          type oc-types:timeticks64;
-          description
-            "The last time that the counters were cleared (reset to
-            zero). This value is reported as nanoseconds since epoch
-            (January 1st, 1970 00:00:00 GMT).";
-        }
-
-        uses client-counters;
+          "The last time that the counters were cleared (reset to
+          zero). This value is reported as nanoseconds since epoch
+          (January 1st, 1970 00:00:00 GMT).";
       }
 
+      uses client-counters;
       uses source-counters;
     }
   }
 
-  // Augments section.
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
-    when "config[contains(services, 'oc-gnsi:GNSI')]/enable = 'true'";
+  grouping acctz-base {
     description
-      "Counters collected by the gNSI.acctz module.";
+      "";
 
-    uses grpc-server-acctz-counters;
+    container acctz {
+      description
+        "";
+
+      uses acctz-counters;
+    }
+  }
+
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers" +
+          "/oc-sys-grpc:grpc-server/oc-sys-grpc:services/oc-gnsi:gnsi" {
+
+    uses acctz-base;
   }
 }

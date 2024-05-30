@@ -8,6 +8,7 @@ module openconfig-system-grpc {
   import openconfig-system { prefix oc-sys; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-network-instance { prefix oc-ni; }
+  import openconfig-grpc-types { prefix oc-grpct; }
 
   organization
     "OpenConfig working group";
@@ -22,9 +23,16 @@ module openconfig-system-grpc {
     to be included in the list.";
 
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "2.0.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2024-04-23" {
+    description
+      "Refactoring of grpc-server tree including detachment of
+      per-service constructs and identities into separate models.";
+    reference "2.0.0";
+  }
 
   revision "2022-04-19" {
     description
@@ -45,15 +53,16 @@ module openconfig-system-grpc {
     reference "0.1.0";
   }
 
-  identity GRPC_SERVICE {
+  grouping grpc-services {
     description
-      "Base identity for a gRPC-based service.";
-  }
+      "Grouping for gRPC service-specific configuration and state.";
 
-  identity GNMI {
-    base GRPC_SERVICE;
-    description
-      "gNMI: gRPC Network Management Interface";
+    container services {
+      description
+        "Anchor point for gRPC service specific data.  It is expected
+        that gRPC service specific modules augment per-service
+        configuration/state into this location.";
+    }
   }
 
   grouping grpc-service-structural {
@@ -97,6 +106,8 @@ module openconfig-system-grpc {
             "Operational state relating to the gRPC service.";
           uses grpc-server-config;
         }
+
+        uses grpc-services;
       }
     }
   }
@@ -122,19 +133,23 @@ module openconfig-system-grpc {
 
     leaf-list services {
       type identityref {
-        base GRPC_SERVICE;
+        base oc-grpct:GRPC_SERVICE;
       }
       description
-        "The gRPC service definitions that should be enabled for the
-        specified server. A target may support only specific
-        sets of services being enabled on the same server (e.g.,
-        it may be possible to run gNMI and gNOI services on the same
-        port, but not to run gRIBI and gNMI on the same port).
+        "The gRPC service definitions that are allowed for the specified
+        server. A target may support only specific sets of services to
+        be allowed on the same server (e.g., it may be possible to run
+        gNMI and gNOI services on the same port, but not to run gRIBI
+        and gNMI on the same port).
 
         The set of gRPC services that are available to be configured is
         defined through the GRPC_SERVICE identity, which can be extended
         for each protocol that is based on gRPC that is available on the
-        device.";
+        device.
+
+        NOTE: This leaf-list is for allowed services on a given server
+        instance.  Per service enablement/disablement is provided as a
+        common construct available to each service model.";
     }
 
     leaf enable {
