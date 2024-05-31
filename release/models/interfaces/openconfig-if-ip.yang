@@ -44,7 +44,13 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.5.1";
+  oc-ext:openconfig-version "3.5.2";
+
+  revision "2024-05-28" {
+    description
+      "Add gratuitous-arp-accepted for IPv4 and unsolicited-na-accepted for IPv6";
+    reference "3.5.2";
+  }
 
   revision "2024-03-13" {
     description
@@ -480,6 +486,16 @@ revision "2023-06-30" {
        "RFC 791: Internet Protocol";
     }
 
+   leaf gratuitous-arp-accepted {
+     type boolean;
+     default false;
+     description
+        "When set to true, gratuitous neighbor advertisements
+        will be accepted.";
+     reference
+      "RFC 826: An Ethernet Address Resolution Protocol";
+    }
+
     uses ip-common-global-config;
 
 
@@ -603,6 +619,17 @@ revision "2023-06-30" {
         transmission with no follow-up retransmissions.";
       reference
         "RFC 4862: IPv6 Stateless Address Autoconfiguration";
+    }
+
+    leaf unsolicited-na-accepted {
+      type boolean;
+      default false;
+      description
+        "When set to true unsolicited neighbor advertisements
+        will be accepted.";
+      reference
+        "RFC 9131: Gratuitous Neighbor Discovery: Creating
+        Neighbor Cache Entries on First-Hop Routers";
     }
 
     uses ip-common-global-config;
