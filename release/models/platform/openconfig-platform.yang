@@ -65,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-oc-ext:openconfig-version "0.26.0";
+  oc-ext:openconfig-version "0.27.0";
+
+  revision "2024-05-29" {
+    description
+      "Change install-position from leaf-ref to string.";
+    reference "0.27.0";
+  }
 
   revision "2024-04-12" {
     description
@@ -431,9 +437,7 @@ oc-ext:openconfig-version "0.26.0";
     }
 
     leaf install-position {
-      type leafref {
-        path "../name";
-      }
+      type string;
       description
         "System-supplied index to a position where this component is
         installed.  The position may be referred in device documenation
