@@ -1,0 +1,239 @@
+module openconfig-ptp-types {
+
+    yang-version 1.1;
+
+    namespace "http://openconfig.net/yang/ptp-types";
+
+    prefix "oc-ptp-types";
+
+    import openconfig-extensions { prefix oc-ext; }
+
+    // meta
+    organization
+      "OpenConfig working group";
+
+    contact
+      "OpenConfig working group
+       www.openconfig.net";
+
+    description
+        "Typedefs for PTP module";
+
+    oc-ext:openconfig-version "0.1.0";
+
+    revision "2024-01-22" {
+        description "Initial Public Version";
+        reference "0.1.0";
+    }
+
+    typedef clock-type-enumeration {
+        type enumeration {
+            enum BC {
+                value 1;
+                description
+                  "boundary clock";
+            }
+            enum OC {
+                value 2;
+                description
+                  "ordinary clock";
+            }
+            enum TC {
+                value 3;
+                description
+                  "transparent clock";
+            }
+            enum P2P_TC {
+                value 4;
+                description
+                  "peer-to-peer transparent clock";
+            }
+            enum E2E_TC {
+                value 5;
+                description
+                  "end-to-end transparent clock";
+            }
+            enum MESH {
+                value 6;
+                description
+                  "mesh";
+            }
+            enum DISABLED {
+                value 7;
+                description
+                  "disabled";
+            }
+        }
+        description
+            "Type definition for options when setting the clock-type
+            attribute in the default data set";
+    }
+
+    typedef unicast-multicast-enumeration {
+        type enumeration {
+            enum UNICAST {
+                value 1;
+                description
+                    "unicast";
+            }
+            enum MULTICAST {
+                value 2;
+                description
+                    "multicast";
+            }
+        }
+        description
+            "Type definition for options when setting the unicast-multicast
+            attribute in the default data set";
+    }
+    typedef delay-mechanism-enumeration {
+        type enumeration {
+            enum E2E {
+                value 1;
+                description
+                    "The port uses the delay request-response mechanism.";
+            }
+            enum P2P {
+                value 2;
+                description
+                    "The port uses the peer delay mechanism.";
+            }
+            enum DISABLED {
+                value 254;
+                description
+                    "The port does not implement any delay mechanism.";
+            }
+        }
+        description
+            "The propagation-delay measuring option used by the
+            port.  Values for this enumeration are specified
+            by the IEEE Std 1588 standard exclusively.";
+        reference
+            "IEEE Std 1588-2008: 8.2.5.4.4";
+    }
+
+    typedef port-state-enumeration {
+        type enumeration {
+            enum INITIALIZING {
+                value 1;
+                description
+                    "The port is initializing its data sets, hardware, and
+                    communication facilities.";
+            }
+            enum FAULTY {
+                value 2;
+                description
+                    "The port is in the fault state.";
+            }
+            enum DISABLED {
+                value 3;
+                description
+                    "The port is disabled and is not communicating PTP
+                    messages (other than possibly PTP management
+                    messages).";
+            }
+            enum LISTENING {
+                value 4;
+                description
+                    "The port is listening for an Announce message.";
+            }
+            enum PRE_MASTER {
+                value 5;
+                description
+                    "The port is in the pre-master state.";
+            }
+            enum MASTER {
+                value 6;
+                description
+                    "The port is behaving as a master port.";
+            }
+            enum PASSIVE {
+                value 7;
+                description
+                    "The port is in the passive state.";
+            }
+            enum UNCALIBRATED {
+                value 8;
+                description
+                    "A master port has been selected, but the port is still
+                    in the uncalibrated state.";
+            }
+            enum SLAVE {
+                value 9;
+                description
+                    "The port is synchronizing to the selected master port.";
+            }
+        }
+        description
+            "The current state of the protocol engine associated
+            with the port.  Values for this enumeration are specified
+            by the IEEE Std 1588 standard exclusively.";
+        reference
+            "IEEE Std 1588-2008: 8.2.5.3.1, 9.2.5";
+    }
+
+    typedef time-interval-type {
+        type int64;
+        description
+            "Derived data type for time interval, represented in units of
+            nanoseconds and multiplied by 2^16";
+        reference
+            "IEEE Std 1588-2008: 5.3.2";
+    }
+
+    typedef clock-identity-type {
+        type binary {
+            length "8";
+        }
+        description
+            "Derived data type to identify a clock";
+        reference
+            "IEEE Std 1588-2008: 5.3.4";
+    }
+
+    typedef network-transport-enumeration {
+        type enumeration {
+            enum L2 {
+                value 1;
+                description
+                    "Layer 2 network";
+            }
+            enum UDPV4 {
+                value 2;
+                description
+                    "UDPv4 network";
+            }
+            enum UDPV6 {
+                value 3;
+                description
+                    "UDPv6 network";
+            }
+        }
+        description
+            "Type definition for options when setting the network transport
+            attribute in the default data set";
+    }
+
+    typedef domain-profile-enumeration {
+        type enumeration {
+            enum IEEE1588 {
+                value 1;
+                description
+                    "default profile";
+            }
+            enum G8275.1 {
+                value 2;
+                description
+                    "g8275.1 profile";
+            }
+            enum G8275.2 {
+                value 3;
+                description
+                    "g8275.2 profile";
+            }
+        }
+        description
+            "Type definition for options when setting the domain-profile
+            attribute in the default data set";
+    }
+}
