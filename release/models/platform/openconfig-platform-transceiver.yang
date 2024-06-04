@@ -66,7 +66,13 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.13.0";
+  oc-ext:openconfig-version "0.14.0";
+
+revision "2023-08-30" {
+    description
+      "Clarify transceiver module threshold for input-power.";
+    reference "0.14.0";
+  }
 
 revision "2023-08-30" {
     description
@@ -451,9 +457,7 @@ revision "2023-08-30" {
 
     container thresholds {
       description
-        "Enclosing container for transceiver alarm thresholds.
-        Each threshold is compared to the instant value of the
-        measured parameter corresponding to the threshold";
+        "Enclosing container for transceiver alarm thresholds.";
 
       list threshold {
         key "severity";
@@ -775,7 +779,9 @@ revision "2023-08-30" {
       }
       units celsius;
       description
-        "The upper temperature threshold for the laser temperature sensor.";
+        "The upper temperature threshold for the laser temperature sensor.
+        This leaf value is compared to the instant value of
+        laser-temperature.";
     }
     leaf laser-temperature-lower {
       type decimal64 {
@@ -783,7 +789,9 @@ revision "2023-08-30" {
       }
       units celsius;
       description
-        "The lower temperature threshold for the laser temperature sensor.";
+        "The lower temperature threshold for the laser temperature sensor.
+        This leaf value is compared to the instant value of
+        laser-temperature.";
     }
     leaf output-power-upper{
       type decimal64 {
@@ -791,7 +799,10 @@ revision "2023-08-30" {
       }
       units dBm;
       description
-        "The upper power threshold for the laser output power.";
+        "The upper power threshold for the laser output power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-output-power. This leaf
+        value is compared to the instant value of optical-output-power.";
     }
     leaf output-power-lower{
       type decimal64 {
@@ -799,7 +810,10 @@ revision "2023-08-30" {
       }
       units dBm;
       description
-        "The lower power threshold for the laser output power.";
+        "The lower power threshold for the laser output power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-output-power. This leaf
+        value is compared to the instant value of optical-output-power.";
     }
     leaf input-power-upper{
       type decimal64 {
@@ -807,7 +821,10 @@ revision "2023-08-30" {
       }
       units dBm;
       description
-        "The upper power threshold for the laser input power.";
+        "The upper power threshold for the laser input power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-input-power. This leaf
+        value is compared to the instant value of optical-input-power.";
     }
     leaf input-power-lower{
       type decimal64 {
@@ -815,11 +832,15 @@ revision "2023-08-30" {
       }
       units dBm;
       description
-        "The lower power threshold for the laser input power.";
+        "The lower power threshold for the laser input power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-input-power. This leaf
+        value is compared to the instant value of optical-input-power.";
     }
     leaf laser-bias-current-upper{
       description
-        "The upper threshold for the laser bias current.";
+        "The upper threshold for the laser bias current. This leaf value is
+        compared to the instant value of last-bias-current.";
       type decimal64 {
         fraction-digits 2;
       }
@@ -827,7 +848,8 @@ revision "2023-08-30" {
     }
     leaf laser-bias-current-lower{
       description
-        "The lower threshold for the laser bias current.";
+        "The lower threshold for the laser bias current. This leaf value is
+        compared to the instant value of last-bias-current.";
       type decimal64 {
         fraction-digits 2;
       }
@@ -835,7 +857,8 @@ revision "2023-08-30" {
     }
     leaf supply-voltage-upper{
       description
-        "The upper threshold for the transceiver supply voltage.";
+        "The upper threshold for the transceiver supply voltage. This leaf
+        value is compared to the instant value of supply-voltage.";
       type decimal64 {
         fraction-digits 2;
       }
@@ -843,7 +866,8 @@ revision "2023-08-30" {
     }
     leaf supply-voltage-lower{
       description
-        "The lower threshold for the transceiver supply voltage.";
+        "The lower threshold for the transceiver supply voltage. This leaf
+        value is compared to the instant value of supply-voltage.";
       type decimal64 {
         fraction-digits 2;
       }
@@ -855,7 +879,8 @@ revision "2023-08-30" {
       }
       units celsius;
       description
-        "The lower temperature threshold for the transceiver module.";
+        "The lower temperature threshold for the transceiver module. This
+        leaf value is compared to the instant value of module-temperature.";
     }
     leaf module-temperature-upper {
       type decimal64 {
@@ -863,7 +888,8 @@ revision "2023-08-30" {
       }
       units celsius;
       description
-        "The upper temperature threshold for the transceiver module.";
+        "The upper temperature threshold for the transceiver module. This
+        leaf value is compared to the instant value of module-temperature.";
     }
   }
 

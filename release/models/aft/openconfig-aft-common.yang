@@ -23,7 +23,16 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "2.4.0";
+  oc-ext:openconfig-version "2.5.0";
+
+  revision "2024-01-26" {
+    description
+      "Add gre container under next-hops aft entry state.
+       Add src-ip, dst-ip and ttl under gre aft entry state
+       for telemetry. Updated description for
+       tunnel-src-ip-address properties under next-hops.";
+    reference "2.5.0";
+  }
 
   revision "2023-09-26" {
     description
@@ -213,6 +222,22 @@ submodule openconfig-aft-common {
           }
         }
 
+        container gre {
+          description
+            "When specified, the packet has an GRE
+            (Generic Routing Encapsulation)header applied to
+            it before forwarding to the specified next-hop.
+            encapsulate-header leaf should be set to GRE for this
+            to apply";
+
+          container state {
+            config false;
+            description
+              "State parameters relating to GRE encapsulation.";
+            uses aft-common-entry-nexthop-gre-state;
+          }
+        }
+
         uses oc-if:interface-ref-state;
       }
     }
@@ -269,7 +294,7 @@ submodule openconfig-aft-common {
     leaf tunnel-src-ip-address {
       type oc-inet:ip-address;
       description
-        "Where applicable this represents the tunnel source ip address.
+        "Where applicable this represents the vxlan tunnel source ip address.
         For VXLAN this represents the source VTEP ip address";
     }
   }
@@ -382,6 +407,34 @@ submodule openconfig-aft-common {
       type oc-inet:ip-address;
       description
         "Destination IP address to use for the encapsulated packet.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-gre-state {
+    description
+      "GRE encapsulation applied on a IPv4 and IPv6 next-hop.";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "The source IP address for the GRE encapsulation may be expressed
+        using this leaf (src-ip) or if may be derived from
+        '../../interface-ref/state/subinterface'";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address to use for the encapsulated packet.";
+    }
+
+    leaf ttl {
+      type uint8;
+      description
+        "This leaf reflects the configured/default TTL value that is used in the
+         outer header during packet encapsulation. When this leaf is not set,
+         the TTL value of the inner packet is copied over as the outer packet's
+         TTL value during encapsulation.";
     }
   }
 

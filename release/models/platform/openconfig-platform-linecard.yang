@@ -22,7 +22,14 @@ module openconfig-platform-linecard {
     "This module defines data related to LINECARD components in
     the openconfig-platform model";
 
-  oc-ext:openconfig-version "1.1.0";
+oc-ext:openconfig-version "1.2.0";
+
+   revision "2024-04-12" {
+    description
+      "Add install-position, install-component and deprecate location and
+      slot-id.";
+    reference "1.2.0";
+  }
 
   revision "2023-02-13" {
     description
@@ -89,10 +96,15 @@ module openconfig-platform-linecard {
       "Operational state data for linecard components";
 
     leaf slot-id {
+      status deprecated;
       type string;
       description
         "Identifier for the slot or chassis position in which the
-        linecard is installed";
+        linecard is installed.
+
+        This leaf is deprecated and will be replaced by install-position
+        and install-component leaves in a future major revision of this
+        model.";
     }
   }
 

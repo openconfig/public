@@ -48,7 +48,27 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.2.2";
+  oc-ext:openconfig-version "4.4.1";
+
+  revision "2024-02-27" {
+    description
+      "Clarify that tables are created only by the system and not
+      users.";
+    reference "4.4.1";
+  }
+
+  revision "2024-02-27" {
+    description
+      "Clarify metric to be used for route redistribution when
+      disable-metric-propagation is set to true.";
+    reference "4.4.0";
+  }
+
+  revision "2023-12-13" {
+    description
+      "Expand when statement for connection-points endpoints";
+    reference "4.3.0";
+  }
 
   revision "2023-11-03" {
     description
@@ -595,7 +615,8 @@ module openconfig-network-instance {
         container tables {
           description
             "The routing tables that are managed by this network
-            instance";
+            instance.  Tables are created and removed by the system.
+            Users do not create tables.";
 
           list table {
             key "protocol address-family";
@@ -620,7 +641,10 @@ module openconfig-network-instance {
               address families enabled, the protocol=BGP,
               address-family=IPv4 table is created by the system. The
 	            removal of the table should not require additional or
-	            explicit configurations";
+	            explicit configurations.
+
+              Users cannot create or delete tables.  Instead a user may
+              configure table-connections which reference these tables.";
 
             leaf protocol {
               type leafref {
@@ -699,7 +723,8 @@ module openconfig-network-instance {
 
             container endpoints {
               when "../../../config/type = 'oc-ni-types:L2P2P' " +
-                 "or ../../../config/type = 'oc-ni-types:L2VSI'" {
+                 "or ../../../config/type = 'oc-ni-types:L2VSI'" +
+                 "or ../../../config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
                 description
                   "Configuration parameters to associate interfaces
                    into a common group for use in Layer 2 network
@@ -801,15 +826,10 @@ module openconfig-network-instance {
                   }
                 }
                 container vxlan {
-                    when "../config/type = 'oc-ni-types:VXLAN'" {
-                      description
-                        "Only include the vxlan configuration when
-                        the endpoint is specified to be vxlan";
-                    }
-                    description
-                      "Configuration and operational state parameters
-                      relating to a VXLAN tunnel end-point interface";
-                    uses oc-evpn:evpn-overlays-grp-top;
+                  description
+                    "Configuration and operational state parameters
+                    relating to a VXLAN tunnel end-point interface";
+                  uses oc-evpn:evpn-overlays-grp-top;
                 }
               }
             }
@@ -1235,8 +1255,8 @@ module openconfig-network-instance {
          - IS-IS metric may be reflected in BGP MED (and vice versa)
          - OSPF metric may be reflected in the BGP MED (and vice versa)
         When this leaf is set to true, this reflection behaviour MUST be
-        disabled, and rather the metric must be set to the default value,
-        or explicitly set by policy.";
+        disabled, and rather the metric must be set to '0' or explicitly
+        set by policy.";
     }
 
     uses oc-rpol:apply-policy-import-config;
