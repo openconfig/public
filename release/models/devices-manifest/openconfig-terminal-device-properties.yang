@@ -754,7 +754,7 @@ module openconfig-terminal-device-properties {
 
         leaf mode-id {
           type leafref {
-            path "/oc-opt-term-properties:operational-mode-descriptors/operational-modes/mode-id";
+            path "../../../../../../../operational-mode-descriptors/operational-modes/mode-id";
           }
           description
             "Reference to operational-mode-id";
@@ -823,23 +823,24 @@ module openconfig-terminal-device-properties {
       description
         "Indicates the set of operatational-modes, present in the terminal-
         device manifest, which are compatible with the described transceiver
-        component.";
+        component within the linecard component.";
 
       list constrained-compatible-mode {
-        key "mode-id mode-descriptor-id";
+        key "mode-id";
         description
           "List of operational modes supported by the target transceiver.";
 
         leaf mode-id {
           type leafref {
-            path "/oc-opt-term-properties:operational-mode-descriptors/operational-modes/mode-id";
+            path "../../../../../../../operational-mode-descriptors/operational-modes/mode-id";
           }
           description
             "Reference to operational-mode-id";
         }
+
         leaf mode-descriptor-id {
           type leafref {
-            path "/oc-opt-term-properties:operational-mode-descriptors/operational-modes/mode-descriptors/mode-descriptor/mode-descriptor-id";
+            path "/oc-opt-term-properties:foperational-mode-descriptors/operational-modes/mode-descriptors/mode-descriptor/mode-descriptor-id";
           }
           description
             "Reference to the associated mode-descriptor-id";
@@ -881,7 +882,7 @@ module openconfig-terminal-device-properties {
 
         leaf transceiver-descriptor-id {
           type leafref {
-            path "/oc-opt-term-properties:transceiver-descriptors/oc-opt-term-properties:transceiver-descriptor/oc-opt-term-properties:state/oc-opt-term-properties:component-descriptor-id";
+            path "../../../../../transceiver-descriptors/transceiver-descriptor/component-descriptor-id";
           }
           description
             "Two-octet encoding of the vendor-defined operational
