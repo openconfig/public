@@ -40,7 +40,14 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.10.0";
+  oc-ext:openconfig-version "0.11.0";
+
+  revision "2024-06-07" {
+   description
+     "Add redistribute type leaf list to EVI config to support configuration of
+      various types of route distribution (for both L2 and L3).";
+   reference   "0.11.0";
+  }
 
   revision "2024-06-07" {
    description
@@ -568,6 +575,14 @@ module openconfig-evpn {
             in Ethernet VPN
             draft-ietf-bess-rfc7432bis-05 BGP MPLS-Based
              Ethernet VPN";
+    }
+
+    leaf-list redistribute {
+      type identityref {
+        base oc-evpn-types:EVPN_REDISTRIBUTE_TYPE;
+      }
+      description
+        "Which types of MACs to redistribute on this EVI";
     }
   }
 
