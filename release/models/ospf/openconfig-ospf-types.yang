@@ -21,7 +21,13 @@ module openconfig-ospf-types {
   description
     "Type definitions for OSPF";
 
-  oc-ext:openconfig-version "0.1.3";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2024-06-06" {
+    description
+      "Add OSPF authentication modes and encryption types.";
+    reference "0.2.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -98,6 +104,72 @@ module openconfig-ospf-types {
   }
 
   // identities
+  identity MESSAGE_DIGEST_ENCRYPTION {
+    description
+      "Base identity to define Message Digest encryption type.";
+  }
+
+  identity ENCRYPTION_NONE {
+    base MESSAGE_DIGEST_ENCRYPTION;
+    description
+      "No encrytion type.";
+  }
+
+  identity ENCRYPTION_MD5 {
+    base MESSAGE_DIGEST_ENCRYPTION;
+    description
+      "MD5 message digest encryption type.";
+  }
+
+  identity ENCRYPTION_SHA1 {
+    base MESSAGE_DIGEST_ENCRYPTION;
+    description
+      "SHA1 message digest encryption type.";
+  }
+
+  identity ENCRYPTION_SHA256 {
+    base MESSAGE_DIGEST_ENCRYPTION;
+    description
+      "SHA256 message digest encryption type.";
+  }
+
+  identity ENCRYPTION_SHA384 {
+    base MESSAGE_DIGEST_ENCRYPTION;
+    description
+      "SHA384 message digest encryption type.";
+  }
+
+  identity ENCRYPTION_SHA512 {
+    base MESSAGE_DIGEST_ENCRYPTION;
+    description
+      "SHA512 message digest encryption type.";
+  }
+
+  identity AUTH_MODE {
+    description
+      "Base identity to define OSPF authentication";
+  }
+
+  identity AUTH_NONE {
+    base AUTH_MODE;
+    description
+      "Authentication mode none.";
+  }
+
+  identity AUTH_SIMPLE_PASSWORD {
+    base AUTH_MODE;
+    description
+      "Authentication mode simple password.";
+    reference "RFC2328";
+  }
+
+  identity AUTH_MESSAGE_DIGEST {
+    base AUTH_MODE;
+    description
+      "Authentication mode message digest.";
+    reference "RFC5709";
+  }
+
   identity OSPF_LSA_TYPE {
     description
       "Base identity for an OSPF LSA type. This identity is intended
