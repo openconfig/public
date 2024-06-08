@@ -40,7 +40,14 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.9.0";
+
+  revision "2024-06-07" {
+   description
+      "Add new vni-list leaf list to EVI config to support VLAN-aware-bundle
+      MACVRFs.  Make existing vni leaf conditional on MACVRF type being VLAN-based";
+   reference   "0.9.0";
+  }
 
   revision "2024-04-03" {
    description
@@ -645,10 +652,25 @@ module openconfig-evpn {
       Using Ethernet VPN";
 
     leaf vni {
+      when "../../../config/service-type = 'oc-evpn-types:VLAN_BASED' or
+            ../../../config/service-type = 'oc-evpn-types:VLAN_BUNDLE'" {
+        description
+          "For VLAN-based and VLAN-bundle EVIs, use a single VNI";
+      }
       type oc-evpn-types:vni-id;
       description
         "Virtual Network Identifier (VNI) associated to the EVI. This VNI is used for
         ingress and egress in the VXLAN domain.";
+    }
+
+    leaf-list vni-list {
+      when "../../../config/service-type = 'oc-evpn-types:VLAN_AWARE'" {
+        description
+          "For VLAN-aware-bundle EVIs, use a list of VNIs";
+      }
+      type oc-evpn-types:vni-id;
+      description
+        "List of VNIs participating in a VLAN-aware-bundle EVI";
     }
 
     leaf overlay-endpoint-network-instance {
