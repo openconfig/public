@@ -13,6 +13,7 @@ module openconfig-local-routing {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-bfd { prefix oc-bfd; }
+  import openconfig-routing-policy { prefix oc-rpol; }
 
   // meta
   organization "OpenConfig working group";
@@ -43,7 +44,13 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "2.0.2";
+
+  revision "2023-08-17" {
+    description
+      "Allow tag-set association with static and aggregate routes.";
+    reference "2.0.2";
+  }
 
   revision "2022-11-01" {
     description
@@ -141,6 +148,17 @@ module openconfig-local-routing {
       description
         "Set a generic tag value on the route. This tag can be
         used for filtering routes that are distributed to other
+        routing protocols.";
+    }
+
+     leaf apply-tag-set {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
+          "oc-rpol:tag-sets/oc-rpol:tag-set/oc-rpol:name";
+      }
+      description
+        "Apply all the tags in the defined tag-set to the route. These tags
+        can be used for filtering routes that are distributed to other
         routing protocols.";
     }
 
