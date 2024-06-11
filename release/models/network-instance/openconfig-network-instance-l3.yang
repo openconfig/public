@@ -23,7 +23,19 @@ module openconfig-network-instance-l3 {
     Layer 3 network instance configuration and operational state
     parameters.";
 
-  oc-ext:openconfig-version "0.11.1";
+  oc-ext:openconfig-version "2.0.0";
+
+  revision "2022-11-08" {
+    description
+      "Removal of top-level enabled-address-families leaf-list";
+    reference "2.0.0";
+  }
+
+  revision "2022-09-15" {
+    description
+      "Reflect implementation status by releasing 1.0.0.";
+    reference "1.0.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -119,21 +131,6 @@ module openconfig-network-instance-l3 {
       "Configuration and operational state parameters relevant
       to network instances that include a Layer 3 type";
 
-  }
-
-  grouping l3ni-instance-common-config {
-    description
-      "Configuration parameters that are common to L3 network
-      instances other than the default instance";
-
-    leaf-list enabled-address-families {
-      type identityref {
-        base octypes:ADDRESS_FAMILY;
-      }
-      description
-        "The address families that are to be enabled for this
-        network instance.";
-    }
   }
 
   grouping l3ni-route-limit-structural {

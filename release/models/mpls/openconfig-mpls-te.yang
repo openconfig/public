@@ -15,6 +15,7 @@ submodule openconfig-mpls-te {
   import openconfig-types { prefix oc-types; }
   import openconfig-yang-types { prefix yang; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-pcep { prefix oc-pcep; }
 
   // meta
   organization "OpenConfig working group";
@@ -29,11 +30,48 @@ submodule openconfig-mpls-te {
     signaling protocol or mechanism (see related submodules for
     signaling protocol-specific configuration).";
 
-  oc-ext:openconfig-version "3.1.1";
+  oc-ext:openconfig-version "3.5.0";
+
+  revision "2023-12-14" {
+    description
+      "Added additional attributes oc-if:interface-ref
+      and metric attributes to static lsp";
+    reference "3.5.0";
+  }
+
+  revision "2023-07-25" {
+    description
+      "Added record-route-enabled to MPLS p2p tunnel config";
+    reference "3.4.0";
+  }
+
+  revision "2023-04-28" {
+    description
+      "Fixed typo in cspf-tiebreaker leaf description";
+    reference "3.3.2";
+  }
+
+  revision "2023-04-25" {
+    description
+      "Add clarifying comments on use of interface-ref.";
+    reference "3.3.1";
+  }
+
+  revision "2022-02-11" {
+    description
+      "Add lsp-path PCE control mode";
+    reference "3.3.0";
+  }
+
+  revision "2021-07-28" {
+    description
+      "Add prefix to qualify when statements.";
+    reference "3.2.2";
+  }
 
   revision "2021-06-16" {
     description
-      "Remove trailing whitespace";
+      "Remove trailing whitespace.";
     reference "3.1.1";
   }
 
@@ -779,6 +817,11 @@ submodule openconfig-mpls-te {
       description
         "P2P tunnel destination address";
     }
+    leaf record-route-enabled {
+      type boolean;
+      description
+        "Enables recording a path on an LSP using the record route object (RRO)";
+    }
   }
 
   grouping p2p-path-state {
@@ -840,7 +883,7 @@ submodule openconfig-mpls-te {
     }
 
     leaf use-cspf {
-      when "../path-computation-method = 'LOCALLY_COMPUTED'" {
+      when "../path-computation-method = 'oc-mplst:LOCALLY_COMPUTED'" {
         description
           "The use of cspf when the path-computation method is
            local computation";
@@ -851,7 +894,7 @@ submodule openconfig-mpls-te {
     }
 
     leaf cspf-tiebreaker {
-      when "../path-computation-method = 'LOCALLY_COMPUTED'" {
+      when "../path-computation-method = 'oc-mplst:LOCALLY_COMPUTED'" {
         description
           "The cspf tiebreaking method when the path is
            locally computed";
@@ -859,24 +902,34 @@ submodule openconfig-mpls-te {
       type cspf-tie-breaking;
       description
         "Determine the tie-breaking method to choose between
-        equally desirable paths during CSFP computation";
+        equally desirable paths during CSPF computation";
     }
 
-
     leaf path-computation-server {
-      when "../path-computation-method = 'EXTERNALLY_QUERIED'" {
+      when "../path-computation-method = 'oc-mplst:EXTERNALLY_QUERIED'" {
         description
           "The path-computation server when the path is
            externally queried";
       }
-      type inet:ip-address;
+      type leafref {
+        path "../../../../../../../../../../protocols/protocol/pcep/path-computation-servers/" +
+             "path-computation-server/pce-server-address";
+      }
       description
-        "Address of the external path computation
-         server";
+        "Reference to the address of a previously configured
+        external path computation server.";
+    }
+
+    leaf path-control {
+      type oc-pcep:lsp-control-type;
+      description
+        "Set the LSP path control mode as PCE_DELEGATED
+        PCC_CONTROLLED or PCC_REPORT_ONLY information
+        state to the PCE.";
     }
 
     leaf explicit-path-name {
-      when "../path-computation-method = 'EXPLICITLY_DEFINED'" {
+      when "../path-computation-method = 'oc-mplst:EXPLICITLY_DEFINED'" {
         description
           "The name of the explicitly defined path used";
       }
@@ -910,7 +963,7 @@ submodule openconfig-mpls-te {
       "Top level grouping for p2p configuration";
 
     container p2p-tunnel-attributes {
-      when "../config/type = 'P2P'" {
+      when "../config/type = 'oc-mplst:P2P'" {
         description
          "Include this container for LSPs of type P2P";
       }

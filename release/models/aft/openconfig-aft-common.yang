@@ -10,6 +10,7 @@ submodule openconfig-aft-common {
   import openconfig-mpls-types { prefix "oc-mplst"; }
   import openconfig-policy-types { prefix "oc-pol-types"; }
   import openconfig-aft-types { prefix "oc-aftt"; }
+  import openconfig-evpn-types { prefix "oc-evpn-types"; }
 
   organization
     "OpenConfig working group";
@@ -22,7 +23,66 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "2.5.0";
+
+  revision "2024-01-26" {
+    description
+      "Add gre container under next-hops aft entry state.
+       Add src-ip, dst-ip and ttl under gre aft entry state
+       for telemetry. Updated description for
+       tunnel-src-ip-address properties under next-hops.";
+    reference "2.5.0";
+  }
+
+  revision "2023-09-26" {
+    description
+      "Add next-hop-group-name in NHG AFT entry state.";
+    reference "2.4.0";
+  }
+
+  revision "2023-04-19" {
+    description
+      "Add atomic attribute to AFT containers.";
+    reference "2.3.0";
+  }
+
+  revision "2022-06-16" {
+    description
+      "Add state-synced container under afts.";
+    reference "2.2.0";
+  }
+
+  revision "2022-06-15" {
+    description
+      "Add decapsulate-header in NH AFT entry state";
+    reference "2.1.0";
+  }
+
+  revision "2022-05-17" {
+    description
+      "Relocate next-hop-group/next-hop-group-network-instance
+      from openconfig-aft-common to resolve absolute path
+      leafref specific to network-instances";
+    reference "2.0.0";
+  }
+
+  revision "2022-01-27" {
+    description
+      "Add next hop counters and prefix counters.";
+    reference "1.0.0";
+  }
+
+  revision "2022-01-26" {
+    description
+      "Add vni-label and tunnel-src-ip-address properties under next-hops";
+    reference "0.10.0";
+  }
+
+  revision "2021-12-09" {
+    description
+      "Add pop-top-label in NH AFT entry state";
+    reference "0.9.0";
+  }
 
   revision "2021-08-06" {
     description
@@ -115,6 +175,7 @@ submodule openconfig-aft-common {
       list next-hop {
         key "index";
 
+        oc-ext:telemetry-atomic;
         description
           "A next-hop associated with the forwarding instance.";
 
@@ -136,6 +197,16 @@ submodule openconfig-aft-common {
 
           uses aft-common-entry-nexthop-state;
           uses aft-labeled-entry-state;
+
+          container counters {
+            description
+              "Surrounding container for counters.";
+
+            uses aft-common-entry-counter-state;
+          }
+
+          uses aft-evpn-entry-state;
+
         }
 
         container ip-in-ip {
@@ -151,6 +222,22 @@ submodule openconfig-aft-common {
           }
         }
 
+        container gre {
+          description
+            "When specified, the packet has an GRE
+            (Generic Routing Encapsulation)header applied to
+            it before forwarding to the specified next-hop.
+            encapsulate-header leaf should be set to GRE for this
+            to apply";
+
+          container state {
+            config false;
+            description
+              "State parameters relating to GRE encapsulation.";
+            uses aft-common-entry-nexthop-gre-state;
+          }
+        }
+
         uses oc-if:interface-ref-state;
       }
     }
@@ -160,45 +247,12 @@ submodule openconfig-aft-common {
     description
       "Operational state parameters relating to a forwarding entry";
 
-    leaf packets-forwarded {
-      type oc-yang:counter64;
+    container counters {
+      config false;
       description
-        "The number of packets which have matched, and been forwarded,
-         based on the AFT entry.";
-    }
+        "Surrounding container for counters.";
 
-    leaf octets-forwarded {
-      type oc-yang:counter64;
-      description
-        "The number of octets which have matched, and been forwarded,
-         based on the AFT entry";
-    }
-
-    // This leafref needs to refer to any network-instance on the system
-    // hence must be absolute. This change means that this module cannot
-    // be used outside of the network instance model without changes being
-    // made to it.
-    leaf next-hop-group {
-      type leafref {
-        path "/network-instances/network-instance/afts/" +
-              "next-hop-groups/next-hop-group/state/id";
-      }
-      description
-        "A reference to the next-hop-group that is in use for the entry
-        within the AFT. Traffic is distributed across the set of next-hops
-        within the next-hop group according to the weight.";
-    }
-
-    leaf next-hop-group-network-instance {
-      type leafref {
-        path "/network-instances/network-instance/config/name";
-      }
-      description
-        "The network instance to look up the next-hop-group in.  If
-         unspecified, the next hop group is in the local network
-         instance.  The referenced network-instance must be an existing
-         network instance on the device and have corresponding entries
-         in the /network-instances/network-instance list.";
+      uses aft-common-entry-counter-state;
     }
 
     leaf entry-metadata {
@@ -221,6 +275,27 @@ submodule openconfig-aft-common {
         forwarding entry. This leaf is applicable only to next-hops
         which include MPLS label information, and its value typically
         corresponds to the RSVP-TE LSP name.";
+    }
+  }
+
+  grouping aft-evpn-entry-state {
+    description
+      "Operational state for evpn related information in forwarding entry";
+
+    leaf vni-label {
+      type oc-evpn-types:evi-id;
+      description
+        "Where applicable, the next hop label representing the virtual
+        network identifier (VNI) for the forwarding entry. This leaf is
+        applicable only to next-hops which include VXLAN encapsulation
+        header information";
+    }
+
+    leaf tunnel-src-ip-address {
+      type oc-inet:ip-address;
+      description
+        "Where applicable this represents the vxlan tunnel source ip address.
+        For VXLAN this represents the source VTEP ip address";
     }
   }
 
@@ -262,6 +337,17 @@ submodule openconfig-aft-common {
         network instance.";
     }
 
+    leaf pop-top-label {
+      type boolean;
+      default false;
+      description
+        "Flag that controls pop action, i.e., the top-most MPLS label
+         should be popped from the packet when switched by the system.
+
+        The top-most MPLS label associated with pop action is equal to
+        the label key used in 'mpls' AFT 'label-entry' list.";
+    }
+
     leaf-list pushed-mpls-label-stack {
       type oc-mplst:mpls-label;
       ordered-by user;
@@ -292,6 +378,18 @@ submodule openconfig-aft-common {
         specified header type.";
     }
 
+    leaf decapsulate-header {
+      type oc-aftt:encapsulation-header-type;
+      description
+        "When forwarding a packet to the specified next-hop, the local
+         system performs a decapsulation of the packet - removing the
+         specified header type. In the case that no next-hop is
+         specified, the packet header is removed, and a subsequent
+         forwarding lookup is performed on the packet encapsulated
+         within the header, matched within the relevant AFT within the
+         specified network-instance.";
+    }
+
     uses aft-common-install-protocol;
   }
 
@@ -309,6 +407,34 @@ submodule openconfig-aft-common {
       type oc-inet:ip-address;
       description
         "Destination IP address to use for the encapsulated packet.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-gre-state {
+    description
+      "GRE encapsulation applied on a IPv4 and IPv6 next-hop.";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "The source IP address for the GRE encapsulation may be expressed
+        using this leaf (src-ip) or if may be derived from
+        '../../interface-ref/state/subinterface'";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address to use for the encapsulated packet.";
+    }
+
+    leaf ttl {
+      type uint8;
+      description
+        "This leaf reflects the configured/default TTL value that is used in the
+         outer header during packet encapsulation. When this leaf is not set,
+         the TTL value of the inner packet is copied over as the outer packet's
+         TTL value during encapsulation.";
     }
   }
 
@@ -357,6 +483,7 @@ submodule openconfig-aft-common {
       list next-hop-group {
         key "id";
 
+        oc-ext:telemetry-atomic;
         description
           "An individual set of next-hops grouped into a common group.
           Each entry within an abstract forwarding table points to a
@@ -511,6 +638,14 @@ submodule openconfig-aft-common {
         also be updated.";
     }
 
+    leaf next-hop-group-name {
+      type string;
+      description
+        "Where applicable, this leaf is a unique identifier string for the
+        next-hop-group. It is an arbitrary name for the group, that is
+        supported by vendors and is exposed for telemetry.";
+    }
+
     leaf programmed-id {
       type uint64;
       description
@@ -627,5 +762,43 @@ submodule openconfig-aft-common {
     }
 
     uses oc-if:interface-ref-common;
+  }
+
+  grouping aft-common-entry-counter-state {
+    description
+      "Counters relating to a forwarding entry";
+
+    leaf packets-forwarded {
+      type oc-yang:counter64;
+      description
+        "The number of packets which have matched, and been forwarded,
+         based on the AFT entry.";
+    }
+
+    leaf octets-forwarded {
+      type oc-yang:counter64;
+      description
+        "The number of octets which have matched, and been forwarded,
+         based on the AFT entry";
+    }
+  }
+
+  grouping aft-common-backup-entry-counter-state {
+    description
+      "Counters relating to a backup forwarding entry";
+
+    leaf packets-forwarded-backup {
+      type oc-yang:counter64;
+      description
+        "The number of packets which have matched, and been forwarded,
+         based on the AFT backup entry.";
+    }
+
+    leaf octets-forwarded-backup {
+      type oc-yang:counter64;
+      description
+        "The number of octets which have matched, and been forwarded,
+         based on the AFT backup entry";
+    }
   }
 }
