@@ -148,29 +148,29 @@ module openconfig-mirror {
       }
       description
         "acl-set used to select packets for mirroring.  Note that systems
-        may not support all OC defined ACL_TYPEs.";
+         may not support all OC defined ACL_TYPEs.";
     }
 
     leaf source-address {
       type oc-inet:ip-address;
-      when "../mirror-action = GRE";
+      when "../mirror-action = 'GRE'";
       description
         "Source address used for GRE encapsulated mirror packets.";
     }
 
     leaf destination-address {
       type oc-inet:ip-address;
-      when "../mirror-action = GRE";
+      when "../mirror-action = 'GRE'";
       description
         "Destination IP address for GRE encapsulated mirror packets.";
     }
 
     leaf network-instance {
       type oc-ni:network-instance-ref;
-      when "../mirror-action = GRE";
+      when "../mirror-action = 'GRE'";
       description
         "The network instance used for GRE encapsulated packets.
-        If no instance is specified, DEFAULT_INSTANCE is used.";
+         If no instance is specified, DEFAULT_INSTANCE is used.";
     }
 
     leaf max-capture-size {
@@ -189,35 +189,42 @@ module openconfig-mirror {
     description
       "Grouping for the packet mirroring sessions.";
 
-    container mirror-sessions {
+    container mirroring {
       description
-        "Container for packet mirrorring sessions.";
+        "Container for packet mirrorring.";
 
-      list mirror-session {
-        key "name";
+      container sessions {
+        description
+          "Container for packet mirrorring sessions.";
 
-        leaf name {
-          type leafref {
-            path "../config/name";
+        list session {
+          key "name";
+          description
+            "List of mirror sessions.";
+
+          leaf name {
+            type leafref {
+              path "../config/name";
+            }
+            description
+              "Reference to the mirror session name.";
           }
-          description
-            "Reference to the mirror session name.";
-        }
 
-        container config {
-          description
-            "Configuration data for packet mirroring.";
+          container config {
+            description
+              "Configuration data for packet mirroring.";
 
-          uses mirror-session-config;
-        }
+            uses mirror-session-config;
+          }
 
-        container state {
-          config false;
-          description
-            "Operational state parameters for packet mirroring.";
+          container state {
+            config false;
+            description
+              "Operational state parameters for packet mirroring.";
 
-          uses mirror-session-config;
-          uses mirror-session-state;
+            uses mirror-session-config;
+            uses mirror-session-state;
+          }
         }
       }
     }
