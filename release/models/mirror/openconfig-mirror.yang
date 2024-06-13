@@ -100,6 +100,14 @@ module openconfig-mirror {
         "Which action is performed when a packet is selected for mirroring.";
     }
 
+    leaf enabled {
+      type boolean;
+      description
+        "If true, the mirror session is actvely capturing packets and sending
+         to the destination.  If false, the mirror session is not capturing
+         packets.";
+    }
+
     leaf-list interfaces {
       type leafref {
         path "/oc-if:interfaces/oc-if:interface/oc-if:name";
@@ -156,19 +164,6 @@ module openconfig-mirror {
   grouping mirror-session-state {
     description
       "Operational state data for packet mirroring sessions";
-
-    leaf status {
-      type enumeration {
-        enum ACTIVE {
-          description
-            "";
-        }
-        enum INACTIVE {
-          description
-            "";
-        }
-      }
-    }
   }
 
   grouping mirroring-top {
@@ -180,7 +175,7 @@ module openconfig-mirror {
         "Container for packet mirrorring sessions.";
 
       list mirror-session {
-        key name;
+        key "name";
 
         leaf name {
           type leafref {
