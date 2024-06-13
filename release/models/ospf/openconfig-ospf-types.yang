@@ -25,7 +25,7 @@ module openconfig-ospf-types {
 
   revision "2024-06-06" {
     description
-      "Add OSPF authentication modes and encryption types.";
+      "Add OSPF authentication modes and message digest keys.";
     reference "0.2.0";
   }
 
@@ -104,45 +104,45 @@ module openconfig-ospf-types {
   }
 
   // identities
-  identity MESSAGE_DIGEST_ENCRYPTION {
+  identity MESSAGE_DIGEST_ALGO {
     description
-      "Base identity to define Message Digest encryption type.";
+      "Base identity to define message digest hash algorithm type.";
   }
 
-  identity ENCRYPTION_NONE {
-    base MESSAGE_DIGEST_ENCRYPTION;
+  identity MESSAGE_DIGEST_NONE {
+    base MESSAGE_DIGEST_ALGO;
     description
-      "No encrytion type.";
+      "No algorithm defined.";
   }
 
-  identity ENCRYPTION_MD5 {
-    base MESSAGE_DIGEST_ENCRYPTION;
+  identity MESSAGE_DIGEST_MD5 {
+    base MESSAGE_DIGEST_ALGO;
     description
-      "MD5 message digest encryption type.";
+      "MD5 hash algorithm to be used to generate message digest.";
   }
 
-  identity ENCRYPTION_SHA1 {
-    base MESSAGE_DIGEST_ENCRYPTION;
+  identity MESSAGE_DIGEST_SHA1 {
+    base MESSAGE_DIGEST_ALGO;
     description
-      "SHA1 message digest encryption type.";
+      "SHA1 hash algorithm to be used to generate message digest.";
   }
 
-  identity ENCRYPTION_SHA256 {
-    base MESSAGE_DIGEST_ENCRYPTION;
+  identity MESSAGE_DIGEST_SHA256 {
+    base MESSAGE_DIGEST_ALGO;
     description
-      "SHA256 message digest encryption type.";
+      "SHA256 hash algorithm to be used to generate message digest.";
   }
 
-  identity ENCRYPTION_SHA384 {
-    base MESSAGE_DIGEST_ENCRYPTION;
+  identity MESSAGE_DIGEST_SHA384 {
+    base MESSAGE_DIGEST_ALGO;
     description
-      "SHA384 message digest encryption type.";
+      "SHA384 hash algorithm to be used to generate message digest.";
   }
 
-  identity ENCRYPTION_SHA512 {
-    base MESSAGE_DIGEST_ENCRYPTION;
+  identity MESSAGE_DIGEST_SHA512 {
+    base MESSAGE_DIGEST_ALGO;
     description
-      "SHA512 message digest encryption type.";
+      "SHA512 hash algorithm to be used to generate message digest.";
   }
 
   identity AUTH_MODE {
@@ -167,7 +167,7 @@ module openconfig-ospf-types {
     base AUTH_MODE;
     description
       "Authentication mode message digest.";
-    reference "RFC5709";
+    reference "RFC2328,RFC5709";
   }
 
   identity OSPF_LSA_TYPE {

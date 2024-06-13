@@ -29,7 +29,7 @@ submodule openconfig-ospfv2-area-interface {
 
   revision "2024-06-06" {
     description
-      "Add support for ospfv2 authentication modes and encryption types";
+      "Add support for ospfv2 authentication modes and message digest keys";
     reference "0.6.0";
   }
 
@@ -249,7 +249,8 @@ submodule openconfig-ospfv2-area-interface {
     leaf simple-password {
       type string;
       description
-        "Password for simple authentication mode to be specified for OSPF.";
+        "Password for simple authentication mode to be specified for OSPF
+        authentication.";
     }
   }
 
@@ -258,27 +259,29 @@ submodule openconfig-ospfv2-area-interface {
       "Configuration parameters relating to OSPF message-digest
       authentication";
 
-    leaf md-key-id {
+    leaf key-id {
       type uint8 {
         range "1..255";
       }
       description
-        "Message-digest keyid to be used for OSPF message digest auth.";
+        "Message-digest keyid to identify auth key and auth algo for
+        OSPF authentication.";
     }
 
-    leaf md-encryption {
+    leaf auth-algo {
       type identityref {
-        base oc-ospf-types:MESSAGE_DIGEST_ENCRYPTION;
+        base oc-ospf-types:MESSAGE_DIGEST_ALGO;
       }
       description
-        "Encryption type to be used for OSPF message digest auth.";
+        "Hash algorithm to be used generate/verify message digest
+        for OSPF authentication.";
     }
 
-    leaf md-password {
+    leaf auth-key {
       type string;
       description
-        "Password to be used for message digest authentication mode
-        for OSPF.";
+        "Password to be used to generate/verify message digest
+        for OSPF authentication.";
     }
   }
 
@@ -518,15 +521,14 @@ submodule openconfig-ospfv2-area-interface {
               can be configured on the interface";
 
             list message-digest {
-              key "md-key-id";
-              max-elements 2;
+              key "key-id";
 
               description
                 "A message-digest key to be used for OSPFv2 authentication";
 
-              leaf md-key-id {
+              leaf key-id {
                 type leafref {
-                  path "../config/md-key-id";
+                  path "../config/key-id";
                 }
                 description
                   "Message-digest authentication key identifier";
