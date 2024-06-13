@@ -1,0 +1,241 @@
+module openconfig-mirror {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/mirror";
+
+  prefix "oc-mirror";
+
+  // import some basic types
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+  import openconfig-interfaces {
+    prefix oc-if;
+  }
+  import openconfig-acl {
+    prefix oc-acl;
+  }
+  import openconfig-inet-types {
+    prefix oc-inet;
+  }
+  import openconfig-network-instance {
+    prefix oc-ni;
+  }
+
+  // meta
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+     www.openconfig.net";
+
+  description
+    "Model for configuration and operational state data related
+     to capturing packets and sending them to some destination
+     for debugging or monitoring.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2024-06-12" {
+    description
+      "Initial revision";
+    reference
+      "0.1.0";
+  }
+
+  // extension statements
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // feature statements
+  // identity statements
+  // typedef statements
+  typedef mirror-action {
+    type enumeration {
+      enum FILE {
+        description
+          "Captured packets are stored in a local file on the
+           device in pcap format.";
+      }
+      enum GRE {
+        description
+          "Captured packets are encapsulated in GRE and sent
+           to an IP destination";
+      }
+    }
+    description
+      "The action performed on captured packets.";
+    reference
+      "PCAP format https://www.tcpdump.org/";
+  }
+
+  // grouping statements
+  grouping mirror-file-config {
+    description
+      "Configuration data for files used to store packets mirrored to a
+       file.";
+
+    leaf max-file-size {
+      type uint32;
+      when "../mirror-action = 'FILE'";
+      description
+        "Maximum size of the file used to store mirrored packets.  The
+         system should store packets in this file in a FIFO order.";
+    }
+  }
+
+  grouping mirror-session-config {
+    description
+      "Configuration data for packet capture and action.";
+
+    leaf name {
+      type string;
+      description
+        "Name of mirror session.";
+    }
+
+    leaf mirror-action {
+      type mirror-action;
+      description
+        "Which action is performed when a packet is selected for mirroring.";
+    }
+
+    leaf enabled {
+      type boolean;
+      description
+        "If true, the mirror session is actvely capturing packets and sending
+         to the destination.  If false, the mirror session is not capturing
+         packets.";
+    }
+
+    leaf-list interfaces {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description
+        "List of interfaces to select packets to mirror. A source may
+         be used by only a single mirroring session at a time.";
+    }
+
+    leaf direction {
+      type enumeration {
+        enum RX {
+          description
+            "Mirror packets in the receive direction - i.e., arriving on
+             this interface.";
+        }
+        enum TX {
+          description
+            "Mirror packets in the transmit direction - i.e., leaving
+             this interface.";
+        }
+        enum BOTH {
+          description
+            "Mirror packets in both the transmit and receive directions.";
+        }
+      }
+      default BOTH;
+      description
+        "Direction of packet flow through the source interface to mirror.";
+    }
+
+    leaf acl {
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/oc-acl:name";
+      }
+      description
+        "acl-set used to select packets for mirroring.  Note that systems
+         may not support all OC defined ACL_TYPEs.";
+    }
+
+    leaf source-address {
+      type oc-inet:ip-address;
+      when "../mirror-action = 'GRE'";
+      description
+        "Source address used for GRE encapsulated mirror packets.";
+    }
+
+    leaf destination-address {
+      type oc-inet:ip-address;
+      when "../mirror-action = 'GRE'";
+      description
+        "Destination IP address for GRE encapsulated mirror packets.";
+    }
+
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      when "../mirror-action = 'GRE'";
+      description
+        "The network instance used for GRE encapsulated packets.
+         If no instance is specified, DEFAULT_INSTANCE is used.";
+    }
+
+    leaf max-capture-size {
+      type uint32;
+      description
+        "Limit the size of the capture to the number of bytes indicated.";
+    }
+  }
+
+  grouping mirror-session-state {
+    description
+      "Operational state data for packet mirroring sessions";
+  }
+
+  grouping mirroring-top {
+    description
+      "Grouping for the packet mirroring sessions.";
+
+    container mirroring {
+      description
+        "Container for packet mirrorring.";
+
+      container sessions {
+        description
+          "Container for packet mirrorring sessions.";
+
+        list session {
+          key "name";
+          description
+            "List of mirror sessions.";
+
+          leaf name {
+            type leafref {
+              path "../config/name";
+            }
+            description
+              "Reference to the mirror session name.";
+          }
+
+          container config {
+            description
+              "Configuration data for packet mirroring.";
+
+            uses mirror-session-config;
+            uses mirror-file-config;
+          }
+
+          container state {
+            config false;
+            description
+              "Operational state parameters for packet mirroring.";
+
+            uses mirror-session-config;
+            uses mirror-file-config;
+            uses mirror-session-state;
+          }
+        }
+      }
+    }
+  }
+
+  // data definition statements
+  // augment statements
+  // rpc statements
+  // notification statements
+  uses mirroring-top;
+}
