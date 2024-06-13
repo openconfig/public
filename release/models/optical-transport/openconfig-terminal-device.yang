@@ -77,7 +77,14 @@ module openconfig-terminal-device {
     ports per linecard, separate linecards for client and line ports,
     etc.).";
 
-  oc-ext:openconfig-version "1.9.1";
+  oc-ext:openconfig-version "1.9.2";
+
+  revision "2024-06-12" {
+    description
+      "Add a state leaf to optical channels to reference their logical
+      channel assignment.";
+    reference "1.9.2";
+  }
 
   revision "2023-12-13" {
     description
@@ -1323,6 +1330,18 @@ module openconfig-terminal-device {
         channels must be managed together (e.g., transmitted on the
         same line port), it can indicate that by setting the group-id
         to the same value across related optical channels.";
+    }
+
+    leaf logical-channel-assignment {
+      type leafref {
+        path "/oc-opt-term:terminal-device/oc-opt-term:logical-channels" +
+          "/oc-opt-term:channel/oc-opt-term:index";
+      }
+      description
+        "Reference to the logical channel that is directly assigned
+        to this optical channel if it is assigned to a logical channel.
+        The logical channel must also reference this optical channel at
+        logical-channel-assignments/assignment/state/optical-channel";
     }
 
     uses oc-transceiver:optical-power-state;
