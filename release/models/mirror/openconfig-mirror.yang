@@ -20,6 +20,9 @@ module openconfig-mirror {
   import openconfig-inet-types {
     prefix oc-inet;
   }
+  import openconfig-network-instance {
+    prefix oc-ni;
+  }
 
   // meta
   organization
@@ -152,6 +155,13 @@ module openconfig-mirror {
       description
         "Valid when mirror action is GRE. Encapsulate mirrored packets
          in GRE and send to this destination IPv4 or IPv6 address.";
+    }
+
+    leaf destination-ni {
+      type oc-ni:network-instance-ref;
+      description
+        "The network instance used to reach the destination-address.  If no
+         instance is specified, DEFAULT_INSTANCE is used.";
     }
 
     leaf max-capture-size {
