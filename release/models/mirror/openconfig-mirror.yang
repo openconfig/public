@@ -79,8 +79,9 @@ module openconfig-mirror {
       "Configuration data for files used to store packets mirrored to a
        file.";
 
-    leaf max-size {
+    leaf max-file-size {
       type uint32;
+      when "../mirror-action = 'FILE'";
       description
         "Maximum size of the file used to store mirrored packets.  The
          system should store packets in this file in a FIFO order.";
@@ -215,6 +216,7 @@ module openconfig-mirror {
               "Configuration data for packet mirroring.";
 
             uses mirror-session-config;
+            uses mirror-file-config;
           }
 
           container state {
@@ -223,6 +225,7 @@ module openconfig-mirror {
               "Operational state parameters for packet mirroring.";
 
             uses mirror-session-config;
+            uses mirror-file-config;
             uses mirror-session-state;
           }
         }
