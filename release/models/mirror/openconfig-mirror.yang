@@ -150,18 +150,26 @@ module openconfig-mirror {
         "acl-set used to select packets for mirroring.";
     }
 
-    leaf destination-address {
+    leaf source-address {
       type oc-inet:ip-address;
+      when "../mirror-action = GRE";
       description
-        "Valid when mirror action is GRE. Encapsulate mirrored packets
-         in GRE and send to this destination IPv4 or IPv6 address.";
+        "Source address used for GRE encapsulated mirror packets.";
     }
 
-    leaf destination-ni {
-      type oc-ni:network-instance-ref;
+    leaf destination-address {
+      type oc-inet:ip-address;
+      when "../mirror-action = GRE";
       description
-        "The network instance used to reach the destination-address.  If no
-         instance is specified, DEFAULT_INSTANCE is used.";
+        "Destination IP address for GRE encapsulated mirror packets.";
+    }
+
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      when "../mirror-action = GRE";
+      description
+        "The network instance used for GRE encapsulated packets.
+        If no instance is specified, DEFAULT_INSTANCE is used.";
     }
 
     leaf max-capture-size {
