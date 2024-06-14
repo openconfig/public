@@ -236,9 +236,23 @@ module openconfig-terminal-device-properties {
     }
   }
 
-  grouping operational-mode-descriptor-explicit-capabilities-state {
+  grouping mode-descriptor-design-properties-state{
     description
-      "Operational-mode capabilities leafs.";
+      "For each given mode supported by the device there might be
+        one or multiple implementations related to the transceiver hardware
+        modules which implements the mode. For a given implementation,
+        a set of design properties are represented within the mode-descriptor
+        data structure, which is identified by a unique local identifier.
+        A mode-descriptor shall uniquely characterize a given operational mode
+        implemented by a given transceiver component described within the
+        terminal-device manfiest file.";
+
+    leaf mode-descriptor-id {
+      type uint16;
+      description
+        "Two-octet encoding of the vendor-defined operational
+        mode";
+    }
 
     leaf min-tx-osnr {
       type decimal64 {
@@ -330,73 +344,6 @@ module openconfig-terminal-device-properties {
     }
   }
 
-  grouping mode-descriptor-design-properties-state{
-    description
-      "";
-
-    leaf mode-descriptor-id {
-      type uint16;
-      description
-        "Two-octet encoding of the vendor-defined operational
-        mode";
-    }
-
-    container operational-mode-design-properties {
-      description
-        "For each given mode supported by the device there might be
-        one or multiple implementations related to the transceiver hardware
-        modules which implements the mode. For a given implementation,
-        a set of design properties are represented within the mode-descriptor
-        data structure, which is identified by a unique local identifier.
-        A mode-descriptor shall uniquely characterize a given operational mode
-        implemented by a given transceiver component described within the
-        terminal-device manfiest file.";
-
-      uses operational-mode-descriptor-explicit-capabilities-state;
-
-      container penalties {
-        description
-          "Enconsing list's container.";
-
-        list penalty {
-          key "parameter-and-unit up-to-boundary";
-          description
-            "Penalties includes contributions from different impairments including
-            cd, pmd, low RX Power, pdl,...
-            - For parameter values below lowest up-to-boundary value, the penalty is 0.
-            - For parameter values between lowest and highest up-to-boundary
-            values, penalty could be linearly interpolated.
-            - For parameter values above highest up-to-boundary value, the penalty is the one
-            included within penalty-value attribute associated to the highest up-to-boundary";
-
-          leaf parameter-and-unit {
-            type leafref {
-              path "../state/parameter-and-unit";
-            }
-            description
-              "Impairment and unit leading to the penalty (i.e., cd-ps)";
-          }
-
-          leaf up-to-boundary {
-            type leafref {
-              path "../state/up-to-boundary";
-            }
-            description
-              "defines the upper (for positive values) and lower (for negative values)
-               limit for which the penalty value is valid.";
-          }
-
-          container state {
-            config false;
-            description
-              "Penalties list element's state attributes top container.";
-            uses penalties-list-element-attributes;
-          }
-        }
-      }
-    }
-  }
-
   grouping operational-mode-descriptor-design-properties-top {
     description
       "Definition of proprietary or non-standard operational-modes, which can be
@@ -431,8 +378,9 @@ module openconfig-terminal-device-properties {
           description
             "Mode-descriptor state attributes top container.";
           uses mode-descriptor-design-properties-state;
-          uses operational-mode-descriptor-interoperable-modes-top;
         }
+        uses operational-mode-descriptor-penalties-top;
+        uses operational-mode-descriptor-interoperable-modes-top;
       }
     }
   }
@@ -484,6 +432,50 @@ module openconfig-terminal-device-properties {
         "Name of the organization, standard body, Multi-Source Agreement, or
         open source project, responsible of the definition of the interoperable
         mode.";
+    }
+  }
+  grouping operational-mode-descriptor-penalties-top {
+    description
+      "Top container grouping for operational-mode-descriptor.";
+    container penalties {
+      description
+        "Enconsing list's container.";
+
+      list penalty {
+        key "parameter-and-unit up-to-boundary";
+        description
+          "Penalties includes contributions from different impairments including
+          cd, pmd, low RX Power, pdl,...
+          - For parameter values below lowest up-to-boundary value, the penalty is 0.
+          - For parameter values between lowest and highest up-to-boundary
+          values, penalty could be linearly interpolated.
+          - For parameter values above highest up-to-boundary value, the penalty is the one
+          included within penalty-value attribute associated to the highest up-to-boundary";
+
+        leaf parameter-and-unit {
+          type leafref {
+            path "../state/parameter-and-unit";
+          }
+          description
+            "Impairment and unit leading to the penalty (i.e., cd-ps)";
+        }
+
+        leaf up-to-boundary {
+          type leafref {
+            path "../state/up-to-boundary";
+          }
+          description
+            "defines the upper (for positive values) and lower (for negative values)
+             limit for which the penalty value is valid.";
+        }
+
+        container state {
+          config false;
+          description
+            "Penalties list element's state attributes top container.";
+          uses penalties-list-element-attributes;
+        }
+      }
     }
   }
 
@@ -576,6 +568,11 @@ module openconfig-terminal-device-properties {
        "Spectrum width of the optical channel associated to this
         operational mode, calculated as the baud-rate*(1+roll-off).";
     }
+  }
+
+  grouping operation-mode-filter-and-fec {
+    description
+      "Enclosing grouping for Operational Mode filter and FEC attributes.";
 
     container filter {
       description
@@ -640,6 +637,7 @@ module openconfig-terminal-device-properties {
 
           uses operational-mode-descriptor-state;
         }
+        uses operation-mode-filter-and-fec;
         uses operational-mode-descriptor-design-properties-top;
       }
     }
