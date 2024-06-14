@@ -30,19 +30,25 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "9.7.1";
+  oc-ext:openconfig-version "9.8.0";
+
+  revision "2024-06-13" {
+    description
+      "Add link-bandwidth parameters for cumulative, non-transitive and equal.";
+    reference "9.8.0";
+  }
 
   revision "2023-12-28" {
     description
       "Clarification to last-prefix-limit-exceeded in description";
-          reference "9.7.1";
+    reference "9.7.1";
   }
 
   revision "2023-12-28" {
     description
       "Add support for controling use of link-bandwidth extended
       community for BGP multipath.";
-          reference "9.7.0";
+    reference "9.7.0";
   }
 
   revision "2023-11-02" {
@@ -757,6 +763,7 @@ submodule openconfig-bgp-neighbor {
         group";
       uses bgp-neighbor-config;
       uses bgp-common-neighbor-group-config;
+      uses bgp-common-use-multiple-paths-link-bandwidth-config;
     }
     container state {
       config false;
@@ -765,6 +772,7 @@ submodule openconfig-bgp-neighbor {
       uses bgp-neighbor-config;
       uses bgp-common-neighbor-group-config;
       uses bgp-neighbor-state;
+      uses bgp-common-use-multiple-paths-link-bandwidth-config;
     }
 
     container timers {
