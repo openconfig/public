@@ -652,8 +652,8 @@ module openconfig-terminal-device-properties {
     leaf component-descriptor-id {
       type string;
       description
-        "Unique identifier assigned by the system for the
-        component descriptor";
+        "Unique identifier assigned by the system vendor for the
+        component descriptor.";
     }
 
     leaf system-vendor-name {
@@ -717,20 +717,29 @@ module openconfig-terminal-device-properties {
   }
   grouping transceiver-compatible-mode-state {
     description
-      "Each ";
+      "Each compatible mode has associated a mode-descriptor which represents
+      the operational mode design properties associated to the transceiver which
+      transmits the mode.";
 
-    leaf mode-id {
-      type uint16;
+    container state {
       description
-        "Two-octet encoding of the vendor-defined operational
-        mode";
-    }
+        "State container of transciever compatible modes.";
 
-    leaf mode-descriptor-id {
-      type uint16;
-      description
-        "Two-octet encoding of the vendor-defined operational
-        mode's descriptor.";
+      leaf mode-id {
+        type uint16;
+        description
+          "Two-octet encoding of the vendor-defined operational mode.";
+      }
+
+      leaf mode-descriptor-id {
+        type leafref {
+          path "/oc-opt-term-properties:operational-mode-descriptors/operational-modes/mode-descriptors/mode-descriptor/mode-descriptor-id";
+        }
+        description
+          "Reference to the associated mode-descriptor-id which describes
+          the specific design properties of the mode once it is being transmitted
+          by the parent transceiver component.";
+      }
     }
   }
 
@@ -752,19 +761,12 @@ module openconfig-terminal-device-properties {
 
         leaf mode-id {
           type leafref {
-            path "/oc-opt-term-properties:operational-mode-descriptors/operational-modes/mode-id";
+            path "../state/mode-id";
           }
           description
-            "Reference to operational-mode-id";
+            "Reference to a ../state/mode-id.";
         }
-
-        leaf mode-descriptor-id {
-          type leafref {
-            path "/oc-opt-term-properties:operational-mode-descriptors/operational-modes/mode-descriptors/mode-descriptor/mode-descriptor-id";
-          }
-          description
-            "Reference to the associated mode-descriptor-id";
-        }
+        uses transceiver-compatible-mode-state;
       }
     }
   }
@@ -810,6 +812,33 @@ module openconfig-terminal-device-properties {
 
   // Definition of terminal-device linecard descriptors.
 
+  grouping linecards-constrained-compatible-modes-state {
+    description
+      "Grouping for the linecards' contrained compatible modes
+      state attributes.";
+
+    container state {
+      description
+        "State container for linecard constrained compatible modes";
+
+      leaf mode-id {
+          type uint16;
+          description
+            "Absolute reference to an operational-mode-id.";
+        }
+
+      leaf mode-descriptor-id {
+        type leafref {
+          path "/oc-opt-term-properties:operational-mode-descriptors/operational-modes/mode-descriptors/mode-descriptor/mode-descriptor-id";
+        }
+        description
+          "Reference to the associated mode-descriptor-id which describes
+          the specific design properties of the mode once it is being transmitted
+          by the parent transceiver component.";
+      }
+    }
+  }
+
   grouping constrained-compatible-modes {
     description
       "Linecards' compatible transceiver list of compatible modes which are
@@ -830,19 +859,13 @@ module openconfig-terminal-device-properties {
 
         leaf mode-id {
           type leafref {
-            path "/oc-opt-term-properties:operational-mode-descriptors/operational-modes/mode-id";
+            path "../state/mode-id";
           }
           description
-            "Reference to operational-mode-id";
+            "Reference to linecard-descriptor/constrained-compatible-mdoe/state/mode-id.";
         }
 
-        leaf mode-descriptor-id {
-          type leafref {
-            path "/oc-opt-term-properties:operational-mode-descriptors/operational-modes/mode-descriptors/mode-descriptor/mode-descriptor-id";
-          }
-          description
-            "Reference to the associated mode-descriptor-id";
-        }
+        uses linecards-constrained-compatible-modes-state;
 
         container optical-channel-config-value-constraints{
           description
@@ -880,11 +903,22 @@ module openconfig-terminal-device-properties {
 
         leaf transceiver-descriptor-id {
           type leafref {
-            path "../../../../../transceiver-descriptors/transceiver-descriptor/state/component-descriptor-id";
+            path "../state/transceiver-descriptor-id";
           }
           description
-            "Two-octet encoding of the vendor-defined operational
-            mode";
+            "Reference to transceiver-descriptor-id";
+        }
+        container state {
+          description
+            "Static features or properties which characterize the
+            component descriptor.";
+
+          leaf transceiver-descriptor-id {
+            type string;
+            description
+              "String rerference of the system vendor defined transciever
+              component descriptor id.";
+          }
         }
         uses constrained-compatible-modes;
       }
