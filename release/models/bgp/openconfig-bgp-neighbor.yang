@@ -280,6 +280,21 @@ submodule openconfig-bgp-neighbor {
       container ebgp {
         description
           "Multipath configuration for eBGP";
+        container link-bandwidth-ext-community {
+          description
+            "Usage of DMZ Link-Bandwidth extended community";
+          container config {
+            description
+            "Configuration parameters relating to usage of link-bandwidth";
+            uses bgp-common-use-multiple-paths-link-bandwidth-config;
+          }
+          container state {
+            config false;
+            description
+            "State information relating to usage of link-bandwidth";
+            uses bgp-common-use-multiple-paths-link-bandwidth-config;
+          }
+        }
         container config {
           description
             "Configuration parameters relating to eBGP multipath";
@@ -763,7 +778,6 @@ submodule openconfig-bgp-neighbor {
         group";
       uses bgp-neighbor-config;
       uses bgp-common-neighbor-group-config;
-      uses bgp-common-use-multiple-paths-link-bandwidth-config;
     }
     container state {
       config false;
@@ -772,7 +786,6 @@ submodule openconfig-bgp-neighbor {
       uses bgp-neighbor-config;
       uses bgp-common-neighbor-group-config;
       uses bgp-neighbor-state;
-      uses bgp-common-use-multiple-paths-link-bandwidth-config;
     }
 
     container timers {
