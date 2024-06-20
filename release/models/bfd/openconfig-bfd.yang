@@ -515,7 +515,7 @@ module openconfig-bfd {
     leaf local-address {
       type oc-inet:ip-address;
       description
-        "The local IP address used by the system for the single-hope BFD session
+        "The local IP address used by the system for the single-hop BFD session
         specified.";
     }
 
@@ -523,20 +523,20 @@ module openconfig-bfd {
       type oc-inet:ip-address;
       description
         "The remote IP destination that should be used by the system for
-        the single-hope BFD session specified.";
+        the single-hop BFD session specified.";
     }
 
     leaf enabled {
       type boolean;
       description
-        "When this leaf is set to true then the single-hope BFD session is enabled
+        "When this leaf is set to true then the single-hop BFD session is enabled
         - if it is set to false, it is administratively disabled.";
     }
 
     leaf demand-mode {
       type boolean;
       description
-        "When this leaf is set to true then the single-hope BFD session 
+        "When this leaf is set to true then the single-hop BFD session 
         is operating in demand-mode.";
     }
   }
@@ -544,7 +544,7 @@ module openconfig-bfd {
   grouping bfd-interface-session-state {
     // placeholder
     description
-      "Operational state parameters relating to the single-hope BFD session 
+      "Operational state parameters relating to the single-hop BFD session 
       running on the interface.";
   }
 
@@ -563,7 +563,7 @@ module openconfig-bfd {
 
         description
           "This list contains configuration and state parameters
-          relating to interface single-hope session.";
+          relating to interface single-hop session.";
         reference
           "RFC5881 - Bidirectional Forwarding Detection
           (BFD) for IPv4 and IPv6 (Single Hop).";
@@ -587,14 +587,14 @@ module openconfig-bfd {
 
         container config {
           description
-            "Configuration parameters for the BFD single-hope session.";
+            "Configuration parameters for the BFD single-hop session.";
           uses bfd-interface-session-config;
         }
 
         container state {
           config false;
           description
-            "Operational state parameters for the BFD single-hope session.";
+            "Operational state parameters for the BFD single-hop session.";
           uses bfd-interface-session-config;
           uses bfd-interface-session-state;
         }
