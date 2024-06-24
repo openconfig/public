@@ -109,28 +109,28 @@ module openconfig-bfd {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
-  typedef bfd-session-state {
+  typedef bfd--state {
     type enumeration {
       enum UP {
         description
-          "The BFD session is perceived to be up by the system.";
+          "The BFD  is perceived to be up by the system.";
       }
       enum DOWN {
         description
-          "The BFD session is perceived to be down by the system.";
+          "The BFD  is perceived to be down by the system.";
       }
       enum ADMIN_DOWN {
         description
-          "The BFD session is administratively disabled.";
+          "The BFD  is administratively disabled.";
       }
       enum INIT {
         description
-          "The BFD session is perceived to be initialising by the
+          "The BFD  is perceived to be initialising by the
           system.";
       }
     }
     description
-      "The state of the BFD session according to the system referred
+      "The state of the BFD  according to the system referred
       to by the context of the leaf.";
     reference
       "RFC5880 - Bidirectional Forwarding Detection, Section
@@ -510,7 +510,7 @@ module openconfig-bfd {
 
   grouping bfd-interface-session-config {
     description
-      "Configuration parameters for a BFD session on an interface.";
+      "Configuration parameters for a static BFD single-hop session on an interface.";
 
     leaf local-address {
       type oc-inet:ip-address;
@@ -526,11 +526,11 @@ module openconfig-bfd {
         the single-hop BFD session specified.";
     }
 
-    leaf enabled {
+    leaf admin-down {
       type boolean;
       description
-        "When this leaf is set to true then the single-hop BFD session is enabled
-        - if it is set to false, it is administratively disabled.";
+        "When this leaf is set to true then the single-hop BFD session
+        is administratively down.";
     }
 
     leaf demand-mode {
@@ -544,26 +544,25 @@ module openconfig-bfd {
   grouping bfd-interface-session-state {
     // placeholder
     description
-      "Operational state parameters relating to the single-hop BFD session 
+      "Operational state parameters relating to the static BFD single-hop session 
       running on the interface.";
   }
 
   grouping bfd-interface-sessions-structural {
     description
-      "Structural grouping for BFD sessions configuration on interface
+      "Structural grouping for static BFD single-hop sessions configuration on interface
       and state parameters.";
 
     container sessions {
       description
-        "Parameters relating to BFD sessions associated with the interface.";
+        "Parameters relating to static BFD single-hop sessions associated with the interface.";
 
       list session {
-        key "local-address";
-        key "remote-address";
+        key "local-address remote-address"
 
         description
           "This list contains configuration and state parameters
-          relating to interface single-hop session.";
+          relating to interface static BFD single-hop session.";
         reference
           "RFC5881 - Bidirectional Forwarding Detection
           (BFD) for IPv4 and IPv6 (Single Hop).";
@@ -587,14 +586,14 @@ module openconfig-bfd {
 
         container config {
           description
-            "Configuration parameters for the BFD single-hop session.";
+            "Configuration parameters for the static BFD single-hop session.";
           uses bfd-interface-session-config;
         }
 
         container state {
           config false;
           description
-            "Operational state parameters for the BFD single-hop session.";
+            "Operational state parameters for the static BFD single-hop session.";
           uses bfd-interface-session-config;
           uses bfd-interface-session-state;
         }
