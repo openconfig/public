@@ -48,7 +48,14 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.4.0";
+  oc-ext:openconfig-version "4.4.1";
+
+  revision "2024-02-27" {
+    description
+      "Clarify that tables are created only by the system and not
+      users.";
+    reference "4.4.1";
+  }
 
   revision "2024-02-27" {
     description
@@ -634,7 +641,8 @@ module openconfig-network-instance {
         container tables {
           description
             "The routing tables that are managed by this network
-            instance";
+            instance.  Tables are created and removed by the system.
+            Users do not create tables.";
 
           list table {
             key "protocol instance-name address-family";
@@ -662,8 +670,9 @@ module openconfig-network-instance {
               address-family=IPv4-MULTICAST) and (protocol=BGP, name=FOO
               address-family=IPv6-UNICAST) tables are created by the system.
               The removal of the table should not require additional or
-	            explicit configurations";
-
+	            explicit configurations.
+              Users cannot create or delete tables.  Instead a user may
+              configure table-connections which reference these tables.";
             leaf protocol {
               type leafref {
                 path "../state/protocol";
