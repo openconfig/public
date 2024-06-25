@@ -24,7 +24,14 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.7.1";
+  oc-ext:openconfig-version "9.7.2";
+
+  revision "2024-07-25" {
+    description
+      "Clarification to usage of container
+      `.../use-multiple-paths/ebgp/link-bandwidth-ext-community/` ";
+          reference "9.7.2";
+  }
 
   revision "2023-12-28" {
     description
@@ -635,7 +642,11 @@ submodule openconfig-bgp-common {
           "Multipath parameters for eBGP";
         container link-bandwidth-ext-community {
           description
-            "Usage of DMZ Link-Bandwidth extended community";
+            "Usage of DMZ Link-Bandwidth extended community in FIB's
+            nexthops and nexthop groups programing.
+            It do not impact behaviour and handling of link-dandwidth
+            extended community in BGP protocol and o not impact
+            content of BGP RIBs";
           container config {
             description
             "Configuration parameters relating to usage of link-bandwidth";
@@ -666,7 +677,11 @@ submodule openconfig-bgp-common {
           "Multipath parameters for iBGP";
         container link-bandwidth-ext-community {
           description
-            "Usage of DMZ Link-Bandwidth extended community";
+            "Usage of DMZ Link-Bandwidth extended community in FIB's
+            nexthops and nexthop groups programing.
+            It do not impact behaviour and handling of link-dandwidth
+            extended community in BGP protocol and o not impact
+            content of BGP RIBs";
           container config {
             description
             "Configuration parameters relating to usage of link-bandwidth";
@@ -705,6 +720,10 @@ submodule openconfig-bgp-common {
       load among contributing routes proportionally to value of
       Local Administrator subfield of link-bandwidth extended
       community [draft-ietf-idr-link-bandwidth-07].
+      When set to FALSE, BGP multiplepath shall distributed traffic
+      load equally among contributing routes regardless of value of
+      Local Administrator subfield of link-bandwidth extended communities
+      attached to routes contributing to multippath in BGP Local-RIB.
       This leaf has no effect if BGP multi-path is disabled or
       if maximum-path attribute of BGP multi-path value is set
       to 1";
