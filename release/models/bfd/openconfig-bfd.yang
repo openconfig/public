@@ -28,6 +28,13 @@ module openconfig-bfd {
 
   oc-ext:openconfig-version "0.3.0";
 
+  revision "2024-06-26" {
+    description
+      "Add sessions subtree at interface level for configuration of
+      static BFD single-hop sessions.";
+    reference "0.3.0";
+ }
+
   revision "2024-03-05" {
     description
       "Add configuration of min interval, multiplier when
@@ -109,28 +116,28 @@ module openconfig-bfd {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
-  typedef bfd--state {
+  typedef bfd-session-state {
     type enumeration {
       enum UP {
         description
-          "The BFD  is perceived to be up by the system.";
+          "The BFD session is perceived to be up by the system.";
       }
       enum DOWN {
         description
-          "The BFD  is perceived to be down by the system.";
+          "The BFD session is perceived to be down by the system.";
       }
       enum ADMIN_DOWN {
         description
-          "The BFD  is administratively disabled.";
+          "The BFD session is administratively disabled.";
       }
       enum INIT {
         description
-          "The BFD  is perceived to be initialising by the
+          "The BFD session is perceived to be initialising by the
           system.";
       }
     }
     description
-      "The state of the BFD  according to the system referred
+      "The state of the BFD session according to the system referred
       to by the context of the leaf.";
     reference
       "RFC5880 - Bidirectional Forwarding Detection, Section
@@ -536,7 +543,7 @@ module openconfig-bfd {
     leaf demand-mode {
       type boolean;
       description
-        "When this leaf is set to true then the single-hop BFD session 
+        "When this leaf is set to true then the single-hop BFD session
         is operating in demand-mode.";
     }
   }
@@ -544,7 +551,7 @@ module openconfig-bfd {
   grouping bfd-interface-session-state {
     // placeholder
     description
-      "Operational state parameters relating to the static BFD single-hop session 
+      "Operational state parameters relating to the static BFD single-hop session
       running on the interface.";
   }
 
@@ -558,7 +565,7 @@ module openconfig-bfd {
         "Parameters relating to static BFD single-hop sessions associated with the interface.";
 
       list session {
-        key "local-address remote-address"
+        key "local-address remote-address";
 
         description
           "This list contains configuration and state parameters
