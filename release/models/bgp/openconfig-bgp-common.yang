@@ -642,9 +642,10 @@ submodule openconfig-bgp-common {
           "Multipath parameters for eBGP";
         container link-bandwidth-ext-community {
           description
-            "Usage of DMZ Link-Bandwidth extended community in FIB's
-            nexthops and nexthop groups programing.
-            It do not impact behaviour and handling of link-dandwidth
+            "Usage of DMZ Link-Bandwidth extended community for
+            construction of next hops and nexthop groups in cross-protocol,
+            network-instance scoped, global RIB.
+            It do not impact behavior and handling of link-bandwidth
             extended community in BGP protocol and o not impact
             content of BGP RIBs";
           container config {
@@ -677,9 +678,10 @@ submodule openconfig-bgp-common {
           "Multipath parameters for iBGP";
         container link-bandwidth-ext-community {
           description
-            "Usage of DMZ Link-Bandwidth extended community in FIB's
-            nexthops and nexthop groups programing.
-            It do not impact behaviour and handling of link-dandwidth
+            "Usage of DMZ Link-Bandwidth extended community for
+            construction of next hops and nexthop groups in cross-protocol,
+            network-instance scoped, global RIB.
+            It do not impact behavior and handling of link-bandwidth
             extended community in BGP protocol and o not impact
             content of BGP RIBs";
           container config {
@@ -712,20 +714,23 @@ submodule openconfig-bgp-common {
   grouping bgp-common-use-multiple-paths-link-bandwidth-config {
     description
       "Parameters controlling usage of  of DMZ Link-Bandwidth
-      extended community in pultipath RIB/FIB formation";
+      extended community in formation of  next hops and next hop
+      groups in cross-protocol, network-instance scoped, global RIB";
     leaf enabled {
       type boolean;
       description
-      "When set to TRUE, BGP multiplepath shall distributed traffic
+      "When set to TRUE, BGP multiple path shall distributed traffic
       load among contributing routes proportionally to value of
       Local Administrator subfield of link-bandwidth extended
       community [draft-ietf-idr-link-bandwidth-07].
-      When set to FALSE, BGP multiplepath shall distributed traffic
-      load equally among contributing routes regardless of value of
+      When set to FALSE, BGP multipath shall distributed traffic
+      load among contributing routes regardless of value of
       Local Administrator subfield of link-bandwidth extended communities
-      attached to routes contributing to multippath in BGP Local-RIB.
-      This leaf has no effect if BGP multi-path is disabled or
-      if maximum-path attribute of BGP multi-path value is set
+      attached to routes contributing to multipath in BGP Local-RIB.
+      Distribution could be equal or weighted base on other configuration
+      Not related to BGP multipath (e.g. ISIS wECMP).
+      This leaf has no effect if BGP multipath is disabled or
+      if maximum-path attribute of BGP multipath maximum-path value is set
       to 1";
     }
   }
