@@ -22,7 +22,13 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.24.1";
+  oc-ext:openconfig-version "0.25.0";
+
+  revision "2024-06-28" {
+    description
+      "Add ETH_25GBASE_LR and ETH_25GBASE_SR PMD types.";
+    reference "0.25.0";
+  }
 
   revision "2024-05-13" {
     description
@@ -1107,6 +1113,18 @@ module openconfig-transport-types {
   identity ETH_10GBASE_SR {
     base ETHERNET_PMD_TYPE;
     description "Ethernet compliance code: 10GBASE_SR";
+  }
+
+  identity ETH_25GBASE_LR {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 25GBASE_LR";
+    reference "IEEE 802.3cc-2022 (CL114)";
+  }
+
+  identity ETH_25GBASE_SR {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 25GBASE_SR";
+    reference "IEEE 802.3by-2022 (CL112)";
   }
 
   identity ETH_40GBASE_CR4 {
