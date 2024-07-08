@@ -308,15 +308,21 @@ module openconfig-packet-match {
       for IPv4";
 
     leaf source-address {
-      type oc-inet:ipv4-address;
+      type oc-inet:ipv4-prefix;
       description
-        "Source IPv4 address.";
+        "Source IPv4 address prefix.";
     }
 
-    leaf source-address-mask {
-      type oc-pkt-match-types:ipv4-prefix-mask-type;
+    leaf masked-source-address {
+      type oc-inet:ipv4-address;
       description
-        "Source IPv4 address prefix mask.";
+        "Source IPv4 address used with a mask.";
+    }
+
+    leaf destination-source-mask {
+      type oc-inet:ipv4-address;
+      description
+        "Source IPv4 address mask.";
     }
 
     leaf source-address-prefix-set {
@@ -330,15 +336,21 @@ module openconfig-packet-match {
     }
 
     leaf destination-address {
+      type oc-inet:ipv4-prefix;
+      description
+        "Destination IPv4 address prefix.";
+    }
+
+    leaf masked-destination-address {
       type oc-inet:ipv4-address;
       description
-        "Destination IPv4 address.";
+        "Destination IPv4 address used with a mask.";
     }
 
     leaf destination-address-mask {
-      type oc-pkt-match-types:ipv4-prefix-mask-type;
+      type oc-inet:ipv4-address;
       description
-        "Destination IPv4 address prefix mask.";
+        "Destination IPv4 address mask.";
     }
 
     leaf destination-address-prefix-set {
@@ -390,15 +402,21 @@ module openconfig-packet-match {
       "Configuration data for IPv6 match fields";
 
     leaf source-address {
+      type oc-inet:ipv6-prefix;
+      description
+        "Source IPv6 address prefix.";
+    }
+
+    leaf masked-source-address {
       type oc-inet:ipv6-address;
       description
-        "Source IPv6 address.";
+        "Source IPv6 address used with a mask.";
     }
 
     leaf source-address-mask {
-      type oc-pkt-match-types:ipv6-prefix-mask-type;
+      type oc-inet:ipv6-address;
       description
-        "Source IPv6 address prefix mask.";
+        "Source IPv6 address mask.";
     }
 
     leaf source-address-prefix-set {
@@ -418,15 +436,21 @@ module openconfig-packet-match {
     }
 
     leaf destination-address {
+      type oc-inet:ipv6-prefix;
+      description
+        "Destination IPv6 address prefix.";
+    }
+
+    leaf masked-destination-address {
       type oc-inet:ipv6-address;
       description
-        "Destination IPv6 address.";
+        "Destination IPv6 address used with a mask.";
     }
 
     leaf destination-address-mask {
-      type oc-pkt-match-types:ipv6-prefix-mask-type;
+      type oc-inet:ipv6-address;
       description
-        "Destination IPv6 address prefix mask.";
+        "Destination IPv6 address mask.";
     }
 
     leaf destination-address-prefix-set {
