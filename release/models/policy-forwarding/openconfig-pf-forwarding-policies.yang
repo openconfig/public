@@ -163,6 +163,25 @@ submodule openconfig-pf-forwarding-policies {
             uses oc-pmatch:ipv6-protocol-fields-top;
             uses oc-pmatch:transport-fields-top;
 
+            container network-instance {
+              description
+                "Container for parameters relating to match
+                rules for network-instance.";
+              container config {
+                description
+                  "Container for configuration parameters relating to
+                  match rules for network-instance.";
+                uses pf-forwarding-policy-rule-ni-config;
+              }
+              container state {
+                config false;
+                description
+                  "Container for state parameters relating to
+                  match rules for network-instance.";
+                uses pf-forwarding-policy-rule-ni-config;
+              }
+            }
+
             container action {
               description
                 "The forwarding policy action to be applied for
@@ -249,6 +268,19 @@ submodule openconfig-pf-forwarding-policies {
       type oc-yang:counter64;
       description
         "Bytes matched by the rule.";
+    }
+  }
+
+  grouping pf-forwarding-policy-rule-ni-config {
+    description
+      "Forwarding policy rules for network-instance matching.";
+    leaf network-instance {
+      type leafref {
+        path "/network-instances/network-instance/config/name";
+      }
+      description
+        "Reference to network-instance name used to match packets
+        for this rule.";
     }
   }
 
