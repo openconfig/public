@@ -274,13 +274,13 @@ submodule openconfig-pf-forwarding-policies {
   grouping pf-forwarding-policy-rule-ni-config {
     description
       "Forwarding policy rules for network-instance matching.";
-    leaf network-instance {
-      type leafref {
-        path "/network-instances/network-instance/config/name";
-      }
+
+    leaf input-match-all {
+      type boolean;
+      default false;
       description
-        "Reference to network-instance name used to match packets
-        for this rule.";
+        "If set to true, all packets received on a network instance
+        are matched by this rule.";
     }
   }
 
