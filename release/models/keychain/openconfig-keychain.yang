@@ -201,12 +201,18 @@ revision "2024-05-30" {
     leaf key-id {
       type union {
         type oc-yang:hex-string-prefixed {
+          length "1..66";
+        }
+       type oc-yang:hex-string {
           length "1..64";
         }
         type uint64;
       }
       description
-        "Identifier for the key within the keychain.";
+        "Identifier for the key within the keychain.  Note that the
+        hex-string type is deprecated and will be removed from a future
+        version of this model. Implementations should transition to using
+        the hex-string-prefixed type.";
     }
 
     leaf secret-key {
