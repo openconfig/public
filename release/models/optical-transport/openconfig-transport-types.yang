@@ -22,7 +22,48 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "0.20.0";
+  oc-ext:openconfig-version "0.25.0";
+
+  revision "2024-06-28" {
+    description
+      "Add ETH_25GBASE_LR and ETH_25GBASE_SR PMD types.";
+    reference "0.25.0";
+  }
+
+  revision "2024-05-13" {
+    description
+      "Fix the QSFP56_DD description as it is meant to be generic.";
+     reference "0.24.1";
+  }
+
+  revision "2024-03-20" {
+    description
+      "FlexO support, 800G trib protocol, and OSFP
+       description update for 800G.";
+     reference "0.24.0";
+  }
+
+  revision "2024-03-12" {
+    description
+      "Add TRIBUTARY_RATE_CLASS_TYPE's up to 3200G to support
+       mating of two 1600G line rates.";
+     reference "0.23.0";
+  }
+
+  revision "2024-01-17" {
+    description
+      "Update loopback-mode types.";
+    reference "0.22.0";
+  }
+
+  revision "2024-01-16" {
+    description
+      "Added form factors QSFP28_DD and CSFP.
+       Added new PMDs: ETH_100GBASE_ER4L (MSA 100GBASE-ER4 Lite),
+       ETH_1GBASE_LX10.
+       Added References for 100GBASE-CR4 and 40GGBASE-CR4 for DACs";
+     reference "0.21.0";
+  }
 
   revision "2023-08-03" {
     description
@@ -181,15 +222,41 @@ module openconfig-transport-types {
       }
       enum FACILITY {
         description
-          "A loopback which directs traffic normally transmitted
-          on the port back to the device as if received on the same
-          port from an external source.";
+          "A port internal loopback at ASIC level. The loopback directs
+          traffic normally transmitted on the port back to the device as
+          if received on the same port from an external source. Note this
+          mode is used when internal loopback does NOT specify MAC or PHY.";
       }
       enum TERMINAL {
         description
-          "A loopback which directs traffic received from an external
-          source on the port back out the transmit side of the same
-          port.";
+          "A port external loopback at ASIC level. The loopback which
+          directs traffic received from an external source on the port
+          back out the transmit side of the same port. Note this mode is
+          used when external loopback does NOT specify MAC or PHY";
+      }
+      enum ASIC_PHY_LOCAL {
+        description
+          "A port internal loopback at PHY module. The loopback directs
+          traffic normally transmitted on the port back to the device as
+          if received on the same port from an external source.";
+      }
+      enum ASIC_PHY_REMOTE {
+        description
+          "A port external loopback at PHY module. The loopback which
+          directs traffic received from an external source on the port
+          back out the transmit side of the same port.";
+      }
+      enum ASIC_MAC_LOCAL {
+        description
+          "A port internal loopback at MAC module. The loopback directs
+          traffic normally transmitted on the port back to the device as
+          if received on the same port from an external source.";
+      }
+      enum ASIC_MAC_REMOTE {
+        description
+          "A port external loopback at MAC module. The loopback which
+          directs traffic received from an external source on the port
+          back out the transmit side of the same port.";
       }
     }
     default NONE;
@@ -760,6 +827,11 @@ module openconfig-transport-types {
     description "400G Ethernet protocol";
   }
 
+  identity PROT_800GE {
+    base TRIBUTARY_PROTOCOL_TYPE;
+    description "800G Ethernet protocol";
+  }
+
   identity PROT_OTSIG {
     base TRIBUTARY_PROTOCOL_TYPE;
     description "Optical tributary signal group protocol";
@@ -768,6 +840,12 @@ module openconfig-transport-types {
   identity PROT_ODUFLEX_CBR {
     base TRIBUTARY_PROTOCOL_TYPE;
     description "ODU Flex with CBR protocol";
+  }
+
+  identity PROT_FLEXO {
+    base TRIBUTARY_PROTOCOL_TYPE;
+    description
+      "FlexO protocol as defined in ITU-T G.709.1 and ITU-T G.709.3";
   }
 
   identity PROT_ODUFLEX_GFP {
@@ -831,6 +909,14 @@ module openconfig-transport-types {
       channels";
   }
 
+  identity QSFP28_DD {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "QSFP-DD with electrical interfaces consisting of 8 lanes that operate at up to
+      25 Gbps with NRZ modulation";
+    reference "http://qsfp-dd.com";
+  }
+
   identity QSFP56 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
     description
@@ -841,9 +927,8 @@ module openconfig-transport-types {
   identity QSFP56_DD {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
     description
-      "QSFP-DD electrical interfaces will employ 8 lanes that operate up to
-      25 Gbps NRZ modulation or 50 Gbps PAM4 modulation, providing
-      solutions up to 200 Gbps or 400 Gbps aggregate";
+      "QSFP-DD quad small form factor pluggable double density
+      optic providing an 8 lane electrical interface";
     reference "http://qsfp-dd.com";
   }
 
@@ -883,6 +968,16 @@ module openconfig-transport-types {
       "Enhanced small form-factor pluggable transceiver supporting
       up to 16 Gb/s signals, including 10 GbE and OTU2";
   }
+
+  identity CSFP {
+    base TRANSCEIVER_FORM_FACTOR_TYPE;
+    description
+      "Compact Small form-factor pluggable transceiver. It is a version
+      of SFP with the same mechanical form factor allowing two independent
+      bidirectional channels per port.";
+  }
+
+
 
   identity SFP28 {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
@@ -932,7 +1027,7 @@ module openconfig-transport-types {
     base TRANSCEIVER_FORM_FACTOR_TYPE;
     description
       "Octal small form factor pluggable transceiver supporting
-      400 Gb/s.";
+      400 Gb/s or 800 Gb/s.";
   }
 
   identity NON_PLUGGABLE {
@@ -989,6 +1084,12 @@ module openconfig-transport-types {
       "Ethernet compliance codes (PMD) supported by transceivers";
   }
 
+  identity ETH_1000BASE_LX10 {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: ETH_1000BASE_LX10";
+    reference "802.3ah-2004(CL59)";
+  }
+
   identity ETH_10GBASE_LRM {
     base ETHERNET_PMD_TYPE;
     description "Ethernet compliance code: 10GBASE_LRM";
@@ -1014,9 +1115,24 @@ module openconfig-transport-types {
     description "Ethernet compliance code: 10GBASE_SR";
   }
 
+  identity ETH_25GBASE_LR {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 25GBASE_LR";
+    reference "IEEE 802.3cc-2022 (CL114)";
+  }
+
+  identity ETH_25GBASE_SR {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 25GBASE_SR";
+    reference "IEEE 802.3by-2022 (CL112)";
+  }
+
   identity ETH_40GBASE_CR4 {
     base ETHERNET_PMD_TYPE;
-    description "Ethernet compliance code: 40GBASE_CR4";
+    description "Ethernet compliance code: 40GBASE_CR4.
+    This PMD is used in Direct Attach Cables (DAC)
+    and Active Optical Cables (AOC)";
+    reference "IEEE 802.3ba 40GBASE-CR4";
   }
 
   identity ETH_40GBASE_SR4 {
@@ -1074,6 +1190,11 @@ module openconfig-transport-types {
     description "Ethernet compliance code: 100GBASE_LR4";
   }
 
+  identity ETH_100GBASE_ER4L {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 100GBASE_ER4L";
+  }
+
   identity ETH_100GBASE_ER4 {
     base ETHERNET_PMD_TYPE;
     description "Ethernet compliance code: 100GBASE_ER4";
@@ -1096,7 +1217,10 @@ module openconfig-transport-types {
 
   identity ETH_100GBASE_CR4 {
     base ETHERNET_PMD_TYPE;
-    description "Ethernet compliance code: 100GBASE_CR4";
+    description "Ethernet compliance code: 100GBASE_CR4.
+      This PMD is used in Direct Attach Cables (DAC)
+      and Active Optical Cables (AOC)";
+    reference "IEEE 802.3bj 100GBASE-CR4";
   }
 
   identity ETH_100GBASE_FR {
@@ -1416,6 +1540,198 @@ module openconfig-transport-types {
     base TRIBUTARY_RATE_CLASS_TYPE;
     description
       "1600G tributary signal rate";
+  }
+
+  identity TRIB_RATE_1650G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "1650G tributary signal rate";
+  }
+
+  identity TRIB_RATE_1700G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "1700G tributary signal rate";
+  }
+
+  identity TRIB_RATE_1750G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "1750G tributary signal rate";
+  }
+
+  identity TRIB_RATE_1800G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "1800G tributary signal rate";
+  }
+
+  identity TRIB_RATE_1850G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "1850G tributary signal rate";
+  }
+
+  identity TRIB_RATE_1900G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "1900G tributary signal rate";
+  }
+
+  identity TRIB_RATE_1950G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "1950G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2000G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2000G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2050G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2050G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2100G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2100G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2150G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2150G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2200G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2200G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2250G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2250G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2300G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2300G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2350G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2350G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2400G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2400G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2450G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2450G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2500G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2500G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2550G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2550G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2600G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2600G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2650G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2650G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2700G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2700G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2750G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2750G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2800G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2800G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2850G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2850G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2900G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2900G tributary signal rate";
+  }
+
+  identity TRIB_RATE_2950G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "2950G tributary signal rate";
+  }
+
+  identity TRIB_RATE_3000G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "3000G tributary signal rate";
+  }
+
+  identity TRIB_RATE_3050G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "3050G tributary signal rate";
+  }
+
+  identity TRIB_RATE_3100G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "3100G tributary signal rate";
+  }
+
+  identity TRIB_RATE_3150G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "3150G tributary signal rate";
+  }
+
+  identity TRIB_RATE_3200G {
+    base TRIBUTARY_RATE_CLASS_TYPE;
+    description
+      "3200G tributary signal rate";
   }
 
   identity LOGICAL_ELEMENT_PROTOCOL_TYPE {

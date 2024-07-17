@@ -13,7 +13,7 @@ module openconfig-bgp-policy {
   import openconfig-policy-types { prefix oc-pol-types; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
   import openconfig-extensions { prefix oc-ext; }
-
+  import openconfig-types { prefix oc-types; }
 
   // meta
   organization
@@ -28,7 +28,39 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "6.2.0";
+  oc-ext:openconfig-version "7.1.0";
+
+  revision "2024-07-02" {
+    description
+      "Add ext-community-count container, which also clarifies that
+      community-count does not include other types of communities (e.g.
+      extended).";
+    reference "7.1.0";
+  }
+
+  revision "2024-01-31" {
+    description
+      "Update community-sets/members/member union type by replacing
+      the bgp-regex type with posix-eregexp.";
+    reference "7.0.0";
+  }
+
+  revision "2023-12-19" {
+    description
+    "Add PEER_ADDRESS to bgp-next-hop-type.";
+    reference "6.4.0";
+  }
+
+  revision "2023-10-23" {
+    description
+      "Revert revision 2019-02-01.
+      Move match-set-options of BGP community and BGP extended community from
+      defined-sets/bgp-defined-sets/community-set and
+      defined-sets/bgp-defined-sets/ext-community-set back to
+      policy-definitions/statements/.../bgp-conditions
+      for consistency across sets.";
+    reference "6.3.0";
+  }
 
   revision "2023-10-03" {
     description
@@ -164,6 +196,11 @@ module openconfig-bgp-policy {
           description "special designation for local router's own
           address, i.e., next-hop-self";
         }
+        enum PEER_ADDRESS {
+          description "The ip address of the peer should be used.
+          This enum is efficient to use when setting the next hop
+          in a policy applied to a peer group.";
+        }
       }
     }
     description
@@ -244,38 +281,139 @@ module openconfig-bgp-policy {
     }
   }
 
+  grouping match-community-config {
+    description
+      "Configuration data for match conditions on community set";
+
+    leaf community-set {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
+          "oc-bgp-pol:bgp-defined-sets/oc-bgp-pol:community-sets/" +
+          "oc-bgp-pol:community-set/oc-bgp-pol:community-set-name";
+      }
+      description "References a defined community set";
+    }
+    uses oc-rpol:match-set-options-group;
+  }
+
+  grouping match-community-state {
+    description
+      "Operational state data for match conditions on community set";
+  }
+
+  grouping match-community-top {
+    description
+      "Top-level grouping for match conditions on community set";
+
+    container match-community-set {
+      description
+        "Match a referenced community set according to the logic
+        defined in the match-set-options leaf";
+
+      container config {
+        description
+          "Configuration data for match conditions on community set";
+
+        uses match-community-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for match conditions on community set";
+
+        uses match-community-config;
+        uses match-community-state;
+      }
+    }
+  }
+
+  grouping match-ext-community-config {
+    description
+      "Configuration data for match conditions on extended community set";
+
+    leaf ext-community-set {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
+          "oc-bgp-pol:bgp-defined-sets/oc-bgp-pol:ext-community-sets/" +
+          "oc-bgp-pol:ext-community-set/oc-bgp-pol:ext-community-set-name";
+      }
+      description "References a defined extended community set";
+    }
+    uses oc-rpol:match-set-options-group;
+  }
+
+  grouping match-ext-community-state {
+    description
+      "Operational state data for match conditions on extended community set";
+  }
+
+  grouping match-ext-community-top {
+    description
+      "Top-level grouping for match conditions on extended community set";
+
+    container match-ext-community-set {
+      description
+        "Match a referenced extended community set according to the logic
+        defined in the match-set-options leaf";
+
+      container config {
+        description
+          "Configuration data for match conditions on extended community set";
+
+        uses match-ext-community-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for match conditions on extended
+          community set";
+
+        uses match-ext-community-config;
+        uses match-ext-community-state;
+      }
+    }
+  }
+
   grouping bgp-match-set-conditions {
     description
       "Condition statement definitions for checking membership in a
       defined set";
 
     uses match-as-path-top;
+    uses match-community-top;
+    uses match-ext-community-top;
   }
 
   grouping community-count-config {
     description
-      "Configuration data for community count condition";
+      "Configuration data for different community count conditions";
 
     uses oc-pol-types:attribute-compare-operators;
   }
 
   grouping community-count-state {
     description
-      "Operational state data for community count condition";
+      "Operational state data for different community count conditions";
   }
 
   grouping community-count-top {
     description
-      "Top-level grouping for community count condition";
+      "Top-level grouping for different community count conditions";
 
     container community-count {
       description
         "Value and comparison operations for conditions based on the
-        number of communities in the route update";
+        number of regular communities in the route update.";
 
       container config {
         description
-          "Configuration data for community count condition";
+          "Configuration data for regular community count condition";
 
         uses community-count-config;
       }
@@ -285,7 +423,31 @@ module openconfig-bgp-policy {
         config false;
 
         description
-          "Operational state data for community count condition";
+          "Operational state data for regular community count condition";
+
+        uses community-count-config;
+        uses community-count-state;
+      }
+    }
+
+    container ext-community-count {
+      description
+        "Value and comparison operations for conditions based on the
+        number of extended communities in the route update.";
+
+      container config {
+        description
+          "Configuration data for extended community count condition";
+
+        uses community-count-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for extended community count condition";
 
         uses community-count-config;
         uses community-count-state;
@@ -391,6 +553,7 @@ module openconfig-bgp-policy {
     }
 
     leaf community-set {
+      status deprecated;
       type leafref {
         path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
           "oc-bgp-pol:bgp-defined-sets/oc-bgp-pol:community-sets/" +
@@ -401,6 +564,7 @@ module openconfig-bgp-policy {
     }
 
     leaf ext-community-set {
+      status deprecated;
       type leafref {
         path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
           "oc-bgp-pol:bgp-defined-sets/oc-bgp-pol:ext-community-sets/" +
@@ -468,16 +632,29 @@ module openconfig-bgp-policy {
         type oc-bgp-types:bgp-well-known-community-type;
       }
       description
-        "members of the community set.
-        For an ADD operation these are the communities that will be added;
-        the regexp type is not valid in this operation.
+        "Members of the community set.
+        For an ADD operation these are the communities that will be
+        added.  The regexp type is not valid in this operation.
+
         For REMOVE or REPLACE operations then matching communities will
         be removed unless match-set-options is INVERT which will
         reverse this to mean that anything that does not match will be
-        removed.";
+        removed.
+
+        For MATCH operations the posix-eregexp type should be evaluated
+        against each community associated with a prefix one community
+        at a time.  Communities must be represented as strings in formats
+        conforming to oc-bgp-types:bgp-std-community-type.  For example:
+        `1000:1000` for a standard community";
     }
 
-    uses oc-rpol:match-set-options-group;
+    leaf match-set-options {
+      status deprecated;
+      type oc-pol-types:match-set-options-type;
+      description
+        "Optional parameter that governs the behaviour of the
+        match operation";
+    }
   }
 
   grouping community-set-state {
@@ -541,19 +718,33 @@ module openconfig-bgp-policy {
     leaf-list ext-community-member {
       type union {
         type oc-bgp-types:bgp-ext-community-type;
-        type oc-bgp-types:bgp-community-regexp-type;
+        type oc-types:posix-eregexp;
       }
       description
-        "members of the extended community set
+        "Members of the extended community set.
         For an ADD operation these are the communities that will be added;
         the regexp type is not valid in this operation.
+
         For REMOVE or REPLACE operations then matching communities will
         be removed unless match-set-options is INVERT which will
         reverse this to mean that anything that does not match will be
-        removed.";
+        removed.
+
+        For MATCH operations the posix-eregexp type should be evaluated
+        against each community associated with a prefix one community
+        at a time.  Communities must be represented as strings in formats
+        conforming to oc-bgp-types:bgp-ext-community-type.  For example:
+        `route-origin:1000:1000` for the origin type extended community,
+        and so on.";
     }
 
-    uses oc-rpol:match-set-options-group;
+    leaf match-set-options {
+      status deprecated;
+      type oc-pol-types:match-set-options-type;
+      description
+        "Optional parameter that governs the behaviour of the
+        match operation";
+    }
   }
 
   grouping ext-community-set-state {

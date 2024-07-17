@@ -26,7 +26,13 @@ module openconfig-channel-monitor {
     channel monitor (OCM) for optical transport line system
     elements such as wavelength routers (ROADMs) and amplifiers.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2024-04-04" {
+    description
+      "Add new leaf media-channel target-power.";
+    reference "0.5.0";
+  }
 
   revision "2019-10-24" {
     description
@@ -168,8 +174,16 @@ module openconfig-channel-monitor {
       description
         "Average measured optical power over the specified spectrum";
     }
-  }
 
+    leaf target-power {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "Target optical power over the specified spectrum";
+    }
+  }
 
   grouping media-channel-spectrum-power-top {
     description
