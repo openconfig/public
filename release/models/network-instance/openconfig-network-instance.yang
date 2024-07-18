@@ -537,7 +537,7 @@ module openconfig-network-instance {
                 or routing information";
             }
 
-           leaf dst-protocol {
+            leaf dst-protocol {
               type leafref {
                 path "../config/dst-protocol";
               }
@@ -725,6 +725,7 @@ module openconfig-network-instance {
               routing tables. These may reflect a Layer 2 forwarding
               information base, a Layer 3 routing table, or an MPLS
               LFIB.
+
               The table populated by a protocol within an instance is
               identified by the protocol identifier (e.g., BGP, IS-IS)
               and the address family (e.g., IPv4, IPv6) supported by
@@ -732,6 +733,7 @@ module openconfig-network-instance {
               populate a single table -- such that
               a single IS-IS or OSPF IPv4 table exists per network
               instance.
+
               An implementation is expected to create entries within
               this list when the relevant protocol context is enabled.
               i.e., when a BGP instance is created with IPv4 and IPv6
@@ -739,8 +741,10 @@ module openconfig-network-instance {
               address-family=IPv4 table is created by the system. The
 	            removal of the table should not require additional or
 	            explicit configurations.
+
               Users cannot create or delete tables.  Instead a user may
               configure table-connections which reference these tables.";
+
             leaf protocol {
               type leafref {
                 path "../config/protocol";
@@ -1214,6 +1218,7 @@ module openconfig-network-instance {
   }
 
   grouping table-config {
+    deprecated;
     description
       "Config parameters relating to an L2/L2.5/L3 table that exists
       within a network instance";
@@ -1221,14 +1226,6 @@ module openconfig-network-instance {
     leaf protocol {
       type leafref {
         path "../../../../protocols/protocol/config/identifier";
-      }
-      description
-        "Reference to the protocol that the table is associated with.";
-    }
-
-    leaf instance-name {
-      type leafref {
-        path "../../../../protocols/protocol/config/name";
       }
       description
         "Reference to the protocol that the table is associated with.";
@@ -1320,10 +1317,65 @@ module openconfig-network-instance {
     leaf src-protocol {
       type leafref {
         // we are at table-connections/table-connection/config/.
-        path "../../../../protocols/protocol/config/identifier";
+        path "../../../../tables/table/config/identifier";
       }
       description
         "The source protocol for the table connection";
+    }
+
+    leaf address-family {
+      type leafref {
+        // we are at table-connections/table-connection/config/.
+        path "../../../../tables/" +
+          "table[protocol=current()/../src-protocol]/" +
+          "config/address-family";
+      }
+      description
+        "The address family associated with the connection. This
+        must be defined for the source protocol. The target
+        address family is implicitly defined by the address family
+        specified for the source protocol.";
+    }
+
+    leaf dst-protocol {
+      type leafref {
+        path "../../../../tables/table/config/identifier";
+      }
+      description
+        "The destination protocol for the table connection";
+    }
+
+    leaf disable-metric-propagation {
+      type boolean;
+      default false;
+      description
+        "By default a system may reflect the metric specified in
+        the destination protocol according to that which is set in
+        the source protocol. For example:
+         - IS-IS metric may be reflected in BGP MED (and vice versa)
+         - OSPF metric may be reflected in the BGP MED (and vice versa)
+        When this leaf is set to true, this reflection behaviour MUST be
+        disabled, and rather the metric must be set to '0' or explicitly
+        set by policy.";
+    }
+
+    uses oc-rpol:apply-policy-import-config;
+    uses oc-rpol:default-policy-import-config;
+  }
+
+  grouping route-redistribution-policies-config {
+    description
+      "Configuration entries that relate to how RIB or FIB entries
+      are propagated between tables within the same network
+      instance";
+
+    leaf src-protocol {
+      type leafref {
+        // we are at table-connections/table-connection/config/.
+        path "../../../../protocols/protocol/config/identifier";
+      }
+      description
+        "The source protocol for the route redistribution";
     }
 
     leaf src-instance-name {
@@ -1332,7 +1384,7 @@ module openconfig-network-instance {
         path "../../../../protocols/protocol/config/name";
       }
       description
-        "The name of instance of source protocol for the table connection";
+        "The name of instance of source protocol for the route redistribution";
     }
 
     leaf address-family {
@@ -1354,7 +1406,7 @@ module openconfig-network-instance {
         path "../../../../protocols/protocol/config/identifier";
       }
       description
-        "The destination protocol for the table connection";
+        "The destination protocol for the route redistribution";
     }
 
     leaf dst-instance-name {
@@ -1363,7 +1415,7 @@ module openconfig-network-instance {
         path "../../../../protocols/protocol/config/name";
       }
       description
-        "The name of instance of destination protocol for the table connection";
+        "The name of instance of destination protocol for the route redistribution";
     }
 
     leaf disable-metric-propagation {
