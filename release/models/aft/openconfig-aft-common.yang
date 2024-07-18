@@ -238,6 +238,19 @@ submodule openconfig-aft-common {
           }
         }
 
+        container mpls-in-udp {
+          description
+            "When specified, the packet has an MPLS in UDP header applied to it before
+            forwarding to the specified next-hop.";
+
+          container state {
+            config false;
+            description
+              "State parameters relating to MPLS-in-UDP encapsulation.";
+            uses aft-common-entry-nexthop-mplsudp-state;
+          }
+        }
+
         uses oc-if:interface-ref-state;
       }
     }
@@ -436,6 +449,70 @@ submodule openconfig-aft-common {
          the TTL value of the inner packet is copied over as the outer packet's
          TTL value during encapsulation.";
     }
+  }
+
+  grouping aft-common-entry-nexthop-mplsudp-state {
+    description
+      "MPLS in UDP encapsulation applied on a IPv4 or IPv6 next-hop.";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "The source IP address for the MPLS in UDP encapsulation may be
+        expressed using this leaf (src-ip) or if may be derived from
+        '../../interface-ref/state/subinterface'";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address to use for the encapsulated packet.";
+    }
+
+    leaf dscp {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address to use for the encapsulated packet.";
+    }
+
+    leaf ttl {
+      type uint8;
+      description
+        "This leaf reflects the configured/default TTL value that is used in the
+         outer header during packet encapsulation. When this leaf is not set,
+         the TTL value of the inner packet is copied over as the outer packet's
+         TTL value during encapsulation.";
+    }
+
+    leaf flow-label {
+      type uint32 {
+        range 0..1048575;
+      }
+      description
+        "If IPv6 UDP encapsulation is used, this leaf represents a static
+        assignment for an IPv6 flow label.  If unspecified, the system may
+        set the flow label using it's own logic.";
+      reference
+        "RFC 6437 - IPv6 Flow Label Specification";
+    }
+
+    leaf-list pushed-mpls-label-stack {
+      type oc-mplst:mpls-label;
+      ordered-by user;
+      description
+        "The MPLS label stack imposed when forwarding packets to the
+        next-hop
+        - the stack is encoded as a leaf list where the first entry in the
+          list is the label at the bottom of the stack to be pushed.
+
+        For example, a packet with a label stack of two labels, the bottom
+        label being 42 and the top label being 8072 will be represented with
+        a leaf-list of [42, 8072].
+
+        The MPLS label stack list is ordered by the user, such that no
+        system re-ordering of leaves is permitted by the system.";
+    }
+
   }
 
   grouping aft-common-install-protocol {
