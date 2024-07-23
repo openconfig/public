@@ -15,6 +15,7 @@ submodule openconfig-mpls-te {
   import openconfig-types { prefix oc-types; }
   import openconfig-yang-types { prefix yang; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-pcep { prefix oc-pcep; }
 
   // meta
   organization "OpenConfig working group";
@@ -29,7 +30,56 @@ submodule openconfig-mpls-te {
     signaling protocol or mechanism (see related submodules for
     signaling protocol-specific configuration).";
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "3.5.0";
+
+  revision "2023-12-14" {
+    description
+      "Added additional attributes oc-if:interface-ref
+      and metric attributes to static lsp";
+    reference "3.5.0";
+  }
+
+  revision "2023-07-25" {
+    description
+      "Added record-route-enabled to MPLS p2p tunnel config";
+    reference "3.4.0";
+  }
+
+  revision "2023-04-28" {
+    description
+      "Fixed typo in cspf-tiebreaker leaf description";
+    reference "3.3.2";
+  }
+
+  revision "2023-04-25" {
+    description
+      "Add clarifying comments on use of interface-ref.";
+    reference "3.3.1";
+  }
+
+  revision "2022-02-11" {
+    description
+      "Add lsp-path PCE control mode";
+    reference "3.3.0";
+  }
+
+  revision "2021-07-28" {
+    description
+      "Add prefix to qualify when statements.";
+    reference "3.2.2";
+  }
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace.";
+    reference "3.1.1";
+  }
+
+  revision "2021-03-24" {
+    description
+      "Add Metric bounds constraints for LSPs.";
+    reference "3.1.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -767,6 +817,11 @@ submodule openconfig-mpls-te {
       description
         "P2P tunnel destination address";
     }
+    leaf record-route-enabled {
+      type boolean;
+      description
+        "Enables recording a path on an LSP using the record route object (RRO)";
+    }
   }
 
   grouping p2p-path-state {
@@ -828,7 +883,7 @@ submodule openconfig-mpls-te {
     }
 
     leaf use-cspf {
-      when "../path-computation-method = 'LOCALLY_COMPUTED'" {
+      when "../path-computation-method = 'oc-mplst:LOCALLY_COMPUTED'" {
         description
           "The use of cspf when the path-computation method is
            local computation";
@@ -839,7 +894,7 @@ submodule openconfig-mpls-te {
     }
 
     leaf cspf-tiebreaker {
-      when "../path-computation-method = 'LOCALLY_COMPUTED'" {
+      when "../path-computation-method = 'oc-mplst:LOCALLY_COMPUTED'" {
         description
           "The cspf tiebreaking method when the path is
            locally computed";
@@ -847,24 +902,34 @@ submodule openconfig-mpls-te {
       type cspf-tie-breaking;
       description
         "Determine the tie-breaking method to choose between
-        equally desirable paths during CSFP computation";
+        equally desirable paths during CSPF computation";
     }
 
-
     leaf path-computation-server {
-      when "../path-computation-method = 'EXTERNALLY_QUERIED'" {
+      when "../path-computation-method = 'oc-mplst:EXTERNALLY_QUERIED'" {
         description
           "The path-computation server when the path is
            externally queried";
       }
-      type inet:ip-address;
+      type leafref {
+        path "../../../../../../../../../../protocols/protocol/pcep/path-computation-servers/" +
+             "path-computation-server/pce-server-address";
+      }
       description
-        "Address of the external path computation
-         server";
+        "Reference to the address of a previously configured
+        external path computation server.";
+    }
+
+    leaf path-control {
+      type oc-pcep:lsp-control-type;
+      description
+        "Set the LSP path control mode as PCE_DELEGATED
+        PCC_CONTROLLED or PCC_REPORT_ONLY information
+        state to the PCE.";
     }
 
     leaf explicit-path-name {
-      when "../path-computation-method = 'EXPLICITLY_DEFINED'" {
+      when "../path-computation-method = 'oc-mplst:EXPLICITLY_DEFINED'" {
         description
           "The name of the explicitly defined path used";
       }
@@ -898,7 +963,7 @@ submodule openconfig-mpls-te {
       "Top level grouping for p2p configuration";
 
     container p2p-tunnel-attributes {
-      when "../config/type = 'P2P'" {
+      when "../config/type = 'oc-mplst:P2P'" {
         description
          "Include this container for LSPs of type P2P";
       }
@@ -1192,6 +1257,70 @@ submodule openconfig-mpls-te {
     }
   }
 
+  grouping path-constraints-config {
+    description "Configuration parameters related to path metric bound constraints.";
+
+    leaf type {
+      type identityref {
+        base oc-mplst:PATH_METRIC_TYPE;
+      }
+      description
+        "Identifies an entry in the list of metric-types
+        bound for the TE path.";
+    }
+
+    leaf metric-upper-bound {
+      type uint64;
+      default 0;
+      description
+        "Upper bound on end-to-end path metric. A zero indicate
+        an unbounded upper limit for the specific metric-type.";
+    }
+  }
+
+  grouping path-constraints-top {
+    description
+      "Top-level path-constraints grouping.";
+
+    container path-metric-bound-constraints {
+      description
+        "Enclosing container for the path metric bound constraints.";
+
+      list path-metric-bound-constraint {
+        key "type";
+        description
+          "A list of metric bounds that are applied as constraints to the LSP.
+          It act as a logical AND, hence all of them must be satisfied.
+          If not, it will return an error.
+          Constraints within this list may be applicable to either
+          the local CSPF process (where data is available to the local device)
+          or be communicated to a PCE for calculation.";
+
+        leaf type {
+          type leafref {
+            path "../config/type";
+          }
+          description
+            "Identifies an entry in the list of metric-types
+            bound for the TE path.";
+        }
+
+        container config {
+          description
+          "Configuration parameters relating to path metric bound constraints.";
+          uses path-constraints-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to path metric bound constraints.";
+          uses path-constraints-config;
+        }
+      }
+    }
+  }
+
   grouping p2p-primary-paths-top {
     description
       "Top level grouping for p2p primary paths";
@@ -1228,6 +1357,8 @@ submodule openconfig-mpls-te {
           uses p2p-path-config;
           uses p2p-path-state;
         }
+
+        uses path-constraints-top;
 
         container candidate-secondary-paths {
           description
@@ -1278,7 +1409,6 @@ submodule openconfig-mpls-te {
             }
           }
         }
-
         uses te-path-placement-constraints-top;
 
       }
@@ -1321,7 +1451,7 @@ submodule openconfig-mpls-te {
           uses p2p-path-config;
           uses p2p-path-state;
         }
-
+        uses path-constraints-top;
         uses te-path-placement-constraints-top;
       }
     }

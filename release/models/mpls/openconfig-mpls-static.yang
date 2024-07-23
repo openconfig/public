@@ -10,6 +10,7 @@ submodule openconfig-mpls-static {
   import openconfig-mpls-types {prefix oc-mplst; }
   import openconfig-inet-types { prefix inet; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-interfaces { prefix oc-if; }
 
 
   // meta
@@ -23,7 +24,62 @@ submodule openconfig-mpls-static {
     "Defines static LSP configuration";
 
 
-  oc-ext:openconfig-version "3.0.1";
+  oc-ext:openconfig-version "3.5.0";
+
+  revision "2023-12-14" {
+    description
+      "Added additional attributes oc-if:interface-ref
+      and metric attributes to static lsp";
+    reference "3.5.0";
+  }
+
+  revision "2023-07-25" {
+    description
+      "Added record-route-enabled to MPLS p2p tunnel config";
+    reference "3.4.0";
+  }
+
+  revision "2023-04-28" {
+    description
+      "Fixed typo in cspf-tiebreaker leaf description";
+    reference "3.3.2";
+  }
+
+  revision "2023-02-03" {
+    description
+      "Clarify usage of interface-ref.";
+    reference "3.3.1";
+  }
+
+  revision "2022-02-11" {
+    description
+      "Add lsp-path PCE control mode";
+    reference "3.3.0";
+  }
+
+  revision "2021-07-28" {
+    description
+      "Add prefix to qualify when statements.";
+    reference "3.2.2";
+  }
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "3.2.1";
+  }
+
+  revision "2021-03-24" {
+    description
+      "Add Metric bounds constraints for LSPs.";
+    reference "3.2.0";
+  }
+
+  revision "2019-03-26" {
+    description
+      "Add Pseudowire encapsulation.";
+    reference "3.1.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -121,6 +177,15 @@ submodule openconfig-mpls-static {
       description
         "label value to push at the current hop for the
         LSP";
+    }
+
+    // interface-ref
+    uses oc-if:interface-ref-common;
+
+    leaf metric {
+      type uint8;
+      description
+        "Specifies metric value used for the MPLS route";
     }
   }
 

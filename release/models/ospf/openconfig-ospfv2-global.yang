@@ -23,7 +23,56 @@ submodule openconfig-ospfv2-global {
     "This submodule provides OSPFv2 configuration and operational
     state parameters that are global to a particular OSPF instance";
 
-  oc-ext:openconfig-version "0.2.2";
+  oc-ext:openconfig-version "0.5.1";
+
+  revision "2023-11-01" {
+    description
+      "Refactor apply policy to separate default policy in it's own common
+      set of groupings";
+    reference "0.5.1";
+  }
+
+  revision "2023-08-25" {
+    description
+      "Add leaf metric to lsdb-summary-lsa-state.";
+    reference "0.5.0";
+  }
+
+  revision "2023-08-09" {
+    description
+      "Update interface key to use interface-id type";
+    reference "0.4.3";
+  }
+
+  revision "2023-07-05" {
+    description
+      "Fix typo in experimental-te leaf description.";
+    reference "0.4.2";
+  }
+
+  revision "2023-03-06" {
+    description
+      "Clarify use of interface-ref.";
+    reference "0.4.1";
+  }
+
+  revision "2022-02-10" {
+    description
+      "Fix spelling error in retransmission-queue-length leaf.";
+    reference "0.4.0";
+  }
+
+  revision "2021-07-28" {
+    description
+      "Add prefix to qualify when statements.";
+    reference "0.3.1";
+  }
+
+  revision "2021-03-17" {
+    description
+      "Add bfd support without augmentation.";
+    reference "0.3.0";
+  }
 
   revision "2019-11-28" {
     description
@@ -275,6 +324,7 @@ submodule openconfig-ospfv2-global {
     }
 
     uses oc-rpol:apply-policy-import-config;
+    uses oc-rpol:default-policy-import-config;
   }
 
   grouping ospfv2-global-max-metric-config {

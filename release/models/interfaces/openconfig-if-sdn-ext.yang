@@ -21,7 +21,13 @@ module openconfig-if-sdn-ext {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision 2024-02-21 {
+    description
+      "Initial revision.";
+    reference "0.2.0";
+  }
 
   revision 2021-03-30 {
     description
@@ -47,11 +53,42 @@ module openconfig-if-sdn-ext {
         This is used by an external programming entity to disable an interface
         (usually part of an aggregate) for the purposes of forwarding
         traffic. This allows a logical aggregate to continue to be
-        used with partial capacity, for example.  Note that setting
-        `forwarding-viable = false` is not equivalent to
-        administratively disabling the interface -- in particular, the
-        interface is expected to participate in L2 protocols such as
-        LLDP or LACP even if it blocked from forwarding traffic.";
+        used with partial capacity. Setting `forwarding-viable = false` is not
+        equivalent to administratively disabling the interface.
+        Some rules to follow when an interface or aggregate interface is set for
+        Forwarding-viable=False:
+          1. Aggregate interface '/interfaces/interface/aggregation/state/min-links'
+           checks should be evaluated based on
+          `/interfaces/interface/state/oper-status`.  'min-links' should not be
+          affected by the use of forwarding viable.
+
+          2. L2 protocols like LLDP and LACP must be processed normally on
+          transmit and receive on such ports/bundles.  IS-IS PDUs should be
+          handled as per the requirements for L3 packets below.
+
+          3. L3 packets must not be transmitted on the interface.
+
+          4. Received L3 packets must be processed normally.  Received data-plane
+          traffic will continue to forwarded to its destination post FIB lookup.
+          Received control-plane traffic must also be processed normally.
+
+          5. It is possible that the dead-interval or hold-down timer of L3
+          protocols like IS-IS/BGP on the peer router may expire taking down the
+          adjacency or peering on that connection. However, the peer may still
+          continue to transmit packets which are received by the local device.
+          These received packet should continue to be processed normally as
+          per rule #4 above.
+
+          For example, if the peer's forwarding table is programmed using gRIBI
+          by an external controller, the local device will continue to receive
+          packets.
+
+          6. An implementation should follow rule #3 even when the subject
+          interface on the local device is the last resort of communication for a
+          given destination.  For example, the only nexthop for a destination is
+          an aggregate interface which has all member interfaces set to
+          forwarding-viable = false.  In this scenario all L3 packets for that
+          destination will be dropped.";
     }
   }
 
