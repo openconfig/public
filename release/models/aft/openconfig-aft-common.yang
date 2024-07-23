@@ -368,25 +368,15 @@ submodule openconfig-aft-common {
     }
 
     leaf-list pushed-mpls-label-stack {
-      type oc-mplst:mpls-label;
+      type oc-mplst:pushed-mpls-label-stack;
       ordered-by user;
       description
         "The MPLS label stack imposed when forwarding packets to the
-        next-hop
-        - the stack is encoded as a leaf list whereby the order of the
-          entries is such that the first entry in the list is the
-          label at the bottom of the stack to be pushed.
+         next-hop. See the description of the type 
+         oc-mplst:pushed-mpls-label-stack for encoding rules.
 
-        To this end, a packet which is to forwarded to a device using
-        a service label of 42, and a transport label of 8072 will be
-        represented with a label stack list of [42, 8072].
-
-        The MPLS label stack list is ordered by the user, such that no
-        system re-ordering of leaves is permitted by the system.
-
-        A swap operation is reflected by entries in the
-        popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
-
+         Note: a swap operation is reflected by entries in the
+         popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
     }
 
     leaf encapsulate-header {
@@ -464,9 +454,7 @@ submodule openconfig-aft-common {
     leaf src-ip {
       type oc-inet:ip-address;
       description
-        "The source IP address for the MPLS in UDP encapsulation may be
-        expressed using this leaf (src-ip) or if may be derived from
-        '../../interface-ref/state/subinterface'";
+        "The source IP address for the MPLS in UDP encapsulation.";
     }
 
     leaf dst-ip {
@@ -481,13 +469,13 @@ submodule openconfig-aft-common {
         "Destination IP address to use for the encapsulated packet.";
     }
 
-    leaf ttl {
+    leaf ip-ttl {
       type uint8;
       description
-        "This leaf reflects the configured/default TTL value that is used in the
-         outer header during packet encapsulation. When this leaf is not set,
-         the TTL value of the inner packet is copied over as the outer packet's
-         TTL value during encapsulation.";
+        "This leaf reflects the configured/default IP TTL value that is used
+         in the outer header during packet encapsulation. When this leaf is
+         not set, the TTL value of the inner packet is copied over as the
+         outer packet's IP TTL value during encapsulation.";
     }
 
     leaf-list pushed-mpls-label-stack {
@@ -495,16 +483,16 @@ submodule openconfig-aft-common {
       ordered-by user;
       description
         "The MPLS label stack imposed when forwarding packets to the
-        next-hop
-        - the stack is encoded as a leaf list where the first entry in the
-          list is the label at the bottom of the stack to be pushed.
+         next-hop.  The stack is encoded as a leaf list where the first
+         entry in the list is the label at the bottom of the stack to be
+         pushed.
 
-        For example, a packet with a label stack of two labels, the bottom
-        label being 42 and the top label being 8072 will be represented with
-        a leaf-list of [42, 8072].
+         For example, a packet with a label stack of two labels, the bottom
+         label being 42 and the top label being 8072 will be represented with
+         a leaf-list of [42, 8072].
 
-        The MPLS label stack list is ordered by the user, such that no
-        system re-ordering of leaves is permitted by the system.";
+         The MPLS label stack list is ordered by the user, such that no
+         system re-ordering of leaves is permitted by the system.";
     }
 
   }
