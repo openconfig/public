@@ -32,7 +32,15 @@ module openconfig-yang-types {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2024-07-23" {
+    description
+      "Clarify that counter64 values do not have a specific behaviour
+      around being reset to zero. Where required, behaviours are defined
+      within each usage of the type.";
+    reference "0.4.0";
+  }
 
   revision "2021-07-14" {
     description
@@ -124,10 +132,7 @@ module openconfig-yang-types {
       "A 32-bit counter. A counter value is a monotonically increasing
       value which is used to express a count of a number of
       occurrences of a particular event or entity. When the counter
-      reaches its maximum value, in this case 2^32-1, it wraps to 0.
-
-      Discontinuities in the counter are generally triggered only when
-      the counter is reset to zero.";
+      reaches its maximum value, in this case 2^32-1, it wraps to 0.";
   }
 
   typedef counter64 {
@@ -136,10 +141,7 @@ module openconfig-yang-types {
       "A 64-bit counter. A counter value is a monotonically increasing
       value which is used to express a count of a number of
       occurrences of a particular event or entity. When a counter64
-      reaches its maximum value, 2^64-1, it loops to zero.
-      Discontinuities in a counter are generally triggered only when
-      the counter is reset to zero, through operator or system
-      intervention.";
+      reaches its maximum value, 2^64-1, it loops to zero.";
   }
 
   typedef date-and-time {
