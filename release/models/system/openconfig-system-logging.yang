@@ -10,7 +10,7 @@ module openconfig-system-logging {
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-inet-types { prefix oc-inet; }
-
+  import openconfig-network-instance { prefix oc-ni; }
 
   // meta
   organization "OpenConfig working group";
@@ -23,7 +23,25 @@ module openconfig-system-logging {
     "This module defines configuration and operational state data
     for common logging facilities on network systems.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.6.0";
+
+revision "2023-07-20" {
+    description
+      "adding VTY and local files as logging destinations";
+    reference "0.6.0";
+  }
+
+  revision "2023-05-04" {
+    description
+      "removing LOG_DESTINATION_TYPE identities";
+    reference "0.5.0";
+  }
+
+  revision "2022-12-29" {
+    description
+      "Add network-instance for remote logging servers";
+    reference "0.4.1";
+  }
 
   revision "2018-11-21" {
     description
@@ -220,35 +238,6 @@ module openconfig-system-logging {
       "IETF RFC 5424 - The Syslog Protocol";
   }
 
-  identity LOG_DESTINATION_TYPE {
-    description
-      "Base identity for destination for logging messages";
-  }
-
-  identity DEST_CONSOLE {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to the console";
-  }
-
-  identity DEST_BUFFER {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to and in-memory circular buffer";
-  }
-
-  identity DEST_FILE {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to a local file";
-  }
-
-  identity DEST_REMOTE {
-    base LOG_DESTINATION_TYPE;
-    description
-      "Directs log messages to a remote syslog server";
-  }
-
   // typedef statements
 
     typedef syslog-severity {
@@ -371,12 +360,12 @@ module openconfig-system-logging {
 
   grouping logging-console-config {
     description
-      "Configuration data for console logging";
+      "Configuration data for console and vty logging";
   }
 
   grouping logging-console-state {
     description
-      "Operational state data for console logging";
+      "Operational state data for console and vty logging";
   }
 
   grouping logging-console-top {
@@ -426,6 +415,13 @@ module openconfig-system-logging {
         "Source IP address for packets to the log server";
     }
 
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "The network instance used to reach the log server.  If no
+        instance is specified, DEFAULT_INSTANCE is used.";
+    }
+
     leaf remote-port {
       type oc-inet:port-number;
       default 514;
@@ -446,7 +442,8 @@ module openconfig-system-logging {
 
     container remote-servers {
       description
-        "Enclosing container for the list of remote log servers";
+        "Enclosing container for the list of remote log
+         servers";
 
       list remote-server {
         key "host";
@@ -483,6 +480,154 @@ module openconfig-system-logging {
     }
   }
 
+  grouping logging-file-config {
+    description
+      "Configuration data for logfile";
+
+    leaf filename-prefix {
+      type string {
+        length 0..255;
+      }
+      description
+        "A name used for the file.  It is expected that an
+        implementation may append timestamp, serial-number or
+        other identifier to the filename.";
+    }
+
+    leaf path {
+      type string {
+        length 0..255;
+      }
+      description
+        "The fully specified path of the folder where the
+        logfile is stored.  The path is implementation specific
+        and may include attributes such as a drive identifier.";
+    }
+
+    leaf rotate {
+      type uint32;
+      default 0;
+      description
+        "Used for logfile rotation.
+         Log files are rotated the number of times defined by
+         this leaf.
+         The default value of 1 indicates that there will be one
+         rotation file and one active file.  A 0 value indicates
+         old versions are removed rather than rotated.";
+    }
+
+    leaf max-size {
+      type uint32;
+      default 1000;
+      description
+        "Used for logfile rotation.
+        Maximum size in Bytes, logfile may grow to. When logfile
+        reach this size it triggers log rotation. The log file need to
+        be save, closed, and new file open or future log storage.
+        If needed oldest logfile of same prefix shall be deleted to";
+    }
+
+    leaf max-open-time {
+      type uint32;
+      default 1440;
+      description
+        "Used for logfile rotation.
+        Maximum time, in minutes, the logfile can be open. When expires,
+        it triggers log rotation.
+        Actions are same ans when log file reaches its max-size.
+        it need to be closed, save, and new file open or future log
+        storage. If needed oldest logfile of same prefix shall be
+        deleted to ";
+    }
+  }
+
+  grouping logging-file-state {
+    description
+      "Operational state data for logfile";
+    leaf open-logfile {
+      type string{
+        length 0..511;
+      }
+      description
+        "the currently active/open filename prepended by folder path
+        and including suffix appended to filename-prefix by system";
+    }
+  }
+
+  grouping logging-files-top {
+    description
+      "Top-level grouping for local log files";
+
+    container files {
+      description
+        "Enclosing container for the list of log files";
+
+      list file {
+        key "path filename-prefix";
+        description
+          "List of logfiles";
+
+        leaf filename-prefix {
+          type leafref {
+            path "../config/filename-prefix";
+          }
+          description
+            "Reference to the logfiles list key";
+        }
+
+        leaf path {
+          type leafref {
+            path "../config/path";
+          }
+          description
+            "Reference to the logfiles list key";
+        }
+
+        container config {
+          description
+            "Configuration data for logfile";
+          uses logging-file-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for logfile servers";
+          uses logging-file-config;
+          uses logging-file-state;
+        }
+        uses logging-selectors-top;
+      }
+    }
+  }
+
+  grouping logging-vty-top {
+    description
+      "Top-level grouping for vty logging data";
+
+    container vty {
+      description
+        "Top-level container for data related to vty-based
+        logging (active sessions of ssh, telnet, etc )";
+
+      container config {
+        description
+          "Configuration data for vty logging";
+
+        uses logging-console-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for console logging";
+        uses logging-console-config;
+        uses logging-console-state;
+      }
+      uses logging-selectors-top;
+    }
+  }
+
   grouping logging-top {
     description
       "Top-level grouping for logging data";
@@ -493,6 +638,9 @@ module openconfig-system-logging {
 
       uses logging-console-top;
       uses logging-remote-top;
+      uses logging-files-top;
+      uses logging-vty-top;
+
     }
   }
   // data definition statements

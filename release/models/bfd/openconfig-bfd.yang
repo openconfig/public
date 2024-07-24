@@ -11,7 +11,6 @@ module openconfig-bfd {
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-types { prefix "oc-types"; }
   import openconfig-interfaces { prefix "oc-if"; }
-  import openconfig-if-types { prefix "oc-ift"; }
   import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-policy-types { prefix "oc-pol-types"; }
   import ietf-inet-types { prefix "ietf-if"; }
@@ -27,14 +26,45 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.2.2";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2024-03-05" {
+    description
+      "Add configuration of min interval, multiplier when
+      BFD is enabled at protocol level";
+    reference "0.3.0";
+ }
+
+  revision "2023-08-09" {
+    description
+      "Update interface key to use interface-id type";
+    reference "0.2.6";
+  }
+
+  revision "2023-02-06" {
+    description
+      "Clarify interface references.";
+    reference "0.2.5";
+  }
+
+  revision "2022-06-28" {
+    description
+      "Remove reference to invalid oc-ift type check";
+    reference "0.2.4";
+  }
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "0.2.3";
+  }
 
   revision "2021-03-17" {
     description
       "Remove augments from bfd module.
        Add bfd support directly on the protocols";
     reference "0.2.2";
-  }  
+  }
 
   revision "2020-05-08" {
     description
@@ -177,7 +207,7 @@ module openconfig-bfd {
       "Top-level per-interface configuration parameters for BFD.";
 
     leaf id {
-      type string;
+      type oc-if:interface-id;
       description
         "A unique identifier for the interface.";
     }
@@ -197,43 +227,7 @@ module openconfig-bfd {
         interface.";
     }
 
-    leaf desired-minimum-tx-interval {
-      type uint32;
-      units microseconds;
-      description
-        "The minimum interval between transmission of BFD control
-        packets that the operator desires. This value is advertised to
-        the peer, however the actual interval used is specified by
-        taking the maximum of desired-minimum-tx-interval and the
-        value of the remote required-minimum-receive interval value.
-
-        This value is specified as an integer number of microseconds.";
-    }
-
-    leaf required-minimum-receive {
-      type uint32;
-      units microseconds;
-      description
-        "The minimum interval between received BFD control packets that
-        this system should support. This value is advertised to the
-        remote peer to indicate the maximum frequency (i.e., minimum
-        inter-packet interval) between BFD control packets that is
-        acceptable to the local system.";
-    }
-
-    // rjs: Could have required-minimum-echo-receive here, but this is
-    // generally not configurable.
-
-    leaf detection-multiplier {
-      type uint8 {
-        range "1..max";
-      }
-      description
-        "The number of packets that must be missed to declare this
-        session as down. The detection interval for the BFD session
-        is calculated by multiplying the value of the negotiated
-        transmission interval by this value.";
-    }
+    uses bfd-configuration;
 
     leaf enable-per-member-link {
       type boolean;
@@ -522,9 +516,6 @@ module openconfig-bfd {
     container micro-bfd-sessions {
       when "/oc-if:interfaces/oc-if:interface" +
           "[oc-if:name=current()/../interface-ref/config/interface]/" +
-          "oc-if:config/oc-if:type = 'oc-ift:IF_AGGREGATE' or " +
-          "/oc-if:interfaces/oc-if:interface" +
-          "[oc-if:name=current()/../interface-ref/config/interface]/" +
           "oc-if:config/oc-if:type = 'ietf-if:ieee8023adLag'" {
         description
           "Include per-member link BFD only when the type of
@@ -626,7 +617,11 @@ module openconfig-bfd {
           key "id";
 
           description
-            "Per-interface configuration and state parameters for BFD.";
+            "Per-interface configuration and state parameters for BFD.
+             The interface referenced is based on the interface and
+             subinterface leaves within the interface-ref container -
+             which reference an entry in the /interfaces/interface list -
+             and should not rely on the value of the list key.";
 
           leaf id {
             type leafref {
@@ -674,6 +669,49 @@ module openconfig-bfd {
     }
   }
 
+  grouping bfd-configuration {
+    description
+       "Configuration parameters of BFD when it is enabled in protocols.";
+    leaf desired-minimum-tx-interval {
+      type uint32;
+      units microseconds;
+      description
+        "The minimum interval between transmission of BFD control
+        packets that the operator desires. This value is advertised to
+        the peer, however the actual interval used is specified by
+        taking the maximum of desired-minimum-tx-interval and the
+        value of the remote required-minimum-receive interval value.
+        This value is specified as an integer number of microseconds.
+        The value 0 is reserved and cannot be used.";
+      reference "section 4.1 of RFC 5880";
+    }
+
+    leaf required-minimum-receive {
+      type uint32;
+      units microseconds;
+      description
+        "The minimum interval between received BFD control packets that
+        this system should support. This value is advertised to the
+        remote peer to indicate the maximum frequency (i.e., minimum
+        inter-packet interval) between BFD control packets that is
+        acceptable to the local system.";
+      reference "section 4.1 of RFC 5880";
+    }
+
+    leaf detection-multiplier {
+      type uint8 {
+        range "1..max";
+      }
+      description
+        "The number of packets that must be missed to declare this
+        session as down. The detection interval for the BFD session
+        is calculated by multiplying the value of the negotiated
+        transmission interval by this value.";
+      reference "section 4.1 of RFC 5880";
+    }
+
+  }
+
   grouping enable-bfd-state {
     description
       "Operational state parameters relating to enabling BFD.";
@@ -717,6 +755,8 @@ module openconfig-bfd {
           "Configuration parameters relating to enabling BFD.";
 
         uses enable-bfd-config;
+        uses bfd-configuration;
+
       }
 
       container state {
@@ -725,10 +765,11 @@ module openconfig-bfd {
           "Operational state parameters relating to enabing BFD.";
 
         uses enable-bfd-config;
+        uses bfd-configuration;
         //uses enable-bfd-state;
       }
     }
   }
-  
+
   uses bfd-top;
 }

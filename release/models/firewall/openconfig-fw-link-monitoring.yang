@@ -20,11 +20,17 @@ module openconfig-fw-link-monitoring {
     www.openconfig.net";
 
   description
-    "This model defines interface groups and corresponding monitoring 
+    "This model defines interface groups and corresponding monitoring
     policies for firewall HA groups.  It also provides modeling for a
     global health monitoring policy for the HA group.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2021-06-16" {
+    description
+      "Remove trailing whitespace";
+    reference "0.2.1";
+  }
 
   revision "2021-03-21" {
     description
@@ -41,7 +47,7 @@ module openconfig-fw-link-monitoring {
   grouping interface-group-config {
     description
       "Parameters to bundle monitored interfaces together";
-    
+
     leaf id {
       type union {
          type uint8;
@@ -56,22 +62,22 @@ module openconfig-fw-link-monitoring {
       description
         "Interface being monitored";
     }
-        
+
     leaf group-policy {
       type enumeration {
         enum ANY {
           description
-            "Group status is DOWN if the status of ANY interface 
+            "Group status is DOWN if the status of ANY interface
             within the group is down.";
         }
         enum ALL {
           description
-            "Group status is DOWN if the status of ALL interfaces 
+            "Group status is DOWN if the status of ALL interfaces
             within the group are down.";
         }
       }
       description
-        "Determines how the State of monitored-interfaces is used to 
+        "Determines how the State of monitored-interfaces is used to
         determine the State of the group they are a member of";
     }
   }
@@ -79,7 +85,7 @@ module openconfig-fw-link-monitoring {
   grouping interface-group-state {
     description
       "State data associated with the interface groups";
- 
+
     leaf group-status {
       type enumeration {
         enum UP {
@@ -95,43 +101,43 @@ module openconfig-fw-link-monitoring {
         "The status of this interface group";
     }
   }
-  
+
   grouping global-health-config {
     description
       "Configuration parameters used to drive the decision criteria to
-       determine the global health of the interface monitoring state 
+       determine the global health of the interface monitoring state
        machine. The global health is a derivative of the status of the
         individual interface groups";
-    
+
     leaf global-health-policy {
       type enumeration {
         enum ANY {
           description
-            "Global health is DOWN if ANY of the monitored interface 
+            "Global health is DOWN if ANY of the monitored interface
             groups are DOWN";
         }
         enum ALL {
           description
-            "Global health is DOWN if ALL of the monitored interface 
+            "Global health is DOWN if ALL of the monitored interface
             groups are DOWN";
         }
       }
     description
-      "Global health values associated with the interface monitoring 
+      "Global health values associated with the interface monitoring
       state machine";
     }
   }
 
   grouping global-health-state {
     description
-      "State parameters associated with the global health of the 
+      "State parameters associated with the global health of the
       interface monitoring state machine";
-    
+
     leaf global-health-status {
       type enumeration {
         enum UP {
         description
-          "Global interface monitoring status is UP";     
+          "Global interface monitoring status is UP";
         }
         enum DOWN {
         description
@@ -142,7 +148,7 @@ module openconfig-fw-link-monitoring {
       "Global interface monitoring status";
     }
   }
-  
+
   grouping interface-group-top {
     description
       "Top level grouping for monitored interface-groups";
@@ -160,16 +166,16 @@ module openconfig-fw-link-monitoring {
             path "../config/id";
           }
           description
-          "Reference to the interface-group key used to bundle 
+          "Reference to the interface-group key used to bundle
           interfaces in a logical group";
         }
-        
+
         container config {
           description
             "Configuration parameters for the interface-groups";
           uses interface-group-config;
         }
-        
+
         container state {
           config false;
           description

@@ -77,7 +77,22 @@ module openconfig-terminal-device {
     ports per linecard, separate linecards for client and line ports,
     etc.).";
 
-  oc-ext:openconfig-version "1.8.0";
+  oc-ext:openconfig-version "1.9.1";
+
+  revision "2023-12-13" {
+    description
+      "Add reference to the terminal-device-properties-guide.md doc for
+      operational-mode.";
+    reference "1.9.1";
+  }
+
+  revision "2021-07-29" {
+    description
+      "Add several coherent performance monitors to optical channel.
+      Re-group and add PHY-related performance monitors to optical
+      channel and logical channel.";
+    reference "1.9.0";
+  }
 
   revision "2021-02-23" {
     description
@@ -245,6 +260,13 @@ module openconfig-terminal-device {
 
       uses oc-eth:ethernet-interface-state-counters;
       uses terminal-ethernet-protocol-state-counters;
+      uses terminal-phy-protocol-stats {
+        description
+          "When 400ZR/ZR+ transceivers are plugged in switches or routers,
+          this grouping will be attached to logical channel with Ethernet
+          protocol framing, in order to involve host-side fec-related
+          error performances.";
+      }
   }
 
   grouping terminal-ethernet-protocol-state-counters {
@@ -261,7 +283,7 @@ module openconfig-terminal-device {
         "The number of received bit interleaved parity (BIP) errors
         at the physical coding sublayer (PCS). If the interface
         consists of multiple lanes, this will be the sum of all
-	errors on the lane";
+        errors on the lane";
     }
 
     leaf in-pcs-errored-seconds {
@@ -547,12 +569,6 @@ module openconfig-terminal-device {
       reference "ITU-T Rec. G.826";
     }
 
-    leaf fec-uncorrectable-blocks {
-      type yang:counter64;
-      description
-        "The number of blocks that were uncorrectable by the FEC";
-    }
-
     leaf fec-uncorrectable-words {
       type yang:counter64;
       description
@@ -578,10 +594,17 @@ module openconfig-terminal-device {
     }
   }
 
-  grouping terminal-otn-protocol-multi-stats {
+  grouping terminal-phy-protocol-stats {
     description
-      "Multi-value statistics containers for logical channels using
-      OTN framing (e.g., max, min, avg, instant)";
+      "Counters and multi-value statistics for FEC-related error
+      performance";
+
+    leaf fec-uncorrectable-blocks {
+      type yang:counter64;
+      description
+        "The number of blocks or frames that were uncorrectable by
+        the FEC";
+    }
 
     container pre-fec-ber {
       description
@@ -656,7 +679,11 @@ module openconfig-terminal-device {
           "Remote defect indication (RDI) message received";
       }
       uses terminal-otn-protocol-counter-stats;
-      uses terminal-otn-protocol-multi-stats;
+      uses terminal-phy-protocol-stats {
+        description
+          "This grouping may be used when the logical-channel-type
+          is 'PROT_OTN.";
+      }
   }
 
   grouping terminal-otn-protocol-top {
@@ -1269,8 +1296,9 @@ module openconfig-terminal-device {
       // Ideally, this leaf should be a leafref to the supported
       // operational modes, but YANG 1.0 does not allow a r/w
       // leaf to be a leafref to a r/o leaf.
+      reference
+         "https://github.com/openconfig/public/blob/master/doc/terminal-device-properties-guide.md";
     }
-
 
     leaf line-port {
       type leafref {
@@ -1345,6 +1373,152 @@ module openconfig-terminal-device {
         instant value";
 
       uses oc-types:avg-min-max-instant-stats-precision2-dB;
+    }
+
+    container modulator-bias-xi {
+      description
+        "The bias on in-phase path and Polarization X of
+        the coherent modulator. This is represented as a percentage
+        with 2 decimal precision. This term is defined by OIF
+        Implementation Agreement for Coherent CMIS. Values include
+        the instantaneous, average, minimum, and maximum statistics.
+        If avg/min/max statistics are not supported, the target is
+        expected to just supply the instant value.";
+
+      reference "IA OIF-C-CMIS-01.1 Table 7";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
+    }
+
+    container modulator-bias-xq {
+      description
+        "The bias on quadrature path and Polarization X of
+        the coherent modulator. This is represented as a percentage
+        with 2 decimal precision. This term is defined by OIF
+        Implementation Agreement for Coherent CMIS. Values include
+        the instantaneous, average, minimum, and maximum statistics.
+        If avg/min/max statistics are not supported, the target is
+        expected to just supply the instant value.";
+
+      reference "IA OIF-C-CMIS-01.1 Table 7";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
+    }
+
+    container modulator-bias-yi {
+      description
+        "The bias on in-phase path and Polarization Y of
+        the coherent modulator. This is represented as a percentage
+        with 2 decimal precision. This term is defined by OIF
+        Implementation Agreement for Coherent CMIS. Values include
+        the instantaneous, average, minimum, and maximum statistics.
+        If avg/min/max statistics are not supported, the target is
+        expected to just supply the instant value.";
+
+      reference "IA OIF-C-CMIS-01.1 Table 7";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
+    }
+
+    container modulator-bias-yq {
+      description
+        "The bias on quadrature path and Polarization Y of
+        the coherent modulator. This is represented as a percentage
+        with 2 decimal precision. This term is defined by OIF
+        Implementation Agreement for Coherent CMIS. Values include
+        the instantaneous, average, minimum, and maximum statistics.
+        If avg/min/max statistics are not supported, the target is
+        expected to just supply the instant value.";
+
+      reference "IA OIF-C-CMIS-01.1 Table 7";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
+    }
+
+    container modulator-bias-x-phase {
+      description
+        "The X-Phase bias of the coherent modulator. This is
+        represented as a percentage with 2 decimal precision. This
+        term is defined by OIF Implementation Agreement for
+        Coherent CMIS. Values include the instantaneous, average,
+        minimum, and maximum statistics. If avg/min/max statistics
+        are not supported, the target is expected to just supply
+        the instant value.";
+
+      reference "IA OIF-C-CMIS-01.1 Table 7";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
+    }
+
+    container modulator-bias-y-phase {
+      description
+        "The Y-Phase bias of the coherent modulator. This is
+        represented as a percentage with 2 decimal precision. This
+        term is defined by OIF Implementation Agreement for
+        Coherent CMIS. Values include the instantaneous, average,
+        minimum, and maximum statistics. If avg/min/max statistics
+        are not supported, the target is expected to just supply
+        the instant value.";
+
+      reference "IA OIF-C-CMIS-01.1 Table 7";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
+    }
+
+    container osnr {
+      description
+        "Optical signal to noise ratio at 12.5GHz noise bandwidth
+        in dB with two decimal precision. Values include the
+        instantaneous, average, minimum, and maximum statistics.
+        If avg/min/max statistics are not supported, the target
+        is expected to just supply the instant value.";
+
+      reference "IA OIF-C-CMIS-01.1 Table 7";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dB;
+    }
+
+    container carrier-frequency-offset {
+      description
+        "Carrier frequency offset in MHz with 1 decimal precision.
+        Values include the instantaneous, average, minimum, and
+        maximum statistics. If avg/min/max statistics are not supported,
+        the target is expected to just supply the instant value.";
+
+      reference "IA OIF-C-CMIS-01.1 Table 7";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision1-mhz;
+    }
+
+    container sop-roc {
+      description
+        "State-of-polarization rate-of-change (SOP-ROC) in krad/s with 1
+        decimal precision. This term is defined by OIF Implementation
+        Agreement for Coherent CMIS. Values include the instantaneous,
+        average, minimum, and maximum statistics. If avg/min/max
+        statistics are not supported, the target is expected to just
+        supply the instant value.";
+
+      reference "IA OIF-C-CMIS-01.1 Table 7";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision1-krads;
+    }
+
+    container modulation-error-ratio {
+      description
+        "Modulation error ratio in dB with two decimal precision. Values
+        include the instantaneous, average, minimum, and maximum statistics.
+        If avg/min/max statistics are not supported, the target is
+        expected to just supply the instant value.";
+
+      reference "IA OIF-C-CMIS-01.1 Table 7";
+
+      uses oc-types:avg-min-max-instant-stats-precision2-dB;
+    }
+
+    uses terminal-phy-protocol-stats {
+      description
+        "When there is no OTN framing e.g. 400ZR, this grouping will be used.";
     }
   }
 

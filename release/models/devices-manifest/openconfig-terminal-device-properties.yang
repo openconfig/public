@@ -1,0 +1,978 @@
+module openconfig-terminal-device-properties {
+
+  // Yang version can be "1" without mandatory fields.
+  // Yang version 1.1 allows mandatory fiels in an augment
+  // https://tools.ietf.org/html/rfc7950#section-7.17
+  // If the augmentation adds mandatory nodes (see Section 3) that
+  // represent configuration to a target node in another module, the
+  // augmentation MUST be made conditional with a "when" statement.
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/openconfig-terminal-device-properties";
+  prefix "oc-opt-term-properties";
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-transport-types { prefix oc-opt-types; }
+  import openconfig-terminal-device-property-types { prefix oc-opt-term-prop-types; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+      www.openconfig.net";
+
+  description
+      "Module to extend OpenConfig terminal device's operational modes'
+      data. It supports operational modes for one Optical
+      Channel, with a single OTSi. The operational mode includes key
+      attributes such modulation format, symbol rate, nominal central
+      frequency (NFC) tunability constraints (grid, min/max NCF), FEC
+      gain, minimum and maximum output power of the transmitter or
+      minimum OSNR at the receiver as well as the spectrum width of
+      the OTSi (OTSiMC). It also includes (optional) aspects such as
+      filter characterization, CD and DGD tolerance.";
+
+  oc-ext:openconfig-version "0.2.0";
+
+
+  // Revisions
+  revision "2024-05-28" {
+      description "Comprehensive model update to undertake the limitations
+      of the first version of the model, such the introduction of modes
+      dependencies on hardware components and the interoperability information
+      between terminal devices, linecards, transceviers and modes.";
+      reference "0.2.0";
+  }
+
+  revision "2024-05-15" {
+    description
+      "Fix yang namespace URI to openconfig.net.";
+      reference "0.1.2";
+  }
+
+  revision "2023-12-13" {
+    description
+      "Add reference to the terminal-device-properties-guide.md doc for operational-modes.";
+      reference "0.1.1";
+  }
+
+  revision "2022-04-26" {
+      description "Initial manifest fine to extend the information
+      related to the operational modes supported by a terminal device.";
+      reference "0.1.0";
+  }
+
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig-properties";
+
+  // grouping statements
+
+  grouping penalties-list-element-attributes {
+    description
+      "OSNR penalties grouping, including the set of attributes
+      which defines each element of the penalties list.";
+
+    leaf parameter-and-unit {
+      type oc-opt-term-prop-types:impairment-type;
+      description
+        "Impairment and unit leading to the penalty (i.e., cd-ps)";
+    }
+
+    leaf up-to-boundary {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      description
+        "defines the upper (for positive values) and lower (for negative values)
+         limit for which the penalty value is valid.";
+    }
+
+    leaf penalty-value {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dB;
+      description
+        "OSNR penalty associated to the given values, expressed in dB.";
+    }
+  }
+
+  grouping fec-codes-attributes {
+    description
+      "FEC codes attributes grouping, including the set of attributes
+      which defines the FEC code employed on the transmission represented
+      by the operational-mode.";
+
+    leaf fec-coding {
+      type union {
+        type string;
+        type oc-opt-term-prop-types:fec-coding;
+      }
+      description
+        "Forward error correction (FEC) coding schema used in the
+        transmission mode. Type union of string (for proprietary codes)
+        and a set of standard codes encoded as identity references";
+    }
+
+    leaf coding-overhead {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      description
+        "Coding overhead rate in %.";
+    }
+
+    leaf coding-gain {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dB;
+      default 0.00;
+      description
+        "Net coding gain (NCG) in dB units at 10E-15 bit error rate.
+        It may vary depending on the modulation format used in the
+        associated transmission mode (operational-mode).";
+    }
+  }
+
+  grouping filter-attributes-top {
+    description
+      "This grouping includes the attributes which characterises the filter
+      at transceiver transmission for the given operational-mode.";
+
+    leaf pulse-shaping-type {
+      type union {
+        type string;
+        type oc-opt-term-prop-types:pulse-shaping-type;
+      }
+      description
+       "Pulse/spectral shaping type such as Raised-cosine (RC),
+         root-raised-cosine (RRC) and OFF. The attribute allows
+         other pulse-shaping types to be encoded as strings.";
+    }
+
+    leaf roll-off {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      description
+        "Decimal fraction between 0 and 1. Roll-off parameter (𝛽) of the
+        TX pulse shaping filter. This assumes a raised-cosine filter";
+
+    }
+  }
+
+  grouping operational-mode-descriptor-explicit-config-constraints-state {
+    description
+      "Configuration value constraints for optical channels
+      configured on the target operational mode.";
+
+    leaf min-central-frequency {
+      type oc-opt-types:frequency-type;
+      description
+        "The lowest configurable central frequency in MHz.";
+    }
+
+    leaf max-central-frequency {
+      type oc-opt-types:frequency-type;
+      description
+        "The highest configurable central frequency in MHz.";
+    }
+
+    leaf grid-type {
+      type oc-opt-term-prop-types:grid-type;
+      description
+        "Frequency  ITU-T G.694.1 (10/2020) grid specification attribute.";
+    }
+
+    leaf adjustment-granularity {
+      type oc-opt-term-prop-types:adjustment-granularity;
+      description
+        "Adjustment granularity in Gigahertz. As per  ITU-T G.694.1
+        (10/2020), it is used to calculate nominal central frequency of an
+        optical channel. It defines the minimum granularity supporting by the
+        optical channel's central frequency setting.";
+    }
+
+    leaf min-channel-spacing {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units GHz;
+      description
+       "Minimum recommended spectrum spacing between the central frequency of two
+        adjacent optical channels of the same mode. In case of two adjacent optical
+        channels with different operational-modes, it is up to the path computation
+        engine to determine the minimum distance between the central frequencies of
+        these two optical channels.";
+    }
+
+    leaf min-output-power {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "Minimum target output optical power level of the optical channel,
+        configurable according to the optical transceiver mode properties,
+        expressed in increments of 0.01 dBm (decibel-milliwats)";
+    }
+
+    leaf max-output-power {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "Maximum target output optical power level of the optical channel,
+        configurable according to the optical transceiver mode properties,
+        expressed in increments of 0.01 dBm (decibel-milliwatts)";
+    }
+  }
+
+  grouping mode-descriptor-design-properties-state {
+    description
+      "For each given mode supported by the device there might be
+        one or multiple implementations related to the transceiver hardware
+        modules which implements the mode. For a given implementation,
+        a set of design properties are represented within the mode-descriptor
+        data structure, which is identified by a unique local identifier.
+        A mode-descriptor shall uniquely characterize a given operational mode
+        implemented by a given transceiver component described within the
+        terminal-device manfiest file.";
+
+    leaf mode-descriptor-id {
+      type uint16;
+      description
+        "Two-octet encoding of the vendor-defined operational
+        mode";
+    }
+
+    leaf min-tx-osnr {
+      type decimal64 {
+          fraction-digits 2;
+      }
+      units dB;
+      description
+        "Minimum in-band transmitter OSNR measured at 0.1nm@193.6Thz,
+        considering the maximum transceiver inserted noise. ";
+    }
+
+    leaf min-rx-osnr {
+      type decimal64 {
+          fraction-digits 2;
+      }
+      units dB;
+      description
+        "Minimum back-to-back OSNR measured over 0.1nm@193.6Thz or
+        12.5GHz noise resolution bandwidth at the min-input-power.
+        If received OSNR at min-input-power is lower than this value,
+        an increased level of bit-errors post-FEC needs to be
+        expected.";
+    }
+
+    leaf min-input-power {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "Minimum value required input power in dBm of an optical channel
+        at the receiver (Rx) according to the given min-rx-osnr value. If
+        the input-power is lower it is expected to introduce an OSNR
+        penalty.";
+    }
+
+    leaf max-input-power {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "Maximum tolerated input power in dBm at the receiver (Rx)
+        of the coherence transceiver, which if exceeded can cause an
+        overload.";
+    }
+
+    leaf max-chromatic-dispersion {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps-nm;
+      description
+        "Maximum chromatic-dispersion, accumulated value, supported by the
+        optical channel associated to the associated transmission mode
+        (operational model), expressed in picoseconds / nanometer (ps/nm).";
+    }
+
+    leaf max-differential-group-delay {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units ps;
+      description
+        "Maximum differential-group-delay, absolute value, supported by the
+        optical channel associated to the associated tranmission mode
+        (operational model), expressed in picoseconds (ps).";
+    }
+
+    leaf max-polarization-dependent-loss {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dB;
+      description
+        "Maximum polarization-dependent-loss accumulated value, supported by the
+        optical channel associated to the associated transmission mode
+        (operational model), expressed in decibels (dB)";
+    }
+
+    leaf pre-fec-ber-threshold {
+      type decimal64 {
+        fraction-digits 18;
+      }
+      units bit-errors-per-second;
+      description
+        "Threshold on the PRE-FEC-BER, for which FEC code is able to
+        correct errors.";
+    }
+  }
+
+  grouping operational-mode-descriptor-design-properties-top {
+    description
+      "Definition of proprietary or non-standard operational-modes, which can be
+      uniformly characterized by the set of attributes included in their
+      operational-mode-capabilities which defines the related signal physical
+      impairment related aspects such Rx and Tx associated attributes and tolerances;
+      and its optical-channel-config-value-constraints, which defines what are the
+      allowed values to be configured at the oc-component:optical-channel instance
+      configured to this mode.";
+
+    container mode-descriptors {
+      description
+        "Explicit definition of the operational-mode. Typically this is used
+        for non-standard/proprietary modes defined by the terminal-device
+        vendor and it is self-described by the capabilities included in
+        the subtree underneath.";
+
+      list mode-descriptor{
+        key "mode-descriptor-id";
+        description
+          "";
+
+        leaf mode-descriptor-id {
+          type leafref {
+            path "../state/mode-descriptor-id";
+          }
+          description
+            "Reference to mode-descriptor-id";
+        }
+        container state {
+          config false;
+          description
+            "Mode-descriptor state attributes top container.";
+          uses mode-descriptor-design-properties-state;
+        }
+        uses operational-mode-descriptor-penalties-top;
+        uses operational-mode-descriptor-interoperable-modes-top;
+      }
+    }
+  }
+
+  grouping interoperable-mode-properties-state {
+    description
+      "System-defined configuration data for component properties";
+
+    leaf name {
+      type string;
+      description
+        "System-supplied name of the property -- this is typically
+        non-configurable";
+    }
+
+    leaf value {
+      type union {
+        type string;
+        type boolean;
+        type int64;
+        type uint64;
+        type decimal64 {
+          fraction-digits 2;
+        }
+      }
+      description
+        "Property values can take on a variety of types.  Signed and
+        unsigned integer types may be provided in smaller sizes,
+        e.g., int8, uint16, etc.";
+    }
+  }
+
+  grouping operational-mode-descriptor-interoperable-mode-state {
+    description
+      "Interoperable mode features attributes grouping.";
+
+    leaf mode-name {
+      type string;
+      description
+        "Public well-know free-format name reference to the mode name.";
+    }
+
+    leaf publisher-organization {
+      type union {
+        type string;
+        type oc-opt-term-prop-types:interoperability-modes-organization;
+      }
+      description
+        "Name of the organization, standard body, Multi-Source Agreement, or
+        open source project, responsible of the definition of the interoperable
+        mode.";
+    }
+  }
+  grouping operational-mode-descriptor-penalties-top {
+    description
+      "Top container grouping for operational-mode-descriptor.";
+    container penalties {
+      description
+        "Enconsing list's container.";
+
+      list penalty {
+        key "parameter-and-unit up-to-boundary";
+        description
+          "Penalties includes contributions from different impairments including
+          cd, pmd, low RX Power, pdl,...
+          - For parameter values below lowest up-to-boundary value, the penalty is 0.
+          - For parameter values between lowest and highest up-to-boundary
+          values, penalty could be linearly interpolated.
+          - For parameter values above highest up-to-boundary value, the penalty is the one
+          included within penalty-value attribute associated to the highest up-to-boundary";
+
+        leaf parameter-and-unit {
+          type leafref {
+            path "../state/parameter-and-unit";
+          }
+          description
+            "Impairment and unit leading to the penalty (i.e., cd-ps)";
+        }
+
+        leaf up-to-boundary {
+          type leafref {
+            path "../state/up-to-boundary";
+          }
+          description
+            "defines the upper (for positive values) and lower (for negative values)
+             limit for which the penalty value is valid.";
+        }
+
+        container state {
+          config false;
+          description
+            "Penalties list element's state attributes top container.";
+          uses penalties-list-element-attributes;
+        }
+      }
+    }
+  }
+
+  grouping operational-mode-descriptor-interoperable-modes-top {
+    description
+      "Each mode-descriptor of a given operational-mode could be compatible
+      with many interoperable modes which are defined, elsewhere, by standard
+      bodies, multi-source agreements, vendor forums or any other public forum.
+      This compatibility characteristic shall be assured by the system-vendor
+      and imply that the design properties of the implementations of that
+      specific operational mode are a superset of the all listed supported
+      standard modes";
+
+    container interoperable-modes {
+      description
+        "Top level container of interoperable modes.";
+
+      list interoperable-mode {
+        key "mode-name";
+        description
+          "Each interoperable mode is defined by its public name reference
+          and a set of free form key-value properties which augments with
+          the required information provided by the system-vendor.";
+
+        leaf mode-name {
+          type leafref {
+            path "../state/mode-name";
+          }
+          description
+            "Reference to mode-name.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational-mode interoperbale mode state top container.";
+
+          uses operational-mode-descriptor-interoperable-mode-state;
+        }
+      }
+    }
+  }
+
+
+  grouping operational-mode-descriptor-state{
+    description
+      "Top-level operational-mode-features grouping definitions";
+
+    leaf mode-id {
+      type uint16;
+      description
+        "Two-octet encoding of the vendor-defined operational
+        mode";
+    }
+
+    leaf modulation-format {
+      type union {
+        type string;
+        type oc-opt-term-prop-types:modulation-format;
+      }
+      description
+        "Optical modulation format associated to the mode. The
+        modulation format associated to the optical signal.";
+    }
+
+    leaf bit-rate {
+      type oc-opt-term-prop-types:bit-rate;
+      description
+        "Rounded bit rate of the tributary signal delivered by the
+        optical channel associated to the specific operational mode.
+        Exact bit rate will be refined by protocol selection at the
+        associated tributary logical channel.";
+    }
+
+    leaf baud-rate {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units Bd;
+      description
+        "Baud-rate or symbol rate.";
+    }
+
+    leaf optical-channel-spectrum-width {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units GHz;
+      description
+       "Spectrum width of the optical channel associated to this
+        operational mode, calculated as the baud-rate*(1+roll-off).";
+    }
+  }
+
+  grouping operation-mode-filter-and-fec {
+    description
+      "Enclosing grouping for Operational Mode filter and FEC attributes.";
+
+    container filter {
+      description
+        "This container includes information which characterises the filter at
+        transceiver transmission for the given operational-mode.";
+
+      container state {
+        config false;
+        description
+          "Filter's state attributes top container.";
+        uses filter-attributes-top;
+      }
+    }
+    container fec {
+      description
+        "The Forward Error Coding (FEC) coding schema used,
+        including the name, overhead, pre-fec-ber threshold and
+        gain properties.";
+
+      container state {
+        config false;
+        description
+          "FEC state attributes top container.";
+
+        uses fec-codes-attributes;
+      }
+    }
+  }
+
+  grouping operational-mode-top{
+    description
+      "top-level operational-mode definitions";
+
+    container operational-mode-descriptors {
+      config false;
+      description
+        "Indicates the transceiver's list of supported operational
+         modes and its associated transmission features";
+      reference
+         "https://github.com/openconfig/public/blob/master/doc/terminal-device-properties-guide.md";
+
+      list operational-modes {
+        key "mode-id";
+        description
+          "List of operational modes supported by the terminal-device.
+          The operational mode descriptor list provides a platform-defined
+          summary of the modes' information such as symbol rate, modulation, pulse
+          shaping, etc.";
+
+        leaf mode-id {
+          type leafref {
+            path "../state/mode-id";
+          }
+          description
+            "Reference to mode-id";
+        }
+
+        container state {
+          description
+            "Static features or properties which characterize the
+            operational mode.";
+
+          uses operational-mode-descriptor-state;
+        }
+        uses operation-mode-filter-and-fec;
+        uses operational-mode-descriptor-design-properties-top;
+      }
+    }
+  }
+
+  // Definition of terminal-device transceiver descriptors.
+
+  grouping terminal-device-component-descriptor-state {
+    description
+      "State data for terminal device descriptor components.";
+
+    leaf component-descriptor-id {
+      type string;
+      description
+        "Unique identifier assigned by the system vendor for the
+        component descriptor.";
+    }
+
+    leaf system-vendor-name {
+      type string;
+      description
+        "System vendor company name";
+    }
+
+    leaf system-vendor-part-no {
+      type string;
+      description
+        "System-vendor assigned part number for the component.  This should
+        be present in particular if the component is also an FRU
+        (field replaceable unit)";
+    }
+
+    leaf mfg-name {
+      type string;
+      description
+        "System-supplied identifier for the manufacturer of the
+        component.  This data is particularly useful when a
+        component manufacturer is different than the overall
+        device vendor.";
+    }
+
+    leaf mfg-part-no {
+      type string;
+      description
+        "Transceiver manufacturer assigned part number for the component.";
+    }
+
+    leaf hardware-version {
+      type string;
+      description
+        "For hardware components, this is the hardware revision of
+        the component.";
+    }
+
+    leaf firmware-version {
+      type string;
+      description
+        "For hardware components, this is the version of associated
+        firmware that is running on the component, if applicable.";
+    }
+
+    leaf software-version {
+      type string;
+      description
+        "For software components such as operating system or other
+        software module, this is the version of the currently
+        running software.";
+    }
+
+    leaf clei-code {
+      type string;
+      description
+        "Common Language Equipment Identifier (CLEI) code of the
+        component.  This should be present in particular if the
+        component is also an FRU (field replaceable unit)";
+    }
+  }
+  grouping transceiver-compatible-mode-state {
+    description
+      "Each compatible mode has associated a mode-descriptor which represents
+      the operational mode design properties associated to the transceiver which
+      transmits the mode.";
+
+    container state {
+      description
+        "State container of transciever compatible modes.";
+
+      leaf mode-id {
+        type uint16;
+        must "../../../../../../operational-mode-descriptors/operational-modes[mode-id=current()]/mode-id";
+
+        description
+          "Two-octet encoding of the vendor-defined operational mode.
+          Each value shall reference a valid mode-id included in the
+          operational-mode-descriptors list.";
+      }
+
+      leaf mode-descriptor-id {
+        type leafref {
+          path "/oc-opt-term-properties:operational-mode-descriptors/operational-modes/mode-descriptors/mode-descriptor/mode-descriptor-id";
+        }
+        description
+          "Reference to the associated mode-descriptor-id which describes
+          the specific design properties of the mode once it is being transmitted
+          by the parent transceiver component.";
+      }
+    }
+  }
+
+  grouping transceiver-compatible-modes {
+    description
+      "Transceiver compatible modes definition.";
+
+    container transceiver-compatible-modes {
+      config false;
+      description
+        "Indicates the set of operatational-modes, present in the terminal-
+        device manifest, which are compatible with the described transceiver
+        component.";
+
+      list transceiver-compatible-mode {
+        key "mode-id";
+        description
+          "List of operational modes supported by the target transceiver.";
+
+        leaf mode-id {
+          type leafref {
+            path "../state/mode-id";
+          }
+          description
+            "Reference to a ../state/mode-id.";
+        }
+        uses transceiver-compatible-mode-state;
+      }
+    }
+  }
+
+  grouping transceiver-descriptor-top {
+    description
+      "top-level transceiver-descriptor definitions";
+
+    container transceiver-descriptors {
+      config false;
+      description
+        "Indicates the terminal-device's list of compatible transceiver
+         component and its associated modes and mode descriptors compatibility
+         matrix.";
+
+      list transceiver-descriptor {
+        key "component-descriptor-id";
+        description
+          "List of transceiver components supported by the terminal-device.
+          The operational mode provides a platform-defined summary
+          of information such as symbol rate, modulation, pulse
+          shaping, etc.";
+
+        leaf component-descriptor-id {
+          type leafref {
+            path "../state/component-descriptor-id";
+          }
+          description
+            "Reference to component-descriptor-id";
+        }
+
+        container state {
+          description
+            "Static features or properties which characterize the
+            component descriptor.";
+
+          uses terminal-device-component-descriptor-state;
+        }
+        uses transceiver-compatible-modes;
+      }
+    }
+  }
+
+  // Definition of terminal-device linecard descriptors.
+
+  grouping linecards-constrained-compatible-modes-state {
+    description
+      "Grouping for the linecards' contrained compatible modes
+      state attributes.";
+
+    container state {
+      description
+        "State container for linecard constrained compatible modes";
+
+      leaf mode-id {
+          type uint16;
+          must "../../../../../../../../operational-mode-descriptors/operational-modes[mode-id=current()]/mode-id";
+
+          description
+            "Absolute reference to an operational-mode-id. Each value shall
+            reference a valid mode-id included in the operational-mode-descriptors
+            list.";
+        }
+
+      leaf mode-descriptor-id {
+        type leafref {
+          path "/oc-opt-term-properties:operational-mode-descriptors/operational-modes/mode-descriptors/mode-descriptor/mode-descriptor-id";
+        }
+        description
+          "Reference to the associated mode-descriptor-id which describes
+          the specific design properties of the mode once it is being transmitted
+          by the parent transceiver component.";
+      }
+    }
+  }
+
+  grouping constrained-compatible-modes {
+    description
+      "Linecards' compatible transceiver list of compatible modes which are
+      constrained by the integration made by the system vendor of the given
+      terminal-device.";
+
+    container constrained-compatible-modes {
+      config false;
+      description
+        "Indicates the set of operatational-modes, present in the terminal-
+        device manifest, which are compatible with the described transceiver
+        component within the linecard component.";
+
+      list constrained-compatible-mode {
+        key "mode-id";
+        description
+          "List of operational modes supported by the target transceiver.";
+
+        leaf mode-id {
+          type leafref {
+            path "../state/mode-id";
+          }
+          description
+            "Reference to linecard-descriptor/constrained-compatible-mode/state/mode-id.";
+        }
+
+        uses linecards-constrained-compatible-modes-state;
+
+        container optical-channel-config-value-constraints{
+          description
+            "Set of constraints of the configuration attributes
+            of the optical-channel associated to the selected
+            operational-mode.";
+
+          container state {
+            config false;
+            description
+              "Operational-mode explicit mode config value constrains state top
+              container.";
+
+            uses operational-mode-descriptor-explicit-config-constraints-state;
+          }
+        }
+      }
+    }
+  }
+
+  grouping linecard-compatible-transceivers {
+    description
+      "Linecard-transceiver compatibility matrix definition.";
+
+    container compatible-transceivers {
+      config false;
+      description
+        "Indicates the set of transceiver component which are compatible
+        with the described linecard component.";
+
+      list compatible-transceiver {
+        key "transceiver-descriptor-id";
+        description
+          "List of transceiver descriptor ids.";
+
+        leaf transceiver-descriptor-id {
+          type leafref {
+            path "../state/transceiver-descriptor-id";
+          }
+          description
+            "Reference to transceiver-descriptor-id";
+        }
+        container state {
+          description
+            "Static features or properties which characterize the
+            component descriptor.";
+
+          leaf transceiver-descriptor-id {
+            type string;
+            description
+              "String rerference of the system vendor defined transciever
+              component descriptor id.";
+          }
+        }
+        uses constrained-compatible-modes;
+      }
+    }
+  }
+
+  grouping linecard-descriptor-top {
+    description
+      "top-level linecard-descriptor definitions";
+
+    container linecard-descriptors {
+      config false;
+      description
+        "Indicates the terminal-device's list of compatible linecard
+         component and its associated modes and mode descriptors compatibility
+         matrix.";
+
+      list linecard-descriptor {
+        key "component-descriptor-id";
+        description
+          "List of linecard components supported by the terminal-device.
+          The operational mode provides a platform-defined summary
+          of information such as symbol rate, modulation, pulse
+          shaping, etc.";
+
+        leaf component-descriptor-id {
+          type leafref {
+            path "../state/component-descriptor-id";
+          }
+          description
+            "Reference to component-descriptor-id";
+        }
+
+        container state {
+          description
+            "Static features or properties which characterize the
+            component descriptor.";
+
+          uses terminal-device-component-descriptor-state;
+        }
+        uses linecard-compatible-transceivers;
+      }
+    }
+  }
+
+  uses transceiver-descriptor-top;
+  uses linecard-descriptor-top;
+  uses operational-mode-top;
+}
