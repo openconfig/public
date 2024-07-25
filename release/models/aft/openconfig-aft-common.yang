@@ -473,11 +473,22 @@ submodule openconfig-aft-common {
          packet.";
     }
 
-    leaf traffic-class {
-      type oc-mplst:mpls-tc;
+    leaf src-udp-port {
+      type oc-inet:port-number;
       description
-        "The value of the MPLS traffic class (TC) bits, formerly known as the
-         EXP bits.";
+        "Source UDP port number to use for the UDP header of the encapsulated
+         packet.";
+    }
+
+    leaf dst-udp-port {
+      type oc-inet:port-number;
+      description
+        "Source UDP port number to use for the UDP header of the encapsulated
+         packet.";
+      reference
+        "RFC 7510 - Encapsulating MPLS in UDP specifies that 6636 must be
+        used only if the traffic is MPLS-in-UDP with DTLS.  Because of this
+        condition, no default is defined in OpenConfig.";
     }
 
     leaf ip-ttl {
@@ -487,6 +498,13 @@ submodule openconfig-aft-common {
          in the outer header during packet encapsulation. When this leaf is
          not set, the TTL value of the inner packet is copied over as the
          outer packet's IP TTL value during encapsulation.";
+    }
+
+    leaf traffic-class {
+      type oc-mplst:mpls-tc;
+      description
+        "The value of the MPLS traffic class (TC) bits, formerly known as the
+         EXP bits.";
     }
 
     leaf-list pushed-mpls-label-stack {
