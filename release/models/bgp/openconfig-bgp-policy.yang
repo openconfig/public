@@ -28,7 +28,15 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "7.0.0";
+  oc-ext:openconfig-version "7.1.0";
+
+  revision "2024-07-02" {
+    description
+      "Add ext-community-count container, which also clarifies that
+      community-count does not include other types of communities (e.g.
+      extended).";
+    reference "7.1.0";
+  }
 
   revision "2024-01-31" {
     description
@@ -384,28 +392,28 @@ module openconfig-bgp-policy {
 
   grouping community-count-config {
     description
-      "Configuration data for community count condition";
+      "Configuration data for different community count conditions";
 
     uses oc-pol-types:attribute-compare-operators;
   }
 
   grouping community-count-state {
     description
-      "Operational state data for community count condition";
+      "Operational state data for different community count conditions";
   }
 
   grouping community-count-top {
     description
-      "Top-level grouping for community count condition";
+      "Top-level grouping for different community count conditions";
 
     container community-count {
       description
         "Value and comparison operations for conditions based on the
-        number of communities in the route update";
+        number of regular communities in the route update.";
 
       container config {
         description
-          "Configuration data for community count condition";
+          "Configuration data for regular community count condition";
 
         uses community-count-config;
       }
@@ -415,7 +423,31 @@ module openconfig-bgp-policy {
         config false;
 
         description
-          "Operational state data for community count condition";
+          "Operational state data for regular community count condition";
+
+        uses community-count-config;
+        uses community-count-state;
+      }
+    }
+
+    container ext-community-count {
+      description
+        "Value and comparison operations for conditions based on the
+        number of extended communities in the route update.";
+
+      container config {
+        description
+          "Configuration data for extended community count condition";
+
+        uses community-count-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for extended community count condition";
 
         uses community-count-config;
         uses community-count-state;

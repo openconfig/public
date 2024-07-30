@@ -22,7 +22,14 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "1.7.0";
+  oc-ext:openconfig-version "1.8.0";
+
+
+  revision "2024-04-30" {
+    description
+      "Add FAN_TRAY";
+    reference "1.8.0";
+  }
 
   revision "2024-01-30" {
     description
@@ -324,6 +331,12 @@ module openconfig-platform-types {
     base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Cooling fan, or could be some other heat-reduction component";
+  }
+
+  identity FAN_TRAY {
+    base OPENCONFIG_HARDWARE_COMPONENT;
+    description
+      "Contains multiple fans that work in unison to cool the router components.";
   }
 
   identity SENSOR {

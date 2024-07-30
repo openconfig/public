@@ -10,7 +10,7 @@ module openconfig-terminal-device-property-types {
   yang-version "1";
 
   // namespace
-  namespace "http://example.net/yang/openconfig-terminal-device-property-types";
+  namespace "http://openconfig.net/yang/openconfig-terminal-device-property-types";
   prefix "oc-opt-term-prop-types";
 
   import openconfig-extensions { prefix oc-ext; }
@@ -29,10 +29,24 @@ module openconfig-terminal-device-property-types {
       definitions of the set of modulation format, FEC codes and adjustment
       granularity types use in the reffered model.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
 
 
   // Revisions
+  revision "2024-05-28" {
+      description "Comprehensive model update to undertake the limitations
+      of the first version of the model, such the introduction of modes
+      dependencies on hardware components and the interoperability information
+      between terminal devices, linecards, transceviers and modes.";
+      reference "0.2.0";
+  }
+
+  revision "2024-05-15" {
+    description
+      "Fix yang namespace URI to openconfig.net.";
+      reference "0.1.1";
+  }
+
   revision "2022-03-08" {
       description "Initial version to provide the initial set of identities
       used in the openconfig-terminal-device-properties model.";
@@ -54,6 +68,14 @@ module openconfig-terminal-device-property-types {
       B-DScW-ytz(v) where all these attributes are conformant
       to the ITU-T recomendation";
       reference "ITU-T G.698.2 (11/2018)";
+  }
+
+  typedef interoperability-modes-organization {
+    type identityref {
+      base INTEROPERABILITY_MODES_ORGANIZATION;
+    }
+    description
+      "Optical modulation format associated to the mode";
   }
 
   typedef bit-rate {
@@ -115,6 +137,11 @@ module openconfig-terminal-device-property-types {
     }
     description
       "Definition of impairment type and unit used in penaty list";
+  }
+
+  identity INTEROPERABILITY_MODES_ORGANIZATION {
+    description
+      "Base identity for interoperability modes' defining organizations.";
   }
 
   identity SHAPING_TYPE {
@@ -254,7 +281,6 @@ module openconfig-terminal-device-property-types {
         no minimun spacing between channels is defined.";
   }
 
-
   identity FEC {
     description
       "Forward Error Correction base identity.";
@@ -273,6 +299,7 @@ module openconfig-terminal-device-property-types {
       "Generic FEC, Reed Solomon (255,239) coding schema,
       defined in ITU-T G.975 (10/2000).";
   }
+
   identity FEC_E {
     base FEC;
     description

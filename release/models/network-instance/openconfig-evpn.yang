@@ -40,7 +40,14 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.9.0";
+
+  revision "2024-05-14" {
+   description
+     "Add configuration of VPWS identifier
+     for EVPN Virtual Private Wire Services (RFC 8214)";
+     reference   "0.9.0";
+  }
 
   revision "2024-04-03" {
    description
@@ -554,6 +561,30 @@ module openconfig-evpn {
             in Ethernet VPN
             draft-ietf-bess-rfc7432bis-05 BGP MPLS-Based
              Ethernet VPN";
+    }
+
+    leaf local-vpws-service-id {
+      type uint32 {
+        range "1..16777215";
+      }
+      description
+        "Indicates the local VPWS identifier assigned
+         to the Attachment Circuit (AC).";
+      reference
+        "RFC8214 Virtual Private Wire Service Support
+        in Ethernet VPN.";
+    }
+
+    leaf remote-vpws-service-id {
+      type uint32 {
+        range "1..16777215";
+      }
+      description
+        "Indicates the remote VPWS identifier assigned
+         to the Attachment Circuit (AC).";
+      reference
+        "RFC8214 Virtual Private Wire Service Support
+        in Ethernet VPN.";
     }
   }
 
