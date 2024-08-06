@@ -24,19 +24,25 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.7.1";
+  oc-ext:openconfig-version "9.8.0";
+
+  revision "2024-08-02" {
+    description
+      "Add preserve-next-hop to ebgp-multihop container.";
+    reference "9.8.0";
+  }
 
   revision "2023-12-28" {
     description
       "Clarification to last-prefix-limit-exceeded in description";
-          reference "9.7.1";
+    reference "9.7.1";
   }
 
   revision "2023-12-28" {
     description
       "Add support for controling use of link-bandwidth extended
       community for BGP multipath.";
-          reference "9.7.0";
+    reference "9.7.0";
   }
 
   revision "2023-11-02" {
@@ -432,6 +438,16 @@ submodule openconfig-bgp-common {
         "Time-to-live value to use when packets are sent to the
         referenced group or neighbors and ebgp-multihop is enabled";
     }
+
+    leaf preserve-next-hop {
+     type boolean;
+     default "false";
+     description
+      "Override the default eBGP behavior of rewriting the next-hop, and
+      instead keep the next-hop learned from a neighbor.  This leaf can
+      only be configured if multihop enabled is true.";
+    }
+
   }
 
   grouping bgp-common-neighbor-group-route-reflector-config {
