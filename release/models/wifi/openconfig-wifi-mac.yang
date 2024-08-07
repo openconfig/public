@@ -253,11 +253,26 @@ module openconfig-wifi-mac {
           description
             "Open authentication with Opportunistic Wireless Encryption.";
         }
+        enum ENHANCED_OPEN_TRANSITION {
+          description
+            "Open authentication with Opportunistic Wireless Encryption and
+             support for transition mode.";
+        }
         enum WPA3_SAE {
           description
             "WPA3-SAE using Simultaneous Authentication of Equals (SAE).";
         }
+        enum WPA3_2_SAE_TRANSITION {
+          description
+            "WPA3-SAE using Simultaneous Authentication of Equals (SAE) and
+             WPA2-PSK AKMs.";
+        }
         enum WPA3_ENTERPRISE {
+          description
+            "WPA3-Enterprise with 802.1X SHA-256 authentication key
+             management.";
+        }
+        enum WPA3_2_ENTERPRISE_TRANSITION {
           description
             "WPA3-Enterprise with 802.1X SHA-256 authentication key
              management.";
@@ -284,7 +299,8 @@ module openconfig-wifi-mac {
     }
 
     leaf wpa3-psk {
-      when "../opmode = 'WPA3_SAE'";
+      when "../opmode = 'WPA3_SAE' or
+      ../opemode = 'WPA3_2_SAE_TRANSITION";
       type string {
         length "8..63";
       }
@@ -296,8 +312,10 @@ module openconfig-wifi-mac {
       when "../opmode = 'WPA2_ENTERPRISE' or
       ../opmode = 'WPA2_PERSONAL' or
       ../opmode = 'WPA3_ENTERPRISE' or
+      ../opmode = 'WPA3_2_ENTERPRISE_TRANSITION
       ../opmode = 'WPA3_ENTERPRISE_192_BIT' or
-      ../opmode = 'WPA3_SAE'";
+      ../opmode = 'WPA3_SAE' or
+      ../opmode = 'WPA3_2_SAE_TRANSITION'";
       type string;
         description
           "Specifies the RADIUS server-group to be used,
@@ -367,9 +385,14 @@ module openconfig-wifi-mac {
     }
 
     leaf mfp {
-      when "../opmode = 'WPA3_ENTERPRISE' or ../opmode =
-      'WPA3_ENTERPRISE_192_BIT' or ../opmode =
-      'WPA3_SAE' or ../opmode = 'ENHANCED_OPEN'";
+      when "../opmode = 'WPA3_ENTERPRISE' or
+      ../opmode = 'WPA3_2_ENTERPRISE_TRANSITION
+      ../opmode = 'WPA3_ENTERPRISE_192_BIT' or 
+      ../opmode = 'WPA3_SAE' or
+      ../opmode = 'WPA3_2_SAE_TRANSITION
+      ../opmode = 'ENHANCED_OPEN'
+      ../opmode = 'ENHANCED_OPEN_TRANSITION
+      ";
       type boolean;
       mandatory true;
       description
