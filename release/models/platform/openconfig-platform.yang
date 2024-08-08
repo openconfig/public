@@ -65,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.27.0";
+  oc-ext:openconfig-version "0.28.0";
+
+  revision "2024-08-08" {
+    description
+      "Update type of model-name leaf from string to MODEL_NAME identity.";
+    reference "0.28.0";
+  }
 
   revision "2024-05-29" {
     description
@@ -540,7 +546,9 @@ module openconfig-platform {
     }
 
     leaf model-name {
-      type string;
+      type identityref {
+        base oc-platform-types:MODEL_NAME;
+      }
       description
         "A human readable string describing the model of a component.
         This string is optional and should only be populated if part-no
