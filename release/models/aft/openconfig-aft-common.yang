@@ -458,7 +458,9 @@ submodule openconfig-aft-common {
 
   grouping aft-common-entry-nexthop-mplsudp-state {
     description
-      "MPLS in UDP encapsulation applied on a IPv4 or IPv6 next-hop.";
+      "MPLS in UDP encapsulation applied on a IPv4 or IPv6 next-hop.  This
+      encapsulation is assumed to be using RFC 7510 - Encapsulating MPLS
+      in UDP.";
 
     leaf src-ip {
       type oc-inet:ip-address;
@@ -492,9 +494,10 @@ submodule openconfig-aft-common {
         "Source UDP port number to use for the UDP header of the encapsulated
          packet.";
       reference
-        "RFC 7510 - Encapsulating MPLS in UDP specifies that 6636 must be
-        used only if the traffic is MPLS-in-UDP with DTLS.  Because of this
-        condition, no default is defined in OpenConfig.";
+        "RFC 7510 - Encapsulating MPLS in UDP specifies that 6635 must be
+        used for MPLS-in-UDP and 6636 must be used for MPLS-in-UDP with DTLS.
+        Because of this condition, no default is defined in OpenConfig.  The
+        system is expected to utilize the appropriate port.";
     }
 
     leaf ip-ttl {
