@@ -25,10 +25,10 @@ submodule openconfig-aft-common {
 
   oc-ext:openconfig-version "2.6.0";
 
-  revision "2024-07-18" {
+  revision "2024-04-25" {
     description
-        "Add container for mpls-in-udp under next-hops aft entry state.";
-      reference "2.6.0";
+      "Add backup-active to AFT NHG state.";
+    reference "2.6.0";
   }
 
   revision "2024-01-26" {
@@ -776,6 +776,20 @@ submodule openconfig-aft-common {
         entries within the next-hop group become unusable, the backup
         next-hop group is used if specified.";
     }
+
+    leaf backup-active {
+      type boolean;
+      default false;
+      description
+        "Set to true if and only if the device no longer forwards traffic
+        using the primary NextHops of this NextHopGroup and instead uses
+        the specified backup-next-hop-group. This leaf should be set to
+        false if the backup-next-hop-group is either unspecified or unused
+        by the device.";
+    }
+
+
+
   }
 
   grouping aft-nhg-nh-state {
