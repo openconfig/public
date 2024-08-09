@@ -28,7 +28,14 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "7.1.0";
+  oc-ext:openconfig-version "7.2.0";
+
+  revision "2024-07-15" {
+    description
+      "Add set-as-path BGP action, and new bgp-as-mode-type to support
+      last AS. Also add mode leaf to set-as-path-prepend to prepend last AS.";
+    reference "7.2.0";
+  }
 
   revision "2024-07-02" {
     description
@@ -227,6 +234,19 @@ module openconfig-bgp-policy {
       the MED directly using the uint32 type or increment/decrement
       using +/- notation in the string type or setting it to
       the IGP cost using the enum (predefined value).";
+  }
+
+  typedef bgp-as-mode-type {
+    type enumeration {
+      enum LAST {
+        description
+          "The last AS in the AS path, which is also the most recent
+          AS added to the path.";
+      }
+    }
+    description
+      "Type definition for specifying the special AS types
+      that can be used for updating and setting AS path actions.";
   }
 
   // grouping statements
@@ -896,9 +916,18 @@ module openconfig-bgp-policy {
     leaf asn {
       type oc-inet:as-number;
       description
-        "The AS number to prepend to the AS path. If this leaf is
-        not specified and repeat-n is set, then the local AS
-        number will be used for prepending.";
+        "The AS number to prepend to the AS path. If neither this
+        leaf nor mode leaf is specified but repeat-n is set, then
+        the local AS number will be used for prepending.";
+    }
+
+    leaf mode {
+      type bgp-as-mode-type;
+      description
+        "Use a special AS number, e.g. last AS, to prepend to the
+        AS path. If neither leaf nor asn leaf is specified but
+        repeat-n is set, then the local AS number will be used for
+        prepending.";
     }
   }
 
@@ -1322,6 +1351,184 @@ module openconfig-bgp-policy {
     }
   }
 
+  grouping set-as-path-inline-config {
+    description
+      "Configuration data for inline specification of
+      set-as-path action";
+
+    leaf-list as-paths {
+      type union {
+        type oc-inet:as-number;
+        type bgp-as-mode-type;
+      }
+      description
+        "Set the AS path values for the update inline
+        with a list.";
+    }
+  }
+
+  grouping set-as-path-inline-state {
+    description
+      "Operational state data or inline specification of
+      set-as-path action";
+  }
+
+  grouping set-as-path-inline-top {
+    description
+      "Top-level grouping for inline specification of set-as-path
+      action";
+
+    container inline {
+      when "../config/method='INLINE'" {
+        description
+          "Active only when the set-as-path method is INLINE";
+      }
+      description
+        "Set the AS path values for the action inline with
+        a list.";
+
+      container config {
+        description
+          "Configuration data for inline specification of
+          set-as-path action";
+
+        uses set-as-path-inline-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data or inline specification of
+          set-as-path action";
+
+        uses set-as-path-inline-config;
+        uses set-as-path-inline-state;
+      }
+    }
+  }
+
+  grouping set-as-path-reference-config {
+    description
+      "Configuration data for referening an as-path-set
+      in the set-as-path action";
+
+    leaf-list as-path-set-refs {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
+          "oc-bgp-pol:bgp-defined-sets/" +
+          "oc-bgp-pol:as-path-sets/" +
+          "oc-bgp-pol:as-path-set/" +
+          "oc-bgp-pol:as-path-set-name";
+      }
+      description
+        "References a list of defined AS path sets by name";
+    }
+
+    // TODO(xqm): do we need to keep this deperecated leaf?
+    leaf as-path-set-ref {
+      status deprecated;
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
+          "oc-bgp-pol:bgp-defined-sets/" +
+          "oc-bgp-pol:as-path-sets/" +
+          "oc-bgp-pol:as-path-set/" +
+          "oc-bgp-pol:as-path-set-name";
+      }
+      description
+        "References a defined AS path set by name";
+    }
+  }
+
+  grouping set-as-path-reference-state {
+    description
+      "Operational state data for referening an as-path-set
+      in the set-as-path action";
+  }
+
+  grouping set-as-path-reference-top {
+    description
+      "Top-level grouping for referening an as-path-set in the
+      set-as-path action";
+
+    container reference {
+      when "../config/method='REFERENCE'" {
+        description
+          "Active only when the set-as-path method is REFERENCE";
+      }
+      description
+        "Provide a reference to an as-path-set for the
+        set-as-path action";
+
+      container config {
+        description
+          "Configuration data for referening an as-path-set
+          in the set-as-path action";
+
+        uses set-as-path-reference-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for referening an
+          as-path-set in the set-as-path action";
+
+        uses set-as-path-reference-config;
+        uses set-as-path-reference-state;
+      }
+    }
+  }
+
+  grouping set-as-path-action-config {
+    description
+      "Configuration data for the set-as-path action";
+
+    // TODO(xqm): should we rename this to set-bgp-defined-set-action-common?
+    uses set-community-action-common;
+  }
+
+  grouping set-as-path-action-state {
+    description
+      "Operational state data for the set-as-path action";
+  }
+
+  grouping set-as-path-action-top {
+    description
+      "Top-level grouping for the set-as-path action";
+
+    container set-as-path {
+      description
+        "Action to set the AS path attributes of the route,
+        along with options to modify how the AS path is modified.
+        AS path may be set using an inline list OR a reference
+        to an existing defined set (but not both).";
+
+      container config {
+        description
+          "Configuration data for the set-as-path action";
+
+        uses set-as-path-action-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for the set-as-path action";
+
+        uses set-as-path-action-config;
+        uses set-as-path-action-state;
+      }
+      uses set-as-path-inline-top;
+      uses set-as-path-reference-top;
+    }
+  }
+
   grouping bgp-actions-config {
     description
       "Configuration data for BGP-specific actions";
@@ -1381,6 +1588,7 @@ module openconfig-bgp-policy {
         uses bgp-actions-state;
       }
       uses as-path-prepend-top;
+      uses set-as-path-action-top;
       uses set-community-action-top;
       uses set-ext-community-action-top;
     }
