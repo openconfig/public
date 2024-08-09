@@ -4,18 +4,10 @@ module openconfig-system-controlplane {
     namespace "http://openconfig.net/yang/system-controlplane";
     prefix "oc-sys-copp";
 
-    import openconfig-extensions {
-        prefix oc-ext;
-    }
-    import openconfig-system {
-        prefix oc-sys;
-    }
-    import openconfig-acl {
-        prefix oc-acl;
-    }
-    import openconfig-qos {
-        prefix oc-qos;
-    }
+    import openconfig-extensions { prefix oc-ext; }
+    import openconfig-system { prefix oc-sys; }
+    import openconfig-acl { prefix oc-acl; }
+    import openconfig-qos { prefix oc-qos; }
 
     organization
       "OpenConfig working group";
@@ -31,9 +23,13 @@ module openconfig-system-controlplane {
           a QoS classifier.
         - schedule traffic that has been forwarded towards the control-plane,
           to allow for policies such as rate limits to be applied.
+        - queue traffic ingress or egress from the control plane, allowing
+          packets to be queued separately based on a QoS classifier.
+
        The configured policies apply generically to all control-planes that
        exist within the system, and should be mapped to the internal interfaces
        via which packets are forwarded to control-plane modules.
+
        When a packet is received at an input interface - it is classified into a
        forwarding group which drains to a specific queue. If this input mapping
        is sufficient, the CPU-facing interface uses the specified scheduler
@@ -42,12 +38,20 @@ module openconfig-system-controlplane {
        an alternate classifier that is used to reclassify traffic into
        a new set of forwarding-groups (and hence queues) that can subsequently
        be scheduled by the specified scheduler.
+
        The specified control-plane ACL is applied to traffic received by the
        control-plane of the system.";
 
-    oc-ext:openconfig-version "0.2.0";
+    oc-ext:openconfig-version "0.3.0";
     oc-ext:catalog-organization "openconfig";
     oc-ext:origin "openconfig";
+
+    revision "2023-03-03" {
+        description
+          "Add queues to control plane.";
+        reference
+          "0.3.0";
+    }
 
     revision "2023-03-03" {
       description
@@ -195,6 +199,53 @@ module openconfig-system-controlplane {
 
                     uses system-controlplane-qos-scheduler-seq-state;
                   }
+                }
+              }
+            }
+
+            container queues {
+              description
+                "Configuration and operational state relating to the QoS
+                queues that are used for control plane traffic.  The
+                control-plane container is treated like an interface.";
+
+              list queue {
+                config false;
+                key "name";
+
+                description
+                "Top-level container for the queue associated with
+                control plane traffic";
+
+                leaf name {
+                  config false;
+                  type leafref {
+                    path "../state/name";
+                  }
+                  description
+                    "Reference to the name of the queue
+                    for control plane traffic.";
+                }
+
+                container state {
+                  config false;
+                  description
+                    "Operational state parameters relating to the queues
+                    used for control-plane traffic.";
+
+                    leaf name {
+                      config false;
+                      type leafref {
+                        path "/oc-qos:qos/oc-qos:queues/oc-qos:queue/" +
+                        "oc-qos:state/oc-qos:name";
+                      }
+                      description
+                        "Reference to the queue associated with control plane
+                        traffic.  These queues are expected to be implicitly
+                        created by the system.";
+                    }
+
+                  uses oc-qos:qos-interface-queue-state;
                 }
               }
             }
