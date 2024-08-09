@@ -25,7 +25,13 @@ submodule openconfig-ospfv2-area-interface {
     "This submodule provides OSPFv2 configuration and operational
     state parameters that are specific to the area context";
 
-  oc-ext:openconfig-version "0.5.1";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2024-06-06" {
+    description
+      "Add support for ospfv2 authentication modes and message digest keys";
+    reference "0.6.0";
+  }
 
   revision "2023-11-01" {
     description
@@ -224,6 +230,56 @@ submodule openconfig-ospfv2-area-interface {
       description
         "The number of seconds that the local system waits before
         retransmitting an unacknowledged LSA.";
+    }
+  }
+
+  grouping ospfv2-area-interface-authentication-config {
+    description
+      "Configuration parameters relating to OSPF interface
+      authentication";
+
+    leaf auth-mode {
+      type identityref {
+        base oc-ospf-types:AUTH_MODE;
+      }
+      description
+        "Authentication mode to be used for OSPF interface links.";
+    }
+
+    leaf simple-password {
+      type oc-types:routing-password;
+      description
+        "Password for simple authentication mode to be specified for OSPF
+        authentication.";
+    }
+  }
+
+  grouping ospfv2-area-interface-message-digest-config {
+    description
+      "Configuration parameters relating to OSPF message-digest
+      authentication";
+
+    leaf key-id {
+      type uint8;
+      description
+        "Message-digest keyid to identify auth key and auth algo for
+        OSPF authentication.";
+    }
+
+    leaf auth-algo {
+      type identityref {
+        base oc-ospf-types:MESSAGE_DIGEST_ALGO;
+      }
+      description
+        "Hash algorithm to be used generate/verify message digest
+        for OSPF authentication.";
+    }
+
+    leaf auth-key {
+      type oc-types:routing-password;
+      description
+        "Password to be used to generate/verify message digest
+        for OSPF authentication.";
     }
   }
 
@@ -434,6 +490,63 @@ submodule openconfig-ospfv2-area-interface {
               the interface";
 
             uses ospfv2-area-interface-timers-config;
+          }
+        }
+
+        container authentication {
+          description
+            "Configuration and operational state parameters for
+            OSPFv2 authentication on the interface.";
+
+          container config {
+            description
+              "Configuration parameters for OSPFv2 authentication on
+              the interface";
+            uses ospfv2-area-interface-authentication-config;
+          }
+
+          container state {
+            config false;
+            description
+              "Operational state parameters for OSPFv2 authentication on
+              the interface";
+            uses ospfv2-area-interface-authentication-config;
+          }
+
+          container message-digests {
+            description
+              "Enclosing container for the list of message-digest keys that
+              can be configured on the interface";
+
+            list message-digest {
+              key "key-id";
+
+              description
+                "A message-digest key to be used for OSPFv2 authentication";
+
+              leaf key-id {
+                type leafref {
+                  path "../config/key-id";
+                }
+                description
+                  "Message-digest authentication key identifier";
+              }
+
+              container config {
+                description
+                  "Configuration parameters relating to the message-digest
+                  authentication";
+                uses ospfv2-area-interface-message-digest-config;
+              }
+
+              container state {
+                config false;
+                description
+                  "Operational state parameters relating to the message-digest
+                  authentication";
+                uses ospfv2-area-interface-message-digest-config;
+              }
+            }
           }
         }
 
