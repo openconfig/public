@@ -31,7 +31,14 @@ module openconfig-packet-match {
     wildcard ('any') for that field.";
 
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.2.0";
+
+  revision "2023-08-09" {
+    description
+      "Add tos and tos-set, expected to be used for filtering / QoS
+      classifiers.";
+    reference "2.2.0";
+  }
 
   revision "2023-03-01" {
     description
@@ -267,6 +274,23 @@ module openconfig-packet-match {
         be performed, such that a packet must match one of the values defined in this
         list. If the field is left empty then any DSCP value matches unless the 'dscp'
         leaf is specified. It is not valid to specify both 'dscp' and 'dscp-set together.'";
+    }
+
+    leaf tos {
+      type oc-inet:tos;
+      description
+        "Value of IP type of service.'";
+    }
+
+    leaf-list tos-set {
+      type oc-inet:tos;
+      description
+        "A list of type of service (ip precedence) values to be matched for
+        incoming packets. AN OR match should be performed, such that a packet
+        must match one of the values defined in this list. If the field is
+        left empty then any tos value matches unless the 'tos' leaf is
+        specified. It is not valid to specify both 'tos' and 'tos-set
+        together.'";
     }
 
     leaf length {

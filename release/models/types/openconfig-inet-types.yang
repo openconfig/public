@@ -31,7 +31,13 @@ module openconfig-inet-types {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2024-08-09" {
+    description
+      "Add IPv4 type of service (tos) / precedence type.";
+    reference "0.8.0";
+  }
 
   revision "2024-01-05" {
     description
@@ -439,6 +445,16 @@ module openconfig-inet-types {
     reference
       "RFC 2474 Definition of the Differentiated Services Field
                  (DS Field) in the IPv4 and IPv6 Headers";
+  }
+
+  typedef tos {
+    type uint8 {
+      range "0..63";
+    }
+    description
+      "IPv4 type of service bits, also referred to as IP precedence bits.";
+    reference
+      "RFC 791 Internet Protocol Specification.";
   }
 
   typedef ipv6-flow-label {
