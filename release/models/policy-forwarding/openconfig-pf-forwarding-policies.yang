@@ -21,7 +21,13 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "0.6.1";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2023-07-16" {
+    description
+      "Add rule to match all packets received on a network-instance.";
+    reference "0.7.0";
+  }
 
   revision "2023-04-25" {
     description
@@ -163,6 +169,25 @@ submodule openconfig-pf-forwarding-policies {
             uses oc-pmatch:ipv6-protocol-fields-top;
             uses oc-pmatch:transport-fields-top;
 
+            container network-instance {
+              description
+                "Container for parameters relating to match
+                rules for network-instance.";
+              container config {
+                description
+                  "Container for configuration parameters relating to
+                  match rules for network-instance.";
+                uses pf-forwarding-policy-rule-ni-config;
+              }
+              container state {
+                config false;
+                description
+                  "Container for state parameters relating to
+                  match rules for network-instance.";
+                uses pf-forwarding-policy-rule-ni-config;
+              }
+            }
+
             container action {
               description
                 "The forwarding policy action to be applied for
@@ -249,6 +274,19 @@ submodule openconfig-pf-forwarding-policies {
       type oc-yang:counter64;
       description
         "Bytes matched by the rule.";
+    }
+  }
+
+  grouping pf-forwarding-policy-rule-ni-config {
+    description
+      "Forwarding policy rules for network-instance matching.";
+
+    leaf input-match-all {
+      type boolean;
+      default false;
+      description
+        "If set to true, all packets received on a network instance
+        are matched by this rule.";
     }
   }
 
