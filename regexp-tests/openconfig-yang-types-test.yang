@@ -5,6 +5,19 @@ module openconfig-yang-types-test {
   import pattern-test { prefix "pt"; }
   import openconfig-yang-types { prefix "oc-yang"; }
 
+  leaf hex-string-prefixed {
+    type oc-yang:hex-string-prefixed;
+    pt:pattern-test-pass "0x0000";
+    pt:pattern-test-pass "0xffff";
+    pt:pattern-test-pass "0xFFFF";
+    pt:pattern-test-pass "0x0123456789abcdefABCDEF";
+    pt:pattern-test-pass "0xFEDCBAfedcba9876543210";
+    pt:pattern-test-fail "0xg";
+    pt:pattern-test-fail "0xG";
+    pt:pattern-test-fail "0x0123456789abcdefABCDEFG";
+    pt:pattern-test-fail "0xFED0xba9876543210";
+  }
+
   leaf hex-string {
     type oc-yang:hex-string;
     pt:pattern-test-pass "00000";
