@@ -24,7 +24,13 @@ module openconfig-optical-attenuator {
     for variable optical attenuators, deployed as part of a transport
     line system.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2024-07-10" {
+    description
+      "Adding SYSTEM_CONTROLLED mode with accompanying leaves";
+    reference "0.2.0";
+  }
 
   revision "2019-07-19" {
     description
@@ -60,6 +66,12 @@ module openconfig-optical-attenuator {
       base OPTICAL_ATTENUATOR_MODE;
       description
         "Constant attenuation mode";
+  }
+
+  identity SYSTEM_CONTROLLED {
+      base OPTICAL_ATTENUATOR_MODE;
+      description
+        "System controls the attenuation value.";
   }
 
 
@@ -112,6 +124,28 @@ module openconfig-optical-attenuator {
          maintain constant output power.  When false, the attenuator is set
          max attenuation or blocked.";
     }
+
+    leaf max-output-power {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The max power level allowed on the output of attenuator. This leaf
+        is optional when in SYSTEM_CONTROLLED mode.";
+    }
+
+    leaf max-output-power-threshold {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dB;
+      description
+        "If the system-derived-target-output-power is equal to or greater than
+        'max-output-power + max-output-power-threshold', a device alarm will
+        be raised within /system/alarms. This leaf is only relevant when
+        in SYSTEM_CONTROLLED mode.";
+    }
   }
 
   grouping optical-attenuator-state {
@@ -150,6 +184,15 @@ module openconfig-optical-attenuator {
         port. This leaf is only valid for ports of type EGRESS.";
     }
 
+    leaf system-derived-target-output-power {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The target output power as determined by the device.
+        This leaf is only relevant when in SYSTEM_CONTROLLED mode.";
+    }
 
     container actual-attenuation {
       description
