@@ -325,4 +325,26 @@ submodule openconfig-bgp-common-structure {
     }
   }
 
+  grouping bgp-common-structure-link-bw {
+    description
+      "Structural grouping used to include link bandwidth configuration and
+      state for BGP neighbors, peer groups and global.";
+
+    container link-bw {
+      description
+        "Parameters relating to BGP link bandwidth.";
+      container config {
+        description
+          "Configuration parameters relating to link bandwidth.";
+        uses bgp-common-link-bw-config;
+      }
+      container state {
+        config false;
+        description
+          "State information parameters relating to link bandwidth.";
+        uses bgp-common-link-bw-config;
+      }
+    }
+  }
+
 }

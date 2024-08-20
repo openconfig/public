@@ -703,7 +703,7 @@ submodule openconfig-bgp-common {
   grouping bgp-common-use-multiple-paths-link-bandwidth-config {
     description
       "Parameters controlling usage of  of DMZ Link-Bandwidth
-      extended community in pultipath RIB/FIB formation";
+      extended community in multipath RIB/FIB formation";
 
     leaf enabled {
       type boolean;
@@ -716,41 +716,42 @@ submodule openconfig-bgp-common {
         if maximum-path attribute of BGP multi-path value is set
         to 1";
     }
+  }
 
-    leaf cumulative {
+  grouping bgp-common-link-bw-config {
+    description
+      "Configuration parameters relating to link-bandwidth for BGP.";
+    reference
+      "https://datatracker.ietf.org/doc/draft-ietf-bess-ebgp-dmz/05";
+
+    leaf send-cumulative {
       type boolean;
-      when "../enabled = 'TRUE'";
       description
         "When set to TRUE, and sending of link-bandwidth community values
         is enabled, the system will sum the bgp link-bandwidth community
-        values for equal cost paths as defined in draft-ietf-bess-ebgp-dmz.";
-      reference
-        "https://datatracker.ietf.org/doc/draft-ietf-bess-ebgp-dmz/";
+        values for equal cost paths as defined in
+        draft-ietf-bess-ebgp-dmz-05.";
     }
 
-    leaf non-transitive {
+    leaf non-transitive-ebgp {
       type boolean;
-      when "../enabled = 'TRUE'";
+      when "../send-cumulative = 'TRUE'";
       description
         "When set to TRUE and sending of link-bandwidth community values is
-        enabled, the system will send the link-bandwidth community to eBGP
-        peers.";
-      reference
-        "https://datatracker.ietf.org/doc/draft-ietf-bess-ebgp-dmz/";
+        enabled, the system will send the non-transitive link-bandwidth
+        community learned from iBGP peers to eBGP peers.";
     }
 
-    leaf equal {
+    leaf divide {
       type boolean;
-      when "../enabled = 'TRUE'";
+      when "../send-cumulative = 'TRUE'";
       description
         "When set to TRUE, and sending of link-bandwidth community values
-        is enabled, the system divide the summed bandwidth equally across
-        available paths as defined in draft-ietf-bess-ebgp-dmz.";
-      reference
-        "https://datatracker.ietf.org/doc/draft-ietf-bess-ebgp-dmz/";
+        is enabled, the system divides the summed bandwidth equally across
+        available paths as defined in draft-ietf-bess-ebgp-dmz-05.";
     }
-
   }
+
 
   grouping bgp-common-use-multiple-paths-ebgp-config {
     description
