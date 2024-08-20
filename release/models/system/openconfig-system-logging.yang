@@ -23,7 +23,13 @@ module openconfig-system-logging {
     "This module defines configuration and operational state data
     for common logging facilities on network systems.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+revision "2024-08-20" {
+    description
+      "Adding tls support for syslog.";
+    reference "0.7.0";
+  }
 
 revision "2023-07-20" {
     description
@@ -428,6 +434,22 @@ revision "2023-07-20" {
       description
         "Sets the destination port number for syslog UDP messages to
         the server.  The default for syslog is 514.";
+    }
+
+    leaf transport-security {
+      type boolean;
+      description
+      "Indicates if syslog transport layer security (TLS) is enabled.";
+    }
+
+    leaf tls-profile-id {
+      type string;
+      description
+        "The ID of this syslog server's TLS profile.  TLS profiles are managed
+        using the gNSI Certz service or other certificate management service
+        provided by the system.";
+      reference
+        "https://github.com/openconfig/gnsi/tree/main/certz";
     }
   }
 
