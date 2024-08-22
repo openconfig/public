@@ -47,7 +47,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.2.0";
+
+  revision "2024-08-21" {
+    description
+      "Added mount-point type leaf to describe the type of file system.";
+    reference "2.2.0";
+  }
 
   revision "2024-07-15" {
     description
@@ -377,6 +383,26 @@ module openconfig-system {
       units megabytes;
       description
         "The amount of space currently in use on the filesystem.";
+    }
+
+    leaf type {
+      type enumeration {
+        enum FLASH {
+          description
+            "The storage type for the mount point is flash memory
+            based.";
+        }
+        enum HDD {
+          description
+            "The storage type for the mount point is hard disk
+            based.";
+        }
+        enum NETWORK {
+          description
+            "The storage type for the mount point is a remotely
+            connected network storage.";
+        }
+      }
     }
   }
 
