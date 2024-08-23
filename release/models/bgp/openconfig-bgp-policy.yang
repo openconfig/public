@@ -30,10 +30,10 @@ module openconfig-bgp-policy {
 
   oc-ext:openconfig-version "8.0.0";
 
-  revision "2024-08-15" {
+  revision "2024-08-23" {
     description
-      "Separate the ability to set the BGP MED into a distinct value
-      with optional action.";
+      "Separate the ability to set the BGP MED along with an appropriate
+      action.";
     reference "8.0.0";
   }
 
@@ -228,14 +228,17 @@ module openconfig-bgp-policy {
     description
       "Type definition for specifying how the BGP MED can be set in BGP
       policy actions.  The MED can be specified as a direct integer
-      value or setting it to the IGP cost.  When set to the integer
-      value without a MED 'action', the value will be explicitly set.
-      If a MED 'action' is defined, the previous value will be modified
-      according to the action (e.g. ADD or SUBTRACT).";
+      value or setting it to the IGP cost.  To be used in conjunction
+      with `bgp-set-med-action` in order to specify the appropriate
+      action to take on this value.";
   }
 
   typedef bgp-set-med-action {
     type enumeration {
+      enum SET {
+        description
+          "Action to set the MED to a specific value.";
+      }
       enum ADD {
         description
           "Action to increment the previous MED value.";
@@ -246,8 +249,8 @@ module openconfig-bgp-policy {
       }
     }
     description
-      "If specified, this action will alter a previous MED value by the
-      value defined by the bgp-set-med-type.";
+      "Specifies which action to take on the value specified by the
+      bgp-set-med-type.";
   }
 
   // grouping statements
@@ -1366,17 +1369,24 @@ module openconfig-bgp-policy {
 
     leaf set-med {
       type bgp-set-med-type;
+      must "../set-med-action" {
+        error-message
+          "set-med cannot be specified without a valid set-med-action";
+      }
       description
-        "Set the MED metric attribute in the route update.  Can be used
-        in conjunction with 'set-med-action' in order to alter a
-        previous value by the value specified here.";
+        "Set the MED metric attribute in the route update.  When set, a
+        valid `set-med-action` must be specified.";
     }
 
     leaf set-med-action {
       type bgp-set-med-action;
+      must "../set-med" {
+        error-message
+          "set-med-action cannot be specified without a set-med value";
+      }
       description
-        "Optionally used in conjunction with 'set-med' to alter a
-        previous value.";
+        "When set-med is specified, this leaf is mandatory to set the
+        appropriate action on the MED metric value.";
     }
   }
 
