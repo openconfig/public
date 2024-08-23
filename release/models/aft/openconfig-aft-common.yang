@@ -485,7 +485,10 @@ submodule openconfig-aft-common {
       type oc-inet:port-number;
       description
         "Source UDP port number to use for the UDP header of the encapsulated
-         packet.";
+         packet.  The source UDP port should be derived from the payload
+         packet entropy.  The extact methodology is implementation dependent,
+         but for example, the port could be derived from an entropy hash of
+         the payload or the source port (if present) of the payload.";
     }
 
     leaf dst-udp-port {
