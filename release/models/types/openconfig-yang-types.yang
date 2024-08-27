@@ -32,7 +32,13 @@ module openconfig-yang-types {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2024-05-30" {
+    description
+      "Add hex-string-prefixed typedef";
+    reference "1.0.0";
+  }
 
   revision "2021-07-14" {
     description
@@ -109,12 +115,26 @@ module openconfig-yang-types {
   }
 
   typedef hex-string {
+    status deprecated;
     type string {
       pattern '[0-9a-fA-F]*';
       oc-ext:posix-pattern '^[0-9a-fA-F]*$';
     }
     description
-      "A string consisting of a hexadecimal characters.";
+      "A string consisting of a hexadecimal characters.  This leaf is
+      deprecated and will removed in a future version of this model.
+      The type hex-string-prefixed should be used instead.";
+  }
+
+  typedef hex-string-prefixed {
+    type string {
+      pattern '(0x)([0-9a-fA-F]{2})*';
+      oc-ext:posix-pattern '^(0x)([0-9a-fA-F]{2})*$';
+      length "3..max";
+    }
+    description
+      "A string encoding a hexadecimal number with a prefix of '0x' followed
+      by a list of bytes.";
   }
 
   typedef counter32 {
