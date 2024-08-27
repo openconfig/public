@@ -48,17 +48,45 @@ module openconfig-platform-storage {
   // grouping statements
   grouping storage-counters-state {
     description
-      "Operational state for storage component statistics.";
+      "Operational state for storage component statistics.  These leaves
+      are derived from a list of commonly supported S.M.A.R.T. counters.
+      Note that while common, these attributes may not be supported by
+      all storage device vendors and media types.";
 
-    leaf io-errors {
+    leaf soft-read-error-rate {
       type oc-yang:counter64;
       description
-        "This values increments when an I/O request completes with a
-         failure.  This value corresponds to 'discard I/Os' on the linux
-         kernel block layer statistics.  Non-linux implementations should
-         report a count of I/O operations which can not be completed due
-         to an error accessing the storage device.";
+        "Uncorrected read errors reported to the operating system. SMART ID
+        201.";
     }
+
+    leaf reallocated-sectors {
+        type oc-yang:counter64;
+        description
+          "Count of reallocated sectors. The raw value represents a count of
+          the bad sectors that have been found and remapped. SMART ID 5.";
+        reference
+          "S.M.A.R.T. Attribute: Reallocated Sectors Count | Knowledge Base -
+          kb.acronis.com";
+    }
+
+    leaf end-to-end-error {
+      type oc-yang:counter64;
+      description 
+        "Count of parity errors which occur in the data path to the media.
+        SMART ID 184.";
+      reference
+        "Acronis Drive Monitor: Disk Health Calculation Knowledge Base -
+        kb.acronis.com";
+    }
+
+    leaf offline-uncorrectable-sectors-count {
+      type oc-yang:counter64;
+      description
+        "The total count of uncorrectable errors when reading/writing a
+        sector. SMART ID 198."
+    } 
+
   }
 
   grouping storage-state {
