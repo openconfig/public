@@ -47,7 +47,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.0.0";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2024-07-15" {
+    description
+      "Added auth key reference in ntp server configuration.";
+    reference "2.1.0";
+  }
 
   revision "2023-12-20" {
     description
@@ -747,6 +753,14 @@ module openconfig-system {
       type oc-inet:ip-address;
       description
         "Source address to use on outgoing NTP packets";
+    }
+
+    leaf key-id {
+      type leafref {
+        path "../../../../ntp-keys/ntp-key/key-id";
+      }
+      description
+        "Reference to NTP authentication key for this server.";
     }
   }
 

@@ -40,7 +40,21 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.10.0";
+
+  revision "2024-06-07" {
+   description
+      "Add new vni-list leaf list to EVI config to support VLAN-aware-bundle
+      MACVRFs.  Make existing vni leaf conditional on MACVRF type being VLAN-based";
+   reference   "0.10.0";
+  }
+
+  revision "2024-05-14" {
+   description
+     "Add configuration of VPWS identifier
+     for EVPN Virtual Private Wire Services (RFC 8214)";
+     reference   "0.9.0";
+  }
 
   revision "2024-04-03" {
    description
@@ -555,6 +569,30 @@ module openconfig-evpn {
             draft-ietf-bess-rfc7432bis-05 BGP MPLS-Based
              Ethernet VPN";
     }
+
+    leaf local-vpws-service-id {
+      type uint32 {
+        range "1..16777215";
+      }
+      description
+        "Indicates the local VPWS identifier assigned
+         to the Attachment Circuit (AC).";
+      reference
+        "RFC8214 Virtual Private Wire Service Support
+        in Ethernet VPN.";
+    }
+
+    leaf remote-vpws-service-id {
+      type uint32 {
+        range "1..16777215";
+      }
+      description
+        "Indicates the remote VPWS identifier assigned
+         to the Attachment Circuit (AC).";
+      reference
+        "RFC8214 Virtual Private Wire Service Support
+        in Ethernet VPN.";
+    }
   }
 
   grouping evpn-import-export-config {
@@ -645,10 +683,25 @@ module openconfig-evpn {
       Using Ethernet VPN";
 
     leaf vni {
+      when "../../../config/service-type = 'oc-evpn-types:VLAN_BASED' or
+            ../../../config/service-type = 'oc-evpn-types:VLAN_BUNDLE'" {
+        description
+          "For VLAN-based and VLAN-bundle EVIs, use a single VNI";
+      }
       type oc-evpn-types:vni-id;
       description
         "Virtual Network Identifier (VNI) associated to the EVI. This VNI is used for
         ingress and egress in the VXLAN domain.";
+    }
+
+    leaf-list vni-list {
+      when "../../../config/service-type = 'oc-evpn-types:VLAN_AWARE'" {
+        description
+          "For VLAN-aware-bundle EVIs, use a list of VNIs";
+      }
+      type oc-evpn-types:vni-id;
+      description
+        "List of VNIs participating in a VLAN-aware-bundle EVI";
     }
 
     leaf overlay-endpoint-network-instance {
