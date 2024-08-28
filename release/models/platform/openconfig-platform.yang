@@ -546,8 +546,9 @@ module openconfig-platform {
     }
 
     leaf model-name {
-      type string;
-      description
+      when "../removable = 'true'" {
+        type string;
+        description
         "The hardware model name of a component. This is the hardware
         name that would be found in a device catalog and is often the
         orderable name of the component. This is required for all FRU
