@@ -40,21 +40,7 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.11.0";
-
-  revision "2024-08-14" {
-   description
-      "Add new local-endpoint-vnis config container to Vxlan connection point to allow
-      configuration of local VNI-to-VLAN and VNI-to-VRF maps";
-   reference   "0.11.0";
-  }
-
-  revision "2024-06-07" {
-   description
-      "Add new vni-list leaf list to EVI config to support VLAN-aware-bundle
-      MACVRFs.  Make existing vni leaf conditional on MACVRF type being VLAN-based";
-   reference   "0.10.0";
-  }
+  oc-ext:openconfig-version "0.9.0";
 
   revision "2024-05-14" {
    description
@@ -690,25 +676,10 @@ module openconfig-evpn {
       Using Ethernet VPN";
 
     leaf vni {
-      when "../../../config/service-type = 'oc-evpn-types:VLAN_BASED' or
-            ../../../config/service-type = 'oc-evpn-types:VLAN_BUNDLE'" {
-        description
-          "For VLAN-based and VLAN-bundle EVIs, use a single VNI";
-      }
       type oc-evpn-types:vni-id;
       description
         "Virtual Network Identifier (VNI) associated to the EVI. This VNI is used for
         ingress and egress in the VXLAN domain.";
-    }
-
-    leaf-list vni-list {
-      when "../../../config/service-type = 'oc-evpn-types:VLAN_AWARE'" {
-        description
-          "For VLAN-aware-bundle EVIs, use a list of VNIs";
-      }
-      type oc-evpn-types:vni-id;
-      description
-        "List of VNIs participating in a VLAN-aware-bundle EVI";
     }
 
     leaf overlay-endpoint-network-instance {
@@ -1053,45 +1024,11 @@ module openconfig-evpn {
           config false;
           description
             "Container for state parameters related to this L2VNI or L3VNI";
-          uses evpn-endpoint-vni-config;
           uses evpn-endpoint-vni-state;
         }
 
         uses ipv4-top;
         uses ipv6-top;
-      }
-    }
-
-    container local-endpoint-vnis {
-      description
-        "Top level container for local configuration related to Layer 2 virtual
-        network identifiers (L2VNIs) and Layer 3 virtual network identifiers
-        (L3VNIs) in the default network instance";
-
-      list local-endpoint-vni {
-        key "vni";
-        description "List of L2VNIs and L3VNIs configured on the local VTEP";
-
-        leaf vni {
-          type leafref {
-            path '../config/vni';
-          }
-          description "L2VNI or L3VNI Identifier";
-        }
-
-        container config {
-          description
-            "Container for configuration parameters related to this local L2VNI or
-            L3VNI";
-          uses evpn-endpoint-vni-config;
-        }
-
-        container state {
-          config false;
-          description
-            "Container for state parameters related to this local L2VNI or L3VNI";
-          uses evpn-endpoint-vni-config;
-        }
       }
     }
   }
@@ -1238,51 +1175,15 @@ module openconfig-evpn {
     }
   }
 
-  grouping evpn-endpoint-vni-config {
+  grouping evpn-endpoint-vni-state {
     description
-      "Grouping for L2VNI and L3VNI configuration parameters";
+      "Grouping for L2VNI and L3VNI state information learned on the
+      local VXLAN Tunnel End Point from remote VTEPs";
 
     leaf vni {
       type oc-evpn-types:evi-id;
       description "L2VNI or L3VNI Identifier";
     }
-
-    leaf vni-type {
-      type enumeration {
-        enum L2 {
-          description
-            "This is a Layer 2 service virtual network identifier (L2VNI)
-            that is used for communication within the same subnet or
-            broadcast domain";
-        }
-        enum L3 {
-          description
-            "This is a Layer 3 service virtual network identifier (L3VNI)
-            or VRF VNI that is used for communication between subnets";
-        }
-      }
-      description "The type of virtual network identfier";
-    }
-
-    leaf bridge-domain {
-      type uint32;
-      description
-        "This reflects the configured VLAN or Bridge Domain that maps to this
-        L2VNI in the VXLAN fabric";
-    }
-
-    leaf l3-vrf-name {
-      type string;
-      description
-        "This refects the configured VRF instance that maps to this L3VNI
-        that is used for routing between subnets in the VXLAN fabric";
-    }
-  }
-
-  grouping evpn-endpoint-vni-state {
-    description
-      "Grouping for L2VNI and L3VNI state information learned on the
-      local VXLAN Tunnel End Point from remote VTEPs";
 
     leaf multidestination-traffic {
       type union {
@@ -1315,6 +1216,23 @@ module openconfig-evpn {
       description
         "Indicates whether the learning mode for this VNI is either
         control-plane or data-plane";
+    }
+
+    leaf vni-type {
+      type enumeration {
+        enum L2 {
+          description
+            "This is a Layer 2 service virtual network identifier (L2VNI)
+            that is used for communication within the same subnet or
+            broadcast domain";
+        }
+        enum L3 {
+          description
+            "This is a Layer 3 service virtual network identifier (L3VNI)
+            or VRF VNI that is used for communication between subnets";
+        }
+      }
+      description "The type of virtual network identfier";
     }
 
     leaf vni-state {
@@ -1350,5 +1268,20 @@ module openconfig-evpn {
         "Operational status of the SVI mapped to the L3VNI that is used for
         routing between subnets in the VXLAN fabric";
     }
+
+    leaf bridge-domain {
+      type uint32;
+      description
+        "This reflects the configured VLAN or Bridge Domain that maps to this
+        L2VNI in the VXLAN fabric";
+    }
+
+    leaf l3-vrf-name {
+      type string;
+      description
+        "This refects the configured VRF instance that maps to this L3VNI
+        that is used for routing between subnets in the VXLAN fabric";
+    }
+
   }
 }
