@@ -224,50 +224,107 @@ submodule openconfig-aft-common {
         container ip-in-ip {
           description
             "When specified, the packet has an IP-in-IP header applied to it before
-            forwarding to the specified next-hop.";
+            forwarding to the specified next-hop.  This node is deprecated and
+            the encap-headers/encap-header tree should be used instead.";
+          status deprecated;
 
           container state {
             config false;
+            status deprecated;
             description
               "State parameters relating to IP-in-IP encapsulation.";
-            uses aft-common-entry-nexthop-ipip-state;
+            uses aft-common-entry-nexthop-ip-state;
           }
         }
 
         container gre {
           description
             "When specified, the packet has an GRE
-            (Generic Routing Encapsulation)header applied to
+            (Generic Routing Encapsulation) header applied to
             it before forwarding to the specified next-hop.
             encapsulate-header leaf should be set to GRE for this
-            to apply";
+            to apply.
+            This node is deprecated and the encap-headers/encap-header tree
+            should be used instead.";
+          status deprecated;
 
           container state {
             config false;
             description
               "State parameters relating to GRE encapsulation.";
+            status deprecated;
             uses aft-common-entry-nexthop-gre-state;
           }
         }
 
-        container mpls-in-udp {
+        container encap-headers {
           description
-            "Container for mpls-in-udp encapsulation state attributes. The
-            attributes are used when encapsulate-header is set to
-            openconfig-aft-types:MPLS_IN_UDPV(4|6), causing a the device to
-            add a MPLS in UDP header to a packet before forwarding to the
-            specified next-hop.";
+            "Container for packet encapsulation headers.  When present, this
+            container indicates that encapsulation of the packet matching the
+            next-hop is performed using a stack of one or more packets defined
+            in the list encap-header.";
+          list encap-header {
+            key "index";
 
-          container state {
-            config false;
-            description
-              "State parameters relating to MPLS-in-UDP encapsulation.";
-            uses aft-common-entry-nexthop-mplsudp-state;
+            leaf index {
+              type leafref {
+                path "../state/index";
+              }
+              description
+                "A unique index identifying an encapsulation header in a stack
+                of encapsulation headers. The first entry in the list is the
+                inner-most packet at the bottom of the stack.
+
+                For example, in an encapsulation stack with MPLS in UDP, the
+                first, index in the list is the MPLS packet and the second
+                index is UDP.";
+            }
+
+            container state {
+              description 
+                "State parameters relating to encapsulation headers.";
+              uses aft-common-nexthop-encap-headers-state;
+            }
+
+            container gre {
+              description 
+                "Container of nodes for GRE encapsulation.";
+
+              uses aft-common-entry-nexthop-gre-state;
+            }
+
+            container ip {
+              description 
+                "Container of nodes for IP encapsulation.";
+              uses aft-common-entry-nexthop-ip-state;
+            }
+
+            container mpls {
+              description 
+                "Container of nodes for IP encapsulation.";
+              uses aft-common-entry-nexthop-mpls-state;
+            }
+
+            container udp {
+              description 
+                "Container of nodes for UDP encapsulation.";
+              uses aft-common-entry-nexthop-udp-state;
+            }
           }
         }
 
         uses oc-if:interface-ref-state;
       }
+    }
+  }
+
+  grouping aft-common-nexthop-encap-headers-state {
+    description
+      "Operational state parameters relating to encapsulation headers.";
+    leaf index {
+      type uint8;
+      description 
+        "A pointer to an entry in an ordered list of encapsulation headers.";
     }
   }
 
@@ -379,13 +436,17 @@ submodule openconfig-aft-common {
     leaf-list pushed-mpls-label-stack {
       type oc-mplst:mpls-label-stack;
       ordered-by user;
+      status deprecated;
       description
         "The MPLS label stack imposed when forwarding packets to the
          next-hop. See the description of the type
          oc-mplst:mpls-label-stack for encoding rules.
 
          Note: a swap operation is reflected by entries in the
-         popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
+         popped-mpls-label-stack and pushed-mpls-label-stack nodes.
+         
+         This node is deprecated and the encap-headers/encap-header tree
+         should be used instead.";
     }
 
     leaf encapsulate-header {
@@ -411,9 +472,9 @@ submodule openconfig-aft-common {
     uses aft-common-install-protocol;
   }
 
-  grouping aft-common-entry-nexthop-ipip-state {
+  grouping aft-common-entry-nexthop-ip-state {
     description
-      "IP-in-IP encapsulation applied on a next-hop";
+      "IP encapsulation applied on a next-hop";
 
     leaf src-ip {
       type oc-inet:ip-address;
@@ -456,11 +517,33 @@ submodule openconfig-aft-common {
     }
   }
 
-  grouping aft-common-entry-nexthop-mplsudp-state {
+  grouping aft-common-entry-nexthop-mpls-state {
     description
-      "MPLS in UDP encapsulation applied on a IPv4 or IPv6 next-hop.  This
-      encapsulation is assumed to be using RFC 7510 - Encapsulating MPLS
-      in UDP.";
+      "MPLS encapsulation of a packet.";
+
+    leaf traffic-class {
+      type oc-mplst:mpls-tc;
+      description
+        "The value of the MPLS traffic class (TC) bits, formerly known as the
+         EXP bits.";
+    }
+
+    leaf-list pushed-mpls-label-stack {
+      type oc-mplst:mpls-label-stack;
+      ordered-by user;
+      description
+        "The MPLS label stack imposed when forwarding packets to the
+         next-hop. See the description of the type
+         oc-mplst:mpls-label-stack for encoding rules.
+
+         Note: a swap operation is reflected by entries in the
+         popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-udp-state {
+    description
+      "UDP encapsulation applied on top of a packet.";
 
     leaf src-ip {
       type oc-inet:ip-address;
@@ -495,7 +578,10 @@ submodule openconfig-aft-common {
       type oc-inet:port-number;
       description
         "Source UDP port number to use for the UDP header of the encapsulated
-         packet.";
+        packet. 
+        
+        When the payload packet is MPLS, then RFC 7510 - Encapsulating MPLS
+        in UDP should be followed.";
       reference
         "RFC 7510 - Encapsulating MPLS in UDP specifies that 6635 must be
         used for MPLS-in-UDP and 6636 must be used for MPLS-in-UDP with DTLS.
@@ -511,26 +597,6 @@ submodule openconfig-aft-common {
          not set, the TTL value of the inner packet is copied over as the
          outer packet's IP TTL value during encapsulation.";
     }
-
-    leaf traffic-class {
-      type oc-mplst:mpls-tc;
-      description
-        "The value of the MPLS traffic class (TC) bits, formerly known as the
-         EXP bits.";
-    }
-
-    leaf-list pushed-mpls-label-stack {
-      type oc-mplst:mpls-label-stack;
-      ordered-by user;
-      description
-        "The MPLS label stack imposed when forwarding packets to the
-         next-hop. See the description of the type
-         oc-mplst:mpls-label-stack for encoding rules.
-
-         Note: a swap operation is reflected by entries in the
-         popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
-    }
-
   }
 
   grouping aft-common-install-protocol {
