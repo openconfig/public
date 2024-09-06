@@ -24,7 +24,13 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "6.0.0";
+  oc-ext:openconfig-version "6.1.0";
+
+  revision "2024-09-06" {
+    description
+      "Restore NONE enum value for community-type.";
+    reference "6.1.0";
+  }
 
   revision "2024-02-01" {
     description
@@ -795,10 +801,8 @@ module openconfig-bgp-types {
       }
       enum NONE {
         description
-            "Do not send any community attribute.
-            This value has been deprecated because the node is now
-            a leaf-list.";
-        status deprecated;
+            "Do not send any community attribute. If this value is present
+            then no communities will be sent.";
       }
     }
     description
