@@ -262,8 +262,20 @@ submodule openconfig-aft-common {
             "Container for packet encapsulation headers.  When present, this
             container indicates that encapsulation of the packet matching the
             next-hop is performed using a stack of one or more packets defined
-            in the list encap-header.";
+            in the list encap-header.
+            
+            Each entry in the list must indicate an encapsulation type and 
+            populate a container with the parameters for that encapsulation
+            header.";
           list encap-header {
+            description
+              "A list of headers added on top of a packet.  The first entry
+              in the list is the inner-most packet at the bottom of the
+              stack.
+
+              For example, in an encapsulation stack with MPLS in UDP, the
+              first index in the list is the MPLS packet and the second
+              index is UDP.";
             key "index";
 
             leaf index {
@@ -272,12 +284,13 @@ submodule openconfig-aft-common {
               }
               description
                 "A unique index identifying an encapsulation header in a stack
-                of encapsulation headers. The first entry in the list is the
-                inner-most packet at the bottom of the stack.
+                of encapsulation headers.";
+            }
 
-                For example, in an encapsulation stack with MPLS in UDP, the
-                first, index in the list is the MPLS packet and the second
-                index is UDP.";
+            leaf type {
+              type oc-aftt:encapsulation-header-type;
+              description
+                "Defines which type of packet header should be used.";
             }
 
             container state {
@@ -287,6 +300,7 @@ submodule openconfig-aft-common {
             }
 
             container gre {
+              when "../type = 'oc-aftt:GRE'";
               description
                 "Container of nodes for GRE encapsulation.";
               container state {
@@ -296,9 +310,21 @@ submodule openconfig-aft-common {
               }
             }
 
-            container ip {
+            container ipv4 {
+              when "../type = 'oc-aftt:IPV4'";
               description
-                "Container of nodes for IP encapsulation.";
+                "Container of nodes for IPv4 encapsulation.";
+              container state {
+                description
+                  "State parameters relating to IP encapsulation headers.";
+                uses aft-common-entry-nexthop-ip-state;
+              }
+            }
+
+            container ipv6 {
+              when "../type = 'oc-aftt:IPV6'";
+              description
+                "Container of nodes for IPv6 encapsulation.";
               container state {
                 description
                   "State parameters relating to IP encapsulation headers.";
@@ -307,8 +333,9 @@ submodule openconfig-aft-common {
             }
 
             container mpls {
+              when "../type = 'oc-aftt:MPLS'";
               description
-                "Container of nodes for IP encapsulation.";
+                "Container of nodes for MPLS encapsulation.";
               container state {
                 description
                   "State parameters relating to MPLS encapsulation headers.";
@@ -317,6 +344,8 @@ submodule openconfig-aft-common {
             }
 
             container udp {
+              when "../type = 'oc-aftt:UDPV4' or " +
+              "../type = 'oc-aftt:UDPV6'";
               description
                 "Container of nodes for UDP encapsulation.";
               container state {
@@ -325,6 +354,7 @@ submodule openconfig-aft-common {
                 uses aft-common-entry-nexthop-udp-state;
               }
             }
+
           }
         }
 
