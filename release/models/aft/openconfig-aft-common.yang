@@ -471,12 +471,16 @@ submodule openconfig-aft-common {
     leaf pop-top-label {
       type boolean;
       default false;
+      status deprecated;
       description
         "Flag that controls pop action, i.e., the top-most MPLS label
          should be popped from the packet when switched by the system.
 
         The top-most MPLS label associated with pop action is equal to
-        the label key used in 'mpls' AFT 'label-entry' list.";
+        the label key used in 'mpls' AFT 'label-entry' list.
+
+        This node is deprecated and the encap-headers/encap-header tree
+        should be used instead.";
     }
 
     leaf-list pushed-mpls-label-stack {
@@ -572,6 +576,17 @@ submodule openconfig-aft-common {
       description
         "The value of the MPLS traffic class (TC) bits, formerly known as the
          EXP bits.";
+    }
+
+    leaf pop-top-label {
+      type boolean;
+      default false;
+      description
+        "Flag that controls pop action, i.e., the top-most MPLS label
+         should be popped from the packet when switched by the system.
+
+        The top-most MPLS label associated with pop action is equal to
+        the label key used in 'mpls' AFT 'label-entry' list.";
     }
 
     leaf-list pushed-mpls-label-stack {
