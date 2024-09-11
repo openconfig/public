@@ -349,6 +349,17 @@ submodule openconfig-aft-common {
               }
             }
 
+            container vxlan {
+              when "../state/type = 'oc-aftt:VXLAN'";
+              description
+                "Container of nodes for VXLAN encapsulation.";
+              container state {
+                description
+                  "State parameters relating to VXLAN encapsulation headers.";
+                uses aft-common-entry-nexthop-vxlan-state;
+              }
+            }
+
           }
         }
 
@@ -415,18 +426,26 @@ submodule openconfig-aft-common {
 
     leaf vni-label {
       type oc-evpn-types:evi-id;
+      status deprecated;
       description
         "Where applicable, the next hop label representing the virtual
         network identifier (VNI) for the forwarding entry. This leaf is
         applicable only to next-hops which include VXLAN encapsulation
-        header information";
+        header information.
+        
+        This leaf is deprecated.  The encap-headers/encap-header/xvlan tree
+        should be used instead.";
     }
 
     leaf tunnel-src-ip-address {
       type oc-inet:ip-address;
+      status deprecated;
       description
         "Where applicable this represents the vxlan tunnel source ip address.
-        For VXLAN this represents the source VTEP ip address";
+        For VXLAN this represents the source VTEP ip address.
+
+        This leaf is deprecated.  The encap-headers/encap-header/xvlan tree
+        should be used instead.";
     }
   }
 
@@ -661,6 +680,27 @@ submodule openconfig-aft-common {
          in the outer header during packet encapsulation. When this leaf is
          not set, the TTL value of the inner packet is copied over as the
          outer packet's IP TTL value during encapsulation.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-vxlan-state {
+    description
+      "VXLAN encapsulation applied on top of a packet.";
+
+    leaf vni-label {
+      type oc-evpn-types:evi-id;
+      description
+        "Where applicable, the next hop label representing the virtual
+        network identifier (VNI) for the forwarding entry. This leaf is
+        applicable only to next-hops which include VXLAN encapsulation
+        header information";
+    }
+
+    leaf tunnel-src-ip-address {
+      type oc-inet:ip-address;
+      description
+        "Where applicable this represents the vxlan tunnel source ip address.
+        For VXLAN this represents the source VTEP ip address";
     }
   }
 
