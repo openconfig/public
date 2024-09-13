@@ -65,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.27.0";
+  oc-ext:openconfig-version "0.28.0";
+
+  revision "2024-08-08" {
+    description
+      "Update description of model-name leaf.";
+    reference "0.28.0";
+  }
 
   revision "2024-05-29" {
     description
@@ -540,11 +546,13 @@ module openconfig-platform {
     }
 
     leaf model-name {
+      when "../removable = 'true' or ../type = 'oc-platform-types:CHASSIS'";
+      mandatory true;
       type string;
       description
-        "A human readable string describing the model of a component.
-        This string is optional and should only be populated if part-no
-        is also populated.";
+        "Model name that would be found in a catalog of stock keeping
+        units (SKU) and should be the orderable name of the
+        component.";
     }
 
     leaf clei-code {
