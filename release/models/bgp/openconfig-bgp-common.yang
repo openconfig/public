@@ -24,19 +24,25 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.7.1";
+  oc-ext:openconfig-version "9.8.0";
+
+  revision "2024-06-13" {
+    description
+      "Add link-bandwidth parameters for cumulative, non-transitive and equal.";
+    reference "9.8.0";
+  }
 
   revision "2023-12-28" {
     description
       "Clarification to last-prefix-limit-exceeded in description";
-          reference "9.7.1";
+    reference "9.7.1";
   }
 
   revision "2023-12-28" {
     description
       "Add support for controling use of link-bandwidth extended
       community for BGP multipath.";
-          reference "9.7.0";
+    reference "9.7.0";
   }
 
   revision "2023-11-02" {
@@ -696,20 +702,56 @@ submodule openconfig-bgp-common {
 
   grouping bgp-common-use-multiple-paths-link-bandwidth-config {
     description
-      "Parameters controlling usage of  of DMZ Link-Bandwidth
-      extended community in pultipath RIB/FIB formation";
+      "Parameters controlling usage of DMZ Link-Bandwidth
+      extended community in multipath RIB/FIB formation";
+
     leaf enabled {
       type boolean;
       description
-      "When set to TRUE, BGP multiplepath shall distributed traffic
-      load among contributing routes proportionally to value of
-      Local Administrator subfield of link-bandwidth extended
-      community [draft-ietf-idr-link-bandwidth-07].
-      This leaf has no effect if BGP multi-path is disabled or
-      if maximum-path attribute of BGP multi-path value is set
-      to 1";
+        "When set to TRUE, BGP multiplepath shall distributed traffic
+        load among contributing routes proportionally to value of
+        Local Administrator subfield of link-bandwidth extended
+        community [draft-ietf-idr-link-bandwidth-07].
+        This leaf has no effect if BGP multi-path is disabled or
+        if maximum-path attribute of BGP multi-path value is set
+        to 1";
     }
   }
+
+  grouping bgp-common-link-bw-config {
+    description
+      "Configuration parameters relating to link-bandwidth for BGP.";
+    reference
+      "https://datatracker.ietf.org/doc/draft-ietf-bess-ebgp-dmz/05";
+
+    leaf send-cumulative {
+      type boolean;
+      description
+        "When set to TRUE, and sending of link-bandwidth community values
+        is enabled, the system will sum the bgp link-bandwidth community
+        values for equal cost paths as defined in
+        draft-ietf-bess-ebgp-dmz-05.";
+    }
+
+    leaf non-transitive-ebgp {
+      type boolean;
+      when "../send-cumulative = 'TRUE'";
+      description
+        "When set to TRUE and sending of link-bandwidth community values is
+        enabled, the system will send the non-transitive link-bandwidth
+        community learned from iBGP peers to eBGP peers.";
+    }
+
+    leaf divide {
+      type boolean;
+      when "../send-cumulative = 'TRUE'";
+      description
+        "When set to TRUE, and sending of link-bandwidth community values
+        is enabled, the system divides the summed bandwidth equally across
+        available paths as defined in draft-ietf-bess-ebgp-dmz-05.";
+    }
+  }
+
 
   grouping bgp-common-use-multiple-paths-ebgp-config {
     description
