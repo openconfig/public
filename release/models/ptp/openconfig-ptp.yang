@@ -1,5 +1,6 @@
 module openconfig-ptp {
-  yang-version 1.1;
+
+  yang-version "1";
 
   namespace "http://openconfig.net/yang/ptp";
 
@@ -74,13 +75,15 @@ module openconfig-ptp {
     Copyright (c) 2020 by The Institute of Electrical and Electronics
     Engineers, Inc. All rights reserved.";
 
-  revision 2024-05-01 {
+  oc-ext:openconfig-version "1.0.0";
+
+  revision 2024-09-17 {
     description
-      "Initial revision.";
+      "Initial revision. IEEE Std 1588e-XXXX, IEEE Standard for a Precision
+      Clock Synchronization Protocol for Networked Measurement and Control
+      Systems - MIB and YANG Data Models.";
     reference
-      "IEEE Std 1588e-XXXX, IEEE Standard for a Precision Clock
-      Synchronization Protocol for Networked Measurement and
-      Control Systems - MIB and YANG Data Models.";
+      "1.0.0";
   }
 
   grouping instance-config {
@@ -257,7 +260,7 @@ module openconfig-ptp {
 
     leaf time-source {
       type identityref {
-        base oc-ptp-types:time-source;
+        base oc-ptp-types:TIME_SOURCE;
       }
       description
         "The source of time used by the Grandmaster
@@ -271,15 +274,7 @@ module openconfig-ptp {
   grouping default-ds-config {
     description
       "Config state data of default data set of the clock";
-    container clock-quality {
-      description
-        "The IEEE Std 1588 clockQuality of the PTP Instance.
-        PTP Instances with better quality are more likely to
-        become the Grandmaster PTP Instance.";
-      reference
-        "8.2.1.3.1 of IEEE Std 1588-2019";
-      uses clock-quality-top;
-    }
+
     leaf priority1 {
       type uint8;
       description
@@ -417,7 +412,7 @@ module openconfig-ptp {
 
     leaf clock-class {
       type identityref {
-        base oc-ptp-types:clock-class;
+        base oc-ptp-types:CLOCK_CLASS;
       }
       description
         "The clockClass denotes the traceability of the time
@@ -429,7 +424,7 @@ module openconfig-ptp {
 
     leaf clock-accuracy {
       type identityref {
-        base oc-ptp-types:clock-accuracy;
+        base oc-ptp-types:CLOCK_ACCURACY;
       }
       description
         "The clockAccuracy indicates the accuracy of the clock
@@ -503,6 +498,26 @@ module openconfig-ptp {
           reference
             "8.2.1 of IEEE Std 1588-2019";
 
+          container clock-quality {
+              description
+                  "The IEEE Std 1588 clockQuality of the PTP Instance.
+                  PTP Instances with better quality are more likely to
+                  become the Grandmaster PTP Instance.";
+              reference
+                  "8.2.1.3.1 of IEEE Std 1588-2019";
+
+              container config {
+                  description
+                      "Config state data of clock-quality";
+                  uses clock-quality-top;
+              }
+              container state {
+                  config false;
+                  description
+                      "Operational state data of clock-quality";
+                  uses clock-quality-top;
+              }
+          }
           container config {
               description
                   "Config state data of default data set of the clock";
@@ -799,6 +814,9 @@ module openconfig-ptp {
   }
 
   grouping port-ds-config-top {
+    description
+      "Top-level container for configuration port data set of PTP Port.";
+
     leaf log-announce-interval {
       type int8;
       description
@@ -892,6 +910,9 @@ module openconfig-ptp {
   }
 
   grouping transparent-clock-default-ds-config-top {
+    description
+      "Top-level container for configuration default data set of transparent clock.";
+
     leaf delay-mechanism {
       type oc-ptp-types:delay-mechanism-enumeration;
       description
@@ -916,6 +937,9 @@ module openconfig-ptp {
     }
   }
   grouping transparent-clock-top {
+    description
+      "Top-level container for configuration and operational state data of transparent clock.";
+
     container transparent-clock-default-ds {
       description
         "This default data set was specified in
@@ -931,12 +955,20 @@ module openconfig-ptp {
         domain.";
       reference
         "8.3.1 of IEEE Std 1588-2019";
+
       container config {
+        description
+          "Top-level container for configuration data of transparent clock.";
         uses transparent-clock-default-ds-config-top;
       }
       container state {
+        description
+          "Top-level container for operational state data of transparent clock.";
+
         config false;
+
         uses transparent-clock-default-ds-config-top;
+
         leaf clock-identity {
           type oc-ptp-types:clock-identity;
           description
@@ -956,30 +988,75 @@ module openconfig-ptp {
     }
 
     container transparent-clock-ports {
+      description
+        "YANG container that is used to get all ports of the
+        IEEE Std 1588 transparentClockPortDS.
+        YANG does not allow get of all elements in a YANG list,
+        so a YANG container wrapping the YANG list is provided for
+        that purpose. The naming convention uses plural for the
+        wrapping YANG container, and singular for the YANG list.";
+
       list port {
+        description
+          "This list of Transparent Clock port data sets was specified
+          in IEEE Std 1588-2008, and under some interpretations,
+          it applied to all domains, which in turn means that it
+          represents multiple Transparent Clocks.
+          In IEEE Std 1588-2019, this list is specified as
+          applying to the PTP Node (all domains), but the list is
+          deprecated. For new designs, the standard recommends that
+          Transparent Clocks use the PTP Instance data sets
+          (i.e., /ptp/instances/instance[]), such that each
+          Transparent Clock supports a single PTP Instance
+          and domain.";
+        reference
+          "8.3.1 of IEEE Std 1588-2019";
         key "port-index";
         leaf port-index {
+          description
+            "The port list is indexed using a number that is
+            unique per PTP Port within the PTP Instance,
+            applicable to the management context only
+            (i.e., not used in PTP messages).";
           type leafref {
             path "../config/port-index";
           }
         }
 
         container config {
+          description
+            "Top-level container for configuration data of transparent clock port.";
           uses port-config-top;
         }
 
         container state {
+          description
+            "Top-level container for operational state data of transparent clock port.";
+          config false;
           uses port-config-top;
         }
 
         container port-ds {
+          description
+            "IEEE Std 1588 transparentClockPortDS.";
+          reference
+            "8.3.3 of IEEE Std 1588-2019";
+
           container config {
+            description
+              "Configuration data of transparent clock port data set.";
             uses transparent-port-ds-config-top;
           }
           container state {
+            description
+              "Operational state data of transparent clock port data set.";
             config false;
             uses transparent-port-ds-config-top;
             container port-identity {
+              description
+                "The IEEE Std 1588 portIdentity of this port.";
+              reference
+                "8.3.3.2.1 of IEEE Std 1588-2019";
               uses port-identity;
             }
             leaf peer-mean-path-delay {
@@ -998,6 +1075,8 @@ module openconfig-ptp {
   }
 
   grouping transparent-port-ds-config-top {
+    description
+      "Top-level container for configuration port data set of transparent clock port.";
     leaf log-min-pdelay-req-interval {
       type int8;
       description
@@ -1083,6 +1162,8 @@ module openconfig-ptp {
             description
               "Current data set state data of PTP instance.";
             container state {
+              description
+                "Operational state current data set of PTP instance.";
               config false;
               uses current-ds-state;
             }
@@ -1091,10 +1172,14 @@ module openconfig-ptp {
             description
               "Time properties data set of PTP instance.";
             container config {
+              description
+                "Configuration data of time properties data set.";
               uses time-properties-ds-state;
             }
 
             container state {
+              description
+                "Operational state data of time properties data set.";
               config false;
               uses time-properties-ds-state;
             }

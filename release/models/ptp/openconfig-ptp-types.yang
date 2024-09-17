@@ -1,18 +1,11 @@
 module openconfig-ptp-types {
+
   yang-version "1";
 
   // namespace
   namespace "http://openconfig.net/yang/ptp-types";
 
   prefix "oc-ptp-types";
-
-  import ietf-interfaces {
-    prefix if;
-  }
-
-  import ietf-inet-types {
-    prefix inet;
-  }
 
   import openconfig-extensions {
     prefix oc-ext;
@@ -34,12 +27,12 @@ module openconfig-ptp-types {
     Copyright (c) 2020 by The Institute of Electrical and Electronics
     Engineers, Inc. All rights reserved.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "1.0.0";
 
-  revision 2024-01-22 {
+  revision 2024-09-17 {
       description
           "Initial Public Version";
-      reference "0.1.0";
+      reference "1.0.0";
   }
 
   // extension statements
@@ -48,7 +41,7 @@ module openconfig-ptp-types {
 
   // identity statements
 
-  identity time-source {
+  identity TIME_SOURCE {
     description
       "Enumeration for the source of time used by the Grandmaster
       PTP Instance.
@@ -58,7 +51,7 @@ module openconfig-ptp-types {
       "7.6.2.8 of IEEE Std 1588-2019";
   }
 
-  identity clock-class {
+  identity CLOCK_CLASS {
     description
       "Enumeration that denotes the traceability, synchronization
       state and expected performance of the time or frequency
@@ -72,7 +65,7 @@ module openconfig-ptp-types {
       "7.6.2.5 of IEEE Std 1588-2019";
   }
 
-  identity clock-accuracy {
+  identity CLOCK_ACCURACY {
     description
       "Enumeration that indicates the expected accuracy of a
       PTP Instance when it is the Grandmaster PTP Instance,
@@ -93,6 +86,7 @@ module openconfig-ptp-types {
   typedef clock-identity {
     type string {
       pattern "[0-9A-F]{2}(-[0-9A-F]{2}){7}";
+      oc-ext:posix-pattern '^[0-9A-F]{2}(-[0-9A-F]{2}){7}$';
     }
     description
       "Identifies unique entities within a PTP Network,
@@ -133,12 +127,12 @@ typedef instance-type {
         description
           "Boundary Clock";
       }
-      enum P2P-TC {
+      enum P2P_TC {
         value 2;
         description
           "Peer-to-peer Transparent Clock";
       }
-      enum E2E-TC {
+      enum E2E_TC {
         value 3;
         description
           "End-to-end Transparent Clock";
