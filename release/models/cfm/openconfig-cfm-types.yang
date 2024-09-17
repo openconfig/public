@@ -1,0 +1,391 @@
+module openconfig-cfm-types {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/cfm-types";
+
+  prefix "oc-cfm-types";
+
+  // import some basic types
+  import ietf-yang-types { prefix yang; }
+  import openconfig-extensions { prefix oc-ext; }
+
+  // google
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    netopenconfig@googlegroups.com";
+
+  description
+    "This module contains general data definitions for use in CFM";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2024-09-11" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+typedef name-key-type {
+  type string {
+    length "1..255";
+    pattern '[0-9a-zA-Z\-_.]*';
+  }
+  description
+    "String type with at least 1 and up to 255 of the specified
+    characters.";
+}
+
+typedef config-error-type {
+    type enumeration {
+      enum CFM_LEAK {
+        description
+          "MA x is associated with a specific VID list, one or more of
+          the VIDs in MA x can pass through the Bridge Port, no Down MEP
+          is configured on any Bridge Port for MA x, and some other MA
+          y, at a higher MD Level than MA x, and associated with at
+          least one of the VID(s) also in MA x, does have a MEP
+          configured on the Bridge Port.";
+      }
+      enum CONFLICTING_VIDS {
+        description
+          "MA x is associated with a specific VID list, an Up MEP is
+          configured on MA x on the Bridge Port, and some other MA y,
+          associated with at least one of the VID(s) also in MA x, also
+          has an Up MEP configured on some Bridge Port.";
+      }
+      enum EXCESSIVE_LEVELS {
+        description
+          "The number of different MD Levels at which MIPs are to be
+          created on this port exceeds the Bridge's capabilities.";
+      }
+      enum OVERLAPPED_LEVELS {
+        description
+          "A MEP is created for one VID at one MD Level, but a MEP is
+          configured on another VID at that MD Level or higher,
+          exceeding the Bridge's capabilities.";
+      }
+    }
+    description
+      "While making the MIP creation evaluation described in 22.2.3, the
+      management entity can encounter errors in the configuration.";
+  }
+
+  typedef mep-id-type {
+   description
+      "Maintenance association End Point Identifier, which is unique
+      over a given Maintenance Association.";
+
+    type uint16 {
+      range "1..8191";
+    }
+  }
+
+  typedef remote-mep-state-type {
+    description
+     "Operational state of the remote MEP state machine. This state
+      machine monitors the reception of valid CCMs from a remote MEP
+      with a specific MEPID. It uses a timer that expires in 3.5 times
+      the length of time indicated by the MA's ccm-interval object.";
+
+    type enumeration {
+      enum RMEP_IDLE {
+        value 1;
+        description
+          "Momentary state during reset.";
+      }
+      enum RMEP_START {
+        value 2;
+        description
+          "The timer has not expired since the state machine was reset,
+          and no valid CCM has yet been received.";
+      }
+      enum RMEP_FAILED {
+        value 3;
+        description
+          "The timer has expired, both since the state machine was
+          reset, and since a valid CCM was received.";
+      }
+      enum RMEP_OK {
+        value 4;
+        description
+          "The timer has not expired since a valid CCM was received.";
+      }
+    }
+  }
+
+   typedef mep-defects-type {
+    type enumeration {
+      enum DEF_RDI_CCM {
+        value 1;
+        description
+          "A REMOTE MEP reported that RDI bit in its last CCM.";
+      }
+      enum DEF_MAC_STATUS {
+        value 2;
+        description
+          "Either some remote MEP is reporting its Interface Status TLV
+          as not isUp, or all remote MEPs are reporting a Port Status
+          TLV that contains some value other than psUp.";
+      }
+      enum DEF_REMOTE_CCM {
+        value 3;
+        description
+          "The MEP is not receiving valid CCMs from at least one of the
+          remote MEPs.";
+      }
+      enum DEF_ERROR_CCM {
+        value 4;
+        description
+          "The MEP has received at least one invalid CCM whose CCM
+          Interval has not yet timed out.";
+      }
+      enum DEF_XCON_CCM {
+        value 5;
+        description
+          "The MEP has received at last one CCM from either another MAID
+          or a lower MD level whose CCM Interval has not yet timed out.";
+      }
+    }
+    description
+      "A MEP can detect and report a number of defects, and multiple
+      defects can be present at the same time.";
+  }
+
+  typedef fng-state-type {
+    type enumeration {
+      enum FNG_RESET {
+        value 1;
+        description
+          "No defect has been present since the MEP's fng-reset-time
+          timer expired, or since the state machine was last reset.";
+      }
+      enum FNG_DEFECT {
+        value 2;
+        description
+          "A defect is present, but not for a long enough time to be
+          reported.";
+      }
+      enum FNG_REPORT_DEFECT {
+        value 3;
+        description
+          "A momentary state during which the defect is reported by
+          sending a fault-alarm notification, if that action is enabled.";
+      }
+      enum FNG_DEFECT_REPORTED {
+        value 4;
+        description
+          "A defect is present, and some defect has been reported.";
+      }
+      enum FNG_DEFECT_CLEARING {
+        value 5;
+        description
+          "No defect is present, but the MEP's fng-reset-time timer has
+          not yet expired.";
+      }
+    }
+    description
+      "Indicates the different states of the MEP Fault Notification
+      Generator State Machine.";
+  }
+
+  typedef operational-state-type {
+
+    type enumeration {
+      enum ENABLED {
+        description
+        "The MEP is able to provide OAM capabilities and has been set to
+        active via the 'administrative-state' leaf.";
+      }
+      enum DISABLED {
+        description
+          "The MEP is not able to provide OAM capabilities, for example
+          because it has been disabled via the administrative-state leaf,
+          has detected an operational failure condition, or has failed an
+          internal test.";
+      }
+      enum UNKNOWN {
+        description
+          "The MEP is unable to report the operational state.";
+        }
+      }
+    description
+      "This attribute indicates the operational state (current capability) of
+      a MEP.";
+    reference
+      "[MEF7.1] 9.2.5";
+  }
+
+    typedef fault-alarm-type {
+    type enumeration {
+      enum ADDRESS {
+        value 1;
+        description
+          "Indicates that a Network address to which Fault Alarms are to
+          be transmitted should be used.";
+      }
+      enum NOT_TRANSMITTED {
+        value 2;
+        description
+          "Indicates that Fault alarms are not to be transmitted.";
+      }
+    }
+    description
+      "The Fault Alarm indicators.";
+  }
+  typedef interface-status-type {
+
+    type enumeration {
+      enum NO_STATUS_TLV {
+        description "Indicates either that no CCM has been received or that
+        no interface status TLV was present in the last CCM received.";
+      }
+      enum UP {
+        description "The interface is ready to pass packets.";
+      }
+      enum DOWN {
+        description "The interface cannot pass packets.";
+      }
+      enum TESTING {
+        description "The interface is in some test mode.";
+      }
+      enum UNKNOWN {
+        description "The interface status cannot be determined for some reason.";
+      }
+      enum DORMANT {
+        description "The interface is not in a state to pass packets but is in
+        a pending state, waiting for some external event.";
+      }
+      enum NOT_PRESENT {
+        description "Some component of the interface is missing.";
+      }
+      enum LOWER_LAYER_DOWN {
+        description "The interface is down due to state of the lower layer
+        interfaces.";
+      }
+    }
+    description
+      "The set of values available from the Interface Status TLV in CCM PDUs
+      including the default no-status-tlv";
+    reference
+      "[802.1q] 20.19.4, 12.14.7.6.3:g
+      IEEE8021-CFM-MIB.Dot1agCfmInterfaceStatus";
+    }
+
+  typedef port-status-type {
+    type enumeration {
+      enum NO_STATUS_TLV {
+        description "Indicates either that no CCM has been received or that
+        no port status TLV was present in the last CCM received.";
+      }
+      enum BLOCKED {
+        description "Ordinary data cannot pass freely through the port on
+        which the remote MEP resides. Value of enableRmepDefect
+        is equal to false.";
+      }
+      enum UP {
+        description "Ordinary data can pass freely through the port on which
+        the remote MEP resides. Value of enableRmepDefect is
+        equal to true.";
+      }
+    }
+    description
+      "The set of values available from the Port Status TLV in CCM PDUs
+      including the default no-status-tlv";
+    reference
+      "[802.1q] 20.19.3, 12.14.7.6.3:f
+      IEEE8021-CFM-MIB.Dot1agCfmPortStatus";
+  }
+
+  typedef highest-defect-priority-type {
+    type enumeration {
+      enum NONE {
+        value 0;
+        description
+          "No defects since Fault Notification Generator state machine
+          reset.";
+      }
+      enum DEF_RDI_CCM {
+        value 1;
+        description
+          "The last CCM received by this MEP from some remote MEP
+          contained the RDI bit set.";
+      }
+      enum DEF_MAC_STATUS {
+        value 2;
+        description
+          "The last CCM received by this MEP from some remote MEP
+          indicating that the transmitting MEP's associated MAC is
+          reporting its status via the Port Status TLV or Interface
+          Status TLV.";
+      }
+      enum DEF_REMOTE_CCM {
+        value 3;
+        description
+          "This MEP is not receiving CCMs from some other MEP in its
+          configured list.";
+      }
+      enum DEF_ERROR_CCM {
+        value 4;
+        description
+          "This MEP is receiving invalid CCMs.";
+      }
+      enum DEF_XCON_CCM {
+        value 5;
+        description
+          "This MEP is receiving CCMs that could be from some other MA.";
+      }
+    }
+    description
+      "An enumerated value, equal to the contents of the variable
+      highestDefect (20.35.9 and Table 20-1), indicating the
+      highest-priority defect that has been present since the MEP Fault
+      Notification Generator State Machine was last in the FNG_RESET
+      state. The integer value assigned to the enum value determines the
+      priority. The higher value corresponds to the higher priority.";
+  }
+  typedef lowest-alarm-priority-type {
+    type enumeration {
+      enum ALL_DEF {
+        value 1;
+        description
+          "Includes def_rdi-ccm, def_mac_status, def_remote_ccm,
+          def_error_ccm, and def_xcon_ccm.";
+      }
+      enum MAC_REMOTE_ERROR_XCON {
+        value 2;
+        description
+          "Only includes def_mac_status, def_remote_ccm, def_error_ccm,
+          and def_xcon_ccm.";
+      }
+      enum REMOTE_ERROR_XCON {
+        value 3;
+        description
+          "Includes def_remote_ccm, def_error_ccm, and def_xcon_ccm.";
+      }
+      enum ERROR_XCON {
+        value 4;
+        description
+          "Includes def_error_ccm and def_xcon_ccm.";
+      }
+      enum XCON {
+        value 5;
+        description
+          "Only def_xcon_ccm";
+      }
+      enum NO_XCON {
+        value 6;
+        description
+          "No defects def_xcon or lower are to be reported.";
+      }
+    }
+    description
+      "Specifies the lowest priority defect that is allowed to generate
+      a Fault Alarm (20.9.5). The to be reported defects are identified
+      per enum value.";
+  }
+}
