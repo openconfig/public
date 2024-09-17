@@ -122,6 +122,9 @@ module openconfig-cfm {
                         description " Operational tate data for a MEP.";
                         uses mep-config;
                         uses mep-oper-states;
+                        uses performance-measurement-config;
+                        uses loss-measurement-state;
+                        uses delay-measurement-state;
                       } //end container mep state
 
                       container rdi {
@@ -151,9 +154,7 @@ module openconfig-cfm {
                           config false;
                           uses link-loss-forwarding-config;
                         }
-
                       }
-
                       container remote-meps {
                         description "Remote meps associated to a local mep";
 
@@ -219,7 +220,7 @@ module openconfig-cfm {
               description "Operational data for loss measurement.";
               config false;
               uses performance-measurement-config;
-              uses performance-measurement-counters-state;
+              uses loss-measurement-state;
             }
           }
         }
@@ -247,7 +248,7 @@ module openconfig-cfm {
               description "Operational data for synthetic-loss measurement.";
               config false;
               uses performance-measurement-config;
-              uses performance-measurement-counters-state;
+              uses loss-measurement-state;
             }
           }
         }
@@ -275,7 +276,7 @@ module openconfig-cfm {
               description "Operational data for delay-measurement measurement.";
               config false;
               uses performance-measurement-config;
-              uses performance-measurement-counters-state;
+              uses delay-measurement-state;
             }
           }
         }
@@ -369,7 +370,6 @@ module openconfig-cfm {
         VPN according to the OUI.
         vpn-index is a 4 octet index identifying VPNaccording to the OUI.";
     }
-
 
     leaf ccm-interval {
       description "CCM transmission interval.";
@@ -481,27 +481,34 @@ module openconfig-cfm {
       reference
         "Itemt in 12.14.7.1.3, 20.21.2 of IEEE Std 802.1Q-2022";
     }
-
-    leaf mep-ccm-sequence-errors {
-      type oc-yang:counter64;
-      mandatory true;
-      description
-        "The total number of out-of-sequence CCMs received from
-        all remote MEPs.";
-      reference
-        "Item v in 12.14.7.1.3, 20.16.12 of IEEE Std 802.1Q-2022";
-        }
-
-    leaf mep-ccms-sent {
-      type oc-yang:counter64;
-      mandatory true;
-      description
-        "Total number of CCMs transmitted by the local MEP";
-      reference
-        "Item w in 12.14.7.1.3, 20.10.2 of IEEE Std 802.1Q-2022";
-    }
-
+    uses mep-counters-state;
   } // end grouping mep-oper-states.
+
+  grouping mep-counters-state {
+    description "Counters for a remote MEP";
+    container counters {
+      description
+        "A collection of rmep-related statistics objects.";
+        leaf mep-ccm-sequence-errors {
+          type oc-yang:counter64;
+          mandatory true;
+          description
+            "The total number of out-of-sequence CCMs received from
+            all remote MEPs.";
+          reference
+            "Item v in 12.14.7.1.3, 20.16.12 of IEEE Std 802.1Q-2022";
+            }
+
+        leaf mep-ccms-sent {
+          type oc-yang:counter64;
+          mandatory true;
+          description
+            "Total number of CCMs transmitted by the local MEP";
+          reference
+            "Item w in 12.14.7.1.3, 20.10.2 of IEEE Std 802.1Q-2022";
+        }
+    }
+  }
 
   grouping rmep-oper-states {
     description "Operational state of a MEP";
@@ -545,25 +552,6 @@ module openconfig-cfm {
       description "Vector of enums for config errors detected. i.e. [cfm-leak]";
     }
 
-    leaf mep-ccm-sequence-errors {
-      type oc-yang:counter64;
-      mandatory true;
-      description
-        "The total number of out-of-sequence CCMs received from
-        the remote MEP.";
-      reference
-        "Item v in 12.14.7.1.3, 20.16.12 of IEEE Std 802.1Q-2022";
-    }
-
-    leaf ccms-sent {
-      type oc-yang:counter64;
-      mandatory true;
-      description
-        "Total number of CCMs transmitted towards the Remote MEP";
-      reference
-        "Item w in 12.14.7.1.3, 20.10.2 of IEEE Std 802.1Q-2022";
-    }
-
     leaf interface-status-tlv {
       type oc-cfm-types:interface-status-type;
         description
@@ -583,8 +571,35 @@ module openconfig-cfm {
       reference
         "[802.1q] 12.14.7.6.3:f";
     }
+    uses  rmep-counters-state;
 
   } // end grouping mep-oper-states.
+
+
+  grouping rmep-counters-state {
+    description "Counters for a remote MEP";
+    container counters {
+      description
+        "A collection of rmep-related statistics objects.";
+      leaf mep-ccm-sequence-errors {
+        type oc-yang:counter64;
+        mandatory true;
+        description
+          "The total number of out-of-sequence CCMs received from
+          the remote MEP.";
+        reference
+          "Item v in 12.14.7.1.3, 20.16.12 of IEEE Std 802.1Q-2022";
+      }
+      leaf ccms-sent {
+        type oc-yang:counter64;
+        mandatory true;
+        description
+          "Total number of CCMs transmitted towards the Remote MEP";
+        reference
+          "Item w in 12.14.7.1.3, 20.10.2 of IEEE Std 802.1Q-2022";
+      }
+    }
+  }
 
   grouping mep-config {
     description "Configuration for a MEP.";
@@ -853,80 +868,231 @@ module openconfig-cfm {
     // End cfm-global-state
   }
 
+ grouping delay-measurement-state {
+  description "Delay measurement state.";
 
-  grouping performance-measurement-counters-state {
+  container delay-measurement-state {
+    description "Delay measurement state.";
+
+    leaf frame-delay-two-way-min {
+      type uint32;
+      units microseconds;
+      description
+        "This object contains the minimum two-way frame delay calculated by this
+        MEP for this Measurement Interval.
+
+        This object is undefined if measurement-type is dm1-transmitted
+        or dm1-received.";
+    }
+    leaf frame-delay-two-way-max {
+        type uint32;
+        units microseconds;
+        description
+          "This object contains the maximum two-way frame delay calculated by this
+          MEP for this Measurement Interval.
+
+          This object is undefined if measurement-type is dm1DmTx or
+          dm1-received.";
+    }
+    leaf frame-delay-two-way-average {
+        type uint32;
+        units microseconds;
+        description
+          "This object contains the average two-way frame delay calculated by this
+          MEP for this Measurement Interval.
+
+          This object is undefined if measurement-type is dm1-transmitted or
+          dm1-received.";
+    }
+
+    leaf frame-delay-two-way-stddev {
+        type uint32;
+        units microseconds;
+          description
+          "This object contains the standard deviation of two-way frame delay calculated by this
+          MEP for this Measurement Interval.
+
+          This object is undefined if measurement-type is dm1DmTx or
+          dm1-received.";
+    }
+    uses delay-measurement-counters-state;
+  }
+ }
+
+  grouping loss-measurement-state {
+    description "Performance measurement  state.";
+
+    container loss-measurement-state {
+      description "Loss measurement state.";
+
+      leaf far-end-min-frame-loss-ratio {
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the minimum one-way availability flr in the
+          egress direction (source --> destination),
+          from among the set of availability flr values
+          calculated by the MEP in this Measurement Interval. There is
+          one availability flr value for each 'delta_t' time period
+          within the Measurement Interval, as specified in MEF 10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+          reference
+            "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMinFlr";
+      }
+      leaf far-end-max-frame-loss-ratio {
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the maximum one-way availability flr in the
+          forward direction (source --> destination),
+          from among the set of availability flr
+          values calculated by the MEP in this Measurement Interval.
+          There is one availability flr value for each 'delta_t' time
+          period within the Measurement Interval, as specified in MEF
+          10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMaxFlr";
+      }
+      leaf near-end-min-frame-loss-ratio {
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the minimum one-way availability flr in the
+          backward direction (destination --> source),
+          from among the set of availability flr
+          values calculated by the MEP in this Measurement Interval.
+          There is one availability flr value for each 'delta_t' time
+          period within the Measurement Interval, as specified in MEF
+          10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMinFlr";
+      }
+      leaf near-end-max-frame-loss-ratio {
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the maximum one-way availability flr in the
+          backward direction, from among the set of availability flr
+          values calculated by the MEP in this Measurement Interval.
+          There is one availability flr value for each 'delta_t' time
+          period within the Measurement Interval, as specified in MEF
+          10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+          Service OAM Performance Monitoring YANG Module
+          MEF 39 
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMaxFlr";
+        }
+
+      leaf near-end-average-frame-loss-ratio {
+
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+
+        description
+        "This object contains the average one-way availability flr in the
+        backward direction, from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
+
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardAvgFlr";
+        }
+
+      uses loss-measurement-counters-state;
+    }
+  }
+
+  grouping loss-measurement-counters-state {
     description "Performance measurement counters state.";
 
-    leaf slm-sent {
-      type oc-yang:counter64;
-      description "slm Probes sent.";
-    }
+    container counters {
+      description
+        "A collection of loss-measurement-related statistics objects.";
 
-    leaf slm-received {
-      type oc-yang:counter64;
-      description "slm Probes sent.";
-    }
+      leaf slm-sent {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
 
-    leaf slr-sent {
-      type oc-yang:counter64;
-      description "slm Probes sent.";
-    }
+      leaf slm-received {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
 
-    leaf slr-received {
-      type oc-yang:counter64;
-      description "slm Probes sent.";
-    }
+      leaf slr-sent {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
 
-    leaf dmm-sent {
-      type oc-yang:counter64;
-      description "slm Probes sent.";
+      leaf slr-received {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
     }
+  }
 
-    leaf dmm-received {
-      type oc-yang:counter64;
-      description "slm Probes sent.";
+  grouping delay-measurement-counters-state {
+    description "Performance measurement counters state.";
+
+    container counters {
+      description
+        "A collection of delay-measurement-related statistics objects.";
+
+      leaf dmm-sent {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
+
+      leaf dmm-received {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
+
+      leaf dmr-sent {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
+
+      leaf dmr-received {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
     }
-
-    leaf dmr-sent {
-      type oc-yang:counter64;
-      description "slm Probes sent.";
-    }
-
-    leaf dmr-received {
-      type oc-yang:counter64;
-      description "slm Probes sent.";
-    }
-
-    leaf probes-received {
-      type oc-yang:counter64;
-      description "CCM Probes received.";
-    }
-
-    leaf probes-lost-rate {
-      type uint16;
-      description "mean loss reported.";
-    }
-
-    leaf mean-near-end-frame-loss-rate {
-      type uint16;
-      description "mean loss reported.";
-    }
-
-    leaf mean-far-end-frame-loss-rate {
-      type uint16;
-      description "mean loss reported.";
-    }
-
-    leaf mean-delay {
-      type uint16;
-      description "mean loss reported.";
-    }
-
-    leaf delay-variance {
-      type uint16;
-      description "mean loss reported.";
-    }
-
   }
 
   grouping performance-measurement-config {
@@ -943,8 +1109,35 @@ module openconfig-cfm {
       description "Enable or disable measurement.";
     }
 
+    leaf measurement-type {
+      type enumeration {
+        enum LMM {
+          description
+          "LMM SOAM PDU generated and received LMR responses tracked.";
+        }
+        enum SLM {
+          description
+          "SLM SOAM PDU generated and received SLR responses tracked.";
+        }
+        enum DMM {
+          description
+          "DMM SOAM PDU generated and received DMR responses tracked.";
+        }
+        enum CCM {
+          description
+          "CCM SOAM PDU generated and received CCM PDUs tracked.";
+        }
+      }
+      default SLM;
+      description
+        "This object specifies what type of Loss Measurement will be
+        performed.";
+      reference
+        "ITU Y1731";
+    }
+
     leaf type {
-      description "Measurement type.";
+      description "protocol type.";
       type enumeration {
         enum SINGLE_ENDED {
           description "single-ended measurement mode.";
@@ -953,6 +1146,8 @@ module openconfig-cfm {
           description "dual-ended measurement mode.";
         }
       }
+      reference
+        "https://datatracker.ietf.org/doc/html/rfc7456#section-4";
     }
 
     leaf frame-size {
@@ -960,30 +1155,69 @@ module openconfig-cfm {
       description "Probe Frame size for measurement.";
     }
 
+    leaf measurement-interval {
+      type uint32 {
+        range "1..525600";
+      }
+      units "minutes";
+      description
+        "This object specifies the Measurement Interval for FLR statistics, in
+        minutes.
+        A Measurement Interval of 15 minutes needs to be supported,
+        other intervals may be supported.";
+      reference
+       "MEF-SOAM-PM-MIB.mefSoamLmCfgMeasurementInterval";
+    }
+
+    leaf repetition-period {
+      type uint32;
+      default 0;
+      description
+        "This object specifies a configurable repetition time between
+        Measurement Intervals in a Measurement session in hundredths of a
+        second.
+
+        If the value is less than or equal to one Measurement Interval
+        there is no time gap between the end of one Measurement
+        Interval and the start of a new Measurement Interval. This is
+        the normal usage case.
+
+        If the value is greater than one Measurement Interval there is
+        time gap between the end of one Measurement Interval and the
+        start of the next Measurement Interval.";
+      reference
+        "[MEF SOAM PM IA] R18, D3, R19, R20";
+    }
+
+    leaf intervals-archived {
+      type uint16;
+      description
+        "This object specifies the number of completed measurement intervals to
+        store in the history statistic table.
+
+        At least 32 completed measurement intervals are to be
+        stored. 96 measurement intervals are recommended to be stored.";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCfgNumIntervalsStored";
+    }
+
+    leaf packets-interval-per-meaurement-period {
+      type uint16;
+      description "Number of probe packets to send within a measurement interval.";
+    }
+
     leaf burst-interval {
       type uint32;
       units "milliseconds";
-      description "Interval between bursts for synthetic loss measurement.";
+      description "Interval between bursts within a measurement interval.";
     }
 
-    leaf packet-interval {
+    leaf packet-per-burst {
       type uint32;
       units "milliseconds";
-      description "Interval between packets within a burst.";
-    }
-
-    leaf bucket-size {
-      type uint16;
-      units "probes count per bucket";
-      description "Size of each statistics bucket.";
-    }
-
-    leaf number-of-buckets {
-      type uint16;
-      description "Number of  buckets archived  for statistics collection.";
+      description "if burst enabled. the leaf defines the number of packet per burst of probes.";
     }
   }
-
 
   grouping rdi-config {
     description "Remote Defect Indication (RDI) configuration.";
@@ -993,7 +1227,6 @@ module openconfig-cfm {
       description "Transmit RDI when a defect is detected.";
     }
   }
-
 
   grouping link-loss-forwarding-config {
     description "Link loss forwarding configuration.";
@@ -1010,7 +1243,8 @@ module openconfig-cfm {
       }
       description "Action to take on link loss.";
     }
-      }
+  }
+
   uses cfm-top;
 
 }
