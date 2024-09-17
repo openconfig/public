@@ -966,6 +966,29 @@ module openconfig-cfm {
         reference
           "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMaxFlr";
       }
+      leaf far-end-average-frame-loss-ratio {
+
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+
+        description
+        "This object contains the average one-way availability flr in the
+        forward direction, from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
+
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardAvgFlr";
+        }
+
       leaf near-end-min-frame-loss-ratio {
         type uint32 {
           range "0..100000";
