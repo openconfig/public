@@ -237,26 +237,31 @@ module openconfig-cfm {
         }
 
         container performance-measurement-profiles-global {
-          description "This container includes configuration and state objects for the Frame Loss
-          Measurement function defined in [Y.1731] and [MEF SOAM PM IA].";
+          description "This container includes configuration and state objects
+          for the Frame Loss Measurement and Delay measurement 
+          functions as defined in [Y.1731] and [MEF SOAM PM IA].";
 
           list performance-measurement-profile {
-            description "Loss measurement configuration and state.";
+            description "Performance measurement configuration and state.";
             key "profile-name";
 
               leaf "profile-name" {
-              description  "A unique profile name identifying the profile";
+              description  
+                "A unique profile name identifying the 
+                Performance measurement profile";
               type leafref {
                 path "../config/profile-name";
               }
             }
             container config {
-              description "Configuration data for loss measurement.";
+              description 
+                "Configuration data for Performance measurement profile.";
               uses performance-measurement-config;
             }
 
             container state {
-              description "Operational data for loss measurement.";
+              description 
+                "Statistical data for performance measurement profiles.";
               config false;
               uses performance-measurement-config;
               uses performance-measurement-state;
@@ -1057,7 +1062,7 @@ module openconfig-cfm {
   }
 
   grouping loss-measurement-counters-state {
-    description "Performance measurement counters state.";
+    description "Loss-measurement-related measurement counters state.";
 
     container counters {
       description
@@ -1086,7 +1091,7 @@ module openconfig-cfm {
   }
 
   grouping delay-measurement-counters-state {
-    description "Performance measurement counters state.";
+    description "Delay measurement counters state.";
 
     container counters {
       description
@@ -1155,7 +1160,7 @@ module openconfig-cfm {
       }
       default SLM;
       description
-        "This object specifies what type of Loss Measurement will be
+        "This object specifies what type of Performance Measurement will be
         performed.";
       reference
         "ITU Y1731";
