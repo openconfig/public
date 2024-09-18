@@ -42,17 +42,27 @@ module openconfig-cfm {
         "Container for CFM configuration, state and perfomance measurement policies";
 
       container domains {
-        description "Collection of CFM maintenance domains on the local system";
+        description "A Container for CFM maintenance domain state and Configuration
+         on the local system";
 
         list maintenance-domain {
           key "md-id";
-          description "Collection of CFM maintenance domains on the local system";
+          description 
+            "A Maintenance Domain managed object is required in order to create
+             an MA with a MAID that includes that Maintenance Domain’s Name. From
+             this Maintenance Domain managed object, all Maintenance
+             Association managed objects associated with that Maintenance
+             Domain managed object can be accessed, and thus controlled.";
+             reference "[802.1q] 12.14.5";
 
           leaf md-id {
             type leafref {
               path "../config/md-id";
             }
-            description  "A unique maintenance domain name identifying the domain";
+            description  
+              "A unique maintenance domain name identifying the domain";
+            reference  
+              "[802.1q] 12.14.5";
           }
 
           container config {
@@ -67,14 +77,15 @@ module openconfig-cfm {
           }
 
           container maintenance-associations {
-            description "Collection of maintenance associations within a
-            maintenance domain.Provides configuration and operational data
-            for the Maintenance Associations. A Maintenance Association is a set
-            of MEPs, each configured with the same MAID and MD level,
-            established to verify the integrity of a single service
-            instance. A Maintenance Association can be thought of as a
-            full mesh of Maintenance Entities among a set of MEPs so
-            configured.";
+            description 
+              "Collection of maintenance associations within a
+              maintenance domain.Provides configuration and operational data
+              for the Maintenance Associations. A Maintenance Association is a set
+              of MEPs, each configured with the same MAID and MD level,
+              established to verify the integrity of a single service
+              instance. A Maintenance Association can be thought of as a
+              full mesh of Maintenance Entities among a set of MEPs so
+              configured.";
 
             list maintenance-association {
               key "ma-id";
@@ -85,6 +96,8 @@ module openconfig-cfm {
                   type leafref {
                           path "../config/ma-id";
                   }
+                  reference
+                    "[802.1q] 12.14.6";
                 }
 
                 container config {
@@ -122,10 +135,35 @@ module openconfig-cfm {
                         description " Operational tate data for a MEP.";
                         uses mep-config;
                         uses mep-oper-states;
-                        uses performance-measurement-config;
-                        uses loss-measurement-state;
-                        uses delay-measurement-state;
                       } //end container mep state
+
+                      container pm-profiles {
+                        description 
+                          "This container includes configuration and state objects for the Frame Loss
+                          Measurement & Delay Measurement functions defined in [Y.1731] and [MEF SOAM PM IA].";
+
+                        list pm-profile {
+                          description " measurement profile name and state.";
+                          key "profile-name";
+
+                            leaf "profile-name" {
+                            description  "A unique profile name identifying the profile";
+                            type leafref {
+                              path "../../../../../../../../../performance-measurement-profiles-global/performance-measurement-profile/config/profile-name";
+                            }
+                          }
+
+                          container config {
+                            description "Associated performance Measurement profile.";
+                          }
+
+                          container state {
+                            description "Operational data for loss measurement.";
+                            config false;
+                            uses performance-measurement-state;
+                          }
+                        }
+                      }
 
                       container rdi {
                         description "rdi config for a mep.";
@@ -145,7 +183,10 @@ module openconfig-cfm {
                       container link-loss-forwarding {
                         description "link loss forwarding config for a mep.";
                         container config {
-                          description "link loss forwarding config for a mep.";
+                          description         
+                            "Enable propagation of the remote
+                            attachment-circuit link state to the
+                            localattachment-circuit link state";
                           uses link-loss-forwarding-config;
                         }
 
@@ -180,7 +221,6 @@ module openconfig-cfm {
                               uses remote-mep-config;
                               uses mep-oper-states;
                             }
-
                         } // end list remote-mep
                       } // end container remote-meps
                       } // end list mep-endpoint
@@ -196,11 +236,11 @@ module openconfig-cfm {
           uses cfm-global-state;
         }
 
-        container loss-measurement-profiles {
+        container performance-measurement-profiles-global {
           description "This container includes configuration and state objects for the Frame Loss
           Measurement function defined in [Y.1731] and [MEF SOAM PM IA].";
 
-          list loss-measurement-profile {
+          list performance-measurement-profile {
             description "Loss measurement configuration and state.";
             key "profile-name";
 
@@ -210,7 +250,6 @@ module openconfig-cfm {
                 path "../config/profile-name";
               }
             }
-
             container config {
               description "Configuration data for loss measurement.";
               uses performance-measurement-config;
@@ -221,61 +260,6 @@ module openconfig-cfm {
               config false;
               uses performance-measurement-config;
               uses loss-measurement-state;
-            }
-          }
-        }
-
-        container synthetic-loss-measurement-profiles {
-          description "synthetic-loss measurement configuration and state.";
-
-          list synthetic-loss-measurement-profile {
-            description "synthetic-loss measurement configuration and state.";
-            key "profile-name";
-
-            leaf "profile-name" {
-              type leafref {
-                path "../config/profile-name";
-              }
-              description  "A unique profile name identifying the profile";
-            }
-
-            container config {
-              description "Configuration data for synthetic-loss measurement.";
-              uses performance-measurement-config;
-            }
-
-            container state {
-              description "Operational data for synthetic-loss measurement.";
-              config false;
-              uses performance-measurement-config;
-              uses loss-measurement-state;
-            }
-          }
-        }
-
-        container delay-measurement-profiles {
-          description "delay-measurement measurement configuration and state.";
-
-          list delay-measurement-profile {
-            description "delay-measurement  configuration and state.";
-            key "profile-name";
-
-            leaf "profile-name" {
-              type leafref {
-                path "../config/profile-name";
-              }
-              description  "A unique profile name identifying the profile";
-            }
-
-            container config {
-              description "Configuration data for delay-measurement measurement.";
-              uses performance-measurement-config;
-            }
-
-            container state {
-              description "Operational data for delay-measurement measurement.";
-              config false;
-              uses performance-measurement-config;
               uses delay-measurement-state;
             }
           }
@@ -289,7 +273,17 @@ module openconfig-cfm {
     leaf ma-id {
       type oc-cfm-types:name-key-type;
       description "Key of the Maintenance Association list of entries.";
+      reference
+        "[802.1q] 12.14.6";
     }
+
+    leaf group-name {
+      type string;
+      description
+        "Optional Bridge Group or Cross-connect Group name, if
+        Service Type is BridgeDomain or
+        CrossConnect";
+}
 
     leaf ma-name-type {
       type enumeration {
@@ -395,16 +389,15 @@ module openconfig-cfm {
     leaf id {
       type oc-cfm-types:mep-id-type;
       description "Remote MEP IDs in full mesh.";
+      reference
+        "Item a in 12.14.7.6.3, 20.20 of IEEE Std 802.1Q-2022";
     }
 
     leaf mac-address {
       type oc-yang:mac-address;
       description "Remote MEP IDs in full mesh.";
-    }
-
-    leaf-list performance-measurement-profiles {
-      type string;
-      description "Performance Measurement profile names associated with the endpoints ";
+      reference
+        "Item d in 12.14.7.6.3, 20.19.7 of IEEE Std 802.1Q-2022";
     }
   } // end grouping
 
@@ -488,7 +481,7 @@ module openconfig-cfm {
     description "Counters for a remote MEP";
     container counters {
       description
-        "A collection of rmep-related statistics objects.";
+        "A collection of mep-related statistics objects.";
         leaf mep-ccm-sequence-errors {
           type oc-yang:counter64;
           mandatory true;
@@ -686,8 +679,8 @@ module openconfig-cfm {
  }
 
     leaf direction {
-      description "The direction in which the MEP faces on the Bridge Port.
-            Example, up or down.";
+      description "The direction in which the MEP faces on the Bridge/Xconnect 
+        Port. Example, up or down.";
       type enumeration {
         enum DOWN {
           value 1;
@@ -702,6 +695,8 @@ module openconfig-cfm {
             dispatched towards the MAC Relay entity.";
         }
       }
+      reference
+            "Item c in 12.14.7.1.3, 19.2 of IEEE Std 802.1Q-2022";
     }
   }
 
@@ -711,6 +706,8 @@ module openconfig-cfm {
     leaf md-id {
       type oc-cfm-types:name-key-type;
       description "The unique identifier for a Maintenance Domain.";
+      reference
+        "[802.1q] 12.14.5";
     }
 
     leaf level {
@@ -920,10 +917,10 @@ module openconfig-cfm {
  }
 
   grouping loss-measurement-state {
-    description "Performance measurement  state.";
+    description "Loss measurement state grouping.";
 
     container loss-measurement-state {
-      description "Loss measurement state.";
+      description "Loss measurement state container.";
 
       leaf far-end-min-frame-loss-ratio {
         type uint32 {
@@ -1118,6 +1115,12 @@ module openconfig-cfm {
     }
   }
 
+  grouping performance-measurement-state {
+    description "Performance measurement state grouping.";
+    uses loss-measurement-state;
+    uses delay-measurement-state;
+  }
+
   grouping performance-measurement-config {
     description "Performance measurement configuration.";
 
@@ -1159,13 +1162,13 @@ module openconfig-cfm {
         "ITU Y1731";
     }
 
-    leaf type {
+    leaf protocol-type {
       description "protocol type.";
       type enumeration {
         enum SINGLE_ENDED {
           description "single-ended measurement mode.";
         }
-        enum  DUAL_ENDED {
+        enum DUAL_ENDED {
           description "dual-ended measurement mode.";
         }
       }
@@ -1224,7 +1227,7 @@ module openconfig-cfm {
         "MEF-SOAM-PM-MIB.mefSoamLmCfgNumIntervalsStored";
     }
 
-    leaf packets-interval-per-meaurement-period {
+    leaf packets-per-meaurement-period {
       type uint16;
       description "Number of probe packets to send within a measurement interval.";
     }
@@ -1238,7 +1241,9 @@ module openconfig-cfm {
     leaf packet-per-burst {
       type uint32;
       units "milliseconds";
-      description "if burst enabled. the leaf defines the number of packet per burst of probes.";
+      description 
+      "if burst enabled. the leaf defines the number of packet per burst of probes.
+      packets-per-measurement-period / burst-interval";
     }
   }
 
@@ -1256,13 +1261,17 @@ module openconfig-cfm {
 
     leaf enable {
       type boolean;
-      description "Enable or disable link loss forwarding.";
+      description 
+        "Enable propagation of the remote
+        attachment-circuit link state to the
+        local attachment-circuit link state";
     }
 
     leaf action {
       type enumeration {
         enum "SHUTDOWN" { description "Shutdown action on link loss."; }
         enum "ALARM" { description "Raise an alarm on link loss."; }
+        enum "DISABLE_ROUTING" { description "Mark interface non-routable."; }
       }
       description "Action to take on link loss.";
     }
