@@ -47,7 +47,7 @@ module openconfig-cfm {
 
         list maintenance-domain {
           key "md-id";
-          description 
+          description
             "A Maintenance Domain managed object is required in order to create
              an MA with a MAID that includes that Maintenance Domain’s Name. From
              this Maintenance Domain managed object, all Maintenance
@@ -59,9 +59,9 @@ module openconfig-cfm {
             type leafref {
               path "../config/md-id";
             }
-            description  
+            description
               "A unique maintenance domain name identifying the domain";
-            reference  
+            reference
               "[802.1q] 12.14.5";
           }
 
@@ -77,7 +77,7 @@ module openconfig-cfm {
           }
 
           container maintenance-associations {
-            description 
+            description
               "Collection of maintenance associations within a
               maintenance domain.Provides configuration and operational data
               for the Maintenance Associations. A Maintenance Association is a set
@@ -138,7 +138,7 @@ module openconfig-cfm {
                       } //end container mep state
 
                       container pm-profiles {
-                        description 
+                        description
                           "This container includes configuration and state objects for the Frame Loss
                           Measurement & Delay Measurement functions defined in [Y.1731] and [MEF SOAM PM IA].";
 
@@ -146,7 +146,7 @@ module openconfig-cfm {
                           description " measurement profile name and state.";
                           key "profile-name";
 
-                            leaf "profile-name" {
+                          leaf "profile-name" {
                             description  "A unique profile name identifying the profile";
                             type leafref {
                               path "../../../../../../../../../performance-measurement-profiles-global/performance-measurement-profile/config/profile-name";
@@ -183,7 +183,7 @@ module openconfig-cfm {
                       container link-loss-forwarding {
                         description "link loss forwarding config for a mep.";
                         container config {
-                          description         
+                          description
                             "Enable propagation of the remote
                             attachment-circuit link state to the
                             localattachment-circuit link state";
@@ -238,7 +238,7 @@ module openconfig-cfm {
 
         container performance-measurement-profiles-global {
           description "This container includes configuration and state objects
-          for the Frame Loss Measurement and Delay measurement 
+          for the Frame Loss Measurement and Delay measurement
           functions as defined in [Y.1731] and [MEF SOAM PM IA].";
 
           list performance-measurement-profile {
@@ -246,21 +246,21 @@ module openconfig-cfm {
             key "profile-name";
 
               leaf "profile-name" {
-              description  
-                "A unique profile name identifying the 
+              description
+                "A unique profile name identifying the
                 Performance measurement profile";
               type leafref {
                 path "../config/profile-name";
               }
             }
             container config {
-              description 
+              description
                 "Configuration data for Performance measurement profile.";
               uses performance-measurement-config;
             }
 
             container state {
-              description 
+              description
                 "Statistical data for performance measurement profiles.";
               config false;
               uses performance-measurement-config;
@@ -443,9 +443,9 @@ module openconfig-cfm {
 
     leaf-list mep-defects {
       type oc-cfm-types:mep-defects-type;
-      max-elements 4;
+      max-elements 5;
       description
-        "Vector of boolean error conditions. 
+        "Vector of boolean error conditions.
         Multiple defects can be present at the same time.";
       reference
         "12.14.7.1.3 of IEEE Std 802.1Q-2022";
@@ -683,7 +683,7 @@ module openconfig-cfm {
  }
 
     leaf direction {
-      description "The direction in which the MEP faces on the Bridge/Xconnect 
+      description "The direction in which the MEP faces on the Bridge/Xconnect
         Port. Example, up or down.";
       type enumeration {
         enum DOWN {
@@ -761,7 +761,7 @@ module openconfig-cfm {
           OCTET string.";
     }
 
-    leaf dns_like_name {
+    leaf dns-like-name {
       when "../md-name-type = 'DOMAIN_NAME'";
       description
         "Domain name like string, globally unique text string
@@ -1027,7 +1027,7 @@ module openconfig-cfm {
           The flr value is a ratio that is expressed as a percent with a
           value of 0 (ratio 0.00) through 100000 (ratio 1.00).
           Service OAM Performance Monitoring YANG Module
-          MEF 39 
+          MEF 39
 
           Units are in milli-percent, where 1 indicates 0.001 percent.";
         reference
@@ -1245,7 +1245,7 @@ module openconfig-cfm {
     leaf packet-per-burst {
       type uint32;
       units "milliseconds";
-      description 
+      description
       "if burst enabled. the leaf defines the number of packet per burst of probes.
       packets-per-measurement-period / burst-interval";
     }
@@ -1265,10 +1265,20 @@ module openconfig-cfm {
 
     leaf enable {
       type boolean;
-      description 
+      description
         "Enable propagation of the remote
         attachment-circuit link state to the
         local attachment-circuit link state";
+    }
+    leaf damping-timer {
+      type uint64;
+      units milliseconds;
+      description
+        "The damping timer is the amount of time that the local
+        attachment-circuit link state will be held in the down state
+        after the remote attachment-circuit link state has been
+        detected to be up. The damping timer is used to prevent
+        flapping of the local attachment-circuit link state.";
     }
 
     leaf action {
