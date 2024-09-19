@@ -23,7 +23,19 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "2.6.0";
+  oc-ext:openconfig-version "2.8.0";
+
+  revision "2024-09-19" {
+    description
+      "Add next-hop-group-id to AFT NHG state.";
+    reference "2.8.0";
+  }
+
+  revision "2024-09-19" {
+    description
+      "Add encap-headers to AFT.";
+    reference "2.7.0";
+  }
 
   revision "2024-04-25" {
     description
@@ -650,6 +662,14 @@ submodule openconfig-aft-common {
         "Where applicable, this leaf is a unique identifier string for the
         next-hop-group. It is an arbitrary name for the group, that is
         supported by vendors and is exposed for telemetry.";
+    }
+
+    leaf next-hop-group-id {
+      type string;
+      description
+        "An optional, user specified identifier for a next-hop-group. This id
+        may be used to map to policy forwarding or qos policies which are
+        applied to the next-hop-group.";
     }
 
     leaf programmed-id {
