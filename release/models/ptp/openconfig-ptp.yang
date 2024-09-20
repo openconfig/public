@@ -89,7 +89,7 @@ module openconfig-ptp {
     description
       "Config state data of an instance of the PTP";
 
-    leaf instance-index {
+    leaf id {
       type uint32;
       description
         "The instance list is indexed using a number that is unique per PTP
@@ -1119,7 +1119,7 @@ module openconfig-ptp {
           plural for the wrapping YANG container, and singular for the YANG list.";
 
         list instance {
-          key "instance-index";
+          key "id";
           description
             "List of one or more PTP Instances in the product (PTP Node). Each
             PTP Instance represents a distinct instance of PTP implementation
@@ -1129,9 +1129,9 @@ module openconfig-ptp {
           reference
             "8.1.4.2 of IEEE Std 1588-2019";
 
-          leaf instance-index {
+          leaf id {
             type leafref {
-              path "../config/instance-index";
+              path "../config/id";
             }
             description
               "The instance list is indexed using a number that is unique per PTP
