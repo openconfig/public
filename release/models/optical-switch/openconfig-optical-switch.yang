@@ -1,0 +1,333 @@
+module openconfig-optical-switch {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/optical-switch";
+
+  prefix "oc-opt-sw";
+
+  import openconfig-extensions { prefix oc-ext; }
+
+  organization "Google LLC";
+
+  contact "brandonewalton@google.com, yanzhan@google.com";
+
+  description
+    "This module defines configuration and operational state for Optical
+    Circuit Switches (OCS) which consist of one or more 'optical switch modules'
+    under one controller.
+
+    Functionality is modelled for establishing port connections
+    (cross-connections), reporting port statuses, and a
+    variety of other features found in industry.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2024-09-20" {
+    description "Initial model.";
+    reference "0.1.0";
+  }
+
+  grouping port-id-config-reference {
+    description
+      "References to the config slot and port number leaves for reuse.";
+
+    leaf slot-number {
+      type leafref {
+        path "../config/slot-number";
+      }
+      description "The optical switch module slot number containing the port.";
+    }
+    leaf port-number {
+      type leafref {
+        path "../config/port-number";
+      }
+      description "The port number.";
+    }
+  }
+
+  grouping port-id-state-reference {
+    description
+      "References to the state slot and port number leaves for reuse.";
+
+    leaf slot-number {
+      type leafref {
+        path "../state/slot-number";
+      }
+      description "The optical switch module slot number containing the port.";
+    }
+    leaf port-number {
+      type leafref {
+        path "../state/port-number";
+      }
+      description "The port number.";
+    }
+  }
+
+  grouping port-id {
+    description
+      "Slot and port number leaves which uniquely identify one optical port.";
+
+    leaf slot-number {
+      type int32;
+      description "The optical switch module slot number containing the port.";
+    }
+    leaf port-number {
+      type int32;
+      description "The port number.";
+    }
+  }
+
+  // Port Connection
+  grouping port-connection-config {
+    description
+      "Configuration for optical port connections (cross-connections).";
+
+    uses port-id;
+
+    leaf peer-port-number {
+      type int32;
+      description "The peer port number to connect to.";
+    }
+
+    leaf peer-slot-number {
+      type int32;
+      description "The peer slot number to connect to.";
+    }
+  }
+
+  grouping port-connection-state {
+    description
+      "Operational state data for optical port connections.";
+  }
+
+  grouping port-connections-top {
+    description
+      "Top-level grouping for optical port connections.";
+
+    container port-connections {
+      description
+        "Enclosing container for optical port connections.";
+
+      list port-connection {
+        key "slot-number port-number";
+        description
+          "List of all defined optical port connections for the switch.";
+
+        uses port-id-config-reference;
+
+        container config {
+          uses port-connection-config;
+
+          description
+            "Configuration for optical port connections (cross-connections).";
+        }
+
+        container state {
+          config false;
+          uses port-connection-config;
+          uses port-connection-state;
+
+          description
+            "Operational state data for optical port connections.";
+        }
+      }
+    }
+  }
+
+  grouping optical-switch-topology-config {
+    description
+      "Configuration for optical switch topology.";
+  }
+
+  grouping optical-switch-topology-state {
+    description
+      "Operational state for optical switch topology.";
+
+    leaf port-connectivity {
+      type enumeration {
+        enum INGRESS_EGRESS {
+          description
+            "Switch ports are divided into a set of ingress and a set of egress
+            ports. Connections can only be made between an ingress and egress
+            port.";
+        }
+        enum ANY_TO_ANY {
+          description
+            "Any switch port can be connected to any other port.";
+        }
+      }
+      mandatory true;
+      description
+        "The type of connectivity between ports for the switch and all optical
+        switch module.";
+    }
+    leaf total-port-count {
+      type int32;
+      mandatory true;
+      description "Total number of optical ports provided by the switch";
+    }
+    leaf total-optical-module-count {
+      type int32;
+      mandatory true;
+      description "Total number of connected optical switch modules.";
+    }
+    leaf ingress-port-count {
+      type int32;
+      mandatory true;
+      description "Total number of ingress ports provided by the switch.";
+    }
+    leaf egress-port-count {
+      type int32;
+      mandatory true;
+      description "Total number of egress ports provided by the switch.";
+    }
+    leaf ingress-start-index {
+      type int32;
+      mandatory true;
+      description "The port number start index for ingress ports.";
+    }
+    leaf egress-start-index {
+      type int32;
+      mandatory true;
+      description "The port number start index for egress ports.";
+    }
+    leaf inter-module-connection-support {
+      type boolean;
+      mandatory true;
+      description "If true, the switch supports establishing connections between optical switch modules in different slots.";
+    }
+  }
+
+  grouping optical-switch-topology-top {
+    description
+      "Top-level grouping for optical switch topology.";
+
+    container optical-switch-topology {
+      description
+        "Enclosing container for optical switch topology.";
+
+      container config {
+        uses optical-switch-topology-config;
+
+        description
+          "Configuration for optical switch topology.";
+      }
+
+      container state {
+        config false;
+        uses optical-switch-topology-config;
+        uses optical-switch-topology-state;
+
+        description
+          "Operational state data for optical switch topology.";
+      }
+    }
+  }
+
+  // Port Status
+  grouping port-status-state {
+    description
+      "Operational state data for port statuses.";
+
+    uses port-id;
+
+    leaf port-status {
+      type enumeration {
+        enum STATUS_ENABLED {
+          description
+            "The port is enabled, functioning normally, and will participate in
+            normal port connections.";
+        }
+        enum STATUS_DISABLED {
+          description
+            "The port is optically blocked, preventing the propagation of light
+            through the switch. The port can still be configured in port
+            connections.";
+        }
+        enum STATUS_FAILED {
+          description
+            "An internal failure exists involving the port. See
+            port-status-message for details.";
+        }
+      }
+      default STATUS_ENABLED;
+      description
+        "The status of the port.";
+    }
+    leaf port-status-message {
+      type string;
+      description
+        "If port status is failed, contains a message explaining the port
+        failure.";
+    }
+  }
+
+  grouping port-statuses-top {
+    description
+      "Top-level grouping for port statuses.";
+
+    container port-statuses {
+      config false;
+      description
+        "Enclosing container for port statuses.";
+
+      list port-status {
+        key "slot-number port-number";
+
+        description
+          "List of port statuses for the switch.";
+
+        uses port-id-state-reference;
+
+        container state {
+          uses port-status-state;
+
+          description
+            "Operational state for port statuses.";
+        }
+      }
+    }
+  }
+
+  // Optical Switch
+  grouping optical-switch-config {
+    description "Global optical switch configuration.";
+  }
+
+  grouping optical-switch-state {
+    description "Global optical switch operation state.";
+  }
+
+  grouping optical-switch-top {
+    description
+      "Top-level grouping for all optical switch state and configuration.";
+
+    container optical-switch {
+      description
+        "Enclosing container for all optical switch state and configuration.";
+
+      container config {
+        uses optical-switch-config;
+
+        description
+          "Configuration for optical switch.";
+      }
+      container state {
+        config false;
+        uses optical-switch-config;
+        uses optical-switch-state;
+
+        description
+          "Operational state for optical switch.";
+      }
+
+      uses optical-switch-topology-top;
+      uses port-connections-top;
+      uses port-statuses-top;
+    }
+  }
+
+  uses optical-switch-top;
+}
