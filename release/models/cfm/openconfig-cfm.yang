@@ -149,17 +149,30 @@ module openconfig-cfm {
                           leaf "profile-name" {
                             description  "A unique profile name identifying the profile";
                             type leafref {
-                              path "../../../../../../../../../performance-measurement-profiles-global/performance-measurement-profile/config/profile-name";
+                              path "../config/profile-name";
                             }
                           }
 
                           container config {
                             description "Associated performance Measurement profile.";
+
+                            leaf "profile-name" {
+                            description  "A unique profile name identifying the profile";
+                            type leafref {
+                              path "../config/profile-name";
+                            }
+
                           }
 
                           container state {
                             description "Operational data for loss measurement.";
                             config false;
+
+                            leaf "profile-name" {
+                              type string;
+                              description "Name of the measurement profile.";
+                              }
+
                             uses performance-measurement-state;
                           }
                         }
@@ -1121,6 +1134,7 @@ module openconfig-cfm {
 
   grouping performance-measurement-state {
     description "Performance measurement state grouping.";
+
     uses loss-measurement-state;
     uses delay-measurement-state;
   }
