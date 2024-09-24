@@ -26,7 +26,13 @@ module openconfig-lacp {
     managing aggregate interfaces.   It works in conjunction with
     the OpenConfig interfaces and aggregate interfaces models.";
 
-  oc-ext:openconfig-version "2.0.0";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2024-09-24" {
+    description
+      "Add LACP fallback leaf under both config and state.";
+    reference "2.1.0";
+  }
 
   revision "2023-12-11" {
     description
@@ -405,6 +411,15 @@ grouping aggregation-lacp-members-statistics {
         "The MAC address portion of the node's System ID. This is
         combined with the system priority to construct the 8-octet
         system-id";
+    }
+
+    leaf fallback {
+      type boolean;
+      description
+        "If the fallback is set to true, current LACP interface is
+        able to establish a Link Aggregation (LAG) before it receives
+        LACP PDUs from its peer, and fallback to a single port active
+        after the expiry of the timeout period.";
     }
 
     uses aggregation-lacp-global-config;
