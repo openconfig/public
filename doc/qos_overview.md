@@ -4,8 +4,6 @@ Contributors: aashaikh†, robjs†, dloher†
 † @google.com  
 September 2024
 
-# Overview of the QoS Model
-
 ## Schema of the QoS Model
 
 The schema of the QoS model can be visualized with this diagram which
@@ -61,9 +59,9 @@ to virtual output queues that are instantiated for remote interfaces. In this
 case, statistics for each egress interface are reported within the ingress
 interface's entry in the `/qos/interfaces/interface` list.
 
-# Annotated QoS Examples
+## Annotated QoS Examples
 
-## Ingress Classification with Egress Scheduling
+### Ingress Classification with Egress Scheduling
 
 The example QoS configuration below shows the configuration of an interface,
 assumed to be facing a customer which has ingress classification based on DSCP
@@ -432,19 +430,23 @@ markings. The same interface has an egress scheduler policy applied to it.
 }
 ```
 
-## Ingress Classification with Ingress Scheduling (Policer)
+### Ingress Classification with Ingress Scheduling (Policer)
 
 The example QoS configuration below shows the configuration of an interface,
-assumed to be facing a customer which has ingress classification based on DSCP
-markings. The same interface has an ingress scheduler policy applied to it
-which implementes a ONE_RATE_TWO_COLOR policer.
+assumed to be facing a customer which has ingress classification based on
+the next-hop group the packet is being sent to.  The same interface has an
+ingress scheduler policy applied to it which implementes a ONE_RATE_TWO_COLOR
+policer.
 
-In this scenario, the device does not have hardware or software to implement
+In this scenario, the device is does not have hardware or software to implement
 in ingress queue.  To satisfy the OC schema requirements, a dummy or "fake"
-queue is created.  
+queue is created.
 
 ```yaml
 ---
+# First we define classifiers which match packets based on a condition and
+# define an action to "send" the packets to a forwarding-group
+# (target-group).
 openconfig-qos:
   classifers:
     - classifer: “dest_A”
@@ -457,7 +459,7 @@ openconfig-qos:
           conditions:
             next-hop-group:
                 config:
-                    name: "nhg_A1"     # new OC path needed, string related to /afts/next-hop-groups/next-hop-group/state/next-hop-group-id (what about MBB / gribi is not transactional, a delete might fail and and add might succeed)
+                    name: "nhg_A1"
           actions:
             config:
               target-group: "input_dest_A"
@@ -467,7 +469,7 @@ openconfig-qos:
           conditions:
             next-hop-group:
                 config:
-                    name: "nhg_A2"     # new OC path needed, string related to /afts/next-hop-groups/next-hop-group/state/next-hop-group-id
+                    name: "nhg_A2"
           actions:
             config:
               target-group: "input_dest_A"
@@ -482,7 +484,7 @@ openconfig-qos:
           conditions:
             next-hop-group:
                 config:
-                    name: "nhg_B1"     # new OC path needed, string related to /afts/next-hop-groups/next-hop-group/state/next-hop-group-id
+                    name: "nhg_B1"
           actions:
             config:
               target-group: "input_dest_B"
@@ -492,12 +494,15 @@ openconfig-qos:
           conditions:
             next-hop-group:
                 config:
-                    name: "nhg_B2"     # new OC path needed, string related to /afts/next-hop-groups/next-hop-group/state/next-hop-group-id
+                    name: "nhg_B2"
           actions:
             config:
               target-group: "input_dest_B"
 
-
+  # Here we define a forwarding-group.  The purpose of this is to allow
+  # one to group multiple classifiers together and associate them with a
+  # queue.  In concept, the forwarding-group "sends traffic" to a queue.
+  # See the qos data flow diagram to help visualize this.
   forwarding-groups:
     - forwarding-group: "input_dest_A"
       config:
@@ -516,6 +521,9 @@ openconfig-qos:
       config:
         name: "dummy_input_queue_B"
 
+  # Here we define 2 scheduler-policies.
+  # The first has a 1Gb policer for traffic on dummy_input_queue_A
+  # The second has a 2Gb policer for traffic on dummy_input_queue_B
   scheduler-policies:
     - scheduler-policy:
       config:
@@ -530,7 +538,6 @@ openconfig-qos:
               config:
                 id: "my input policer 1Gb"
                 input-type: QUEUE
-                # instead of QUEUE, how about a new enum, FWD_GROUP (current options are QUEUE, IN_PROFILE, OUT_PROFILE)
                 queue: dummy_input_queue_A
           one-rate-two-color:
             config:
@@ -553,7 +560,6 @@ openconfig-qos:
             - input: "my input policer 2Gb"
               config:
                 id: "my input policer 2Gb"
-                # instead of QUEUE, how about a new enum, FWD_GROUP (current options are QUEUE, IN_PROFILE, OUT_PROFILE)
                 input-type: QUEUE
                 queue: dummy_input_queue_B
           one-rate-two-color:
@@ -565,7 +571,8 @@ openconfig-qos:
               config:
                 drop: TRUE
 
-  interfaces:                  # this is repeated per subinterface (vlan)
+  # Here we map interfaces to an input classifer  and input scheduler-policy
+  interfaces:
     - interface: "PortChannel1.100"
         config:
           interface-id: "PortChannel1.100"
