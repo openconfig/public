@@ -47,11 +47,17 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.2.0";
+  oc-ext:openconfig-version "2.3.0";
 
-  revision "2024-08-21" {
+  revision "2024-09-24" {
     description
       "Added mount-point type leaf to describe the type of file system.";
+    reference "2.3.0";
+  }
+
+  revision "2024-08-13" {
+    description
+      "Added additional auth key types";
     reference "2.2.0";
   }
 
@@ -237,6 +243,42 @@ module openconfig-system {
     base NTP_AUTH_TYPE;
     description
       "MD5 encryption method";
+  }
+
+  identity NTP_AUTH_SHA1 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA1 encryption method";
+  }
+
+  identity NTP_AUTH_SHA256 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA256 encryption method";
+  }
+
+  identity NTP_AUTH_SHA384 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA384 encryption method";
+  }
+
+  identity NTP_AUTH_SHA512 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA512 encryption method";
+  }
+
+  identity NTP_AUTH_AES_CBC_128 {
+    base NTP_AUTH_TYPE;
+    description
+      "AES-CBC-128 encryption method";
+  }
+
+  identity NTP_AUTH_AES_CBC_256 {
+    base NTP_AUTH_TYPE;
+    description
+      "AES-CBC-256 encryption method";
   }
 
   // typedef statements
