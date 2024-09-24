@@ -1,10 +1,17 @@
 # Overview of OpenConfig QoS
 
-Contributors: aashaikh†, robjs†  
+Contributors: aashaikh†, robjs†, dloher†
 † @google.com  
-December ‘17
+September 2024
 
 # Overview of the QoS Model
+
+## Schema of the QoS Model
+
+The schema of the QoS model can be visualized with this diagram which
+highlights the relationships between the objects in the model.
+
+![QoS schema relationships](img/qos_schema.svg)
 
 The OpenConfig quality of service model is made up of two sets of definitions:
 
@@ -19,9 +26,11 @@ The OpenConfig quality of service model is made up of two sets of definitions:
    correspond to each of the instantiated elements (e.g., schedulers, or
    queues). This is located under `/qos/interfaces`.
 
-The flow of the QoS model is shown in the diagram below:
+## Flow of data through the QoS Model
 
-![Overview of QoS model](img/qos_layout.svg)
+The flow of packets through of the QoS model is shown in the diagram below.
+
+![QoS model data flow](img/qos_layout.svg)
 
 When a packet arrives at an interface it is initially classified according to
 the classifier that is described under
@@ -52,7 +61,7 @@ to virtual output queues that are instantiated for remote interfaces. In this
 case, statistics for each egress interface are reported within the ingress
 interface's entry in the `/qos/interfaces/interface` list.
 
-# Annotated QoS Example
+# Annotated QoS Examples
 
 ## Ingress Classification with Egress Scheduling
 
@@ -60,7 +69,7 @@ The example QoS configuration below shows the configuration of an interface,
 assumed to be facing a customer which has ingress classification based on DSCP
 markings. The same interface has an egress scheduler policy applied to it.
 
-```
+```json
 {
   #
   # The standard definition of an interface, assumed to be facing the customer.
@@ -421,4 +430,168 @@ markings. The same interface has an egress scheduler policy applied to it.
     }
   }
 }
+```
+
+## Ingress Classification with Ingress Scheduling (Policer)
+
+The example QoS configuration below shows the configuration of an interface,
+assumed to be facing a customer which has ingress classification based on DSCP
+markings. The same interface has an ingress scheduler policy applied to it
+which implementes a ONE_RATE_TWO_COLOR policer.
+
+In this scenario, the device does not have hardware or software to implement
+in ingress queue.  To satisfy the OC schema requirements, a dummy or "fake"
+queue is created.  
+
+```yaml
+---
+openconfig-qos:
+  classifers:
+    - classifer: “dest_A”
+      config:
+        name: “dest_A”
+      terms:
+        - term:
+          config:
+            id: "match_1_dest_A1"
+          conditions:
+            next-hop-group:
+                config:
+                    name: "nhg_A1"     # new OC path needed, string related to /afts/next-hop-groups/next-hop-group/state/next-hop-group-id (what about MBB / gribi is not transactional, a delete might fail and and add might succeed)
+          actions:
+            config:
+              target-group: "input_dest_A"
+        - term:
+          config:
+            id: "match_1_dest_A2"
+          conditions:
+            next-hop-group:
+                config:
+                    name: "nhg_A2"     # new OC path needed, string related to /afts/next-hop-groups/next-hop-group/state/next-hop-group-id
+          actions:
+            config:
+              target-group: "input_dest_A"
+
+    - classifer: “dest_B”
+      config:
+        name: “dest_B”
+      terms:
+        - term:
+          config:
+            id: "match_1_dest_B1"
+          conditions:
+            next-hop-group:
+                config:
+                    name: "nhg_B1"     # new OC path needed, string related to /afts/next-hop-groups/next-hop-group/state/next-hop-group-id
+          actions:
+            config:
+              target-group: "input_dest_B"
+        - term:
+          config:
+            id: "match_1_dest_B2"
+          conditions:
+            next-hop-group:
+                config:
+                    name: "nhg_B2"     # new OC path needed, string related to /afts/next-hop-groups/next-hop-group/state/next-hop-group-id
+          actions:
+            config:
+              target-group: "input_dest_B"
+
+
+  forwarding-groups:
+    - forwarding-group: "input_dest_A"
+      config:
+        name: "input_dest_A"
+        output-queue: dummy_input_queue_A
+    - forwarding-group: "input_dest_B"
+      config:
+        name: "input_dest_B"
+        output-queue: dummy_input_queue_B
+
+  queues:
+    - queue:
+      config:
+        name: "dummy_input_queue_A"
+    - queue:
+      config:
+        name: "dummy_input_queue_B"
+
+  scheduler-policies:
+    - scheduler-policy:
+      config:
+        name: "limit_1Gb"
+      schedulers:
+        - scheduler:
+          config:
+            sequence: 1
+            type: ONE_RATE_TWO_COLOR
+          inputs:
+            - input: "my input policer 1Gb"
+              config:
+                id: "my input policer 1Gb"
+                input-type: QUEUE
+                # instead of QUEUE, how about a new enum, FWD_GROUP (current options are QUEUE, IN_PROFILE, OUT_PROFILE)
+                queue: dummy_input_queue_A
+          one-rate-two-color:
+            config:
+              cir: 1000000000           # 1Gbit/sec
+              bc: 100000                # 100 kilobytes
+              queuing-behavior: POLICE
+            exceed-action:
+              config:
+                drop: TRUE
+
+    - scheduler-policy:
+      config:
+        name: "limit_2Gb"
+      schedulers:
+        - scheduler:
+          config:
+            sequence: 1
+            type: ONE_RATE_TWO_COLOR
+          inputs:
+            - input: "my input policer 2Gb"
+              config:
+                id: "my input policer 2Gb"
+                # instead of QUEUE, how about a new enum, FWD_GROUP (current options are QUEUE, IN_PROFILE, OUT_PROFILE)
+                input-type: QUEUE
+                queue: dummy_input_queue_B
+          one-rate-two-color:
+            config:
+              cir: 2000000000           # 2Gbit/sec
+              bc: 100000                # 100 kilobytes
+              queuing-behavior: POLICE
+            exceed-action:
+              config:
+                drop: TRUE
+
+  interfaces:                  # this is repeated per subinterface (vlan)
+    - interface: "PortChannel1.100"
+        config:
+          interface-id: "PortChannel1.100"
+        input:
+          classifers:
+            - classifier:
+              config:
+                name: "dest_A"
+                type: "IPV4"
+            scheduler-policy:
+              state:
+                name: limit_group_A_1Gb
+    - interface: "PortChannel1.200"
+        config:
+          interface-id: "PortChannel1.200"
+        input:
+          classifers:
+            - classifier:
+              config:
+                name: "dest_B"
+                type: "IPV4"
+          scheduler-policy:
+            state:
+              name: limit_group_B_2Gb
+
+            scheduler-policy:
+              state:
+                name: limit_group_A_1Gb
 ```
