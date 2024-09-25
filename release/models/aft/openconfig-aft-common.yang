@@ -223,14 +223,15 @@ submodule openconfig-aft-common {
 
         container ip-in-ip {
           description
-            "When specified, the packet has an IP-in-IP header applied to it before
-            forwarding to the specified next-hop.  This node is deprecated and
-            the encap-headers/encap-header tree should be used instead.";
-          status deprecated;
+            "When specified, the packet has an IP-in-IP header applied to it
+            before forwarding to the specified next-hop.
 
+            This node must be supported in addition to the
+            encap-headers/encap-header tree.  A future release of OpenConfig
+            will deprecate this node in favor of the
+            encap-headers/encap-header subtree.";
           container state {
             config false;
-            status deprecated;
             description
               "State parameters relating to IP-in-IP encapsulation.";
             uses aft-common-entry-nexthop-ip-state;
@@ -244,15 +245,15 @@ submodule openconfig-aft-common {
             it before forwarding to the specified next-hop.
             encapsulate-header leaf should be set to GRE for this
             to apply.
-            This node is deprecated and the encap-headers/encap-header tree
-            should be used instead.";
-          status deprecated;
 
+            This node must be supported in addition to the
+            encap-headers/encap-header tree.  A future release of OpenConfig
+            will deprecate this node in favor of the
+            encap-headers/encap-header subtree.";
           container state {
             config false;
             description
               "State parameters relating to GRE encapsulation.";
-            status deprecated;
             uses aft-common-entry-nexthop-gre-state;
           }
         }
@@ -426,26 +427,28 @@ submodule openconfig-aft-common {
 
     leaf vni-label {
       type oc-evpn-types:evi-id;
-      status deprecated;
       description
         "Where applicable, the next hop label representing the virtual
         network identifier (VNI) for the forwarding entry. This leaf is
         applicable only to next-hops which include VXLAN encapsulation
         header information.
 
-        This leaf is deprecated.  The encap-headers/encap-header/xvlan tree
-        should be used instead.";
+        This node must be supported in addition to the
+        encap-headers/encap-header tree.  A future release of OpenConfig
+        will deprecate this node in favor of the
+        encap-headers/encap-header subtree.";
     }
 
     leaf tunnel-src-ip-address {
       type oc-inet:ip-address;
-      status deprecated;
       description
         "Where applicable this represents the vxlan tunnel source ip address.
         For VXLAN this represents the source VTEP ip address.
 
-        This leaf is deprecated.  The encap-headers/encap-header/xvlan tree
-        should be used instead.";
+        This node must be supported in addition to the
+        encap-headers/encap-header tree.  A future release of OpenConfig
+        will deprecate this node in favor of the
+        encap-headers/encap-header subtree.";
     }
   }
 
@@ -490,44 +493,47 @@ submodule openconfig-aft-common {
     leaf pop-top-label {
       type boolean;
       default false;
-      status deprecated;
       description
         "Flag that controls pop action, i.e., the top-most MPLS label
-         should be popped from the packet when switched by the system.
+        should be popped from the packet when switched by the system.
 
         The top-most MPLS label associated with pop action is equal to
         the label key used in 'mpls' AFT 'label-entry' list.
 
-        This node is deprecated and the encap-headers/encap-header tree
-        should be used instead.";
+        This node must be supported in addition to the
+        encap-headers/encap-header tree.  A future release of OpenConfig
+        will deprecate this node in favor of the
+        encap-headers/encap-header subtree.";
     }
 
     leaf-list pushed-mpls-label-stack {
       type oc-mplst:mpls-label-stack;
       ordered-by user;
-      status deprecated;
       description
         "The MPLS label stack imposed when forwarding packets to the
-         next-hop. See the description of the type
-         oc-mplst:mpls-label-stack for encoding rules.
+        next-hop. See the description of the type
+        oc-mplst:mpls-label-stack for encoding rules.
 
-         Note: a swap operation is reflected by entries in the
-         popped-mpls-label-stack and pushed-mpls-label-stack nodes.
+        Note: a swap operation is reflected by entries in the
+        popped-mpls-label-stack and pushed-mpls-label-stack nodes.
 
-         This node is deprecated and the encap-headers/encap-header tree
-         should be used instead.";
+        This node must be supported in addition to the
+        encap-headers/encap-header tree.  A future release of OpenConfig
+        will deprecate this node in favor of the
+        encap-headers/encap-header subtree.";
     }
 
     leaf encapsulate-header {
       type oc-aftt:encapsulation-header-type;
-      status deprecated;
       description
         "When forwarding a packet to the specified next-hop the local
         system performs an encapsulation of the packet - adding the
         specified header type.
 
-        This node is deprecated and encap-headers/encap-header/state/type
-        should be used instead.";
+        This node must be supported in addition to the
+        encap-headers/encap-header tree.  A future release of OpenConfig
+        will deprecate this node in favor of the
+        encap-headers/encap-header subtree.";
     }
 
     leaf decapsulate-header {
