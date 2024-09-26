@@ -10,6 +10,7 @@ module openconfig-policy-types {
   // import some basic types
   import ietf-yang-types { prefix yang; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-yang-types { prefix oc-yang; }
 
   // meta
   organization
@@ -24,7 +25,31 @@ module openconfig-policy-types {
     policy.  It can be imported by modules that contain protocol-
     specific policy conditions and actions.";
 
-  oc-ext:openconfig-version "3.1.1";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2024-05-14" {
+    description
+      "Add hex-string-prefixed to typedef tag-type.";
+    reference "3.3.0";
+  }
+
+revision "2022-11-08" {
+    description
+      "Add INSTALL_PROTOCOL_TYPE local.";
+    reference "3.2.3";
+  }
+
+  revision "2022-02-11" {
+    description
+      "Add PCEP to INSTALL_PROTOCOL_TYPES identity";
+    reference "3.2.2";
+  }
+
+  revision "2021-12-10" {
+    description
+      "Add INSTALL_PROTOCOL_TYPE gRIBI.";
+    reference "3.2.1";
+  }
 
   revision "2018-11-21" {
     description
@@ -147,14 +172,18 @@ module openconfig-policy-types {
     type union {
       type uint32;
       type yang:hex-string;
+      type oc-yang:hex-string-prefixed {
+        length "3..18";
+      }
     }
-    description "type for expressing route tags on a local system,
-    including IS-IS and OSPF; may be expressed as either decimal or
-    hexidecimal integer";
+    description
+      "Type for expressing route tags on a local system, including IS-IS
+      and OSPF; This may be expressed as either decimal or hexidecimal
+      integer.";
     reference
-      "RFC 2178 OSPF Version 2
+      "RFC 2178 OSPF Version 2 specifies a 32 bit value
       RFC 5130 A Policy Control Mechanism in IS-IS Using
-      Administrative Tags";
+      Administrative Tags specifies 32 bit and 64 bit values.";
   }
 
   identity INSTALL_PROTOCOL_TYPE {
@@ -227,5 +256,42 @@ module openconfig-policy-types {
       "Internet Group Management Protocol";
     reference
       "RFC 3376";
+  }
+
+  identity GRIBI {
+    base INSTALL_PROTOCOL_TYPE;
+    description "gRPC Routing Information Base Interface";
+  }
+
+  identity PCEP {
+    base INSTALL_PROTOCOL_TYPE;
+    description
+      "Path Computation Element Communication Protocol";
+    reference
+      "RFC 5440";
+  }
+
+  identity LOCAL {
+    base INSTALL_PROTOCOL_TYPE;
+    description
+      "A local route.
+
+      Local routes define a route for the one specific IP
+      address configured on the router interface. They are
+      created in association with directly connected routes.
+      Local routes must end with a /32 in the case of ipv4
+      or /128 for ipv6.
+      For example, when configuring an interface with the ip
+      address
+
+      10.244.136.79/31
+
+      the derived DIRECTLY_CONNECTED route is
+
+      10.244.136.78/31
+
+      and the derived LOCAL route is
+
+      10.244.136.79/32.";
   }
 }

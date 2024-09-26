@@ -12,6 +12,7 @@ module openconfig-evpn {
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
+  import openconfig-types { prefix oc-types; }
 
   // meta
   organization
@@ -39,7 +40,64 @@ module openconfig-evpn {
     domains, this is not currently supported and requires an extension
     of the model.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.11.0";
+
+  revision "2024-08-14" {
+   description
+      "Add new local-endpoint-vnis config container to Vxlan connection point to allow
+      configuration of local VNI-to-VLAN and VNI-to-VRF maps";
+   reference   "0.11.0";
+  }
+
+  revision "2024-06-07" {
+   description
+      "Add new vni-list leaf list to EVI config to support VLAN-aware-bundle
+      MACVRFs.  Make existing vni leaf conditional on MACVRF type being VLAN-based";
+   reference   "0.10.0";
+  }
+
+  revision "2024-05-14" {
+   description
+     "Add configuration of VPWS identifier
+     for EVPN Virtual Private Wire Services (RFC 8214)";
+     reference   "0.9.0";
+  }
+
+  revision "2024-04-03" {
+   description
+     "Add vni-peer-groups container";
+   reference   "0.8.0";
+  }
+
+  revision "2024-02-01" {
+   description
+     "Add counters under endpoint-peer and endpoint-vni";
+   reference   "0.7.0";
+  }
+
+  revision "2023-07-12" {
+   description
+     "Removed ethernet segment";
+   reference   "0.6.0";
+  }
+
+  revision "2023-03-08" {
+   description
+     "Change control-plane-vnis property to leaf-list";
+   reference   "0.5.0";
+  }
+
+  revision "2023-01-24" {
+   description
+     "Add control word support";
+   reference   "0.4.0";
+  }
+
+  revision "2021-06-28" {
+   description
+     "Add vxlan endpoint oper data";
+   reference   "0.3.0";
+  }
 
   revision "2021-06-11" {
    description
@@ -142,218 +200,7 @@ module openconfig-evpn {
     }
   }
 
-  grouping evpn-ethernet-segment-df-config {
-    description
-      "Configuration parameters for the Designated forwarding
-      Election";
 
-    leaf df-election-method {
-      type enumeration {
-        enum DEFAULT {
-          value 0;
-          description
-            "The default Designated Forwarder Election election method";
-        }
-        enum HIGHEST_RANDOM_WEIGHT {
-          value 1;
-          description
-            "The highest random weight (HRW) method";
-          reference
-            "RFC8584: Framework for Ethernet VPN Designated Forwarder
-            Election Extensibility";
-        }
-        enum PREFERENCE {
-          value 2;
-          description
-            "The preference based method";
-          reference
-            "RFC8584: Framework for Ethernet VPN Designated Forwarder
-            Election Extensibility";
-        }
-      }
-      description
-        "Select the Designated Forwarder Election (DF) election method";
-      reference
-        "RFC 7432: BGP MPLS-Based Ethernet VPN.
-        RFC 8584:Framework for Ethernet VPN Designated Forwarder
-        Election Extensibility";
-    }
-
-    leaf preference {
-      when "../df-election-method = 'PREFERENCE'" {
-      description
-        "The preference value is only applicable
-        to the preference based method";
-      }
-      type uint16;
-      description
-        "Defines a 2-octet value that indicates the PE
-        preference to become the DF in the Ethernet-Segment.";
-      reference
-        "RFC8584: Framework for Ethernet VPN Designated Forwarder
-        Election Extensibility";
-    }
-
-    leaf revertive {
-      when "../df-election-method = 'PREFERENCE'" {
-      description
-        "The revertive value is only applicable
-        to the preference method";
-      }
-      type boolean;
-      default true;
-      description
-        "The 'preempt' or 'revertive' behavior. This option will allow a
-        non-revertive behavior in the DF election.";
-      reference
-        "RFC8584: Framework for Ethernet VPN Designated Forwarder
-        Election Extensibility";
-    }
-
-    leaf election-wait-time {
-      when "../df-election-method = 'PREFERENCE'" {
-      description
-        "The Designated Forwarder Election wait-time is only applicable
-        to the preference method";
-      }
-      type uint32;
-      description
-        "Designated Forwarder Election wait-time. When the DF timer expires,
-        the PE device selects the DF based on the highest preference value";
-      reference
-        "RFC8584: Framework for Ethernet VPN Designated Forwarder
-        Election Extensibility";
-    }
-  }
-
-  grouping evpn-ethernet-segment-df-top {
-    description
-      "Top grouping for the configuration and state parameters
-      for the Designated forwarding Election";
-
-    container df-election {
-      description
-        "Top container for the configuration and state parameters
-        for the Designated forwarding Election";
-
-      container config {
-        description
-          "Configuration parameters for the Designated forwarding Election";
-
-        uses evpn-ethernet-segment-df-config;
-      }
-
-      container state {
-        description
-          "Configuration parameters for the Designated forwarding Election";
-        config false;
-
-        uses evpn-ethernet-segment-df-config;
-      }
-    }
-  }
-
-  grouping evpn-ethernet-segment-config {
-    description
-      "Configuration attributes for the Ethernet
-      Segment.";
-
-    leaf name {
-      type string;
-      description
-        "Ethernet Segment name";
-    }
-
-    leaf esi-type {
-      type oc-evpn-types:esi-type;
-      default "TYPE_0_OPERATOR_CONFIGURED";
-      description
-        "ESI Type is a 1-octet field (most significant octet) that
-        specifies the format of the remaining 9 octets (ESI Value).";
-      reference
-        "RFC 7432: BGP MPLS-Based Ethernet VPN page-16";
-    }
-
-    leaf esi {
-      type union {
-        type oc-evpn-types:esi;
-        type enumeration {
-          enum AUTO {
-            description
-              "This ESI type indicates an auto-generated ESI value.";
-            reference
-              "RFC 7432: BGP MPLS-Based Ethernet VPN";
-          }
-        }
-      }
-      description
-        "Ethernet Segment Identifier (ESI) value.
-        For ESI Type 0: The esi leaf value is directly configured by the operator.
-        For ESI Type 1: The AUTO enum must be used.
-        For ESI Type 2: The AUTO enum must be used.
-        For ESI Type 3: The directly configured or AUTO enum must be used.
-        For ESI Type 4: The directly configured or AUTO enum must be used.
-        For ESI Type 5: The directly configured or AUTO enum must be used.";
-      reference
-        "RFC 7432: BGP MPLS-Based Ethernet VPN.";
-    }
-
-    leaf redundancy-mode {
-      type identityref {
-        base oc-evpn-types:EVPN_REDUNDANCY_MODE;
-      }
-      description
-        "Multihoming options for load balancing of
-        traffic in the Ethernet Segment.";
-      reference
-        "RFC 7432: BGP MPLS-Based Ethernet VPN";
-    }
-
-    uses oc-if:interface-ref-common;
-  }
-
-  grouping evpn-ethernet-segment-top {
-    description
-      "Top-level grouping for ethernet segments. An Ethernet Segment
-      is referenced by a name and an ESI";
-
-    container ethernet-segments {
-      description
-        "Top-level container for ethernet segments. An Ethernet Segment
-        is referenced by a name and an ESI";
-
-      list ethernet-segment {
-        key "name";
-        description
-          "List of Ethernet Segments.";
-
-        leaf name {
-          type leafref {
-            path '../config/name';
-          }
-          description
-            "Ethernet Segment Name ";
-        }
-
-        container config {
-          description
-            "Configuration data for the Ethernet Segments.";
-
-          uses evpn-ethernet-segment-config;
-        }
-
-        container state {
-          config false;
-          description
-            "Operational state data for the Ethernet Segments.";
-
-          uses evpn-ethernet-segment-config;
-        }
-
-        uses evpn-ethernet-segment-df-top;
-      }
-    }
-  }
 
   /* Groupings related to the Layer 2 forwarding (aka MAC-VRF)*/
 
@@ -718,6 +565,41 @@ module openconfig-evpn {
       reference
         "RFC 7432: BGP MPLS-Based Ethernet VPN page-18";
     }
+
+    leaf control-word-enabled {
+      type boolean;
+      description
+        "When true, the control word is signaled and sent.";
+      reference
+            "RFC8214 Virtual Private Wire Service Support
+            in Ethernet VPN
+            draft-ietf-bess-rfc7432bis-05 BGP MPLS-Based
+             Ethernet VPN";
+    }
+
+    leaf local-vpws-service-id {
+      type uint32 {
+        range "1..16777215";
+      }
+      description
+        "Indicates the local VPWS identifier assigned
+         to the Attachment Circuit (AC).";
+      reference
+        "RFC8214 Virtual Private Wire Service Support
+        in Ethernet VPN.";
+    }
+
+    leaf remote-vpws-service-id {
+      type uint32 {
+        range "1..16777215";
+      }
+      description
+        "Indicates the remote VPWS identifier assigned
+         to the Attachment Circuit (AC).";
+      reference
+        "RFC8214 Virtual Private Wire Service Support
+        in Ethernet VPN.";
+    }
   }
 
   grouping evpn-import-export-config {
@@ -808,10 +690,25 @@ module openconfig-evpn {
       Using Ethernet VPN";
 
     leaf vni {
+      when "../../../config/service-type = 'oc-evpn-types:VLAN_BASED' or
+            ../../../config/service-type = 'oc-evpn-types:VLAN_BUNDLE'" {
+        description
+          "For VLAN-based and VLAN-bundle EVIs, use a single VNI";
+      }
       type oc-evpn-types:vni-id;
       description
         "Virtual Network Identifier (VNI) associated to the EVI. This VNI is used for
         ingress and egress in the VXLAN domain.";
+    }
+
+    leaf-list vni-list {
+      when "../../../config/service-type = 'oc-evpn-types:VLAN_AWARE'" {
+        description
+          "For VLAN-aware-bundle EVIs, use a list of VNIs";
+      }
+      type oc-evpn-types:vni-id;
+      description
+        "List of VNIs participating in a VLAN-aware-bundle EVI";
     }
 
     leaf overlay-endpoint-network-instance {
@@ -1060,6 +957,398 @@ module openconfig-evpn {
         the network instance";
 
       uses evpn-vxlan-parameters-config;
+    }
+
+    container endpoint-peers {
+      description
+        "Top level container for state information related to peer VXLAN Tunnel
+        Endpoints(VTEPs) learned by the local VTEP in the default network
+        instance";
+      config false;
+
+      list endpoint-peer {
+        key "peer-address";
+          description "List of VTEP peers and associated state information";
+
+        leaf peer-address {
+          type leafref {
+            path '../state/peer-address';
+          }
+          description "IP address for the VTEP peer";
+        }
+
+        container state {
+          config false;
+            description
+              "Container for state parameters related to this VTEP peer";
+            uses evpn-endpoint-peer-state;
+            uses evpn-endpoint-counters;
+        }
+        container vni-peer-groups {
+          config false;
+          description
+            "Container for associating ingress and egress VNIs to router MACs";
+          list vni-peer-group {
+            key "cp-vni egress-vni";
+            description
+              "List of VNI peer groups";
+            leaf cp-vni {
+              type leafref {
+                path "../state/cp-vni";
+              }
+              description
+                "A reference to the control-plane VNI for the VNI peer group";
+            }
+            leaf egress-vni {
+              type leafref {
+                path "../state/egress-vni";
+              }
+              description
+                "A reference to the egress VNI for the VNI peer group";
+            }
+
+            container state {
+              description "State container for the VNI peer group";
+              config false;
+
+              leaf cp-vni {
+                type oc-evpn-types:vni-id;
+                description
+                  "The control-plane VNI discovered behind this peer VTEP";
+              }
+              leaf egress-vni {
+                type oc-evpn-types:vni-id;
+                description "Egress VNI associated with the remote VTEP";
+              }
+              leaf router-mac {
+                type oc-yang:mac-address;
+                description "MAC address of the remote VTEP";
+              }
+            }
+          }
+        }
+      }
+    }
+
+    container endpoint-vnis {
+      description
+        "Top level container for state information related to Layer 2 virtual
+        network identifiers (L2VNIs) and Layer 3 virtual network identifiers
+        (L3VNIs) that are learned on the local VXLAN Tunnel End Point from
+        remote VTEPs in the default network instance";
+      config false;
+
+      list endpoint-vni {
+        key "vni";
+        description "List of L2VNIs and L3VNIs learned on the local VTEP";
+
+        leaf vni {
+          type leafref {
+            path '../state/vni';
+          }
+          description "L2VNI or L3VNI Identifier";
+        }
+
+        container state {
+          config false;
+          description
+            "Container for state parameters related to this L2VNI or L3VNI";
+          uses evpn-endpoint-vni-config;
+          uses evpn-endpoint-vni-state;
+        }
+
+        uses ipv4-top;
+        uses ipv6-top;
+      }
+    }
+
+    container local-endpoint-vnis {
+      description
+        "Top level container for local configuration related to Layer 2 virtual
+        network identifiers (L2VNIs) and Layer 3 virtual network identifiers
+        (L3VNIs) in the default network instance";
+
+      list local-endpoint-vni {
+        key "vni";
+        description "List of L2VNIs and L3VNIs configured on the local VTEP";
+
+        leaf vni {
+          type leafref {
+            path '../config/vni';
+          }
+          description "L2VNI or L3VNI Identifier";
+        }
+
+        container config {
+          description
+            "Container for configuration parameters related to this local L2VNI or
+            L3VNI";
+          uses evpn-endpoint-vni-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Container for state parameters related to this local L2VNI or L3VNI";
+          uses evpn-endpoint-vni-config;
+        }
+      }
+    }
+  }
+
+  grouping evpn-endpoint-peer-state {
+    description
+      "Grouping for state information related to peer VXLAN Tunnel
+      Endpoints(VTEPs) learned by the local VTEP";
+
+    leaf peer-address {
+      type oc-inet:ip-address;
+      description "IP address of the remote VXLAN Tunnel Endpoint peer";
+    }
+
+    leaf peer-state {
+      type enumeration {
+        enum UP {
+          description
+            "Operational status of the remote VTEP to indicate that the peer
+            status is UP";
+        }
+        enum DOWN {
+          description
+            "Operational status of the remote VTEP to indicate that the peer
+            status is DOWN";
+        }
+      }
+      description "State parameters related to the remote VTEP peer state";
+    }
+
+    leaf uptime {
+      type oc-types:timeticks64;
+      description
+        "This timestamp indicates the time elapsed relative to the moment that
+        the remote VTEP peer was discovered.";
+    }
+
+    leaf-list control-plane-vnis {
+      type oc-evpn-types:vni-id;
+      status deprecated;
+      description
+        "The control-plane VNIs are all of the VNIs that are discovered by the
+        control-plane behind this peer VTEP";
+    }
+
+    leaf router-mac {
+      type oc-yang:mac-address;
+      status deprecated;
+      description "MAC address of the remote VTEP";
+    }
+  }
+
+  grouping evpn-endpoint-counters {
+    description
+      "Grouping for Operational state regarding encapsulated traffic.";
+    container counters {
+      description
+        "Operational state regarding encapsulated traffic.";
+      leaf total-encap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of encapsulated packets.";
+      }
+      leaf total-encap-bytes {
+        type oc-yang:counter64;
+        description
+          "The total number of encapsulated bytes.";
+      }
+      leaf bum-encap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of encapsulated BUM packets.";
+      }
+      leaf total-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated packets.";
+      }
+      leaf total-decap-bytes {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated bytes.";
+      }
+      leaf unicast-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated unicast packets.";
+      }
+      leaf bum-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated BUM packets.";
+      }
+      leaf bum-decap-multicast-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of decapsulated BUM packets received via underlay multicast.";
+      }
+      leaf bum-decap-ir-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of decapsulated BUM packets received via underlay ingress replication.";
+      }
+      leaf drop-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated packets that have been dropped locally.";
+      }
+      leaf except-decap-pkts {
+        type oc-yang:counter64;
+        description
+          "The total number of decapsulated packets that hit an exceptional condition.";
+      }
+    }
+  }
+
+  grouping ipv4-top {
+    description
+      "Grouping for Operational state of IPv4 address family.";
+    container ipv4 {
+      description
+        "Parameters for the IPv4 address family.";
+      container state {
+        config false;
+        description
+          "Top level IPv4 operational state data.";
+        uses evpn-endpoint-counters;
+      }
+    }
+  }
+
+  grouping ipv6-top {
+    description
+      "Grouping for Operational state of IPv6 address family.";
+    container ipv6 {
+      description
+        "Parameters for the IPv6 address family.";
+      container state {
+        config false;
+        description
+          "Top level IPv6 operational state data.";
+        uses evpn-endpoint-counters;
+      }
+    }
+  }
+
+  grouping evpn-endpoint-vni-config {
+    description
+      "Grouping for L2VNI and L3VNI configuration parameters";
+
+    leaf vni {
+      type oc-evpn-types:evi-id;
+      description "L2VNI or L3VNI Identifier";
+    }
+
+    leaf vni-type {
+      type enumeration {
+        enum L2 {
+          description
+            "This is a Layer 2 service virtual network identifier (L2VNI)
+            that is used for communication within the same subnet or
+            broadcast domain";
+        }
+        enum L3 {
+          description
+            "This is a Layer 3 service virtual network identifier (L3VNI)
+            or VRF VNI that is used for communication between subnets";
+        }
+      }
+      description "The type of virtual network identfier";
+    }
+
+    leaf bridge-domain {
+      type uint32;
+      description
+        "This reflects the configured VLAN or Bridge Domain that maps to this
+        L2VNI in the VXLAN fabric";
+    }
+
+    leaf l3-vrf-name {
+      type string;
+      description
+        "This refects the configured VRF instance that maps to this L3VNI
+        that is used for routing between subnets in the VXLAN fabric";
+    }
+  }
+
+  grouping evpn-endpoint-vni-state {
+    description
+      "Grouping for L2VNI and L3VNI state information learned on the
+      local VXLAN Tunnel End Point from remote VTEPs";
+
+    leaf multidestination-traffic {
+      type union {
+        type oc-inet:ip-address;
+        type enumeration {
+          enum STATIC_INGRESS_REPLICATION {
+            description
+              "Static ingress replication mode.";
+          }
+          enum BGP_INGRESS_REPLICATION {
+            description
+              "BGP EVPN ingress replication mode. It includes the ability to
+              signal a P2MP LSP for the EVPN Inclusive Provider Tunnel
+              for BUM traffic";
+          }
+        }
+      }
+      description
+        "The data plane for overlays needs to handle the transport of
+         multidestination traffic. Multidestination traffic is typically
+         referred to as (BUM) which stands for broadcast, unknown unicast,
+         or multicast. The two most common methods that can accommodate this
+         replication and transport in the underlay are IP multicast and
+         ingress replication
+         (also called head-end replication or unicast mode).";
+    }
+
+    leaf learning-mode {
+      type oc-evpn-types:learning-mode;
+      description
+        "Indicates whether the learning mode for this VNI is either
+        control-plane or data-plane";
+    }
+
+    leaf vni-state {
+      type enumeration {
+        enum UP {
+          description
+            "Operational status of the virtual network identifier (VNI) to
+            indicate that it is UP";
+        }
+        enum DOWN {
+          description
+            "Operational status of the virtual network identifier (VNI) to
+            indicate that it is DOWN";
+        }
+      }
+      description "Operational state of the L2VNI or L3VNI";
+    }
+
+    leaf svi-state {
+      type enumeration {
+        enum UP {
+          description
+            "Operational status of the SVI mapped to the L3VNI used for routing
+            between subnets to indicate the SVI is UP";
+        }
+        enum DOWN {
+          description
+            "Operational status of the SVI mapped to the L3VNI used for routing
+            between subnets to indicate the SVI is DOWN";
+        }
+      }
+      description
+        "Operational status of the SVI mapped to the L3VNI that is used for
+        routing between subnets in the VXLAN fabric";
     }
   }
 }

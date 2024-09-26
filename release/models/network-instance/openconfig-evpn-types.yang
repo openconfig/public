@@ -25,7 +25,13 @@ module openconfig-evpn-types {
     policy. It can be imported by modules that make use of EVPN
     attributes";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2021-06-21" {
+    description
+      "Add types needed for BGP l2vpn evpn support";
+    reference "0.2.0";
+  }
 
   revision "2021-06-16" {
     description
@@ -287,4 +293,13 @@ module openconfig-evpn-types {
       "Type of MAC address learning procedure";
   }
 
+  typedef ethernet-tag {
+    type uint32;
+    description
+      "An Ethernet Tag ID is a 32-bit field containing either a 12-bit
+       or 24-bit identifier that identifies a particular broadcast
+       domain (e.g., a VLAN) in an EVPN instance.";
+    reference
+      "RFC 7432: BGP MPLS-Based Ethernet VPN page-10";
+  }
 }

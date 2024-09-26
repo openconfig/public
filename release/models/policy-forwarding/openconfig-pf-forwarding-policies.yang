@@ -21,7 +21,25 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.6.1";
+
+  revision "2023-04-25" {
+    description
+      "Clarify use of interface-ref.";
+    reference "0.6.1";
+  }
+
+  revision "2023-03-27" {
+    description
+      "Add support for decap in one NI and further actions in other NIs.";
+    reference "0.6.0";
+  }
+
+  revision "2022-01-25" {
+    description
+      "Add GUE and MPLS-in-UDP decapsulation actions.";
+    reference "0.5.0";
+  }
 
   revision "2021-08-06" {
     description
@@ -258,6 +276,65 @@ submodule openconfig-pf-forwarding-policies {
         according to the IP destination).";
     }
 
+    leaf decap-network-instance {
+      type leafref {
+        // this must be an absolute reference to allow another NI
+        // to be referenced.
+        path "/network-instances/network-instance/config/name";
+      }
+      description
+        "This leaf is mutually exclusive with ../network-instance.
+        This leaf should be used along with
+        ../decap-fallback-network-instance and ../post-decap-network-instance.
+        This leaf is normally used with NIs (network instances) that are
+        populated by SDN controllers (e.g. via gRIBI), where we want:
+          - The decapsulation decision to be controlled by the
+            controllers.
+          - The new header after decapsulation is to be looked up in
+            another NI, and the NI is chosen by fields (e.g. source IP,
+            DSCP, etc) that are not used for route resolution.
+        When this leaf is set, packets matching the match criteria for
+        the forwarding rule should be looked up in the specified NI.
+        It is expected that the NI should only contain routes that have
+        next hop action as decapsulation.
+          - If there is a match, the packet should be decapsulated.
+            The route lookup on the new header should happen in the
+            ../post-decap-network-instance.
+          - If there is no match, the packet should be looked up in the
+            NI set by ../decap-fallback-network-instance.";
+    }
+
+    leaf decap-fallback-network-instance {
+      type leafref {
+        // this must be an absolute reference to allow another NI
+        // to be referenced.
+        path "/network-instances/network-instance/config/name";
+      }
+      description
+        "This leaf has to be set when ../decap-network-instance is set.
+        When this leaf is set, the specified NI should be used as a
+        fallback instance for lookup when
+        ../decap-network-instance produces no match for the packet.
+        NI specified by this leaf might contain different mixed next hop
+        actions (e.g. next hop IP, decapsulation, redirect to another NI,
+        etc).";
+    }
+
+    leaf post-decap-network-instance {
+      type leafref {
+        // this must be an absolute reference to allow another NI
+        // to be referenced.
+        path "/network-instances/network-instance/config/name";
+      }
+      description
+        "This leaf can only be set when ../decap-network-instance is set.
+        When this leaf is set, the specified NI should be used for lookup
+        on the new header after ../decap-network-instance does decap for
+        the matched packet. NI specified by this leaf might contain different
+        mixed next hop actions (e.g. next hop IP, decapsulation,
+        redirect to another NI, etc).";
+    }
+
     leaf network-instance {
       type leafref {
         // this must be an absolute reference to allow another NI to be
@@ -265,7 +342,8 @@ submodule openconfig-pf-forwarding-policies {
         path "/network-instances/network-instance/config/name";
       }
       description
-        "When this leaf is set, packets matching the match criteria
+        "This leaf is mutually exclusive with ../decap-network-instance.
+        When this leaf is set, packets matching the match criteria
         for the forwarding rule should be looked up in the
         network-instance that is referenced rather than the
         network-instance with which the interface is associated.
@@ -299,6 +377,26 @@ submodule openconfig-pf-forwarding-policies {
         packets matching the match criteria for the forwarding rule
         should be forwarded to the next-hop IP address, bypassing any
         lookup on the local system.";
+    }
+
+    leaf decapsulate-mpls-in-udp {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, the local system should remove
+        the UDP header from the packet matching the rule.
+        Following the decapsulation it should subsequently forward the
+        encapsulated packet according to the underlying MPLS label.";
+    }
+
+    leaf decapsulate-gue {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, the local system should remove
+        the Generic UDP Encapsulation (GUE) header from the packet matching
+        the rule. Following the decapsulation it should subsequently forward the
+        encapsulated packet according to the underlying IPv4 or IPv6 header.";
     }
   }
 

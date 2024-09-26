@@ -32,11 +32,36 @@ module openconfig-ap-interfaces {
     "This module defines the configuration and state data for
     non-radio interfaces on WiFi Access Points.";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "1.3.0";
+
+  revision "2023-08-10" {
+    description
+      "Add container to make compatible with changes in
+      openconfig-interfaces";
+    reference "1.3.0";
+  }
+
+  revision "2023-06-26" {
+    description
+      "Remove deviation for unnumbered interfaces";
+    reference "1.2.0";
+  }
+
+  revision "2023-05-26" {
+    description
+      "Add full stop to all descriptions.";
+    reference "1.0.1";
+  }
+
+  revision "2021-08-02" {
+    description
+      "Update model version as it is in production.";
+    reference "1.0.0";
+  }
 
   revision "2020-03-24" {
     description
-      "Update namespace based on new directory structure";
+      "Update namespace based on new directory structure.";
     reference "0.1.1";
   }
 
@@ -49,7 +74,7 @@ module openconfig-ap-interfaces {
   grouping ap-interfaces-top {
     description
       "Top-level grouping for AP interface configuration and
-      operational state data";
+      operational state data.";
 
     container interfaces {
       description
@@ -67,13 +92,13 @@ module openconfig-ap-interfaces {
             path "../config/name";
           }
           description
-            "References the name of the interface";
+            "References the name of the interface.";
         }
 
         container config {
           description
             "Configurable items at the global, physical interface
-            level";
+            level.";
           oc-ext:telemetry-on-change;
 
           uses oc-if:interface-phys-config;
@@ -83,11 +108,19 @@ module openconfig-ap-interfaces {
 
           config false;
           description
-            "Operational state data at the global interface level";
+            "Operational state data at the global interface level.";
 
           uses oc-if:interface-phys-config;
           uses oc-if:interface-common-state;
-          uses oc-if:interface-counters-state;
+
+          container counters {
+            description
+              "A collection of interface specific statistics entitites which are
+              not common to subinterfaces.";
+
+            uses oc-if:interface-common-counters-state;
+            uses oc-if:interface-counters-state;
+          }
         }
       }
     }
@@ -97,7 +130,7 @@ module openconfig-ap-interfaces {
   augment "/oc-access-points:access-points/" +
     "oc-access-points:access-point" {
     description
-      "Adds interface configuration and state to access-points model";
+      "Adds interface configuration and state to access-points model.";
 
     uses ap-interfaces-top;
   }
@@ -107,7 +140,7 @@ module openconfig-ap-interfaces {
     "oc-ap-if:interface" {
     description
       "Adds ethernet interface configuration and state to
-      access-points model";
+      access-points model.";
 
     uses oc-eth:ethernet-top;
   }
@@ -116,7 +149,7 @@ module openconfig-ap-interfaces {
     "oc-access-points:access-point/oc-ap-if:interfaces/" +
     "oc-ap-if:interface/oc-ap-if:ethernet" {
     description
-        "Adds 802.1X settings to individual Ethernet interfaces";
+        "Adds 802.1X settings to individual Ethernet interfaces.";
 
       uses oc-1x:dot1x-top;
   }
@@ -135,7 +168,7 @@ module openconfig-ap-interfaces {
     "oc-ap-if:interface" {
     description
       "Adds subinterface configuration and state to
-      access-points model";
+      access-points model.";
 
     uses oc-if:subinterfaces-top;
   }
@@ -145,7 +178,7 @@ module openconfig-ap-interfaces {
     "oc-ap-if:interface/oc-ap-if:subinterfaces/oc-ap-if:subinterface" {
     description
       "IPv4 address family configuration for
-      interfaces";
+      interfaces.";
 
     uses oc-ip:ipv4-top;
   }
@@ -155,7 +188,7 @@ module openconfig-ap-interfaces {
     "oc-ap-if:interface/oc-ap-if:subinterfaces/oc-ap-if:subinterface" {
     description
       "IPv6 address family configuration for
-      interfaces";
+      interfaces.";
 
     uses oc-ip:ipv6-top;
   }
@@ -164,7 +197,7 @@ module openconfig-ap-interfaces {
     "oc-access-points:access-point/oc-ap-if:interfaces/" +
     "oc-ap-if:interface" {
     description
-      "Adds lag configuration and state to access-points model";
+      "Adds lag configuration and state to access-points model.";
 
     uses oc-lag:aggregation-logical-top;
   }
@@ -173,7 +206,7 @@ module openconfig-ap-interfaces {
     "oc-access-points:access-point/oc-ap-if:interfaces/" +
     "oc-ap-if:interface/oc-ap-if:ethernet" {
     description
-      "Adds poe configuration and state to access-points model";
+      "Adds poe configuration and state to access-points model.";
 
     uses oc-poe:poe-ethernet-top;
   }
@@ -200,39 +233,8 @@ module openconfig-ap-interfaces {
     "oc-access-points:access-point/oc-ap-if:interfaces/" +
     "oc-ap-if:interface" {
     description
-      "Adds tunnel configuration and state to access-points model";
+      "Adds tunnel configuration and state to access-points model.";
 
     uses oc-tun:tunnel-top;
-  }
-  // Deviation statements
-  // Unnumbered interfaces not supported on Access Points.
-  deviation "/oc-access-points:access-points/" +
-    "oc-access-points:access-point/" +
-    "oc-ap-if:interfaces/oc-ap-if:interface/" +
-    "oc-ap-if:subinterfaces/oc-ap-if:subinterface/oc-ap-if:ipv4/" +
-    "oc-ap-if:unnumbered" {
-    deviate not-supported;
-  }
-
-  deviation "/oc-access-points:access-points/" +
-    "oc-access-points:access-point/" +
-    "oc-ap-if:interfaces/oc-ap-if:interface/" +
-    "oc-ap-if:subinterfaces/oc-ap-if:subinterface/oc-ap-if:ipv6/" +
-    "oc-ap-if:unnumbered" {
-    deviate not-supported;
-  }
-
-  deviation "/oc-access-points:access-points/" +
-    "oc-access-points:access-point/" +
-    "oc-ap-if:interfaces/oc-ap-if:interface/" +
-    "oc-ap-if:tunnel/oc-ap-if:ipv4/oc-ap-if:unnumbered" {
-    deviate not-supported;
-  }
-
-  deviation "/oc-access-points:access-points/" +
-    "oc-access-points:access-point/" +
-    "oc-ap-if:interfaces/oc-ap-if:interface/" +
-    "oc-ap-if:tunnel/oc-ap-if:ipv6/oc-ap-if:unnumbered" {
-    deviate not-supported;
   }
 }

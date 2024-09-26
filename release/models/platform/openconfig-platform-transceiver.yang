@@ -17,6 +17,7 @@ module openconfig-platform-transceiver {
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-alarm-types { prefix oc-alarm-types; }
 
 
   // meta
@@ -65,7 +66,49 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.14.0";
+
+revision "2023-08-30" {
+    description
+      "Clarify transceiver module threshold for input-power.";
+    reference "0.14.0";
+  }
+
+revision "2023-08-30" {
+    description
+      "Add transceiver module temperature thresholds";
+    reference "0.13.0";
+  }
+
+  revision "2023-06-27" {
+    description
+      "Add tx bias and voltage thresholds";
+    reference "0.12.0";
+  }
+
+  revision "2023-05-03" {
+    description
+      "Increase max length of vendor-rev to 4.";
+    reference "0.11.0";
+  }
+
+  revision "2023-02-10" {
+    description
+      "Fixing linting issues.";
+    reference "0.10.1";
+  }
+
+  revision "2023-01-12" {
+    description
+      "Add laser power and temperature thresholds";
+    reference "0.10.0";
+  }
+
+  revision "2021-07-29" {
+    description
+      "Add several media-lane-based VDM defined by CMIS to physical channel";
+    reference "0.9.0";
+  }
 
   revision "2021-02-23" {
     description
@@ -288,6 +331,59 @@ module openconfig-platform-transceiver {
       channel component and the module-functional-type is
       TYPE_DIGITAL_COHERENT_OPTIC this grouping will NOT be used.";
 
+    leaf laser-age {
+      type oc-types:percentage;
+      description
+        "Laser age (0% at beginning of life, 100% end of life) in integer
+        percentage. This term is defined by Common Management Interface
+        Specification (CMIS).";
+
+      reference "QSFP-DD CMIS 5.0 Table 8-122";
+    }
+
+    container laser-temperature {
+      description
+        "Laser temperature for the cooled laser in degrees Celsius with 1
+        decimal precision. This term is defined by Common Management
+        Interface Specification (CMIS). Values include the instantaneous,
+        average, minimum, and maximum statistics. If avg/min/max statistics
+        are not supported, the target is expected to just supply the
+        instant value.";
+
+      reference "QSFP-DD CMIS 5.0 Table 8-122";
+
+      uses oc-platform-types:avg-min-max-instant-stats-precision1-celsius;
+    }
+
+    container target-frequency-deviation {
+      description
+        "The difference in MHz with 1 decimal precision between the target
+        center frequency and the actual current center frequency . This term
+        is defined by Common Management Interface Specification (CMIS) and
+        referred to as laser frequency error or laser ferquency deviation.
+        Values include the instantaneous, average, minimum, and maximum
+        statistics. If avg/min/max statistics are not supported, the target
+        is expected to just supply the instant value.";
+
+      reference "QSFP-DD CMIS 5.0 Section Table 8-122";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision1-mhz;
+    }
+
+    container tec-current {
+      description
+        "The amount of current flowing to the TC of a cooled laser in percentage
+        with 2 decimal precision. This term is defined by Common Management
+        Interface Specification (CMIS). Values include the instantaneous,
+        average, minimum, and maximum statistics. If avg/min/max statistics
+        are not supported, the target is expected to just supply the instant
+        value.";
+
+      reference "QSFP-DD CMIS 5.0 Table 8-122";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
+    }
+
     uses physical-channel-state-extended {
       when "../../../state/module-functional-type = 'oc-opt-types:TYPE_STANDARD_OPTIC'" {
         description
@@ -354,6 +450,44 @@ module openconfig-platform-transceiver {
     }
   }
 
+  grouping transceiver-threshold-top {
+    description
+      "Top-level grouping for transceiver alarm thresholds for
+      various sensors.";
+
+    container thresholds {
+      description
+        "Enclosing container for transceiver alarm thresholds.";
+
+      list threshold {
+        key "severity";
+        config false;
+        description
+          "List of transceiver alarm thresholds, indexed by
+          alarm severity.";
+
+        leaf severity {
+          type leafref {
+            path "../state/severity";
+          }
+          config false;
+          description
+           "The severity applied to the group of thresholds.
+            An implementation's highest severity threshold
+            should be mapped to OpenConfig's `CRITICAL`
+            severity level.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational alarm thresholds for the transceiver.";
+
+          uses transceiver-threshold-state;
+        }
+      }
+    }
+  }
 
   grouping port-transceiver-config {
     description
@@ -491,10 +625,10 @@ module openconfig-platform-transceiver {
 
     leaf vendor-rev {
       type string {
-        length 1..2;
+        length 1..4;
       }
       description
-        "Transceiver vendor's revision number. 2-octet field that
+        "Transceiver vendor's revision number. Field of 1 to 4 octets that
         contains ASCII characters, left-aligned and padded on the
         right with ASCII spaces (20h)";
     }
@@ -614,7 +748,149 @@ module openconfig-platform-transceiver {
       uses oc-opt-types:avg-min-max-instant-stats-precision18-ber;
     }
 
+    container supply-voltage {
+      description
+        "Supply voltage to the transceiver in volts with 2 decimal
+        precision. Values include the instantaneous, average, minimum,
+        and maximum statistics. If avg/min/max statistics are not
+        supported, the target is expected to just supply the instant
+        value.";
+
+      uses oc-platform-types:avg-min-max-instant-stats-precision2-volts;
+    }
+
     uses optical-power-state;
+  }
+
+  grouping transceiver-threshold-state {
+    description
+      "Grouping for all alarm threshold configs for a particular
+      severity level.";
+    leaf severity {
+      type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The type of alarm to which the thresholds apply.";
+    }
+    leaf laser-temperature-upper {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The upper temperature threshold for the laser temperature sensor.
+        This leaf value is compared to the instant value of
+        laser-temperature.";
+    }
+    leaf laser-temperature-lower {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The lower temperature threshold for the laser temperature sensor.
+        This leaf value is compared to the instant value of
+        laser-temperature.";
+    }
+    leaf output-power-upper{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The upper power threshold for the laser output power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-output-power. This leaf
+        value is compared to the instant value of optical-output-power.";
+    }
+    leaf output-power-lower{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The lower power threshold for the laser output power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-output-power. This leaf
+        value is compared to the instant value of optical-output-power.";
+    }
+    leaf input-power-upper{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The upper power threshold for the laser input power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-input-power. This leaf
+        value is compared to the instant value of optical-input-power.";
+    }
+    leaf input-power-lower{
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units dBm;
+      description
+        "The lower power threshold for the laser input power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-input-power. This leaf
+        value is compared to the instant value of optical-input-power.";
+    }
+    leaf laser-bias-current-upper{
+      description
+        "The upper threshold for the laser bias current. This leaf value is
+        compared to the instant value of last-bias-current.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units mA;
+    }
+    leaf laser-bias-current-lower{
+      description
+        "The lower threshold for the laser bias current. This leaf value is
+        compared to the instant value of last-bias-current.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units mA;
+    }
+    leaf supply-voltage-upper{
+      description
+        "The upper threshold for the transceiver supply voltage. This leaf
+        value is compared to the instant value of supply-voltage.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units volts;
+    }
+    leaf supply-voltage-lower{
+      description
+        "The lower threshold for the transceiver supply voltage. This leaf
+        value is compared to the instant value of supply-voltage.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units volts;
+    }
+    leaf module-temperature-lower {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The lower temperature threshold for the transceiver module. This
+        leaf value is compared to the instant value of module-temperature.";
+    }
+    leaf module-temperature-upper {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The upper temperature threshold for the transceiver module. This
+        leaf value is compared to the instant value of module-temperature.";
+    }
   }
 
   grouping port-transceiver-top {
@@ -645,6 +921,7 @@ module openconfig-platform-transceiver {
       // physical channels are associated with a transceiver
       // component
       uses physical-channel-top;
+      uses transceiver-threshold-top;
     }
   }
 

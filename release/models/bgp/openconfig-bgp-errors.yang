@@ -18,7 +18,81 @@ submodule openconfig-bgp-errors {
     "This module defines BGP NOTIFICATION message error codes
     and subcodes";
 
-  oc-ext:openconfig-version "5.0.2";
+  oc-ext:openconfig-version "6.1.0";
+
+  revision "2024-09-06" {
+    description
+      "Restore NONE enum value for community-type.";
+    reference "6.1.0";
+  }
+
+  revision "2024-01-31" {
+    description
+      "Update community-sets/members/member union type by replacing
+      the bgp-regex type with posix-eregexp.";
+    reference "6.0.0";
+  }
+
+  revision "2023-12-26" {
+    description
+      "Add regex for bgp link bandwidth";
+    reference "5.6.0";
+  }
+
+  revision "2023-09-06" {
+    description
+      "Add GRACEFUL_SHUTDOWN as a BGP_WELL_KNOWN_STD_COMMUNITY";
+    reference "5.5.0";
+  }
+
+  revision "2023-03-31" {
+    description
+      "Add support for BGP large communities [rfc8092] in
+       send-community-type
+
+      Types impacted:
+      - community-type";
+    reference "5.4.0";
+  }
+
+  revision "2021-08-06" {
+    description
+      "Fix pattern regexes to allow full 4-byte private ASN range including
+       42xxxxxxxx in extended communities
+
+      Types impacted:
+      - bgp-ext-community-type";
+    reference "5.3.1";
+  }
+
+  revision "2021-01-07" {
+    description
+      "Remove module extension oc-ext:regexp-posix by making pattern regexes
+      conform to RFC7950.
+
+      Types impacted:
+      - bgp-std-community-type
+      - bgp-ext-community-type";
+    reference "5.3.0";
+  }
+
+  revision "2020-06-30" {
+    description
+      "Add OpenConfig POSIX pattern extensions.";
+    reference "5.2.1";
+  }
+
+  revision "2020-06-17" {
+    description
+      "Add RFC5549 capability identity.";
+    reference "5.2.0";
+  }
+
+  revision "2020-03-24" {
+    description
+      "Add FlowSpec, BGP-LS and LSVR AFI-SAFI identities.";
+    reference "5.1.0";
+  }
 
   revision "2018-11-21" {
     description
