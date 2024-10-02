@@ -442,163 +442,101 @@ In this scenario, the device is does not have hardware or software to implement
 in ingress queue.  To satisfy the OC schema requirements, a dummy or "fake"
 queue is created.
 
-```yaml
----
-# First we define classifiers which match packets based on a condition and
-# define an action to "send" the packets to a forwarding-group
-# (target-group).
-openconfig-qos:
-  classifers:
-    - classifer: “dest_A”
-      config:
-        name: “dest_A”
-      terms:
-        - term:
-          config:
-            id: "match_1_dest_A1"
-          conditions:
-            next-hop-group:
-                config:
-                    name: "nhg_A1"
-          actions:
-            config:
-              target-group: "input_dest_A"
-        - term:
-          config:
-            id: "match_1_dest_A2"
-          conditions:
-            next-hop-group:
-                config:
-                    name: "nhg_A2"
-          actions:
-            config:
-              target-group: "input_dest_A"
-
-    - classifer: “dest_B”
-      config:
-        name: “dest_B”
-      terms:
-        - term:
-          config:
-            id: "match_1_dest_B1"
-          conditions:
-            next-hop-group:
-                config:
-                    name: "nhg_B1"
-          actions:
-            config:
-              target-group: "input_dest_B"
-        - term:
-          config:
-            id: "match_1_dest_B2"
-          conditions:
-            next-hop-group:
-                config:
-                    name: "nhg_B2"
-          actions:
-            config:
-              target-group: "input_dest_B"
-
-  # Here we define a forwarding-group.  The purpose of this is to allow
-  # one to group multiple classifiers together and associate them with a
-  # queue.  In concept, the forwarding-group "sends traffic" to a queue.
-  # See the qos data flow diagram to help visualize this.
-  forwarding-groups:
-    - forwarding-group: "input_dest_A"
-      config:
-        name: "input_dest_A"
-        output-queue: dummy_input_queue_A
-    - forwarding-group: "input_dest_B"
-      config:
-        name: "input_dest_B"
-        output-queue: dummy_input_queue_B
-
-  queues:
-    - queue:
-      config:
-        name: "dummy_input_queue_A"
-    - queue:
-      config:
-        name: "dummy_input_queue_B"
-
-  # Here we define 2 scheduler-policies.
-  # The first has a 1Gb policer for traffic on dummy_input_queue_A
-  # The second has a 2Gb policer for traffic on dummy_input_queue_B
-  scheduler-policies:
-    - scheduler-policy:
-      config:
-        name: "limit_1Gb"
-      schedulers:
-        - scheduler:
-          config:
-            sequence: 1
-            type: ONE_RATE_TWO_COLOR
-          inputs:
-            - input: "my input policer 1Gb"
-              config:
-                id: "my input policer 1Gb"
-                input-type: QUEUE
-                queue: dummy_input_queue_A
-          one-rate-two-color:
-            config:
-              cir: 1000000000           # 1Gbit/sec
-              bc: 100000                # 100 kilobytes
-              queuing-behavior: POLICE
-            exceed-action:
-              config:
-                drop: TRUE
-
-    - scheduler-policy:
-      config:
-        name: "limit_2Gb"
-      schedulers:
-        - scheduler:
-          config:
-            sequence: 1
-            type: ONE_RATE_TWO_COLOR
-          inputs:
-            - input: "my input policer 2Gb"
-              config:
-                id: "my input policer 2Gb"
-                input-type: QUEUE
-                queue: dummy_input_queue_B
-          one-rate-two-color:
-            config:
-              cir: 2000000000           # 2Gbit/sec
-              bc: 100000                # 100 kilobytes
-              queuing-behavior: POLICE
-            exceed-action:
-              config:
-                drop: TRUE
-
-  # Here we map interfaces to an input classifer  and input scheduler-policy
-  interfaces:
-    - interface: "PortChannel1.100"
-        config:
-          interface-id: "PortChannel1.100"
-        input:
-          classifers:
-            - classifier:
-              config:
-                name: "dest_A"
-                type: "IPV4"
-            scheduler-policy:
-              state:
-                name: limit_group_A_1Gb
-    - interface: "PortChannel1.200"
-        config:
-          interface-id: "PortChannel1.200"
-        input:
-          classifers:
-            - classifier:
-              config:
-                name: "dest_B"
-                type: "IPV4"
-          scheduler-policy:
-            state:
-              name: limit_group_B_2Gb
-
-            scheduler-policy:
-              state:
-                name: limit_group_A_1Gb
+```json
+{
+  "openconfig-interfaces": [
+    {
+      "config": {
+        "name": "tunnel1_if_name",
+        "tunnel": {
+          "config": {
+            "dst": "tunnel1_outer_ip_dst",
+            "gre-key": "tunnel1_outer_gre_key",
+            "src": "tunnel1_outer_ip_src",
+            "ttl": "tunnel1_outer_ttl"
+          },
+          "ipv4": {
+            "addresses": [
+              {
+                "address": null,
+                "config": {
+                  "ip": "tunnel1_interface_ipv4",
+                  "prefix-length": "tunnel1_interface_ipv4_prefixlen"
+                }
+              }
+            ],
+            "config": {
+              "mtu": "tunnel1_inner_mtu"
+            }
+          },
+          "ipv6": {
+            "addresses": [
+              {
+                "address": {
+                  "config": {
+                    "ip": "tunnel1_interface_ipv6",
+                    "prefix-length": "tunnel1_interface_ipv6_prefixlen"
+                  }
+                }
+              }
+            ],
+            "config": {
+              "mtu": "tunnel1_inner_mtu"
+            }
+          }
+        }
+      },
+      "interface": null,
+      "name": "tunnel1_if_name"
+    }
+  ],
+  "openconfig-qos": {
+    "interfaces": [
+      {
+        "config": {
+          "interface-id": "PortChannel1.100"
+        },
+        "input": {
+          "classifiers": [
+            {
+              "classifier": "dest_A",
+              "config": {
+                "name": "dest_A",
+                "type": "IPV4"
+              }
+            }
+          ],
+          "scheduler-policy": {
+            "config": {
+              "name": "limit_group_A_1Gb"
+            }
+          }
+        },
+        "interface": "PortChannel1.100"
+      },
+      {
+        "config": {
+          "interface-id": "PortChannel1.200"
+        },
+        "input": {
+          "classifiers": [
+            {
+              "classifier": "dest_B",
+              "config": {
+                "name": "dest_B",
+                "type": "IPV4"
+              }
+            }
+          ],
+          "scheduler-policy": {
+            "config": {
+              "name": "limit_group_B_1Gb"
+            }
+          }
+        },
+        "interface": "PortChannel1.200"
+      }
+    ]
+  }
+}
 ```
