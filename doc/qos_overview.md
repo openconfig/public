@@ -61,7 +61,7 @@ interface's entry in the `/qos/interfaces/interface` list.
 
 ## Annotated QoS Examples
 
-### Ingress Classification with Egress Scheduling
+### Example 1: Ingress Classification with Egress Scheduling
 
 The example QoS configuration below shows the configuration of an interface,
 assumed to be facing a customer which has ingress classification based on DSCP
@@ -430,17 +430,19 @@ markings. The same interface has an egress scheduler policy applied to it.
 }
 ```
 
-### Ingress Classification with Ingress Scheduling (Policer)
+### Example 2: Ingress Classification with Ingress Scheduling (Policer) on a VOQ device
 
 The example QoS configuration below shows the configuration of an interface,
 assumed to be facing a customer which has ingress classification based on
 the next-hop group the packet is being sent to.  The same interface has an
-ingress scheduler policy applied to it which implementes a ONE_RATE_TWO_COLOR
-policer.
+ingress scheduler policy applied to it which implements an
+`ONE_RATE_TWO_COLOR` policer.
 
-In this scenario, the device is does not have hardware or software to implement
-in ingress queue.  To satisfy the OC schema requirements, a dummy or "fake"
-queue is created.
+In this scenario, the device has a VOQ architecture is does not have hardware
+or software to implement in ingress queue.  To satisfy the OC schema
+requirements, a dummy or "fake" queue is created for the ingress side of the
+pipeline.  Note, an egress queue could still be defined on the egress side,
+but it is not included here for simplication.
 
 ```json
 {
