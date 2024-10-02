@@ -268,6 +268,7 @@ submodule openconfig-aft-common {
             Each entry in the list must indicate an encapsulation type and
             populate a container with the parameters for that encapsulation
             header.";
+
           list encap-header {
             description
               "A list of headers added on top of a packet.  The first entry
@@ -277,6 +278,7 @@ submodule openconfig-aft-common {
               For example, in an encapsulation stack with MPLS in UDP, the
               first index in the list is the MPLS packet and the second
               index is UDP.";
+
             key "index";
 
             leaf index {
@@ -308,7 +310,9 @@ submodule openconfig-aft-common {
             container ipv4 {
               when "../state/type = 'oc-aftt:IPV4'";
               description
-                "Container of nodes for IPv4 encapsulation.";
+                "Container of nodes for UDP in IPv4 encapsulation.  When this
+                container is used, an IPv4 packet with no transport header
+                is added to the encapsulation list.";
               container state {
                 description
                   "State parameters relating to IP encapsulation headers.";
@@ -319,7 +323,9 @@ submodule openconfig-aft-common {
             container ipv6 {
               when "../state/type = 'oc-aftt:IPV6'";
               description
-                "Container of nodes for IPv6 encapsulation.";
+                "Container of nodes for UDP in IPv6 encapsulation.  When this
+                container is used, an IPv6 packet with no transport header
+                is added to the encapsulation list.";
               container state {
                 description
                   "State parameters relating to IP encapsulation headers.";
@@ -338,15 +344,31 @@ submodule openconfig-aft-common {
               }
             }
 
-            container udp {
-              when "../state/type = 'oc-aftt:UDPV4' or " +
-              "../state/type = 'oc-aftt:UDPV6'";
+            container udp-v4 {
+              when "../state/type = 'oc-aftt:UDPV4'";
               description
-                "Container of nodes for UDP encapsulation.";
+                "Container of nodes for UDP in IPv4 encapsulation.  When this
+                container is used, an IPv4 packet with a UDP header is added
+                to the encapsulation list.";
               container state {
                 description
-                  "State parameters relating to UDP encapsulation headers.";
-                uses aft-common-entry-nexthop-udp-state;
+                  "State parameters relating to UDP in IPv4 encapsulation
+                  headers.";
+                uses aft-common-entry-nexthop-encap-udp-state;
+              }
+            }
+
+            container udp-v6 {
+              when "../state/type = 'oc-aftt:UDPV6'";
+              description
+                "Container of nodes for UDP in IPv6 encapsulation.  When this
+                container is used, an IPv6 packet with a UDP header is added
+                to the encapsulation list.";
+              container state {
+                description
+                  "State parameters relating to UDP in IPv6 encapsulation
+                  headers.";
+                uses aft-common-entry-nexthop-encap-udp-state;
               }
             }
 
@@ -631,26 +653,26 @@ submodule openconfig-aft-common {
     }
   }
 
-  grouping aft-common-entry-nexthop-udp-state {
+  grouping aft-common-entry-nexthop-encap-udp-state {
     description
       "UDP encapsulation applied on top of a packet.";
 
     leaf src-ip {
       type oc-inet:ip-address;
       description
-        "The source IP address for the MPLS in UDP encapsulation.";
+        "The source IP address for IP/UDP encapsulation.";
     }
 
     leaf dst-ip {
       type oc-inet:ip-address;
       description
-        "Destination IP address to use for the encapsulated packet.";
+        "Destination IP address for IP/UDP encapsulation.";
     }
 
     leaf ip-dscp {
       type oc-inet:dscp;
       description
-        "IP dscp value to use for the UDP header of the encapsulated
+        "IP DSCP value to use for the UDP header of the encapsulated
          packet.";
     }
 
