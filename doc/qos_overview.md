@@ -446,62 +446,213 @@ but it is not included here for simplication.
 
 ```json
 {
-  "openconfig-interfaces": [
-    {
-      "config": {
-        "name": "tunnel1_if_name",
-        "tunnel": {
-          "config": {
-            "dst": "tunnel1_outer_ip_dst",
-            "gre-key": "tunnel1_outer_gre_key",
-            "src": "tunnel1_outer_ip_src",
-            "ttl": "tunnel1_outer_ttl"
-          },
-          "ipv4": {
-            "addresses": [
-              {
-                "address": null,
+  "openconfig-qos": {
+    "classifers": [
+      {
+        "classifer": "“dest_A”",
+        "config": {
+          "name": "“dest_A”"
+        },
+        "terms": [
+          {
+            "term": null,
+            "config": {
+              "id": "match_1_dest_A1"
+            },
+            "conditions": {
+              "next-hop-group": {
                 "config": {
-                  "ip": "tunnel1_interface_ipv4",
-                  "prefix-length": "tunnel1_interface_ipv4_prefixlen"
+                  "name": "nhg_A1"
                 }
               }
-            ],
-            "config": {
-              "mtu": "tunnel1_inner_mtu"
+            },
+            "actions": {
+              "config": {
+                "target-group": "input_dest_A"
+              }
             }
           },
-          "ipv6": {
-            "addresses": [
-              {
-                "address": {
-                  "config": {
-                    "ip": "tunnel1_interface_ipv6",
-                    "prefix-length": "tunnel1_interface_ipv6_prefixlen"
-                  }
+          {
+            "term": null,
+            "config": {
+              "id": "match_1_dest_A2"
+            },
+            "conditions": {
+              "next-hop-group": {
+                "config": {
+                  "name": "nhg_A2"
                 }
               }
-            ],
-            "config": {
-              "mtu": "tunnel1_inner_mtu"
+            },
+            "actions": {
+              "config": {
+                "target-group": "input_dest_A"
+              }
             }
           }
+        ]
+      },
+      {
+        "classifer": "“dest_B”",
+        "config": {
+          "name": "“dest_B”"
+        },
+        "terms": [
+          {
+            "term": null,
+            "config": {
+              "id": "match_1_dest_B1"
+            },
+            "conditions": {
+              "next-hop-group": {
+                "config": {
+                  "name": "nhg_B1"
+                }
+              }
+            },
+            "actions": {
+              "config": {
+                "target-group": "input_dest_B"
+              }
+            }
+          },
+          {
+            "term": null,
+            "config": {
+              "id": "match_1_dest_B2"
+            },
+            "conditions": {
+              "next-hop-group": {
+                "config": {
+                  "name": "nhg_B2"
+                }
+              }
+            },
+            "actions": {
+              "config": {
+                "target-group": "input_dest_B"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "forwarding-groups": [
+      {
+        "forwarding-group": "input_dest_A",
+        "config": {
+          "name": "input_dest_A",
+          "output-queue": "dummy_input_queue_A"
         }
       },
-      "interface": null,
-      "name": "tunnel1_if_name"
-    }
-  ],
-  "openconfig-qos": {
+      {
+        "forwarding-group": "input_dest_B",
+        "config": {
+          "name": "input_dest_B",
+          "output-queue": "dummy_input_queue_B"
+        }
+      }
+    ],
+    "queues": [
+      {
+        "queue": null,
+        "config": {
+          "name": "dummy_input_queue_A"
+        }
+      },
+      {
+        "queue": null,
+        "config": {
+          "name": "dummy_input_queue_B"
+        }
+      }
+    ],
+    "scheduler-policies": [
+      {
+        "scheduler-policy": null,
+        "config": {
+          "name": "limit_1Gb"
+        },
+        "schedulers": [
+          {
+            "scheduler": null,
+            "config": {
+              "sequence": 1,
+              "type": "ONE_RATE_TWO_COLOR"
+            },
+            "inputs": [
+              {
+                "input": "my input policer 1Gb",
+                "config": {
+                  "id": "my input policer 1Gb",
+                  "input-type": "QUEUE",
+                  "queue": "dummy_input_queue_A"
+                }
+              }
+            ],
+            "one-rate-two-color": {
+              "config": {
+                "cir": 1000000000,
+                "bc": 100000,
+                "queuing-behavior": "POLICE"
+              },
+              "exceed-action": {
+                "config": {
+                  "drop": true
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "scheduler-policy": null,
+        "config": {
+          "name": "limit_2Gb"
+        },
+        "schedulers": [
+          {
+            "scheduler": null,
+            "config": {
+              "sequence": 1,
+              "type": "ONE_RATE_TWO_COLOR"
+            },
+            "inputs": [
+              {
+                "input": "my input policer 2Gb",
+                "config": {
+                  "id": "my input policer 2Gb",
+                  "input-type": "QUEUE",
+                  "queue": "dummy_input_queue_B"
+                }
+              }
+            ],
+            "one-rate-two-color": {
+              "config": {
+                "cir": 2000000000,
+                "bc": 100000,
+                "queuing-behavior": "POLICE"
+              },
+              "exceed-action": {
+                "config": {
+                  "drop": true
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
     "interfaces": [
       {
+        "interface": null,
         "config": {
           "interface-id": "PortChannel1.100"
         },
         "input": {
           "classifiers": [
             {
-              "classifier": "dest_A",
+              "classifier": null,
               "config": {
                 "name": "dest_A",
                 "type": "IPV4"
@@ -513,17 +664,17 @@ but it is not included here for simplication.
               "name": "limit_group_A_1Gb"
             }
           }
-        },
-        "interface": "PortChannel1.100"
+        }
       },
       {
+        "interface": null,
         "config": {
           "interface-id": "PortChannel1.200"
         },
         "input": {
           "classifiers": [
             {
-              "classifier": "dest_B",
+              "classifier": null,
               "config": {
                 "name": "dest_B",
                 "type": "IPV4"
@@ -535,8 +686,7 @@ but it is not included here for simplication.
               "name": "limit_group_B_1Gb"
             }
           }
-        },
-        "interface": "PortChannel1.200"
+        }
       }
     ]
   }
