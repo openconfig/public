@@ -446,6 +446,10 @@ but it is not included here for simplication.
 
 ```json
 {
+  #
+  # A classifer is created to match packets belonging to certain
+  # next-hop-groups and map them either forwarding-group input_dest_A or
+  # input_dest_B
   "openconfig-qos": {
     "classifers": [
       {
@@ -537,6 +541,9 @@ but it is not included here for simplication.
         ]
       }
     ],
+    #
+    # Forwarding groups are created named input_dest_A and input_dest_B.
+    # These are mapped to 'fake' queues 
     "forwarding-groups": [
       {
         "forwarding-group": "input_dest_A",
@@ -567,6 +574,9 @@ but it is not included here for simplication.
         }
       }
     ],
+    #
+    # Two scheduler policies are created, limit_1Gb and limit_2Gb
+    # and are associated with the dummy queue they are servicing.
     "scheduler-policies": [
       {
         "scheduler-policy": null,
@@ -643,6 +653,8 @@ but it is not included here for simplication.
         ]
       }
     ],
+    #
+    # Interfaces input are mapped to the desired classifier and scheduler.
     "interfaces": [
       {
         "interface": null,
