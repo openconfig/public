@@ -653,20 +653,6 @@ submodule openconfig-aft-common {
         "The value of the MPLS traffic class (TC) bits, formerly known as the
          EXP bits.";
     }
-    uses aft-common-entry-mpls-stack;
-
-  }
-
-  grouping aft-common-entry-mpls-stack {
-      description
-        "A definition for an MPLS label stack represented by a leaf-list.
-
-        MPLS label stack imposed when forwarding packets to the
-        next-hop. See the description of the type
-        oc-mplst:mpls-label-stack for encoding rules.
-
-        Note: a swap operation is reflected by entries in the
-        popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
 
     leaf-list mpls-label-stack {
       type oc-mplst:mpls-label;
@@ -679,7 +665,10 @@ submodule openconfig-aft-common {
         For example, a packet with a label stack of two labels, the bottom
         label being 42 and the top label being 8072 will be represented with
         a leaf-list of [42, 8072].  The resulting packet, starting with the
-        beginning of the packet will be '[8072][42][Payload]'.";
+        beginning of the packet will be '[8072][42][Payload]'.
+
+        Note: a swap operation is reflected by entries in the
+        popped-mpls-label-stack and the pushed-mpls-label-stack";
     }
   }
 
