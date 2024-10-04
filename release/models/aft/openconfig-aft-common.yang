@@ -230,10 +230,12 @@ submodule openconfig-aft-common {
             encap-headers/encap-header tree.  A future release of OpenConfig
             will deprecate this node in favor of the
             encap-headers/encap-header subtree.";
+
           container state {
             config false;
             description
               "State parameters relating to IP-in-IP encapsulation.";
+
             uses aft-common-entry-nexthop-ip-state;
           }
         }
@@ -250,20 +252,22 @@ submodule openconfig-aft-common {
             encap-headers/encap-header tree.  A future release of OpenConfig
             will deprecate this node in favor of the
             encap-headers/encap-header subtree.";
+
           container state {
             config false;
             description
               "State parameters relating to GRE encapsulation.";
+
             uses aft-common-entry-nexthop-gre-state;
           }
         }
 
         container encap-headers {
           description
-            "Container for packet encapsulation headers.  When present, this
-            container indicates that encapsulation of the packet matching the
-            next-hop is performed using a stack of one or more packets defined
-            in the list encap-header.
+            "Container for packet encapsulation headers.  When leaves in this
+            container are populated, it indicates encapsulation of the packet
+            matching the next-hop is performed using a stack of one or more
+            headers defined in the list encap-header.
 
             Each entry in the list must indicate an encapsulation type and
             populate a container with the parameters for that encapsulation
@@ -271,13 +275,14 @@ submodule openconfig-aft-common {
 
           list encap-header {
             description
-              "A list of headers added on top of a packet.  The first entry
-              in the list is the inner-most packet at the bottom of the
-              stack.
+              "A list of headers added on top of a packet ordered by the
+              index value.  The inner-most header is the 0th value and is
+              adjacent to the original packet.  Additional headers may be
+              added in index order.
 
-              For example, in an encapsulation stack with MPLS in UDP, the
-              first index in the list is the MPLS packet and the second
-              index is UDP.";
+              For example, in an encapsulation stack for MPLS in UDPv4, the
+              first index in the list is the MPLS header and the second
+              index is a UDPv4 header.";
 
             key "index";
 
@@ -293,6 +298,7 @@ submodule openconfig-aft-common {
             container state {
               description
                 "State parameters relating to encapsulation headers.";
+
               uses aft-common-nexthop-encap-headers-state;
             }
 
@@ -300,9 +306,11 @@ submodule openconfig-aft-common {
               when "../state/type = 'oc-aftt:GRE'";
               description
                 "Container of nodes for GRE encapsulation.";
+
               container state {
                 description
                   "State parameters relating to GRE encapsulation headers.";
+
                 uses aft-common-entry-nexthop-gre-state;
               }
             }
@@ -313,9 +321,11 @@ submodule openconfig-aft-common {
                 "Container of nodes for UDP in IPv4 encapsulation.  When this
                 container is used, an IPv4 packet with no transport header
                 is added to the encapsulation list.";
+
               container state {
                 description
                   "State parameters relating to IP encapsulation headers.";
+
                 uses aft-common-entry-nexthop-ip-state;
               }
             }
@@ -326,9 +336,11 @@ submodule openconfig-aft-common {
                 "Container of nodes for UDP in IPv6 encapsulation.  When this
                 container is used, an IPv6 packet with no transport header
                 is added to the encapsulation list.";
+
               container state {
                 description
                   "State parameters relating to IP encapsulation headers.";
+
                 uses aft-common-entry-nexthop-ip-state;
               }
             }
@@ -337,9 +349,11 @@ submodule openconfig-aft-common {
               when "../state/type = 'oc-aftt:MPLS'";
               description
                 "Container of nodes for MPLS encapsulation.";
+
               container state {
                 description
                   "State parameters relating to MPLS encapsulation headers.";
+
                 uses aft-common-entry-nexthop-mpls-state;
               }
             }
@@ -348,12 +362,14 @@ submodule openconfig-aft-common {
               when "../state/type = 'oc-aftt:UDPV4'";
               description
                 "Container of nodes for UDP in IPv4 encapsulation.  When this
-                container is used, an IPv4 packet with a UDP header is added
+                container is used, an IPv4 header with a UDP header is added
                 to the encapsulation list.";
+
               container state {
                 description
                   "State parameters relating to UDP in IPv4 encapsulation
                   headers.";
+
                 uses aft-common-entry-nexthop-encap-udp-state;
               }
             }
@@ -362,12 +378,14 @@ submodule openconfig-aft-common {
               when "../state/type = 'oc-aftt:UDPV6'";
               description
                 "Container of nodes for UDP in IPv6 encapsulation.  When this
-                container is used, an IPv6 packet with a UDP header is added
+                container is used, an IPv6 header with a UDP header is added
                 to the encapsulation list.";
+
               container state {
                 description
                   "State parameters relating to UDP in IPv6 encapsulation
                   headers.";
+
                 uses aft-common-entry-nexthop-encap-udp-state;
               }
             }
@@ -376,9 +394,11 @@ submodule openconfig-aft-common {
               when "../state/type = 'oc-aftt:VXLAN'";
               description
                 "Container of nodes for VXLAN encapsulation.";
+
               container state {
                 description
                   "State parameters relating to VXLAN encapsulation headers.";
+
                 uses aft-common-entry-nexthop-vxlan-state;
               }
             }
@@ -394,6 +414,7 @@ submodule openconfig-aft-common {
   grouping aft-common-nexthop-encap-headers-state {
     description
       "Operational state parameters relating to encapsulation headers.";
+
     leaf index {
       type uint8;
       description
@@ -465,7 +486,7 @@ submodule openconfig-aft-common {
       type oc-inet:ip-address;
       description
         "Where applicable this represents the vxlan tunnel source ip address.
-        For VXLAN this represents the source VTEP ip address.
+        For VXLAN this represents the source VTEP IP address.
 
         This node must be supported in addition to the
         encap-headers/encap-header tree.  A future release of OpenConfig
@@ -520,25 +541,29 @@ submodule openconfig-aft-common {
         should be popped from the packet when switched by the system.
 
         The top-most MPLS label associated with pop action is equal to
-        the label key used in 'mpls' AFT 'label-entry' list.
-
-        This node must be supported in addition to the
-        encap-headers/encap-header tree.  A future release of OpenConfig
-        will deprecate this node in favor of the
-        encap-headers/encap-header subtree.";
+        the label key used in 'mpls' AFT 'label-entry' list.";
     }
 
     leaf-list pushed-mpls-label-stack {
-      type oc-mplst:mpls-label-stack;
+      type oc-mplst:mpls-label;
       ordered-by user;
       description
         "The MPLS label stack imposed when forwarding packets to the
-        next-hop. See the description of the type
-        oc-mplst:mpls-label-stack for encoding rules.
+        next-hop
+        - the stack is encoded as a leaf list whereby the order of the
+          entries is such that the first entry in the list is the
+          label at the bottom of the stack to be pushed.
 
-        Note: a swap operation is reflected by entries in the
+        To this end, a packet which is to forwarded to a device using
+        a service label of 42, and a transport label of 8072 will be
+        represented with a label stack list of [42, 8072].
+
+        The MPLS label stack list is ordered by the user, such that no
+        system re-ordering of leaves is permitted by the system.
+
+        A swap operation is reflected by entries in the
         popped-mpls-label-stack and pushed-mpls-label-stack nodes.
-
+        
         This node must be supported in addition to the
         encap-headers/encap-header tree.  A future release of OpenConfig
         will deprecate this node in favor of the
@@ -628,30 +653,36 @@ submodule openconfig-aft-common {
         "The value of the MPLS traffic class (TC) bits, formerly known as the
          EXP bits.";
     }
+    uses aft-common-entry-mpls-stack;
 
-    leaf pop-top-label {
-      type boolean;
-      default false;
+  }
+
+  grouping aft-common-entry-mpls-stack {
       description
-        "Flag that controls pop action, i.e., the top-most MPLS label
-         should be popped from the packet when switched by the system.
+        "A definition for an MPLS label stack represented by a leaf-list.
 
-        The top-most MPLS label associated with pop action is equal to
-        the label key used in 'mpls' AFT 'label-entry' list.";
-    }
+        MPLS label stack imposed when forwarding packets to the
+        next-hop. See the description of the type
+        oc-mplst:mpls-label-stack for encoding rules.
 
-    leaf-list pushed-mpls-label-stack {
-      type oc-mplst:mpls-label-stack;
+        Note: a swap operation is reflected by entries in the
+        popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
+
+    leaf-list mpls-label-stack {
+      type oc-mplst:mpls-label;
       ordered-by user;
       description
-        "The MPLS label stack imposed when forwarding packets to the
-         next-hop. See the description of the type
-         oc-mplst:mpls-label-stack for encoding rules.
+        "A stack of MPLS label values.  The first entry in the list is the
+        label at the bottom of the stack.  The bottom of the stack is adjacent
+        to the MPLS payload.
 
-         Note: a swap operation is reflected by entries in the
-         popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
+        For example, a packet with a label stack of two labels, the bottom
+        label being 42 and the top label being 8072 will be represented with
+        a leaf-list of [42, 8072].  The resulting packet, starting with the
+        beginning of the packet will be '[8072][42][Payload]'.";
     }
   }
+
 
   grouping aft-common-entry-nexthop-encap-udp-state {
     description
@@ -669,10 +700,10 @@ submodule openconfig-aft-common {
         "Destination IP address for IP/UDP encapsulation.";
     }
 
-    leaf ip-dscp {
+    leaf dscp {
       type oc-inet:dscp;
       description
-        "IP DSCP value to use for the UDP header of the encapsulated
+        "DSCP value to use for the UDP header of the encapsulated
          packet.";
     }
 
@@ -681,7 +712,7 @@ submodule openconfig-aft-common {
       description
         "Source UDP port number to use for the UDP header of the encapsulated
          packet.  The source UDP port should be derived from the payload
-         packet entropy.  The extact methodology is implementation dependent,
+         packet entropy.  The exact methodology is implementation dependent,
          but for example, the port could be derived from an entropy hash of
          the payload or the source port (if present) of the payload.";
     }
