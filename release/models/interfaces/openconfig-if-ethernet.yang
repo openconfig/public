@@ -332,7 +332,11 @@ module openconfig-if-ethernet {
 
   grouping physical-interface-config {
     description
-      "Configuration specific to physical ethernet interfaces";
+      "Configuration specific to physical ethernet interfaces.  Note
+      that this grouping is to only apply when the interface `type` is
+      set to 'ianaift:ethernetCsmacd'.  This is not currently restricted
+      by YANG language statements (must/when) due to uses of this module
+      within other domains (e.g. wifi).";
 
     leaf auto-negotiate {
       type boolean;
@@ -612,7 +616,11 @@ module openconfig-if-ethernet {
 
   grouping physical-interface-state {
     description
-      "Grouping for defining Ethernet-specific operational state";
+      "Grouping for operational state specific to physical ethernet
+      interfaces.  Note that this grouping is to only apply when the
+      interface `type` is set to 'ianaift:ethernetCsmacd'.  This is not
+      currently restricted by YANG language statements (must/when) due
+      to uses of this module within other domains (e.g. wifi).";
 
     leaf hw-mac-address {
       type oc-yang:mac-address;
@@ -672,14 +680,7 @@ module openconfig-if-ethernet {
         description "Configuration data for ethernet interfaces";
 
         uses ethernet-interface-config;
-
-        uses physical-interface-config {
-          when "../../oc-if:config/oc-if:type = 'ianaift:ethernetCsmacd'" {
-            description
-              "Configuration specific for physical ethernet interfaces";
-          }
-        }
-
+        uses physical-interface-config;
       }
 
       container state {
@@ -688,20 +689,8 @@ module openconfig-if-ethernet {
         description "State variables for Ethernet interfaces";
 
         uses ethernet-interface-config;
-
-        uses physical-interface-config {
-          when "../../oc-if:config/oc-if:type = 'ianaift:ethernetCsmacd'" {
-            description
-              "Configuration specific for physical ethernet interfaces";
-          }
-        }
-
-        uses physical-interface-state {
-          when "../../oc-if:config/oc-if:type = 'ianaift:ethernetCsmacd'" {
-            description
-              "State specific for physical ethernet interfaces";
-          }
-        }
+        uses physical-interface-config;
+        uses physical-interface-state;
         uses ethernet-interface-state;
 
       }
