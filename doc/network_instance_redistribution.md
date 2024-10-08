@@ -1,6 +1,10 @@
 # Route Redistribution in OpenConfig Network Instance
 **Contributors:**: robjs@google.com
 
+> WARNING: 
+> The [PR#1114](https://github.com/openconfig/public/pull/1114) introduces `route-redistribution` container and deprecates `table-connections`, `tables` containers. The general, conceptual model of `route-redistribution` is the same
+as one of `table-connections`, hence this documentation is still usefull, however
+not acurate is all details. Reader should taken it with a grain of salt.
 
 One difference between vendor devices that OpenConfig seeks to abstract is the expected manner in which the various device RIBs are populated.  For some vendors, the model essentially reflects a per-protocol RIB (i.e., the routes of protocol A are isolated from those of protocol B), while for others the routes are expected to populate the same RIB, such that routes installed into the RIB by protocol A are directly accessible by protocol B.
 
