@@ -66,7 +66,13 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.14.0";
+  oc-ext:openconfig-version "0.15.0";
+
+revision "2024-09-21" {
+    description
+      "Clearly define how physical channel power leaves are used.";
+    reference "0.15.0";
+  }
 
 revision "2023-08-30" {
     description
@@ -204,7 +210,11 @@ revision "2023-08-30" {
         Values include the instantaneous, average, minimum, and
         maximum statistics. If avg/min/max statistics are not
         supported, the target is expected to just supply the
-        instant value";
+        instant value. In some cases, such as when the physical
+        channel has a leafref to an optical channel component and the
+        module-functional-type is TYPE_DIGITAL_COHERENT_OPTIC this
+        grouping will NOT be used as the data will be within the
+        optical-channel";
 
       uses oc-types:avg-min-max-instant-stats-precision2-dBm;
     }
@@ -221,7 +231,12 @@ revision "2023-08-30" {
         Values include the instantaneous, average, minimum, and
         maximum statistics. If avg/min/max statistics are not
         supported, the target is expected to just supply the
-        instant value";
+        instant value. When the physical channel has a leafref to
+        an optical channel component and the module-functional-type is
+        TYPE_DIGITAL_COHERENT_OPTIC this represents the aggregate
+        total optical power value (signal and noise) whereas
+        optical power value within the optical-channel represents
+        the signal power";
 
       uses oc-types:avg-min-max-instant-stats-precision2-dBm;
     }
@@ -233,7 +248,11 @@ revision "2023-08-30" {
         with up to two decimal precision. Values include the
         instantaneous, average, minimum, and maximum statistics.
         If avg/min/max statistics are not supported, the target is
-        expected to just supply the instant value";
+        expected to just supply the instant value. In some cases,
+        such as when the physical channel has a leafref to an optical
+        channel component and the module-functional-type is
+        TYPE_DIGITAL_COHERENT_OPTIC this grouping will NOT be used
+        as the data will be within the optical-channel";
 
       uses oc-types:avg-min-max-instant-stats-precision2-mA;
     }
@@ -251,7 +270,11 @@ revision "2023-08-30" {
         "The frequency in MHz of the individual physical channel
         (e.g. ITU C50 - 195.0THz and would be reported as
         195,000,000 MHz in this model). This attribute is not
-        configurable on most client ports.";
+        configurable on most client ports In some cases, such as when
+        the physical channel has a leafref to an optical channel
+        component and the module-functional-type is
+        TYPE_DIGITAL_COHERENT_OPTIC this grouping will NOT be used
+        as the data will be within the optical-channel.";
     }
   }
 
@@ -383,24 +406,6 @@ revision "2023-08-30" {
 
       uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
     }
-
-    uses physical-channel-state-extended {
-      when "../../../state/module-functional-type = 'oc-opt-types:TYPE_STANDARD_OPTIC'" {
-        description
-          "When the physical channel is of TYPE_STANDARD_OPTIC, the
-          extended state will be used";
-      }
-    }
-  }
-
-  grouping physical-channel-state-extended {
-    description
-      "Extended operational state data for physical client channels
-      for applications where the full physical channel config and
-      state are used. In some cases, such as when the physical
-      channel has a leafref to an optical channel component and the
-      module-functional-type is TYPE_DIGITAL_COHERENT_OPTIC this
-      grouping will NOT be used.";
 
     uses output-optical-frequency;
     uses optical-power-state;
