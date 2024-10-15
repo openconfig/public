@@ -51,9 +51,16 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.7.1";
+  oc-ext:openconfig-version "3.7.2";
 
-  revision "2024-04-04" {
+  revision "2024-10-15" {
+      description
+        "Clarify cpu and management interface types.";
+      reference
+        "3.7.2";
+  }
+
+revision "2024-04-04" {
       description
         "Use single quotes in descriptions.";
       reference
@@ -720,9 +727,13 @@ module openconfig-interfaces {
       type boolean;
       description
         "When set to true, the interface is a dedicated
-        management interface that is not connected to dataplane
-        interfaces.  It may be used to connect the system to an
-        out-of-band management network, for example.";
+        management interface for external connectivity to the system.
+        This interface is not connected to an INTEGRATED_CIRCUIT and
+        therefore not typically used for dataplane traffic.  It may be
+        used to connect the system to an out-of-band management network,
+        for example.  On systems with a CONTROLLER_CARD, the PORT
+        components on the CONTROLLER_CARD are typically management
+        interfaces.";
       oc-ext:telemetry-on-change;
     }
 
@@ -730,11 +741,11 @@ module openconfig-interfaces {
       type boolean;
       description
         "When set to true, the interface is for traffic
-        that is handled by the system CPU, sometimes also called the
-        control plane interface.  On systems that represent the CPU
-        interface as an Ethernet interface, for example, this leaf
-        should be used to distinguish the CPU interface from dataplane
-        interfaces.";
+        that is sent between CPU components and other components within
+        a system.  This is sometimes also called an internal control plane
+        interface.  On systems that represent the CPU interface(s)
+        as Ethernet this leaf should be used to distinguish these internal
+        interface from dataplane and management interfaces.";
       oc-ext:telemetry-on-change;
     }
   }
