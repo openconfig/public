@@ -47,7 +47,25 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.0.0";
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2024-09-24" {
+    description
+      "Added mount-point type leaf to describe the type of file system.";
+    reference "2.3.0";
+  }
+
+  revision "2024-08-13" {
+    description
+      "Added additional auth key types";
+    reference "2.2.0";
+  }
+
+  revision "2024-07-15" {
+    description
+      "Added auth key reference in ntp server configuration.";
+    reference "2.1.0";
+  }
 
   revision "2023-12-20" {
     description
@@ -227,6 +245,42 @@ module openconfig-system {
       "MD5 encryption method";
   }
 
+  identity NTP_AUTH_SHA1 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA1 encryption method";
+  }
+
+  identity NTP_AUTH_SHA256 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA256 encryption method";
+  }
+
+  identity NTP_AUTH_SHA384 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA384 encryption method";
+  }
+
+  identity NTP_AUTH_SHA512 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA512 encryption method";
+  }
+
+  identity NTP_AUTH_AES_CBC_128 {
+    base NTP_AUTH_TYPE;
+    description
+      "AES-CBC-128 encryption method";
+  }
+
+  identity NTP_AUTH_AES_CBC_256 {
+    base NTP_AUTH_TYPE;
+    description
+      "AES-CBC-256 encryption method";
+  }
+
   // typedef statements
 
   typedef timezone-name-type {
@@ -371,6 +425,14 @@ module openconfig-system {
       units megabytes;
       description
         "The amount of space currently in use on the filesystem.";
+    }
+
+    leaf type {
+      type string;
+      description
+        "A human readable string indicating the filesystem type used
+        for storage.  Examples might include flash, hard disk, tmpfs/ramdisk
+        or remote/network based storage.";
     }
   }
 
@@ -747,6 +809,14 @@ module openconfig-system {
       type oc-inet:ip-address;
       description
         "Source address to use on outgoing NTP packets";
+    }
+
+    leaf key-id {
+      type leafref {
+        path "../../../../ntp-keys/ntp-key/key-id";
+      }
+      description
+        "Reference to NTP authentication key for this server.";
     }
   }
 
