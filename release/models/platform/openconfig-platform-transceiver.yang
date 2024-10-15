@@ -66,7 +66,31 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.11.0";
+  oc-ext:openconfig-version "0.15.0";
+
+revision "2024-09-21" {
+    description
+      "Clearly define how physical channel power leaves are used.";
+    reference "0.15.0";
+  }
+
+revision "2023-08-30" {
+    description
+      "Clarify transceiver module threshold for input-power.";
+    reference "0.14.0";
+  }
+
+revision "2023-08-30" {
+    description
+      "Add transceiver module temperature thresholds";
+    reference "0.13.0";
+  }
+
+  revision "2023-06-27" {
+    description
+      "Add tx bias and voltage thresholds";
+    reference "0.12.0";
+  }
 
   revision "2023-05-03" {
     description
@@ -186,7 +210,11 @@ module openconfig-platform-transceiver {
         Values include the instantaneous, average, minimum, and
         maximum statistics. If avg/min/max statistics are not
         supported, the target is expected to just supply the
-        instant value";
+        instant value. In some cases, such as when the physical
+        channel has a leafref to an optical channel component and the
+        module-functional-type is TYPE_DIGITAL_COHERENT_OPTIC this
+        grouping will NOT be used as the data will be within the
+        optical-channel";
 
       uses oc-types:avg-min-max-instant-stats-precision2-dBm;
     }
@@ -203,7 +231,12 @@ module openconfig-platform-transceiver {
         Values include the instantaneous, average, minimum, and
         maximum statistics. If avg/min/max statistics are not
         supported, the target is expected to just supply the
-        instant value";
+        instant value. When the physical channel has a leafref to
+        an optical channel component and the module-functional-type is
+        TYPE_DIGITAL_COHERENT_OPTIC this represents the aggregate
+        total optical power value (signal and noise) whereas
+        optical power value within the optical-channel represents
+        the signal power";
 
       uses oc-types:avg-min-max-instant-stats-precision2-dBm;
     }
@@ -215,7 +248,11 @@ module openconfig-platform-transceiver {
         with up to two decimal precision. Values include the
         instantaneous, average, minimum, and maximum statistics.
         If avg/min/max statistics are not supported, the target is
-        expected to just supply the instant value";
+        expected to just supply the instant value. In some cases,
+        such as when the physical channel has a leafref to an optical
+        channel component and the module-functional-type is
+        TYPE_DIGITAL_COHERENT_OPTIC this grouping will NOT be used
+        as the data will be within the optical-channel";
 
       uses oc-types:avg-min-max-instant-stats-precision2-mA;
     }
@@ -233,7 +270,11 @@ module openconfig-platform-transceiver {
         "The frequency in MHz of the individual physical channel
         (e.g. ITU C50 - 195.0THz and would be reported as
         195,000,000 MHz in this model). This attribute is not
-        configurable on most client ports.";
+        configurable on most client ports In some cases, such as when
+        the physical channel has a leafref to an optical channel
+        component and the module-functional-type is
+        TYPE_DIGITAL_COHERENT_OPTIC this grouping will NOT be used
+        as the data will be within the optical-channel.";
     }
   }
 
@@ -365,24 +406,6 @@ module openconfig-platform-transceiver {
 
       uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
     }
-
-    uses physical-channel-state-extended {
-      when "../../../state/module-functional-type = 'oc-opt-types:TYPE_STANDARD_OPTIC'" {
-        description
-          "When the physical channel is of TYPE_STANDARD_OPTIC, the
-          extended state will be used";
-      }
-    }
-  }
-
-  grouping physical-channel-state-extended {
-    description
-      "Extended operational state data for physical client channels
-      for applications where the full physical channel config and
-      state are used. In some cases, such as when the physical
-      channel has a leafref to an optical channel component and the
-      module-functional-type is TYPE_DIGITAL_COHERENT_OPTIC this
-      grouping will NOT be used.";
 
     uses output-optical-frequency;
     uses optical-power-state;
@@ -761,7 +784,9 @@ module openconfig-platform-transceiver {
       }
       units celsius;
       description
-        "The upper temperature threshold for the laser temperature sensor.";
+        "The upper temperature threshold for the laser temperature sensor.
+        This leaf value is compared to the instant value of
+        laser-temperature.";
     }
     leaf laser-temperature-lower {
       type decimal64 {
@@ -769,7 +794,9 @@ module openconfig-platform-transceiver {
       }
       units celsius;
       description
-        "The lower temperature threshold for the laser temperature sensor.";
+        "The lower temperature threshold for the laser temperature sensor.
+        This leaf value is compared to the instant value of
+        laser-temperature.";
     }
     leaf output-power-upper{
       type decimal64 {
@@ -777,7 +804,10 @@ module openconfig-platform-transceiver {
       }
       units dBm;
       description
-        "The upper power threshold for the laser output power.";
+        "The upper power threshold for the laser output power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-output-power. This leaf
+        value is compared to the instant value of optical-output-power.";
     }
     leaf output-power-lower{
       type decimal64 {
@@ -785,7 +815,10 @@ module openconfig-platform-transceiver {
       }
       units dBm;
       description
-        "The lower power threshold for the laser output power.";
+        "The lower power threshold for the laser output power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-output-power. This leaf
+        value is compared to the instant value of optical-output-power.";
     }
     leaf input-power-upper{
       type decimal64 {
@@ -793,7 +826,10 @@ module openconfig-platform-transceiver {
       }
       units dBm;
       description
-        "The upper power threshold for the laser input power.";
+        "The upper power threshold for the laser input power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-input-power. This leaf
+        value is compared to the instant value of optical-input-power.";
     }
     leaf input-power-lower{
       type decimal64 {
@@ -801,7 +837,64 @@ module openconfig-platform-transceiver {
       }
       units dBm;
       description
-        "The lower power threshold for the laser input power.";
+        "The lower power threshold for the laser input power. This threshold
+        applies to every physical-channel on the transceiver and does not
+        apply to the aggregate transceiver optical-input-power. This leaf
+        value is compared to the instant value of optical-input-power.";
+    }
+    leaf laser-bias-current-upper{
+      description
+        "The upper threshold for the laser bias current. This leaf value is
+        compared to the instant value of last-bias-current.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units mA;
+    }
+    leaf laser-bias-current-lower{
+      description
+        "The lower threshold for the laser bias current. This leaf value is
+        compared to the instant value of last-bias-current.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units mA;
+    }
+    leaf supply-voltage-upper{
+      description
+        "The upper threshold for the transceiver supply voltage. This leaf
+        value is compared to the instant value of supply-voltage.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units volts;
+    }
+    leaf supply-voltage-lower{
+      description
+        "The lower threshold for the transceiver supply voltage. This leaf
+        value is compared to the instant value of supply-voltage.";
+      type decimal64 {
+        fraction-digits 2;
+      }
+      units volts;
+    }
+    leaf module-temperature-lower {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The lower temperature threshold for the transceiver module. This
+        leaf value is compared to the instant value of module-temperature.";
+    }
+    leaf module-temperature-upper {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "The upper temperature threshold for the transceiver module. This
+        leaf value is compared to the instant value of module-temperature.";
     }
   }
 

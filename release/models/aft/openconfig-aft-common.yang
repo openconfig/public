@@ -23,7 +23,34 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "2.3.0";
+  oc-ext:openconfig-version "2.7.0";
+
+  revision "2024-09-05" {
+    description
+        "Add encap-headers to AFT model.";
+      reference "2.7.0";
+  }
+
+  revision "2024-04-25" {
+    description
+      "Add backup-active to AFT NHG state.";
+    reference "2.6.0";
+  }
+
+  revision "2024-01-26" {
+    description
+      "Add gre container under next-hops aft entry state.
+       Add src-ip, dst-ip and ttl under gre aft entry state
+       for telemetry. Updated description for
+       tunnel-src-ip-address properties under next-hops.";
+    reference "2.5.0";
+  }
+
+  revision "2023-09-26" {
+    description
+      "Add next-hop-group-name in NHG AFT entry state.";
+    reference "2.4.0";
+  }
 
   revision "2023-04-19" {
     description
@@ -196,20 +223,210 @@ submodule openconfig-aft-common {
 
         container ip-in-ip {
           description
-            "When specified, the packet has an IP-in-IP header applied to it before
-            forwarding to the specified next-hop.";
+            "When specified, the packet has an IP-in-IP header applied to it
+            before forwarding to the specified next-hop.
+
+            This node must be supported in addition to the
+            encap-headers/encap-header tree.  A future release of OpenConfig
+            will deprecate this node in favor of the
+            encap-headers/encap-header subtree.";
 
           container state {
             config false;
             description
               "State parameters relating to IP-in-IP encapsulation.";
-            uses aft-common-entry-nexthop-ipip-state;
+
+            uses aft-common-entry-nexthop-ip-state;
+          }
+        }
+
+        container gre {
+          description
+            "When specified, the packet has an GRE
+            (Generic Routing Encapsulation) header applied to
+            it before forwarding to the specified next-hop.
+            encapsulate-header leaf should be set to GRE for this
+            to apply.
+
+            This node must be supported in addition to the
+            encap-headers/encap-header tree.  A future release of OpenConfig
+            will deprecate this node in favor of the
+            encap-headers/encap-header subtree.";
+
+          container state {
+            config false;
+            description
+              "State parameters relating to GRE encapsulation.";
+
+            uses aft-common-entry-nexthop-gre-state;
+          }
+        }
+
+        container encap-headers {
+          description
+            "Container for packet encapsulation headers.  When leaves in this
+            container are populated, it indicates encapsulation of the packet
+            matching the next-hop is performed using a stack of one or more
+            headers defined in the list encap-header.
+
+            Each entry in the list must indicate an encapsulation type and
+            populate a container with the parameters for that encapsulation
+            header.";
+
+          list encap-header {
+            description
+              "A list of headers added on top of a packet ordered by the
+              index value.  The inner-most header is the 0th value and is
+              adjacent to the original packet.  Additional headers may be
+              added in index order.
+
+              For example, in an encapsulation stack for MPLS in UDPv4, the
+              first index in the list is the MPLS header and the second
+              index is a UDPv4 header.";
+
+            key "index";
+
+            leaf index {
+              type leafref {
+                path "../state/index";
+              }
+              description
+                "A unique index identifying an encapsulation header in a stack
+                of encapsulation headers.";
+            }
+
+            container state {
+              description
+                "State parameters relating to encapsulation headers.";
+
+              uses aft-common-nexthop-encap-headers-state;
+            }
+
+            container gre {
+              when "../state/type = 'oc-aftt:GRE'";
+              description
+                "Container of nodes for GRE encapsulation.";
+
+              container state {
+                description
+                  "State parameters relating to GRE encapsulation headers.";
+
+                uses aft-common-entry-nexthop-gre-state;
+              }
+            }
+
+            container ipv4 {
+              when "../state/type = 'oc-aftt:IPV4'";
+              description
+                "Container of nodes for UDP in IPv4 encapsulation.  When this
+                container is used, an IPv4 packet with no transport header
+                is added to the encapsulation list.";
+
+              container state {
+                description
+                  "State parameters relating to IP encapsulation headers.";
+
+                uses aft-common-entry-nexthop-ip-state;
+              }
+            }
+
+            container ipv6 {
+              when "../state/type = 'oc-aftt:IPV6'";
+              description
+                "Container of nodes for UDP in IPv6 encapsulation.  When this
+                container is used, an IPv6 packet with no transport header
+                is added to the encapsulation list.";
+
+              container state {
+                description
+                  "State parameters relating to IP encapsulation headers.";
+
+                uses aft-common-entry-nexthop-ip-state;
+              }
+            }
+
+            container mpls {
+              when "../state/type = 'oc-aftt:MPLS'";
+              description
+                "Container of nodes for MPLS encapsulation.";
+
+              container state {
+                description
+                  "State parameters relating to MPLS encapsulation headers.";
+
+                uses aft-common-entry-nexthop-mpls-state;
+              }
+            }
+
+            container udp-v4 {
+              when "../state/type = 'oc-aftt:UDPV4'";
+              description
+                "Container of nodes for UDP in IPv4 encapsulation.  When this
+                container is used, an IPv4 header with a UDP header is added
+                to the encapsulation list.";
+
+              container state {
+                description
+                  "State parameters relating to UDP in IPv4 encapsulation
+                  headers.";
+
+                uses aft-common-entry-nexthop-encap-udp-state;
+              }
+            }
+
+            container udp-v6 {
+              when "../state/type = 'oc-aftt:UDPV6'";
+              description
+                "Container of nodes for UDP in IPv6 encapsulation.  When this
+                container is used, an IPv6 header with a UDP header is added
+                to the encapsulation list.";
+
+              container state {
+                description
+                  "State parameters relating to UDP in IPv6 encapsulation
+                  headers.";
+
+                uses aft-common-entry-nexthop-encap-udp-state;
+              }
+            }
+
+            container vxlan {
+              when "../state/type = 'oc-aftt:VXLAN'";
+              description
+                "Container of nodes for VXLAN encapsulation.";
+
+              container state {
+                description
+                  "State parameters relating to VXLAN encapsulation headers.";
+
+                uses aft-common-entry-nexthop-vxlan-state;
+              }
+            }
+
           }
         }
 
         uses oc-if:interface-ref-state;
       }
     }
+  }
+
+  grouping aft-common-nexthop-encap-headers-state {
+    description
+      "Operational state parameters relating to encapsulation headers.";
+
+    leaf index {
+      type uint8;
+      description
+        "A pointer to an entry in an ordered list of encapsulation headers.";
+    }
+
+    leaf type {
+      type oc-aftt:encapsulation-header-type;
+      description
+        "Defines which type of packet header should be used.";
+    }
+
   }
 
   grouping aft-common-entry-state {
@@ -257,14 +474,24 @@ submodule openconfig-aft-common {
         "Where applicable, the next hop label representing the virtual
         network identifier (VNI) for the forwarding entry. This leaf is
         applicable only to next-hops which include VXLAN encapsulation
-        header information";
+        header information.
+
+        This node must be supported in addition to the
+        encap-headers/encap-header tree.  A future release of OpenConfig
+        will deprecate this node in favor of the
+        encap-headers/encap-header subtree.";
     }
 
     leaf tunnel-src-ip-address {
       type oc-inet:ip-address;
       description
-        "Where applicable this represents the tunnel source ip address.
-        For VXLAN this represents the source VTEP ip address";
+        "Where applicable this represents the vxlan tunnel source ip address.
+        For VXLAN this represents the source VTEP IP address.
+
+        This node must be supported in addition to the
+        encap-headers/encap-header tree.  A future release of OpenConfig
+        will deprecate this node in favor of the
+        encap-headers/encap-header subtree.";
     }
   }
 
@@ -311,7 +538,7 @@ submodule openconfig-aft-common {
       default false;
       description
         "Flag that controls pop action, i.e., the top-most MPLS label
-         should be popped from the packet when switched by the system.
+        should be popped from the packet when switched by the system.
 
         The top-most MPLS label associated with pop action is equal to
         the label key used in 'mpls' AFT 'label-entry' list.";
@@ -335,8 +562,12 @@ submodule openconfig-aft-common {
         system re-ordering of leaves is permitted by the system.
 
         A swap operation is reflected by entries in the
-        popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
+        popped-mpls-label-stack and pushed-mpls-label-stack nodes.
 
+        This node must be supported in addition to the
+        encap-headers/encap-header tree.  A future release of OpenConfig
+        will deprecate this node in favor of the
+        encap-headers/encap-header subtree.";
     }
 
     leaf encapsulate-header {
@@ -344,7 +575,12 @@ submodule openconfig-aft-common {
       description
         "When forwarding a packet to the specified next-hop the local
         system performs an encapsulation of the packet - adding the
-        specified header type.";
+        specified header type.
+
+        This node must be supported in addition to the
+        encap-headers/encap-header tree.  A future release of OpenConfig
+        will deprecate this node in favor of the
+        encap-headers/encap-header subtree.";
     }
 
     leaf decapsulate-header {
@@ -362,9 +598,9 @@ submodule openconfig-aft-common {
     uses aft-common-install-protocol;
   }
 
-  grouping aft-common-entry-nexthop-ipip-state {
+  grouping aft-common-entry-nexthop-ip-state {
     description
-      "IP-in-IP encapsulation applied on a next-hop";
+      "IP encapsulation applied on a next-hop";
 
     leaf src-ip {
       type oc-inet:ip-address;
@@ -376,6 +612,143 @@ submodule openconfig-aft-common {
       type oc-inet:ip-address;
       description
         "Destination IP address to use for the encapsulated packet.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-gre-state {
+    description
+      "GRE encapsulation applied on a IPv4 and IPv6 next-hop.";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "The source IP address for the GRE encapsulation may be expressed
+        using this leaf (src-ip) or if may be derived from
+        '../../interface-ref/state/subinterface'";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address to use for the encapsulated packet.";
+    }
+
+    leaf ttl {
+      type uint8;
+      description
+        "This leaf reflects the configured/default TTL value that is used in the
+         outer header during packet encapsulation. When this leaf is not set,
+         the TTL value of the inner packet is copied over as the outer packet's
+         TTL value during encapsulation.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-mpls-state {
+    description
+      "MPLS encapsulation of a packet.";
+
+    leaf traffic-class {
+      type oc-mplst:mpls-tc;
+      description
+        "The value of the MPLS traffic class (TC) bits, formerly known as the
+         EXP bits.";
+    }
+
+    leaf-list mpls-label-stack {
+      type oc-mplst:mpls-label;
+      ordered-by user;
+      description
+        "A stack of MPLS label values.  The first entry in the list is the
+        label at the bottom of the stack.  The bottom of the stack is adjacent
+        to the MPLS payload.
+
+        For example, a packet with a label stack of two labels, the bottom
+        label being 42 and the top label being 8072 will be represented with
+        a leaf-list of [42, 8072].  The resulting packet, starting with the
+        beginning of the packet will be '[8072][42][Payload]'.
+
+        Note: a swap operation is reflected by entries in the
+        popped-mpls-label-stack and the pushed-mpls-label-stack";
+    }
+  }
+
+
+  grouping aft-common-entry-nexthop-encap-udp-state {
+    description
+      "UDP encapsulation applied on top of a packet.";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "The source IP address for IP/UDP encapsulation.";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address for IP/UDP encapsulation.";
+    }
+
+    leaf dscp {
+      type oc-inet:dscp;
+      description
+        "DSCP value to use for the UDP header of the encapsulated
+         packet.";
+    }
+
+    leaf src-udp-port {
+      type oc-inet:port-number;
+      description
+        "Source UDP port number to use for the UDP header of the encapsulated
+         packet.  The source UDP port should be derived from the payload
+         packet entropy.  The exact methodology is implementation dependent,
+         but for example, the port could be derived from an entropy hash of
+         the payload or the source port (if present) of the payload.";
+    }
+
+    leaf dst-udp-port {
+      type oc-inet:port-number;
+      description
+        "Source UDP port number to use for the UDP header of the encapsulated
+        packet.
+
+        When the payload packet is MPLS, then RFC 7510 - Encapsulating MPLS
+        in UDP should be followed.";
+      reference
+        "RFC 7510 - Encapsulating MPLS in UDP specifies that 6635 must be
+        used for MPLS-in-UDP and 6636 must be used for MPLS-in-UDP with DTLS.
+        Because of this condition, no default is defined in OpenConfig.  The
+        system is expected to utilize the appropriate port.";
+    }
+
+    leaf ip-ttl {
+      type uint8;
+      description
+        "This leaf reflects the configured/default IP TTL value that is used
+         in the outer header during packet encapsulation. When this leaf is
+         not set, the TTL value of the inner packet is copied over as the
+         outer packet's IP TTL value during encapsulation.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-vxlan-state {
+    description
+      "VXLAN encapsulation applied on top of a packet.";
+
+    leaf vni-label {
+      type oc-evpn-types:evi-id;
+      description
+        "Where applicable, the next hop label representing the virtual
+        network identifier (VNI) for the forwarding entry. This leaf is
+        applicable only to next-hops which include VXLAN encapsulation
+        header information";
+    }
+
+    leaf tunnel-src-ip-address {
+      type oc-inet:ip-address;
+      description
+        "Where applicable this represents the vxlan tunnel source ip address.
+        For VXLAN this represents the source VTEP ip address";
     }
   }
 
@@ -579,6 +952,14 @@ submodule openconfig-aft-common {
         also be updated.";
     }
 
+    leaf next-hop-group-name {
+      type string;
+      description
+        "Where applicable, this leaf is a unique identifier string for the
+        next-hop-group. It is an arbitrary name for the group, that is
+        supported by vendors and is exposed for telemetry.";
+    }
+
     leaf programmed-id {
       type uint64;
       description
@@ -626,6 +1007,20 @@ submodule openconfig-aft-common {
         entries within the next-hop group become unusable, the backup
         next-hop group is used if specified.";
     }
+
+    leaf backup-active {
+      type boolean;
+      default false;
+      description
+        "Set to true if and only if the device no longer forwards traffic
+        using the primary NextHops of this NextHopGroup and instead uses
+        the specified backup-next-hop-group. This leaf should be set to
+        false if the backup-next-hop-group is either unspecified or unused
+        by the device.";
+    }
+
+
+
   }
 
   grouping aft-nhg-nh-state {

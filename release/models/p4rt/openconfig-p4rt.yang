@@ -26,7 +26,13 @@ module openconfig-p4rt {
     The P4RT protocol specification is linked from https://p4.org/specs/
     under the P4Runtime heading.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision 2023-12-13 {
+    description
+      "Remove unused chassis id";
+    reference "1.0.0";
+  }
 
   revision 2022-08-19 {
     description
@@ -104,18 +110,6 @@ module openconfig-p4rt {
     }
   }
 
-  grouping p4rt-chassis-config {
-    description
-      "Config regarding P4RT use cases which corresponds to the global device hardware package";
-
-    leaf id {
-      type uint32;
-      description
-        "An identifier used for the root of oc-p4rt:node-id. It is used to
-        indicate which oc-p4rt:node-id's belong to the same device";
-    }
-  }
-
   grouping p4rt-ic-config {
     description
       "Integrated-circuit specific configuration that is applicable to devices
@@ -174,20 +168,6 @@ module openconfig-p4rt {
       for P4RT.";
 
     uses p4rt-ic-config;
-  }
-
-  augment "/oc-platform:components/oc-platform:component/" +
-    "oc-platform:chassis/oc-platform:config" {
-    description
-      "Add P4RT chassis config to platform chassis component.";
-    uses p4rt-chassis-config;
-  }
-
-  augment "/oc-platform:components/oc-platform:component/" +
-    "oc-platform:chassis/oc-platform:state" {
-    description
-      "Add P4RT chassis state to platform chassis component.";
-    uses p4rt-chassis-config;
   }
 
 }
