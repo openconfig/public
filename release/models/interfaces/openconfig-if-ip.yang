@@ -621,7 +621,21 @@ revision "2023-06-30" {
     }
 
     leaf learn-unsolicited {
-      type boolean;
+      type enumeration {
+        enum NONE {
+          value 0;
+        }
+        enum GLOBAL {
+          value 1;
+        }
+        enum LINK_LOCAL {
+          value 2;
+        }
+        enum BOTH {
+          value 3;
+        }
+      }
+      default "NONE";
       description
         "When set to true neighbors will be learned from unsolicited
         neighbor advertisements.";
