@@ -43,7 +43,13 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "2.0.2";
+
+  revision "2023-12-12" {
+    description
+      "Update static route nexthop to support zoned address format.";
+    reference "2.0.2";
+  }
 
   revision "2022-11-01" {
     description
@@ -221,7 +227,7 @@ module openconfig-local-routing {
 
     leaf next-hop {
       type union {
-        type inet:ip-address;
+        type inet:ip-address-zoned;
         type local-defined-next-hop;
       }
       description
