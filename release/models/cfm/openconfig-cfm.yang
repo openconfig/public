@@ -1,17 +1,16 @@
-module openconfig-oam-cfm {
+module openconfig-cfm {
 
   yang-version "1";
 
   // namespace
-  namespace "http://openconfig.net/yang/oam/cfm";
+  namespace "http://openconfig.net/yang/cfm";
 
-  prefix "oc-oam-cfm";
+  prefix "oc-cfm";
   import openconfig-vlan-types { prefix oc-vlan-types; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-cfm-types { prefix oc-cfm-types; }
-  import openconfig-oam { prefix oc-oam; } // imports the module being augmented
 
 
  // google
@@ -161,12 +160,18 @@ module openconfig-oam-cfm {
                               description  "A unique profile name identifying the profile";
                               type string;
                             }
+
                           }
 
                           container state {
                             description "Operational data for loss measurement.";
                             config false;
-                            uses performance-measurement-config;
+
+                            leaf "profile-name" {
+                              type string;
+                              description "Name of the measurement profile.";
+                              }
+
                             uses performance-measurement-state;
                           }
                         }
@@ -1253,7 +1258,7 @@ module openconfig-oam-cfm {
     leaf packet-per-burst {
       type uint32;
       description
-      "if burst enabled. The leaf defines the number of packet per burst of probes.
+      "if burst enabled. the leaf defines the number of packet per burst of probes.
       packets-per-measurement-period / burst-interval";
     }
   }
@@ -1298,11 +1303,6 @@ module openconfig-oam-cfm {
     }
   }
 
-  // augment statements
+  uses cfm-top;
 
-  augment "/oc-oam:oam" {
-     description
-      "Add cfm related state and config to oam";
-    uses cfm-top;
-  }
 }
