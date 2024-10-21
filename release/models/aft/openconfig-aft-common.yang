@@ -9,7 +9,7 @@ submodule openconfig-aft-common {
   import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-mpls-types { prefix "oc-mplst"; }
   import openconfig-policy-types { prefix "oc-pol-types"; }
-  import openconfig-aft-types { prefix "oc-aftt"; }
+  import openconfig-types { prefix oc-types; }
   import openconfig-evpn-types { prefix "oc-evpn-types"; }
 
   organization
@@ -303,7 +303,7 @@ submodule openconfig-aft-common {
             }
 
             container gre {
-              when "../state/type = 'oc-aftt:GRE'";
+              when "../state/type = 'oc-types:GRE'";
               description
                 "Container of nodes for GRE encapsulation.";
 
@@ -316,7 +316,7 @@ submodule openconfig-aft-common {
             }
 
             container ipv4 {
-              when "../state/type = 'oc-aftt:IPV4'";
+              when "../state/type = 'oc-types:IPV4'";
               description
                 "Container of nodes for UDP in IPv4 encapsulation.  When this
                 container is used, an IPv4 packet with no transport header
@@ -331,7 +331,7 @@ submodule openconfig-aft-common {
             }
 
             container ipv6 {
-              when "../state/type = 'oc-aftt:IPV6'";
+              when "../state/type = 'oc-types:IPV6'";
               description
                 "Container of nodes for UDP in IPv6 encapsulation.  When this
                 container is used, an IPv6 packet with no transport header
@@ -346,7 +346,7 @@ submodule openconfig-aft-common {
             }
 
             container mpls {
-              when "../state/type = 'oc-aftt:MPLS'";
+              when "../state/type = 'oc-types:MPLS'";
               description
                 "Container of nodes for MPLS encapsulation.";
 
@@ -359,7 +359,7 @@ submodule openconfig-aft-common {
             }
 
             container udp-v4 {
-              when "../state/type = 'oc-aftt:UDPV4'";
+              when "../state/type = 'oc-types:UDPV4'";
               description
                 "Container of nodes for UDP in IPv4 encapsulation.  When this
                 container is used, an IPv4 header with a UDP header is added
@@ -375,7 +375,7 @@ submodule openconfig-aft-common {
             }
 
             container udp-v6 {
-              when "../state/type = 'oc-aftt:UDPV6'";
+              when "../state/type = 'oc-types:UDPV6'";
               description
                 "Container of nodes for UDP in IPv6 encapsulation.  When this
                 container is used, an IPv6 header with a UDP header is added
@@ -391,7 +391,7 @@ submodule openconfig-aft-common {
             }
 
             container vxlan {
-              when "../state/type = 'oc-aftt:VXLAN'";
+              when "../state/type = 'oc-types:VXLAN'";
               description
                 "Container of nodes for VXLAN encapsulation.";
 
@@ -422,7 +422,7 @@ submodule openconfig-aft-common {
     }
 
     leaf type {
-      type oc-aftt:encapsulation-header-type;
+      type oc-types:encapsulation-header-type;
       description
         "Defines which type of packet header should be used.";
     }
@@ -571,7 +571,7 @@ submodule openconfig-aft-common {
     }
 
     leaf encapsulate-header {
-      type oc-aftt:encapsulation-header-type;
+      type oc-types:encapsulation-header-type;
       description
         "When forwarding a packet to the specified next-hop the local
         system performs an encapsulation of the packet - adding the
@@ -584,7 +584,7 @@ submodule openconfig-aft-common {
     }
 
     leaf decapsulate-header {
-      type oc-aftt:encapsulation-header-type;
+      type oc-types:encapsulation-header-type;
       description
         "When forwarding a packet to the specified next-hop, the local
          system performs a decapsulation of the packet - removing the
@@ -774,7 +774,7 @@ submodule openconfig-aft-common {
     uses aft-common-install-protocol;
 
     leaf decapsulate-header {
-      type oc-aftt:encapsulation-header-type;
+      type oc-types:encapsulation-header-type;
       description
         "When forwarding a packet to the specified next-hop, the local
         system performs a decapsulation of the packet - removing the

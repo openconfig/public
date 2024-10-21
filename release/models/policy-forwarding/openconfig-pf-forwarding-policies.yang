@@ -21,7 +21,13 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "0.6.1";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2024-10-20" {
+    description
+      "Add support for policy forwarding match on next hop and GUE encapsulation action.";
+    reference "0.7.0";
+  }
 
   revision "2023-04-25" {
     description
@@ -162,6 +168,7 @@ submodule openconfig-pf-forwarding-policies {
             uses oc-pmatch:ipv4-protocol-fields-top;
             uses oc-pmatch:ipv6-protocol-fields-top;
             uses oc-pmatch:transport-fields-top;
+            uses pf-match-next-hop-groups-config;
 
             container action {
               description
@@ -184,6 +191,7 @@ submodule openconfig-pf-forwarding-policies {
               }
 
               uses pf-forwarding-policy-action-encapsulate-gre;
+              uses pf-forwarding-policy-action-encapsulate;
             }
           }
         }
@@ -516,6 +524,204 @@ submodule openconfig-pf-forwarding-policies {
       description
         "The TTL that should be specified in the IP header of the GRE packet
         encapsulating the packet matching the rule.";
+    }
+  }
+
+  grouping pf-forwarding-policy-action-encapsulate {
+    description
+      "Configuration parameters for the encapsulate forwarding
+      policy action.";
+
+    container encap-headers {
+      description
+        "Container for packet encapsulation headers.  When leaves in this
+        container are populated, packets matching the policy rule indicates
+        encapsulation of the packet is performed using a stack of one or more
+        headers defined in the list encap-header.
+
+        Each entry in the list must indicate an encapsulation type and
+        populate a container with the parameters for that encapsulation
+        header.";
+
+      list encap-header {
+        description
+          "A list of headers added on top of a packet ordered by the
+          index value.  The inner-most header is the 0th value and is
+          adjacent to the original packet.  Additional headers may be
+          added in index order.
+
+          For example, in an encapsulation stack for MPLS in UDPv4, the
+          first index in the list is the MPLS header and the second
+          index is a UDPv4 header.";
+
+        key "index";
+
+        leaf index {
+          type leafref {
+            path "../config/index";
+          }
+          description
+            "A unique index identifying an encapsulation header in a stack
+            of encapsulation headers.";
+        }
+
+        container config {
+          description
+            "Config parameters relating to encapsulation headers.";
+
+          uses pf-encap-headers-config;
+        }
+
+        container state {
+          config false;
+          description
+            "State parameters relating to encapsulation headers.";
+
+          uses pf-encap-headers-config;
+        }
+
+        container udp {
+          when "../config/type = 'oc-types:UDP'";
+          description
+            "Container of nodes for UDP in IPv4 encapsulation.  When this
+            container is used, an IPv4 header with a UDP header is added
+            to the encapsulation list.";
+
+          container config {
+            description
+              "Config parameters relating to UDP in IPv4 encapsulation
+              headers.";
+
+            uses pf-encap-udp-config;
+          }
+
+          container state {
+            config false;
+            description
+              "State parameters relating to UDP in IPv4 encapsulation
+              headers.";
+
+            uses pf-encap-udp-config;
+          }
+        }
+      }
+    }
+  }
+
+  grouping pf-encap-headers-config {
+    description
+      "Configuration parameters parameters relating to encapsulation headers.";
+
+    leaf index {
+      type uint8;
+      description
+        "A pointer to an entry in an ordered list of encapsulation headers.";
+    }
+
+    leaf type {
+      type oc-types:encapsulation-header-type;
+      description
+        "Defines which type of packet header should be used.";
+    }
+  }
+
+  grouping pf-encap-udp-config {
+    description
+      "Configuration parameters relating to UDP in IPv4 encapsulation headers.";
+
+    leaf src-ip {
+      type oc-inet:ipv4-prefix;
+      description
+        "The source IPv4 address to use for the UDP header.";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ipv4-prefix;
+      description
+        "The destination IPv4 address to use for the UDP header.";
+    }
+
+    leaf dscp {
+      type oc-inet:dscp;
+      description
+        "Value of diffserv codepoint to use for the UDP header.";
+    }
+
+    leaf ip-ttl {
+      type uint8;
+      description
+        "The TTL value to use for the UDP header.";
+    }
+
+    leaf src-udp-port {
+      type uint16;
+      description
+        "The source port to use for the UDP header.";
+    }
+
+    leaf dst-udp-port {
+      type uint16;
+      description
+        "The destination port to use for the UDP header.";
+    }
+  }
+
+  grouping pf-match-next-hop-groups-config {
+    description
+      "Configuration parameters relating matching next-hop of a packet.";
+
+    container next-hop-groups {
+      description
+        "Container for groups of next-hops.";
+
+      list next-hop-group {
+        description
+          "A next-hop that a packet can be sent to. This is used when
+          a match needs to be made of the next hop of a prefix instead of a
+          field in a packet header.";
+
+        key "index";
+
+        leaf index {
+          type leafref {
+            path "../config/index";
+          }
+          description
+            "A unique index identifying a next-hop-group entry.";
+        }
+
+        container config {
+          description
+            "Config parameters relating to a next-hop-group.";
+
+          uses pf-next-hop-groups-config;
+        }
+
+        container state {
+          config false;
+          description
+            "State parameters relating to a next-hop-group.";
+
+          uses pf-next-hop-groups-config;
+        }
+      }
+    }
+  }
+
+  grouping pf-next-hop-groups-config {
+    description
+      "Configuration parameters relating to next-hop groups.";
+
+    leaf index {
+      type uint8;
+      description
+        "A pointer to an entry in an ordered list of next-hop-groups.";
+    }
+
+    leaf ip-address {
+      type oc-inet:ip-address;
+      description
+        "The next-hop IP address to send the packet to.";
     }
   }
 }
