@@ -21,7 +21,13 @@ module openconfig-pim-types {
     description
       "This module defines types related to the PIM protocol model.";
 
-    oc-ext:openconfig-version "0.1.1";
+    oc-ext:openconfig-version "0.1.2";
+
+    revision "2024-05-31" {
+      description
+        "Add PIM bidirectional mode.";
+      reference "0.1.2";
+    }
 
     revision "2018-11-21" {
       description
@@ -60,6 +66,13 @@ module openconfig-pim-types {
         description
           "PIM dense mode (PIM-DM).";
         reference "RFC3973";
+    }
+
+    identity PIM_MODE_BIDIR {
+        base PIM_MODE;
+        description
+          "PIM bidirectional mode.";
+        reference "RFC5015";
     }
 
     // typedef statements
