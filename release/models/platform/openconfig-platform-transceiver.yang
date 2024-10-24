@@ -66,21 +66,27 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.15.0";
+  oc-ext:openconfig-version "0.16.0";
 
-revision "2024-09-21" {
+  revision "2024-10-09" {
+    description
+      "Add status flags for transceiver host lanes and media channels.";
+    reference "0.16.0";
+  }
+
+  revision "2024-09-21" {
     description
       "Clearly define how physical channel power leaves are used.";
     reference "0.15.0";
   }
 
-revision "2023-08-30" {
+  revision "2023-08-30" {
     description
       "Clarify transceiver module threshold for input-power.";
     reference "0.14.0";
   }
 
-revision "2023-08-30" {
+  revision "2023-08-30" {
     description
       "Add transceiver module temperature thresholds";
     reference "0.13.0";
@@ -407,6 +413,29 @@ revision "2023-08-30" {
       uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
     }
 
+    leaf tx-failure {
+      type boolean;
+      description
+        "Transmitter failure flag.
+        In earlier standards, including SFF-8436, SFF-8472, and QSFP-DD CMIS 4.0,
+        this flag was named Tx Fault.";
+      reference "QSFP-DD CMIS 5.0 Table 8-77, SFF-8472 Table 9-11, SFF-8436 Table 19";
+    }
+
+    leaf rx-los {
+      type boolean;
+      description
+        "Receiver loss-of-signal flag.";
+      reference "QSFP-DD CMIS 5.0 Table 8-78, SFF-8472 Table 9-11, SFF-8436 Table 19";
+    }
+
+    leaf rx-cdr-lol {
+      type boolean;
+      description
+        "Receiver clock-and-data-recovery loss-of-lock flag.";
+      reference "QSFP-DD CMIS 5.0 Table 8-78";
+    }
+
     uses output-optical-frequency;
     uses optical-power-state;
   }
@@ -450,6 +479,83 @@ revision "2023-08-30" {
 
           uses physical-channel-config;
           uses physical-channel-state;
+        }
+      }
+    }
+  }
+
+  grouping host-lane-config {
+    description
+      "Configuration data for electrical host lanes.";
+
+    leaf lane-number {
+      type uint8 {
+        range 1..max;
+      }
+      description
+        "Number identifying an electrical host lane carrying one serial
+        signal.  Lanes are numbered starting with 1.";
+      reference "CMIS 5.0 section 2.3.4";
+    }
+  }
+
+  grouping host-lane-state {
+    description
+      "Operational state data for electrical host lanes.";
+
+    leaf tx-los {
+      type boolean;
+      description
+        "Transmitter loss-of-signal flag.";
+      reference "CMIS 5.0 Table 8-77, SFF-8436 Table 19";
+    }
+
+    leaf tx-cdr-lol {
+      type boolean;
+      description
+        "Transmitter clock-and-data-recovery loss-of-lock flag.";
+      reference "CMIS 5.0 Table 8-77";
+    }
+  }
+
+  grouping host-lane-top {
+    description
+      "Top-level grouping for electrical host lanes.";
+
+    container host-lanes {
+      description
+        "Enclosing container for host lanes.";
+
+      list lane {
+        key "lane-number";
+        description
+          "List of electrical host lanes, keyed by lane number.
+          The host lanes of a transceiver constitute its electrical interface
+          with the host system.";
+        reference "CMIS 5.0 section 4.1";
+
+        leaf lane-number {
+          type leafref {
+            path "../config/lane-number";
+          }
+          description
+            "Reference to the host lane number.";
+        }
+
+        container config {
+          description
+            "Configuration data for host lanes.";
+
+          uses host-lane-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for host lanes.";
+
+          uses host-lane-config;
+          uses host-lane-state;
         }
       }
     }
@@ -926,6 +1032,7 @@ revision "2023-08-30" {
       // physical channels are associated with a transceiver
       // component
       uses physical-channel-top;
+      uses host-lane-top;
       uses transceiver-threshold-top;
     }
   }
