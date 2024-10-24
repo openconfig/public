@@ -21,7 +21,13 @@ module openconfig-types {
     are used across OpenConfig models. It can be imported by modules
     that make use of these types.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2024-10-20" {
+    description
+      "Add support for policy forwarding match on next hop and GUE encapsulation action.";
+    reference "1.1.0";
+  }
 
   revision "2024-01-31" {
     description
@@ -162,6 +168,40 @@ module openconfig-types {
       "A time interval over which a set of statistics is computed.
       A common usage is to report the interval over which
       avg/min/max stats are computed and reported.";
+  }
+
+  typedef encapsulation-header-type {
+    type enumeration {
+      enum GRE {
+        description
+          "The encapsulation header is a Generic Routing Encapsulation
+          header.";
+      }
+      enum IPV4 {
+        description
+          "The encapsulation header is an IPv4 packet header";
+      }
+      enum IPV6 {
+        description
+          "The encapsulation header is an IPv6 packet header";
+      }
+      enum MPLS {
+        description
+          "The encapsulation header is one or more MPLS labels indicated
+          by the pushed and popped label stack lists.";
+      }
+      enum VXLAN {
+        description
+          "The encapsulation header is a VXLAN packet header";
+      }
+      enum UDP {
+        description
+          "The encapsulation header is UDP packet header.";
+      }
+    }
+    description
+      "Types of tunnel encapsulation that are supported by systems as either
+      head- or tail-end.";
   }
 
   grouping stat-interval-state {
