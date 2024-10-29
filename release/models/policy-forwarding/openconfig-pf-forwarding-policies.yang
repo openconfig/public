@@ -581,6 +581,94 @@ submodule openconfig-pf-forwarding-policies {
           uses pf-encap-headers-config;
         }
 
+        container gre {
+          when "../config/type = 'oc-types:GRE'";
+          description
+            "Container of nodes for GRE encapsulation.";
+
+          container config {
+            description
+              "Config parameters relating to GRE encapsulation headers.";
+
+            uses pf-encap-gre-config;
+          }
+
+          container state {
+            config false;
+            description
+              "State parameters relating to GRE encapsulation headers.";
+
+            uses pf-encap-gre-config;
+          }
+        }
+
+        container ipv4 {
+          when "../config/type = 'oc-types:IPV4'";
+          description
+            "Container of nodes for IPv4 encapsulation.  When this
+            container is used, an IPv4 packet with no transport header
+            is added to the encapsulation list.";
+
+          container config {
+            description
+              "Config parameters relating to IP encapsulation headers.";
+
+            uses pf-encap-ip-config;
+          }
+
+          container state {
+            config false;
+            description
+              "State parameters relating to IP encapsulation headers.";
+
+            uses pf-encap-ip-config;
+          }
+        }
+
+        container ipv6 {
+          when "../config/type = 'oc-types:IPV6'";
+          description
+            "Container of nodes for IPv6 encapsulation.  When this
+            container is used, an IPv6 packet with no transport header
+            is added to the encapsulation list.";
+
+          container config {
+            description
+              "Config parameters relating to IP encapsulation headers.";
+
+            uses pf-encap-ip-config;
+          }
+
+          container state {
+            config false;
+            description
+              "State parameters relating to IP encapsulation headers.";
+
+            uses pf-encap-ip-config;
+          }
+        }
+
+        container mpls {
+          when "../config/type = 'oc-types:MPLS'";
+          description
+            "Container of nodes for MPLS encapsulation.";
+
+          container config {
+            description
+              "Config parameters relating to MPLS encapsulation headers.";
+
+            uses pf-encap-mpls-config;
+          }
+
+          container state {
+            config false;
+            description
+              "State parameters relating to MPLS encapsulation headers.";
+
+            uses pf-encap-mpls-config;
+          }
+        }
+
         container udp-v4 {
           when "../config/type = 'oc-types:UDP'";
           description
@@ -593,7 +681,7 @@ submodule openconfig-pf-forwarding-policies {
               "Config parameters relating to UDP in IPv4 encapsulation
               headers.";
 
-            uses pf-encap-udp-v4-config;
+            uses pf-encap-udp-config;
           }
 
           container state {
@@ -602,7 +690,53 @@ submodule openconfig-pf-forwarding-policies {
               "State parameters relating to UDP in IPv4 encapsulation
               headers.";
 
-            uses pf-encap-udp-v4-config;
+            uses pf-encap-udp-config;
+          }
+        }
+
+        container udp-v6 {
+          when "../config/type = 'oc-types:UDP'";
+          description
+            "Container of nodes for UDP in IPv6 encapsulation.  When this
+            container is used, an IPv6 header with a UDP header is added
+            to the encapsulation list.";
+
+          container config {
+            description
+              "Config parameters relating to UDP in IPv6 encapsulation
+              headers.";
+
+            uses pf-encap-udp-config;
+          }
+
+          container state {
+            config false;
+            description
+              "State parameters relating to UDP in IPv6 encapsulation
+              headers.";
+
+            uses pf-encap-udp-config;
+          }
+        }
+
+        container vxlan {
+          when "../config/type = 'oc-types:VXLAN'";
+          description
+            "Container of nodes for VXLAN encapsulation.";
+
+          container config {
+            description
+              "Config parameters relating to VXLAN encapsulation headers.";
+
+            uses pf-encap-vxlan-config;
+          }
+
+          container state {
+            config false;
+            description
+              "State parameters relating to VXLAN encapsulation headers.";
+
+            uses pf-encap-vxlan-config;
           }
         }
       }
@@ -626,44 +760,149 @@ submodule openconfig-pf-forwarding-policies {
     }
   }
 
-  grouping pf-encap-udp-v4-config {
+  grouping pf-encap-gre-config {
     description
-      "Configuration parameters relating to UDP in IPv4 encapsulation headers.";
+      "Configuration parameters relating to GRE encapsulation headers.";
 
     leaf src-ip {
-      type oc-inet:ipv4-prefix;
+      type oc-inet:ip-address;
       description
-        "The source IPv4 address to use for the UDP header.";
+        "The source IP address to use for the GRE encapsulated packet.";
     }
 
     leaf dst-ip {
-      type oc-inet:ipv4-prefix;
+      type oc-inet:ip-address;
       description
-        "The destination IPv4 address to use for the UDP header.";
-    }
-
-    leaf dscp {
-      type oc-inet:dscp;
-      description
-        "Value of diffserv codepoint to use for the UDP header.";
+        "The destination IP address to use for the GRE encapsulated packet.";
     }
 
     leaf ip-ttl {
       type uint8;
       description
-        "The TTL value to use for the UDP header.";
+        "This leaf reflects the configured/default TTL value that is used in the
+         outer header during packet encapsulation. When this leaf is not set,
+         the TTL value of the inner packet is copied over as the outer packet's
+         TTL value during encapsulation.";
+    }
+  }
+
+  grouping pf-encap-ip-config {
+    description
+      "Configuration parameters relating to IP encapsulation headers.";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "Source IP address to use for the encapsulated packet.";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address to use for the encapsulated packet.";
+    }
+  }
+
+  grouping pf-encap-mpls-config {
+    description
+      "MPLS encapsulation of a packet.";
+
+    leaf traffic-class {
+      type oc-mplst:mpls-tc;
+      description
+        "The value of the MPLS traffic class (TC) bits, formerly known as the
+         EXP bits.";
+    }
+
+    leaf label {
+      type oc-mplst:mpls-label;
+      description
+        "The value of the MPLS label.";
+    }
+
+    leaf mpls-ttl {
+      type uint8;
+      description
+        "The TTL value to use for the MPLS header.";
+    }
+  }
+
+  grouping pf-encap-udp-config {
+    description
+      "Configuration parameters relating to UDP in IPv4 encapsulation headers.";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "The source IP address for IP/UDP encapsulation.";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "The destination IP address for IP/UDP encapsulation.";
+    }
+
+    leaf dscp {
+      type oc-inet:dscp;
+      description
+        "DSCP value to use for the UDP header of the encapsulated
+         packet.";
     }
 
     leaf src-udp-port {
-      type uint16;
+      type oc-inet:port-number;
       description
-        "The source port to use for the UDP header.";
+        "Source UDP port number to use for the UDP header of the encapsulated
+         packet.  The source UDP port should be derived from the payload
+         packet entropy.  The exact methodology is implementation dependent,
+         but for example, the port could be derived from an entropy hash of
+         the payload or the source port (if present) of the payload.";
     }
 
     leaf dst-udp-port {
-      type uint16;
+      type oc-inet:port-number;
       description
-        "The destination port to use for the UDP header.";
+        "Destination UDP port number to use for the UDP header of the
+        encapsulated packet.
+
+        When the payload packet is MPLS, then RFC 7510 - Encapsulating MPLS
+        in UDP should be followed.";
+      reference
+        "RFC 7510 - Encapsulating MPLS in UDP specifies that 6635 must be
+        used for MPLS-in-UDP and 6636 must be used for MPLS-in-UDP with DTLS.
+        Because of this condition, no default is defined in OpenConfig.  The
+        system is expected to utilize the appropriate port.";
+    }
+
+    leaf ip-ttl {
+      type uint8;
+      description
+        "This leaf reflects the configured/default IP TTL value that is used
+         in the outer header during packet encapsulation. When this leaf is
+         not set, the TTL value of the inner packet is copied over as the
+         outer packet's IP TTL value during encapsulation.";
+    }
+  }
+
+  grouping pf-encap-vxlan-config {
+    description
+      "VXLAN encapsulation applied on top of a packet.";
+
+    leaf vni-label {
+      type oc-evpn-types:evi-id;
+      description
+        "Where applicable, the next hop label representing the virtual
+        network identifier (VNI) for the forwarding entry. This leaf is
+        applicable only to next-hops which include VXLAN encapsulation
+        header information";
+    }
+
+    leaf tunnel-src-ip-address {
+      type oc-inet:ip-address;
+      description
+        "Where applicable this represents the vxlan tunnel source ip address.
+        For VXLAN this represents the source VTEP ip address";
     }
   }
 
