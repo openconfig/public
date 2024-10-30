@@ -8,6 +8,8 @@ submodule openconfig-pf-forwarding-policies {
   import openconfig-yang-types { prefix "oc-yang"; }
   import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-types { prefix oc-types; }
+  import openconfig-mpls-types { prefix "oc-mplst"; }
+  import openconfig-evpn-types { prefix "oc-evpn-types"; }
 
   include openconfig-pf-path-groups;
 
@@ -718,27 +720,6 @@ submodule openconfig-pf-forwarding-policies {
             uses pf-encap-udp-config;
           }
         }
-
-        container vxlan {
-          when "../config/type = 'oc-types:VXLAN'";
-          description
-            "Container of nodes for VXLAN encapsulation.";
-
-          container config {
-            description
-              "Config parameters relating to VXLAN encapsulation headers.";
-
-            uses pf-encap-vxlan-config;
-          }
-
-          container state {
-            config false;
-            description
-              "State parameters relating to VXLAN encapsulation headers.";
-
-            uses pf-encap-vxlan-config;
-          }
-        }
       }
     }
   }
@@ -882,27 +863,6 @@ submodule openconfig-pf-forwarding-policies {
          in the outer header during packet encapsulation. When this leaf is
          not set, the TTL value of the inner packet is copied over as the
          outer packet's IP TTL value during encapsulation.";
-    }
-  }
-
-  grouping pf-encap-vxlan-config {
-    description
-      "VXLAN encapsulation applied on top of a packet.";
-
-    leaf vni-label {
-      type oc-evpn-types:evi-id;
-      description
-        "Where applicable, the next hop label representing the virtual
-        network identifier (VNI) for the forwarding entry. This leaf is
-        applicable only to next-hops which include VXLAN encapsulation
-        header information";
-    }
-
-    leaf tunnel-src-ip-address {
-      type oc-inet:ip-address;
-      description
-        "Where applicable this represents the vxlan tunnel source ip address.
-        For VXLAN this represents the source VTEP ip address";
     }
   }
 
