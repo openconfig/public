@@ -22,7 +22,13 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2024-11-21" {
+    description
+      "Add PROT_OTSI_A protocol type.";
+    reference "1.1.0";
+  }
 
   revision "2024-07-24" {
     description
@@ -853,6 +859,14 @@ module openconfig-transport-types {
     base TRIBUTARY_PROTOCOL_TYPE;
     description
       "FlexO protocol as defined in ITU-T G.709.1 and ITU-T G.709.3";
+  }
+
+  identity PROT_OTSI_A {
+    base TRIBUTARY_PROTOCOL_TYPE;
+    description
+      "OTSI_A is the digital adaptation between the OTSi and the
+      FlexO-x, or the regenerator section layer of the FlexO";
+    reference "ITU-T  G.798";
   }
 
   identity PROT_ODUFLEX_GFP {
