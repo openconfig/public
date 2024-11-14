@@ -28,7 +28,14 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "7.1.0";
+  oc-ext:openconfig-version "8.2.0";
+
+  revision "2024-11-13" {
+    description
+      "Add set-as-path BGP action and use-last-as leaf to
+      set-as-path-prepend to prepend last AS.";
+    reference "8.2.0";
+  }
 
   revision "2024-07-02" {
     description
@@ -1347,6 +1354,18 @@ module openconfig-bgp-policy {
       type bgp-set-med-type;
       description "set the med metric attribute in the route
       update";
+    }
+
+    leaf-list set-as-path {
+      type union {
+        type oc-inet:as-number;
+        type oc-bgp-types:bgp-as-builtin-type;
+      }
+      ordered-by user;
+      description
+        "set the entire AS path attribute in the route update,
+	with an ordered list of ASes that consists of AS numbers
+	or last-as.";
     }
   }
 

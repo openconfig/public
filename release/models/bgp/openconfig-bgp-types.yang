@@ -24,7 +24,13 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "6.0.0";
+  oc-ext:openconfig-version "6.1.0";
+
+  revision "2024-08-09" {
+    description
+      "Add new bgp-as-builtin-type to support last AS for AS path actions";
+    reference "6.1.0";
+  }
 
   revision "2024-02-01" {
     description
@@ -836,5 +842,18 @@ module openconfig-bgp-types {
     }
     description
       "Defines the types of BGP AS path segments.";
+  }
+
+  typedef bgp-as-builtin-type {
+    type enumeration {
+      enum LAST {
+        description
+          "The last AS in the AS path, which is also the most recent
+          AS added to the path.";
+      }
+    }
+    description
+      "Type definition for specifying the built in AS types
+      that can be used for setting AS path actions.";
   }
 }
