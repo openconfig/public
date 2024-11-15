@@ -21,6 +21,7 @@ module openconfig-system {
   import openconfig-messages { prefix oc-messages; }
   import openconfig-license { prefix oc-license; }
   import openconfig-network-instance { prefix oc-ni; }
+  import openconfig-fs-types { prefix oc-fs-types; }
 
   // meta
   organization "OpenConfig working group";
@@ -54,7 +55,7 @@ module openconfig-system {
       "Expand mount-point type leaf to a union of string and enum.";
     reference "2.4.0";
   }
-  
+
   revision "2024-09-24" {
     description
       "Added mount-point type leaf to describe the type of file system.";
@@ -434,59 +435,8 @@ module openconfig-system {
     }
 
     leaf type {
-      type union {
-        type string
-        type enumeration {
-          enum CGROUP_FS {
-            description
-              "cgroup filesystem type.";
-          }
-          enun DEBUGFS_FS {
-            description
-              "debugfs filesystem type.";
-          }
-          enum DEVPTS_FS {
-            description
-              "devpts filesystem type.";
-          }
-          enum DEVTMPFS_FS {
-            description
-              "devtmpfs filesystem type.";
-          }
-          enum EXT4_FS {
-            description
-              "ext4 filesystem type.";
-          }
-          enum PROC_FS {
-            description
-              "proc filesystem type.";
-          }
-          enum RAMFS_FS {
-            description
-              "ramfs filesystem type.";
-          }
-          enum SYSFS_FS {
-            description
-              "sysfs filesystem type.";
-          }
-          enum TMPFS_FS {
-            description
-              "tmpfs filesystem type.";
-          }
-          enum VFAT_FS {
-            description
-              "vfat filesystem type.";
-          }
-          enum OVERLAY_FS {
-            description
-              "overlay filesystem type.";
-          }
-        }
-      }        
-      description
-        "An enum or a human readable string indicating the filesystem type
-        used for storage. Examples might include flash, hard disk,
-        tmpfs/ramdisk or remote/network based storage.";
+      type identityref {
+        base oc-fs-types:OPENCONFIG_FS_MOUNT;
     }
   }
 
