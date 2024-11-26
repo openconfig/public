@@ -51,11 +51,13 @@ module openconfig-routing-policy {
     Evaluation of each policy definition proceeds by evaluating its
     corresponding individual policy statements in order.  When a
     condition statement in a policy statement is satisfied, the
-    corresponding action statement is executed.  If the action
-    statement has a final disposition configured as policy result, either
-    accept-route or reject-route, evaluation of the current policy definition
-    stops, and no further policy statements are evaluated. In case there is a
-    policy chain, no further policy definitions in the chain are evaluated.
+    corresponding action statement is executed.  A policy statement with no
+    conditions defined is evaluated as statisfied, meaning all routes are
+    matched.  If the action statement has a final disposition configured as
+    policy result, either accept-route or reject-route, evaluation of the
+    current policy definition stops, and no further policy statements are
+    evaluated. In case there is a policy chain, no further policy definitions
+    in the chain are evaluated.
 
     If the action statement has the NEXT_STATEMENT policy result, all the
     defined actions are executed and policy evaluation proceeds to the next
@@ -87,8 +89,14 @@ module openconfig-routing-policy {
     default value for the default-(import|export)-policy leaf must be
     applied.  See RFC6020 7.6.1 which applies to this model.";
 
-  oc-ext:openconfig-version "3.4.2";
+  oc-ext:openconfig-version "3.5.0";
 
+  revision "2024-11-26" {
+    description
+      "Clarify that a policy statement with no conditions defined is evaluated
+       as statisfied.";
+    reference "3.5.0";
+  }
   revision "2023-11-01" {
     description
       "Refactor apply policy to separate default policy in it's own common
