@@ -3,10 +3,9 @@ submodule openconfig-pf-network-instances {
     prefix "oc-pf";
   }
 
-  import openconfig-extensions { prefix "oc-ext"; }
-  import openconfig-interfaces { prefix "oc-if"; }
-  import openconfig-network-instance { prefix "oc-ni"; }
-
+  import openconfig-extensions {
+    prefix "oc-ext";
+  }
   include openconfig-pf-forwarding-policies;
 
   organization
@@ -14,104 +13,42 @@ submodule openconfig-pf-network-instances {
 
   contact
     "OpenConfig working group
-    www.openconfig.net";
+     www.openconfig.net";
 
   description
     "This submodule contains groupings to attach
-    a policy-forwarding policy to one or more network-instances.
-    
-    When attached to a network-instance, the policy-forwarding rules
-    should be evaluated against packets in the specified
-    network-instances.";
+     a policy-forwarding policy to one or more network-instances.
+     
+     When attached to a network-instance, the policy-forwarding rules
+     should be evaluated against packets in the specified
+     network-instances.";
 
   oc-ext:openconfig-version "0.8.0";
 
-  revision "2024-11-15" {
+  revision "2024-11-26" {
     description
       "Add network-instance as an attachment point.";
-    reference "0.8.0";
+    reference
+      "0.8.0";
   }
 
-  revision "2024-11-14" {
-    description
-      "Clarify that if no rules are present, no packets will be matched.";
-    reference "0.7.0";
-  }
-
-  revision "2023-04-25" {
-    description
-      "Clarify use of interface-ref.";
-    reference "0.6.1";
-  }
-
-  revision "2023-03-27" {
-    description
-      "Add support for decap in one NI and further actions in other NIs.";
-    reference "0.6.0";
-  }
-
-  revision "2022-01-25" {
-    description
-      "Add GUE and MPLS-in-UDP decapsulation actions.";
-    reference "0.5.0";
-  }
-
-  revision "2021-08-06" {
-    description
-      "Update path to the network instance action to allow references
-      to other NIs.";
-    reference "0.4.0";
-  }
-
-  revision "2021-05-19" {
-    description
-      "Add a VRF selection policy type, and means to apply the
-      policy.";
-    reference "0.3.0";
-  }
-
-  revision "2018-11-21" {
-    description
-      "Add OpenConfig module metadata extensions.";
-    reference "0.2.1";
-  }
-
-  revision "2017-06-21" {
-    description
-      "Amend policy forwarding model based on ACL changes.";
-    reference "0.2.0";
-  }
-
-  revision "2017-02-28" {
-    description
-      "Initial public release of policy forwarding.";
-    reference "0.1.0";
-  }
-
-  revision "2016-11-08" {
-    description
-      "Initial revision";
-    reference "0.0.1";
-  }
-
-
-  grouping pf-network-instance-structural {
+  grouping pf-network-instances-structural {
     description
       "Structural grouping for network-instances to forwarding policy
-      bindings within the policy-forwarding model.";
+       bindings within the policy-forwarding model.";
 
     container network-instances {
       description
         "Configuration and operational state relating policy
-        forwarding on interfaces.";
+         forwarding on interfaces.";
 
       list network-instance {
-        key "network-instance-id";
+        key "name";
 
         description
           "Configuration and operationals state relating to the
-          relationship between network-instances and policy-based
-          forwarding rules.";
+           relationship between network-instances and policy-based
+           forwarding rules.";
 
         leaf name {
           type leafref {
@@ -119,13 +56,13 @@ submodule openconfig-pf-network-instances {
           }
           description
             "A reference to the name of the network-instance
-            being referenced by the policy.";
+             being referenced by the policy.";
         }
 
         container config {
           description
-            "Configuration parameters relating to an network-instance to
-            policy forwarding rule binding.";
+            "Configuration parameters relating to a network-instance to
+             policy forwarding rule binding.";
 
           uses pf-network-instance-config;
         }
@@ -133,13 +70,11 @@ submodule openconfig-pf-network-instances {
         container state {
           config false;
           description
-            "Operational state parameters relating to an interface to
-            policy forwarding rule binding.";
+            "Operational state parameters relating to a network-instance to
+             policy forwarding rule binding.";
 
           uses pf-network-instance-config;
         }
-
-        uses oc-if:interface-ref;
       }
     }
   }
@@ -147,11 +82,15 @@ submodule openconfig-pf-network-instances {
   grouping pf-network-instance-config {
     description
       "Configuration parameters relating to an interface to policy
-      forwarding rule binding.";
-
+       forwarding rule binding.";
 
     leaf name {
-      type oc-ni:network-instance-ref;
+      type leafref {
+        path "/network-instances/network-instance/" +
+           "config/name";
+//        path "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+//           "oc-netinst:config/oc-netinst:name";
+      }
       description
         "A unique identifier for the network-instance.";
     }
@@ -159,18 +98,18 @@ submodule openconfig-pf-network-instances {
     leaf apply-forwarding-policy {
       type leafref {
         // We are at /network-instances/network-instance/
-        // policy-forwarding/interfaces/interface/config/
+        // policy-forwarding/network-instances/network-instance/config/
         // apply-forwarding-policy
         path "../../../../policies/policy/config/policy-id";
       }
       description
         "The policy to be applied on the network-instance. Packets ingress
-        on the referenced interface should be compared to the match
-        criteria within the specified policy, and in the case that
-        these criteria are met, the forwarding actions specified
-        applied. These policies should be applied following quality of
-        service classification, and ACL actions if such entities are
-        referenced by the corresponding interface.";
+         on the referenced interface should be compared to the match
+         criteria within the specified policy, and in the case that
+         these criteria are met, the forwarding actions specified
+         applied. These policies should be applied following quality of
+         service classification, and ACL actions if such entities are
+         referenced by the corresponding interface.";
     }
 
     leaf apply-vrf-selection-policy {
@@ -182,13 +121,13 @@ submodule openconfig-pf-network-instances {
       }
       description
         "Apply the specific VRF selection policy on the network-instance.
-
-        The referenced policy MUST be of the type VRF_SELECTION_POLICY.
-        The VRF selection policy may coexist with a policy-forwarding policy.
-
-        The policy specified in this leaf is used to specifically choose the
-        L3VRF network instance that is used for specific input criteria of
-        packets.";
+         
+         The referenced policy MUST be of the type VRF_SELECTION_POLICY.
+         The VRF selection policy may coexist with a policy-forwarding policy.
+         
+         The policy specified in this leaf is used to specifically choose the
+         L3VRF network instance that is used for specific input criteria of
+         packets.";
     }
   }
 }

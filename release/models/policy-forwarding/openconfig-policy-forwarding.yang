@@ -11,6 +11,7 @@ module openconfig-policy-forwarding {
   include openconfig-pf-forwarding-policies;
   include openconfig-pf-path-groups;
   include openconfig-pf-interfaces;
+  include openconfig-pf-network-instances;
 
   organization
     "OpenConfig working group";
@@ -64,7 +65,7 @@ module openconfig-policy-forwarding {
     to use to determine the packets that it reroutes - this may
     consist of a number of criteria, such as DSCP. The match criteria
     is specified as rules.  If no rules are specified, then the policy
-    will not match any packets.
+    will match all packets.
 
     The action of the policy results in a forwarding action being applied
     to matching packets. For example, decapsulating the packet from a GRE
@@ -86,7 +87,7 @@ module openconfig-policy-forwarding {
 
   oc-ext:openconfig-version "0.8.0";
 
-  revision "2024-11-15" {
+  revision "2024-11-26" {
     description
       "Add network-instance as an attachment point.";
     reference "0.8.0";
@@ -170,6 +171,7 @@ module openconfig-policy-forwarding {
 
       uses pf-forwarding-policy-structural;
       uses pf-interfaces-structural;
+      uses pf-network-instances-structural;
       uses pf-path-groups-structural;
     }
   }
