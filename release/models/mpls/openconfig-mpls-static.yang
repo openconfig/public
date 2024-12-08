@@ -24,7 +24,15 @@ submodule openconfig-mpls-static {
     "Defines static LSP configuration";
 
 
-  oc-ext:openconfig-version "3.6.0";
+  oc-ext:openconfig-version "3.7.0";
+
+  revision "2024-11-12" {
+    description
+      "Added support for mpls route to a specific 
+      next hop network instance";
+    reference "3.7.0";
+  }
+  
 
   revision "2024-06-19" {
     description
@@ -215,6 +223,14 @@ submodule openconfig-mpls-static {
       status deprecated;
       description
         "Next hop IP address for the LSP";
+    }
+
+    leaf next-hop-network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "The network-instance in which to resolve the next-hop.
+         If not specified, then the next-hop is resolved in the 
+         enclosing network instance.";
     }
 
     leaf push-label {
