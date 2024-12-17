@@ -208,7 +208,12 @@ module openconfig-bfd {
     }
     description
       "Diagnostic codes defined by BFD. These typically indicate the
-      reason for a change of session state.";
+      reason for a change of session state. The NEIGHBOR_DOWN diagnostic
+      was added to the enum at value 8 to avoid making a breaking change.
+      This deviates from RFC5880 where the enum is value 3. This also
+      shifts the following values by 1, in relation to RFC5880:
+      FORWARDING_RESET, PATH_DOWN, CONCATENATED_PATH_DOWN,
+      ADMIN_DOWN, REVERSE_CONCATENATED_PATH_DOWN.";
     reference
       "RFC5880 - Bidirectional Forwarding Detection, Section
       4.1";
