@@ -1,0 +1,637 @@
+module openconfig-network-instance-nexthopgroup {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/network-instance-nexthopgroup";
+
+  prefix "oc-ni-nhg";
+
+  import openconfig-inet-types { prefix "oc-inet"; }
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-aft-types { prefix "oc-aftt"; }
+  import openconfig-mpls-types { prefix "oc-mplst"; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Next hop group definitions associated with a network instance";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2024-12-16" {
+    description
+      "Initial revision. Add static GUE encapsulation.";
+    reference "0.1.0";
+  }
+
+  grouping ni-next-hop-groups-structural {
+    description
+      "Logical grouping for groups of next-hops.";
+
+    container next-hop-groups {
+      description
+        "Surrounding container for groups of next-hops.";
+
+      list next-hop-group {
+        key "name";
+
+        description
+          "An individual set of next-hops grouped into a common group.
+          Each entry within a network instance points to a
+          next-hop-group. Entries in the next-hop-group are forwarded to
+          according to the weights specified for each next-hop group.
+
+          If an entry within the next-hop group becomes unusable, for
+          example due to an interface failure, the remaining entries
+          are used until all entries become unusable.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "A reference to a unique identifier for the next-hop-group.";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to next-hop-groups.";
+
+          uses ni-nhg-config;
+        }
+
+        container state {
+          config false;
+          description
+            "State parameters relating to next-hop-groups.";
+
+          uses ni-nhg-config;
+        }
+
+        container next-hops {
+          description
+            "Surrounding container for the list of next-hops within
+            the next-hop-group.";
+
+          list next-hop {
+            key "index";
+
+            description
+              "An individual next-hop within the next-hop-group. Each
+              next-hop is a reference to an entry within the next-hop
+              list.";
+
+            leaf index {
+              type leafref {
+                path "../config/index";
+              }
+              description
+                "A reference to the index for the next-hop within the
+                the next-hop-group.";
+            }
+
+            container config {
+              description
+                "Configuration parameters related to a next-hop
+                within the next-hop-group.";
+              uses ni-nhg-nh-config;
+            }
+
+            container state {
+              config false;
+              description
+                "State parameters related to a next-hop
+                within the next-hop-group.";
+              uses ni-nhg-nh-config;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  grouping ni-nhg-config {
+    description
+      "Configuration parameters related to a next-hop-group.";
+
+    leaf name {
+      type string;
+      description
+        "Where applicable, this leaf is a unique identifier string for the
+        next-hop-group. It is an arbitrary name for the group, that is
+        supported by vendors and is exposed for telemetry.";
+    }
+
+    leaf id {
+      type uint64;
+      description
+        "A unique identifier for the next-hop-group. This index
+        is not expected to be consistent across reboots, or
+        reprogramming of the next-hop-group. When updating
+        a next-hop-group, if the group is removed by the system
+        or assigned an alternate identifier, the system should
+        send telemetry notifications deleting the previous
+        identifier. If the identifier of the next-hop-group
+        is changed, all entries that reference it must
+        also be updated.";
+    }
+
+    leaf programmed-id {
+      type uint64;
+      description
+        "In some routing protocols or route injection mechanisms it
+        is possible to supply the ID of the next-hop-group via
+        configuration or the protocol itself. In some systems, it
+        may not be possible to use this same ID when returning the
+        NHG via telemetry.
+
+        This leaf reflects the ID of the next-hop group that was
+        used by the original programming mechanism.
+
+        This leaf allows a client to create an association between
+        a programmed next-hop's original ID, and the ID that is
+        extracted via telemetry as a key in the next-hop-group AFT
+        list.";
+    }
+  }
+
+  grouping ni-nhg-nh-config {
+    description
+      "Configuration parameters relating to an individual next-hop
+      within the next-hop-group.";
+
+    leaf index {
+      type leafref {
+        // We are at network-instance/next-hop-groups/next-hop-group/next-hops/next-hop/config/id
+        path "../../../../../../next-hops/next-hop/config/index";
+      }
+      description
+        "A reference to the identifier for the next-hop to which
+        the entry in the next-hop group corresponds.";
+    }
+
+    leaf weight {
+      type uint64;
+      description
+        "The weight applied to the next-hop within the group. Traffic
+        is balanced across the next-hops within the group in the
+        proportion of weight/(sum of weights of the next-hops within
+        the next-hop group).";
+    }
+  }
+
+  grouping ni-nhop-structural {
+    description
+      "Structural grouping describing a next-hop entry.";
+
+    container next-hops {
+      description
+        "The list of next-hops that are to be used for entry within
+        the network instance. The structure of each next-hop is address
+        family independent, such that it is possible to resolve fully
+        how the next-hop is treated. For example:
+
+        - Where ingress IPv4 unicast packets are to be forwarded via
+          an MPLS LSP, the next-hop list should indicate the MPLS
+          label stack that is used to the next-hop.
+        - Where ingress MPLS labelled packets are to be forwarded to
+          an IPv6 nexthop (for example, a CE within a VPN, then the
+          popped label stack, and IPv6 next-hop address should be
+          indicated).";
+
+      list next-hop {
+        key "index";
+
+        description
+          "A next-hop associated with the forwarding instance.";
+
+        leaf index {
+          type leafref {
+            path "../config/index";
+          }
+          description
+            "A unique index identifying the next-hop entry";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the next-hop entry";
+
+          uses ni-nhg-entry-nexthop-config;
+        }
+
+        container state {
+          config false;
+          description
+            "State parameters relating to the next-hop entry";
+
+          uses ni-nhg-entry-nexthop-config;
+        }
+
+        container encap-headers {
+          description
+            "Container for packet encapsulation headers.  When leaves in this
+            container are populated, it indicates encapsulation of the packet
+            matching the next-hop is performed using a stack of one or more
+            headers defined in the list encap-header.
+
+            Each entry in the list must indicate an encapsulation type and
+            populate a container with the parameters for that encapsulation
+            header.";
+
+          list encap-header {
+            description
+              "A list of headers added on top of a packet ordered by the
+              index value.  The inner-most header is the 0th value and is
+              adjacent to the original packet.  Additional headers may be
+              added in index order.
+
+              For example, in an encapsulation stack for MPLS in UDPv4, the
+              first index in the list is the MPLS header and the second
+              index is a UDPv4 header.";
+
+            key "index";
+
+            leaf index {
+              type leafref {
+                path "../config/index";
+              }
+              description
+                "A unique index identifying an encapsulation header in a stack
+                of encapsulation headers.";
+            }
+
+            container config {
+              description
+                "Configuration parameters relating to encapsulation headers.";
+
+              uses ni-nhg-nexthop-encap-headers-config;
+            }
+
+            container state {
+              config false;
+              description
+                "State parameters relating to encapsulation headers.";
+
+              uses ni-nhg-nexthop-encap-headers-config;
+            }
+
+            container gre {
+              when "../config/type = 'oc-aftt:GRE'";
+              description
+                "Container of nodes for GRE encapsulation.";
+
+              container config {
+                description
+                  "Configuration parameters relating to GRE encapsulation
+                  headers.";
+
+                uses ni-nhg-entry-nexthop-gre-config;
+              }
+
+              container state {
+                config false;
+                description
+                  "State parameters relating to GRE encapsulation
+                  headers.";
+
+                uses ni-nhg-entry-nexthop-gre-config;
+              }
+            }
+
+            container ipv4 {
+              when "../config/type = 'oc-aftt:IPV4'";
+              description
+                "Container of nodes for UDP in IPv4 encapsulation.  When this
+                container is used, an IPv4 packet with no transport header
+                is added to the encapsulation list.";
+
+              container config {
+                description
+                  "Configuration parameters relating to IP encapsulation
+                  headers.";
+
+                uses ni-nhg-entry-nexthop-ip-config;
+              }
+
+              container state {
+                config false;
+                description
+                  "State parameters relating to IP encapsulation
+                  headers.";
+
+                uses ni-nhg-entry-nexthop-ip-config;
+              }
+            }
+
+            container ipv6 {
+              when "../config/type = 'oc-aftt:IPV6'";
+              description
+                "Container of nodes for UDP in IPv6 encapsulation.  When this
+                container is used, an IPv6 packet with no transport header
+                is added to the encapsulation list.";
+
+              container config {
+                description
+                  "Configuration parameters relating to IP encapsulation
+                  headers.";
+
+                uses ni-nhg-entry-nexthop-ip-config;
+              }
+
+              container state {
+                config false;
+                description
+                  "State parameters relating to IP encapsulation
+                  headers.";
+
+                uses ni-nhg-entry-nexthop-ip-config;
+              }
+            }
+
+            container mpls {
+              when "../config/type = 'oc-aftt:MPLS'";
+              description
+                "Container of nodes for MPLS encapsulation.";
+
+              container config {
+                description
+                  "Configuration parameters relating to MPLS encapsulation
+                  headers.";
+
+                uses ni-nhg-entry-nexthop-mpls-config;
+              }
+
+              container state {
+                config false;
+                description
+                  "State parameters relating to MPLS encapsulation
+                  headers.";
+
+                uses ni-nhg-entry-nexthop-mpls-config;
+              }
+            }
+
+            container udp-v4 {
+              when "../config/type = 'oc-aftt:UDPV4'";
+              description
+                "Container of nodes for UDP in IPv4 encapsulation.  When this
+                container is used, an IPv4 header with a UDP header is added
+                to the encapsulation list.";
+
+              container config {
+                description
+                  "Configuration parameters relating to UDP in IPv4
+                  encapsulation headers.";
+
+                uses ni-nhg-entry-nexthop-encap-udp-config;
+              }
+
+              container state {
+                config false;
+                description
+                  "State parameters relating to UDP in IPv4
+                  encapsulation headers.";
+
+                uses ni-nhg-entry-nexthop-encap-udp-config;
+              }
+            }
+
+            container udp-v6 {
+              when "../config/type = 'oc-aftt:UDPV6'";
+              description
+                "Container of nodes for UDP in IPv6 encapsulation.  When this
+                container is used, an IPv6 header with a UDP header is added
+                to the encapsulation list.";
+
+              container config {
+                description
+                  "Configuration parameters relating to UDP in IPv6
+                  encapsulation headers.";
+
+                uses ni-nhg-entry-nexthop-encap-udp-config;
+              }
+
+              container state {
+                description
+                  "State parameters relating to UDP in IPv6
+                  encapsulation headers.";
+
+                uses ni-nhg-entry-nexthop-encap-udp-config;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  grouping ni-nhg-entry-nexthop-config {
+    description
+      "Parameters relating to a next-hop.";
+
+    leaf index {
+      type uint64;
+      description
+        "A unique entry for the next-hop.";
+    }
+
+    leaf programmed-index {
+      type uint64;
+      description
+        "In some routing protocols, or route injection mechanisms it
+        is possible to set the index of the next-hop via configuration
+        or the protocol itself. In some systems it may not be possible
+        to maintain the index provided by an external client when
+        advertising the same entry via telemetry.
+
+        This leaf reflects the configured or client-supplied index of
+        the next-hop. This allows a client to create an assocation or
+        mapping back to the original index pushed by the client, and
+        the ID used as a key in the next-hop AFT list.";
+    }
+  }
+
+  grouping ni-nhg-nexthop-encap-headers-config {
+    description
+      "Configuration parameters relating to encapsulation headers.";
+
+    leaf index {
+      type uint8;
+      description
+        "A pointer to an entry in an ordered list of encapsulation headers.";
+    }
+
+    leaf type {
+      type oc-aftt:encapsulation-header-type;
+      description
+        "Defines which type of packet header should be used.";
+    }
+  }
+
+  grouping ni-nhg-entry-nexthop-gre-config {
+    description
+      "GRE encapsulation applied on a IPv4 and IPv6 next-hop.";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "The source IP address for the GRE encapsulation may be expressed
+        using this leaf (src-ip) or if may be derived from
+        '../../interface-ref/state/subinterface'";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address to use for the encapsulated packet.
+        If this leaf is set, the dst-prefix should not be set.";
+    }
+
+    leaf dst-prefix {
+      type oc-inet:ip-prefix;
+      description
+        "Destination prefix to use for the encapsulated packet.
+        If this leaf is set, the dst-ip should not be set.
+
+        The system should load balance flows across all the of
+        the destination ip addresses in the configured prefix";
+    }
+
+    leaf ttl {
+      type uint8;
+      description
+        "This leaf reflects the configured/default TTL value that is used in the
+         outer header during packet encapsulation. When this leaf is not set,
+         the TTL value of the inner packet is copied over as the outer packet's
+         TTL value during encapsulation.";
+    }
+  }
+
+  grouping ni-nhg-entry-nexthop-ip-config {
+    description
+      "IP encapsulation applied on a next-hop";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "Source IP address to use for the encapsulated packet.";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address to use for the encapsulated packet.
+        If this leaf is set, the dst-prefix should not be set.";
+    }
+
+    leaf dst-prefix {
+      type oc-inet:ip-prefix;
+      description
+        "Destination prefix to use for the encapsulated packet.
+        If this leaf is set, the dst-ip should not be set.
+
+        The system should load balance flows across all the of 
+        the destination ip addresses in the configured prefix";
+    }
+  }
+
+  grouping ni-nhg-entry-nexthop-mpls-config {
+    description
+      "MPLS encapsulation of a packet.";
+
+    leaf traffic-class {
+      type oc-mplst:mpls-tc;
+      description
+        "The value of the MPLS traffic class (TC) bits, formerly known as the
+         EXP bits.";
+    }
+
+    leaf label {
+      type oc-mplst:mpls-label;
+      description
+        "The value of the MPLS label.";
+    }
+
+    leaf mpls-ttl {
+      type uint8;
+      description
+        "The TTL value to use for the MPLS header.";
+    }
+  }
+
+  grouping ni-nhg-entry-nexthop-encap-udp-config {
+    description
+      "UDP encapsulation applied on top of a packet.";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "The source IP address for IP/UDP encapsulation.";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address for IP/UDP encapsulation.
+        If this leaf is set, the dst-prefix should not be set.";
+    }
+
+    leaf dst-prefix {
+      type oc-inet:ip-prefix;
+      description
+        "Destination prefix to use for the encapsulated packet.
+        If this leaf is set, the dst-ip should not be set.
+
+        The system should load balance flows across all the of 
+        the destination ip addresses in the configured prefix";
+    }
+
+    leaf dscp {
+      type oc-inet:dscp;
+      description
+        "DSCP value to use for the UDP header of the encapsulated
+         packet.";
+    }
+
+    leaf src-udp-port {
+      type oc-inet:port-number;
+      description
+        "Source UDP port number to use for the UDP header of the encapsulated
+         packet.  The source UDP port should be derived from the payload
+         packet entropy.  The exact methodology is implementation dependent,
+         but for example, the port could be derived from an entropy hash of
+         the payload or the source port (if present) of the payload.";
+    }
+
+    leaf dst-udp-port {
+      type oc-inet:port-number;
+      description
+        "Source UDP port number to use for the UDP header of the encapsulated
+        packet.
+
+        When the payload packet is MPLS, then RFC 7510 - Encapsulating MPLS
+        in UDP should be followed.";
+      reference
+        "RFC 7510 - Encapsulating MPLS in UDP specifies that 6635 must be
+        used for MPLS-in-UDP and 6636 must be used for MPLS-in-UDP with DTLS.
+        Because of this condition, no default is defined in OpenConfig.  The
+        system is expected to utilize the appropriate port.";
+    }
+
+    leaf ip-ttl {
+      type uint8;
+      description
+        "This leaf reflects the configured/default IP TTL value that is used
+         in the outer header during packet encapsulation. When this leaf is
+         not set, the TTL value of the inner packet is copied over as the
+         outer packet's IP TTL value during encapsulation.";
+    }
+  }
+}
