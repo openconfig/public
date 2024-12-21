@@ -16,7 +16,13 @@ module openconfig-aft-types {
     "Types related to the OpenConfig Abstract Forwarding
     Table (AFT) model";
 
-  oc-ext:openconfig-version "1.2.0";
+  oc-ext:openconfig-version "1.3.0";
+
+  revision "2024-12-16" {
+    description
+      "Add static GUE encapsulation.";
+    reference "1.3.0";
+  }
 
   revision "2024-07-18" {
     description
@@ -98,6 +104,14 @@ module openconfig-aft-types {
       enum UDP {
         description
           "The encapsulation header is UDP packet header.";
+      }
+      enum UDPV4 {
+        description
+          "The encapsulation header is UDP packet header followed by IPv4 packet header.";
+      }
+      enum UDPV6 {
+        description
+          "The encapsulation header is UDP packet header followed by IPv6 packet header.";
       }
     }
     description
