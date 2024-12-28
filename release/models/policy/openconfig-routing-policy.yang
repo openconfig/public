@@ -53,7 +53,11 @@ module openconfig-routing-policy {
     condition statement in a policy statement is satisfied, the
     corresponding action statement is executed.  A policy statement with no
     conditions defined is evaluated as statisfied, meaning all routes are
-    matched.  If the action statement has a final disposition configured as
+    matched.  A routing-policy statement with no condition AND no action, or
+    a policy-definition without any statements should be treated as errors
+    (grpc error: INVALID_ARGUMENT, netconfig error missing-element).
+    
+    If the action statement has a final disposition configured as
     policy result, either accept-route or reject-route, evaluation of the
     current policy definition stops, and no further policy statements are
     evaluated. In case there is a policy chain, no further policy definitions
