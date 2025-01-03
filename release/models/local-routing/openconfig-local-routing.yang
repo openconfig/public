@@ -163,12 +163,19 @@ module openconfig-local-routing {
         selection of the next-hop entry.  The lower the metric, the more
         preferable the prefix entry is.  When this value is not
         specified, the metric is inherited from the default metric of
-        the implementation for static route entries.  When multiple
+        the implementation for static/aggregate route entries.  When multiple
         next-hops are specified for a static route, the metric is
-        utilized to determine which of the next-hops to be installed in
-        the RIB.  When multiple next-hops have the same metric (be it
-        specified, or simply the default) then these next-hops should
-        all be installed in the RIB.";
+        utilized to determine which of the next-hops to be used in best
+        static route for given prefix, and conseqently be eligable for
+        installation in RIB (provided static route is selected as best
+        route against routes lerned form other protocols - see preference). 
+        When multiple next-hops have the same metric (be it
+        specified, or simply the default) then akk these next-hops should
+        be used in best static route for given prefix, hence be eligable for
+        installation in RIB.
+        The value of metric is carried form static/aggregate to other
+        protocol in process of redistribution, provided that such behaviour
+        is enabled in configuration of redistributions (table-connection)";
     }
 
     leaf preference {
@@ -176,11 +183,18 @@ module openconfig-local-routing {
       description
         "Administrative Distance (preference) of the entry.  The
         preference defines the order of selection when multiple
-        sources (protocols, static, etc.) contribute to the same
-        prefix entry.  The lower the preference, the more preferable the
-        prefix is.  When this value is not specified, the preference is
+        sources (protocols, gRIBI, static, aggregate etc.) contribute to
+        the same prefix entry.  The lower the preference, the more preferable
+        the route is.  When this value is not specified, the preference is
         inherited from the default preference of the implementation for
-        static routes.";
+        static/aggregate routes.
+        The preference must not be utilized to specify the order of
+        selection of the next-hop entry of static route. The value of preference of
+        next-hop of best static route is used to compare with routes for
+        the same prefix lerned form other protocols. In case when best
+        static route has multiple next-hops (due to eqial metric), and
+        this next-hops has disticnt value of preference, lowest value is
+        utilized to compare with routes form other protocols.";
     }
   }
 
