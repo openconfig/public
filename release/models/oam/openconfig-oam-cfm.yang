@@ -1,0 +1,1318 @@
+module openconfig-oam-cfm {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/oam/cfm";
+
+  prefix "oc-oam-cfm";
+  import openconfig-vlan-types { prefix oc-vlan-types; }
+  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-cfm-types { prefix oc-cfm-types; }
+  import openconfig-oam { prefix oc-oam; } // imports the module being augmented
+
+
+ // google
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines a YANG data model for configuring and managing CFM
+    (Connectivity Fault Management) in a network device. The module includes
+    maintenance domains, associations, maintenance endpoints,
+    performance management policies and remote defect handling features";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2024-09-11" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+  grouping cfm-top {
+    description "Top-level grouping for CFM configuration and state";
+
+    container cfm {
+      description
+        "Container for CFM configuration, state and perfomance measurement policies";
+
+      container domains {
+        description "A Container for CFM maintenance domain state and Configuration
+         on the local system";
+
+        list maintenance-domain {
+          key "md-id";
+          description
+            "A Maintenance Domain managed object is required in order to create
+             an MA with a MAID that includes that Maintenance Domain’s Name. From
+             this Maintenance Domain managed object, all Maintenance
+             Association managed objects associated with that Maintenance
+             Domain managed object can be accessed, and thus controlled.";
+             reference "[802.1q] 12.14.5";
+
+          leaf md-id {
+            type leafref {
+              path "../config/md-id";
+            }
+            description
+              "A unique maintenance domain name identifying the domain";
+            reference
+              "[802.1q] 12.14.5";
+          }
+
+          container config {
+            description "Configuration data for a maintenance domain.";
+              uses cfm-domain-config;
+          }
+
+          container state {
+            description "Operational data for a maintenance domain.";
+            config false;
+            uses cfm-domain-config;
+          }
+
+          container maintenance-associations {
+            description
+              "Collection of maintenance associations within a
+              maintenance domain.Provides configuration and operational data
+              for the Maintenance Associations. A Maintenance Association is a set
+              of MEPs, each configured with the same MAID and MD level,
+              established to verify the integrity of a single service
+              instance. A Maintenance Association can be thought of as a
+              full mesh of Maintenance Entities among a set of MEPs so
+              configured.";
+
+            list maintenance-association {
+              key "ma-id";
+              description "Collection of maintenance associations within a maintenance domain.";
+
+                leaf ma-id {
+                  description "Key of the Maintenance Association list of entries.";
+                  type leafref {
+                          path "../config/ma-id";
+                  }
+                  reference
+                    "[802.1q] 12.14.6";
+                }
+
+                container config {
+                  description "Configuration data for a maintenance association.";
+                  uses maintenance-association-config;
+                }
+
+                container state {
+                  description "Operational data for a maintenance association.";
+                  config false;
+                  uses maintenance-association-config;
+                } // End MA State
+
+                container mep-endpoints {
+                  description "Container for full mesh MEPs under the maintenance association.";
+
+                  list mep-endpoint {
+                    key "local-mep-id";
+                    description "collection of full mesh MEPs under the maintenance association.";
+
+                      leaf local-mep-id {
+                        description "Local MEP identifier.";
+                        type leafref {
+                          path "../config/local-mep-id";
+                        }
+                      }
+
+                      container config {
+                        description "Configuration data for a MEP.";
+                        uses mep-config;
+                      } // end container config
+
+                      container state {
+                        config false;
+                        description " Operational tate data for a MEP.";
+                        uses mep-config;
+                        uses mep-oper-states;
+                      } //end container mep state
+
+                      container pm-profiles {
+                        description
+                          "This container includes configuration and state objects for the Frame Loss
+                          Measurement & Delay Measurement functions defined in [Y.1731] and [MEF SOAM PM IA].";
+
+                        list pm-profile {
+                          description " Measurement profile name and state.";
+                          key "profile-name";
+
+                          leaf "profile-name" {
+                            description  "A unique profile name identifying the profile";
+                            type leafref {
+                              path "../config/profile-name";
+                            }
+                          }
+
+                          container config {
+                            description "Associated performance Measurement profile.";
+
+                            leaf "profile-name" {
+                              description  "A unique profile name identifying the profile";
+                              type string;
+                            }
+                          }
+
+                          container state {
+                            description "Operational data for loss measurement.";
+                            config false;
+                            uses performance-measurement-config;
+                            uses performance-measurement-state;
+                          }
+                        }
+                      }
+
+                      container rdi {
+                        description "rdi config for a mep.";
+                        container config {
+                          description "rdi config for a mep.";
+                          uses rdi-config;
+                        }
+
+                        container state {
+                          description "rdi state for a mep.";
+                          config false;
+                          uses rdi-config;
+                        }
+
+                      }
+
+                      container link-loss-forwarding {
+                        description "link loss forwarding config for a mep.";
+                        container config {
+                          description
+                            "Enable propagation of the remote
+                            attachment-circuit link state to the
+                            localattachment-circuit link state";
+                          uses link-loss-forwarding-config;
+                        }
+
+                        container state {
+                          description "link loss forwarding state for a mep.";
+                          config false;
+                          uses link-loss-forwarding-config;
+                        }
+                      }
+                      container remote-meps {
+                        description "Remote meps associated to a local mep";
+
+                        list remote-mep {
+                          description "Remote meps associated to a local mep";
+                          key "id";
+
+                            leaf id {
+                              description "Remote mep id.";
+                              type leafref{
+                                path "../config/id";
+                              }
+                            }
+
+                            container config {
+                              description "Configuration data for a remote mep.";
+                              uses remote-mep-config;
+                            }
+
+                            container state {
+                              description "Operational data for a remote mep.";
+                              config false;
+                              uses remote-mep-config;
+                              uses mep-oper-states;
+                            }
+                        } // end list remote-mep
+                      } // end container remote-meps
+                      } // end list mep-endpoint
+                  } // end container mep-enpoints
+                } //  end MA list
+            } // end container MA
+        } // end list MD
+        } //  end container domains
+
+        container state {
+          description "Operational data for CFM.";
+          config false;
+          uses cfm-global-state;
+        }
+
+        container performance-measurement-profiles-global {
+          description "This container includes configuration and state objects
+          for the Frame Loss Measurement and Delay measurement
+          functions as defined in [Y.1731] and [MEF SOAM PM IA].";
+
+          list performance-measurement-profile {
+            description "Performance measurement configuration and state.";
+            key "profile-name";
+
+              leaf "profile-name" {
+              description
+                "A unique profile name identifying the
+                Performance measurement profile";
+              type leafref {
+                path "../config/profile-name";
+              }
+            }
+            container config {
+              description
+                "Configuration data for Performance measurement profile.";
+              uses performance-measurement-config;
+            }
+
+            container state {
+              description
+                "Statistical data for performance measurement profiles.";
+              config false;
+              uses performance-measurement-config;
+              uses performance-measurement-state;
+            }
+          }
+        }
+    } // End container cfm
+  } // End grouping cfm
+
+  grouping maintenance-association-config {
+    description "Configuration for a maintenance association";
+
+    leaf ma-id {
+      type oc-cfm-types:name-key-type;
+      description "Key of the Maintenance Association list of entries.";
+      reference
+        "[802.1q] 12.14.6";
+    }
+
+    leaf group-name {
+      type string;
+      description
+        "Optional Bridge Group or Cross-connect Group name, if
+        Service Type is BridgeDomain or
+        CrossConnect";
+}
+
+    leaf ma-name-type {
+      type enumeration {
+        enum PRIMARY_VID {
+          description
+            "Specifies the Primary VLAN ID.";
+        }
+        enum CHARACTER_STRING {
+          description
+            "RFC2579 DisplayString, except that the character
+            codes 0-31 (decimal) are not used.";
+        }
+        enum UINT16 {
+          description "2-octet integer/big endian.";
+        }
+        enum RFC2685_VPN_ID {
+          description "Specifies the RFC 2685 VPN ID.";
+        }
+      }
+      description
+        "Name type discriminator for the 'name' leaf.";
+      reference
+        "[802.1q] 12.14.5.3.2:b, Table 21-20
+        IEEE8021-CFM-MIB.Dot1agCfmMaintAssocNameType";
+  }
+
+
+    leaf primary-vid {
+        when "../ma-name-type = 'PRIMARY_VID'";
+        mandatory true;
+        type oc-vlan-types:vlan-id;
+        description
+          "Primary VLAN ID. 12 bits represented in a 2-octet integer.";
+      }
+
+
+    leaf char-string {
+      when "../ma-name-type = 'CHARACTER_STRING'";
+      mandatory true;
+        type string {
+          length "1..45";
+          pattern '[ -~]*';
+          oc-ext:posix-pattern '^[ -~]*$';
+        }
+        description
+          "RFC2579 DisplayString, except that the character codes 0-31
+          (decimal) are not used.";
+      }
+
+
+    leaf unsigned-int16 {
+      when "../ma-name-type = 'UINT16'";
+        type uint16;
+        mandatory true;
+        description
+          "2-octet integer.";
+      }
+
+    leaf vpn-oui {
+      when "../ma-name-type = 'RFC2685_VPN_ID'";
+      type uint32 {
+        range "0..16777215";
+      }
+      mandatory true;
+      description
+        "RFC2685 VPN ID. 3 octet VPN authority Organizationally
+          Unique Identifier followed by 4 octet VPN index identifying
+          VPN according to the OUI. 3 octet VPN authority
+          Organizationally Unique Identifier.";
+    }
+
+    leaf vpn-index {
+      when "../ma-name-type = 'RFC2685_VPN_ID'";
+      type uint32;
+      mandatory true;
+      description
+        "RFC2685 VPN ID. 3 octet VPN authority Organizationally
+        Unique Identifier followed by 4 octet VPN index identifying
+        VPN according to the OUI.
+        vpn-index is a 4 octet index identifying VPNaccording to the OUI.";
+    }
+
+    leaf ccm-interval {
+      description "CCM transmission interval.";
+      type enumeration {
+        enum "300MS" {
+          description "300 milli milliseconds interval."; }
+        enum "1S" {
+          description "1 second interval."; }
+        enum "10S" {
+          description "10 seconds interval."; }
+      }
+    } // end ccm-interval
+
+    leaf loss-threshold {
+      type uint16;
+      description "number of consecutive loss frames to trigger a loss event.";
+    } // end loss-threshold
+  } // end grouping maintenance-association-config
+
+  grouping remote-mep-config {
+    description "Configuration for remote MEPS";
+
+    leaf id {
+      type oc-cfm-types:mep-id-type;
+      description "Remote MEP IDs in full mesh.";
+      reference
+        "Item a in 12.14.7.6.3, 20.20 of IEEE Std 802.1Q-2022";
+    }
+
+    leaf mac-address {
+      type oc-yang:mac-address;
+      description "Remote MEP IDs in full mesh.";
+      reference
+        "Item d in 12.14.7.6.3, 20.19.7 of IEEE Std 802.1Q-2022";
+    }
+  } // end grouping
+
+  grouping mep-oper-states {
+    description "Operational state of a MEP";
+
+    leaf oper-state {
+      type oc-cfm-types:operational-state-type;
+      description "Operational state of the MEP.";
+    }
+
+    leaf interface-state {
+      type oc-cfm-types:interface-status-type;
+      description
+        "The state of the interface last reported by the local MEP in the TLV.";
+      reference
+        "[802.1q] 17.5";
+    }
+
+    leaf fng-state {
+      type oc-cfm-types:fng-state-type;
+      default "FNG_RESET";
+      description
+        "The current state of the MEP Fault Notification Generator
+        state machine.";
+      reference
+        "Item f in 12.14.7.1.3, 20.35 of IEEE Std 802.1Q-2022";
+    }
+
+    leaf highest-priority-defect {
+      type oc-cfm-types:highest-defect-priority-type;
+      description
+        "The highest priority defect that has been present since
+        the MEPs Fault Notification Generator state machine was
+        last in the FNG_RESET state.";
+      reference
+        "Item n in 12.14.7.1.3, 20.35.9 of IEEE Std 802.1Q-2022";
+    }
+
+    leaf-list mep-defects {
+      type oc-cfm-types:mep-defects-type;
+      max-elements 5;
+      description
+        "Vector of boolean error conditions.
+        Multiple defects can be present at the same time.";
+      reference
+        "12.14.7.1.3 of IEEE Std 802.1Q-2022";
+    }
+
+    leaf present-rdi {
+      type boolean;
+      description
+        "A boolean value indicating the state of the RDI bit in CCMs
+        transmitted by this MEP. present-rdi is true if and only if one or more
+        of the variables someRMEPCCMdefect, someMACstatusDefect, errorCCMdefect,
+        or xconCCMdefect is true, and if the corresponding priority of that
+        variable, from mep-defects above, is greater than or equal to the
+        value of the variable lowestAlarmPri.";
+    }
+
+    leaf-list config-errors-detected {
+      type oc-cfm-types:config-error-type;
+      max-elements 4;
+      description "Vector of enums of config error detected. i.e. [cfm-leak]";
+    }
+
+    leaf error-ccm-last-failure {
+      type binary {
+        length "1..128";
+      }
+      description
+        "The last received CCM that triggered a def-error-ccm
+          fault.";
+      reference
+        "Itemt in 12.14.7.1.3, 20.21.2 of IEEE Std 802.1Q-2022";
+    }
+    uses mep-counters-state;
+  } // end grouping mep-oper-states.
+
+  grouping mep-counters-state {
+    description "Counters for a remote MEP";
+    container counters {
+      description
+        "A collection of mep-related statistics objects.";
+        leaf mep-ccm-sequence-errors {
+          type oc-yang:counter64;
+          mandatory true;
+          description
+            "The total number of out-of-sequence CCMs received from
+            all remote MEPs.";
+          reference
+            "Item v in 12.14.7.1.3, 20.16.12 of IEEE Std 802.1Q-2022";
+            }
+
+        leaf mep-ccms-sent {
+          type oc-yang:counter64;
+          mandatory true;
+          description
+            "Total number of CCMs transmitted by the local MEP";
+          reference
+            "Item w in 12.14.7.1.3, 20.10.2 of IEEE Std 802.1Q-2022";
+        }
+    }
+  }
+
+  grouping rmep-oper-states {
+    description "Operational state of a MEP";
+
+    leaf rmep-state {
+      type oc-cfm-types:remote-mep-state-type;
+      description
+        "The operational state of the remote MEP state machine";
+      reference
+        "Item b in 12.14.7.6.3, 20.20 of IEEE Std 802.1Q-2022";
+    }
+
+    leaf rmep-failed-ok-time {
+      type oc-yang:counter32;
+      description
+        "The time (SysUpTime) at which the Remote MEP state
+        machine last entered either the RMEP_FAILED or RMEP_OK
+        state";
+      reference
+        "Item c in 12.14.7.6.3 of IEEE Std 802.1Q-2022";
+    }
+    leaf mac-address {
+      type oc-yang:mac-address;
+      description
+        "The MAC address of the remote MEP.";
+      reference
+        "Item d in 12.14.7.6.3, 20.19.7 of IEEE Std 802.1Q-2022";
+    }
+
+    leaf remote-defect-condition {
+      type boolean;
+      default false;
+      description
+        "State of the RDI bit in the last received CCM (true for
+        RDI=1), or false if none has been received.;";
+    }
+
+    leaf-list config-errors-detected {
+      type oc-cfm-types:config-error-type;
+      max-elements 4;
+      description "Vector of enums for config errors detected. i.e. [cfm-leak]";
+    }
+
+    leaf interface-status-tlv {
+      type oc-cfm-types:interface-status-type;
+        description
+          "An enumerated value of the Interface status TLV sent in the last CCM
+          from the local MEP or the default value no-status-tlv
+          indicating no CCM has been sent or no Interface Status TLV has
+          been sent.";
+        reference
+          "[802.1q] 17.5";
+    }
+
+    leaf port-status-tlv {
+      type oc-cfm-types:port-status-type;
+      description
+        "The enumerated value from the Port Status TLV from the last
+        CCM received from the remote MEP.";
+      reference
+        "[802.1q] 12.14.7.6.3:f";
+    }
+    uses  rmep-counters-state;
+
+  } // end grouping mep-oper-states.
+
+
+  grouping rmep-counters-state {
+    description "Counters for a remote MEP";
+    container counters {
+      description
+        "A collection of rmep-related statistics objects.";
+      leaf mep-ccm-sequence-errors {
+        type oc-yang:counter64;
+        mandatory true;
+        description
+          "The total number of out-of-sequence CCMs received from
+          the remote MEP.";
+        reference
+          "Item v in 12.14.7.1.3, 20.16.12 of IEEE Std 802.1Q-2022";
+      }
+      leaf ccms-sent {
+        type oc-yang:counter64;
+        mandatory true;
+        description
+          "Total number of CCMs transmitted towards the Remote MEP";
+        reference
+          "Item w in 12.14.7.1.3, 20.10.2 of IEEE Std 802.1Q-2022";
+      }
+    }
+  }
+
+  grouping mep-config {
+    description "Configuration for a MEP.";
+
+    leaf ccm-enabled {
+      type boolean;
+      default "false";
+      description
+        "Indicates whether the MEP can generate CCMs. If TRUE, the
+        MEP will generate CCM PDUs.";
+      reference
+        "Item g in 12.14.7.1.3, 20.10.1 of IEEE Std 802.1Q-2022";
+    }
+
+    leaf lowest-priority-defect {
+      type oc-cfm-types:lowest-alarm-priority-type;
+      default "MAC_REMOTE_ERROR_XCON";
+      description
+        "The lowest priority defect that is allowed to generate
+        fault alarms.";
+      reference
+        "Item k in 12.14.7.1.3, 20.9.5 of IEEE Std 802.1Q-2022";
+    }
+
+    leaf fng-alarm-time {
+      type uint16 {
+        range "2500..10000";
+      }
+      units "milliseconds";
+      default "2500";
+      description
+        "The time that defect must be present before a Fault Alarm
+        is issued.";
+      reference
+        "Item l in 12.14.7.1.3, 20.35.3 of IEEE Std 802.1Q-2022";
+    }
+
+    leaf fng-reset-time {
+      type uint16 {
+        range "2500..10000";
+      }
+      units "milliseconds";
+      default "10000";
+      description
+        "The time that defects must be absent before resetting a
+        Fault Alarm.";
+      reference
+        "Item m in 12.14.7.1.3, 20.35.4 of IEEE Std 802.1Q-2022";
+      }
+
+    leaf local-mep-id {
+      type oc-cfm-types:mep-id-type;
+      description "The identifier of a Local MEP.  Unique per given  MA ";
+    } // end local-mep-id
+
+    leaf interface {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description "Interface directly associated with the MEP id.";
+    } // end leaf interface
+
+    leaf include-mep-port-status-in-tlv {
+      type boolean;
+      default true;
+      description
+        "Indicates whether a Port Status TLV is included in CCM frame
+        transmission. A value of 'true' indicates that the Port Status
+        TLV is to be included. A value of 'false' indicates that the
+        Port Status TLV is not to be included.";
+      reference
+        "[MEF7.1] 9.2.2";
+    }
+    leaf include-mep-interface-status-in-tlv {
+      type boolean;
+      default true;
+      description
+        "Indicates whether a Interface Status TLV is included in CCM frame
+        transmission. A value of 'true' indicates that the Interface Status TLV
+        is to be included. A value of 'false' indicates that the Interface
+        Status TLV is not to be included.";
+      reference
+        "[MEF7.1] 9.2.2";
+ }
+
+    leaf direction {
+      description "The direction in which the MEP faces on the Bridge/Xconnect
+        Port. Example, up or down.";
+      type enumeration {
+        enum DOWN {
+          value 1;
+          description
+            "Down maintenance point, where CFM protocol messages are
+            dispatched away from the MAC Relay entity.";
+        }
+        enum UP {
+          value 2;
+          description
+            "Up maintenance point, where CFM protocol messages are
+            dispatched towards the MAC Relay entity.";
+        }
+      }
+      reference
+            "Item c in 12.14.7.1.3, 19.2 of IEEE Std 802.1Q-2022";
+    }
+
+     leaf auto-discovery {
+      type boolean;
+      description
+        "A boolean value to enable or disable auto-discovery.
+        users must configure explicitly true or false.
+        If unset, then it’s implementation specific.";
+    }
+  }
+
+  grouping cfm-domain-config {
+    description "Config parameters relating to a CFM Maintenance Domain.";
+
+    leaf md-id {
+      type oc-cfm-types:name-key-type;
+      description "The unique identifier for a Maintenance Domain.";
+      reference
+        "[802.1q] 12.14.5";
+    }
+
+    leaf level {
+      description "Level of the maintenance domain.";
+      type uint8 {
+        range "0..7";
+      }
+      reference
+        "3.123, Item b in 12.14.5.1.3 of IEEE Std 802.1Q-2022";
+    }
+
+  leaf md-name-type {
+    type enumeration {
+      enum NONE {
+        description
+          "No format specified.";
+      }
+      enum DOMAIN_NAME {
+        description
+          "Domain Name like string, globally unique text string
+          derived from a DNS name.";
+      }
+      enum MAC_ADDRESS_AND_UINT {
+        description
+          "MAC address + 2-octet (unsigned) integer.";
+      }
+      enum CHARACTER_STRING {
+        description
+          "RFC2579 DisplayString, except that the character
+          codes 0-31 (decimal) are not used.";
+      }
+    }
+    description
+      "Type discriminator for the value  described in the md 'name' leaf.";
+    reference
+      " IEEE8021-CFM-MIB.Dot1agCfmMaintDomainNameType";
+    }
+
+
+    leaf none {
+      when "../md-name-type = 'NONE'";
+      type boolean;
+        description
+          "No format specified, usually because there is not a
+          Maintenance Domain Name. The Maintenance Domain name
+          inserted in CFM protocol messages will be a zero length
+          OCTET string.";
+    }
+
+    leaf dns-like-name {
+      when "../md-name-type = 'DOMAIN_NAME'";
+      description
+        "Domain name like string, globally unique text string
+          derived from a DNS name.";
+      type string {
+          length "1..43";
+        }
+    }
+
+    leaf address {
+        when "../md-name-type = 'MAC_ADDRESS_AND_UINT'";
+        type oc-yang:mac-address;
+        mandatory true;
+        description
+          "The MAC address.";
+      }
+      leaf unsigned-int {
+        when "../md-name-type = 'MAC_ADDRESS_AND_UINT'";
+        type uint16;
+        mandatory true;
+        description
+          "The additional 2-octet (unsigned) integer.";
+      }
+
+    leaf char-string {
+      when "../md-name-type = 'CHARACTER_STRING'";
+      description
+        "The character string name of the Maintenance Domain.";
+      type string {
+            length "1..43";
+            pattern "[ -~]*";
+            oc-ext:posix-pattern '^[ -~]*$';
+      }
+    }
+  }
+
+  grouping cfm-global-state {
+    description "Operational parameters relating to a CFM Maintenance Domain.";
+
+    leaf local-meps {
+      type uint32;
+      description "The total number of local-meps configured on the local system.";
+    }
+
+    leaf local-meps-operational {
+      type uint32;
+      description "The total number of local-meps operational on the local system.";
+    }
+
+    leaf cfm-domains {
+      type uint32;
+      description "The total number cfm domains configured on the local system.";
+    }
+
+    leaf cfm-services {
+      type uint32;
+      description "The total number cfm services configured on the local system.";
+    }
+
+    leaf down-meps {
+      type uint32;
+      description "The total number cfm down meps configured on the local system.";
+    }
+
+    leaf up-meps {
+      type uint32;
+      description "The total number cfm down meps configured on the local system.";
+    }
+
+    leaf disabled-misconfigured {
+      type uint32;
+      description "The total number of disabled cfm  down meps configured on the local system.";
+    }
+
+    leaf disabled-operational-errors {
+      type uint32;
+      description "The total number cfm operational errors on the local system.";
+    }
+
+    leaf disabled-out-of-resources {
+      type uint32;
+      description "The total number cfm endpoints disabled due to lack of resources on the local system.";
+    }
+
+    leaf peer-meps{
+      type uint32;
+      description "The total number cfm peer meps configured.";
+    }
+
+    leaf operational-peer-meps {
+    type uint32;
+    description
+      "The total number cfm peer meps operational.";
+    }
+
+    leaf peer-meps-with-defects {
+      type uint32;
+      description "The total number cfm peer meps with defects.";
+    }
+
+    leaf peer-meps-timed-out {
+      type uint32;
+      description "The total number cfm peer meps timed out.";
+    }
+
+    // End cfm-global-state
+  }
+
+ grouping delay-measurement-state {
+  description "Delay measurement state.";
+
+  container delay-measurement-state {
+    description "Delay measurement state.";
+
+    leaf frame-delay-two-way-min {
+      type uint32;
+      units microseconds;
+      description
+        "This object contains the minimum two-way frame delay calculated by this
+        MEP for this Measurement Interval.
+
+        This object is undefined if measurement-type is dm1-transmitted
+        or dm1-received.";
+    }
+    leaf frame-delay-two-way-max {
+        type uint32;
+        units microseconds;
+        description
+          "This object contains the maximum two-way frame delay calculated by this
+          MEP for this Measurement Interval.
+
+          This object is undefined if measurement-type is dm1DmTx or
+          dm1-received.";
+    }
+    leaf frame-delay-two-way-average {
+        type uint32;
+        units microseconds;
+        description
+          "This object contains the average two-way frame delay calculated by this
+          MEP for this Measurement Interval.
+
+          This object is undefined if measurement-type is dm1-transmitted or
+          dm1-received.";
+    }
+
+    leaf frame-delay-two-way-stddev {
+        type uint32;
+        units microseconds;
+          description
+          "This object contains the standard deviation of two-way frame delay calculated by this
+          MEP for this Measurement Interval.
+
+          This object is undefined if measurement-type is dm1DmTx or
+          dm1-received.";
+    }
+    uses delay-measurement-counters-state;
+  }
+ }
+
+  grouping loss-measurement-state {
+    description "Loss measurement state grouping.";
+
+    container loss-measurement-state {
+      description "Loss measurement state container.";
+
+      leaf far-end-min-frame-loss-ratio {
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the minimum one-way availability flr in the
+          egress direction (source --> destination),
+          from among the set of availability flr values
+          calculated by the MEP in this Measurement Interval. There is
+          one availability flr value for each 'delta_t' time period
+          within the Measurement Interval, as specified in MEF 10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+          reference
+            "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMinFlr";
+      }
+      leaf far-end-max-frame-loss-ratio {
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the maximum one-way availability flr in the
+          forward direction (source --> destination),
+          from among the set of availability flr
+          values calculated by the MEP in this Measurement Interval.
+          There is one availability flr value for each 'delta_t' time
+          period within the Measurement Interval, as specified in MEF
+          10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMaxFlr";
+      }
+      leaf far-end-average-frame-loss-ratio {
+
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+
+        description
+        "This object contains the average one-way availability flr in the
+        forward direction, from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
+
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardAvgFlr";
+        }
+
+      leaf near-end-min-frame-loss-ratio {
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the minimum one-way availability flr in the
+          backward direction (destination --> source),
+          from among the set of availability flr
+          values calculated by the MEP in this Measurement Interval.
+          There is one availability flr value for each 'delta_t' time
+          period within the Measurement Interval, as specified in MEF
+          10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMinFlr";
+      }
+      leaf near-end-max-frame-loss-ratio {
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the maximum one-way availability flr in the
+          backward direction, from among the set of availability flr
+          values calculated by the MEP in this Measurement Interval.
+          There is one availability flr value for each 'delta_t' time
+          period within the Measurement Interval, as specified in MEF
+          10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+          Service OAM Performance Monitoring YANG Module
+          MEF 39
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMaxFlr";
+        }
+
+      leaf near-end-average-frame-loss-ratio {
+
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+
+        description
+        "This object contains the average one-way availability flr in the
+        backward direction, from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
+
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardAvgFlr";
+        }
+
+      uses loss-measurement-counters-state;
+    }
+  }
+
+  grouping loss-measurement-counters-state {
+    description "Loss-measurement-related measurement counters state.";
+
+    container counters {
+      description
+        "A collection of loss-measurement-related statistics objects.";
+
+      leaf slm-sent {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
+
+      leaf slm-received {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
+
+      leaf slr-sent {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
+
+      leaf slr-received {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
+    }
+  }
+
+  grouping delay-measurement-counters-state {
+    description "Delay measurement counters state.";
+
+    container counters {
+      description
+        "A collection of delay-measurement-related statistics objects.";
+
+      leaf dmm-sent {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
+
+      leaf dmm-received {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
+
+      leaf dmr-sent {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
+
+      leaf dmr-received {
+        type oc-yang:counter64;
+        description "slm Probes sent.";
+      }
+    }
+  }
+
+  grouping performance-measurement-state {
+    description "Performance measurement state grouping.";
+
+    uses loss-measurement-state;
+    uses delay-measurement-state;
+  }
+
+  grouping performance-measurement-config {
+    description "Performance measurement configuration.";
+
+    leaf profile-name {
+      type string;
+      description "Name of the measurement profile.";
+    }
+
+    leaf enable {
+      type boolean;
+      default false;
+      description "Enable or disable measurement.";
+    }
+
+    leaf measurement-type {
+      type enumeration {
+        enum LMM {
+          description
+          "LMM SOAM PDU generated and received LMR responses tracked.";
+        }
+        enum SLM {
+          description
+          "SLM SOAM PDU generated and received SLR responses tracked.";
+        }
+        enum DMM {
+          description
+          "DMM SOAM PDU generated and received DMR responses tracked.";
+        }
+        enum CCM {
+          description
+          "CCM SOAM PDU generated and received CCM PDUs tracked.";
+        }
+      }
+      default SLM;
+      description
+        "This object specifies what type of Performance Measurement will be
+        performed.";
+      reference
+        "ITU Y1731";
+    }
+
+    leaf protocol-type {
+      description "protocol type.";
+      type enumeration {
+        enum SINGLE_ENDED {
+          description "single-ended measurement mode.";
+        }
+        enum DUAL_ENDED {
+          description "dual-ended measurement mode.";
+        }
+      }
+      reference
+        "https://datatracker.ietf.org/doc/html/rfc7456#section-4";
+    }
+
+    leaf frame-size {
+      type uint16;
+      description "Probe Frame size for measurement.";
+    }
+
+    leaf measurement-interval {
+      type uint32 {
+        range "1..525600";
+      }
+      units "minutes";
+      description
+        "This object specifies the Measurement Interval for FLR statistics, in
+        minutes.
+        A Measurement Interval of 15 minutes needs to be supported,
+        other intervals may be supported.";
+      reference
+       "MEF-SOAM-PM-MIB.mefSoamLmCfgMeasurementInterval";
+    }
+
+    leaf repetition-period {
+      type uint32;
+      default 0;
+      description
+        "This object specifies a configurable repetition time between
+        Measurement Intervals in a Measurement session in hundredths of a
+        second.
+
+        If the value is less than or equal to one Measurement Interval
+        there is no time gap between the end of one Measurement
+        Interval and the start of a new Measurement Interval. This is
+        the normal usage case.
+
+        If the value is greater than one Measurement Interval there is
+        time gap between the end of one Measurement Interval and the
+        start of the next Measurement Interval.";
+      reference
+        "[MEF SOAM PM IA] R18, D3, R19, R20";
+    }
+
+    leaf intervals-archived {
+      type uint16;
+      description
+        "This object specifies the number of completed measurement intervals to
+        store in the history statistic table.
+
+        At least 32 completed measurement intervals are to be
+        stored. 96 measurement intervals are recommended to be stored.";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCfgNumIntervalsStored";
+    }
+
+    leaf packets-per-meaurement-period {
+      type uint16;
+      description "Number of probe packets to send within a measurement interval.";
+    }
+
+    leaf burst-interval {
+      type uint32;
+      units "milliseconds";
+      description "Interval between bursts within a measurement interval.";
+    }
+
+    leaf packet-per-burst {
+      type uint32;
+      description
+      "if burst enabled. The leaf defines the number of packet per burst of probes.
+      packets-per-measurement-period / burst-interval";
+    }
+  }
+
+  grouping rdi-config {
+    description "Remote Defect Indication (RDI) configuration.";
+
+    leaf transmit-on-defect {
+      type boolean;
+      description "Transmit RDI when a defect is detected.";
+    }
+  }
+
+  grouping link-loss-forwarding-config {
+    description "Link loss forwarding configuration.";
+
+    leaf enable {
+      type boolean;
+      description
+        "Enable propagation of the remote
+        attachment-circuit link state to the
+        local attachment-circuit link state";
+    }
+    leaf damping-timer {
+      type uint64;
+      units milliseconds;
+      description
+        "The damping timer is the amount of time that the local
+        attachment-circuit link state will be held in the down state
+        after the remote attachment-circuit link state has been
+        detected to be up. The damping timer is used to prevent
+        flapping of the local attachment-circuit link state.";
+    }
+
+    leaf action {
+      type enumeration {
+        enum "SHUTDOWN" { description "Shutdown action on link loss."; }
+        enum "ALARM" { description "Raise an alarm on link loss."; }
+        enum "DISABLE_ROUTING" { description "Mark interface non-routable."; }
+      }
+      description "Action to take on link loss.";
+    }
+  }
+
+  // augment statements
+
+  augment "/oc-oam:oam" {
+     description
+      "Add cfm related state and config to oam";
+    uses cfm-top;
+  }
+}
