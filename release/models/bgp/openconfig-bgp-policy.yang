@@ -37,6 +37,12 @@ module openconfig-bgp-policy {
     reference "8.2.0";
   }
 
+  revision "2024-11-13" {
+    description
+      "Add use-last-as leaf to set-as-path-prepend to prepend last AS.";
+    reference "8.1.0";
+  }
+
   revision "2024-08-23" {
     description
       "Separate the ability to set the BGP MED along with an appropriate
@@ -927,9 +933,19 @@ module openconfig-bgp-policy {
     leaf asn {
       type oc-inet:as-number;
       description
-        "The AS number to prepend to the AS path. If this leaf is
-        not specified and repeat-n is set, then the local AS
-        number will be used for prepending.";
+        "The AS number to prepend to the AS path. If neither this
+        leaf nor use-last-as leaf is specified but repeat-n is set, then
+        the local AS number will be used for prepending.";
+    }
+
+    leaf use-last-as {
+      type boolean;
+      description
+        "Indicates whether to use the last AS number, which is also the
+        most recent AS number, to prepend to the AS path.
+        If neither this leaf nor asn leaf is specified
+        but repeat-n is set, then the local AS number will be
+        used for prepending.";
     }
   }
 
