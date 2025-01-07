@@ -28,7 +28,20 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "7.1.0";
+  oc-ext:openconfig-version "8.1.0";
+
+  revision "2024-11-13" {
+    description
+      "Add use-last-as leaf to set-as-path-prepend to prepend last AS.";
+    reference "8.1.0";
+  }
+
+  revision "2024-08-23" {
+    description
+      "Separate the ability to set the BGP MED along with an appropriate
+      action.";
+    reference "8.0.0";
+  }
 
   revision "2024-07-02" {
     description
@@ -210,23 +223,40 @@ module openconfig-bgp-policy {
   typedef bgp-set-med-type {
     type union {
       type uint32;
-      type string {
-        pattern '[+-][0-9]+';
-        oc-ext:posix-pattern '^[+-][0-9]+$';
-      }
       type enumeration {
         enum IGP {
-          description "set the MED value to the IGP cost toward the
-          next hop for the route";
+          description
+            "Set the MED value to the IGP cost toward the next hop for
+            the route";
         }
       }
     }
     description
-      "Type definition for specifying how the BGP MED can
-      be set in BGP policy actions. The three choices are to set
-      the MED directly using the uint32 type or increment/decrement
-      using +/- notation in the string type or setting it to
-      the IGP cost using the enum (predefined value).";
+      "Type definition for specifying how the BGP MED can be set in BGP
+      policy actions.  The MED can be specified as a direct integer
+      value or setting it to the IGP cost.  To be used in conjunction
+      with `bgp-set-med-action` in order to specify the appropriate
+      action to take on this value.";
+  }
+
+  typedef bgp-set-med-action {
+    type enumeration {
+      enum SET {
+        description
+          "Action to set the MED to a specific value.";
+      }
+      enum ADD {
+        description
+          "Action to increment the previous MED value.";
+      }
+      enum SUBTRACT {
+        description
+          "Action to decrement the previous MED value.";
+      }
+    }
+    description
+      "Specifies which action to take on the value specified by the
+      bgp-set-med-type.";
   }
 
   // grouping statements
@@ -896,9 +926,19 @@ module openconfig-bgp-policy {
     leaf asn {
       type oc-inet:as-number;
       description
-        "The AS number to prepend to the AS path. If this leaf is
-        not specified and repeat-n is set, then the local AS
-        number will be used for prepending.";
+        "The AS number to prepend to the AS path. If neither this
+        leaf nor use-last-as leaf is specified but repeat-n is set, then
+        the local AS number will be used for prepending.";
+    }
+
+    leaf use-last-as {
+      type boolean;
+      description
+        "Indicates whether to use the last AS number, which is also the
+        most recent AS number, to prepend to the AS path.
+        If neither this leaf nor asn leaf is specified
+        but repeat-n is set, then the local AS number will be
+        used for prepending.";
     }
   }
 
@@ -1345,8 +1385,24 @@ module openconfig-bgp-policy {
 
     leaf set-med {
       type bgp-set-med-type;
-      description "set the med metric attribute in the route
-      update";
+      must "../set-med-action" {
+        error-message
+          "set-med cannot be specified without a valid set-med-action";
+      }
+      description
+        "Set the MED metric attribute in the route update.  When set, a
+        valid `set-med-action` must be specified.";
+    }
+
+    leaf set-med-action {
+      type bgp-set-med-action;
+      must "../set-med" {
+        error-message
+          "set-med-action cannot be specified without a set-med value";
+      }
+      description
+        "When set-med is specified, this leaf is mandatory to set the
+        appropriate action on the MED metric value.";
     }
   }
 
