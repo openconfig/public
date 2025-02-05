@@ -26,7 +26,14 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.3.1";
+
+  revision "2025-02-05" {
+    description
+      "Move the up-transitions leaf from the asynch and echo
+       sub-containers into the state container.";
+    reference "0.3.1";
+ }
 
   revision "2024-03-05" {
     description
@@ -283,14 +290,6 @@ module openconfig-bfd {
         "The number of packets that have been received by the
         local system from the remote neighbour.";
     }
-
-    leaf up-transitions {
-      // TODO: looks to only be supported in SROS
-      type uint64;
-      description
-        "The number of times that the adjacency with the neighbor
-        has transitioned into the up state.";
-    }
   }
 
   grouping bfd-session-state-sessiondetails-common {
@@ -325,6 +324,14 @@ module openconfig-bfd {
       description
         "The number of times that the BFD session has transitioned
         out of the UP state.";
+    }
+
+    leaf up-transitions {
+      // TODO: looks to only be supported in SROS
+      type uint64;
+      description
+        "The number of times that the adjacency with the neighbor
+        has transitioned into the up state.";
     }
 
     leaf local-discriminator {
