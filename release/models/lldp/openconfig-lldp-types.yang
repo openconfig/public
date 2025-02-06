@@ -21,7 +21,14 @@ module openconfig-lldp-types {
   description
     "This module defines types related to the LLDP protocol model.";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2025-02-03" {
+    description
+      "Add identities for Management TLV address families. Add
+      Management interface numbering subtype typedef.";
+    reference "0.2.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -202,6 +209,36 @@ module openconfig-lldp-types {
     reference "IEEE Std 802.1AB";
   }
 
+  identity LLDP_ADDRESS_FAMILY {
+    description
+      "Base identity for Management Address TLV address family
+      subtypes.";
+    reference
+      "Sec 8.5.9.3 of IEEE 802.1AB-2009,
+      https://www.iana.org/assignments/address-family-numbers/address-family-numbers.xhtml";
+  }
+
+  identity IPV4 {
+    base LLDP_ADDRESS_FAMILY;
+    description
+      "IPv4 (1) Address Family";
+    reference "Sec 8.5.9.3 of IEEE 802.1AB-2009";
+  }
+
+  identity IPV6 {
+    base LLDP_ADDRESS_FAMILY;
+    description
+      "IPv6 (2) Address Family";
+    reference "Sec 8.5.9.3 of IEEE 802.1AB-2009";
+  }
+
+  identity ALL_802 {
+    base LLDP_ADDRESS_FAMILY;
+    description
+      "802 (6) Address Family, including all 802 media plus Ethernet";
+    reference "Sec 8.5.9.3 of IEEE 802.1AB-2009";
+  }
+
   // typedef statements
 
   typedef chassis-id-type {
@@ -302,5 +339,30 @@ module openconfig-lldp-types {
       "IEEE 802.1AB LLDP MIB";
   }
 
+  typedef mgmt-interface-number-subtype {
+    type enumeration {
+      enum UNKNOWN {
+        value 1;
+        description
+          "Interface is not known";
+      }
+      enum IFINDEX {
+        value 2;
+        description
+          "Interface is based on the IF-MIB ifIndex";
+      }
+      enum SYSTEM_PORT_NUMBER {
+        value 3;
+        description
+          "Interface is based on the system port number";
+      }
+    }
+    description
+      "The Management address interface numbering subtype field
+      indicating the numbering method used for defining the interface
+      number.";
+    reference
+     "Sec 8.5.9.5 of IEEE Std 802.1AB-2016";
+  }
 
 }

@@ -9,7 +9,8 @@ module openconfig-lldp {
 
   import openconfig-lldp-types { prefix oc-lldp-types; }
   import openconfig-interfaces { prefix oc-if; }
-  import ietf-yang-types { prefix yang; }
+  import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-inet-types { prefix oc-inet; }
   import openconfig-extensions { prefix oc-ext; }
 
 
@@ -24,7 +25,16 @@ module openconfig-lldp {
     "This module defines configuration and operational state data
     for the LLDP protocol.";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2025-02-03" {
+    description
+      "Refactor LLDP management addresses to accomodate 802.1AB defined
+      TLV.  Add configurable management interface.  Switch from IETF to
+      OC YANG types.  Deprecate management-address-type and
+      management-address leafs.";
+    reference "1.0.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -59,43 +69,43 @@ module openconfig-lldp {
       "Definition of global and per-interface counters";
 
     leaf frame-in {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "The number of lldp frames received.";
     }
 
     leaf frame-out {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "The number of frames transmitted out.";
     }
 
     leaf frame-error-in {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "The number of LLDP frames received with errors.";
     }
 
     leaf frame-discard {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "The number of LLDP frames received and discarded.";
     }
 
     leaf tlv-discard {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "The number of TLV frames received and discarded.";
     }
 
     leaf tlv-unknown {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "The number of frames received with unknown TLV.";
     }
 
     leaf last-clear {
-      type yang:date-and-time;
+      type oc-yang:date-and-time;
       description
         "Indicates the last time the counters were
         cleared.";
@@ -109,13 +119,13 @@ module openconfig-lldp {
     uses lldp-common-counters;
 
     leaf tlv-accepted {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "The number of valid TLVs received.";
     }
 
     leaf entries-aged-out {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
         "The number of entries aged out due to timeout.";
     }
@@ -129,7 +139,7 @@ module openconfig-lldp {
       uses lldp-common-counters;
 
       leaf frame-error-out {
-        type yang:counter64;
+        type oc-yang:counter64;
         description
           "The number of frame transmit errors on the
           interface.";
@@ -184,10 +194,97 @@ module openconfig-lldp {
     }
   }
 
+  grouping lldp-system-management {
+    description
+      "Configuration data for modifying Management Address TLV
+      behaviors.";
+
+    leaf management-interface {
+      type oc-if:interface-id;
+      description
+        "The interface in which to derive the population of Management
+        Address TLV parameters.  If unspecified, the implementation may
+        choose which interface is utilized.";
+    }
+  }
+
+  grouping lldp-management-addresses {
+    description
+      "Operational state data to represent local or remote Management
+      Address TLV parameters.";
+
+    container management-addresses {
+      description
+        "Enclosing container for list of LLDP management addresses";
+
+      list management-address {
+        description
+          "List of management addresses in use by the local/remote
+          system";
+
+        key "address subtype";
+
+        leaf address {
+          type union {
+            type oc-inet:ip-address;
+            type oc-yang:mac-address;
+          }
+          description
+            "Management address associated with the Management Address
+            TLV.";
+          reference
+            "Sec 8.5.9.4 of IEEE Std 802.1AB-2016";
+        }
+
+        leaf subtype {
+          type identityref {
+            base oc-lldp-types:LLDP_ADDRESS_FAMILY;
+          }
+          description
+            "Management address subtype indicating the address family
+            for the address.";
+          reference
+            "Sec 8.5.9.3 of IEEE Std 802.1AB-2016";
+        }
+
+        leaf interface-number {
+          type uint32;
+          description
+            "Interface number that identifies the specific interface
+            associated with this management address.";
+          reference
+            "Sec 8.5.9.6 of IEEE Std 802.1AB-2016";
+        }
+
+        leaf interface-number-subtype {
+          type oc-lldp-types:mgmt-interface-number-subtype;
+          description
+            "The Management address interface numbering subtype field
+            indicating the numbering method used for defining the
+            interface-number.";
+          reference
+            "Sec 8.5.9.5 of IEEE Std 802.1AB-2016";
+        }
+
+        leaf oid {
+          type string;
+          description
+            "The OID that identifies the type of hardware component or
+            protocol entity associated with the indicated management
+            address.  If no OID is available, this leaf is optional.";
+          reference
+            "Sec 8.5.9.8 of IEEE Std 802.1AB-2016";
+        }
+      }
+    }
+  }
+
   grouping lldp-system-info-state {
     description
       "Operational state data reported for the local and remote
       systems";
+
+    uses lldp-management-addresses;
 
   }
 
@@ -258,20 +355,32 @@ module openconfig-lldp {
 
     leaf management-address {
       type string;
+      status deprecated;
       description
         "The Management Address is a mandatory TLV which identifies a
         network address associated with the local LLDP agent, which
         can be used to reach the agent on the port identified in the
-        Port ID TLV.";
+        Port ID TLV.
+
+        This leaf has been deprecated in favor of the management-address
+        list structure to accomodate multiple addresses and distinct
+        typing to pair up with the 802.1AB Management Address TLV
+        specification.";
     }
 
     leaf management-address-type {
       type string;
+      status deprecated;
       description
         "The enumerated value for the network address type
         identified in this TLV. This enumeration is defined in the
         'Assigned Numbers' RFC [RFC3232] and the
-        ianaAddressFamilyNumbers object.";
+        ianaAddressFamilyNumbers object.
+
+        This leaf has been deprecated in favor of the management-address
+        list structure to accomodate multiple addresses and distinct
+        typing to pair up with the 802.1AB Management Address TLV
+        specification.";
     }
   }
 
@@ -633,6 +742,7 @@ module openconfig-lldp {
 
         uses lldp-config;
         uses lldp-system-info-config;
+        uses lldp-system-management;
       }
 
       container state {
@@ -644,6 +754,7 @@ module openconfig-lldp {
 
         uses lldp-config;
         uses lldp-system-info-config;
+        uses lldp-system-management;
         uses lldp-system-info-state;
         uses lldp-state;
       }
