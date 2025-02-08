@@ -26,7 +26,14 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.3.1";
+
+  revision "2024-06-26" {
+    description
+      "Add sessions subtree at interface level for configuration of
+      static BFD single-hop sessions.";
+    reference "0.3.1";
+ }
 
   revision "2024-03-05" {
     description
@@ -508,6 +515,99 @@ module openconfig-bfd {
     uses bfd-session-microbfd-common;
   }
 
+  grouping bfd-interface-session-config {
+    description
+      "Configuration parameters for a static BFD single-hop session on an interface.";
+
+    leaf local-address {
+      type oc-inet:ip-address;
+      description
+        "The local IP address used by the system for the single-hop BFD session
+        specified.";
+    }
+
+    leaf remote-address {
+      type oc-inet:ip-address;
+      description
+        "The remote IP destination that should be used by the system for
+        the single-hop BFD session specified.";
+    }
+
+    leaf admin-down {
+      type boolean;
+      description
+        "When this leaf is set to true then the single-hop BFD session
+        is administratively down.";
+    }
+
+    leaf demand-mode {
+      type boolean;
+      description
+        "When this leaf is set to true then the single-hop BFD session
+        is operating in demand-mode.";
+    }
+  }
+
+  grouping bfd-interface-session-state {
+    // placeholder
+    description
+      "Operational state parameters relating to the static BFD single-hop session
+      running on the interface.";
+  }
+
+  grouping bfd-interface-sessions-structural {
+    description
+      "Structural grouping for static BFD single-hop sessions configuration on interface
+      and state parameters.";
+
+    container sessions {
+      description
+        "Parameters relating to static BFD single-hop sessions associated with the interface.";
+
+      list session {
+        key "local-address remote-address";
+
+        description
+          "This list contains configuration and state parameters
+          relating to interface static BFD single-hop session.";
+        reference
+          "RFC5881 - Bidirectional Forwarding Detection
+          (BFD) for IPv4 and IPv6 (Single Hop).";
+
+        leaf local-address {
+          type leafref {
+            path "../config/local-address";
+          }
+          description
+            "A reference to the local-address for the BFD single-hop
+            session";
+        }
+        leaf remote-address {
+          type leafref {
+            path "../config/remote-address";
+          }
+          description
+            "A reference to the remote-address for the BFD single-hop
+            session";
+        }
+
+        container config {
+          description
+            "Configuration parameters for the static BFD single-hop session.";
+          uses bfd-interface-session-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters for the static BFD single-hop session.";
+          uses bfd-interface-session-config;
+          uses bfd-interface-session-state;
+        }
+      }
+    }
+  }
+
   grouping bfd-interface-microbfd-structural {
     description
       "Structural grouping for micro-bfd configuration and state
@@ -650,6 +750,7 @@ module openconfig-bfd {
 
           uses oc-if:interface-ref;
 
+          uses bfd-interface-sessions-structural;
           uses bfd-interface-microbfd-structural;
           uses bfd-interface-peer-structural;
         }
