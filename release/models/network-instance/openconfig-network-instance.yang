@@ -48,7 +48,18 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.4.1";
+  oc-ext:openconfig-version "4.5.0";
+
+  revision "2024-07-18" {
+    description
+      "Deprecation of table-connections and tables and repacing
+      them with route-redistributions.
+      Route redistributions allows to specify source and destination
+      protocol instance (name) in addition to protocol (BGP, ISIS, etc)
+      and address family.
+      ";
+    reference "4.5.0";
+  }
 
   revision "2024-02-27" {
     description
@@ -496,6 +507,7 @@ module openconfig-network-instance {
         }
 
         container table-connections {
+          status deprecated;
           description
             "Policies dictating how RIB or FIB entries are propagated
             between tables";
@@ -507,7 +519,6 @@ module openconfig-network-instance {
               "A list of connections between pairs of routing or
               forwarding tables, the leaking of entries between
               which is specified by the import policy.
-
               A connection connecting a source table to a destination
               table implies that routes that match the policy specified
               for the connection are available for the destination
@@ -550,12 +561,100 @@ module openconfig-network-instance {
                 between tables";
               uses inter-table-policies-config;
             }
+
             container state {
               config false;
               description
                 "State parameters relating to the connection between
                 tables";
               uses inter-table-policies-config;
+            }
+          }
+        }
+
+        container route-redistributions {
+          description
+            "Policies dictating how RIB or FIB entries are propagated
+            between tables";
+
+          list route-redistribution {
+            key "src-protocol src-name dst-protocol dst-name address-family";
+
+            description
+              "A list of connections between pairs of routing or
+              forwarding tables, the leaking of entries between
+              which is specified by the import policy.
+
+              A connection connecting a source table to a destination
+              table implies that routes that match the policy specified
+              for the connection are available for the destination
+              protocol to advertise, or match within its policies.";
+
+            reference
+              "Route Redistribution in OpenConfig Network Instance:
+              // [TODO:rewrite to represent changes]
+              https://github.com/openconfig/public/blob/master/doc/network_instance_redistribution.md#interconnection-of-protocol-ribs";
+
+            leaf src-protocol {
+              type leafref {
+                path "../config/src-protocol";
+              }
+              description
+                "The protocol which should be utilised as the source of
+                forwarding or routing information";
+            }
+
+            leaf src-instance-name {
+              type leafref {
+                path "../config/src-instance-name";
+              }
+              description
+                "The name of the instance of protocol which should be utilised
+                as the source of forwarding or routing information.
+                If not specified and only one instance of given protocol is
+                configured, implementation may default to this instance.";
+            }
+
+            leaf dst-protocol {
+              type leafref {
+                path "../config/dst-protocol";
+              }
+              description
+                "The protocol which should be utilised
+                as the destination of forwarding or routing information";
+            }
+
+            leaf dst-instance-name {
+              type leafref {
+                path "../config/dst-instance-name";
+              }
+              description
+                "The name of the instance of protocol which should be utilised
+                as the destination of forwarding or routing information.
+                If not specified and only one instance of given protocol is
+                configured, implementation may default to this instance.";
+            }
+
+            leaf address-family {
+              type leafref {
+                path "../config/address-family";
+              }
+              description
+                "The address family associated with the connection";
+            }
+
+            container config {
+              description
+                "Configuration parameters related to the route
+                redistributin between protocol instances";
+              uses route-redistribution-policies-config;
+            }
+            container state {
+              config false;
+              description
+                "State parameters related to the route
+                redistributin between protocol instances";
+              uses route-redistribution-policies-config;
             }
           }
         }
@@ -613,6 +712,7 @@ module openconfig-network-instance {
         }
 
         container tables {
+          status deprecated;
           description
             "The routing tables that are managed by this network
             instance.  Tables are created and removed by the system.
@@ -1119,6 +1219,7 @@ module openconfig-network-instance {
   }
 
   grouping table-config {
+    status deprecated;
     description
       "Config parameters relating to an L2/L2.5/L3 table that exists
       within a network instance";
@@ -1209,6 +1310,7 @@ module openconfig-network-instance {
   }
 
   grouping inter-table-policies-config {
+    status deprecated;
     description
       "Configuration entries that relate to how RIB or FIB entries
       are propagated between tables within the same network
@@ -1217,7 +1319,7 @@ module openconfig-network-instance {
     leaf src-protocol {
       type leafref {
         // we are at table-connections/table-connection/config/.
-        path "../../../../tables/table/config/protocol";
+        path "../../../../tables/table/config/identifier";
       }
       description
         "The source protocol for the table connection";
@@ -1239,10 +1341,83 @@ module openconfig-network-instance {
 
     leaf dst-protocol {
       type leafref {
-        path "../../../../tables/table/config/protocol";
+        path "../../../../tables/table/config/identifier";
       }
       description
         "The destination protocol for the table connection";
+    }
+
+    leaf disable-metric-propagation {
+      type boolean;
+      default false;
+      description
+        "By default a system may reflect the metric specified in
+        the destination protocol according to that which is set in
+        the source protocol. For example:
+         - IS-IS metric may be reflected in BGP MED (and vice versa)
+         - OSPF metric may be reflected in the BGP MED (and vice versa)
+        When this leaf is set to true, this reflection behaviour MUST be
+        disabled, and rather the metric must be set to '0' or explicitly
+        set by policy.";
+    }
+
+    uses oc-rpol:apply-policy-import-config;
+    uses oc-rpol:default-policy-import-config;
+  }
+
+  grouping route-redistribution-policies-config {
+    description
+      "Configuration entries that relate to how RIB or FIB entries
+      are propagated between tables within the same network
+      instance";
+
+    leaf src-protocol {
+      type leafref {
+        // we are at table-connections/table-connection/config/.
+        path "../../../../protocols/protocol/config/identifier";
+      }
+      description
+        "The source protocol for the route redistribution";
+    }
+
+    leaf src-instance-name {
+      type leafref {
+        // we are at table-connections/table-connection/config/.
+        path "../../../../protocols/protocol/config/name";
+      }
+      description
+        "The name of instance of source protocol for the route redistribution";
+    }
+
+    leaf address-family {
+      type leafref {
+        // we are at table-connections/table-connection/config/.
+        path "../../../../protocols/" +
+          "protocol[identifier=current()/../src-protocol]/" +
+          "config/address-family";
+      }
+      description
+        "The address family associated with the connection. This
+        must be defined for the source protocol. The target
+        address family is implicitly defined by the address family
+        specified for the source protocol.";
+    }
+
+    leaf dst-protocol {
+      type leafref {
+        path "../../../../protocols/protocol/config/identifier";
+      }
+      description
+        "The destination protocol for the route redistribution";
+    }
+
+    leaf dst-instance-name {
+      type leafref {
+        // we are at table-connections/table-connection/config/.
+        path "../../../../protocols/protocol/config/name";
+      }
+      description
+        "The name of instance of destination protocol for the route redistribution";
     }
 
     leaf disable-metric-propagation {
