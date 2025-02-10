@@ -54,7 +54,15 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.7.0";
+  oc-ext:openconfig-version "2.0.0";
+
+  revision "2025-02-10" {
+    description
+      "Remove graceful-restart restart-time defaults and update
+      description statements, reference and grouping naming.  Removal of
+      non-standard interface-time-expirations leaf.";
+    reference "2.0.0";
+  }
 
   revision "2024-02-28" {
     description
@@ -938,29 +946,24 @@ module openconfig-isis {
         "When this leaf is set to TRUE, planned restart procedures as
         described in RFC 8706 are not used.";
       reference
-      "RFC 5706: Restart Signaling for IS-IS";
+        "IETF RFC 8706, Section 3.2: Restart Signaling for IS-IS";
     }
-
-    reference
-      "RFC 5306: Restart Signaling for IS-IS; RFC 5706: Restart Signaling
-      for IS-IS";
   }
 
-  grouping isis-graceful-restart-level-config {
+  grouping isis-graceful-restart-global-level-config {
     description
       "This grouping defines ISIS graceful restart configuration relevant
-      for ISIS level/LSDB";
+      for ISIS at global system and per-level/LSDB hierarchies.";
 
     leaf restart-time {
       type uint16;
-      default 30;
+      units "seconds";
       description
-        "Value of RFC5306/RFC8706 T2 timer";
+        "Value of T2 or T3 timers at either the LSDB/level or global
+        system context.";
+      reference
+        "IETF RFC 8706, Section 3.1: Restart Signaling for IS-IS";
     }
-
-    reference
-      "RFC 5306: Restart Signaling for IS-IS; RFC 5706: Restart Signaling
-      for IS-IS";
   }
 
   grouping isis-graceful-restart-interface-config {
@@ -970,21 +973,20 @@ module openconfig-isis {
 
     leaf interface-timer {
       type uint16;
+      units "seconds";
       description
-        "Value of RFC5306/RFC8706 T1 timer";
+        "Value of T1 timer per interface.";
+      reference
+        "IETF RFC 8706, Section 3.1: Restart Signaling for IS-IS";
     }
 
     leaf interface-time-expirations {
-      type int64;
+      type uint32;
       description
         "Number of times T1 expires before IIH without Restart TLV's RR flag
         set is sent. That is GR helper is not supported by adjacents
-        Inermediate System";
+        Intermediate System";
     }
-
-    reference
-      "RFC 5306: Restart Signaling for IS-IS; RFC 5706: Restart Signaling
-      for IS-IS";
   }
 
   // configuration context containers
@@ -1186,7 +1188,7 @@ module openconfig-isis {
 
         uses admin-config;
         uses isis-graceful-restart-config;
-        uses isis-graceful-restart-level-config;
+        uses isis-graceful-restart-global-level-config;
         uses isis-graceful-restart-interface-config;
       }
 
@@ -1197,7 +1199,7 @@ module openconfig-isis {
 
         uses admin-config;
         uses isis-graceful-restart-config;
-        uses isis-graceful-restart-level-config;
+        uses isis-graceful-restart-global-level-config;
         uses isis-graceful-restart-interface-config;
       }
     }
@@ -1585,7 +1587,7 @@ module openconfig-isis {
           "This container defines ISIS graceful-restart configuration.";
 
         uses admin-config;
-        uses isis-graceful-restart-level-config;
+        uses isis-graceful-restart-global-level-config;
       }
 
       container state {
@@ -1594,7 +1596,7 @@ module openconfig-isis {
           "This container defines state information for ISIS graceful-restart.";
 
         uses admin-config;
-        uses isis-graceful-restart-level-config;
+        uses isis-graceful-restart-global-level-config;
       }
     }
 
