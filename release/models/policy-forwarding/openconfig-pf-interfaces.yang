@@ -140,42 +140,6 @@ submodule openconfig-pf-interfaces {
         "Turns ON/OFF packet's source address verification against content of
         FIB. This is one of anti-spoofing protection techniques.";
     }
-    leaf mode {
-      type string;
-      default "STRICT";
-      description
-        "The URPF in STRICT mode requires packet source address to LPM some route
-        in FIB, AND next-hop of this route must be interface packet was
-        received on.
-        The URPF in LOOSE mode requires packet source address to LPM some route
-        in FIB.
-        This leaf is irrelevalnt and should be ignored if URPF is not enabled.";
-    }
-    leaf allow_default_route {
-      type boolean;
-      default true;
-      description
-      "If set to false, and packets source address LPM the default route -
-      0.0.0.0/0 or ::/0 - URPF fails and packet is discarded, as if it would not
-      LPM any route.";
-    }
-    leaf allow_drop_next_hop {
-      type boolean;
-      default false;
-      description
-        "If set to false, and packets source address LPM the route with DROP
-        next-hop URPF fails and packet is discarded, as if it would not
-        LPM any route.";
-    }
-    leaf allow-feasible-path {
-      type boolean;
-      default false;
-      description
-        "The routing system may select subset of equally-good path as result of
-        tie-break (e.g. BGP RID) or ECMP width limits. If set to true, packet
-        are accepted if source address LPM to any equally-good path, even if it
-        is not selected for forwading.";
-    }
   }
 
   grouping pf-interface-config {
