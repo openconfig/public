@@ -132,6 +132,16 @@ submodule openconfig-pf-interfaces {
     }
   }
 
+  grouping pf-urpf-config {
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "Turns ON/OFF packet's source address verification against content of
+        FIB. This is one of anti-spoofing protection techniques.";
+    }
+  }
+
   grouping pf-interface-config {
     description
       "Configuration parameters relating to an interface to policy
@@ -173,7 +183,12 @@ submodule openconfig-pf-interfaces {
         container urpf {
           description
             "URPF container";
+          container config {
+            uses pf-urpf-config;
+          }
           container state {
+            uses pf-urpf-config;
+
             leaf urpf-drop-pkts {
               type oc-yang:counter64;
               description
