@@ -34,7 +34,7 @@ submodule openconfig-ospf-area {
 
   grouping address-range-config {
     description
-      "Configuration data for static routes.";
+      "Configuration data for address ranges.";
 
     leaf prefix {
       type inet:ip-prefix;
@@ -65,11 +65,6 @@ submodule openconfig-ospf-area {
     }
   }
 
-  grouping address-range-state {
-    description
-      "Operational state data for address range";
-  }
-
   grouping ospf-area-config {
     description
       "Configuration parameters relating to an OSPF area";
@@ -77,13 +72,13 @@ submodule openconfig-ospf-area {
     leaf identifier {
       type oc-ospf-types:ospf-area-identifier;
       description
-        "An identifier for the OSPFv2 area - described as either a
+        "An identifier for the OSPF area - described as either a
         32-bit unsigned integer, or a dotted-quad";
     }
 
     leaf type {
       type identityref {
-        base "oc-ospft:OSPF-AREA-TYPE";
+        base "oc-ospft:OSPF_AREA_TYPE";
       }
       default oc-ospft:NORMAL;
       description
@@ -111,7 +106,7 @@ submodule openconfig-ospf-area {
     leaf import-summaries {
       /* when "../area-type = 'STUB' or ../area-type = 'NSSA'" {
         description
-          "Summary generation valid for stub/NSSA area." 
+          "Summary generation valid for stub/NSSA area."
       } */
 
       type boolean;
@@ -122,39 +117,6 @@ submodule openconfig-ospf-area {
          of inter-area-prefix-LSAs. When set to disabled,
          inter-area routes are not imported into the
          area.";
-    }
-
-
-    list address-ranges {
-      key "prefix";
-      description
-        "List of IPv6 addresses contained in the address range";
-
-      leaf prefix {
-        type leafref {
-          path "../config/prefix";
-        }
-        description
-          "Reference to the destination prefix list key.";
-      }
-
-      container config {
-        description
-          "Configuration data for address range";
-
-        uses address-range-config;
-      }
-
-      container state {
-
-        config false;
-
-        description
-          "Operational state data for address range";
-
-        uses address-range-config;
-        uses address-range-state;
-      }
     }
   }
 
@@ -225,6 +187,41 @@ submodule openconfig-ospf-area {
           uses ospf-area-virtual-link-config;
           uses ospf-area-interface-neighbor-state;
         }
+      }
+    }
+
+    container address-ranges {
+      description
+        "Configuration and state parameters relating to a list of address
+         ranges";
+
+      list address-range {
+        key "prefix";
+
+        description
+          "Configuration and state parameters relating to an address range";
+
+        leaf prefix {
+          type leafref {
+            path "../config/prefix";
+          }
+          description
+            "Reference to the prefix";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to an address range";
+          uses address-range-config;
+        }
+
+        container state {
+          config false;
+          description
+            "State parameters relating to an address range";
+          uses address-range-config;
+        }
+
       }
     }
   }
