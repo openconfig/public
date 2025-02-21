@@ -22,6 +22,7 @@ module openconfig-network-instance {
   import openconfig-mpls { prefix "oc-mpls"; }
   import openconfig-vlan { prefix "oc-vlan"; }
   import openconfig-ospfv2 { prefix "oc-ospfv2"; }
+  import openconfig-ospf   { prefix "oc-ospf"; }
   import openconfig-policy-forwarding { prefix "oc-pf"; }
   import openconfig-segment-routing { prefix "oc-sr"; }
   import openconfig-isis { prefix "oc-isis"; }
@@ -48,7 +49,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.4.1";
+  oc-ext:openconfig-version "4.5.1";
+
+  revision "2025-02-18" {
+    description
+      "Add OSPFv3 container";
+    reference "4.5.1";
+  }
 
   revision "2024-02-27" {
     description
@@ -946,6 +953,14 @@ module openconfig-network-instance {
                 description
                   "Include OSPFv2 parameters only when the protocol
                   is of type OSPFv2";
+              }
+            }
+
+            uses oc-ospf:ospfv3-top {
+              when "./config/identifier = 'oc-pol-types:OSPF3'" {
+                description
+                  "Include OSPFv3 parameters only when the protocol
+                  is of type OSPFv3";
               }
             }
 
