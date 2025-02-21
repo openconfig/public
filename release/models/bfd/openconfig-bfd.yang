@@ -290,6 +290,19 @@ module openconfig-bfd {
         "The number of packets that have been received by the
         local system from the remote neighbour.";
     }
+
+    leaf up-transitions {
+      // TODO: looks to only be supported in SROS
+      status deprecated;
+      type uint64;
+      description
+        "The number of times that the adjacency with the neighbor
+        has transitioned into the up state.
+
+        This leaf is deprecated and will be replaced by a single
+        up-transitions leaf in state container. New path:
+        /bfd/interfaces/interface/peers/peer/state/up-transitions.";
+    }
   }
 
   grouping bfd-session-state-sessiondetails-common {
