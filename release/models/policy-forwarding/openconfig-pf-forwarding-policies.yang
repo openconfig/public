@@ -21,7 +21,13 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "0.6.1";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2025-02-21" {
+    description
+      "Add MPLS-in-GRE decapsulation action.";
+    reference "0.7.0";
+  }
 
   revision "2023-04-25" {
     description
@@ -385,6 +391,16 @@ submodule openconfig-pf-forwarding-policies {
       description
         "When this leaf is set to true, the local system should remove
         the UDP header from the packet matching the rule.
+        Following the decapsulation it should subsequently forward the
+        encapsulated packet according to the underlying MPLS label.";
+    }
+
+    leaf decapsulate-mpls-in-gre {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, the local system should remove
+        the GRE header from the packet matching the rule.
         Following the decapsulation it should subsequently forward the
         encapsulated packet according to the underlying MPLS label.";
     }
