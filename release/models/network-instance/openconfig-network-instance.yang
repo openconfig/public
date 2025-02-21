@@ -30,6 +30,7 @@ module openconfig-network-instance {
   import openconfig-igmp { prefix "oc-igmp"; }
   import openconfig-evpn { prefix "oc-evpn"; }
   import openconfig-pcep { prefix "oc-pcep"; }
+  import openconfig-network-instance-static { prefix "oc-ni-static"; }
 
   // include submodules
   include openconfig-network-instance-l2;
@@ -50,7 +51,7 @@ module openconfig-network-instance {
 
   oc-ext:openconfig-version "4.5.0";
 
-  revision "2024-12-16" {
+  revision "2025-02-20" {
     description
       "Add static GUE encapsulation.";
     reference "4.5.0";
@@ -862,6 +863,8 @@ module openconfig-network-instance {
 
         uses oc-pf:policy-forwarding-top;
 
+        uses oc-ni-static:ni-static-structural;
+
         uses oc-aft:aft-top;
 
         container protocols {
@@ -934,28 +937,6 @@ module openconfig-network-instance {
               description
                 "Configuration and state parameters relating to
                 locally generated aggregate routes";
-            }
-
-            uses oc-loc-rt:static-next-hop-groups-top {
-              when "./config/identifier = 'oc-pol-types:NEXT_HOP_GROUP'" {
-                description
-                  "Include next hop group parameters only when the
-                  protocol is set to next hop group";
-              }
-              description
-                "Configuration and state parameters relating to
-                statically configured next hop group";
-            }
-
-            uses oc-loc-rt:static-next-hops-top {
-              when "./config/identifier = 'oc-pol-types:NEXT_HOP'" {
-                description
-                  "Include next hop parameters only when the
-                  protocol is set to next hop";
-              }
-              description
-                "Configuration and state parameters relating to
-                statically configured next hop";
             }
 
             uses oc-bgp:bgp-top {
