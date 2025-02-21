@@ -73,6 +73,9 @@ module openconfig-policy-forwarding {
     within an 'apply-forwarding-policy' statement associated with an
     interface.
 
+    A policy-forwarding rule with no action should be treated as an error
+    (grpc error: INVALID_ARGUMENT, netconfig error missing-element).
+
     In some cases (e.g., Class-Based Tunnel Selection) the forwarding
     action does not resolve to a single egress action, and rather
     normal forwarding rules are to be applied but considering a subset
