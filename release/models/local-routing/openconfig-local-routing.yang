@@ -298,6 +298,32 @@ module openconfig-local-routing {
           uses local-static-state;
         }
 
+        container next-network-instance {
+          description
+            "Configuration and state parameters relating to the
+            next-hops that are to be utilised for the static
+            route being specified";
+          config {
+            leaf next-network-instance {
+              type leafref {
+                path "../../../../../../../../config/name";
+              description
+               "";
+              }
+            }
+          }
+          state {
+            leaf next-network-instance {
+              type leafref {
+                path "../../../../../../../../config/name";
+              description
+               "";
+              }
+            }
+            uses local-static-nexthop-state;
+          }       
+        }
+
         container next-hops {
           description
             "Configuration and state parameters relating to the
