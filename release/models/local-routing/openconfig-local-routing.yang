@@ -307,8 +307,8 @@ module openconfig-local-routing {
         container next-network-instance {
           description
             "Configuration and state parameters relating to the
-            next-hops that are to be utilised for the static
-            route being specified";
+            network-instance withinn which further destination lookup
+            shall be performed.";
 
           container config {
             leaf next-network-instance {
@@ -316,15 +316,19 @@ module openconfig-local-routing {
                 path "../../../../../../../config/name";
               }
               description
-              "../../../../../../../config/name";
+              "Name of network-instance withinn which further destination
+              lookupshall be performed.";
             }
           }
 
           container state {
             leaf next-network-instance {
-              type string;
+              type leafref {
+                path "../../../../../../../state/name";
+              }
               description
-              "";
+              "Name of network-instance withinn which further destination
+              lookupshall be performed.";
             }
             uses local-static-nexthop-state;
           }       
