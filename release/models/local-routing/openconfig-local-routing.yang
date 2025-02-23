@@ -47,7 +47,7 @@ module openconfig-local-routing {
 
   revision "2025-02-23" {
     description
-      "Update static route nexthop index description.";
+      "Addition of static route next-network-instance option";
     reference "2.1.0";
   }
 
@@ -308,7 +308,8 @@ module openconfig-local-routing {
           description
             "Configuration and state parameters relating to the
             network-instance withinn which further destination lookup
-            shall be performed.";
+            shall be performed.
+            This configuration is mutually exclusive with next-hops.";
 
           container config {
             leaf next-network-instance {
@@ -338,7 +339,9 @@ module openconfig-local-routing {
           description
             "Configuration and state parameters relating to the
             next-hops that are to be utilised for the static
-            route being specified";
+            route being specified.
+            This configuration is mutually exclusive with
+            next-nexthop-instance.";
 
           list next-hop {
             key "index";
