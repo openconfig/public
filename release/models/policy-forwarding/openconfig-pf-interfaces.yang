@@ -7,6 +7,7 @@ submodule openconfig-pf-interfaces {
   import openconfig-interfaces { prefix "oc-if"; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
   import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-network-instance-types {prefix oc-ni-types; }
 
 
   include openconfig-pf-forwarding-policies;
@@ -204,9 +205,9 @@ submodule openconfig-pf-interfaces {
         "Turns ON/OFF packet's source address verification against content of
         FIB. This is one of anti-spoofing protection techniques.";
     }
-        leaf mode {
-      type string;
-      default "STRICT";
+    leaf mode {
+      type oc-ni-types:urpf-mode;
+      default STRICT;
       description
         "The URPF in STRICT mode requires packet source address to LPM some route
         in FIB, AND next-hop of this route must be interface packet was
