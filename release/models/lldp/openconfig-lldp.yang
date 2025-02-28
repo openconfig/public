@@ -535,6 +535,27 @@ module openconfig-lldp {
     description
       "Top-level grouping ";
 
+    container interface-defaults {
+      description
+        "Container of LLDP attributes that applys to all interfaces 
+        of the system.";
+      container config {
+          description
+            "Configuration data for LLDP on all interface. Any leaf set
+            here could be overwriten on per-interfaces basis in
+            /lldp/interfaces/interface/* hirarchy";
+            leaf enabled {
+              type boolean;
+              default "true";
+              description
+                "Enable or disable the LLDP protocol on all 
+                interfaces by default";
+            }
+          }
+        }
+      }
+    }
+    
     container interfaces {
       description
         "Enclosing container ";
