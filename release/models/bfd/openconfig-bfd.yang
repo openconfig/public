@@ -26,12 +26,19 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
 
   revision "2025-02-05" {
     description
       "Move the up-transitions leaf from the async and echo
        sub-containers into the state container.";
+    reference "0.4.0";
+ }
+
+  revision "2024-12-16" {
+    description
+      "Add Bfd diagnostic code for when
+       neighbor signaled session down. Specified in RFC5880.";
     reference "0.3.1";
  }
 
@@ -199,10 +206,21 @@ module openconfig-bfd {
           on the reverse path (i.e., in the transmit direction from the
           destination to the source of the session) has failed.";
       }
+      enum NEIGHBOR_DOWN {
+        value 8;
+        description
+          "The Bfd neighbor signaled session down - Bfd packet was received with
+          neighbor state down.";
+      }
     }
     description
       "Diagnostic codes defined by BFD. These typically indicate the
-      reason for a change of session state.";
+      reason for a change of session state. The NEIGHBOR_DOWN diagnostic
+      was added to the enum at value 8 to avoid making a breaking change.
+      This deviates from RFC5880 where the enum is value 3. This also
+      shifts the following values by 1, in relation to RFC5880:
+      FORWARDING_RESET, PATH_DOWN, CONCATENATED_PATH_DOWN,
+      ADMIN_DOWN, REVERSE_CONCATENATED_PATH_DOWN.";
     reference
       "RFC5880 - Bidirectional Forwarding Detection, Section
       4.1";
