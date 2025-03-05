@@ -43,7 +43,13 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2025-02-23" {
+    description
+      "Addition of static route next-network-instance option";
+    reference "2.1.0";
+  }
 
   revision "2022-11-01" {
     description
@@ -298,11 +304,44 @@ module openconfig-local-routing {
           uses local-static-state;
         }
 
+        container next-network-instance {
+          description
+            "Configuration and state parameters relating to the
+            network-instance withinn which further destination lookup
+            shall be performed.
+            This configuration is mutually exclusive with next-hops.";
+
+          container config {
+            leaf next-network-instance {
+              type leafref {
+                path "../../../../../../../config/name";
+              }
+              description
+              "Name of network-instance withinn which further destination
+              lookupshall be performed.";
+            }
+          }
+
+          container state {
+            leaf next-network-instance {
+              type leafref {
+                path "../../../../../../../state/name";
+              }
+              description
+              "Name of network-instance withinn which further destination
+              lookupshall be performed.";
+            }
+            uses local-static-nexthop-state;
+          }
+        }
+
         container next-hops {
           description
             "Configuration and state parameters relating to the
             next-hops that are to be utilised for the static
-            route being specified";
+            route being specified.
+            This configuration is mutually exclusive with
+            next-nexthop-instance.";
 
           list next-hop {
             key "index";
