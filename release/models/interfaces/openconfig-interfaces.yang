@@ -51,7 +51,14 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.7.2";
+  oc-ext:openconfig-version "3.8.0";
+
+  revision "2024-12-05" {
+      description
+        "Add interface-transitions and link-transitions counters";
+      reference
+        "3.8.0";
+  }
 
   revision "2024-12-05" {
       description
@@ -1048,10 +1055,38 @@ module openconfig-interfaces {
 
     leaf carrier-transitions {
       type oc-yang:counter64;
+      status deprecated;
+      description
+        "Number of times the interface state has transitioned
+        between up and down since the time the device restarted
+        or the last-clear time, whichever is most recent.
+
+        Please use interface-transitions instead, which has the
+        same semantics, but a clearer name.";
+      oc-ext:telemetry-on-change;
+    }
+
+    leaf interface-transitions {
+      type oc-yang:counter64;
       description
         "Number of times the interface state has transitioned
         between up and down since the time the device restarted
         or the last-clear time, whichever is most recent.";
+      oc-ext:telemetry-on-change;
+    }
+
+    leaf link-transitions {
+      type oc-yang:counter64;
+      description
+        "This is the number of times that the underlying link state
+        (e.g., at the optical receiver) has transitioned to/from
+        up state before any holdtime, dampening, or other
+        processing has been applied that could suppress an
+        update to the interface state and corresponding
+        interface-transitions counter.
+
+        Reported relative to the time the device restarted or
+        the last-clear time, whichever is most recent.";
       oc-ext:telemetry-on-change;
     }
 
