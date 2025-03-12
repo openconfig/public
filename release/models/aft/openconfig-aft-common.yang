@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "2.8.0";
+  oc-ext:openconfig-version "2.9.0";
+
+  revision "2025-03-12" {
+    description
+      "Use IP address-family specific types for UPD-V4 and UDP-V6 encapsulations in AFT.";
+    reference "2.9.0";
+  }
 
   revision "2024-09-19" {
     description
@@ -376,7 +382,7 @@ submodule openconfig-aft-common {
                   "State parameters relating to UDP in IPv4 encapsulation
                   headers.";
 
-                uses aft-common-entry-nexthop-encap-udp-state;
+                uses aft-common-entry-nexthop-encap-udp-v4-state;
               }
             }
 
@@ -392,7 +398,7 @@ submodule openconfig-aft-common {
                   "State parameters relating to UDP in IPv6 encapsulation
                   headers.";
 
-                uses aft-common-entry-nexthop-encap-udp-state;
+                uses aft-common-entry-nexthop-encap-udp-v6-state;
               }
             }
 
@@ -679,20 +685,78 @@ submodule openconfig-aft-common {
   }
 
 
-  grouping aft-common-entry-nexthop-encap-udp-state {
+  grouping aft-common-entry-nexthop-encap-udp-v4-state {
     description
-      "UDP encapsulation applied on top of a packet.";
+      "UDP in IPv4 encapsulation applied on top of a packet.";
 
     leaf src-ip {
-      type oc-inet:ip-address;
+      type oc-inet:ipv4-address;
       description
-        "The source IP address for IP/UDP encapsulation.";
+        "The source IPv4 address for IP/UDP encapsulation.";
     }
 
     leaf dst-ip {
-      type oc-inet:ip-address;
+      type oc-inet:ipv4-address;
       description
-        "Destination IP address for IP/UDP encapsulation.";
+        "Destination IPv4 address for IP/UDP encapsulation.";
+    }
+
+    leaf dscp {
+      type oc-inet:dscp;
+      description
+        "DSCP value to use for the UDP header of the encapsulated
+         packet.";
+    }
+
+    leaf src-udp-port {
+      type oc-inet:port-number;
+      description
+        "Source UDP port number to use for the UDP header of the encapsulated
+         packet.  The source UDP port should be derived from the payload
+         packet entropy.  The exact methodology is implementation dependent,
+         but for example, the port could be derived from an entropy hash of
+         the payload or the source port (if present) of the payload.";
+    }
+
+    leaf dst-udp-port {
+      type oc-inet:port-number;
+      description
+        "Source UDP port number to use for the UDP header of the encapsulated
+        packet.
+
+        When the payload packet is MPLS, then RFC 7510 - Encapsulating MPLS
+        in UDP should be followed.";
+      reference
+        "RFC 7510 - Encapsulating MPLS in UDP specifies that 6635 must be
+        used for MPLS-in-UDP and 6636 must be used for MPLS-in-UDP with DTLS.
+        Because of this condition, no default is defined in OpenConfig.  The
+        system is expected to utilize the appropriate port.";
+    }
+
+    leaf ip-ttl {
+      type uint8;
+      description
+        "This leaf reflects the configured/default IP TTL value that is used
+         in the outer header during packet encapsulation. When this leaf is
+         not set, the TTL value of the inner packet is copied over as the
+         outer packet's IP TTL value during encapsulation.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-encap-udp-v6-state {
+    description
+      "UDP in IPv6 encapsulation applied on top of a packet.";
+
+    leaf src-ip {
+      type oc-inet:ipv6-address;
+      description
+        "The source IPv6 address for IP/UDP encapsulation.";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ipv6-address;
+      description
+        "Destination IPv6 address for IP/UDP encapsulation.";
     }
 
     leaf dscp {
