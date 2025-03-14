@@ -65,11 +65,16 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.31.0";
+  oc-ext:openconfig-version "0.32.0";
 
-  revision "2025-01-07" {
+  revision "2025-03-14" {
     description
       "Add install state information.";
+    reference "0.32.0";
+
+  revision "2025-01-30" {
+    description
+      "Deprecate last-reboot-time and add boot-time.";
     reference "0.31.0";
   }
 
@@ -91,7 +96,7 @@ module openconfig-platform {
     reference "0.28.0";
   }
 
-  revision "2024-05-29" {
+revision "2024-05-29" {
     description
       "Change install-position from leaf-ref to string.";
     reference "0.27.0";
@@ -643,8 +648,9 @@ module openconfig-platform {
          - USER_INITIATED
          - SYSTEM_INITIATED
          - POWER_FAILURE
-         This field is not updated during reboots; those are tracked
-         in the 'last-reboot-time' leaf.";
+         This field is only updated when power is shut off.  It is not
+         updated during reboots; those are tracked in the 'boot-time'
+         leaf.";
     }
 
     container last-switchover-reason {
@@ -680,11 +686,25 @@ module openconfig-platform {
     leaf last-reboot-time {
       type oc-types:timeticks64;
       units "nanoseconds";
+      status deprecated;
       description
         "This reports the time of the last reboot of the component. The
         value is the timestamp in nanoseconds relative to the Unix Epoch
-        (Jan 1, 1970 00:00:00 UTC). This timer is not updated during
-        power shutdowns; those are tracked in 'last-poweroff-time' leaf.";
+        (Jan 1, 1970 00:00:00 UTC). This timer is updated when the component
+        starts up, either due to a power-on event or a reboot.  This timer
+        is not updated during power shutdowns; those are tracked in
+        the 'last-poweroff-time' leaf.
+        This leaf is deprecated and the boot-time leaf should be used
+        instead.";
+    }
+
+    leaf boot-time {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+      description
+        "This timestamp indicates the time that the component was started.
+        The value is the timestamp in nanoseconds relative to the Unix
+        Epoch (Jan 1, 1970 00:00:00 UTC).";
     }
 
     leaf switchover-ready {
