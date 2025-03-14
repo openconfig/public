@@ -64,13 +64,11 @@ module openconfig-network-instance-static {
       list next-hop-group {
         key "name";
         description
-          "An individual set of next-hops grouped into a common group.
-          Each entry within a network instance points to a
-          next-hop-group. Entries in the next-hop-group are forwarded to
-          according to the weights specified for each next-hop group.
-          If an entry within the next-hop group becomes unusable, for
-          example due to an interface failure, the remaining entries
-          are used until all entries become unusable.";
+          "A list of user defined next-hop-groups.  Each next-hop-group contains a
+          list of next-hops noting where packets should be forwarded, plus any
+          packet header fields that may be set.  Static routes and policy-forwarding
+          actions in OpenConfig may reference a next-hop-group name to indicate
+          where packets should be forwarded.";
 
         leaf name {
           type leafref {
