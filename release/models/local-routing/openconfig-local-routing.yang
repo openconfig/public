@@ -307,7 +307,10 @@ module openconfig-local-routing {
         container next-hop-group {
           description
             "Configuration and state parameters relating to the
-            next-hop-group.";
+            next-hop-group. This container deprecates the next-hops
+            container. If a statically configured next-hop-group
+            is used for a static route prefix then the next-hops
+            container should not be used.";
 
           container config {
             description
@@ -327,9 +330,13 @@ module openconfig-local-routing {
 
         container next-hops {
           description
-            "Configuration and state parameters relating to the
-            next-hops that are to be utilised for the static
-            route being specified";
+            "DEPRECATED. Configuration and state parameters relating
+            to the next-hops that are to be utilised for the static
+            route being specified.
+            This container is deprecated in favor of the static
+            next-hop-groups container. If a statically configured
+            next-hop-group is used for a static route prefix then
+            the next-hops container should not be used.";
 
           list next-hop {
             key "index";

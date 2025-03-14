@@ -7,11 +7,10 @@ module openconfig-network-instance-static {
 
   prefix "oc-ni-static";
 
-  // import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-aft { prefix "oc-aft"; }
   import openconfig-aft-types { prefix "oc-aftt"; }
-  // import openconfig-mpls-types { prefix "oc-mplst"; }
+  import openconfig-local-routing { prefix "oc-loc-rt"; }
 
   // meta
   organization "OpenConfig working group";
@@ -36,6 +35,8 @@ module openconfig-network-instance-static {
       "Logical grouping for static configurations.";
 
     container static {
+      description
+        "Surrounding container for static configurations.";
 
       uses next-hop-groups-top {
         description
@@ -55,9 +56,11 @@ module openconfig-network-instance-static {
   grouping next-hop-groups-top {
     description
       "Logical grouping for statically configured next-hop-groups";
+
     container next-hop-groups {
       description
         "Surrounding container for groups of next-hops.";
+
       list next-hop-group {
         key "name";
         description
@@ -192,30 +195,21 @@ module openconfig-network-instance-static {
         container config {
           description
             "Configuration parameters relating to the next-hop entry";
-          uses static-nhg-entry-nexthop;
+
+          uses oc-loc-rt:local-static-nexthop-config;
         }
 
         container state {
           config false;
           description
             "State parameters relating to the next-hop entry";
-          uses static-nhg-entry-nexthop;
+
+          uses oc-loc-rt:local-static-nexthop-config;
         }
 
         uses static-encap-headers;
 
       }
-    }
-  }
-
-  grouping static-nhg-entry-nexthop {
-    description
-      "Parameters relating to a next-hop.";
-
-    leaf index {
-      type uint64;
-      description
-        "A unique entry for the next-hop.";
     }
   }
 
@@ -263,6 +257,7 @@ module openconfig-network-instance-static {
         }
 
         container state {
+          config false;
           description
             "State parameters relating to encapsulation headers.";
 
@@ -270,7 +265,7 @@ module openconfig-network-instance-static {
         }
 
         container udp-v4 {
-          when "../state/type = 'oc-aftt:UDPV4'";
+          when "../config/type = 'oc-aftt:UDPV4'";
           description
             "Container of nodes for UDP in IPv4 encapsulation.  When this
             container is used, an IPv4 header with a UDP header is added
