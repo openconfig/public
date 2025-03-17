@@ -84,7 +84,7 @@ As a side note, these releases are compatible with the notion of
    OpenConfig data models and operators are advised to stop using the node.  The
    node description will recommend an alternative node or action.
 
-9.  Release documentation should include the list of models and their version
+8.  Release documentation should include the list of models and their version
     numbers contained in the corresponding release.
 
 Each release `vx.y.z` (e.g. `v1.2.0`) MAY be given a name for easier human
