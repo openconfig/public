@@ -27,7 +27,13 @@ module openconfig-gnsi-acctz {
     "This module provides counters of gNSI accountZ requests and responses and
     the quantity of data transferred.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision 2024-12-24 {
+    description
+      "Add counters for login/logout accounting records";
+    reference "0.4.0";
+  }
 
   revision 2024-10-07 {
     description
@@ -96,6 +102,20 @@ module openconfig-gnsi-acctz {
       }
     }
   }
+  typedef session-service {
+    description "enum SessionInfo.SessionStatus";
+    type enumeration {
+      enum UNSPECIFIED {
+        value 0;
+      }
+      enum LOGIN {
+        value 1;
+      }
+      enum LOGOUT {
+        value 2;
+      }
+    }
+  }
   typedef service-request {
     description "enum RecordResponse.service_request";
     type enumeration {
@@ -105,6 +125,9 @@ module openconfig-gnsi-acctz {
       enum GRPC_SERVICE {
         value 5;
       }
+      enum SESSION_SERVICE {
+        value 6;
+      }
     }
   }
   typedef service-type {
@@ -112,6 +135,7 @@ module openconfig-gnsi-acctz {
     type union {
       type cmd-service;
       type grpc-service;
+      type session-service;
     }
   }
 
