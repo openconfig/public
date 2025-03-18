@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "2.8.0";
+  oc-ext:openconfig-version "3.0.0";
+
+  revision "2025-03-12" {
+    description
+      "Use IP address-family specific types for UDP-V4 and UDP-V6 encapsulations in AFT.";
+    reference "3.0.0";
+  }
 
   revision "2024-09-19" {
     description
@@ -376,7 +382,7 @@ submodule openconfig-aft-common {
                   "State parameters relating to UDP in IPv4 encapsulation
                   headers.";
 
-                uses aft-common-entry-nexthop-encap-udp-state;
+                uses aft-common-entry-nexthop-encap-udp-v4-state;
               }
             }
 
@@ -392,7 +398,7 @@ submodule openconfig-aft-common {
                   "State parameters relating to UDP in IPv6 encapsulation
                   headers.";
 
-                uses aft-common-entry-nexthop-encap-udp-state;
+                uses aft-common-entry-nexthop-encap-udp-v6-state;
               }
             }
 
@@ -679,21 +685,61 @@ submodule openconfig-aft-common {
   }
 
 
-  grouping aft-common-entry-nexthop-encap-udp-state {
+  grouping aft-common-entry-nexthop-encap-udp-v4-state {
     description
-      "UDP encapsulation applied on top of a packet.";
+      "UDP in IPv4 encapsulation applied on top of a packet.";
+
+    uses aft-common-entry-nexthop-encap-udp-v4;
+
+    uses aft-common-entry-nexthop-encap-udp;
+  }
+
+  grouping aft-common-entry-nexthop-encap-udp-v6-state {
+    description
+      "UDP in IPv6 encapsulation applied on top of a packet.";
+
+    uses aft-common-entry-nexthop-encap-udp-v6;
+
+    uses aft-common-entry-nexthop-encap-udp;
+  }
+
+  grouping aft-common-entry-nexthop-encap-udp-v4 {
+    description
+      "IPv4 addresses for an UDP in IPv4 encapsulation";
 
     leaf src-ip {
-      type oc-inet:ip-address;
+      type oc-inet:ipv4-address;
       description
-        "The source IP address for IP/UDP encapsulation.";
+        "The source IPv4 address for IP/UDP encapsulation.";
     }
 
     leaf dst-ip {
-      type oc-inet:ip-address;
+      type oc-inet:ipv4-address;
       description
-        "Destination IP address for IP/UDP encapsulation.";
+        "Destination IPv4 address for IP/UDP encapsulation.";
     }
+  }
+
+  grouping aft-common-entry-nexthop-encap-udp-v6 {
+    description
+      "IPv6 addresses for an UDP in IPv6 encapsulation";
+
+    leaf src-ip {
+      type oc-inet:ipv6-address;
+      description
+        "The source IPv6 address for IP/UDP encapsulation.";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ipv6-address;
+      description
+        "Destination IPv6 address for IP/UDP encapsulation.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-encap-udp {
+    description
+      "Common fields used for UDP in IPv4/IPv6 encapsulation applied on top of a packet.";
 
     leaf dscp {
       type oc-inet:dscp;
