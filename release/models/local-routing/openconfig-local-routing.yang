@@ -43,7 +43,13 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2025-02-20" {
+    description
+      "Add static next-hop-groups and encapsulation headers.";
+    reference "2.1.0";
+  }
 
   revision "2022-11-01" {
     description
@@ -298,18 +304,50 @@ module openconfig-local-routing {
           uses local-static-state;
         }
 
-        container next-hops {
+        container next-hop-group {
           description
             "Configuration and state parameters relating to the
-            next-hops that are to be utilised for the static
-            route being specified";
+            next-hop-group. In the future, this container will replace the container
+            /network-instances/network-instance/protocols/protocol/static-routes/static/next-hops.
+            If a statically configured next-hop-group is used for a static route
+            prefix then the 'static-routes/static/next-hops' container must not
+            be used.";
+
+          container config {
+            description
+              "Configuration parameters relating to the next-hop-group.";
+
+            uses next-hop-group-config;
+          }
+
+          container state {
+            config false;
+            description
+              "Operational parameters relating to the next-hop-group.";
+
+            uses next-hop-group-config;
+          }
+        }
+
+        container next-hops {
+          description
+            "Configuration and state parameters relating
+            to the next-hops that are to be utilised for the static
+            route being specified.
+            In the future, this container will be deprecated in favor of the
+            /network-instances/network-instance/static/next-hop-groups
+            container. If a statically configured next-hop-group is used
+            for a static route prefix then the 'static-routes/static/next-hops'
+            container must not be used.";
 
           list next-hop {
             key "index";
 
             description
               "A list of next-hops to be utilised for the static
-              route being specified.";
+              route being specified.  In the future, this list will be
+              deprecated in favor of
+              /network-instances/network-instance/static/next-hop-groups.";
 
             leaf index {
               type leafref {
@@ -422,6 +460,21 @@ module openconfig-local-routing {
           uses local-aggregate-state;
         }
       }
+    }
+  }
+
+  grouping next-hop-group-config {
+    description
+      "Grouping of configuration parameters for a static route's reference
+      to a next-hop-group.";
+
+    leaf name {
+      type leafref {
+        path "/network-instances/network-instance/static/next-hop-groups/next-hop-group/name";
+      }
+
+      description
+        "A user defined name for a next-hop-group.";
     }
   }
 
