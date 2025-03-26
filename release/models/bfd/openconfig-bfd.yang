@@ -31,7 +31,9 @@ module openconfig-bfd {
   revision "2025-03-18" {
     description
       "Clarify BFD session failure as a transition
-      from the UP state to the DOWN state.";
+      from the UP state to the DOWN state. This does not include
+      UP to ADMIN_DOWN transitions, since when the BFD session is
+      administratively disabled it is not a session failure.";
     reference "0.4.1";
  }
 
@@ -352,14 +354,15 @@ module openconfig-bfd {
       description
         "The time of the last transition of the BFD session from the UP state
         to the DOWN state, expressed as the number of nanoseconds since
-        the Unix epoch.";
+        the Unix epoch. This does not include UP to ADMIN_DOWN transitions";
     }
 
     leaf failure-transitions {
       type uint64;
       description
         "The number of times that the BFD session has transitioned
-        from the UP state to the DOWN state.";
+        from the UP state to the DOWN state. This does not include
+        UP to ADMIN_DOWN transitions";
     }
 
     leaf up-transitions {
