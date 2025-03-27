@@ -21,7 +21,13 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2025-03-19" {
+    description
+      "Added accept action to policy-forwarding actions rules.";
+    reference "0.8.0";
+  }
 
   revision "2024-11-14" {
     description
@@ -267,6 +273,14 @@ submodule openconfig-pf-forwarding-policies {
       default false;
       description
         "When this leaf is set to true, the local system should drop
+        packets that match the rule.";
+    }
+
+    leaf accept {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, the local system should accept
         packets that match the rule.";
     }
 
