@@ -71,14 +71,20 @@ As a side note, these releases are compatible with the notion of
 
 6.  Wherever possible, it is RECOMMENDED to make backward compatible API changes
     (e.g. deprecating leaves via the
-    [status statement](https://www.rfc-editor.org/rfc/rfc7950#section-7.21.2))
+    [status statement](https://datatracker.ietf.org/doc/html/rfc6020#section-7.19.2))
     for at least one minor release prior to a non-backward compatible API change
     in order to ease the transition to the new API. These leaves are then
     expected to be removed or modified in the next major version release. NOTE:
     This guideline may change once OpenConfig operators gain more experience
     managing breaking changes.
 
-7.  Release documentation should include the list of models and their version
+7. [Deprecated](https://datatracker.ietf.org/doc/html/rfc6020#section-7.19.2)
+   nodes must be supported until they are deleted from the models. The deprecated
+   status serves as a hint that the node will be removed in some future release of
+   OpenConfig data models and operators are advised to stop using the node.  The
+   node description will recommend an alternative node or action.
+
+8.  Release documentation should include the list of models and their version
     numbers contained in the corresponding release.
 
 Each release `vx.y.z` (e.g. `v1.2.0`) MAY be given a name for easier human
