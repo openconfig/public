@@ -31,6 +31,7 @@ module openconfig-network-instance {
   import openconfig-igmp { prefix "oc-igmp"; }
   import openconfig-evpn { prefix "oc-evpn"; }
   import openconfig-pcep { prefix "oc-pcep"; }
+  import openconfig-network-instance-static { prefix "oc-ni-static"; }
 
   // include submodules
   include openconfig-network-instance-l2;
@@ -49,11 +50,17 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.5.0";
+  oc-ext:openconfig-version "4.6.0";
 
-  revision "2025-02-18" {
+  revision "2025-03-26" {
     description
       "Add OSPFv3 container";
+    reference "4.6.0";
+  }
+
+  revision "2025-02-20" {
+    description
+      "Add static next-hop-groups and encapsulation headers.";
     reference "4.5.0";
   }
 
@@ -862,6 +869,8 @@ module openconfig-network-instance {
         uses oc-vlan:vlan-top;
 
         uses oc-pf:policy-forwarding-top;
+
+        uses oc-ni-static:ni-static-structural;
 
         uses oc-aft:aft-top;
 
