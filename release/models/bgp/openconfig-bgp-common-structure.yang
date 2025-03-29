@@ -325,7 +325,7 @@ submodule openconfig-bgp-common-structure {
     }
   }
 
-   grouping bgp-common-structure-neighbor-group-auto-gen-link-bandwidth {
+  grouping bgp-common-structure-neighbor-group-auto-gen-link-bandwidth {
     description
       "Common grouping used for both groups and neighbors which
       provides configuration and state parameters relating to
@@ -359,6 +359,15 @@ submodule openconfig-bgp-common-structure {
           extended-community.";
         uses auto-gen-link-bandwidth-config;
       }
+    }
+  }
+
+  grouping bgp-common-structure-neighbor-group-auto-link-bandwidth {
+      container auto-generated-link-bandwidth {
+      description
+        "Parameters related to automatic generation link-bandwidth
+        extended community base on underlaying interface speed.";
+      uses bgp-common-structure-neighbor-group-auto-gen-link-bandwidth;
     }
   }
 
