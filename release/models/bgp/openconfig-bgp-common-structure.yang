@@ -325,4 +325,31 @@ submodule openconfig-bgp-common-structure {
     }
   }
 
+   grouping bgp-common-structure-neighbor-group-auto-gen-link-bandwidth {
+    description:
+      "Common grouping used for both groups and neighbors which
+      provides configuration and state parameters relating to
+      auto-generation of link-bandwidth extended-community
+      attribute.";
+    container import {
+      description: 
+        "Container used to provides configuration and state
+        parameters relating tovauto-generation of link-bandwidth 
+        extended-community attribute for lerned routes.
+        Apply only for routes that do not have link-bandwidth 
+        extended-community.
+        Any policy action related to link-bandwidth 
+        extended-community takes precedence over this
+        configuration";
+      container config {
+        description: "";
+        uses auto-gen-link-bandwidth-config;
+      }
+      container state {
+        description: "";
+        uses auto-gen-link-bandwidth-config;
+      }
+    }
+  }
+  
 }
