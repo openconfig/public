@@ -24,7 +24,14 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.8.0";
+  oc-ext:openconfig-version "9.9.0";
+
+  revision "2025-03-30" {
+    description
+      "Add schema for auto-generated link-bandwidth extended community
+      for learned routes.";
+    reference "9.9.0";
+  }
 
   revision "2024-09-06" {
     description
@@ -852,5 +859,31 @@ submodule openconfig-bgp-common {
     }
   }
 
+
+  grouping auto-gen-link-bandwidth-config {
+    description
+      "Grouping of parameters related to automatic generation of
+      link-bandwidth extended community.";
+    leaf enabled {
+      description
+        "Generate link-bandwidth extnded community for BGP routes that do not
+        have link-bandwidth extnded community attached.";
+      type boolean;
+      default false;
+    }
+    leaf hold-down-time {
+      description
+        "Suppress frequent changes in the link-bandwidth value when bandwidth
+        increases.";
+      type uint16;
+    }
+    leaf transitive {
+      description
+        "Generated link-bandwidth attribute of transitive type. The non-transitive
+        is default and matches original draft.";
+      type boolean;
+      default false;
+    }
+  }
 
 }
