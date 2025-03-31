@@ -201,6 +201,29 @@ module openconfig-local-routing {
         IPv6.";
     }
 
+    container next-network-instance {
+      description
+      "The network instance in which context packet destination address
+      lookup shall be performed.";
+      
+      container config {
+        leaf next-network-instance {
+          type leafref {
+            path "../../../../../../../config/name";
+          }
+        }
+      } 
+
+      container state {
+        leaf next-network-instance {
+          type leafref {
+            path "../../../../../../../state/name";
+          }
+        }
+      } 
+
+    }
+
     uses local-generic-settings;
   }
 
