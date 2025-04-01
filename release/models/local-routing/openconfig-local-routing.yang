@@ -236,15 +236,31 @@ module openconfig-local-routing {
       type union {
         type inet:ip-address;
         type local-defined-next-hop;
+        type leafref {
+          path "../../../../../../../../config/name";
+        }
       }
       description
         "The next-hop that is to be used for the static route
-        - this may be specified as an IP address, an interface
-        or a pre-defined next-hop type - for instance, DROP or
-        LOCAL_LINK. When this leaf is not set, and the interface-ref
+        - this may be specified as:
+          - an IP address, an interface or
+          - a pre-defined next-hop type - for instance, DROP or
+        LOCAL_LINK or 
+          - next network-instance in which packet's destination
+          address should be looked up, to to find next-hop."
+        When this leaf is not set, and the interface-ref
         value is specified for the next-hop, then the system should
         treat the prefix as though it is directly connected to the
         interface.";
+    }
+
+    leaf nh-network-instance {
+      description
+        "Network-instance in which IP address of next-hop should
+        be looked up inorder to find egress interface";
+      type leafref {
+        path "../../../../../../../config/name";
+      }
     }
 
     leaf recurse {
