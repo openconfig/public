@@ -243,11 +243,13 @@ module openconfig-local-routing {
       description
         "The next-hop that is to be used for the static route
         - this may be specified as:
-          - an IP address, an interface or
+          -  an IP address or
           - a pre-defined next-hop type - for instance, DROP or
         LOCAL_LINK or 
           - next network-instance in which packet's destination
-          address should be looked up, to to find next-hop.
+          address should be looked up, to to find next-hop. It
+          must not be combined with nh-network-instance and
+          recurce leaf must be ignored.
         When this leaf is not set, and the interface-ref
         value is specified for the next-hop, then the system should
         treat the prefix as though it is directly connected to the
@@ -257,7 +259,11 @@ module openconfig-local-routing {
     leaf nh-network-instance {
       description
         "Network-instance in which IP address of next-hop should
-        be looked up inorder to find egress interface";
+        be looked up inorder to find egress interface. This attribute
+        is only valid if next-hop is given as IP address.
+        This attribute may be combined with recurse attribute of any
+        value, in which case recurse setting applys to 
+        nh-network-instance";
       type string;
     }
 
