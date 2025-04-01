@@ -43,7 +43,14 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.2.0";
+
+  revision "2025-03-31" {
+    description
+      "Add static routing to other network instance for destination
+      lookup";
+    reference "2.2.0";
+  }
 
   revision "2025-02-20" {
     description
@@ -229,15 +236,37 @@ module openconfig-local-routing {
       type union {
         type inet:ip-address;
         type local-defined-next-hop;
+        type leafref {
+          path "../../../../../../../../config/name";
+        }
       }
       description
         "The next-hop that is to be used for the static route
-        - this may be specified as an IP address, an interface
-        or a pre-defined next-hop type - for instance, DROP or
-        LOCAL_LINK. When this leaf is not set, and the interface-ref
+        - this may be specified as:
+          -  an IP address or
+          - a pre-defined next-hop type - for instance, DROP or
+        LOCAL_LINK or
+          - next network-instance in which packet's destination
+          address should be looked up, to to find next-hop. It
+          must not be combined with nh-network-instance and
+          recurce leaf must be ignored.
+        When this leaf is not set, and the interface-ref
         value is specified for the next-hop, then the system should
         treat the prefix as though it is directly connected to the
         interface.";
+    }
+
+    leaf nh-network-instance {
+      description
+        "Network-instance in which IP address of next-hop should
+        be looked up inorder to find egress interface. This attribute
+        is only valid if next-hop is given as IP address.
+        This attribute may be combined with recurse attribute of any
+        value, in which case recurse setting applys to
+        nh-network-instance";
+      type leafref {
+        path "../../../../../../../config/name";
+      }
     }
 
     leaf recurse {
@@ -302,6 +331,34 @@ module openconfig-local-routing {
 
           uses local-static-config;
           uses local-static-state;
+        }
+
+        container next-network-instance {
+          description
+            "The network instance in which context packet destination address
+            lookup shall be performed.";
+
+          container config {
+            leaf next-network-instance {
+              description
+                "The network instance in which context packet destination address
+                lookup shall be performed.";
+              type leafref {
+                path "../../../../../../../config/name";
+              }
+            }
+          }
+
+          container state {
+            leaf next-network-instance {
+              description
+                "The network instance in which context packet destination address
+                lookup is be performed.";
+              type leafref {
+                path "../../../../../../../state/name";
+              }
+            }
+          }
         }
 
         container next-hop-group {
