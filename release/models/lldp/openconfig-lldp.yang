@@ -27,12 +27,12 @@ module openconfig-lldp {
 
   oc-ext:openconfig-version "1.0.0";
 
-  revision "2025-02-03" {
+  revision "2025-04-03" {
     description
       "Refactor LLDP management addresses to accomodate 802.1AB defined
       TLV.  Add configurable management interface.  Switch from IETF to
       OC YANG types.  Deprecate management-address-type and
-      management-address leafs.";
+      management-address leafs.  Cleanup unused/empty groupings.";
     reference "1.0.0";
   }
 
@@ -192,12 +192,6 @@ module openconfig-lldp {
         identifier string. It is an enumerator defined by the
         LldpChassisIdSubtype object from IEEE 802.1AB MIB.";
     }
-  }
-
-  grouping lldp-system-management {
-    description
-      "Configuration data for modifying Management Address TLV
-      behaviors.";
 
     leaf management-interface {
       type oc-if:interface-id;
@@ -214,8 +208,10 @@ module openconfig-lldp {
       Address TLV parameters.";
 
     container management-addresses {
+      config false;
+
       description
-        "Enclosing container for list of LLDP management addresses";
+        "Encapsulating container for management addresses";
 
       list management-address {
         description
@@ -225,73 +221,86 @@ module openconfig-lldp {
         key "address subtype";
 
         leaf address {
-          type union {
-            type oc-inet:ip-address;
-            type oc-yang:mac-address;
+          type leafref {
+            path "../state/address";
           }
           description
-            "Management address associated with the Management Address
-            TLV.";
-          reference
-            "Sec 8.5.9.4 of IEEE Std 802.1AB-2016";
+            "Reference to the management address key";
         }
 
         leaf subtype {
-          type identityref {
-            base oc-lldp-types:LLDP_ADDRESS_FAMILY;
+          type leafref {
+            path "../state/subtype";
           }
           description
-            "Management address subtype indicating the address family
-            for the address.";
-          reference
-            "Sec 8.5.9.3 of IEEE Std 802.1AB-2016";
+            "Reference to the management address subtype key";
         }
 
-        leaf interface-number {
-          type uint32;
+        container state {
           description
-            "Interface number that identifies the specific interface
-            associated with this management address.";
-          reference
-            "Sec 8.5.9.6 of IEEE Std 802.1AB-2016";
-        }
+            "Operational state data for management addresses";
 
-        leaf interface-number-subtype {
-          type oc-lldp-types:mgmt-interface-number-subtype;
-          description
-            "The Management address interface numbering subtype field
-            indicating the numbering method used for defining the
-            interface-number.";
-          reference
-            "Sec 8.5.9.5 of IEEE Std 802.1AB-2016";
-        }
-
-        leaf oid {
-          type string;
-          description
-            "The OID that identifies the type of hardware component or
-            protocol entity associated with the indicated management
-            address.  If no OID is available, this leaf is optional.";
-          reference
-            "Sec 8.5.9.8 of IEEE Std 802.1AB-2016";
+          uses lldp-management-address-state;
         }
       }
     }
   }
 
-  grouping lldp-system-info-state {
+  grouping lldp-management-address-state {
     description
-      "Operational state data reported for the local and remote
-      systems";
+      "Local or remote management address state data.";
 
-    uses lldp-management-addresses;
+    leaf address {
+      type union {
+        type oc-inet:ip-address;
+        type oc-yang:mac-address;
+      }
+      description
+        "Management address associated with the Management Address
+        TLV.";
+      reference
+        "Sec 8.5.9.4 of IEEE Std 802.1AB-2016";
+    }
 
-  }
+    leaf subtype {
+      type identityref {
+        base oc-lldp-types:LLDP_ADDRESS_FAMILY;
+      }
+      description
+        "Management address subtype indicating the address family
+        for the address.";
+      reference
+        "Sec 8.5.9.3 of IEEE Std 802.1AB-2016";
+    }
 
-  grouping lldp-neighbor-config {
-    description
-      "Configuration data for LLDP neighbors";
+    leaf interface-number {
+      type uint32;
+      description
+        "Interface number that identifies the specific interface
+        associated with this management address.";
+      reference
+        "Sec 8.5.9.6 of IEEE Std 802.1AB-2016";
+    }
 
+    leaf interface-number-subtype {
+      type oc-lldp-types:mgmt-interface-number-subtype;
+      description
+        "The Management address interface numbering subtype field
+        indicating the numbering method used for defining the
+        interface-number.";
+      reference
+        "Sec 8.5.9.5 of IEEE Std 802.1AB-2016";
+    }
+
+    leaf oid {
+      type string;
+      description
+        "The OID that identifies the type of hardware component or
+        protocol entity associated with the indicated management
+        address.  If no OID is available, this leaf is optional.";
+      reference
+        "Sec 8.5.9.8 of IEEE Std 802.1AB-2016";
+    }
   }
 
   grouping lldp-neighbor-state {
@@ -588,7 +597,6 @@ module openconfig-lldp {
           description
             "Configuration data ";
 
-          uses lldp-neighbor-config;
         }
 
         container state {
@@ -599,11 +607,10 @@ module openconfig-lldp {
             "Operational state data ";
 
           uses lldp-system-info-config;
-          uses lldp-system-info-state;
-          uses lldp-neighbor-config;
           uses lldp-neighbor-state;
         }
 
+        uses lldp-management-addresses;
         uses lldp-custom-tlv-top;
         uses lldp-capabilities-top;
       }
@@ -742,7 +749,6 @@ module openconfig-lldp {
 
         uses lldp-config;
         uses lldp-system-info-config;
-        uses lldp-system-management;
       }
 
       container state {
@@ -754,11 +760,10 @@ module openconfig-lldp {
 
         uses lldp-config;
         uses lldp-system-info-config;
-        uses lldp-system-management;
-        uses lldp-system-info-state;
         uses lldp-state;
       }
 
+      uses lldp-management-addresses;
       uses lldp-interface-top;
     }
   }
