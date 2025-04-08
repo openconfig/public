@@ -29,7 +29,8 @@ module openconfig-wifi-phy {
 
   revision "2025-04-08" {
     description
-      "Adding antenna height for AFC related operations.";
+      "Adding installed-height-m and installed-height-reference
+      for AFC related operations.";
     reference: "1.2.5";
   }
 
@@ -242,13 +243,15 @@ module openconfig-wifi-phy {
         external antennae connected.";
     }
 
-    leaf height_m {
-      type int8;
+    leaf installed-height-m {
+      type decimal64 {
+        fraction-digits 2;
+      }
       description
         "Height in meters above a reference used for AFC";
     }
 
-    leaf height_reference {
+    leaf installed-height-reference {
       type enumeration {
         enum AGL {
           description
