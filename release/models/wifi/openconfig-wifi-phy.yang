@@ -25,7 +25,13 @@ module openconfig-wifi-phy {
   description
     "Model for managing PHY layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "1.2.4";
+  oc-ext:openconfig-version "1.2.5";
+
+  revision "2025-04-08" {
+    description
+      "Adding antenna height for AFC related operations.";
+    reference: "1.2.5";
+  }
 
   revision "2024-07-10" {
     description
@@ -234,6 +240,28 @@ module openconfig-wifi-phy {
       description
         "Antenna gain applied to this Radio; typically used when
         external antennae connected.";
+    }
+
+    leaf height_m {
+      type int8;
+      description
+        "Height in meters above a reference used for AFC";
+    }
+
+    leaf height_reference {
+      type enumeration {
+        enum AGL {
+          description
+            "Above Ground Level.";
+        }
+        enum AMSL {
+          description
+            "Above Mean Sea Level";
+        }
+      }
+      default "AGL";
+      description
+        "Describes the reference for the height of the AP/Antenna.";
     }
 
     leaf scanning {
