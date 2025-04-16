@@ -8,7 +8,6 @@ module openconfig-relay-agent {
   prefix "oc-relay";
 
   // import some basic types
-  import ietf-inet-types { prefix inet; }
   import ietf-yang-types { prefix yang; }
   import openconfig-network-instance { prefix oc-ni; }
   import openconfig-interfaces { prefix oc-if; }
@@ -642,22 +641,21 @@ module openconfig-relay-agent {
       description
         "IP address to relay DHCP requests to";
     }
-
-    leaf source-address {
-      type union {
-        type inet:ipv4-address;
-        type oc-if:interface-id;
-      }
-      description
-        "IP address or interface whose IP address is to be used as source in
-	relayed DHCP requests";
-    }
-
     leaf network-instance {
       type oc-ni:network-instance-ref;
       description
         "The network instance that this DHCP Server
         is associated with";
+    }
+
+    leaf source-address {
+      type union {
+        type oc-inet:ipv4-address;
+        type oc-if:interface-id;
+      }
+      description
+        "IP address or interface whose IP address is to be used as source in
+	relayed DHCP requests";
     }
   }
 
@@ -671,21 +669,21 @@ module openconfig-relay-agent {
         "IPv6 address to relay DHCPv6 requests to";
     }
 
-    leaf source-address {
-      type union {
-        type inet:ipv6-address;
-        type oc-if:interface-id;
-      }
-      description
-        "IPv6 address or interface whose IPv6 address is to be used as source in
-	relayed DHCPv6 requests";
-    }
-
     leaf network-instance {
       type oc-ni:network-instance-ref;
       description
         "The network instance that this DHCP Server
         is associated with";
+    }
+
+    leaf source-address {
+      type union {
+        type oc-inet:ipv6-address;
+        type oc-if:interface-id;
+      }
+      description
+        "IPv6 address or interface whose IPv6 address is to be used as source in
+	relayed DHCPv6 requests";
     }
   }
 
@@ -697,7 +695,7 @@ module openconfig-relay-agent {
       description
         "Enclosing container for helper addresses";
       list helper-address {
-        key "address";
+        key "address network-instance";
         description
           "List of IPv4 addresses of DHCP servers to which the
           relay agent should forward DHCPv4 requests.  The relay agent is
@@ -712,6 +710,15 @@ module openconfig-relay-agent {
           description
             "Reference to list key representing IP helper address";
         }
+
+        leaf network-instance {
+          type leafref {
+            path "../config/network-instance";
+          }
+          description
+            "Reference to list key representing network instance";
+        }
+
 
         container config {
           description
@@ -740,7 +747,7 @@ module openconfig-relay-agent {
       description
         "Enclosing container for IPv6 helper addresses";
       list helper-address {
-        key "address";
+        key "address network-instance";
         description
           "List of IPv6 addresses of DHCP servers to which the
            relay agent should forward DHCPv6 requests.  The relay agent
@@ -754,6 +761,14 @@ module openconfig-relay-agent {
           }
           description
             "Reference to list key representing IP helper address";
+        }
+
+        leaf network-instance {
+          type leafref {
+            path "../config/network-instance";
+          }
+          description
+            "Reference to list key representing network instance";
         }
 
         container config {
@@ -794,7 +809,7 @@ module openconfig-relay-agent {
     }
 
     leaf-list helper-address {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       status deprecated;
       description
         "List of IPv4 or IPv6 addresses of DHCP servers to which the
@@ -888,7 +903,7 @@ module openconfig-relay-agent {
     }
 
     leaf-list helper-address {
-      type inet:ipv6-address;
+      type oc-inet:ipv6-address;
       status deprecated;
       description
         "List of IPv6 addresses of DHCP servers to which the
