@@ -875,15 +875,21 @@ submodule openconfig-bgp-common {
     
     leaf hold-down-time {
       description
-        "Suppress frequent changes in the link-bandwidth value when bandwidth
-        increases.";
+        "Suppress for a nuber of seconds changes in the link-bandwidth value
+        when bandwidth increases. Every time bandwidth of link increases,
+        it must remain constant for hold-down-time before it is reflected
+        into link-bandwidth extended community of routes lerned on this
+        link.";
       type uint16;
+      unit seconds;
     }
     
     leaf transitive {
       description
-        "Generate link-bandwidth extended community as a transitive value. The non-transitive
-        is default and matches original draft.";
+        "When leaf is set to TRUE, generate link-bandwidth extended community
+        as a transitive type. When set to FALSE - generate as
+        non-transitive. The non-transitive is default and matches
+        original/earlier versions of IETF draft.";
       type boolean;
       default false;
     }
