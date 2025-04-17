@@ -42,7 +42,13 @@ module openconfig-alarms {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.3.2";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2024-11-01" {
+    description
+      "Remove empty config container under 'config false' hierarchy.";
+    reference "0.4.0";
+  }
 
   revision "2019-07-09" {
     description
@@ -57,9 +63,9 @@ module openconfig-alarms {
   }
 
   revision "2018-01-16" {
-      description
-        "Moved alarm identities into separate types module";
-      reference "0.3.0";
+    description
+      "Moved alarm identities into separate types module";
+    reference "0.3.0";
   }
 
   revision "2018-01-10" {
@@ -160,11 +166,6 @@ module openconfig-alarms {
     }
   }
 
-  grouping alarm-config {
-    description
-      "Configuration data for device alarms";
-  }
-
   grouping alarms-top {
     description
       "Top-level grouping for device alarms";
@@ -189,20 +190,10 @@ module openconfig-alarms {
             "References the unique alarm id";
         }
 
-        container config {
-          description
-            "Configuration data for each alarm";
-
-          uses alarm-config;
-        }
-
         container state {
-          config false;
-
           description
             "Operational state data for a device alarm";
 
-          uses alarm-config;
           uses alarm-state;
         }
       }
