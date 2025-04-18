@@ -43,7 +43,14 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.2.0";
+
+  revision "2025-03-31" {
+    description
+      "Add static routing to other network instance for destination
+      lookup";
+    reference "2.2.0";
+  }
 
   revision "2025-02-20" {
     description
@@ -225,6 +232,17 @@ module openconfig-local-routing {
         only support a numeric value for this string. ";
     }
 
+    leaf next-network-instance {
+      description
+        "The network instance in which context packet destination address
+        lookup shall be performed.
+        This leaf is mutualy exclusive with 'next-hop', 'nh-network-instance',
+        'recurse' leaves";
+      type leafref {
+        path "../../../../../../../../network-instance/config/name";
+      }
+    }
+
     leaf next-hop {
       type union {
         type inet:ip-address;
@@ -232,12 +250,31 @@ module openconfig-local-routing {
       }
       description
         "The next-hop that is to be used for the static route
-        - this may be specified as an IP address, an interface
-        or a pre-defined next-hop type - for instance, DROP or
-        LOCAL_LINK. When this leaf is not set, and the interface-ref
+        - this may be specified as:
+          -  an IP address or
+          - a pre-defined next-hop type - for instance, DROP or
+        LOCAL_LINK or
+        When this leaf is not set, and the interface-ref
         value is specified for the next-hop, then the system should
         treat the prefix as though it is directly connected to the
-        interface.";
+        interface.
+        This leaf is mutualy exclusive with next-network-instance
+        leaf";
+    }
+
+    leaf nh-network-instance {
+      description
+        "Network-instance in which IP address of next-hop should
+        be looked up, to find egress interface. This attribute
+        is only valid if next-hop is given as IP address.
+        This attribute may be combined with recurse attribute of any
+        value, in which case recurse setting applies to
+        nh-network-instance.
+        This leaf is mutualy exclusive with next-network-instance
+        leaf";
+      type leafref {
+        path "../../../../../../../../network-instance/config/name";
+      }
     }
 
     leaf recurse {
@@ -252,7 +289,9 @@ module openconfig-local-routing {
         instance. When the interface reference specified within the
         next-hop entry is set (i.e., is not null) then forwarding is
         restricted to being via the interface specified - and
-        recursion is hence disabled.";
+        recursion is hence disabled.
+        This leaf is mutualy exclusive with next-network-instance
+        leaf";
     }
 
     uses local-common-route-attributes;
