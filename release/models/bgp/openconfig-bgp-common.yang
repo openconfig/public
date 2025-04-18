@@ -24,7 +24,14 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.8.0";
+  oc-ext:openconfig-version "9.8.1";
+
+  revision "2025-04-18" {
+    description
+      "Clarification to usage of link-bandwidth-ext-community
+      container under BGP use-multiple-paths`.";
+          reference "9.8.1";
+  }
 
   revision "2024-09-06" {
     description
@@ -642,7 +649,11 @@ submodule openconfig-bgp-common {
           "Multipath parameters for eBGP";
         container link-bandwidth-ext-community {
           description
-            "Usage of DMZ Link-Bandwidth extended community";
+            "Usage of Link-Bandwidth extended community for
+            construction of next hops and nexthop groups in cross-protocol,
+            network-instance scoped, global RIB.
+            This does not impact  the handling of link-bandwidth
+            extended community internal to the BGP protocol and BGP RIB.";
           container config {
             description
             "Configuration parameters relating to usage of link-bandwidth";
@@ -673,7 +684,11 @@ submodule openconfig-bgp-common {
           "Multipath parameters for iBGP";
         container link-bandwidth-ext-community {
           description
-            "Usage of DMZ Link-Bandwidth extended community";
+            "Usage of Link-Bandwidth extended community for
+            construction of next hops and nexthop groups in cross-protocol,
+            network-instance scoped, global RIB.
+            This does not impact  the handling of link-bandwidth
+            extended community internal to the BGP protocol and BGP RIB.";
           container config {
             description
             "Configuration parameters relating to usage of link-bandwidth";
@@ -703,18 +718,23 @@ submodule openconfig-bgp-common {
 
   grouping bgp-common-use-multiple-paths-link-bandwidth-config {
     description
-      "Parameters controlling usage of  of DMZ Link-Bandwidth
-      extended community in pultipath RIB/FIB formation";
+      "Parameters controlling usage of  of Link-Bandwidth
+      extended community in formation of  next hops and next hop
+      groups in cross-protocol, network-instance scoped, global RIB";
     leaf enabled {
       type boolean;
       description
-      "When set to TRUE, BGP multiplepath shall distributed traffic
+      "When set to TRUE, BGP multiple path shall distribute traffic
       load among contributing routes proportionally to value of
       Local Administrator subfield of link-bandwidth extended
       community [draft-ietf-idr-link-bandwidth-07].
-      This leaf has no effect if BGP multi-path is disabled or
-      if maximum-path attribute of BGP multi-path value is set
-      to 1";
+      When set to FALSE, BGP multipath shall distribute traffic
+      load among contributing routes regardless of link-bandwidth value
+      attached to routes contributing to multipath in the BGP Local-RIB.
+      Load distribution could be equal or weighted base on other configuration
+      not related to BGP multipath (e.g. ISIS with ECMP).
+      This leaf has no effect if BGP multipath is disabled or if maximum-path
+      attribute of BGP multipath maximum-path value is set to 1.";
     }
   }
 
