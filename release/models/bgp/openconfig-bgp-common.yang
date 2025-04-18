@@ -24,12 +24,19 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.7.2";
+  oc-ext:openconfig-version "9.8.1";
 
-  revision "2024-07-25" {
+  revision "2025-04-18" {
     description
       "Clarification to usage of link-bandwidth-ext-community
       container under BGP use-multiple-paths`.";
+          reference "9.8.1";
+  }
+
+  revision "2024-09-06" {
+    description
+      "Restore NONE enum value for community-type.";
+    reference "9.8.0";
   }
 
   revision "2023-12-28" {
@@ -332,9 +339,10 @@ submodule openconfig-bgp-common {
     leaf-list send-community-type {
       type oc-bgp-types:community-type;
       description
-        "Specify which types of community should be sent to the
-        neighbor or group. The default is to not send the
-        community attribute";
+        "Specify which types of community should be sent to the neighbor or
+        group. The default is to not send the community attribute.  Note, if
+        the NONE community-type is specified, no other types must be
+        specified.";
     }
 
     leaf description {
