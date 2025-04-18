@@ -868,7 +868,14 @@ submodule openconfig-bgp-common {
     leaf enabled {
       description
         "Append a link-bandwidth extended community for BGP routes that do not
-        have link-bandwidth extended community attached.";
+        have link-bandwidth extended community attached.
+        This configuration when present, MUST be supported in
+        context of single-hop EBGP neighbor (with and without
+        TTL security enabled). Implementation may support it
+        in other reasonable contexts. Implementation shall not
+        silently ignore this configuration. If present in not
+        supported context, implementation shall reject
+        configuration.";
       type boolean;
       default false;
     }
