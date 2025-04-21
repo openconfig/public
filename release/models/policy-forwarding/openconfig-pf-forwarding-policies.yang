@@ -23,9 +23,9 @@ submodule openconfig-pf-forwarding-policies {
 
   oc-ext:openconfig-version "0.8.0";
 
-  revision "2025-03-19" {
+  revision "2025-04-21" {
     description
-      "Added accept action to policy-forwarding actions rules.";
+      "Add explicit policy evaluation termination control via rule-result.";
     reference "0.8.0";
   }
 
@@ -90,6 +90,31 @@ submodule openconfig-pf-forwarding-policies {
       "Initial revision";
     reference "0.0.1";
   }
+
+  typedef pf-rule-result-type {
+  type enumeration {
+    enum ACCEPT_PACKET {
+      description 
+        "Accept the packet and terminate evaluation of the current 
+        policy. The packet will be forwarded according to the actions 
+        specified in this rule.";
+    }
+    enum REJECT_PACKET {
+      description 
+        "Reject (discard) the packet and terminate evaluation of the 
+        current policy.";
+    }
+    enum NEXT_RULE {
+      description 
+        "Any actions specified in this rule are applied to the packet, 
+        and evaluation continues with the next rule in the policy.";
+    }
+  }
+  default ACCEPT_PACKET;
+  description
+    "Type used to specify packet disposition and policy evaluation 
+    flow control in a policy-forwarding rule.";
+}
 
   grouping pf-forwarding-policy-structural {
     description
@@ -267,21 +292,29 @@ submodule openconfig-pf-forwarding-policies {
   grouping pf-forwarding-policy-action-config {
     description
       "Forwarding policy action configuration parameters.";
+    
+    leaf rule-result {
+      type pf-rule-result-type;
+      default "ACCEPT_PACKET";
+      description
+        "Specifies the result of this rule and whether policy evaluation 
+        should continue to the next rule. When set to ACCEPT_PACKET, the 
+        packet is processed according to the actions in this rule and policy 
+        evaluation terminates. When set to REJECT_PACKET, the packet is 
+        discarded and policy evaluation terminates. When set to NEXT_RULE, 
+        the actions in this rule are applied and evaluation continues with 
+        the next rule.";
+    }
 
     leaf discard {
       type boolean;
       default false;
       description
         "When this leaf is set to true, the local system should drop
-        packets that match the rule.";
-    }
-
-    leaf accept {
-      type boolean;
-      default false;
-      description
-        "When this leaf is set to true, the local system should accept
-        packets that match the rule.";
+        packets that match the rule. Setting this to true has the same
+        effect as setting rule-result to REJECT_PACKET, but is maintained
+        for backward compatibility. If both are set, rule-result takes
+        precedence.";
     }
 
     leaf decapsulate-gre {
