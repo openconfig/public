@@ -304,11 +304,24 @@ module openconfig-sampling-sflow {
       units bytes;
       default 128;
       description
-        "Sets the maximum number of bytes to be copied from a
-        sampled packet.";
+        "Sets the maximum number of bytes to be copied from a sampled
+        packet (content within one specific sample of a packet).";
       reference
         "RFC 3176 - InMon Corporation's sFlow: A Method for
         Monitoring Traffic in Switched and Routed Networks";
+    }
+
+   leaf datagram-size {
+      type uint16;
+      units bytes;
+      default 1400;
+      description
+        "Sets the maximum total size (in bytes) for an sFlow datagram
+        (the UDP export packet sent to a collector, which may bundles
+        many samples).";
+      reference
+        "RFC 3176 - InMon Corporation's sFlow: The maximum number of data
+        bytes that can be sent in a single sample datagram.";
     }
 
     uses sflow-polling-interval-config;
