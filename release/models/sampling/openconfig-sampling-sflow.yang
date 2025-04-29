@@ -151,10 +151,11 @@ module openconfig-sampling-sflow {
     leaf datagram-size {
       type uint16;
       units bytes;
-      default 1400;
       description
-        "Sets the maximum total size (in bytes) for an sFlow datagram
-        (the UDP export packet) sent to this specific collector.";
+      description
+        "Sets the maximum size (in bytes) of the sFlow payload itself, 
+          before it's encapsulated in a UDP packet sent to this collector. 
+          This value does not include UDP or IP headers.";
       reference
         "RFC 3176 - InMon Corporation's sFlow: sFlowRcvrMaximumDatagramSize.";
     }
