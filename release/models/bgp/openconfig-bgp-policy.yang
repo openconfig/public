@@ -838,7 +838,19 @@ module openconfig-bgp-policy {
 
     leaf-list as-path-set-member {
       // TODO: need to refine typedef for AS path expressions
-      type string;
+      type union {
+        type oc-inet:as-number;
+        type enumeration {
+          enum ANY_ONE {
+            description
+              "Matches one AS number of any value.";
+          }
+          enum ANY_ALL {
+            description
+              "Matches any number of AS numbers of any value.";
+          }
+        }
+      }
       description
           "AS path expression -- list of ASes in the set";
     }

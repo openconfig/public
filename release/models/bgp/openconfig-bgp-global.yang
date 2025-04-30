@@ -27,7 +27,13 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "9.9.0";
+  oc-ext:openconfig-version "9.10.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "9.10.0";
+  }
 
   revision "2025-03-30" {
     description
@@ -231,6 +237,20 @@ submodule openconfig-bgp-global {
       reference
         "RFC4271 - A Border Gateway Protocol 4 (BGP-4),
         Section 4.2";
+    }
+
+    leaf enforce-peer-as-first-as {
+      type boolean;
+      default false;
+      description
+        "Ensure that the peer's AS is the first AS listed in the AS_PATH
+        attribute";
+    }
+
+    leaf max-prefixes {
+      type uint64;
+      description
+        "Maximum amount of prefixes allowed for this BGP instance";
     }
   }
 

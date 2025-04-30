@@ -24,7 +24,13 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "9.9.0";
+  oc-ext:openconfig-version "9.10.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "9.10.0";
+  }
 
   revision "2025-03-30" {
     description
@@ -495,6 +501,18 @@ submodule openconfig-bgp-common-multiprotocol {
 
       // placeholder for BGP-signalled VPLS specific configuration
       // options
+      leaf mac-limit {
+        type uint64;
+        description
+          "Maximum limit for size of mac table";
+      }
+
+      leaf enforce-split-horizon-rule {
+        type boolean;
+        // Default is device specific
+        description
+          "Indicates that the split-horizon rule should be followed for VPLS";
+      }
     }
   }
 
