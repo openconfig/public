@@ -1,0 +1,288 @@
+module openconfig-msdp {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/msdp";
+
+  prefix "oc-msdp";
+
+  // import some basic types/interfaces
+  import openconfig-routing-policy { prefix oc-rpol; }
+  import openconfig-types { prefix "oc-types"; }
+  import openconfig-extensions { prefix "oc-ext"; }
+  import ietf-inet-types { prefix "inet"; }
+  import openconfig-keychain { prefix "oc-keychain"; }
+
+  // meta
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "An OpenConfig model for Multicast Source Discovery Protocol(MSDP) that supports IPv4 address family.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2035-04-12" {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  grouping admin-config {
+    description
+      "Re-usable grouping to enable or disable a particular feature.";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "When set to true, the functionality within which this
+        leaf is defined is enabled, when set to false it is
+        explicitly disabled.";
+    }
+  }
+
+  grouping msdp-counters-state {
+    description
+      "Counters related to MSDP messages.";
+    // Placeholder
+  }
+
+  grouping msdp-peer-config {
+    description
+      "Configuration data for MSDP for each peer.";
+
+    leaf peer-address {
+      type inet:ipv4-address;
+      description
+        "IPv4 address of neighbor router.";
+    }
+
+    leaf maximum-groups {
+      type uint32;
+      description
+        "Limit the number of (S, G) and (*, G) PIM
+        entries accepted on the interface.
+        This feature depends on hardware implementation.";
+    }
+
+    leaf key-chain {
+      type leafref {
+        path "/oc-keychain:keychains/oc-keychain:keychain/" +
+           "oc-keychain:name";
+      }
+      description
+        "Configure Key Chain name";
+    }
+  }
+
+  grouping msdp-peer-state {
+    description
+      "MSDP peer state.";
+
+
+    leaf neighbor-established {
+      type oc-types:timeticks64;
+      description
+        "This timestamp indicates the time that the
+        MSDP peer adjacency established. It is expressed
+        relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).
+
+        The MSDP session uptime can be computed by clients
+        as the difference between this value and the
+        current time in UTC.";
+    }
+  }
+
+  grouping msdp-peer-top {
+    description
+      "Details about MSDP peers.";
+
+    container peers {
+      config false;
+      description
+        "Details about MSDP peers.";
+
+      list peer {
+        key "peer-address";
+        description
+          "Details about a specific MSDP peer.";
+
+        leaf peer-address {
+          type leafref {
+            path "../config/peer-address";
+          }
+          description
+            "IPv4 address of peer router.";
+        }
+
+        container config {
+          description
+            "Config data for the MSDP peer";
+
+          uses msdp-peer-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Details about a specific PIM neighbor.";
+
+          uses msdp-peer-config;
+          uses msdp-peer-state;
+        }
+      }
+    }
+  }
+
+  grouping msdp-global-config {
+    description
+      "Configuration data for MSDP.";
+
+    uses admin-config;
+
+    leaf maximum-groups {
+      type uint32;
+      description
+         "Limit the number of accepted (S, G) and (*, G)
+         PIM join states on the network-instance.";
+    }
+
+    leaf source-address {
+      type inet:ipv4-address;
+      description
+        "IPv4 address of current router.";
+    }
+
+    leaf source-filter {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+            "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+        "A reference to a routing policy whose match-prefix can be used to 
+        restrict valid sources for MSDP source-active multicast advertisements.";
+    }
+
+    leaf group-filter {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+            "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+        "A reference to a routing policy whose match-prefix can be used to 
+        restrict valid groups for MSDP source-active multicast advertisements.";
+    }
+  }
+
+  grouping msdp-global-state {
+    description
+      "State and session data for MSDP.";
+    leaf peer-count {
+      type uint8;
+      description
+        "Number of adjacent MSDP peers.";
+    }
+
+    container counters {
+      description
+        "Global MSDP counters.";
+
+      uses msdp-counters-state;
+    }
+  }
+
+  grouping msdp-sources-joined-top {
+    description
+     "List of multicast sources joined.";
+
+    container sources-joined {
+      config false;
+      description
+        "List of multicast sources joined.";
+
+      list source {
+        key "address";
+        description
+          "A multicast source that has been joined.";
+
+        leaf address {
+          type leafref {
+            path "../state/address";
+          }
+          description
+            "Source address of multicast.";
+        }
+
+        container state {
+          config false;
+          description
+            "State for a multicast source that has been joined.";
+
+          leaf address {
+            type inet:ipv4-address;
+            description
+              "Source address of multicast.";
+          }
+
+          leaf group {
+            type inet:ipv4-address;
+            description
+              "Multicast address.";
+          }
+        }
+      }
+    }
+  }
+
+  grouping msdp-global-top {
+    description
+      "Top level grouping for global MSDP configuration.";
+
+    container config {
+      description
+        "Configuration for global MSDP parameters";
+      uses msdp-global-config;
+    }
+
+    container state {
+      config false;
+      description
+        "Global MSDP state.";
+      uses msdp-global-config;
+      uses msdp-global-state;
+    }
+    uses msdp-sources-joined-top;
+  }
+
+  grouping msdp-top {
+    description
+      "Top-level grouping for MSDP.";
+
+    container msdp {
+      description
+        "Top-level MSDP configuration and operational state.";
+
+      container global {
+        description
+          "This container defines global MSDP configuration and state
+          information.";
+        uses msdp-global-top;
+      }
+
+      uses msdp-peer-top;
+    }
+  }
+
+  // data definition statements
+}

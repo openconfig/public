@@ -1,0 +1,180 @@
+module openconfig-mld {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/mld";
+
+  prefix "oc-msdp";
+
+  // import some basic types/interfaces
+  import openconfig-routing-policy { prefix oc-rpol; }
+  import openconfig-extensions { prefix "oc-ext"; }
+  import ietf-inet-types { prefix "inet"; }
+
+  // meta
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "An OpenConfig model for Multicast Listener Discovery (MLD) that supports IPv6 address family.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2035-04-12" {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  grouping admin-config {
+    description
+      "Re-usable grouping to enable or disable a particular feature.";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "When set to true, the functionality within which this
+        leaf is defined is enabled, when set to false it is
+        explicitly disabled.";
+    }
+  }
+
+  grouping mld-counters-state {
+    description
+      "Counters related to MLD messages.";
+    // Placeholder
+  }
+
+  grouping mld-config {
+    description
+      "Configuration data for MLD.";
+
+    uses admin-config;
+
+    leaf maximum-groups {
+      type uint32;
+      description
+         "Limit the number of accepted (S, G) and (*, G)
+         MLD join states on the network-instance.";
+    }
+
+    leaf snooping {
+      type boolean;
+      description
+        "Whether or not to turn on snooping.";
+    }
+
+    leaf source-filter {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+            "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+        "A reference to a routing policy whose match-prefix can be used to 
+        restrict valid sources for MLD Report messages.";
+    }
+
+    leaf group-filter {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+            "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+        "A reference to a routing policy whose match-prefix can be used to 
+        restrict valid groups for MLD Report messages.";
+    }
+  }
+
+  grouping mld-state {
+    description
+      "State and session data for MLD.";
+
+    container counters {
+      description
+        "Global MLD counters.";
+
+      uses mld-counters-state;
+    }
+  }
+
+  grouping mld-sources-joined-top {
+    description
+     "List of multicast sources joined.";
+
+    container sources-joined {
+      config false;
+      description
+        "List of multicast sources joined.";
+
+      list source {
+        key "address";
+        description
+          "A multicast source that has been joined.";
+
+        leaf address {
+          type leafref {
+            path "../state/address";
+          }
+          description
+            "Source address of multicast.";
+        }
+
+        container state {
+          config false;
+          description
+            "State for a multicast source that has been joined.";
+
+          leaf address {
+            type inet:ipv6-address;
+            description
+              "Source address of multicast.";
+          }
+
+          leaf group {
+            type inet:ipv6-address;
+            description
+              "Multicast address.";
+          }
+        }
+      }
+    }
+  }
+
+  grouping mld-top {
+    description
+      "Top level grouping for MLD configuration.";
+
+    container mld {
+      description 
+        "Container for MLD configuration and data";
+        
+      container config {
+        description
+          "Configuration for MLD parameters";
+        uses mld-config;
+      }
+
+      container state {
+        config false;
+        description
+          "MLD state.";
+        uses mld-config;
+        uses mld-state;
+      }
+      uses mld-sources-joined-top;
+    }
+  }
+
+  // data definition statements
+}

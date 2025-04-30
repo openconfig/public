@@ -13,6 +13,7 @@ module openconfig-igmp {
   import openconfig-acl { prefix "oc-acl"; }
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-interfaces { prefix oc-if; }
+  import openconfig-routing-policy { prefix oc-rpol; }
   import ietf-inet-types { prefix "inet"; }
 
   // meta
@@ -26,7 +27,13 @@ module openconfig-igmp {
   description
     "An OpenConfig model for Internet Group Management Protocol (IGMP).";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "0.4.0";
+  }
 
   revision "2023-02-03" {
     description
@@ -378,11 +385,56 @@ module openconfig-igmp {
     description
       "This grouping defines global config options for IGMP.";
 
+    leaf source-filter {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+            "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+        "A reference to a routing policy whose match-prefix can be used to 
+        restrict valid sources for IGMP messages.";
+    }
+
+    leaf group-filter {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+            "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+        "A reference to a routing policy whose match-prefix can be used to 
+        restrict valid groups for IGMP messages.";
+    }
+
+    leaf snooping {
+      type boolean;
+      default false;
+      description
+        "Whether or not IGMP snooping is enabled.";
+    }
+
+    leaf max-states {
+      type uint64;
+      description
+        "Maximum states allowed for IGMP";
+    }
   }
 
   grouping igmp-global-top {
     description
       "Top level grouping for global IGMP configuration.";
+
+    container config {
+      description
+        "Global configuration for IGMP";
+      uses igmp-global-config;
+
+    }
+    container state {
+      config false;
+      description
+        "Global state for IGMP";
+      uses igmp-global-config;
+    }
 
     container ssm {
       description

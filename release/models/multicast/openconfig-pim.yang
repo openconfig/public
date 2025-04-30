@@ -11,6 +11,7 @@ module openconfig-pim {
   import openconfig-pim-types { prefix oc-pim-types; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-acl { prefix oc-acl; }
+  import openconfig-routing-policy { prefix oc-rpol; }
   import openconfig-types { prefix "oc-types"; }
   import openconfig-extensions { prefix "oc-ext"; }
   import ietf-inet-types { prefix "inet"; }
@@ -27,7 +28,13 @@ module openconfig-pim {
   description
     "An OpenConfig model for Protocol Independent Multicast (PIM) that supports IPv4 address family.";
 
-  oc-ext:openconfig-version "0.4.4";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2025-03-31" {
+    description 
+      "Add additional security features.";
+      reference "0.5.0";
+  }
 
   revision "2024-12-06" {
     description
@@ -356,6 +363,40 @@ module openconfig-pim {
       description
          "Limit the number of accepted (S, G) and (*, G)
          PIM join states on the network-instance.";
+    }
+
+    leaf source-filter {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+            "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+        "A reference to a routing policy whose match-prefix can be used to 
+        restrict valid sources for PIM Request messages.";
+    }
+
+    leaf group-filter {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+            "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+        "A reference to a routing policy whose match-prefix can be used to 
+        restrict valid groups for PIM Request and Join messages.";
+    }
+
+    leaf multicast-forwarding-cache-reuse-threshold {
+      type uint64;
+      description
+        "The limit for the size of the multicast forwarding cache after which
+        no new entries will be added. Applies to both PIM and MSDP.";
+    }
+
+    leaf multicast-forwarding-cache-suppress-threshold {
+      type uint64;
+      description
+        "The limit for the size of the multicast forwarding cache after which
+        entries will be actively suppressed. Applies to both PIM and MSDP.";
     }
   }
 
