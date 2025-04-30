@@ -234,10 +234,15 @@ module openconfig-local-routing {
 
     leaf next-network-instance {
       description
-        "The network instance in which context packet destination address
-        lookup shall be performed.
-        This leaf is mutualy exclusive with 'next-hop', 'nh-network-instance',
-        'recurse' leaves";
+        "Instead of finding the next-hop for a destination address in the current
+	      network-instance, look up the destination address in the routing table
+	      of the specified network-instance.
+	      For example, let 'next-network-instance' = 'DEFAULT'.  If a packet arrives
+        in the 'BLUE' network-instance and the destination address matches this
+        route, the destination address will be looked up again in the 'DEFAULT'
+	      network-instance to find the next-hop.  
+	      This leaf is mutually exclusive with 'next-hop', 'nh-network-instance' 
+        leaves";
       type leafref {
         path "/network-instances/network-instance/config/name";
       }
@@ -272,8 +277,8 @@ module openconfig-local-routing {
         nh-network-instance.
         For example, let 'nh-network-instance' = 'DEFAULT'.  If a
         packet arrives on the 'BLUE' network-instance and the
-        destination address matches this route, look up the
-        configured next-hop in the 'DEFAULT' network-instance.
+        destination address matches this route, look up the IP
+        configured as next-hop in the 'DEFAULT' network-instance.
         This leaf is mutually exclusive with next-network-instance
         leaf";
       type leafref {
