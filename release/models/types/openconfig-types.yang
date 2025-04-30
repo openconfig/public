@@ -21,7 +21,13 @@ module openconfig-types {
     are used across OpenConfig models. It can be imported by modules
     that make use of these types.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "1.1.0";
+  }
 
   revision "2024-01-31" {
     description
@@ -138,7 +144,7 @@ module openconfig-types {
         (-1)**S * 2**(Exponent-127) * (1+Fraction)";
   }
 
-  typedef routing-password {
+  typedef unsecure-routing-password {
     type string;
     description
       "This type is indicative of a password that is used within
@@ -153,6 +159,43 @@ module openconfig-types {
       may be sensitive, from other string leaves. It could, for
       example, be used by the NMS to censor this data when
       viewed by particular users.";
+  }
+
+  typedef crypt-password-type {
+    type string;
+    description
+      "A password that is hashed based on the hash algorithm
+      indicated by the prefix in the string.  The string
+      takes the following form, based on the Unix crypt function:
+
+      $<id>[$<param>=<value>(,<param>=<value>)*][$<salt>[$<hash>]]
+
+      Common hash functions include:
+
+      id  | hash function
+       ---+---------------
+        1 | MD5
+        2a| Blowfish
+        2y| Blowfish (correct handling of 8-bit chars)
+        5 | SHA-256
+        6 | SHA-512
+
+      These may not all be supported by a target device.";
+  }
+
+  typedef routing-password {
+    type union{
+      type unsecure-routing-password;
+      type crypt-password-type;
+    }
+    description 
+      "This is a password type that is input as a unsecure-routing-password
+      but is returned as crypt-password-type when the appropriate system-wide
+      flag is set and otherwise returns the unsecure-routing-password. When 
+      the flag is set, it is stored either irreversibly hashed (if possible 
+      for the password type) or AES-key-wrapped (or AES-encrypted) using a 
+      key known only to the device that is never released from the device 
+      (using a secure block mode if not AES-key-wrapped).";
   }
 
   typedef stat-interval {

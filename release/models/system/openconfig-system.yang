@@ -21,6 +21,8 @@ module openconfig-system {
   import openconfig-messages { prefix oc-messages; }
   import openconfig-license { prefix oc-license; }
   import openconfig-network-instance { prefix oc-ni; }
+  import openconfig-keychain-types { prefix oc-keychain-types; }
+  import openconfig-keychain { prefix oc-keychain; }
 
   // meta
   organization "OpenConfig working group";
@@ -47,7 +49,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.3.0";
+  oc-ext:openconfig-version "2.4.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "2.4.0";
+  }
 
   revision "2024-09-24" {
     description
@@ -345,6 +353,72 @@ module openconfig-system {
     }
   }
 
+  grouping config-backup-config {
+    description "Configuration for backup of configuration data.";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description "Whether the configuration is backed up on changes.";
+    }
+
+    leaf backup-uri {
+      type string;
+      description 
+        "Where the backup data should be sent. URI must be provided
+        if configuration backup is enabled and should include the 
+        protocol to use. Supported protocols vary by device but should
+        at least include SCP.";
+    }
+
+    leaf key-chain {
+      type leafref {
+        path "/oc-keychain:keychains/oc-keychain:keychain/" +
+           "oc-keychain:name";
+      }
+      description
+        "Configure Key Chain name if required by protocol. SCP requires
+        this field to be used as a password.";
+    }
+
+    leaf public-key-or-cert {
+      type string;
+      description
+        "Certificate or public key if required or recommended by protocol
+        in either PEM (including header), hex-encoded DER, or SSH formats.
+        SCP allows this to be specified in order to ensure that the device
+        is connecting to the correct host.";
+    }
+  }
+
+  grouping config-backup-state {
+    description "State for backup of configuration data.";
+    // Placeholder
+  }
+
+  grouping config-backup-top {
+    description "Top level for backup of configuration data.";
+    container config-backup {
+      description 
+        "Setup data for backup of configuration data on update.";
+
+      container config {
+        description 
+          "Configuration for backup of configuration file.";
+      
+        uses config-backup-config;
+      }
+      container state {
+        config false;
+        description
+          "Operational state data for backup of configuration file.";
+
+        uses config-backup-config;
+        uses config-backup-state;
+      }
+    }
+  }
+
   grouping system-global-config {
     description "system-wide configuration parameters";
 
@@ -377,6 +451,48 @@ module openconfig-system {
         information such as the current system date and time, uptime,
         last login timestamp, etc.";
     }
+
+    leaf secure-passwords {
+      type boolean;
+      default false;
+      description 
+        "Informs the system to use the crypt-routing-password type instead
+        of the unsecure-routing-password type on output wherever applicable.";
+    }
+
+    leaf no-insecure-configuration-loading {
+      type boolean;
+      default true; // Since using this interface would imply this is on
+      description
+        "Prevents the system from loading configurations from the network
+        over insecure channels like TFTP and RCP";
+    }
+
+    leaf no-call-home {
+      type boolean;
+      // Default is device specific
+      description
+        "Prevents the router or switch from calling home.";
+    }
+
+    leaf snmp-authentication-algorithm {
+      type identityref {
+        base oc-keychain-types:CRYPTO_TYPE;
+      }
+      default oc-keychain-types:CRYPTO_NONE;
+      description
+        "SNMP authentication algorithm (used if and only if SNMP is on).";
+    }
+
+    leaf-list disabled-services {
+      type string;
+      description
+        "Platform specific names for services that need to be disabled.
+        If the device comes across an unrecognized service, it should 
+        ignore the entry instead of raising an error. The result of 
+        disabling services this interface relies on is undefined.";
+    }
+    
   }
 
   grouping mount-point-state {
@@ -1347,6 +1463,7 @@ module openconfig-system {
         uses system-global-state;
       }
 
+      uses config-backup-top;
       uses mount-points-top;
       uses oc-aaa:aaa-top;
       uses oc-alarms:alarms-top;
@@ -1356,6 +1473,7 @@ module openconfig-system {
       uses oc-license:license-top;
       uses oc-sys-term:system-ssh-server-top;
       uses oc-sys-term:system-telnet-server-top;
+      uses oc-sys-term:password-complexity-top;
       uses system-clock-top;
       uses system-cpu-top;
       uses system-dns-top;

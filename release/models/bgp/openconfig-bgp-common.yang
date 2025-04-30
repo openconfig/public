@@ -9,6 +9,8 @@ submodule openconfig-bgp-common {
   import openconfig-routing-policy { prefix oc-rpol; }
   import openconfig-types { prefix oc-types; }
   import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-keychain { prefix "oc-keychain"; }
+
 
   // meta
   organization
@@ -25,6 +27,12 @@ submodule openconfig-bgp-common {
     contexts.";
 
   oc-ext:openconfig-version "9.9.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "9.10.0";
+  }
 
   revision "2025-03-30" {
     description
@@ -303,6 +311,15 @@ submodule openconfig-bgp-common {
       description
         "Configures an MD5 authentication password for use with
         neighboring devices.";
+    }
+
+    leaf key-chain {
+      type leafref {
+        path "/oc-keychain:keychains/oc-keychain:keychain/" +
+           "oc-keychain:name";
+      }
+      description
+        "Configure Key Chain name";
     }
 
     leaf remove-private-as {
