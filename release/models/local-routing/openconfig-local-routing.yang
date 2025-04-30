@@ -270,7 +270,11 @@ module openconfig-local-routing {
         This attribute may be combined with recurse attribute of any
         value, in which case recurse setting applies to
         nh-network-instance.
-        This leaf is mutualy exclusive with next-network-instance
+        For example, let 'nh-network-instance' = 'DEFAULT'.  If a
+        packet arrives on the 'BLUE' network-instance and the
+        destination address matches this route, look up the
+        configured next-hop in the 'DEFAULT' network-instance.
+        This leaf is mutually exclusive with next-network-instance
         leaf";
       type leafref {
         path "/network-instances/network-instance/config/name";
