@@ -26,7 +26,13 @@ module openconfig-vlan {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.2.2";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "3.3.0";
+  }
 
   revision "2023-02-07" {
     description
@@ -179,6 +185,14 @@ module openconfig-vlan {
       description
         "Set the interface to access or trunk mode for
         VLANs";
+    }
+
+    leaf allow-auto-negotiation {
+      type boolean;
+      description
+        "Whether or not VLAN auto-negotiation is enabled on this
+        interface. If false, VTP, MVTP, DTP, and any other vlan 
+        auto-negotiation protocols must be disabled for this interface.";
     }
 
     leaf native-vlan {
