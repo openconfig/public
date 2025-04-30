@@ -220,6 +220,10 @@ submodule openconfig-pf-forwarding-policies {
             "The policy is used only to classify incoming packets into corresponding
             network instances.";
         }
+        enum DECAP_POLICY {
+          description
+            "The policy is used for the decapsulation of packets.";
+        }
       }
       default PBR_POLICY;
       description
@@ -227,6 +231,15 @@ submodule openconfig-pf-forwarding-policies {
         routing, and have no restrictions on their implementation. Where there are alternate
         policy types, this leaf specifies that a policy is expected to conform with a subset
         of the functionality as described in the specified type.";
+    }
+
+    leaf global {
+      type boolean;
+      description
+        "When set true, the policy is applied to all interfaces in the network-instance.
+        Only one global policy can be configured per network-instance. A global policy is
+        processed first, before an interface attached policy (an interface may have two
+        policies, a global one and an interface attached one.)";
     }
   }
 
