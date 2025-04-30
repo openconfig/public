@@ -11,6 +11,7 @@ submodule openconfig-aaa-tacacs {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-aaa-types { prefix oc-aaa-types; }
   import openconfig-types { prefix oc-types; }
+  import openconfig-keychain { prefix "oc-keychain"; }
 
 
   // meta
@@ -25,7 +26,13 @@ submodule openconfig-aaa-tacacs {
     related to the TACACS+ protocol for authentication,
     authorization, and accounting.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "1.1.0";
+  }
 
   revision "2022-07-29" {
     description
@@ -103,8 +110,17 @@ submodule openconfig-aaa-tacacs {
         server and the device.";
     }
 
+    leaf key-chain {
+      type leafref {
+        path "/oc-keychain:keychains/oc-keychain:keychain/" +
+           "oc-keychain:name";
+      }
+      description
+        "Configure Key Chain name";
+    }
+
     leaf secret-key-hashed {
-      type oc-aaa-types:crypt-password-type;
+      type oc-types:crypt-password-type;
       description
         "The hashed shared key used between the authentication
         server and the device.";

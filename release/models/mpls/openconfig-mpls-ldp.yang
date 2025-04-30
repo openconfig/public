@@ -13,6 +13,8 @@ module openconfig-mpls-ldp {
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-types { prefix oc-types; }
+  import openconfig-keychain { prefix "oc-keychain"; }
+
 
   // meta
   organization "OpenConfig working group";
@@ -43,7 +45,13 @@ module openconfig-mpls-ldp {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.2.1";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "3.3.0";
+  }
 
   revision "2023-02-06" {
     description
@@ -958,6 +966,15 @@ module openconfig-mpls-ldp {
       reference
         "RFC1321 The MD5 Message-Digest Algorithm
         RFC5036 LDP Specification";
+    }
+
+    leaf key-chain {
+      type leafref {
+        path "/oc-keychain:keychains/oc-keychain:keychain/" +
+           "oc-keychain:name";
+      }
+      description
+        "Configure Key Chain name";
     }
   }
 
