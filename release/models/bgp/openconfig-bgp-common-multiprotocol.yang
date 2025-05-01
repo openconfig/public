@@ -483,6 +483,21 @@ submodule openconfig-bgp-common-multiprotocol {
     }
   }
 
+  grouping bgp-common-mp-l2vpn-vpls-group-config {
+    leaf mac-limit {
+      type uint64;
+      description
+        "Maximum limit for size of mac table";
+    }
+
+    leaf enforce-split-horizon-rule {
+      type boolean;
+      // Default is device specific
+      description
+        "Indicates that the split-horizon rule should be followed for VPLS";
+    }
+  }
+
   grouping bgp-common-mp-l2vpn-vpls-group {
     description
       "Group for BGP-signalled VPLS configuration options";
@@ -501,17 +516,15 @@ submodule openconfig-bgp-common-multiprotocol {
 
       // placeholder for BGP-signalled VPLS specific configuration
       // options
-      leaf mac-limit {
-        type uint64;
+      container config {
         description
-          "Maximum limit for size of mac table";
+          "Configuration parameters relating to VPLS";
+        uses bgp-common-mp-l2vpn-vpls-group-config;
       }
-
-      leaf enforce-split-horizon-rule {
-        type boolean;
-        // Default is device specific
+      container state {
         description
-          "Indicates that the split-horizon rule should be followed for VPLS";
+          "State relating to VPLS";
+        uses bgp-common-mp-l2vpn-vpls-group-config;
       }
     }
   }
