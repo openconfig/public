@@ -183,9 +183,9 @@ module openconfig-packet-match {
   grouping pim-header-top {
     description
       "Top-level container for fields in a PIM header.";
-    
+
     container pim {
-      description 
+      description
         "PIM header fields";
 
       container config {
@@ -206,6 +206,8 @@ module openconfig-packet-match {
   }
 
   grouping pim-header-config {
+    description
+      "Configuration options for PIM header";
     leaf message-type {
       type enumeration {
         enum HELLO {
@@ -493,26 +495,22 @@ module openconfig-packet-match {
         "Destination IPv6 Flow label.";
     }
 
-    container options {
-      leaf-list routing-options {
-        type oc-pkt-match-types:ipv6-option-type;
-        description 
-          "Routing IPv6 options to filter on";
-      }
-      
-      leaf-list hop-by-hop-options {
-        type oc-pkt-match-types:ipv6-option-type;
-        description
-          "Hop-by-Hop IPv6 options to filter on";
-      }
-
-      leaf-list destination-options {
-        type oc-pkt-match-types:ipv6-option-type;
-        description
-          "Destination IPv6 options to filter on";
-      }
+    leaf-list routing-options {
+      type oc-pkt-match-types:ipv6-option-type;
       description
-        "IPv6 options to filter on";
+        "Routing IPv6 options to filter on";
+    }
+
+    leaf-list hop-by-hop-options {
+      type oc-pkt-match-types:ipv6-option-type;
+      description
+        "Hop-by-Hop IPv6 options to filter on";
+    }
+
+    leaf-list destination-options {
+      type oc-pkt-match-types:ipv6-option-type;
+      description
+        "Destination IPv6 options to filter on";
     }
 
     uses ip-protocol-fields-common-config;
