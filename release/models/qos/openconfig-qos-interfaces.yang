@@ -403,13 +403,23 @@ submodule openconfig-qos-interfaces {
     leaf ecn-marked-pkts {
       type oc-yang:counter64;
       description
-        "number of packets for which ECN codepoint has been changed from ECT to CE";
+        "Number of ECN capable packets that experienced congestion on this
+         interface and which are marked as CE.
+
+         This count includes packets that have previously experienced
+         congestion and have already been marked as CE.";
     }
 
     leaf ecn-marked-octets {
       type oc-yang:counter64;
       description
-        "Number of octets for which ECN codepoint has been changed from ECT to CE";
+        "Number of octets for capable packets that experienced congestion on this
+         interface and which are marked as CE. 
+
+         This count includes packets that have previously experienced
+         congestion and have already been marked as CE.";
+
+         Octet equivalent counter for ecn-marked-pkts.";
     }
 
     leaf ecn-selected-pkts {
