@@ -1272,7 +1272,8 @@ revision "2023-06-30" {
     }
   }
 
-  grouping icmp-top {
+  grouping icmp-config {
+    description "ICMPv4 and ICMPv6 configuration options.";
     leaf unreachable-notifications {
       type boolean;
       default true;
@@ -1343,8 +1344,17 @@ revision "2023-06-30" {
       container icmpv4 {
         description
           "Parameters to configure ICMP for the interface.";
-        
-        uses icmp-top;
+
+        container config {
+          description "Configuration options for ICMP.";
+          uses icmp-config;
+        }
+
+        container state {
+          description "State for ICMP.";
+          config false;
+          uses icmp-config;
+        }
       }
 
       container proxy-arp {
@@ -1480,8 +1490,17 @@ revision "2023-06-30" {
       container icmpv6 {
         description
           "Parameters to configure ICMP for the interface.";
-        
-        uses icmp-top;
+
+        container config {
+          description "Configuration options for ICMP.";
+          uses icmp-config;
+        }
+
+        container state {
+          description "State for ICMP.";
+          config false;
+          uses icmp-config;
+        }
       }
 
       container router-advertisement {
