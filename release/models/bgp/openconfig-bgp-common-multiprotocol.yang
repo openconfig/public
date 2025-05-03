@@ -24,7 +24,13 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "9.8.0";
+  oc-ext:openconfig-version "9.9.0";
+
+  revision "2024-09-25" {
+    description
+      "Add next-hop-unchanged to bgp afi-safi.";
+    reference "9.9.0";
+  }
 
   revision "2024-09-06" {
     description
@@ -35,7 +41,7 @@ submodule openconfig-bgp-common-multiprotocol {
   revision "2023-12-28" {
     description
       "Clarification to last-prefix-limit-exceeded in description";
-          reference "9.7.1";
+    reference "9.7.1";
   }
 
   revision "2023-12-28" {
@@ -740,6 +746,14 @@ submodule openconfig-bgp-common-multiprotocol {
       default "false";
       description
         "If set to true, send the default-route to the neighbor(s)";
+    }
+    leaf next-hop-unchanged {
+     type boolean;
+     default "false";
+     description
+      "Override the default eBGP behavior of rewriting the next-hop when
+      advertising a route and instead keep the next-hop learned from a
+      neighbor.";
     }
   }
 }
