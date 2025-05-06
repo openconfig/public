@@ -11,7 +11,6 @@ module openconfig-network-instance-static {
   import openconfig-aft { prefix "oc-aft"; }
   import openconfig-aft-types { prefix "oc-aftt"; }
   import openconfig-local-routing { prefix "oc-loc-rt"; }
-  import openconfig-inet-types { prefix "oc-inet"; }
 
   // meta
   organization "OpenConfig working group";
@@ -23,13 +22,7 @@ module openconfig-network-instance-static {
   description
     "Static configurations associated with a network instance";
 
-  oc-ext:openconfig-version "0.2.0";
-
-  revision "2025-03-20" {
-    description
-      "Add template for static encap header fields.";
-    reference "0.2.0";
-  }
+  oc-ext:openconfig-version "0.1.0";
 
   revision "2025-02-20" {
     description
@@ -49,12 +42,6 @@ module openconfig-network-instance-static {
         description
           "Configuration and state parameters relating to
           statically configured next hop group";
-      }
-
-      uses encap-header-templates-top {
-        description
-          "Configuration and state parameters relating to
-          statically configured encap-header templates";
       }
 
       uses static-next-hops-top {
@@ -263,8 +250,6 @@ module openconfig-network-instance-static {
             "Config parameters relating to encapsulation headers.";
 
           uses oc-aft:aft-common-nexthop-encap-headers-state;
-
-          uses encap-header-template-ref;
         }
 
         container state {
@@ -273,8 +258,6 @@ module openconfig-network-instance-static {
             "State parameters relating to encapsulation headers.";
 
           uses oc-aft:aft-common-nexthop-encap-headers-state;
-
-          uses encap-header-template-ref;
         }
 
         container udp-v4 {
@@ -303,101 +286,5 @@ module openconfig-network-instance-static {
       }
     }
   }
-
-  grouping encap-header-templates-top {
-    description
-      "Logical grouping for encap-header templates.";
-
-    container encap-header-templates {
-      description
-        "Surrounding container for groups of encap-header templates.";
-
-      list encap-header-template {
-        key "name";
-        description
-          "A list of user defined templates for encap-headers.next-hop-groups.";
-
-        leaf name {
-          type leafref {
-            path "../config/name";
-          }
-          description
-            "A reference to a unique identifier for the encap-header-template.";
-        }
-
-        container config {
-          description
-            "Configuration parameters relating to encap-header template.";
-          uses encap-header-template-group;
-        }
-
-        container state {
-          config false;
-          description
-            "State parameters relating to encap-header template.";
-          uses encap-header-template-group;
-        }
-
-
-      }
-    }
-  }
-
-  grouping encap-header-template-group {
-    description
-      "Logical grouping for statically configured encap-header template.";
-
-    leaf name {
-      type string;
-      description
-        "A user defined name that uniquely identifies the encap-header template.";
-    }
-
-    leaf dst-udp-port {
-      type oc-inet:port-number;
-      description
-        "Destination UDP port number to use for the UDP header of the encapsulated
-        packet.
-
-        When the payload packet is MPLS, then RFC 7510 - Encapsulating MPLS
-        in UDP should be followed.";
-      reference
-        "RFC 7510 - Encapsulating MPLS in UDP specifies that 6635 must be
-        used for MPLS-in-UDP and 6636 must be used for MPLS-in-UDP with DTLS.
-        Because of this condition, no default is defined in OpenConfig.  The
-        system is expected to utilize the appropriate port.";
-    }
-
-    leaf ip-ttl {
-      type uint8;
-      description
-        "This leaf reflects the configured/default IP TTL value that is used
-         in the outer header during packet encapsulation. When this leaf is
-         not set, the TTL value of the inner packet is copied over as the
-         outer packet's IP TTL value during encapsulation.";
-    }
-
-    leaf dscp {
-      type oc-inet:dscp;
-      description
-        "DSCP value to use for the UDP header of the encapsulated
-         packet.";
-    }
-
-  }
-
-  grouping encap-header-template-ref {
-    description
-      "Logical grouping for reference to an encap-header template.";
-
-    leaf encap-header-template {
-      type string;
-      description
-        "A user defined name that uniquely identifies the encap-header template.
-        If the encap header already has its fields already configured
-        explicitly, that should take precendence over the template fields.";
-    }
-  }
-
 
 }
