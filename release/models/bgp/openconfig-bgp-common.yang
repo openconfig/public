@@ -24,7 +24,14 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.8.0";
+  oc-ext:openconfig-version "9.9.0";
+
+  revision "2025-03-30" {
+    description
+      "Add schema for auto-generated link-bandwidth extended community
+      for learned routes.";
+    reference "9.9.0";
+  }
 
   revision "2024-09-06" {
     description
@@ -852,5 +859,47 @@ submodule openconfig-bgp-common {
     }
   }
 
+
+  grouping auto-gen-link-bandwidth-config {
+    description
+      "Grouping of parameters related to automatic generation of
+      link-bandwidth extended community.";
+
+    leaf enabled {
+      description
+        "Append a link-bandwidth extended community for BGP routes that do not
+        have link-bandwidth extended community attached.
+        This configuration when present, MUST be supported in
+        context of single-hop EBGP neighbor (with and without
+        TTL security enabled). Implementation may support it
+        in other reasonable contexts. Implementation shall not
+        silently ignore this configuration. If present in not
+        supported context, implementation shall reject
+        configuration.";
+      type boolean;
+      default false;
+    }
+
+    leaf hold-down-time {
+      description
+        "Suppress for a number of seconds changes in the link-bandwidth value
+        when bandwidth increases. Every time bandwidth of link increases,
+        it must remain constant for hold-down-time before it is reflected
+        into link-bandwidth extended community of routes learned on this
+        link.";
+      type uint16;
+      units seconds;
+    }
+
+    leaf transitive {
+      description
+        "When leaf is set to TRUE, generate link-bandwidth extended community
+        as a transitive type. When set to FALSE - generate as
+        non-transitive. The non-transitive is default and matches
+        original/earlier versions of IETF draft.";
+      type boolean;
+      default false;
+    }
+  }
 
 }
