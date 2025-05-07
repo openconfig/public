@@ -33,7 +33,13 @@ module openconfig-keychain {
     which may be then referenced by other models such as routing protocol
     management.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "0.6.0";
+  }
 
 revision "2024-05-30" {
     description
@@ -213,10 +219,15 @@ revision "2024-05-30" {
     }
 
     leaf secret-key {
-      type string;
+      type union {
+        type string;
+        type oc-types:unsecure-routing-password;
+      }
       description
-        "Authentication key supplied as an encrypted value.  The system should store and
-        return the key in encrypted form.";
+        "Authentication key supplied as either plaintext or as an encrypted
+        value.  The system should store and return the key in encrypted form.
+        For key pairs, the key should be encoded as PEM or hex-encoded DER.
+        See the routing-password section for acceptable encryption techniques.";
     }
 
     leaf crypto-algorithm {

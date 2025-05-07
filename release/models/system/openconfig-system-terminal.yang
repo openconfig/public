@@ -22,7 +22,13 @@ module openconfig-system-terminal {
     "This module defines configuration and operational state data
     related to remote terminal services such as ssh and telnet.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "0.4.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -60,6 +66,161 @@ module openconfig-system-terminal {
 
   // grouping statements
 
+  grouping password-complexity-config {
+    description
+      "Configuration for user password complexity requirements.";
+    leaf dictionary-file-name {
+      type string {
+        length 0..255;
+      }
+      description
+        "File name for the dictionary containing the weak passwords.
+        This file needs to be transferred using gNOI File Transfer
+        services and needs to be formatted with one password per
+        line.";
+    }
+
+    leaf dictionary-file-type {
+      type enumeration {
+        enum NORMAL {
+          description
+            "Contains the passwords without any mutations or substitutions.
+            Device is expected to perform mutations and substitutions itself.";
+        }
+        enum PRE_MUTATED {
+          description
+            "Contains the passwords pre-mutated with common character
+            substitutions. Device is not required to perform mutations and
+            subsitutions itself.";
+        }
+      }
+      default NORMAL;
+      description
+        "Provide details about the type of password dictionary file provided.";
+    }
+
+    leaf minimum-password-length {
+      type uint8 {
+        range "1..255";
+      }
+      description
+        "The minimum length of any user password for the system.
+        Must be smaller than maximum.";
+    }
+
+    leaf maximum-password-length {
+      type uint16 {
+        range "1..511";
+      }
+      description
+        "The maximum length of any user password for the system.
+        Must be larger than minimum.";
+    }
+
+    leaf minimum-lowercase-characters {
+      type uint8 {
+        range "1..31";
+      }
+      description
+        "The minimum number of lowercase characters of any user password
+        for the system.";
+    }
+
+    leaf minimum-uppercase-characters {
+      type uint8 {
+        range "1..31";
+      }
+      description
+        "The minimum number of uppercase characters of any user password
+        for the system.";
+    }
+
+    leaf minimum-digits {
+      type uint8 {
+        range "1..31";
+      }
+      description
+        "The minimum number of digits of any user password for the system.";
+    }
+
+    leaf minimum-special-characters {
+      type uint8 {
+        range "1..31";
+      }
+      description
+        "The minimum number of special characters (i.e. non-alphanumeric
+        characters) of any user password for the system.";
+    }
+
+    leaf minimum-characters-changed {
+      type uint8 {
+        range "1..255";
+      }
+      description
+        "The minimum numbers of characters changed on each password change.";
+    }
+
+    leaf allowed-character-set {
+      type string;
+      // Default is the supported password characters
+      description
+        "A string containing all the password characters allowed by the
+        system.";
+    }
+  }
+
+  grouping password-complexity-state {
+    description
+      "State for user password complexity requirements.";
+
+    leaf password-dictionary-path {
+      type string;
+      description
+        "Contains the folder where password dictionaries should
+        be stored using gNOI File Transfer services.";
+    }
+
+    leaf supported-password-characters {
+      type string;
+      // Default is all non-whitespace characters and space (not typing it out
+      // since my editor doesn't respect escape characters)
+      description
+        "A string containing all the password characters supported by the
+        system. Default is all non-whitespace characters and space (not
+        typing it out since my editor doesn't respect escape characters)";
+    }
+
+  }
+
+  grouping password-complexity-top {
+    description
+      "Top level for user password complexity requirements.";
+
+    container user-password-complexity-requirements {
+      description
+        "Container for all user password complexity requirements";
+
+      container config {
+        description
+          "Configuration data for password complexity";
+
+        uses password-complexity-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data ";
+
+        uses password-complexity-config;
+        uses password-complexity-state;
+
+      }
+    }
+  }
+
   grouping system-terminal-common-config {
     description
       "Common configuration data for terminal services";
@@ -86,6 +247,13 @@ module openconfig-system-terminal {
         "Set a limit on the number of simultaneous active terminal
         sessions to the system for the protocol (e.g., ssh,
         telnet, ...) ";
+    }
+
+    leaf login-tries-limit {
+      type uint16;
+      description
+        "Set a limit to the amount of login attempts allowed before
+        disconnecting the session.";
     }
   }
 

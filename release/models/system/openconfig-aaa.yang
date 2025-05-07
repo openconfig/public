@@ -12,6 +12,7 @@ module openconfig-aaa {
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-aaa-types { prefix oc-aaa-types; }
+  import openconfig-types { prefix oc-types; }
 
   include openconfig-aaa-tacacs;
   include openconfig-aaa-radius;
@@ -32,7 +33,13 @@ module openconfig-aaa {
     Portions of this model reuse data definitions or structure from
     RFC 7317 - A YANG Data Model for System Management";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "2.0.0";
+
+  revision "2025-05-01" {
+    description
+      "Updated crypt-password-type location";
+      reference "2.0.0";
+  }
 
   revision "2022-07-29" {
     description
@@ -315,7 +322,7 @@ module openconfig-aaa {
     }
 
     leaf admin-password-hashed {
-      type oc-aaa-types:crypt-password-type;
+      type oc-types:crypt-password-type;
       description
         "The admin/root password, supplied as a hashed value
         using the notation described in the definition of the
@@ -382,7 +389,7 @@ module openconfig-aaa {
     }
 
     leaf password-hashed {
-      type oc-aaa-types:crypt-password-type;
+      type oc-types:crypt-password-type;
       description
         "The user password, supplied as a hashed value
         using the notation described in the definition of the

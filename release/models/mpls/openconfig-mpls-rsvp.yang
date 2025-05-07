@@ -14,6 +14,7 @@ module openconfig-mpls-rsvp {
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-interfaces { prefix oc-if; }
+  import openconfig-keychain { prefix "oc-keychain"; }
 
 
   // meta
@@ -28,7 +29,13 @@ module openconfig-mpls-rsvp {
      parameters and LSP-specific configuration for constrained-path
      LSPs";
 
-  oc-ext:openconfig-version "4.0.1";
+  oc-ext:openconfig-version "5.0.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "5.0.0";
+  }
 
   revision "2023-02-06" {
     description
@@ -376,6 +383,15 @@ module openconfig-mpls-rsvp {
         "Authenticate RSVP signaling messages";
       reference
         "RFC 2747: RSVP Cryptographic Authentication";
+    }
+
+    leaf key-chain {
+      type leafref {
+        path "/oc-keychain:keychains/oc-keychain:keychain/" +
+           "oc-keychain:name";
+      }
+      description
+        "Configure Key Chain name";
     }
   }
 
