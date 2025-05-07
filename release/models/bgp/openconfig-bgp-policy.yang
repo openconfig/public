@@ -28,7 +28,13 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "8.1.0";
+  oc-ext:openconfig-version "8.2.0";
+
+  revision "2025-05-01" {
+    description
+      "Add additional security features.";
+    reference "8.2.0";
+  }
 
   revision "2024-11-13" {
     description
@@ -836,11 +842,19 @@ module openconfig-bgp-policy {
         the set in match conditions";
     }
 
+    leaf-list as-path-set-member-range {
+      type oc-bgp-types:as-path-set-member-type;
+      description
+          "AS path expression -- list of ASes in the set.";
+    }
+
     leaf-list as-path-set-member {
       // TODO: need to refine typedef for AS path expressions
       type string;
+      status deprecated;
       description
-          "AS path expression -- list of ASes in the set";
+          "AS path expression -- list of ASes in the set.
+          Use the field above instead.";
     }
   }
 
