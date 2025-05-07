@@ -32,7 +32,13 @@ module openconfig-gnsi-pathz {
     OpenConfig-path-based authorization policies installed on a networking
     device.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision 2025-04-15 {
+    description
+      "Refactor gNSI counters to be only per policy.";
+    reference "0.4.0";
+  }
 
   revision 2024-02-13 {
     description
@@ -109,62 +115,44 @@ module openconfig-gnsi-pathz {
     description
       "A collection of counters collected by the gNSI.pathz module.";
 
-    container gnmi-pathz-policy-counters {
+    container policies {
       config false;
       description
-        "A collection of per-OpenConfig path counters.";
+        "Container for a collection of per-Pathz policy counters.";
 
-      uses gnmi-pathz-policy-xpath-success-failure-counters;
-    }
-  }
-
-  grouping gnmi-pathz-policy-xpath-success-failure-counters {
-    description
-      "A collection of per-OpenConfig path counters.";
-
-    container paths {
-      description
-        "Container for a collection of per-OpenConfig path counters.";
-
-      list path {
+      list policy {
         description
-          "List for a collection of per-OpenConfig path counters.";
+          "List for a collection of per-Pathz policy counters.";
         key "name";
         leaf name {
           type leafref {
             path "../state/name";
           }
           description
-            "A OpenConfig schema path the counter were
-            collected for.
-
-            For documentation on the naming of paths, see
-            https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-path-conventions.md";
+            "A OpenConfig Pathz policy name the counters were
+            collected for.";
         }
         container state {
           description
-            "Operational state for per-OpenConfig path counters.";
+            "Operational state for per-Pathz policy counters.";
           leaf name {
             type string;
             description
-              "A OpenConfig schema path the counter were
-              collected for.
-
-              For documentation on the naming of paths, see
-              https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-path-conventions.md";
+              "A per-Pathz policy the counters were
+              collected for.";
           }
           container reads {
             description
               "The counter were collected while
-              performing a read operation on the
-              schema path.";
+              performing read operations on the
+              policy.";
             uses counters;
           }
           container writes {
             description
               "The counter were collected while
-              performing a write operation on the
-              schema path.";
+              performing write operations on the
+              policy.";
             uses counters;
           }
         }
