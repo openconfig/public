@@ -44,7 +44,13 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.6.0";
+  oc-ext:openconfig-version "3.7.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "3.7.0";
+  }
 
   revision "2024-05-28" {
     description
@@ -235,6 +241,21 @@ revision "2023-06-30" {
       description
         "Enables a DHCP client on the interface in order to request
         an address";
+    }
+
+    leaf source-filtering {
+      type boolean;
+      // Default is device specific
+      description
+        "Turns on IP source address filtering using unicast
+        Reverse Path Forwarding or similar.";
+    }
+
+    leaf dhcp-snooping {
+      type boolean;
+      default false;
+      description
+        "Turns on DHCP snooping.";
     }
   }
 
@@ -493,6 +514,20 @@ revision "2023-06-30" {
         the ARP table will be updated.";
      reference
       "RFC 826: An Ethernet Address Resolution Protocol";
+    }
+
+    leaf arp-snooping {
+      type boolean;
+      default false;
+      description
+        "Enable ARP snooping.";
+    }
+
+    leaf directed-broadcast {
+      type boolean;
+      // Default is device specific
+      description
+        "Turns on or off IPv4 directed broadcast.";
     }
 
     uses ip-common-global-config;
@@ -1076,6 +1111,13 @@ revision "2023-06-30" {
         discovery message on this interface.";
     }
 
+    leaf hop-limit {
+      type uint8;
+      description
+        "The hop limit advertised in the router advertisment neighbor
+        discovery message on this interface.";
+    }
+
     leaf suppress {
       status deprecated;
       type boolean;
@@ -1097,6 +1139,12 @@ revision "2023-06-30" {
             "Unsolicted router advertisement messages are not transmitted on
             this interface.  Responses to router solicitation messages will
             be transmitted.";
+        }
+        enum DISABLE_ALL {
+          description
+            "Unsolicted router advertisement messages are not transmitted on
+            this interface.  Responses to router solicitation messages will
+            not be transmitted.";
         }
       }
       default "ALL";
@@ -1224,6 +1272,30 @@ revision "2023-06-30" {
     }
   }
 
+  grouping icmp-config {
+    description "ICMPv4 and ICMPv6 configuration options.";
+    leaf unreachable-notifications {
+      type boolean;
+      default true;
+      description
+        "Whether ICMP unreachable notifications are sent on this interface";
+    }
+
+    leaf mask-replies {
+      type boolean;
+      default true;
+      description
+        "Whether ICMP mask replies are sent on this interface";
+    }
+
+    leaf redirects {
+      type boolean;
+      default true;
+      description
+        "Whether ICMP redirects are sent on this interface";
+    }
+  }
+
   grouping ipv4-top {
     description "Top-level configuration and state for IPv4
     interfaces";
@@ -1266,6 +1338,22 @@ revision "2023-06-30" {
             uses ipv4-address-state;
           }
 
+        }
+      }
+
+      container icmpv4 {
+        description
+          "Parameters to configure ICMP for the interface.";
+
+        container config {
+          description "Configuration options for ICMP.";
+          uses icmp-config;
+        }
+
+        container state {
+          description "State for ICMP.";
+          config false;
+          uses icmp-config;
         }
       }
 
@@ -1396,6 +1484,22 @@ revision "2023-06-30" {
             uses ipv6-address-config;
             uses ipv6-address-state;
           }
+        }
+      }
+
+      container icmpv6 {
+        description
+          "Parameters to configure ICMP for the interface.";
+
+        container config {
+          description "Configuration options for ICMP.";
+          uses icmp-config;
+        }
+
+        container state {
+          description "State for ICMP.";
+          config false;
+          uses icmp-config;
         }
       }
 
