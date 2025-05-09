@@ -148,6 +148,17 @@ module openconfig-sampling-sflow {
         to sFlow collectors.";
     }
 
+    leaf datagram-size {
+      type uint16;
+      units bytes;
+      description
+        "Sets the maximum size (in bytes) of the sFlow payload itself,
+        before it's encapsulated in a UDP packet sent to this collector.
+        This value does not include UDP or IP headers.";
+      reference
+        "RFC 3176 - InMon Corporation's sFlow: sFlowRcvrMaximumDatagramSize.";
+    }
+
     leaf network-instance {
       type oc-netinst:network-instance-ref;
       description
@@ -304,8 +315,8 @@ module openconfig-sampling-sflow {
       units bytes;
       default 128;
       description
-        "Sets the maximum number of bytes to be copied from a
-        sampled packet.";
+        "Sets the maximum number of bytes to be copied from a sampled
+        packet (content within one specific sample of a packet).";
       reference
         "RFC 3176 - InMon Corporation's sFlow: A Method for
         Monitoring Traffic in Switched and Routed Networks";
