@@ -92,7 +92,13 @@ module openconfig-routing-policy {
     default value for the default-(import|export)-policy leaf must be
     applied.  See RFC6020 7.6.1 which applies to this model.";
 
-  oc-ext:openconfig-version "3.5.0";
+  oc-ext:openconfig-version "3.6.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "3.6.0";
+  }
 
   revision "2024-11-26" {
     description
@@ -717,6 +723,58 @@ module openconfig-routing-policy {
     }
   }
 
+  grouping static-condition-config {
+    description
+      "Configuration data for static condition";
+
+    leaf enable {
+      type boolean;
+      default false;
+      description
+        "Enable this filter.";
+    }
+
+    leaf invert {
+      type boolean;
+      default false;
+      description
+        "If enabled, selects all non-static routes instead of all static routes.";
+    }
+  }
+
+  grouping static-condition-state {
+    description
+      "Operational state data for static condition";
+  }
+
+  grouping static-condition-top {
+    description
+      "Top-level grouping for filter that matches static routes";
+
+    container match-static {
+      description
+        "Match static neigbors";
+
+      container config {
+        description
+          "Configuration data ";
+
+        uses static-condition-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data ";
+
+        uses static-condition-config;
+        uses static-condition-state;
+      }
+    }
+  }
+
   grouping tag-set-condition-config {
     description
       "Configuration data for tag-set condition statements";
@@ -776,6 +834,7 @@ module openconfig-routing-policy {
     uses prefix-set-condition-top;
     uses neighbor-set-condition-top;
     uses tag-set-condition-top;
+    uses static-condition-top;
 
   }
 
