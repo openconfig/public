@@ -24,7 +24,21 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.8.0";
+  oc-ext:openconfig-version "9.9.1";
+
+  revision "2025-04-18" {
+    description
+      "Clarification to usage of link-bandwidth-ext-community
+      container under BGP use-multiple-paths`.";
+          reference "9.9.1";
+  }
+
+  revision "2025-03-30" {
+    description
+      "Add schema for auto-generated link-bandwidth extended community
+      for learned routes.";
+    reference "9.9.0";
+  }
 
   revision "2024-09-06" {
     description
@@ -642,7 +656,10 @@ submodule openconfig-bgp-common {
           "Multipath parameters for eBGP";
         container link-bandwidth-ext-community {
           description
-            "Usage of DMZ Link-Bandwidth extended community";
+            "Controlls if and how BGP Link-Bandwidth extended community
+             affect the forwarding of traffic when multipath is enabled.
+             It does not affect community value or propagation of the
+             community over BGP sessions.";
           container config {
             description
             "Configuration parameters relating to usage of link-bandwidth";
@@ -673,7 +690,10 @@ submodule openconfig-bgp-common {
           "Multipath parameters for iBGP";
         container link-bandwidth-ext-community {
           description
-            "Usage of DMZ Link-Bandwidth extended community";
+            "Controlls if and how BGP Link-Bandwidth extended community
+             affect the forwarding of traffic when multipath is enabled.
+             It does not affect community value or propagation of the
+             community over BGP sessions.";
           container config {
             description
             "Configuration parameters relating to usage of link-bandwidth";
@@ -703,18 +723,23 @@ submodule openconfig-bgp-common {
 
   grouping bgp-common-use-multiple-paths-link-bandwidth-config {
     description
-      "Parameters controlling usage of  of DMZ Link-Bandwidth
-      extended community in pultipath RIB/FIB formation";
+      "Parameters controlling usage of Link-Bandwidth
+      extended community in formation of  next hops and next hop
+      groups in cross-protocol, network-instance scoped, global RIB";
     leaf enabled {
       type boolean;
       description
-      "When set to TRUE, BGP multiplepath shall distributed traffic
+      "When set to TRUE, BGP multiple path shall distribute traffic
       load among contributing routes proportionally to value of
       Local Administrator subfield of link-bandwidth extended
       community [draft-ietf-idr-link-bandwidth-07].
-      This leaf has no effect if BGP multi-path is disabled or
-      if maximum-path attribute of BGP multi-path value is set
-      to 1";
+      When set to FALSE, BGP multipath shall distribute traffic
+      load among contributing routes regardless of link-bandwidth value
+      attached to routes contributing to multipath in the BGP Local-RIB.
+      Load distribution could be equal or weighted base on other configuration
+      not related to BGP multipath (e.g. ISIS with ECMP).
+      This leaf has no effect if BGP multipath is disabled or if maximum-path
+      attribute of BGP multipath maximum-path value is set to 1.";
     }
   }
 
@@ -852,5 +877,47 @@ submodule openconfig-bgp-common {
     }
   }
 
+
+  grouping auto-gen-link-bandwidth-config {
+    description
+      "Grouping of parameters related to automatic generation of
+      link-bandwidth extended community.";
+
+    leaf enabled {
+      description
+        "Append a link-bandwidth extended community for BGP routes that do not
+        have link-bandwidth extended community attached.
+        This configuration when present, MUST be supported in
+        context of single-hop EBGP neighbor (with and without
+        TTL security enabled). Implementation may support it
+        in other reasonable contexts. Implementation shall not
+        silently ignore this configuration. If present in not
+        supported context, implementation shall reject
+        configuration.";
+      type boolean;
+      default false;
+    }
+
+    leaf hold-down-time {
+      description
+        "Suppress for a number of seconds changes in the link-bandwidth value
+        when bandwidth increases. Every time bandwidth of link increases,
+        it must remain constant for hold-down-time before it is reflected
+        into link-bandwidth extended community of routes learned on this
+        link.";
+      type uint16;
+      units seconds;
+    }
+
+    leaf transitive {
+      description
+        "When leaf is set to TRUE, generate link-bandwidth extended community
+        as a transitive type. When set to FALSE - generate as
+        non-transitive. The non-transitive is default and matches
+        original/earlier versions of IETF draft.";
+      type boolean;
+      default false;
+    }
+  }
 
 }
