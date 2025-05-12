@@ -1244,7 +1244,7 @@ revision "2023-06-30" {
     }
   }
 
-  grouping pf-urpf-config {
+  grouping urpf-config {
     leaf enabled {
       type boolean;
       default false;
@@ -1618,6 +1618,39 @@ revision "2023-06-30" {
         uses ip-common-counters-state;
 
       }
+
+      container urpf {
+        description
+          "URPF container";
+        container config {
+          uses urpf-config;
+        }
+        container state {
+          uses urpf-config;
+          container counters {
+            leaf urpf-drop-pkts {
+              type oc-yang:counter64;
+              description
+                "This counter counts packet discarded as result of Unicast
+                Reverse Path Forwarding verification.";
+              reference
+                "RFC2827: Network Ingress Filtering: Defeating Denial of
+                Service Attacks which employ IP Source Address Spoofing
+                RFC3704: Ingress Filtering for Multihomed Networks";
+            }
+            leaf urpf-drop-bytes {
+              type oc-yang:counter64;
+              description
+                "This counter counts bytes/octets discarded as result of
+                Unicast Reverse Path Forwarding verification.";
+              reference
+                "RFC2827: Network Ingress Filtering: Defeating Denial of
+                Service Attacks which employ IP Source Address Spoofing
+                RFC3704: Ingress Filtering for Multihomed Networks";
+            }
+          }
+        }
+      } 
     }
   }
 
