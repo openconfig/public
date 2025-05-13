@@ -47,7 +47,8 @@ module openconfig-local-routing {
 
   revision "2025-05-09" {
     description
-      "Add wECMP support by wecmp-weight next-hop attribute.";
+      "Add wECMP support to static rote by wecmp-weight next-hop
+      attribute.";
     reference "2.3.0";
   }
 
@@ -139,13 +140,14 @@ module openconfig-local-routing {
 
   identity LOCAL_DEFINED_WEIGHT {
     description
-      "A base identity type of local defined next-hops weight";
+      "A base identity type of localy defined next-hops weight.";
   }
 
   identity AUTO {
     base LOCAL_DEFINED_WEIGHT;
     description
-      "Inherit weight from egress interface bandwidth";
+      "The wecmp-weight leaf inherits value from egress interface
+      bandwidth expressed in bps.";
   }
 
   // typedef statements
@@ -230,12 +232,12 @@ module openconfig-local-routing {
       description
         "The weight of next-hop used for WECMP (a.k.a. UCMP, WCMP). This
         leaf has significance only if multiple next-hops of given prefix
-        form ECMP group, AND all of this next-hops have wecmp-weight leaf
+        form ECMP group, and all of this next-hops have ecmp-weight leaf
         specified. Else, wecmp-weight should be ignored.
-        The value 'AUTO' sets value to be equall to egress interface
-        bandwidt expressed  in bps (not Bps as BGP link-bandwidth
+        The value 'AUTO' sets value to be equal to egress interface
+        bandwidth expressed in bps (not Bps as BGP link-bandwidth
         extended-community does).
-        It is recommended to express explicit value in bps, what alows
+        It is recommended to express explicit value in bps, what allows
         mixing next-hops with explicit value and next-hops with 'AUTO'.
         This leaf is valid only if recurse leaf is set to false, or
         if interface-ref is specified.";
