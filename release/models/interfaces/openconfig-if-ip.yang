@@ -1643,11 +1643,18 @@ revision "2023-06-30" {
         description
           "URPF container";
         container config {
+          description
+            "Container for URPF configuration";
           uses urpf-config;
         }
         container state {
+          description
+            "Container for URPF states";
+          config false;
           uses urpf-config;
           container counters {
+            description
+                "Container of URPF counters";
             leaf urpf-drop-pkts {
               type oc-yang:counter64;
               description
