@@ -1245,6 +1245,8 @@ revision "2023-06-30" {
   }
 
   grouping urpf-config {
+    description
+        "Grouping configuration coniguration of URPF";
     leaf enabled {
       type boolean;
       default false;
@@ -1418,14 +1420,31 @@ revision "2023-06-30" {
       }
 
       container urpf {
+
         description
-          "URPF container";
+          "URPF container.";
+
         container config {
+
+          description
+            "URPF configuration container.";
+
           uses urpf-config;
         }
         container state {
+
+          description
+            "URPF states container.";
+
+          config false;
+
           uses urpf-config;
+
           container counters {
+
+            description
+              "URPF counters container.";
+
             leaf urpf-drop-pkts {
               type oc-yang:counter64;
               description
@@ -1436,6 +1455,7 @@ revision "2023-06-30" {
                 Service Attacks which employ IP Source Address Spoofing
                 RFC3704: Ingress Filtering for Multihomed Networks";
             }
+
             leaf urpf-drop-bytes {
               type oc-yang:counter64;
               description
