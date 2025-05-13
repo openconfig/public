@@ -44,7 +44,13 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.6.0";
+  oc-ext:openconfig-version "3.7.0";
+
+  revision "2025-05-12" {
+    description
+      "Add model for support of URPF source address verification";
+      reference "3.7.0";
+  }
 
   revision "2024-05-28" {
     description
@@ -220,6 +226,20 @@ revision "2023-06-30" {
 
     description
       "The type of an IPv4 address.";
+  }
+
+  typedef urpf-mode {
+    type enumeration {
+      enum LOOSE {
+        description "uRFP operates in loose mode. Packet source address
+        must match some route in FIB, but may be recived on any interface";
+      }
+      enum STRICT {
+        description "uRFP operates in strict mode. Packet source address
+        must match some route in FIB, and must be recived on interfacee
+        corresponding to one of next-hops of matched FIB route.";
+      }
+    }
   }
 
   // grouping statements
@@ -1224,6 +1244,52 @@ revision "2023-06-30" {
     }
   }
 
+  grouping urpf-config {
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "Turns ON/OFF packet's source address verification against content of
+        FIB. This is one of anti-spoofing protection techniques.";
+    }
+    leaf mode {
+      type urpf-mode;
+      default STRICT;
+      description
+        "The URPF in STRICT mode requires packet source address to LPM some route
+        in FIB, AND next-hop of this route must be interface packet was
+        received on.
+        The URPF in LOOSE mode requires packet source address to LPM some route
+        in FIB.
+        This leaf is irrelevalnt and should be ignored if URPF is not enabled.";
+    }
+    leaf allow-default-route {
+      type boolean;
+      default true;
+      description
+      "If set to false, and packets source address LPM the default route -
+      0.0.0.0/0 or ::/0 - URPF fails and packet is discarded, as if it would not
+      LPM any route.";
+    }
+    leaf allow-drop-next-hop {
+      type boolean;
+      default false;
+      description
+        "If set to false, and packets source address LPM the route with DROP
+        next-hop URPF fails and packet is discarded, as if it would not
+        LPM any route.";
+    }
+    leaf allow-feasible-path {
+      type boolean;
+      default false;
+      description
+        "The routing system may select subset of equally-good path as result of
+        tie-break (e.g. BGP RID) or ECMP width limits. If set to true, packet
+        are accepted if source address LPM to any equally-good path, even if it
+        is not selected for forwading.";
+    }
+  }
+
   grouping ipv4-top {
     description "Top-level configuration and state for IPv4
     interfaces";
@@ -1349,6 +1415,39 @@ revision "2023-06-30" {
 
         uses ipv4-global-config;
         uses ip-common-counters-state;
+      }
+
+      container urpf {
+        description
+          "URPF container";
+        container config {
+          uses urpf-config;
+        }
+        container state {
+          uses urpf-config;
+          container counters {
+            leaf urpf-drop-pkts {
+              type oc-yang:counter64;
+              description
+                "This counter counts packet discarded as result of Unicast
+                Reverse Path Forwarding verification.";
+              reference
+                "RFC2827: Network Ingress Filtering: Defeating Denial of
+                Service Attacks which employ IP Source Address Spoofing
+                RFC3704: Ingress Filtering for Multihomed Networks";
+            }
+            leaf urpf-drop-bytes {
+              type oc-yang:counter64;
+              description
+                "This counter counts bytes/octets discarded as result of
+                Unicast Reverse Path Forwarding verification.";
+              reference
+                "RFC2827: Network Ingress Filtering: Defeating Denial of
+                Service Attacks which employ IP Source Address Spoofing
+                RFC3704: Ingress Filtering for Multihomed Networks";
+            }
+          }
+        }
       }
     }
   }
@@ -1518,6 +1617,39 @@ revision "2023-06-30" {
         uses ipv6-global-config;
         uses ip-common-counters-state;
 
+      }
+
+      container urpf {
+        description
+          "URPF container";
+        container config {
+          uses urpf-config;
+        }
+        container state {
+          uses urpf-config;
+          container counters {
+            leaf urpf-drop-pkts {
+              type oc-yang:counter64;
+              description
+                "This counter counts packet discarded as result of Unicast
+                Reverse Path Forwarding verification.";
+              reference
+                "RFC2827: Network Ingress Filtering: Defeating Denial of
+                Service Attacks which employ IP Source Address Spoofing
+                RFC3704: Ingress Filtering for Multihomed Networks";
+            }
+            leaf urpf-drop-bytes {
+              type oc-yang:counter64;
+              description
+                "This counter counts bytes/octets discarded as result of
+                Unicast Reverse Path Forwarding verification.";
+              reference
+                "RFC2827: Network Ingress Filtering: Defeating Denial of
+                Service Attacks which employ IP Source Address Spoofing
+                RFC3704: Ingress Filtering for Multihomed Networks";
+            }
+          }
+        }
       }
     }
   }
