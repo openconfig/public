@@ -229,6 +229,8 @@ revision "2023-06-30" {
   }
 
   typedef urpf-mode {
+    description
+      "The uRPF modes";
     type enumeration {
       enum LOOSE {
         description "uRFP operates in loose mode. Packet source address
@@ -1256,7 +1258,6 @@ revision "2023-06-30" {
     }
     leaf mode {
       type urpf-mode;
-      default STRICT;
       description
         "The URPF in STRICT mode requires packet source address to LPM some route
         in FIB, AND next-hop of this route must be interface packet was
@@ -1267,7 +1268,6 @@ revision "2023-06-30" {
     }
     leaf allow-default-route {
       type boolean;
-      default true;
       description
       "If set to false, and packets source address LPM the default route -
       0.0.0.0/0 or ::/0 - URPF fails and packet is discarded, as if it would not
@@ -1275,7 +1275,6 @@ revision "2023-06-30" {
     }
     leaf allow-drop-next-hop {
       type boolean;
-      default false;
       description
         "If set to false, and packets source address LPM the route with DROP
         next-hop URPF fails and packet is discarded, as if it would not
