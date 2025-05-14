@@ -30,13 +30,10 @@ module openconfig-sampling-sflow {
     RFC 3176 - InMon Corporation's sFlow: A Method for
     Monitoring Traffic in Switched and Routed Networks";
 
-  revision "2022-06-21" {
+  revision "2025-05-13" {
     description
-      "Add agent-id/source-address for IPv4/IPv6; add polling-interval;
-      add global dscp marking for generated packets; moved sampling-rate
-      to ingress/egress; moved top-level sampling container to separate
-      module;";
-    reference "1.0.0";
+      "Add max-datagram-size per RFC 3176 - sFlowRcvrMaximumDatagramSize";
+    reference "1.1.0";
   }
 
   revision "2020-06-26" {
@@ -148,7 +145,7 @@ module openconfig-sampling-sflow {
         to sFlow collectors.";
     }
 
-    leaf datagram-size {
+    leaf max-datagram-size {
       type uint16;
       units bytes;
       description
