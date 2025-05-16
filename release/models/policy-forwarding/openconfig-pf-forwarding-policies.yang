@@ -237,9 +237,10 @@ submodule openconfig-pf-forwarding-policies {
       type boolean;
       description
         "When set true, the policy is applied to all interfaces in the network-instance.
-        Only one global policy can be configured per network-instance. A global policy is
-        processed first, before an interface attached policy (an interface may have two
-        policies, a global one and an interface attached one.)";
+        Only one GLOBAL  policy type can be configured per network-instance. If an
+        interface has two policies, a global one and PBR (interface attached) policy,
+        the GLOBAL policy is processed first, before a PBR_POLICY policy.  If the
+        GLOBAL policy has a match, then the PBR policy is ignored.";
     }
   }
 
