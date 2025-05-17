@@ -748,6 +748,23 @@ submodule openconfig-aft-common {
          packet.";
     }
 
+    leaf tz {
+      type oc-inet:dscp;
+      description
+        "The TZ bits correspond to the two least significant bits (LSBs) of the
+        Differentiated Services Code Point (DSCP) field within an IP header
+        These bits are also identified as "bit #2" (the Z bit) and "bit #3" (the T bit)
+        of the Type of Service (ToS) header.
+        
+        While the full 6-bit DSCP value can be set in the IP header, the capability to
+        selectively modify only these LSB 2 bits (the TZ bits) enables more advanced
+        applications. For instance, Virtual Routing and Forwarding (VRF) selection
+        decisions can be made based on an incoming packet's TZ bit values
+        This selective modification ensures that the four most significant bits (MSBs)
+        of the DSCP field remain dedicated to representing the desired forwarding
+        Quality of Service (QoS) class.";
+    }
+
     leaf src-udp-port {
       type oc-inet:port-number;
       description
