@@ -757,18 +757,40 @@ submodule openconfig-aft-common {
     leaf tz {
       type oc-inet:dscp;
       description
-        "The TZ bits correspond to the two least significant bits (LSBs) of the
-        Differentiated Services Code Point (DSCP) field within an IP header
-        These bits are also identified as "bit #2" (the Z bit) and "bit #3" (the T bit)
-        of the Type of Service (ToS) header.
+        "The TZ bits refer to the two least significant bits (LSBs) of the 6-bit
+        Differentiated Services Code Point (DSCP) field found in an IP header.
+        These are also known as "bit #2" (the Z bit) and "bit #3" (the T bit) within the
+        8-bit Type of Service (ToS) header.
         
-        While the full 6-bit DSCP value can be set in the IP header, the capability to
-        selectively modify only these LSB 2 bits (the TZ bits) enables more advanced
-        applications. For instance, Virtual Routing and Forwarding (VRF) selection
-        decisions can be made based on an incoming packet's TZ bit values
-        This selective modification ensures that the four most significant bits (MSBs)
-        of the DSCP field remain dedicated to representing the desired forwarding
-        Quality of Service (QoS) class.";
+        While an IP header can set the entire 6-bit DSCP value, the ability to change
+        only these two LSBs (the TZ bits) allows for more sophisticated applications.
+        For example, at the point of encapsulation, a system can set different TZ bits
+        depending on the tunnel's destination address.
+        
+        This selective TZ bit modification can then be utilized by transit routers along
+        the path. These routers can use the TZ bit value of an incoming packet to make
+        decisions such as:
+          * Selecting a specific Virtual Routing and Forwarding (VRF)
+          instance.
+          * Choosing between different Wide Area Network (WAN) connections.
+        
+        When TZ bits are configured for an encapsulation action, the expected behavior
+        for an implementation is to:
+          1. Copy the four most significant bits (MSBs) of
+          the DSCP field from the inner (original) IP header to the outer (tunnel) IP
+          header.
+          2. Modify only the two LSBs of the DSCP field in the outer header based
+          on the configured TZ bits.
+        
+        The possible TZ bit combinations and their corresponding equivalent DSCP values
+        are as follows:
+        
+        TZ bit combo | Equivalent DSCP values
+        ------------ | ----------------------
+        00           | 0
+        01           | 1
+        10           | 2
+        11           | 3";
     }
 
     leaf src-udp-port {
