@@ -35,7 +35,13 @@ submodule openconfig-qos-elements {
       packets for transmission, including policer and shaper
       functions";
 
-  oc-ext:openconfig-version "0.11.2";
+  oc-ext:openconfig-version "0.11.3";
+
+  revision "2025-05-22" {
+    description
+      "Add two new enums for scheduler-policy priority.";
+    reference "0.11.3";
+  }
 
   revision "2023-10-13" {
     description
@@ -1230,6 +1236,18 @@ submodule openconfig-qos-elements {
             "This scheduler term is considered as a strict priority
             term - such that packets that arrive in the queue are
             immediately serviced.";
+        }
+        enum DWRR {
+          description
+            "This scheduler term is considered as a deficit weighted
+            round robin term - such that packets that arrive in the queue are
+            serviced based on deficit counter with weighted round robin fashion.";
+        }
+        enum WRR {
+          description
+            "This scheduler term is considered as a deficit weighted
+            round robin term - such that packets that arrive in the queue are
+            serviced based on weighted round robin fashion.";
         }
       }
       description
