@@ -21,7 +21,13 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2025-05-27" {
+    description
+      "Add action to set IP TTL.";
+    reference "0.8.0";
+  }
 
   revision "2024-11-14" {
     description
@@ -404,6 +410,16 @@ submodule openconfig-pf-forwarding-policies {
         the rule. Following the decapsulation it should subsequently forward the
         encapsulated packet according to the underlying IPv4 or IPv6 header.";
     }
+
+    leaf ip-ttl {
+      type uint8;
+      description
+        "If set, this leaf causes the local system to re-write the IP TTL of
+         matching packets to the specified value. When this leaf is not set,
+         the TTL value of the matching packet is not affected by this policy
+         and should be processed according to normal forwarding rules.";
+    }
+
   }
 
   grouping pf-forwarding-policy-action-encapsulate-gre {
