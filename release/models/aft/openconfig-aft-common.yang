@@ -276,7 +276,7 @@ submodule openconfig-aft-common {
             description
               "State parameters relating to GRE encapsulation.";
 
-            uses aft-common-entry-nexthop-encap-gre-state;
+            uses aft-common-entry-nexthop-gre-state;
           }
         }
 
@@ -329,7 +329,7 @@ submodule openconfig-aft-common {
                 description
                   "State parameters relating to GRE encapsulation headers.";
 
-                uses aft-common-entry-nexthop-encap-gre-state;
+                uses aft-common-entry-nexthop-encap-gre-config;
               }
             }
 
@@ -372,7 +372,7 @@ submodule openconfig-aft-common {
                 description
                   "State parameters relating to MPLS encapsulation headers.";
 
-                uses aft-common-entry-nexthop-encap-mpls-state;
+                uses aft-common-entry-nexthop-mpls-state;
               }
             }
 
@@ -633,7 +633,7 @@ submodule openconfig-aft-common {
     }
   }
 
-  grouping aft-common-entry-nexthop-encap-gre-state {
+  grouping aft-common-entry-nexthop-gre-state {
     description
       "GRE encapsulation applied on next-hop.";
 
@@ -661,7 +661,26 @@ submodule openconfig-aft-common {
     }
   }
 
-  grouping aft-common-entry-nexthop-encap-mpls-state {
+  grouping aft-common-entry-nexthop-encap-gre-config {
+    description
+      "Configuration of GRE encapsulation applied on next-hop.";
+
+    leaf src-ip {
+      type oc-inet:ip-address;
+      description
+        "The source IP address for the GRE encapsulation may be expressed
+        using this leaf (src-ip) or if may be derived from
+        '../../interface-ref/state/subinterface'";
+    }
+
+    leaf dst-ip {
+      type oc-inet:ip-address;
+      description
+        "Destination IP address to use for the encapsulated packet.";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-mpls-state {
     description
       "MPLS encapsulation of a packet.";
 
@@ -687,6 +706,24 @@ submodule openconfig-aft-common {
 
         Note: a swap operation is reflected by entries in the
         popped-mpls-label-stack and the pushed-mpls-label-stack";
+    }
+  }
+
+  grouping aft-common-entry-nexthop-encap-mpls-config {
+    description
+      "Configuration of MPLS encapsulation of a packet.";
+
+    leaf traffic-class {
+      type oc-mplst:mpls-tc;
+      description
+        "The value of the MPLS traffic class (TC) bits, formerly known as the
+         EXP bits.";
+    }
+
+    leaf mpls-label {
+      type oc-mplst:mpls-label;
+      description
+        "An MPLS label value.";
     }
   }
 
