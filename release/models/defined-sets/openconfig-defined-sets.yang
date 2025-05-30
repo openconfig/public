@@ -27,6 +27,12 @@ module openconfig-defined-sets {
 
   oc-ext:openconfig-version "1.0.0";
 
+  revision "2025-05-30" {
+    description
+      "Add support for exclude-prefix";
+    reference "1.0.1";
+  }
+
   revision "2022-12-14" {
     description
       "Initial version of the defined set model";
@@ -57,6 +63,13 @@ module openconfig-defined-sets {
          "A user defined list of IPv4 prefixes to be used in match
          conditions. Each entry is a IPv4 + mask combination.";
     }
+
+    leaf-list exclude-prefix {
+       type oc-inet:ipv4-prefix;
+       description
+         "A user defined list of IPv4 prefixes to be excluded from
+         match conditions. Each entry is a IPv4 + mask combination.";
+    }
   }
 
   grouping ipv6-prefix-sets-config {
@@ -79,6 +92,13 @@ module openconfig-defined-sets {
        description
          "A user defined list of IPv6 prefixes to be used in match
          conditions. Each entry is a IPv6 + mask combination.";
+    }
+
+    leaf-list exclude-prefix {
+       type oc-inet:ipv6-prefix;
+       description
+         "A user defined list of IPv6 prefixes to be excluded from
+         match conditions. Each entry is a IPv6 + mask combination.";
     }
   }
 
@@ -103,6 +123,13 @@ module openconfig-defined-sets {
         description
           "A user defined set of ports to be
           used in the match conditions.";
+      }
+
+      leaf-list exclude-port {
+        type oc-pkt-match-types:port-num-range;
+        description
+          "A user defined set of ports to be excluded
+          from the match conditions.";
       }
   }
 
