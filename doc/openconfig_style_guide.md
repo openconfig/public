@@ -264,9 +264,14 @@ including how modules should be structured and parsed.
 
 ### `default`
 
-The use of default should be avoided.  Instead a leaf should be explicitly
-set. Defaults may be defined when they are explicitly required by the feature
-specification.
+The use of default should be avoided. Defaults are often a source of conflict
+between implementations where there is no clear and correct requirement. In
+these cases, it is more vendor neutral to simply require the caller to
+specify the value they want to use.
+
+Defaults may be defined when they are explicitly required by the feature
+specification (such as an IETF RFC or IEEE standard).  In these cases the OC
+model should define the defaults in line with the feature specification.
 
 ### `list`
 
