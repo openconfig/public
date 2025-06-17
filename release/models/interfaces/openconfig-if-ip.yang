@@ -1284,10 +1284,12 @@ revision "2023-06-30" {
       type boolean;
       default false;
       description
-        "The routing system may select subset of equally-good path as result of
-        tie-break (e.g. BGP RID) or ECMP width limits. If set to true, packet
-        are accepted if source address LPM to any equally-good path, even if it
-        is not selected for forwading.";
+        "The routing system may select subset of all learned paths.  For example,
+        BGP without multi-path enabled will install only one of many possible ECMP
+        paths into the FIB or ECMP multipath limits may select only a subset of all
+        available paths. If set to true, the URPF check passes if the source address
+        LPMs to any path in the RIB, even if it is not selected for forwarding in the
+        FIB.";
     }
   }
   grouping urpf-counters {
