@@ -1259,12 +1259,12 @@ revision "2023-06-30" {
     leaf mode {
       type urpf-mode;
       description
-        "The URPF in STRICT mode requires packet source address to LPM some route
-        in FIB, AND next-hop of this route must be interface packet was
-        received on.
-        The URPF in LOOSE mode requires packet source address to LPM some route
-        in FIB.
-        This leaf is irrelevalnt and should be ignored if URPF is not enabled.";
+        "The URPF in STRICT mode requires the ingress packet source address 
+        to have a longest prefix match (LPM) for a route in the forwarding table
+        with a next-hop of the interface the packet was received on.
+        The URPF in LOOSE mode requires the ingress packet source address to
+        LPM a route in the forwarding table, but may have any next-hop.
+        This leaf is only valid if URPF is enabled.";
     }
     leaf allow-default-route {
       type boolean;
