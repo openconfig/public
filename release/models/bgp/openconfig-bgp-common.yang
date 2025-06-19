@@ -24,7 +24,13 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.9.2";
+
+  revision "2025-05-19" {
+    description
+      "Support for Extended-route-retention (ERR)";
+          reference "9.9.2";
+  }
 
   revision "2025-04-18" {
     description
@@ -598,7 +604,59 @@ submodule openconfig-bgp-common {
     }
   }
 
-  grouping bgp-common-use-multiple-paths-config {
+grouping bgp-extended-route-retention-config {
+    description "Configuration parameters relating to BGP
+    Extended Route Retention (ERR).
+    Extended Route Retention is a mechanism to retain routing
+    functionality in the event of a long-lived BGP control-plane
+    failure of a neighbor. It allows a BGP speaker to hold stale
+    routes from a failed peer for a long, configurable duration, far
+    beyond the standard Graceful Restart timers.
+
+    This feature is triggered when a BGP session fails and does not
+    recover within the configured Graceful Restart periods, such as upon
+    the expiration of the BGP hold-timer or the graceful-restart timer.
+
+    When ERR is active, the stale routes are processed through a special,
+    configurable routing policy. This provides granular, operator-defined
+    control over how the stale routes are treated (e.g., modifying
+    attributes, selectively accepting or rejecting them), which is a
+    key difference from the more prescriptive IETF Long-Lived Graceful
+    Restart (LLGR) draft.";
+
+    leaf enabled {
+    type boolean;
+    default false;
+    description
+        "Enable or disable Extended Route Retention. When enabled, upon
+        certain BGP session failure conditions, stale routes from a neighbor
+        are held for a configurable duration.";
+    }
+
+    leaf retention-time {
+    type uint32;
+    units "seconds";
+    description
+        "Time duration in seconds for which the device will retain stale
+        routes under Extended Route Retention conditions. A NOS Must
+        support at least 180 days of retention-time";
+    }
+
+    leaf retention-policy {
+    type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+            "oc-rpol:policy-definition/oc-rpol:name";
+    }
+    description
+        "References a routing policy definition that is applied to stale
+        routes. This policy can modify attributes or selectively
+        accept/reject routes. Per the requirements, this policy is additive
+        and does not override other import policies. If no policy is
+        specified, the default action should be to reject the stale routes.";
+    }
+}
+
+grouping bgp-common-use-multiple-paths-config {
     description
       "Generic configuration options relating to use of multiple
       paths for a referenced AFI-SAFI, group or neighbor";
