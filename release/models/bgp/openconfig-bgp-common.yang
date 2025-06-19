@@ -625,34 +625,34 @@ submodule openconfig-bgp-common {
     Restart (LLGR) draft.";
 
     leaf enabled {
-    type boolean;
-    default false;
-    description
-        "Enable or disable Extended Route Retention. When enabled, upon
-        certain BGP session failure conditions, stale routes from a neighbor
-        are held for a configurable duration.";
+      type boolean;
+      default false;
+      description
+          "Enable or disable Extended Route Retention. When enabled, upon
+          certain BGP session failure conditions, stale routes from a neighbor
+          are held for a configurable duration.";
     }
 
     leaf retention-time {
-    type uint32;
-    units "seconds";
-    description
-        "Time duration in seconds for which the device will retain stale
-        routes under Extended Route Retention conditions. A NOS Must
-        support at least 180 days of retention-time";
+      type uint32;
+      units "seconds";
+      description
+          "Time duration in seconds for which the device will retain stale
+          routes under Extended Route Retention conditions. A NOS Must
+          support at least 180 days of retention-time";
     }
 
     leaf retention-policy {
-    type leafref {
-        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
-            "oc-rpol:policy-definition/oc-rpol:name";
-    }
-    description
-        "References a routing policy definition that is applied to stale
-        routes. This policy can modify attributes or selectively
-        accept/reject routes. Per the requirements, this policy is additive
-        and does not override other import policies. If no policy is
-        specified, the default action should be to reject the stale routes.";
+      type leafref {
+          path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+              "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+          "References a routing policy definition that is applied to stale
+          routes. This policy can modify attributes or selectively
+          accept/reject routes. Per the requirements, this policy is additive
+          and does not override other import policies. If no policy is
+          specified, the default action should be to reject the stale routes.";
     }
 }
 
