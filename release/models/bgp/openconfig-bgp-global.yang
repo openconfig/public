@@ -27,7 +27,14 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.9.2";
+
+  revision "2025-05-19" {
+    description
+      "Defined a new container bgp-extended-route-retention-config
+       under the cointainer for graceful-restart";
+          reference "9.9.2";
+  }
 
   revision "2025-04-18" {
     description
@@ -439,6 +446,26 @@ submodule openconfig-bgp-global {
           description
             "State information for BGP graceful-restart";
           uses bgp-common-mp-afi-safi-graceful-restart-config;
+        }
+      }
+
+      container extended-route-retention {
+        description
+          "Configuration for the extended retention of stale routes upon
+           BGP session failure, beyond the standard graceful restart
+           period.";
+  
+        container config {
+          description
+            "Configuration options for BGP Extended Route Retention.";
+          uses bgp-extended-route-retention-config;
+        }
+  
+        container state {
+          config false;
+          description
+            "State information for BGP Extended Route Retention.";
+          uses bgp-extended-route-retention-config;
         }
       }
 
