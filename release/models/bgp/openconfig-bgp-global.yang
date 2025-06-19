@@ -447,26 +447,23 @@ submodule openconfig-bgp-global {
             "State information for BGP graceful-restart";
           uses bgp-common-mp-afi-safi-graceful-restart-config;
         }
-      }
-
-      container extended-route-retention {
-        description
-          "Configuration for the extended retention of stale routes upon
-           BGP session failure, beyond the standard graceful restart
-           period.";
-  
-        container config {
-          description
-            "Configuration options for BGP Extended Route Retention.";
-          uses bgp-extended-route-retention-config;
-        }
-  
-        container state {
-          config false;
-          description
-            "State information for BGP Extended Route Retention.";
-          uses bgp-extended-route-retention-config;
-        }
+        container extended-route-retention {
+            description
+            "Per-AFI-SAFI configuration for the extended retention of stale routes.
+            This configuration overrides any settings at the parent global level.";
+            container config {
+              description
+                  "Configuration options for BGP Extended Route Retention.";
+              uses bgp-extended-route-retention-config;
+            }
+        
+            container state {
+              config false;
+              description
+              "State information for BGP Extended Route Retention.";
+              uses bgp-extended-route-retention-config;
+            }
+          }
       }
 
       uses bgp-common-route-selection-options;
@@ -546,6 +543,26 @@ submodule openconfig-bgp-global {
         description
           "State information associated with graceful-restart";
         uses bgp-common-graceful-restart-config;
+      }
+
+      container extended-route-retention {
+        description
+          "Configuration for the extended retention of stale routes upon
+           BGP session failure, beyond the standard graceful restart
+           period.";
+  
+        container config {
+          description
+            "Configuration options for BGP Extended Route Retention.";
+          uses bgp-extended-route-retention-config;
+        }
+  
+        container state {
+          config false;
+          description
+            "State information for BGP Extended Route Retention.";
+          uses bgp-extended-route-retention-config;
+        }
       }
     }
 
