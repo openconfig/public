@@ -1303,16 +1303,17 @@ revision "2023-06-30" {
     }
     leaf lookup-instance {
       when "..config/urpf-mode= LOOSE" {
+        description
+          "The use of lookup-instance configuration is only varied when specified with Loose uRPF mode.";
+      }
       type oc-ni:network-instance-ref;
       description
-        "When this leaf is populted, the uRPF Source lookup VRF/instance can be configured 
-        different from the forwarding VRF/instance and this source instance is explicitly 
-        populated (via BGP or some routing protocol) with legitimate prefixes for 
-        source addressed traffic. The source instance is used for uRPF resolution of 
-        traffic traversing the NOS. Traffic that results in a failed uRPF lookup in the 
-        source lookup instance is dropped.
-        This configuration is only varied when specified with Loose uRPF mode.";
-      }
+        "When this leaf is populted, the uRPF Source lookup VRF/instance can be configured
+        different from the forwarding VRF/instance and this source instance is explicitly
+        populated (via BGP or some routing protocol) with legitimate prefixes for
+        source addressed traffic. The source instance is used for uRPF resolution of
+        traffic traversing the NOS. Traffic that results in a failed uRPF lookup in the
+        source lookup instance is dropped.";
     }
   }
   grouping urpf-counters {
