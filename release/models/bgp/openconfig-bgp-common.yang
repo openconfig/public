@@ -605,55 +605,85 @@ submodule openconfig-bgp-common {
   }
 
   grouping bgp-extended-route-retention-config {
-    description "Configuration parameters relating to BGP
-    Extended Route Retention (ERR).
-    Extended Route Retention is a mechanism to retain routing
-    functionality in the event of a long-lived BGP control-plane
-    failure of a neighbor. It allows a BGP speaker to hold stale
-    routes from a failed peer for a long, configurable duration, far
-    beyond the standard Graceful Restart timers.
-
-    This feature is triggered when a BGP session fails and does not
-    recover within the configured Graceful Restart periods, such as upon
-    the expiration of the BGP hold-timer or the graceful-restart timer.
-
-    When ERR is active, the stale routes are processed through a special,
-    configurable routing policy. This provides granular, operator-defined
-    control over how the stale routes are treated (e.g., modifying
-    attributes, selectively accepting or rejecting them), which is a
-    key difference from the more prescriptive IETF Long-Lived Graceful
-    Restart (LLGR) draft.";
-
+    description
+      "Configuration parameters relating to BGP Extended Route Retention (ERR).
+  
+      Extended Route Retention is a mechanism to retain routing information
+      in the Local-RIB and maintain forwarding functionality in the event of
+      a prolonged BGP control-plane failure of a neighbor. It allows a BGP
+      speaker to hold stale routes from a failed peer for a configurable
+      duration.
+  
+      This feature is distinct from IETF Long-Lived Graceful Restart (LLGR,
+      RFC 9494). The fundamental differences are:
+      - ERR processes stale routes through an operator-defined, configurable
+        routing policy, providing granular control over attributes and
+        acceptance.
+      - ERR is a purely local behavior of the receiving speaker (helper) and
+        does not require negotiation via BGP capabilities. This allows ERR to
+        be enabled unilaterally.";
+  
     leaf enabled {
       type boolean;
       default false;
       description
-          "Enable or disable Extended Route Retention. When enabled, upon
-          certain BGP session failure conditions, stale routes from a neighbor
-          are held for a configurable duration.";
+        "Enable or disable Extended Route Retention. When enabled, upon
+        certain BGP session failure conditions, stale routes from a neighbor
+        are held for a configurable duration.";
     }
-
+  
     leaf retention-time {
       type uint32;
       units "seconds";
       description
-          "Time duration in seconds for which the device will retain stale
-          routes under Extended Route Retention conditions. A NOS Must
-          support at least 180 days of retention-time";
+        "Time duration in seconds for which the device will retain stale
+        routes under Extended Route Retention conditions. A NOS Must
+        support at least 180 days of retention-time";
     }
-
-    leaf retention-policy {
+  
+    leaflist retention-policy {
       type leafref {
-          path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
-              "oc-rpol:policy-definition/oc-rpol:name";
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+             "oc-rpol:policy-definition/oc-rpol:name";
       }
+      ordered-by user;
       description
-          "References a routing policy definition that is applied to stale
-          routes. This policy can modify attributes or selectively
-          accept/reject routes. Per the requirements, this policy is additive
-          and does not override other import policies. If no policy is
-          specified, the default action should be to reject the stale routes.";
+        "A list of routing policy definitions that are applied to stale
+        routes, evaluated in the specified order. This policy chain can
+        modify attributes or selectively accept/reject routes.";
     }
+  
+    leaf default-retention-policy {
+      type oc-pol-types:default-policy-type;
+      default "REJECT_ROUTE";
+      description
+        "Explicitly defines the action to take for stale routes that do not
+        match any of the policies in the retention-policy chain. If no
+        policy is specified in the retention-policy leaflist, this
+        default action is applied.";
+    }
+  }
+
+grouping bgp-extended-route-retention-state {
+  description
+    "Operational state parameters relating to BGP Extended Route
+    Retention (ERR).";
+
+  leaf extended-retention-active {
+    type boolean;
+    description
+      "Indicates whether Extended Route Retention is currently
+      active for the BGP session.";
+  }
+
+  leaf remaining-retention-time {
+    type uint32;
+    units "seconds";
+    description
+      "The time remaining, in seconds, before the stale routes are
+      purged. This value is present only when extended-retention-active
+      is true.";
+  }
 }
 
 grouping bgp-common-use-multiple-paths-config {
