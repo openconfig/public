@@ -469,6 +469,20 @@ revision "2023-06-30" {
           "RFC 4293 - Management Information Base for the
           Internet Protocol (IP)";
       }
+
+      leaf urpf-drop-pkts {
+        type oc-yang:counter64;
+        description
+          "This counter counts packet discarded as result of Unicast
+          Reverse Path Forwarding verification.";
+      }
+
+      leaf urpf-drop-bytes {
+        type oc-yang:counter64;
+        description
+          "This counter counts bytes/octets discarded as result of
+          Unicast Reverse Path Forwarding verification.";
+      }
     }
 
   }
@@ -1294,26 +1308,6 @@ revision "2023-06-30" {
         FIB.";
     }
   }
-  grouping urpf-counters {
-    description
-      "Grouping for URPF counters";
-    container counters {
-      description
-        "Container of URPF counters";
-      leaf urpf-drop-pkts {
-        type oc-yang:counter64;
-        description
-          "This counter counts packet discarded as result of Unicast
-          Reverse Path Forwarding verification.";
-      }
-      leaf urpf-drop-bytes {
-        type oc-yang:counter64;
-        description
-          "This counter counts bytes/octets discarded as result of
-          Unicast Reverse Path Forwarding verification.";
-      }
-    }
-  }
 
   grouping ipv4-top {
     description "Top-level configuration and state for IPv4
@@ -1462,7 +1456,6 @@ revision "2023-06-30" {
           config false;
 
           uses urpf-config;
-          uses urpf-counters;
 
         }
       }
@@ -1649,7 +1642,6 @@ revision "2023-06-30" {
             "Container for URPF states";
           config false;
           uses urpf-config;
-          uses urpf-counters;
 
         }
       }
