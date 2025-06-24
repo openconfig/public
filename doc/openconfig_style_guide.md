@@ -1,7 +1,7 @@
 
 # YANG authoring guidelines for OpenConfig models
 
-**Contributors:** Anees Shaikh, Rob Shakir, Kristian Larsson, Darren Lohr<br>
+**Contributors:** Anees Shaikh, Rob Shakir, Kristian Larsson, Darren Loher
 **October 26, 2015**<br>
 *Updated: June 12, 2025*
 
