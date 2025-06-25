@@ -52,6 +52,7 @@ module openconfig-if-ip {
       "Add model for support of URPF source address validation through network-instance different then one used for destination lookup";
       reference "3.8.0";
   }
+  oc-ext:openconfig-version "3.7.0";
 
   revision "2025-05-12" {
     description
@@ -475,6 +476,20 @@ revision "2023-06-30" {
         reference
           "RFC 4293 - Management Information Base for the
           Internet Protocol (IP)";
+      }
+
+      leaf urpf-drop-pkts {
+        type oc-yang:counter64;
+        description
+          "This counter counts packet discarded as result of Unicast
+          Reverse Path Forwarding verification.";
+      }
+
+      leaf urpf-drop-bytes {
+        type oc-yang:counter64;
+        description
+          "This counter counts bytes/octets discarded as result of
+          Unicast Reverse Path Forwarding verification.";
       }
     }
 
@@ -1274,8 +1289,7 @@ revision "2023-06-30" {
         to have a longest prefix match (LPM) for a route in the forwarding table
         with a next-hop of the interface the packet was received on.
         The URPF in LOOSE mode requires the ingress packet source address to
-        LPM a route in the forwarding table, but may have any next-hop.
-        This leaf is only valid if URPF is enabled.";
+        LPM a route in the forwarding table, but may have any next-hop.";
     }
     leaf allow-default-route {
       type boolean;
@@ -1314,26 +1328,6 @@ revision "2023-06-30" {
         If there is no match, packet is discarded. If match is on default route, behaviour 
         configured by 'allow-default-route' leaf applys. If matching route has 'DROP'
         next hop, behaviour configured by 'allow-drop-next-hop' applys."
-    }
-  }
-  grouping urpf-counters {
-    description
-      "Grouping for URPF counters";
-    container counters {
-      description
-        "Container of URPF counters";
-      leaf urpf-drop-pkts {
-        type oc-yang:counter64;
-        description
-          "This counter counts packet discarded as result of Unicast
-          Reverse Path Forwarding verification.";
-      }
-      leaf urpf-drop-bytes {
-        type oc-yang:counter64;
-        description
-          "This counter counts bytes/octets discarded as result of
-          Unicast Reverse Path Forwarding verification.";
-      }
     }
   }
 
@@ -1484,8 +1478,6 @@ revision "2023-06-30" {
           config false;
 
           uses urpf-config;
-          uses urpf-counters;
-
         }
       }
     }
@@ -1671,8 +1663,6 @@ revision "2023-06-30" {
             "Container for URPF states";
           config false;
           uses urpf-config;
-          uses urpf-counters;
-
         }
       }
     }
