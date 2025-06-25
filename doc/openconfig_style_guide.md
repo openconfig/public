@@ -1,10 +1,9 @@
 
 # YANG authoring guidelines for OpenConfig models
 
-**Contributors:** Anees Shaikh, Rob Shakir, Kristian Larsson<br>
+**Contributors:** Anees Shaikh, Rob Shakir, Kristian Larsson, Darren Loher
 **October 26, 2015**<br>
-*Updated: June 2, 2019*
-
+*Updated: June 12, 2025*
 
 ## Background
 This document describes conventions adopted in the OpenConfig operator group
@@ -20,36 +19,39 @@ and released soon.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [General guidelines](#general-guidelines)
-  - [IETF guidelines](#ietf-guidelines)
-  - [Module compilation](#module-compilation)
-  - [Line length](#line-length)
-  - [Module template](#module-template)
-  - [Modeling operational state](#modeling-operational-state)
-  - [Top-level data nodes vs. groupings](#top-level-data-nodes-vs-groupings)
-  - [Module version](#module-version)
-- [YANG style conventions](#yang-style-conventions)
-  - [Naming](#naming)
-    - [Module naming](#module-naming)
-    - [Submodule naming](#submodule-naming)
-    - [Grouping naming](#grouping-naming)
-    - [Prefix naming](#prefix-naming)
-  - [Path references](#path-references)
-    - [Intra-model paths](#intra-model-paths)
-    - [Inter-model paths](#inter-model-paths)
-  - [Capitalization](#capitalization)
-    - [Enumerations](#enumerations)
-    - [Identities](#identities)
-- [YANG language usage](#yang-language-usage)
-  - [`list`](#list)
-  - [`presence`](#presence)
-  - [`feature` and `if-feature`](#feature-and-if-feature)
-  - [`choice`](#choice)
-  - [XPath](#xpath)
-  - [Regular expressions](#regular-expressions)
-- [Appendix](#appendix)
-  - [Example groupings for containers](#example-groupings-for-containers)
-  - [OpenConfig YANG module template](#openconfig-yang-module-template)
+- [YANG authoring guidelines for OpenConfig models](#yang-authoring-guidelines-for-openconfig-models)
+  - [Background](#background)
+  - [General guidelines](#general-guidelines)
+    - [IETF guidelines](#ietf-guidelines)
+    - [Module compilation](#module-compilation)
+    - [Line length](#line-length)
+    - [Module template](#module-template)
+    - [Modeling operational state](#modeling-operational-state)
+    - [Top-level data nodes vs. groupings](#top-level-data-nodes-vs-groupings)
+    - [Module version](#module-version)
+  - [YANG style conventions](#yang-style-conventions)
+    - [Naming](#naming)
+      - [Module naming](#module-naming)
+      - [Submodule naming](#submodule-naming)
+      - [Grouping naming](#grouping-naming)
+      - [Prefix naming](#prefix-naming)
+    - [Path references](#path-references)
+      - [Intra-model paths](#intra-model-paths)
+      - [Inter-model paths](#inter-model-paths)
+    - [Capitalization](#capitalization)
+      - [Enumerations](#enumerations)
+      - [Identities](#identities)
+  - [YANG language usage](#yang-language-usage)
+    - [`default`](#default)
+    - [`list`](#list)
+    - [`presence`](#presence)
+    - [`feature` and `if-feature`](#feature-and-if-feature)
+    - [`choice`](#choice)
+    - [XPath](#xpath)
+    - [Regular expressions](#regular-expressions)
+  - [Appendix](#appendix)
+    - [Example groupings for containers](#example-groupings-for-containers)
+    - [OpenConfig YANG module template](#openconfig-yang-module-template)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -256,10 +258,20 @@ identity LC_CONNECTOR {
 }
 ```
 
-
 ## YANG language usage
 Language rules describe guidelines on use of specific YANG language statements,
 including how modules should be structured and parsed.
+
+### `default`
+
+The use of default should be avoided. Defaults are often a source of conflict
+between implementations where there is no clear and correct requirement. In
+these cases, it is more vendor neutral to simply require the caller to
+specify the value they want to use.
+
+Defaults may be defined when they are explicitly required by the feature
+specification (such as an IETF RFC or IEEE standard).  In these cases the OC
+model should define the defaults in line with the feature specification.
 
 ### `list`
 
