@@ -25,9 +25,21 @@ module openconfig-pim {
     www.openconfig.net";
 
   description
-    "An OpenConfig model for Protocol Independent Multicast (PIM).";
+    "An OpenConfig model for Protocol Independent Multicast (PIM) that supports IPv4 address family.";
 
-  oc-ext:openconfig-version "0.4.2";
+  oc-ext:openconfig-version "0.4.4";
+
+  revision "2024-12-06" {
+    description
+      "Update PIM documentation to clarify that only ipv4 AF is supported.";
+    reference "0.4.4";
+  }
+
+  revision "2023-03-06" {
+    description
+      "Clarify use of interface-ref.";
+    reference "0.4.3";
+  }
 
   revision "2021-06-16" {
     description
@@ -292,7 +304,12 @@ module openconfig-pim {
         key "interface-id";
         description
           "This container defines interface PIM configuration and
-          state information.";
+          state information.
+
+          The interface referenced is based on the interface and
+          subinterface leaves within the interface-ref container -
+          which reference an entry in the /interfaces/interface list -
+          and should not rely on the value of the list key.";
 
         leaf interface-id {
           type leafref {

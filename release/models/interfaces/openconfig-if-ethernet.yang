@@ -24,7 +24,22 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.12.2";
+  oc-ext:openconfig-version "2.14.0";
+
+  revision "2024-09-17" {
+    description
+      "Refactor config/state nodes to account for physical ethernet vs.
+      aggregate interface characteristics along with description updates
+      to indicate applicability.";
+    reference "2.14.0";
+  }
+
+  revision "2023-03-10" {
+    description
+      "Allow Ethernet configuration parameters to be
+      used for aggregate (LAG) interfaces.";
+    reference "2.13.0";
+  }
 
   revision "2022-04-20" {
     description
@@ -287,7 +302,9 @@ module openconfig-if-ethernet {
   // grouping statements
 
   grouping ethernet-interface-config {
-    description "Configuration items for Ethernet interfaces";
+    description
+      "Common interface configuration for physical ethernet + logical
+      aggregate interfaces";
 
     leaf mac-address {
       type oc-yang:mac-address;
@@ -296,6 +313,31 @@ module openconfig-if-ethernet {
         specified, the corresponding operational state leaf is
         expected to show the system-assigned MAC address.";
     }
+
+    leaf enable-flow-control {
+      type boolean;
+      default false;
+      description
+        "Enable or disable flow control for this interface.
+        Ethernet flow control is a mechanism by which a receiver
+        may send PAUSE frames to a sender to stop transmission for
+        a specified time.
+
+        This setting should override auto-negotiated flow control
+        settings.  If left unspecified, and auto-negotiate is TRUE,
+        flow control mode is negotiated with the peer interface.";
+      reference
+        "IEEE 802.3x";
+    }
+  }
+
+  grouping physical-interface-config {
+    description
+      "Configuration specific to physical ethernet interfaces.  Note
+      that this grouping is to only apply when the interface `type` is
+      set to 'ianaift:ethernetCsmacd'.  This is not currently restricted
+      by YANG language statements (must/when) due to uses of this module
+      within other domains (e.g. wifi).";
 
     leaf auto-negotiate {
       type boolean;
@@ -356,22 +398,6 @@ module openconfig-if-ethernet {
         negotiation.  When auto-negotiate is set to FALSE, sets the
         link speed to a fixed value -- supported values are defined
         by ETHERNET_SPEED identities";
-    }
-
-    leaf enable-flow-control {
-      type boolean;
-      default false;
-      description
-        "Enable or disable flow control for this interface.
-        Ethernet flow control is a mechanism by which a receiver
-        may send PAUSE frames to a sender to stop transmission for
-        a specified time.
-
-        This setting should override auto-negotiated flow control
-        settings.  If left unspecified, and auto-negotiate is TRUE,
-        flow control mode is negotiated with the peer interface.";
-      reference
-        "IEEE 802.3x";
     }
 
     leaf fec-mode {
@@ -589,9 +615,13 @@ module openconfig-if-ethernet {
 
   }
 
-  grouping ethernet-interface-state {
+  grouping physical-interface-state {
     description
-      "Grouping for defining Ethernet-specific operational state";
+      "Grouping for operational state specific to physical ethernet
+      interfaces.  Note that this grouping is to only apply when the
+      interface `type` is set to 'ianaift:ethernetCsmacd'.  This is not
+      currently restricted by YANG language statements (must/when) due
+      to uses of this module within other domains (e.g. wifi).";
 
     leaf hw-mac-address {
       type oc-yang:mac-address;
@@ -624,6 +654,11 @@ module openconfig-if-ethernet {
         completed auto-negotiation with the remote peer, this value
         shows the interface speed that has been negotiated.";
     }
+  }
+
+  grouping ethernet-interface-state {
+    description
+      "Common state for physical ethernet and aggregate interfaces";
 
     container counters {
       description "Ethernet interface counters";
@@ -646,7 +681,7 @@ module openconfig-if-ethernet {
         description "Configuration data for ethernet interfaces";
 
         uses ethernet-interface-config;
-
+        uses physical-interface-config;
       }
 
       container state {
@@ -655,6 +690,8 @@ module openconfig-if-ethernet {
         description "State variables for Ethernet interfaces";
 
         uses ethernet-interface-config;
+        uses physical-interface-config;
+        uses physical-interface-state;
         uses ethernet-interface-state;
 
       }
@@ -669,9 +706,12 @@ module openconfig-if-ethernet {
     interfaces model";
 
     uses ethernet-top {
-      when "oc-if:config/oc-if:type = 'ianaift:ethernetCsmacd'" {
-      description "Additional interface configuration parameters when
-      the interface type is Ethernet";
+      when "oc-if:config/oc-if:type = 'ianaift:ethernetCsmacd' or " +
+           "oc-if:config/oc-if:type = 'ianaift:ieee8023adLag'" {
+      description
+        "Additional interface configuration parameters when
+        the interface type is Ethernet, or the interface is an aggregate
+        interface.";
       }
     }
   }

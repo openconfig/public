@@ -26,7 +26,20 @@ module openconfig-lacp {
     managing aggregate interfaces.   It works in conjunction with
     the OpenConfig interfaces and aggregate interfaces models.";
 
-  oc-ext:openconfig-version "1.2.0";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2024-09-24" {
+    description
+      "Add LACP fallback leaf under both config and state.";
+    reference "2.1.0";
+  }
+
+  revision "2023-12-11" {
+    description
+      "Add config container for aggregation member and port-priority leaf under
+       both config and state";
+    reference "2.0.0";
+  }
 
   revision "2021-07-20" {
     description
@@ -138,19 +151,22 @@ module openconfig-lacp {
     description
       "Configuration data for lacp member interfaces";
 
-    //currently a placeholder -- the list of member interfaces
-    //and their status is considered opstate only
-  }
-
-  grouping aggregation-lacp-members-state {
-    description
-      "Operational status data for the member interfaces";
-
     leaf interface {
       type oc-if:base-interface-ref;
       description
         "Reference to interface member of the LACP aggregate";
     }
+
+    leaf port-priority {
+      type uint16;
+      description
+        "Member interface's priority in its aggregate interface.";
+    }
+  }
+
+  grouping aggregation-lacp-members-state {
+    description
+      "Operational status data for the member interfaces";
 
     leaf activity {
       type lacp-activity-type;
@@ -234,6 +250,12 @@ module openconfig-lacp {
         port";
     }
 
+    leaf partner-port-priority {
+      type uint16;
+      description
+        "Member interface partner's priority in its aggregate interface.";
+    }
+
     leaf last-change {
       type oc-types:timeticks64;
       description
@@ -310,26 +332,29 @@ grouping aggregation-lacp-members-statistics {
       "Top-level grouping for aggregate members list";
 
     container members {
-      config false;
       description
-        "Enclosing container for the list of members interfaces of
-        the aggregate. This list is considered operational state
-        only so is labeled config false and has no config container";
+        "Configuration and operational state of the aggregate member
+	     interfaces";
 
       list member {
         key "interface";
         description
           "List of member interfaces and their associated status for
-          a LACP-controlled aggregate interface.  Member list is not
-          configurable here -- each interface indicates items
-          its participation in the LAG.";
+          a LACP-controlled aggregate interface";
 
         leaf interface {
           type leafref {
-            path "../state/interface";
+            path "../config/interface";
           }
           description
             "Reference to aggregate member interface";
+        }
+
+        container config {
+          description
+            "Operational state data for aggregate members";
+
+          uses aggregation-lacp-members-config;
         }
 
 
@@ -340,6 +365,7 @@ grouping aggregation-lacp-members-statistics {
           description
             "Operational state data for aggregate members";
 
+          uses aggregation-lacp-members-config;
           uses aggregation-lacp-members-state;
           uses aggregation-lacp-members-statistics;
         }
@@ -385,6 +411,15 @@ grouping aggregation-lacp-members-statistics {
         "The MAC address portion of the node's System ID. This is
         combined with the system priority to construct the 8-octet
         system-id";
+    }
+
+    leaf fallback {
+      type boolean;
+      description
+        "If the fallback is set to true, current LACP interface is
+        able to establish a Link Aggregation (LAG) before it receives
+        LACP PDUs from its peer, and fallback to a single port active
+        after the expiry of the timeout period.";
     }
 
     uses aggregation-lacp-global-config;

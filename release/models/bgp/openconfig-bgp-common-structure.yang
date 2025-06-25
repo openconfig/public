@@ -21,7 +21,85 @@ submodule openconfig-bgp-common-structure {
     "This sub-module contains groupings that are common across multiple BGP
     contexts and provide structure around other primitive groupings.";
 
-  oc-ext:openconfig-version "9.1.0";
+  oc-ext:openconfig-version "9.9.1";
+
+  revision "2025-04-18" {
+    description
+      "Clarification to usage of link-bandwidth-ext-community
+      container under BGP use-multiple-paths`.";
+          reference "9.9.1";
+  }
+
+  revision "2025-03-30" {
+    description
+      "Add schema for auto-generated link-bandwidth extended community
+      for learned routes.";
+    reference "9.9.0";
+  }
+
+  revision "2024-09-06" {
+    description
+      "Restore NONE enum value for community-type.";
+    reference "9.8.0";
+  }
+
+  revision "2023-12-28" {
+    description
+      "Clarification to last-prefix-limit-exceeded in description";
+          reference "9.7.1";
+  }
+
+  revision "2023-12-28" {
+    description
+      "Add support for controling use of link-bandwidth extended
+      community for BGP multipath.";
+    reference "9.7.0";
+  }
+
+  revision "2023-11-02" {
+    description
+      "Fix revision '2023-03-31': send-community-type was added to the
+       wrong grouping.
+      Allow configuring send-community per AFI-SAFI at
+       neighbor/peer-group.";
+    reference "9.6.0";
+  }
+
+  revision "2023-11-01" {
+    description
+      "Add default apply policy to global and per afi-safi config.";
+    reference "9.5.0";
+  }
+
+  revision "2023-06-27" {
+    description
+      "Clarify bgp remote-port description";
+    reference "9.4.1";
+  }
+
+  revision "2023-04-01" {
+    description
+      "Add support for BGP large communities [rfc8092] in
+      send-community.
+      Leaf send-community was replaced by the leaf-list
+      send-community-type to allow the combination of different
+      community types";
+    reference "9.4.0";
+  }
+
+  revision "2023-03-31" {
+    description
+      "Allow configuring send-community per AFI-SAFI at
+       neighbor/peer-group.";
+    reference "9.3.0";
+  }
+
+  revision "2022-12-12" {
+    description
+      "Removed the default of enabled leaf of AFI-SAFI
+      at neighbor/peer-group to support BGP inheritance model.";
+    reference "9.2.0";
+  }
 
   revision "2022-05-21" {
     description
@@ -258,6 +336,66 @@ submodule openconfig-bgp-common-structure {
           "State information associated with ADD_PATHS";
         uses bgp-common-neighbor-group-add-paths-config;
       }
+    }
+  }
+
+  grouping bgp-common-structure-neighbor-group-auto-gen-link-bandwidth {
+    description
+      "Common grouping used for both groups and neighbors which
+      provides configuration and state parameters relating to
+      auto-generation of link-bandwidth extended-community
+      attribute.";
+
+    container import {
+      description
+        "Container used to provide configuration and state
+        parameters related to auto-generation of link-bandwidth
+        extended-community attribute for learned routes.
+        Applies only for routes that do not have link-bandwidth
+        extended-community.
+        Any policy action related to link-bandwidth
+        extended-community takes precedence over this
+        configuration.
+        This configuration when present, MUST be supported in
+        context of single-hop EBGP neighbor (with and without
+        TTL security enabled). Implementation may support it
+        in other reasonable contexts. Implementation shall not
+        silently ignore this configuration. If present in not
+        supported context, implementation shall reject
+        configuration.";
+
+      container config {
+        description
+          "Container used to provide configuration
+          parameters related to auto-generation of link-bandwidth
+          extended-community attribute for learned routes.
+          Applies only for routes that do not have link-bandwidth
+          extended-community.";
+        uses auto-gen-link-bandwidth-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Container used to provide state
+          parameters related to auto-generation of link-bandwidth
+          extended-community attribute for learned routes.
+          Apply only for routes that do not have link-bandwidth
+          extended-community.";
+        uses auto-gen-link-bandwidth-config;
+      }
+    }
+  }
+
+  grouping bgp-common-structure-neighbor-group-auto-link-bandwidth {
+    description
+      "Parameters related to automatic generation link-bandwidth
+      extended community base on underlaying interface speed.";
+    container auto-link-bandwidth {
+      description
+        "Parameters related to automatic generation link-bandwidth
+        extended community base on underlaying interface speed.";
+      uses bgp-common-structure-neighbor-group-auto-gen-link-bandwidth;
     }
   }
 

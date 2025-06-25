@@ -27,7 +27,26 @@ module openconfig-access-points {
     "This module defines the top level WiFi Configurations for a list of
     Access Points.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2023-06-26" {
+    description
+      "Update description for hostname";
+    reference "1.2.0";
+  }
+
+  revision "2023-05-26" {
+    description
+      "Fix typos in descriptions.";
+    reference "1.1.1";
+  }
+
+  revision "2023-03-22" {
+    description
+      "Mirror /access-points/access-point/config/hostname in a state
+      container.";
+    reference "1.1.0";
+  }
 
   revision "2021-08-02" {
     description
@@ -115,7 +134,7 @@ module openconfig-access-points {
       list ap-manager {
         key "id";
         description
-          "Manager(s) this AP is assinged to, referenced by id.";
+          "Manager(s) this AP is assigned to, referenced by id.";
 
         leaf id {
           type leafref {
@@ -155,7 +174,9 @@ module openconfig-access-points {
         "ap-manager:config/ap-manager:hostname";
       }
       description
-        "Access Point FQDN.";
+        "Access Point FQDN.  This leaf is only valid when the type of the
+         component is WIFI_ACCESS_POINT, and should be used instead of
+         /oc-sys:system/oc-sys:state/oc-sys:hostname.";
     }
   }
 
@@ -189,6 +210,14 @@ module openconfig-access-points {
           uses access-points-common-config;
         }
 
+        container state {
+          config false;
+          description
+            "State items at the global, Access Point level.";
+
+          uses access-points-common-config;
+        }
+
         uses wifi-phy:radio-top;
         uses wifi-mac:ssid-top;
         uses oc-sys:system-top;
@@ -198,12 +227,4 @@ module openconfig-access-points {
   }
   uses access-points-top;
 
-  // hostname is set using openconfig-wifi-aps model.
-  deviation /oc-sys:system/oc-sys:config/oc-sys:hostname {
-    deviate not-supported;
-  }
-
-  deviation /oc-sys:system/oc-sys:state/oc-sys:hostname {
-    deviate not-supported;
-  }
 }

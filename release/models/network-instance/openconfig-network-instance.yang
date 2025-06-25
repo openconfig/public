@@ -8,8 +8,8 @@ module openconfig-network-instance {
   prefix "oc-netinst";
 
   // import some basic types
-  import ietf-yang-types { prefix "yang"; }
-  import ietf-inet-types { prefix "inet"; }
+  import openconfig-yang-types { prefix "oc-yang"; }
+  import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-network-instance-types { prefix "oc-ni-types"; }
   import openconfig-policy-types { prefix "oc-pol-types"; }
   import openconfig-routing-policy { prefix "oc-rpol"; }
@@ -22,6 +22,7 @@ module openconfig-network-instance {
   import openconfig-mpls { prefix "oc-mpls"; }
   import openconfig-vlan { prefix "oc-vlan"; }
   import openconfig-ospfv2 { prefix "oc-ospfv2"; }
+  import openconfig-ospf   { prefix "oc-ospf"; }
   import openconfig-policy-forwarding { prefix "oc-pf"; }
   import openconfig-segment-routing { prefix "oc-sr"; }
   import openconfig-isis { prefix "oc-isis"; }
@@ -30,6 +31,7 @@ module openconfig-network-instance {
   import openconfig-igmp { prefix "oc-igmp"; }
   import openconfig-evpn { prefix "oc-evpn"; }
   import openconfig-pcep { prefix "oc-pcep"; }
+  import openconfig-network-instance-static { prefix "oc-ni-static"; }
 
   // include submodules
   include openconfig-network-instance-l2;
@@ -48,7 +50,121 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "1.3.0";
+  oc-ext:openconfig-version "4.6.0";
+
+  revision "2025-03-26" {
+    description
+      "Add OSPFv3 container";
+    reference "4.6.0";
+  }
+
+  revision "2025-02-20" {
+    description
+      "Add static next-hop-groups and encapsulation headers.";
+    reference "4.5.0";
+  }
+
+  revision "2024-02-27" {
+    description
+      "Clarify that tables are created only by the system and not
+      users.";
+    reference "4.4.1";
+  }
+
+  revision "2024-02-27" {
+    description
+      "Clarify metric to be used for route redistribution when
+      disable-metric-propagation is set to true.";
+    reference "4.4.0";
+  }
+
+  revision "2023-12-13" {
+    description
+      "Expand when statement for connection-points endpoints";
+    reference "4.3.0";
+  }
+
+  revision "2023-11-03" {
+    description
+      "Add reference URL for Route Redistribution rules";
+    reference "4.2.2";
+  }
+
+  revision "2023-11-01" {
+    description
+      "Refactor apply policy to separate default policy in it's own common
+      set of groupings";
+    reference "4.2.1";
+  }
+
+  revision "2023-09-07" {
+    description
+      "Add L2RIB Per Producer Next-Hop Capability";
+    reference "4.2.0";
+  }
+
+  revision "2023-08-09" {
+    description
+      "Update interface key to use interface-id type";
+    reference "4.1.1";
+  }
+
+  revision "2023-07-12" {
+    description
+      "Moved ethernet-segments to top-level
+      container.";
+    reference "4.1.0";
+  }
+
+  revision "2023-04-25" {
+    description
+      "Clarify use of interface-ref.";
+    reference "4.0.3";
+  }
+
+  revision "2023-03-15" {
+    description
+      "Clarify that tables are to be deleted by the
+      network operating system";
+    reference "4.0.2";
+  }
+
+  revision "2023-02-07" {
+    description
+      "Add prefixes to identity values in when statements";
+    reference "4.0.1";
+  }
+
+  revision "2022-12-21" {
+    description
+      "Removal of global per network-instance MTU";
+    reference "4.0.0";
+  }
+
+  revision "2022-12-21" {
+    description
+      "Removal of interface list unique statement";
+    reference "3.1.0";
+  }
+
+  revision "2022-12-20" {
+    description
+      "Removal of top-level enabled-address-families leaf-list";
+    reference "3.0.0";
+  }
+
+  revision "2022-11-18" {
+    description
+      "Enforce network-instance type as mandatory, removal of top-level
+      enabled leaf, migrate IETF types to OpenConfig types";
+    reference "2.0.0";
+  }
+
+  revision "2022-09-15" {
+    description
+      "Add fallback-vrf option.";
+    reference "1.4.0";
+  }
 
   revision "2022-07-04" {
     description
@@ -281,7 +397,12 @@ module openconfig-network-instance {
         key "name";
 
         description
-          "Network instances configured on the local system";
+          "Network instances configured on the local system
+
+          IPv4 and IPv6 forwarding are enabled by default within an L3
+          network-instance and subsequently, routes can be populated
+          into the network-instance using protocols that enable IPv4 and
+          IPv6 configuration without explicitly enabling these.";
 
         leaf name {
           type leafref {
@@ -289,6 +410,23 @@ module openconfig-network-instance {
           }
           description
             "A unique name identifying the network instance";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to a network
+            instance";
+          uses network-instance-config;
+        }
+
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to a network
+            instance";
+          uses network-instance-config;
+          uses network-instance-state;
         }
 
         uses l2ni-instance {
@@ -303,25 +441,6 @@ module openconfig-network-instance {
             }
         }
 
-        container config {
-          description
-            "Configuration parameters relating to a network
-            instance";
-          uses network-instance-config;
-          uses network-instance-type-dependent-config;
-        }
-
-
-        container state {
-          config false;
-          description
-            "Operational state parameters relating to a network
-            instance";
-          uses network-instance-config;
-          uses network-instance-type-dependent-config;
-          uses network-instance-state;
-        }
-
         container evpn {
           when "../config/type = 'oc-ni-types:L2VSI'
                 or ../config/type = 'oc-ni-types:L3VRF'" {
@@ -332,7 +451,6 @@ module openconfig-network-instance {
            "Configuration of parameters for EVPN related bridge domains
            (MAC VRFs) and layer3 VRFs (IP VRFs)";
           uses oc-evpn:evpn-config-top;
-          uses oc-evpn:evpn-ethernet-segment-top;
         }
 
         container encapsulation {
@@ -409,6 +527,10 @@ module openconfig-network-instance {
               for the connection are available for the destination
               protocol to advertise, or match within its policies.";
 
+            reference
+              "Route Redistribution in OpenConfig Network Instance:
+              https://github.com/openconfig/public/blob/master/doc/network_instance_redistribution.md#interconnection-of-protocol-ribs";
+
             leaf src-protocol {
               type leafref {
                 path "../config/src-protocol";
@@ -459,10 +581,14 @@ module openconfig-network-instance {
 
           list interface {
             key "id";
-            unique "config/interface config/subinterface";
 
             description
-              "An interface associated with the network instance";
+              "An interface associated with the network instance.
+
+               The interface referenced is based on the interface and
+               subinterface leaves within the interface-ref container -
+               which reference an entry in the /interfaces/interface list -
+               and should not rely on the value of the list key.";
 
             leaf id {
               type leafref {
@@ -493,7 +619,7 @@ module openconfig-network-instance {
         }
 
         uses oc-ni-l3:l3ni-route-limit-structural {
-          when "./config/type = 'L3VRF' or ./config/type = 'L2L3'" {
+          when "./config/type = 'oc-ni-types:L3VRF' or ./config/type = 'oc-ni-types:L2L3'" {
             description
               "Layer 3 VRF or L2/L3 instances can have route limits
               applied. This is not supported for the default instance.";
@@ -503,7 +629,8 @@ module openconfig-network-instance {
         container tables {
           description
             "The routing tables that are managed by this network
-            instance";
+            instance.  Tables are created and removed by the system.
+            Users do not create tables.";
 
           list table {
             key "protocol address-family";
@@ -526,7 +653,12 @@ module openconfig-network-instance {
               this list when the relevant protocol context is enabled.
               i.e., when a BGP instance is created with IPv4 and IPv6
               address families enabled, the protocol=BGP,
-              address-family=IPv4 table is created by the system.";
+              address-family=IPv4 table is created by the system. The
+	            removal of the table should not require additional or
+	            explicit configurations.
+
+              Users cannot create or delete tables.  Instead a user may
+              configure table-connections which reference these tables.";
 
             leaf protocol {
               type leafref {
@@ -605,7 +737,8 @@ module openconfig-network-instance {
 
             container endpoints {
               when "../../../config/type = 'oc-ni-types:L2P2P' " +
-                 "or ../../../config/type = 'oc-ni-types:L2VSI'" {
+                 "or ../../../config/type = 'oc-ni-types:L2VSI'" +
+                 "or ../../../config/type = 'oc-ni-types:DEFAULT_INSTANCE'" {
                 description
                   "Configuration parameters to associate interfaces
                    into a common group for use in Layer 2 network
@@ -624,7 +757,7 @@ module openconfig-network-instance {
                   connection points that can be used for this
                   connection point). The active endpoint is selected
                   based on the precedence that it is configured
-                  with";
+                  with.";
 
                 leaf endpoint-id {
                   type leafref {
@@ -641,6 +774,7 @@ module openconfig-network-instance {
                     endpoint";
                   uses instance-endpoint-config;
                 }
+
                 container state {
                   config false;
                   description
@@ -651,7 +785,7 @@ module openconfig-network-instance {
                 }
 
                 container local {
-                  when "../config/type = 'LOCAL'" {
+                  when "../config/type = 'oc-ni-types:LOCAL'" {
                     description
                       "Only include the local configuration when
                       the endpoint is specified to be local to
@@ -679,7 +813,7 @@ module openconfig-network-instance {
                 }
 
                 container remote {
-                  when "../config/type = 'REMOTE'" {
+                  when "../config/type = 'oc-ni-types:REMOTE'" {
                     description
                       "Only include the remote configuration when
                       the endpoint is specified to be remote to
@@ -706,15 +840,10 @@ module openconfig-network-instance {
                   }
                 }
                 container vxlan {
-                    when "../config/type = 'VXLAN'" {
-                      description
-                        "Only include the vxlan configuration when
-                        the endpoint is specified to be vxlan";
-                    }
-                    description
-                      "Configuration and operational state parameters
-                      relating to a VXLAN tunnel end-point interface";
-                    uses oc-evpn:evpn-overlays-grp-top;
+                  description
+                    "Configuration and operational state parameters
+                    relating to a VXLAN tunnel end-point interface";
+                  uses oc-evpn:evpn-overlays-grp-top;
                 }
               }
             }
@@ -740,6 +869,8 @@ module openconfig-network-instance {
         uses oc-vlan:vlan-top;
 
         uses oc-pf:policy-forwarding-top;
+
+        uses oc-ni-static:ni-static-structural;
 
         uses oc-aft:aft-top;
 
@@ -834,6 +965,14 @@ module openconfig-network-instance {
               }
             }
 
+            uses oc-ospf:ospfv3-top {
+              when "./config/identifier = 'oc-pol-types:OSPF3'" {
+                description
+                  "Include OSPFv3 parameters only when the protocol
+                  is of type OSPFv3";
+              }
+            }
+
             uses oc-isis:isis-top {
               when "./config/identifier = 'oc-pol-types:ISIS'" {
                 description
@@ -883,29 +1022,6 @@ module openconfig-network-instance {
     }
   }
 
-  grouping network-instance-type-dependent-config {
-    description
-      "Type dependent network instance configuration";
-
-    uses oc-ni-l3:l3ni-instance-common-config {
-      when "./type = 'oc-ni-types:L3VRF' or ./type = 'oc-ni-types:L2L3'" {
-        description
-          "Layer 3 VRF configuration parameters included when a
-          network instance is a L3VRF or combined L2L3 instance";
-      }
-    }
-
-    uses l2ni-instance-common-config {
-      when "./type = 'oc-ni-types:L2VSI' or ./type = 'oc-ni-types:L2P2P'" +
-           " or ./type = 'oc-ni-types:L2L3'" {
-            description
-              "Layer 2 configuration parameters included when
-              a network instance is a Layer 2 instance or a
-              combined L2L3 instance";
-      }
-    }
-  }
-
   grouping instance-endpoint-config {
     description
       "Configuration data relating to an forwarding-instance
@@ -941,7 +1057,7 @@ module openconfig-network-instance {
       "Configuration parameters relating to an endpoint that is local
       to the current system";
 
-      uses oc-if:interface-ref-common;
+    uses oc-if:interface-ref-common;
 
     leaf site-id {
       type uint16;
@@ -974,7 +1090,7 @@ module openconfig-network-instance {
       "Configuration parameters relating to an endpoint that is
       remote from the local system";
     leaf remote-system {
-      type inet:ip-address;
+      type oc-inet:ip-address;
       description
         "The IP address of the device which hosts the
         remote end-point";
@@ -1054,7 +1170,7 @@ module openconfig-network-instance {
       with the network instance";
 
     leaf id {
-      type string;
+      type oc-if:interface-id;
       description
         "A unique identifier for this interface - this is expressed
         as a free-text string";
@@ -1163,11 +1279,12 @@ module openconfig-network-instance {
          - IS-IS metric may be reflected in BGP MED (and vice versa)
          - OSPF metric may be reflected in the BGP MED (and vice versa)
         When this leaf is set to true, this reflection behaviour MUST be
-        disabled, and rather the metric must be set to the default value,
-        or explicitly set by policy.";
+        disabled, and rather the metric must be set to '0' or explicitly
+        set by policy.";
     }
 
     uses oc-rpol:apply-policy-import-config;
+    uses oc-rpol:default-policy-import-config;
   }
 
   grouping network-instance-config {
@@ -1188,6 +1305,7 @@ module openconfig-network-instance {
       type identityref {
         base "oc-ni-types:NETWORK_INSTANCE_TYPE";
       }
+      mandatory true;
       description
         "The type of network instance. The value of this leaf
         indicates the type of forwarding entries that should be
@@ -1201,13 +1319,6 @@ module openconfig-network-instance {
         of type 'DEFAULT_INSTANCE'.";
     }
 
-    leaf enabled {
-      type boolean;
-      description
-        "Whether the network instance should be configured to be
-        active on the network element";
-    }
-
     leaf description {
       type string;
       description
@@ -1216,7 +1327,7 @@ module openconfig-network-instance {
     }
 
     leaf router-id {
-      type yang:dotted-quad;
+      type oc-yang:dotted-quad;
       description
         "A identifier for the local network instance - typically
         used within associated routing protocols or signalling
@@ -1228,6 +1339,17 @@ module openconfig-network-instance {
       description
         "The route distinguisher that should be used for the local
         VRF or VSI instance when it is signalled via BGP.";
+    }
+
+    leaf fallback-network-instance {
+      type network-instance-ref;
+      description
+        "When this leaf is populated, the specified network instance
+        should be used as a fallback instance when a route cannot
+        be resolved in the local network-instance.
+        This configuration is only valid when specified in a non-default
+        instance which must be a L3 capable VRF (i.e., L2L3, or L3VRF).";
+      when "../type = 'oc-ni-types:L3VRF'";
     }
   }
 

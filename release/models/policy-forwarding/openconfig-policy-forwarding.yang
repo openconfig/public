@@ -62,13 +62,18 @@ module openconfig-policy-forwarding {
 
     A forwarding-policy specifies the match criteria that it intends
     to use to determine the packets that it reroutes - this may
-    consist of a number of criteria, such as DSCP. The action of the
-    policy results in a forwarding action being applied to matching
-    packets. For example, decapsulating the packet from a GRE header.
-    In order to enact the policy based on particular interfaces - the
-    forwarding-policy is applied to an interface via referencing it
+    consist of a number of criteria, such as DSCP. The match criteria
+    is specified as rules.  If no rules are specified, then the policy
+    will match all packets.
+
+    The action of the policy results in a forwarding action being applied
+    to matching packets. For example, decapsulating the packet from a GRE
+    header. In order to enact the policy based on particular interfaces -
+    the forwarding-policy is applied to an interface via referencing it
     within an 'apply-forwarding-policy' statement associated with an
     interface.
+
+    A policy-forwarding rule with no action should be treated as an error.
 
     In some cases (e.g., Class-Based Tunnel Selection) the forwarding
     action does not resolve to a single egress action, and rather
@@ -81,7 +86,25 @@ module openconfig-policy-forwarding {
     The forwarding action of the corresponding policy is set to
     PATH_GROUP and references the configured group of LSPs.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2024-11-14" {
+    description
+      "Clarify that if no rules are present, all packets will be matched.";
+    reference "0.7.0";
+  }
+
+  revision "2023-04-25" {
+    description
+      "Clarify use of interface-ref.";
+    reference "0.6.1";
+  }
+
+  revision "2023-03-27" {
+    description
+      "Add support for decap in one NI and further actions in other NIs.";
+    reference "0.6.0";
+  }
 
   revision "2022-01-25" {
     description
@@ -147,3 +170,4 @@ module openconfig-policy-forwarding {
     }
   }
 }
+

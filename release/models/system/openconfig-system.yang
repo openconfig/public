@@ -20,6 +20,7 @@ module openconfig-system {
   import openconfig-alarms { prefix oc-alarms; }
   import openconfig-messages { prefix oc-messages; }
   import openconfig-license { prefix oc-license; }
+  import openconfig-network-instance { prefix oc-ni; }
 
   // meta
   organization "OpenConfig working group";
@@ -46,7 +47,75 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.13.1";
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2024-09-24" {
+    description
+      "Added mount-point type leaf to describe the type of file system.";
+    reference "2.3.0";
+  }
+
+  revision "2024-08-13" {
+    description
+      "Added additional auth key types";
+    reference "2.2.0";
+  }
+
+  revision "2024-07-15" {
+    description
+      "Added auth key reference in ntp server configuration.";
+    reference "2.1.0";
+  }
+
+  revision "2023-12-20" {
+    description
+      "Change NTP offset, root-delay, and root-dispersion to int64 nanoseconds,
+      and update their descriptions for accuracy and clarity.";
+    reference "2.0.0";
+  }
+
+  revision "2023-10-26" {
+    description
+      "Add up-time leaf and promote module to version 1.0.";
+    reference "1.0.0";
+  }
+
+  revision "2023-06-16" {
+    description
+      "Reordered imports to be alphabetical.";
+    reference "0.17.1";
+  }
+
+  revision "2022-12-20" {
+    description
+      "Added network instance leaf to ntp client, and dropped
+      ntp-source-address from global to individual config. Removed ntp prefix.";
+    reference "0.17.0";
+  }
+
+  revision "2022-12-19" {
+    description
+      "Update last configuration timestamp documentation.";
+    reference "0.16.1";
+  }
+
+  revision "2022-09-28" {
+    description
+      "Add last configuration timestamp leaf.";
+    reference "0.16.0";
+  }
+
+  revision "2022-07-25" {
+    description
+      "Add system software version.";
+    reference "0.15.0";
+  }
+
+  revision "2022-07-20" {
+    description
+      "Added routing-mac system MAC address.";
+    reference "0.14.0";
+  }
 
   revision "2022-07-12" {
     description
@@ -174,6 +243,42 @@ module openconfig-system {
     base NTP_AUTH_TYPE;
     description
       "MD5 encryption method";
+  }
+
+  identity NTP_AUTH_SHA1 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA1 encryption method";
+  }
+
+  identity NTP_AUTH_SHA256 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA256 encryption method";
+  }
+
+  identity NTP_AUTH_SHA384 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA384 encryption method";
+  }
+
+  identity NTP_AUTH_SHA512 {
+    base NTP_AUTH_TYPE;
+    description
+      "SHA512 encryption method";
+  }
+
+  identity NTP_AUTH_AES_CBC_128 {
+    base NTP_AUTH_TYPE;
+    description
+      "AES-CBC-128 encryption method";
+  }
+
+  identity NTP_AUTH_AES_CBC_256 {
+    base NTP_AUTH_TYPE;
+    description
+      "AES-CBC-256 encryption method";
   }
 
   // typedef statements
@@ -321,6 +426,14 @@ module openconfig-system {
       description
         "The amount of space currently in use on the filesystem.";
     }
+
+    leaf type {
+      type string;
+      description
+        "A human readable string indicating the filesystem type used
+        for storage.  Examples might include flash, hard disk, tmpfs/ramdisk
+        or remote/network based storage.";
+    }
   }
 
   grouping system-global-state {
@@ -333,6 +446,14 @@ module openconfig-system {
           "The current system date and time.";
     }
 
+    leaf up-time {
+        type oc-types:timeticks64;
+        units "nanoseconds";
+        description
+          "The amount of time since the network operating system was
+          initialized.";
+    }
+
     leaf boot-time {
         type oc-types:timeticks64;
         units "nanoseconds";
@@ -340,6 +461,25 @@ module openconfig-system {
           "This timestamp indicates the time that the system was last
           restarted.  The value is the timestamp in nanoseconds relative
           to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+    }
+
+    leaf software-version {
+        type string;
+        description
+          "Operating system version of the currently active controller
+          of the device.  It is required that this value matches the
+          value of the state/software-version leaf in the component
+          of type OPERATING_SYSTEM.";
+    }
+
+    leaf last-configuration-timestamp {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+      description
+        "Indicates the monotonically increasing timestamp at which the
+        last configuration change was made. This may may be through CLI,
+        gNMI or some other mechanism. The value is the timestamp in
+        nanoseconds relative to the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
     }
   }
 
@@ -658,6 +798,26 @@ module openconfig-system {
         "Indicates whether this server should be preferred
         or not.";
     }
+
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "The network instance used to find this server.";
+    }
+
+    leaf source-address {
+      type oc-inet:ip-address;
+      description
+        "Source address to use on outgoing NTP packets";
+    }
+
+    leaf key-id {
+      type leafref {
+        path "../../../../ntp-keys/ntp-key/key-id";
+      }
+      description
+        "Reference to NTP authentication key for this server.";
+    }
   }
 
   grouping system-ntp-server-state {
@@ -684,39 +844,35 @@ module openconfig-system {
     }
 
     leaf root-delay {
-      type uint32;
-      // TODO: reconsider units for these values -- the spec defines
-      // rootdelay and rootdisperson as 2 16-bit integers for seconds
-      // and fractional seconds, respectively.  This gives a
-      // precision of ~15 us (2^-16).  Using milliseconds here based
-      // on what implementations typically provide and likely lack
-      // of utility for less than millisecond precision with NTP
-      // time sync.
-      units "milliseconds";
+      type int64;
+      units "nanoseconds";
       description
-        "The round-trip delay to the server, in milliseconds.";
+        "The total round-trip delay to the reference clock, in nanoseconds.";
       reference
         "RFC 5905 - Network Time Protocol Version 4: Protocol and
-        Algorithms Specification";
+        Algorithms Specification, Section 7.3";
     }
 
     leaf root-dispersion {
-      type uint64;
-      units "milliseconds";
+      type int64;
+      units "nanoseconds";
       description
-        "Dispersion (epsilon) represents the maximum error inherent
-        in the measurement";
+        "The maximum error inherent in the measurement, accumulated over the
+        stratum levels from the reference clock.";
       reference
         "RFC 5905 - Network Time Protocol Version 4: Protocol and
-        Algorithms Specification";
+        Algorithms Specification, Section 4";
     }
 
     leaf offset {
-      type uint64;
-      units "milliseconds";
+      type int64;
+      units "nanoseconds";
       description
         "Estimate of the current time offset from the peer.  This is
-        the time difference between the local and reference clock.";
+        the time difference of the peer's clock minus the local clock.";
+      reference
+        "RFC 5905 - Network Time Protocol Version 4: Protocol and
+        Algorithms Specification, Section 8";
     }
 
     leaf poll-interval {
@@ -858,12 +1014,6 @@ module openconfig-system {
         from the servers defined in the 'ntp/server' list.";
     }
 
-    leaf ntp-source-address {
-      type oc-inet:ip-address;
-      description
-        "Source address to use on outgoing NTP packets";
-    }
-
     leaf enable-ntp-auth {
       type boolean;
       default false;
@@ -911,6 +1061,52 @@ module openconfig-system {
       }
       uses system-ntp-auth-keys-top;
       uses system-ntp-server-top;
+    }
+  }
+
+  grouping system-routing-macaddr-config {
+    description
+      "Configuration data for system's routing MAC addresses.";
+
+    leaf routing-mac {
+      type oc-yang:mac-address;
+      description
+        "Any packets destined to this MAC address must be sent through the
+        routing pipeline by the system. This MAC address is used to identify
+        routed packets in addition to any other MAC addresses that the system
+        may already have been using to perform routing.
+
+        It is not expected that this MAC address will be used as the
+        source MAC address of any routed packet, as the source MAC address of
+        any packets generated by the system, or a MAC address used in ARP
+        response. This MAC address may not be allocated from the block of
+        MAC address that system owns. For instance, it's allocation could
+        be managed by an external controller.";
+    }
+  }
+
+  grouping system-macaddr-top {
+    description
+      "Top-level grouping for configuration and state of system's MAC addresses.";
+
+    container mac-address {
+      description
+        "Top-level container for system's MAC address configuration and state";
+
+      container config {
+        description
+          "Configuration data for routing MAC address.";
+
+        uses system-routing-macaddr-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for routing MAC address.";
+
+        uses system-routing-macaddr-config;
+      }
     }
   }
 
@@ -1152,19 +1348,20 @@ module openconfig-system {
       }
 
       uses mount-points-top;
-      uses system-clock-top;
-      uses system-dns-top;
-      uses system-ntp-top;
-      uses oc-sys-term:system-ssh-server-top;
-      uses oc-sys-term:system-telnet-server-top;
-      uses oc-log:logging-top;
       uses oc-aaa:aaa-top;
-      uses system-memory-top;
-      uses system-cpu-top;
-      uses oc-proc:procmon-processes-top;
       uses oc-alarms:alarms-top;
+      uses oc-log:logging-top;
+      uses oc-proc:procmon-processes-top;
       uses oc-messages:messages-top;
       uses oc-license:license-top;
+      uses oc-sys-term:system-ssh-server-top;
+      uses oc-sys-term:system-telnet-server-top;
+      uses system-clock-top;
+      uses system-cpu-top;
+      uses system-dns-top;
+      uses system-macaddr-top;
+      uses system-memory-top;
+      uses system-ntp-top;
     }
   }
 

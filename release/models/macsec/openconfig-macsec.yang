@@ -18,10 +18,29 @@ module openconfig-macsec {
     "This module defines configuration and state data for
      MACsec IEEE Std 802.1AE-2018.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.2.0";
   oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2025-01-02" {
+    description
+      "Add include-sci to allow enable/disable of secure channel
+      identifiers.";
+    reference "1.2.0";
+  }
+
+  revision "2023-08-03" {
+    description
+      "Clarify in-cak and out-cak leaf descriptions.";
+    reference "1.1.1";
+  }
+
+revision "2023-06-08" {
+    description
+      "Support rx-late-pkts leaf.";
+    reference "1.1.0";
+  }
 
   revision "2022-04-28" {
     description
@@ -184,7 +203,9 @@ module openconfig-macsec {
     leaf in-cak-mkpdu {
       type oc-yang:counter64;
       description
-        "Validated MKPDU received CAK count";
+        "Count of validated MKPDU  connectivity association key (CAK) pdus
+        received.  This counter is related to the group-cak feature in the
+        802.1X-2010 standard.";
     }
 
     leaf out-mkpdu {
@@ -202,7 +223,9 @@ module openconfig-macsec {
     leaf out-cak-mkpdu {
       type oc-yang:counter64;
       description
-        "MKPDU CAK sent count";
+        "Count of MKPDU connectivity association key (CAK) pdu's sent.
+        This counter is related to the group-cak feature in the
+        802.1X-2010 standard.";
     }
   }
 
@@ -419,6 +442,15 @@ module openconfig-macsec {
          This counter will increment if MACsec is enabled on interface and
          incoming packet does not have SCI field in MACsec tag.";
     }
+
+    leaf rx-late-pkts {
+      type oc-yang:counter64;
+      description
+        "MACsec interface level Receive Late Packets counter.
+        This counter will increment if MACsec is enabled on the interface and
+        packet number of incoming packet is less than the lowest acceptable
+        packet number and replay protection is enabled.";
+    }
   }
 
   grouping macsec-scsa-interface-top {
@@ -600,6 +632,12 @@ module openconfig-macsec {
         "Generate and include an Integrity Check Value (ICV) field in the MKPDU.
          For compatibility with previous MACsec implementation that do not
          require an ICV";
+    }
+
+    leaf include-sci {
+      type boolean;
+      description
+        "Generate and include a Secure Channel Identifier (SCI).";
     }
 
     leaf sak-rekey-interval {

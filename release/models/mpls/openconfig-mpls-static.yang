@@ -10,6 +10,7 @@ submodule openconfig-mpls-static {
   import openconfig-mpls-types {prefix oc-mplst; }
   import openconfig-inet-types { prefix inet; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-interfaces { prefix oc-if; }
 
 
   // meta
@@ -23,7 +24,41 @@ submodule openconfig-mpls-static {
     "Defines static LSP configuration";
 
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.6.0";
+
+  revision "2024-06-19" {
+    description
+      "Added support with backward compatibility to configure ECMP
+      of next-hops for the same LSP name. Also marked attributes
+      push-label, next-hop and interface as deprecated under egress,
+      transit and ingress config";
+    reference "3.6.0";
+  }
+
+  revision "2023-12-14" {
+    description
+      "Added additional attributes oc-if:interface-ref
+      and metric attributes to static lsp";
+    reference "3.5.0";
+  }
+
+  revision "2023-07-25" {
+    description
+      "Added record-route-enabled to MPLS p2p tunnel config";
+    reference "3.4.0";
+  }
+
+  revision "2023-04-28" {
+    description
+      "Fixed typo in cspf-tiebreaker leaf description";
+    reference "3.3.2";
+  }
+
+  revision "2023-02-03" {
+    description
+      "Clarify usage of interface-ref.";
+    reference "3.3.1";
+  }
 
   revision "2022-02-11" {
     description
@@ -130,27 +165,126 @@ submodule openconfig-mpls-static {
 
   // grouping statements
 
-  grouping static-lsp-common-config {
+  grouping static-lsp-nexthop-index {
     description
-      "common definitions for static LSPs";
+      "Next hop index definition for static LSPs";
 
-    leaf next-hop {
+    leaf index {
+      type uint32;
+      description
+        "An user-specified identifier utilised to uniquely reference
+        the next-hop entry in the next-hop list. The value of this
+        index has no semantic meaning other than for referencing
+        the entry.";
+    }
+  }
+
+  grouping static-lsp-nexthop-common-config {
+    description
+      "Common definition of next hop configuration for static LSPs";
+
+    leaf ip-address {
       type inet:ip-address;
       description
-        "next hop IP address for the LSP";
-    }
-
-    leaf incoming-label {
-      type oc-mplst:mpls-label;
-      description
-        "label value on the incoming packet";
+        "Next hop IP address for the LSP";
     }
 
     leaf push-label {
       type oc-mplst:mpls-label;
       description
-        "label value to push at the current hop for the
+        "Label value to push at the current hop for the
         LSP";
+    }
+
+    // interface-ref
+    uses oc-if:interface-ref-common;
+  }
+
+  grouping static-lsp-common-config {
+    description
+      "Common definitions for static LSPs";
+
+    leaf incoming-label {
+      type oc-mplst:mpls-label;
+      description
+        "Label value on the incoming packet";
+    }
+
+    leaf next-hop {
+      type inet:ip-address;
+      status deprecated;
+      description
+        "Next hop IP address for the LSP";
+    }
+
+    leaf push-label {
+      type oc-mplst:mpls-label;
+      status deprecated;
+      description
+        "Label value to push at the current hop for the
+        LSP";
+    }
+
+    // interface-ref
+    uses oc-if:interface-ref-common {
+      status deprecated;
+    }
+
+    leaf metric {
+      type uint8;
+      description
+        "Specifies metric value used for the MPLS route.";
+    }
+  }
+
+  grouping static-lsp-nexthops-common {
+    description
+      "MPLS Static LSP next-hops configuration";
+
+    container lsp-next-hops {
+      description
+        "Configuration and state parameters relating to the
+        next-hops that are to be utilised for the MPLS static
+        route being specified";
+
+      list lsp-next-hop {
+        key "index";
+
+        description
+          "A list of next-hops to be utilised for the MPLS
+          static route being specified.";
+
+        leaf index {
+          type leafref {
+            path "../config/index";
+          }
+          description
+            "A reference to the index of the current next-hop.
+            The index is intended to be a user-specified value
+            which can be used to reference the next-hop in
+            question, without any other semantics being
+            assigned to it.";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the next-hop
+            entry";
+
+          uses static-lsp-nexthop-index;
+          uses static-lsp-nexthop-common-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to the
+            next-hop entry";
+
+          uses static-lsp-nexthop-index;
+          uses static-lsp-nexthop-common-config;
+        }
+      }
     }
   }
 
@@ -192,6 +326,8 @@ submodule openconfig-mpls-static {
         uses static-lsp-ingress-config;
         uses static-lsp-ingress-state;
       }
+
+      uses static-lsp-nexthops-common;
     }
   }
 
@@ -233,6 +369,8 @@ submodule openconfig-mpls-static {
         uses static-lsp-transit-config;
         uses static-lsp-transit-state;
       }
+
+      uses static-lsp-nexthops-common;
     }
   }
 
@@ -274,6 +412,8 @@ submodule openconfig-mpls-static {
         uses static-lsp-egress-config;
         uses static-lsp-egress-state;
       }
+
+      uses static-lsp-nexthops-common;
     }
   }
 

@@ -58,9 +58,95 @@ module openconfig-bgp {
         +-> neighbor
           +-> [ neighbor config ]
           +-> [ optional pointer to peer-group ]
-          +-> AFI / SAFI [ per-AFI overrides ]";
+          +-> AFI / SAFI [ per-AFI overrides ]
 
-  oc-ext:openconfig-version "9.1.0";
+    Most BGP features can be configured at multiple levels in the BGP
+    configuration level hierarchy. The common inheritance model allows
+    the more specific configuration (e.g. neighbor) to inherit from or
+    override the less specific configuration (e.g. global).
+    Leaf present at one level overrides leafs present at higher levels,
+    whereas leaf not present inherits its value from the leaf present
+    at the next higher level in the hierarchy.";
+
+  oc-ext:openconfig-version "9.9.1";
+
+  revision "2025-04-18" {
+    description
+      "Clarification to usage of link-bandwidth-ext-community
+      container under BGP use-multiple-paths`.";
+          reference "9.9.1";
+  }
+
+  revision "2025-03-30" {
+    description
+      "Add schema for auto-generated link-bandwidth extended community
+      for learned routes.";
+    reference "9.9.0";
+  }
+
+  revision "2024-09-06" {
+    description
+      "Restore NONE enum value for community-type.";
+    reference "9.8.0";
+  }
+
+  revision "2023-12-28" {
+    description
+      "Clarification to last-prefix-limit-exceeded in description";
+          reference "9.7.1";
+  }
+
+  revision "2023-12-28" {
+    description
+      "Add support for controling use of link-bandwidth extended
+      community for BGP multipath.";
+          reference "9.7.0";
+  }
+
+  revision "2023-11-02" {
+    description
+      "Fix revision '2023-03-31': send-community-type was added to the
+       wrong grouping.
+      Allow configuring send-community per AFI-SAFI at
+       neighbor/peer-group.";
+    reference "9.6.0";
+  }
+
+  revision "2023-11-01" {
+    description
+      "Add default apply policy to global and per afi-safi config.";
+    reference "9.5.0";
+  }
+
+  revision "2023-06-27" {
+    description
+      "Clarify bgp remote-port description";
+    reference "9.4.1";
+  }
+
+  revision "2023-04-01" {
+    description
+      "Add support for BGP large communities [rfc8092] in
+      send-community.
+      Leaf send-community was replaced by the leaf-list
+      send-community-type to allow the combination of different
+      community types";
+    reference "9.4.0";
+  }
+
+  revision "2023-03-31" {
+    description
+      "Allow configuring send-community per AFI-SAFI at
+       neighbor/peer-group.";
+    reference "9.3.0";
+  }
+
+  revision "2022-12-12" {
+    description
+      "Removed the default of enabled leaf of AFI-SAFI
+      at neighbor/peer-group to support BGP inheritance model.";
+    reference "9.2.0";
+  }
 
   revision "2022-05-21" {
     description

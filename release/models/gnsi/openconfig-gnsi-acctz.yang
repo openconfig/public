@@ -1,0 +1,279 @@
+module openconfig-gnsi-acctz {
+  yang-version 1;
+  namespace "https://github.com/openconfig/yang/gnsi/acctz";
+  prefix oc-gnsi-acctz;
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-system {
+    prefix oc-sys;
+  }
+  import openconfig-system-grpc {
+    prefix oc-sys-grpc;
+  }
+  import openconfig-yang-types {
+    prefix oc-yang;
+  }
+  import openconfig-gnsi {
+    prefix oc-gnsi;
+  }
+  organization
+    "OpenConfig Working Group";
+
+  contact
+    "OpenConfig working group
+    netopenconfig@googlegroups.com";
+
+  description
+    "This module provides counters of gNSI accountZ requests and responses and
+    the quantity of data transferred.";
+
+  oc-ext:openconfig-version "0.4.0";
+
+  revision 2024-12-24 {
+    description
+      "Add counters for login/logout accounting records";
+    reference "0.4.0";
+  }
+
+  revision 2024-10-07 {
+    description
+      "Remove `idle-timeouts` and `counters-last-cleared` leaves.
+      Relocate source-counters and client-counters to separate paths";
+    reference "0.3.0";
+  }
+
+  revision 2024-02-13 {
+    description
+      "Major style updates and move to openconfig/public from openconfig/gnsi.
+      Last commit at
+      https://github.com/openconfig/gnsi/commit/347935aac66135d5649dadb9583ed0914578aab0";
+    reference "0.2.0";
+  }
+
+  revision 2023-12-01 {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  typedef cmd-service {
+    description "enum CommandService.CmdServiceType";
+    type enumeration {
+      enum UNSPECIFIED {
+        value 0;
+      }
+      enum SHELL {
+        value 1;
+      }
+      enum CLI {
+        value 2;
+      }
+      enum WEBUI {
+        value 3;
+      }
+      enum RESTCONF {
+        value 4;
+      }
+      enum NETCONF {
+        value 5;
+      }
+    }
+  }
+  typedef grpc-service {
+    description "enum GrpcService.GrpcServiceType";
+    type enumeration {
+      enum UNSPECIFIED {
+        value 0;
+      }
+      enum GNMI {
+        value 1;
+      }
+      enum GNOI {
+        value 2;
+      }
+      enum GNSI {
+        value 3;
+      }
+      enum GRIBI {
+        value 4;
+      }
+      enum P4RT {
+        value 5;
+      }
+    }
+  }
+  typedef session-service {
+    description "enum SessionInfo.SessionStatus";
+    type enumeration {
+      enum UNSPECIFIED {
+        value 0;
+      }
+      enum LOGIN {
+        value 1;
+      }
+      enum LOGOUT {
+        value 2;
+      }
+    }
+  }
+  typedef service-request {
+    description "enum RecordResponse.service_request";
+    type enumeration {
+      enum CMD_SERVICE {
+        value 4;
+      }
+      enum GRPC_SERVICE {
+        value 5;
+      }
+      enum SESSION_SERVICE {
+        value 6;
+      }
+    }
+  }
+  typedef service-type {
+    description "enum cmd or grpc service type";
+    type union {
+      type cmd-service;
+      type grpc-service;
+      type session-service;
+    }
+  }
+
+  // gnsi.acctz client statistics
+  grouping client-counters {
+    description
+      "A collection of counters that were collected by the gNSI.acctz
+      module while servicing acctz clients.";
+    container state {
+        description
+          "Operational state relating to acctz-counters.";
+
+      container counters {
+        description
+          "A collection of counters that were collected by the gNSI.acctz
+          module while servicing acctz clients.";
+
+        leaf history-istruncated {
+          type oc-yang:counter64;
+          description
+            "The total number of times that a RecordRequest resulted in
+            a RecordResponse being marked history-istruncated. ie: a
+            request was made for a timestamp that did not exist in the
+            history.";
+        }
+        leaf record-requests {
+          type oc-yang:counter64;
+          description
+            "The total number of RecordRequest messages that have been received.";
+        }
+        leaf record-responses {
+          type oc-yang:counter64;
+          description
+            "The total number of RecordResponse messages that have been sent.";
+        }
+      }
+    }
+  }
+
+  // gnsi.acctz producer statistics
+  grouping source-records {
+    description
+      "A collection of counters for gNSI.acctz record production per
+      service request type.";
+
+    container source-records {
+      description
+        "A collection of counters for gNSI.acctz record production per
+        service request type.";
+      list source-record {
+        key "service type";
+        // unique "service type";
+        description
+          "A collection of counters for each service request type.";
+
+        leaf service {
+          type leafref {
+            path "../state/service";
+          }
+          description
+            "service request type for the gNSI.acctz record.";
+        }
+        leaf type {
+          type leafref {
+            path "../state/type";
+          }
+          description
+            "service request application enum for the gNSI.acctz record.";
+        }
+
+        container state {
+          description
+            "Operational state for gNSI.acctz counters of record production per
+            service request type.";
+          leaf service {
+            type service-request;
+            description
+              "service request type for the gNSI.acctz record.";
+          }
+          leaf type {
+            type service-type;
+            description
+              "service request application enum for the gNSI.acctz record.";
+          }
+
+          container counters {
+            description
+              "A collection of counters for gNSI.acctz record production per
+              service-type.";
+            leaf records {
+              type oc-yang:counter64;
+              description
+                "The total number of records produced for the service-type.";
+            }
+          }
+        }
+      }
+    }
+  }
+
+  grouping grpc-server-acctz-counters {
+    description
+      "A collection of counters from the gNSI.acctz module that exist per grpc server.";
+
+    container acctz {
+      config false;
+      description
+        "A collection of counters from the gNSI.acctz module that exist
+        per grpc server.";
+      uses client-counters;
+    }
+  }
+
+  grouping system-acctz-counters {
+    description
+      "A collection of counters from the gNSI.acctz module.";
+
+    container acctz {
+      config false;
+      description
+        "A collection of counters regarding the creation of gNSI.acctz records.";
+      uses source-records;
+    }
+  }
+
+  // Augments section.
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
+    when "config[contains(services, 'oc-gnsi:GNSI')]/enable = 'true'";
+    description
+      "Counters collected by the gNSI.acctz module regarding grpc servers.";
+
+    uses grpc-server-acctz-counters;
+  }
+
+  augment "/oc-sys:system/oc-sys:aaa/oc-sys:accounting" {
+    description
+      "Counters collected by the gNSI.acctz module regarding the system.";
+
+    uses system-acctz-counters;
+  }
+}

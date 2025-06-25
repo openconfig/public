@@ -25,9 +25,23 @@ module openconfig-network-instance-policy {
     actions) for the network instance model.  These statements are
     generally added to the routing policy model.";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.1.3";
 
-  revision "2018-11-21" {
+  revision "2024-09-19" {
+    description
+      "Correct typo in description of
+       match-protocol-instance/protocol-name.";
+    reference "0.1.3";
+  }
+
+  revision "2023-07-25" {
+    description
+      "Expand description of
+       match-protocol-instance/protocol-name.";
+    reference "0.1.2";
+  }
+
+revision "2018-11-21" {
     description
       "Add OpenConfig module metadata extensions.";
     reference "0.1.1";
@@ -64,7 +78,11 @@ module openconfig-network-instance-policy {
         type string;
         description
           "The name of the protocol instance to match
-          on in the local network instance";
+          on in the local network instance. The string
+          must match one of /network-instances/
+          network-instance/protocols/
+          protocol/name in the local network
+          instance.";
       }
   }
 

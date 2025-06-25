@@ -1,3 +1,6 @@
+substitutions:
+    _OC_PYANG_VERSION: master
+
 steps:
 ############### GET CI REPO ###############
 # Decrypt the file containing the key
@@ -15,6 +18,7 @@ steps:
   - name: 'ssh'
     path: /root/.ssh
 # Set up git with key and domain
+# See https://cloud.google.com/build/docs/access-github-from-build#add_the_public_ssh_key_to_known_hosts
 - name: 'gcr.io/cloud-builders/git'
   entrypoint: 'bash'
   args:
@@ -48,7 +52,7 @@ steps:
     git clone git@github.com:openconfig/models-ci.git /go/src/github.com/openconfig/models-ci
     cd /go/src/github.com/openconfig/models-ci
     # Modify the major version to update models-ci version.
-    branch=$(git tag -l 'v8*' | sort -V | tail -1)
+    branch=$(git tag -l 'v13.*' | sort -V | tail -1)
     git checkout $branch
   volumes:
   - name: 'ssh'
@@ -83,9 +87,8 @@ steps:
     -pr-head-repo-url=$_HEAD_REPO_URL
     -commit-sha=$COMMIT_SHA
     -pr-number=$_PR_NUMBER
-    -skipped-validators=confd
+    -skipped-validators=confd,yanglint
     -extra-pyang-versions=2.2.1
-    -compat-report=yanglint
     -branch=$BRANCH_NAME
   secretEnv: ['GITHUB_ACCESS_TOKEN']
   env:
@@ -126,7 +129,7 @@ steps:
   dir: '/go/src/github.com/openconfig/pattern-regex-tests'
   waitFor: ['regexp clone']
   id: 'regexp dep'
-- name: 'gcr.io/$PROJECT_ID/models-ci-image'
+- name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/regexp/test.sh"]
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -152,7 +155,7 @@ steps:
   args: ['cp', 'gs://openconfig/yanglint.deb', '/workspace/yanglint.deb']
   waitFor: ['validator prep']
   id: 'yanglint prep2'
-- name: 'gcr.io/$PROJECT_ID/models-ci-image'
+- name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/yanglint/test.sh"]
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -190,7 +193,7 @@ steps:
   id: 'misc-checks'
 
 ############### OC-PYANG ###############
-- name: 'gcr.io/$PROJECT_ID/models-ci-image'
+- name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/oc-pyang/test.sh']
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -201,6 +204,7 @@ steps:
   - 'COMMIT_SHA=$COMMIT_SHA'
   - '_REPO_SLUG=$_REPO_SLUG'
   - 'BRANCH_NAME=$BRANCH_NAME'
+  - '_OC_PYANG_VERSION=$_OC_PYANG_VERSION'
   volumes:
   - name: 'gopath'
     path: /go
@@ -208,17 +212,7 @@ steps:
   id: 'oc-pyang'
 
 ############### GOYANG/YGOT ###############
-- name: 'golang'
-  entrypoint: 'go'
-  args: ['install', 'github.com/openconfig/ygot/generator@latest']
-  volumes:
-  - name: 'gopath'
-    path: /go
-  env:
-  - 'GOPATH=/go'
-  waitFor: ['go path creation']
-  id: 'goyang-ygot prep'
-- name: 'gcr.io/$PROJECT_ID/models-ci-image'
+- name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/goyang-ygot/test.sh"]
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -232,11 +226,11 @@ steps:
   - 'COMMIT_SHA=$COMMIT_SHA'
   - '_REPO_SLUG=$_REPO_SLUG'
   - 'BRANCH_NAME=$BRANCH_NAME'
-  waitFor: ['validator prep', 'goyang-ygot prep', 'oc-pyang']
+  waitFor: ['validator prep', 'go path creation', 'oc-pyang']
   id: 'goyang-ygot'
 
 ############### PYANG ###############
-- name: 'gcr.io/$PROJECT_ID/models-ci-image'
+- name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/pyang/test.sh']
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -254,7 +248,7 @@ steps:
   id: 'pyang'
 
 ############### PYANGBIND ###############
-- name: 'gcr.io/$PROJECT_ID/models-ci-image'
+- name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/pyangbind/test.sh']
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -271,8 +265,26 @@ steps:
   waitFor: ['validator prep', 'oc-pyang']
   id: 'pyangbind'
 
+############### YGNMI ###############
+- name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
+  entrypoint: 'bash'
+  args: ['-c', "/go/src/github.com/openconfig/models-ci/validators/ygnmi/test.sh"]
+  secretEnv: ['GITHUB_ACCESS_TOKEN']
+  volumes:
+  - name: 'gopath'
+    path: /go
+  env:
+  - 'GOPATH=/go'
+  - '_PR_NUMBER=$_PR_NUMBER'
+  - '_MODEL_ROOT=$_MODEL_ROOT'
+  - 'COMMIT_SHA=$COMMIT_SHA'
+  - '_REPO_SLUG=$_REPO_SLUG'
+  - 'BRANCH_NAME=$BRANCH_NAME'
+  waitFor: ['validator prep', 'go path creation', 'oc-pyang', 'pyangbind'] # wait for pyangbind to avoid possible OOM.
+  id: 'ygnmi'
+
 ############### COMPATIBILITY REPORT ###############
-- name: 'gcr.io/$PROJECT_ID/models-ci-image'
+- name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
   entrypoint: 'bash'
   args: ['-c', '/go/src/github.com/openconfig/models-ci/validators/compat_report.sh']
   secretEnv: ['GITHUB_ACCESS_TOKEN']
@@ -291,6 +303,7 @@ steps:
 timeout: 600s
 options:
   machineType: 'E2_HIGHCPU_32'
+  logging: CLOUD_LOGGING_ONLY
 
 availableSecrets:
   inline:
