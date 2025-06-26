@@ -1318,16 +1318,10 @@ revision "2023-06-30" {
     leaf urpf-lookup-network-instance {
       type oc-ni:network-instance-ref;
       description
-        "When this leaf is populted it provides name of network instance against which
-        FIB the LPM lookup of packet's source address is executed. When this leaf is omitted,
-        but uRPF is enabled, LPM lookup of packet's source address is executed
-        against forwarding network-instance.
-        The urpf-lookup-network-instance tables can be populated by any protocol or
-        configuration supported by implementation.
-        Only valid routes are used for packet's source address lookup.
-        If there is no match, packet is discarded. If match is on default route, behaviour
-        configured by 'allow-default-route' leaf applys. If matching route has 'DROP'
-        next hop, behaviour configured by 'allow-drop-next-hop' applys."
+        "If populated, this leaf provides the name of the network instance
+        used to look up a packet's source address. When this leaf is
+        omitted and uRPF is enabled, the packet's source address is looked
+        up in the forwarding network-instance.";
     }
   }
 
