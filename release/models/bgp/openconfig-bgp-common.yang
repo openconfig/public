@@ -675,13 +675,18 @@ grouping bgp-extended-route-retention-state {
       active for the BGP session.";
   }
 
-  leaf remaining-retention-time {
-    type uint32;
-    units "seconds";
-    description
-      "The time remaining, in seconds, before the stale routes are
-      purged. This value is present only when extended-retention-active
-      is true.";
+  leaf remaining-retention-time { 
+    type uint32; 
+    units "seconds"; 
+    description 
+    "The time remaining, in seconds, before the stale routes are purged. 
+    Its behavior will be as follow: 
+      1. When ExRR is not active (extended-retention-active =
+      false), remaining-retention-time will report the full configured 
+      retention-time.
+      2. When ExRR is active (extended-retention-active = true),
+      remaining-retention-time will count down from the configured 
+      retention-time."; 
   }
 }
 
