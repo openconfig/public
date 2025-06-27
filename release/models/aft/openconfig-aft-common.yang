@@ -23,13 +23,7 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.1.0";
-
-  revision "2025-05-15" {
-    description
-      "Add GRE and MPLS to encap-headers.";
-    reference "3.1.0";
-  }
+  oc-ext:openconfig-version "3.0.0";
 
   revision "2025-03-12" {
     description
@@ -635,16 +629,12 @@ submodule openconfig-aft-common {
 
   grouping aft-common-entry-nexthop-gre-state {
     description
-      "GRE encapsulation applied on next-hop.";
+      "GRE encapsulation applied on a IPv4 and IPv6 next-hop.";
 
     leaf src-ip {
       type oc-inet:ip-address;
       description
-        "The src-ip for the encapsulation is statically configured using this
-        leaf. If not populated the src-ip is expected to be dynamically
-        derived from the subinterface that the packet is forwarded from. If
-        an implementation requires a static src-ip, then it should return
-        an error if this is unspecified.";
+        "The source IP address for the GRE encapsulation.";
     }
 
     leaf dst-ip {
@@ -656,31 +646,9 @@ submodule openconfig-aft-common {
     leaf ttl {
       type uint8;
       description
-        "This leaf reflects the configured/default TTL value that is used in the
-         outer header during packet encapsulation. When this leaf is not set,
-         the TTL value of the inner packet is copied over as the outer packet's
-         TTL value during encapsulation.";
-    }
-  }
-
-  grouping aft-common-entry-nexthop-encap-gre-config {
-    description
-      "Configuration of GRE encapsulation applied on next-hop.";
-
-    leaf src-ip {
-      type oc-inet:ip-address;
-      description
-        "The src-ip for the encapsulation is statically configured using this
-        leaf. If not populated the src-ip is expected to be dynamically
-        derived from the subinterface that the packet is forwarded from. If
-        an implementation requires a static src-ip, then it should return
-        an error if this is unspecified.";
-    }
-
-    leaf dst-ip {
-      type oc-inet:ip-address;
-      description
-        "Destination IP address to use for the encapsulated packet.";
+        "If specified, this TTL value is used on the GRE header during
+        encapsulation. If unspecified, the TTL value of the inner packet is
+        copied to the GRE header TTL value during encapsulation.";
     }
   }
 
@@ -710,24 +678,6 @@ submodule openconfig-aft-common {
 
         Note: a swap operation is reflected by entries in the
         popped-mpls-label-stack and the pushed-mpls-label-stack";
-    }
-  }
-
-  grouping aft-common-entry-nexthop-encap-mpls-config {
-    description
-      "Configuration of MPLS encapsulation of a packet.";
-
-    leaf traffic-class {
-      type oc-mplst:mpls-tc;
-      description
-        "The value of the MPLS traffic class (TC) bits, formerly known as the
-         EXP bits.";
-    }
-
-    leaf mpls-label {
-      type oc-mplst:mpls-label;
-      description
-        "An MPLS label value.";
     }
   }
 
