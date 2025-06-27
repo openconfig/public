@@ -25,7 +25,14 @@ module openconfig-evpn-types {
     policy. It can be imported by modules that make use of EVPN
     attributes";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2024-05-08" {
+    description
+      "Add new redistribute-type enumeration for configuring the types of routes
+      to be redistributed in either a MACRVRF or IPVRF.";
+    reference "0.3.0";
+  }
 
   revision "2021-06-21" {
     description
@@ -151,6 +158,28 @@ module openconfig-evpn-types {
       "Integrated Routing and Bridging interface.  It connects an IP-
       VRF to a BD or subnet";
     reference "draft-ietf-bess-evpn-inter-subnet-forwarding-10";
+  }
+
+  identity EVPN_REDISTRIBUTE_TYPE {
+    description "Base identity for a type of evpn route to redistribute";
+  }
+
+  identity REDISTRIBUTE_LEARNED {
+    base EVPN_REDISTRIBUTE_TYPE;
+    description
+      "Redistribute dynamically learned routes";
+  }
+
+  identity REDISTRIBUTE_STATIC {
+    base EVPN_REDISTRIBUTE_TYPE;
+    description
+      "Redistribute statically configured routes";
+  }
+
+  identity REDISTRIBUTE_CONNECTED {
+    base EVPN_REDISTRIBUTE_TYPE;
+    description
+      "Redistribute connected routes";
   }
 
   typedef evi-id {
