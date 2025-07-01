@@ -43,7 +43,14 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "3.0.0";
+  oc-ext:openconfig-version "3.1.0";
+  
+  revision "2025-07-01" {
+    description
+      "Add next-hop-group, which contains a leafref to network-instances
+      for local routing module.";
+    reference "3.1.0";
+  }
 
   revision "2025-06-30" {
     description
@@ -336,16 +343,12 @@ module openconfig-local-routing {
           container config {
             description
               "Configuration parameters relating to the next-hop-group.";
-
-            uses next-hop-group-config;
           }
 
           container state {
             config false;
             description
               "Operational parameters relating to the next-hop-group.";
-
-            uses next-hop-group-config;
           }
         }
 
@@ -484,19 +487,6 @@ module openconfig-local-routing {
     }
   }
 
-  grouping next-hop-group-config {
-    description
-      "Grouping of configuration parameters for a static route's reference
-      to a next-hop-group.";
 
-    leaf name {
-      type leafref {
-        path "/network-instances/network-instance/static/next-hop-groups/next-hop-group/name";
-      }
-
-      description
-        "A user defined name for a next-hop-group.";
-    }
-  }
 
 }
