@@ -21,7 +21,14 @@ module openconfig-local-routing-network-instance {
     "This module adds leaves that relate to network-instances
      to the local routing subtree.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2025-07-01" {
+    description
+      "Add refernce to static next-hop-group and augment the local routing
+      module.";
+    reference "1.1.0";
+  }
 
   revision "2025-06-30" {
     description
@@ -83,6 +90,9 @@ module openconfig-local-routing-network-instance {
   }
 
   grouping static-next-hop-group-networkinstance {
+    description
+      "Grouping of nodes for a reference to a static next-hop-group.";
+
     container next-hop-group {
       description
         "Configuration and state parameters relating to the
@@ -111,8 +121,8 @@ module openconfig-local-routing-network-instance {
 
   grouping next-hop-group-config {
     description
-      "Grouping of configuration parameters for a static route's reference
-      to a next-hop-group.";
+      "Grouping of configuration parameters for a reference to a
+      static next-hop-group.";
 
     leaf name {
       type leafref {
