@@ -1,0 +1,112 @@
+module openconfig-local-routing-network-instance {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/local-routing-netinst";
+
+  prefix "oc-loc-rt-netinst";
+
+  import openconfig-network-instance { prefix "oc-ni"; }
+  import openconfig-extensions { prefix "oc-ext"; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module adds leaves that relate to network-instances
+     to the local routing subtree.";
+
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2025-06-30" {
+    description
+      "Add leaves that relate to network-instances to the
+       local routing module.";
+    reference "1.0.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  grouping static-nexthop-networkinstance {
+    description
+      "This grouping define leaves that need references to the network-instance
+       subtree within the local routing module. It is used to augment the
+       /network-instances/network-instance/protocols/protocol/static-routes/ +
+       static-route/next-hops/next-hop/{config,state} containers.";
+
+    leaf next-network-instance {
+      description
+        "Instead of finding the next-hop for a destination address in the current
+        network-instance, look up the destination address in the routing table
+        of the specified network-instance.
+
+        For example, let 'next-network-instance' = 'DEFAULT'.  If a packet arrives
+        in the 'BLUE' network-instance and the destination address matches this
+        route, the destination address will be looked up again in the 'DEFAULT'
+        network-instance to find the next-hop.
+        This leaf is mutually exclusive with 'next-hop', 'nh-network-instance'
+        leaves";
+
+      type leafref {
+        path "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:config/oc-ni:name";
+      }
+    }
+
+    leaf nh-network-instance {
+      description
+        "Network-instance in which IP address of next-hop should
+        be looked up, to find egress interface. This attribute
+        is only valid if next-hop is given as IP address.
+        This attribute may be combined with recurse attribute of any
+        value, in which case recurse setting applies to
+        nh-network-instance.
+
+        For example, let 'nh-network-instance' = 'DEFAULT'.  If a
+        packet arrives on the 'BLUE' network-instance and the
+        destination address matches this route, look up the IP
+        configured as next-hop in the 'DEFAULT' network-instance.
+        This leaf is mutually exclusive with next-network-instance
+        leaf";
+
+      type leafref {
+        path "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:config/oc-ni:name";
+      }
+    }
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:protocols/oc-ni:protocol/oc-ni:static-routes/oc-ni:static/oc-ni:next-hops/oc-ni:next-hop/oc-ni:config" {
+    description
+      "Add network-instance leaves to static routing next-hop container.";
+
+    uses static-nexthop-networkinstance;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:protocols/oc-ni:protocol/oc-ni:static-routes/oc-ni:static/oc-ni:next-hops/oc-ni:next-hop/oc-ni:state" {
+    description
+      "Add network-instance leaves to static routing next-hop container.";
+
+    uses static-nexthop-networkinstance;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:static/oc-ni:next-hops/oc-ni:next-hop/oc-ni:config" {
+    description
+      "Add network-instance leaves to static next-hop container.";
+
+    uses static-nexthop-networkinstance;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:static/oc-ni:next-hops/oc-ni:next-hop/oc-ni:state" {
+    description
+      "Add network-instance leaves to static next-hop container.";
+
+    uses static-nexthop-networkinstance;
+  }
+}
