@@ -43,7 +43,14 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "3.0.0";
+  oc-ext:openconfig-version "4.0.0";
+
+  revision "2025-07-01" {
+    description
+      "Move static next-hop-group to local-routing-network-instance and
+      augment the local routing module.";
+    reference "4.0.0";
+  }
 
   revision "2025-06-30" {
     description
@@ -324,31 +331,6 @@ module openconfig-local-routing {
           uses local-static-state;
         }
 
-        container next-hop-group {
-          description
-            "Configuration and state parameters relating to the
-            next-hop-group. In the future, this container will replace the container
-            /network-instances/network-instance/protocols/protocol/static-routes/static/next-hops.
-            If a statically configured next-hop-group is used for a static route
-            prefix then the 'static-routes/static/next-hops' container must not
-            be used.";
-
-          container config {
-            description
-              "Configuration parameters relating to the next-hop-group.";
-
-            uses next-hop-group-config;
-          }
-
-          container state {
-            config false;
-            description
-              "Operational parameters relating to the next-hop-group.";
-
-            uses next-hop-group-config;
-          }
-        }
-
         container next-hops {
           description
             "Configuration and state parameters relating
@@ -481,21 +463,6 @@ module openconfig-local-routing {
           uses local-aggregate-state;
         }
       }
-    }
-  }
-
-  grouping next-hop-group-config {
-    description
-      "Grouping of configuration parameters for a static route's reference
-      to a next-hop-group.";
-
-    leaf name {
-      type leafref {
-        path "/network-instances/network-instance/static/next-hop-groups/next-hop-group/name";
-      }
-
-      description
-        "A user defined name for a next-hop-group.";
     }
   }
 
