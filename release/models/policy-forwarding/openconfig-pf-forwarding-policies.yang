@@ -21,7 +21,13 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "0.8.0";
+  }
 
   revision "2024-11-14" {
     description
@@ -268,6 +274,15 @@ submodule openconfig-pf-forwarding-policies {
       description
         "When this leaf is set to true, the local system should drop
         packets that match the rule.";
+    }
+
+    leaf mirror {
+      type boolean;
+      default false;
+      description
+        "When set, mirror (i.e. duplicate and send copy to specified target)
+        the traffic selected instead of simply forwarding. Mutually exclusive
+        with discard flag.";
     }
 
     leaf decapsulate-gre {
