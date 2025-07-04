@@ -23,8 +23,14 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.0.0";
-
+  oc-ext:openconfig-version "3.1.0";
+  
+  revision "2025-07-04" {
+    description
+      "Factor out AFT counters from atomic container into a unified subtree.";
+    reference "3.1.0";
+  }
+  
   revision "2025-03-12" {
     description
       "Use IP address-family specific types for UDP-V4 and UDP-V6 encapsulations in AFT.";
@@ -221,13 +227,6 @@ submodule openconfig-aft-common {
 
           uses aft-common-entry-nexthop-state;
           uses aft-labeled-entry-state;
-
-          container counters {
-            description
-              "Surrounding container for counters.";
-
-            uses aft-common-entry-counter-state;
-          }
 
           uses aft-evpn-entry-state;
 
@@ -444,14 +443,6 @@ submodule openconfig-aft-common {
   grouping aft-common-entry-state {
     description
       "Operational state parameters relating to a forwarding entry";
-
-    container counters {
-      config false;
-      description
-        "Surrounding container for counters.";
-
-      uses aft-common-entry-counter-state;
-    }
 
     leaf entry-metadata {
       type binary {
@@ -1142,45 +1133,5 @@ submodule openconfig-aft-common {
     }
 
     uses oc-if:interface-ref-common;
-  }
-
-  grouping aft-common-entry-counter-state {
-    oc-ext:telemetry-atomic-exempt;
-    description
-      "Counters relating to a forwarding entry";
-
-    leaf packets-forwarded {
-      type oc-yang:counter64;
-      description
-        "The number of packets which have matched, and been forwarded,
-         based on the AFT entry.";
-    }
-
-    leaf octets-forwarded {
-      type oc-yang:counter64;
-      description
-        "The number of octets which have matched, and been forwarded,
-         based on the AFT entry";
-    }
-  }
-
-  grouping aft-common-backup-entry-counter-state {
-    oc-ext:telemetry-atomic-exempt;
-    description
-      "Counters relating to a backup forwarding entry";
-
-    leaf packets-forwarded-backup {
-      type oc-yang:counter64;
-      description
-        "The number of packets which have matched, and been forwarded,
-         based on the AFT backup entry.";
-    }
-
-    leaf octets-forwarded-backup {
-      type oc-yang:counter64;
-      description
-        "The number of octets which have matched, and been forwarded,
-         based on the AFT backup entry";
-    }
   }
 }
