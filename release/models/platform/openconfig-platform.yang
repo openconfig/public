@@ -65,7 +65,12 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.31.0";
+  oc-ext:openconfig-version "0.32.0";
+
+  revision "2025-03-14" {
+    description
+      "Add install state information.";
+    reference "0.32.0";
 
   revision "2025-01-30" {
     description
@@ -726,6 +731,83 @@ revision "2024-05-29" {
 
   }
 
+  grouping platform-component-install-state {
+    description
+      "Install state data for platform components";
+
+    container install {
+      description
+        "Top-level container for component install state data";
+
+      leaf new-version {
+        type string;
+        description
+          "This is the version that is available on the component,
+          but the install is not complete or has not yet started.";
+      }
+
+      leaf new-version-service-impacting {
+        type boolean;
+        description
+          "A value of true indicates that installing would
+          be a service impacting event.";
+      }
+
+      leaf status {
+        type identityref {
+          base oc-platform-types:OPENCONFIG_INSTALL_STATUS;
+        }
+        description
+          "The status of the install.";
+      }
+
+      leaf step {
+        type string;
+        description
+          "Description of the current in-progress step of the install.";
+      }
+
+      leaf step-percent-complete {
+        type oc-types:percentage;
+        description
+          "The percent complete for the in-progress step.";
+      }
+
+      leaf total-percent-complete {
+        type oc-types:percentage;
+        description
+          "The percent complete for the entire install process.";
+      }
+
+      leaf start-timestamp {
+        type oc-types:timeticks64;
+        description
+          "The timestamp when the install started.";
+      }
+
+      leaf duration {
+        type oc-yang:counter64;
+        units "seconds";
+        description
+          "The time elapsed since the install was initiated or the
+          duration of the last install. This is reported in seconds.";
+      }
+
+      leaf stop-timestamp {
+        type oc-types:timeticks64;
+        description
+          "The timestamp when the install stopped.";
+      }
+
+      leaf last-known-failure {
+        type string;
+        description
+          "The reason of the last known failure, if the most recent
+          install ended in failure.";
+      }
+    }
+  }
+
   grouping platform-component-temp-alarm-state {
     description
       "Temperature alarm data for platform components";
@@ -1330,6 +1412,7 @@ revision "2024-05-29" {
               "'oc-platform-types:INTEGRATED_CIRCUIT' or " +
               "'oc-platform-types:FRU'";
           }
+          uses platform-component-install-state;
         }
 
         uses platform-component-properties-top;
