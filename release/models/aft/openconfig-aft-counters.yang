@@ -82,16 +82,25 @@ submodule openconfig-aft-counters {
             "Counters for each IPv4 unicast AFT entry, keyed by prefix.";
 
           leaf prefix {
-            type oc-inet:ipv4-prefix;
+            type leafref {
+              path "../state/prefix";
+            }
             description
-              "The IPv4 destination prefix that should be matched to
-              utilise the AFT entry.";
+              "Reference to the destination prefix which
+              must be matched to utilize the AFT entry.";
           }
 
           container state {
             config false;
             description
               "Counter state for the IPv4 unicast AFT entry.";
+
+            leaf prefix {
+              type oc-inet:ipv4-prefix;
+              description
+                "The IPv4 destination prefix that should be matched to
+                utilize the AFT entry.";
+            }
 
             uses aft-common-entry-counter-state;
             uses aft-common-backup-entry-counter-state;
@@ -109,16 +118,25 @@ submodule openconfig-aft-counters {
             "Counters for each IPv6 unicast AFT entry, keyed by prefix.";
 
           leaf prefix {
-            type oc-inet:ipv6-prefix;
+            type leafref {
+              path "../state/prefix";
+            }
             description
-              "The IPv6 destination prefix that should be matched to
-              utilise the AFT entry.";
+              "Reference to the destination prefix which
+              must be matched to utilize the AFT entry.";
           }
 
           container state {
             config false;
             description
               "Counter state for the IPv6 unicast AFT entry.";
+
+            leaf prefix {
+              type oc-inet:ipv6-prefix;
+              description
+                "The IPv6 destination prefix that should be matched to
+                utilize the AFT entry.";
+            }
 
             uses aft-common-entry-counter-state;
             uses aft-common-backup-entry-counter-state;
@@ -136,15 +154,24 @@ submodule openconfig-aft-counters {
             "Counters for each MPLS AFT entry, keyed by label.";
 
           leaf label {
-            type uint32;
+            type leafref {
+              path "../state/label";
+            }
             description
-              "The MPLS label that should be matched to utilise the AFT entry.";
+              "Reference to the label which must be matched to
+              utilize the AFT entry.";
           }
 
           container state {
             config false;
             description
               "Counter state for the MPLS AFT entry.";
+
+            leaf label {
+              type uint32;
+              description
+                "The MPLS label that should be matched to utilize the AFT entry.";
+            }
 
             uses aft-common-entry-counter-state;
           }
@@ -161,15 +188,24 @@ submodule openconfig-aft-counters {
             "Counters for each Ethernet AFT entry, keyed by MAC address.";
 
           leaf mac-address {
-            type oc-yang:mac-address;
+            type leafref {
+              path "../state/mac-address";
+            }
             description
-              "The MAC address that should be matched to utilise the AFT entry.";
+              "Reference to the mac-address that should be matched to utilize the
+              AFT entry.";
           }
 
           container state {
             config false;
             description
               "Counter state for the Ethernet AFT entry.";
+
+            leaf mac-address {
+              type oc-yang:mac-address;
+              description
+                "The MAC address that should be matched to utilize the AFT entry.";
+            }
 
             uses aft-common-entry-counter-state;
           }
@@ -186,15 +222,24 @@ submodule openconfig-aft-counters {
             "Counters for each Policy Forwarding AFT entry, keyed by index.";
 
           leaf index {
-            type uint64;
+            type leafref {
+              path "../state/index";
+            }
             description
-              "The index that should be matched to utilise the Policy Forwarding AFT entry.";
+              "Reference to the index that should be matched to utilize the
+              AFT entry.";
           }
 
           container state {
             config false;
             description
               "Counter state for the Policy Forwarding AFT entry.";
+
+            leaf index {
+              type uint64;
+              description
+                "The index that should be matched to utilize the Policy Forwarding AFT entry.";
+            }
 
             uses aft-common-entry-counter-state;
           }
@@ -211,15 +256,24 @@ submodule openconfig-aft-counters {
             "Counters for each Next-Hop AFT entry, keyed by index.";
 
           leaf index {
-            type uint64;
+            type leafref {
+              path "../state/index";
+            }
             description
-              "The index that should be matched to utilise the Next-Hop AFT entry.";
+              "Reference to the index of the next-hop that should be matched to utilize
+              the AFT entry.";
           }
 
           container state {
             config false;
             description
               "Counter state for the Next-Hop AFT entry.";
+
+            leaf index {
+              type uint64;
+              description
+                "The index that should be matched to utilize the Next-Hop AFT entry.";
+            }
 
             uses aft-common-entry-counter-state;
           }
