@@ -220,11 +220,6 @@ submodule openconfig-pf-forwarding-policies {
             "The policy is used only to classify incoming packets into corresponding
             network instances.";
         }
-        enum DECAP_POLICY {
-          description
-            "The policy is used for the decapsulation of packets. A policy configured
-            with this type should only have decapsulation actions.";
-        }
       }
       default PBR_POLICY;
       description
@@ -232,16 +227,6 @@ submodule openconfig-pf-forwarding-policies {
         routing, and have no restrictions on their implementation. Where there are alternate
         policy types, this leaf specifies that a policy is expected to conform with a subset
         of the functionality as described in the specified type.";
-    }
-
-    leaf global {
-      type boolean;
-      description
-        "When set true, the policy is applied to all interfaces in the network-instance.
-        Only one GLOBAL  policy type can be configured per network-instance. If an
-        interface has two policies, a global one and PBR (interface attached) policy,
-        the GLOBAL policy is processed first, before a PBR_POLICY policy.  If the
-        GLOBAL policy has a match, then the PBR policy is ignored.";
     }
   }
 
@@ -537,6 +522,36 @@ submodule openconfig-pf-forwarding-policies {
       description
         "The TTL that should be specified in the IP header of the GRE packet
         encapsulating the packet matching the rule.";
+    }
+  }
+
+  grouping pf-forwarding-policy-top {
+    description
+      "Grouping for top-level policy-forwarding.";
+
+    container config {
+      description
+        "Configuration parameters relating to top-level policy-forwarding.";
+      uses pf-forwarding-policy-top-parameters;
+    }
+
+    container state {
+      config false;
+      description
+        "State parameters relating to top-level policy-forwarding.";
+      uses pf-forwarding-policy-top-parameters;
+    }
+  }
+
+  grouping pf-forwarding-policy-top-parameters {
+    description
+      "Grouping of parameters relating to top-level policy-forwarding.";
+
+    leaf global-decap-policy {
+      type string;
+      description
+        "A decap policy that is applicable to a network instance and not a
+        particular interface.";
     }
   }
 }
