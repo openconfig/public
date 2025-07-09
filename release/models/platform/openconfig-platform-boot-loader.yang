@@ -1,0 +1,87 @@
+module openconfig-platform-boot-loader {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/platform/boot-loader";
+
+  prefix "oc-boot-loader";
+
+  import openconfig-platform { prefix oc-platform; }
+  import openconfig-extensions { prefix oc-ext; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines data related to BOOT_LOADER components in the
+    OpenConfig platform model.";
+
+  oc-ext:openconfig-version "0.0.1";
+
+  revision "2025-07-10" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // identity statements
+  identity BOOT_LOADER_BASE {
+    description
+      "Base identity for boot-loader types";
+  }
+
+  identity BOOT_LOADER_GRUB {
+    base BOOT_LOADER_BASE;
+    description
+      "GRUB is a boot-loader and boot manager for Linux and other Unix-based
+      OSes.";
+  }
+
+  identity BOOT_LOADER_ONIE {
+    base BOOT_LOADER_BASE;
+    description
+      "Open Network Install Environment (ONIE) is the combination of a boot
+      loader and a small operating system for network switches.";
+  }
+
+  // typedef statements
+
+  // grouping statements
+
+  grouping boot-loader-state {
+    description
+      "Operational state data for boot-loader components";
+
+    leaf type {
+      type identifyref {
+        base BOOT_LOADER_BASE;
+      }
+      description
+        "Specifies the type of boot-loader";
+    }
+  }
+
+  // data definition statements
+
+  // augment statements
+
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:boot-loader/oc-platform:state" {
+    description
+      "Adding boot-loader data to component model";
+
+    uses boot-loader-state;
+  }
+
+}
+
