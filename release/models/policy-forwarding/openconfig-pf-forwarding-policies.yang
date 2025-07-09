@@ -21,7 +21,13 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2025-07-08" {
+    description
+      "  Add action next-hop-group.";
+    reference "0.8.0";
+  }
 
   revision "2024-11-14" {
     description
@@ -383,6 +389,16 @@ submodule openconfig-pf-forwarding-policies {
         packets matching the match criteria for the forwarding rule
         should be forwarded to the next-hop IP address, bypassing any
         lookup on the local system.";
+    }
+
+    leaf next-hop-group {
+      // we are at /network-instances/network-instance/policy-forwarding/policies/policy/rules/rule/action/config/next-hop-group	
+      type leafref {
+        path "../../../../../../../oc-ni:static/oc-ni:next-hop-groups/oc-ni:next-hop-group/oc-ni:config/oc-ni:name";
+      }
+      description
+        "When specified, the next-hop of a packet is resolved from referenced
+        static next-hop-group in the same network-instance.";
     }
 
     leaf decapsulate-mpls-in-udp {
