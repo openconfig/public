@@ -36,8 +36,8 @@ module openconfig-aaa {
 
   revision "2025-07-04" {
     description
-      "Moved accounting-method and authorization-method leaf-lists
-      inside the accounting/events/event and authorization/events/event
+      "Add accounting-method and authorization-method leaf-lists
+      inside accounting/events/event and authorization/events/event
       lists, respectively.";
     reference "1.1.0";
   }
@@ -575,6 +575,10 @@ module openconfig-aaa {
   grouping aaa-accounting-config {
     description
       "Configuration data for event accounting";
+
+    uses aaa-accounting-methods-common {
+      status deprecated;
+    }
   }
 
   grouping aaa-accounting-state {
@@ -700,6 +704,10 @@ module openconfig-aaa {
   grouping aaa-authorization-config {
     description
       "Configuration data for AAA authorization";
+
+    uses aaa-authorization-methods-common {
+      status deprecated;
+    }
   }
 
   grouping aaa-authorization-state {
