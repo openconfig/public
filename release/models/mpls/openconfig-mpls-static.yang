@@ -24,7 +24,14 @@ submodule openconfig-mpls-static {
     "Defines static LSP configuration";
 
 
-  oc-ext:openconfig-version "3.6.0";
+  oc-ext:openconfig-version "3.7.0";
+
+  revision "2025-01-07" {
+    description
+      "Added support for mpls route to a specific
+      next hop network instance";
+    reference "3.7.0";
+  }  
 
   revision "2024-06-19" {
     description
@@ -386,6 +393,72 @@ submodule openconfig-mpls-static {
       "Operational state data for egress LSPs";
   }
 
+  grouping static-lsp-nexthop-network-instance {
+    description
+      "Vrf name for egress next-hops";
+
+    leaf next-hop-network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "The network-instance in which to resolve the next-hop.
+        If not specified, then the next-hop is resolved in the
+        enclosing network instance.";
+    }
+  }
+
+  grouping static-lsp-nexthops-egress {
+    description
+      "MPLS Static LSP next-hops egress configuration";
+
+    container lsp-next-hops {
+      description
+        "Configuration and state parameters relating to the
+        egress next-hops that are to be utilised for the MPLS static
+        route being specified";
+
+      list lsp-next-hop {
+        key "index";
+
+        description
+          "A list of next-hops to be utilised for the MPLS
+          static route being specified.";
+
+        leaf index {
+          type leafref {
+            path "../config/index";
+          }
+          description
+            "A reference to the index of the current next-hop.
+            The index is intended to be a user-specified value
+            which can be used to reference the next-hop in
+            question, without any other semantics being
+            assigned to it.";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the next-hop
+            entry";
+
+          uses static-lsp-nexthop-index;
+          uses static-lsp-nexthop-common-config;
+          uses static-lsp-nexthop-network-instance;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to the
+            next-hop entry";
+
+          uses static-lsp-nexthop-index;
+          uses static-lsp-nexthop-common-config;
+          uses static-lsp-nexthop-network-instance;     
+        }
+      }
+    }
+  }
+
   grouping static-lsp-egress-top {
     description
       "Top-level grouping for egress LSP data";
@@ -413,7 +486,7 @@ submodule openconfig-mpls-static {
         uses static-lsp-egress-state;
       }
 
-      uses static-lsp-nexthops-common;
+      uses static-lsp-nexthops-egress;
     }
   }
 
