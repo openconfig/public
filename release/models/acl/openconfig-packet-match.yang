@@ -31,7 +31,13 @@ module openconfig-packet-match {
     wildcard ('any') for that field.";
 
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.2.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "2.2.0";
+  }
 
   revision "2023-03-01" {
     description
@@ -171,6 +177,74 @@ module openconfig-packet-match {
         uses ethernet-header-config;
         uses ethernet-header-state;
       }
+    }
+  }
+
+  grouping pim-header-top {
+    description
+      "Top-level container for fields in a PIM header.";
+
+    container pim {
+      description
+        "PIM header fields";
+
+      container config {
+        description
+          "Configuration parameters relating to fields within
+          the PIM header.";
+        uses pim-header-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters relating to fields
+          within the PIM header";
+        uses pim-header-config;
+      }
+    }
+  }
+
+  grouping pim-header-config {
+    description
+      "Configuration options for PIM header";
+    leaf message-type {
+      type enumeration {
+        enum HELLO {
+          description
+            "Hello message type.";
+        }
+        enum REGISTER {
+          description
+            "Register message type.";
+        }
+        enum REGISTER_STOP {
+          description
+            "Register-Stop message type.";
+        }
+        enum JOIN_PRUNE {
+          description
+            "Join/Prune message type.";
+        }
+        enum BOOTSTRAP {
+          description
+            "Bootstrap message type.";
+        }
+        enum ASSERT {
+          description
+            "Assert message type.";
+        }
+        enum GRAFT {
+          description
+            "Graft message type.";
+        }
+        enum GRAFT_ACK {
+          description
+            "Graft-Ack message type.";
+        }
+      }
+      description
+        "Specifies the type of PIM message.";
     }
   }
 
@@ -419,6 +493,24 @@ module openconfig-packet-match {
       type oc-inet:ipv6-flow-label;
       description
         "Destination IPv6 Flow label.";
+    }
+
+    leaf-list routing-options {
+      type oc-pkt-match-types:ipv6-option-type;
+      description
+        "Routing IPv6 options to filter on";
+    }
+
+    leaf-list hop-by-hop-options {
+      type oc-pkt-match-types:ipv6-option-type;
+      description
+        "Hop-by-Hop IPv6 options to filter on";
+    }
+
+    leaf-list destination-options {
+      type oc-pkt-match-types:ipv6-option-type;
+      description
+        "Destination IPv6 options to filter on";
     }
 
     uses ip-protocol-fields-common-config;
