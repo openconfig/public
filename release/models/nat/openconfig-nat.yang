@@ -122,6 +122,38 @@ module openconfig-nat {
       "Action to take for matching traffic";
   }
 
+  typedef log-level {
+    type enumeration {
+      enum NONE {
+        description "No logging";
+      }
+      enum ERROR {
+        description "Log only errors";
+      }
+      enum INFO {
+        description "Log informational messages";
+      }
+      enum DEBUG {
+        description "Log debug messages";
+      }
+    }
+    description
+      "Logging level for NAT operations";
+  }
+
+  typedef traffic-matcher-type {
+    type enumeration {
+      enum ROUTING_POLICY {
+        description "Use routing policy for traffic matching";
+      }
+      enum ACCESS_LIST {
+        description "Use ACL set for traffic matching";
+      }
+    }
+    description
+      "Type of traffic matcher to use";
+  }
+
   // Grouping statements
 
   grouping nat-instance-config {
@@ -352,14 +384,7 @@ module openconfig-nat {
     }
 
     leaf traffic-matcher-type {
-      type enumeration {
-        enum ROUTING_POLICY {
-          description "Use routing policy for traffic matching";
-        }
-        enum ACCESS_LIST {
-          description "Use ACL set for traffic matching";
-        }
-      }
+      type traffic-matcher-type;
       description
         "Type of traffic matcher to use for this pool";
     }
@@ -534,14 +559,7 @@ module openconfig-nat {
     }
 
     leaf traffic-matcher-type {
-      type enumeration {
-        enum ROUTING_POLICY {
-          description "Use routing policy for traffic matching";
-        }
-        enum ACCESS_LIST {
-          description "Use ACL set for traffic matching";
-        }
-      }
+      type traffic-matcher-type;
       description
         "Type of traffic matcher to use for this static mapping";
     }
@@ -804,20 +822,7 @@ module openconfig-nat {
         }
 
         leaf log-level {
-          type enumeration {
-            enum NONE {
-              description "No logging";
-            }
-            enum ERROR {
-              description "Log only errors";
-            }
-            enum INFO {
-              description "Log informational messages";
-            }
-            enum DEBUG {
-              description "Log debug messages";
-            }
-          }
+          type log-level;
           default "ERROR";
           description
             "Global NAT logging level";
@@ -849,20 +854,7 @@ module openconfig-nat {
         }
 
         leaf log-level {
-          type enumeration {
-            enum NONE {
-              description "No logging";
-            }
-            enum ERROR {
-              description "Log only errors";
-            }
-            enum INFO {
-              description "Log informational messages";
-            }
-            enum DEBUG {
-              description "Log debug messages";
-            }
-          }
+          type log-level;
           description
             "Global NAT logging level";
         }
