@@ -28,7 +28,7 @@ module openconfig-nat {
 
     The model supports various NAT types including:
     - Basic NAT44 (Network Address Translation)
-    - NAPT44 (Network Address Port Translation)  
+    - NAPT44 (Network Address Port Translation)
     - Static mappings
     - Dynamic address pools
     - Policy-based NAT using routing policies and ACLs";
@@ -302,7 +302,7 @@ module openconfig-nat {
     choice traffic-matcher {
       description
         "Traffic matching criteria for pool usage";
-      
+
       case routing-policy {
         leaf policy-definition {
           type leafref {
@@ -310,7 +310,7 @@ module openconfig-nat {
                  "oc-rpol:policy-definition/oc-rpol:name";
           }
           description
-            "Reference to routing policy that defines traffic 
+            "Reference to routing policy that defines traffic
             eligible for this pool";
         }
       }
@@ -322,7 +322,7 @@ module openconfig-nat {
                  "oc-acl:config/oc-acl:name";
           }
           description
-            "Reference to ACL set that defines traffic 
+            "Reference to ACL set that defines traffic
             eligible for this pool";
         }
       }
@@ -470,7 +470,7 @@ module openconfig-nat {
     choice traffic-matcher {
       description
         "Traffic matching criteria for static mapping";
-      
+
       case routing-policy {
         leaf policy-definition {
           type leafref {
@@ -478,7 +478,7 @@ module openconfig-nat {
                  "oc-rpol:policy-definition/oc-rpol:name";
           }
           description
-            "Reference to routing policy that defines traffic 
+            "Reference to routing policy that defines traffic
             matching criteria for this static mapping";
         }
       }
@@ -490,7 +490,7 @@ module openconfig-nat {
                  "oc-acl:config/oc-acl:name";
           }
           description
-            "Reference to ACL set that defines traffic 
+            "Reference to ACL set that defines traffic
             matching criteria for this static mapping";
         }
       }
@@ -753,6 +753,38 @@ module openconfig-nat {
           type boolean;
           description
             "Global administrative state for NAT functionality";
+        }
+
+        leaf translation-timeout {
+          type uint32;
+          units "seconds";
+          description
+            "Default translation timeout for all NAT instances";
+        }
+
+        leaf max-translations {
+          type uint32;
+          description
+            "Maximum number of concurrent translations globally";
+        }
+
+        leaf log-level {
+          type enumeration {
+            enum NONE {
+              description "No logging";
+            }
+            enum ERROR {
+              description "Log only errors";
+            }
+            enum INFO {
+              description "Log informational messages";
+            }
+            enum DEBUG {
+              description "Log debug messages";
+            }
+          }
+          description
+            "Global NAT logging level";
         }
 
         leaf total-instances {
