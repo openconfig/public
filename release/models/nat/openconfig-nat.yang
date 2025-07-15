@@ -35,7 +35,7 @@ module openconfig-nat {
 
   oc-ext:openconfig-version "0.1.0";
 
-  revision "2025-07-14" {
+  revision "2025-07-15" {
     description
       "Initial revision";
     reference "0.1.0";
@@ -259,6 +259,58 @@ module openconfig-nat {
     }
   }
 
+  grouping policy-definition-config {
+    description
+      "Configuration parameters for NAT policy definition";
+
+    leaf policy-definition {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+             "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+        "Reference to routing policy that defines traffic
+        eligible for this pool";
+    }
+  }
+
+  grouping policy-definition-state {
+    description
+      "Operational state data for NAT policy definition";
+
+    leaf hit-count {
+      type yang:counter64;
+      description
+        "Number of packets matching this policy definition";
+    }
+  }
+
+  grouping acl-set-config {
+    description
+      "Configuration parameters for NAT ACL set";
+
+    leaf acl-set {
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
+             "oc-acl:config/oc-acl:name";
+      }
+      description
+        "Reference to ACL set that defines traffic
+        eligible for this pool";
+    }
+  }
+
+  grouping acl-set-state {
+    description
+      "Operational state data for NAT ACL set";
+
+    leaf hit-count {
+      type yang:counter64;
+      description
+        "Number of packets matching this ACL set";
+    }
+  }
+
   grouping nat-pool-config {
     description
       "Configuration parameters for NAT address pools";
@@ -299,33 +351,39 @@ module openconfig-nat {
         "Number of ports allocated per mapping";
     }
 
-    choice traffic-matcher {
+    leaf traffic-matcher-type {
+      type enumeration {
+        enum ROUTING_POLICY {
+          description "Use routing policy for traffic matching";
+        }
+        enum ACCESS_LIST {
+          description "Use ACL set for traffic matching";
+        }
+      }
       description
-        "Traffic matching criteria for pool usage";
+        "Type of traffic matcher to use for this pool";
+    }
 
-      case routing-policy {
-        leaf policy-definition {
-          type leafref {
-            path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
-                 "oc-rpol:policy-definition/oc-rpol:name";
-          }
-          description
-            "Reference to routing policy that defines traffic
-            eligible for this pool";
-        }
+    leaf policy-definition {
+      when "../traffic-matcher-type = 'ROUTING_POLICY'";
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+             "oc-rpol:policy-definition/oc-rpol:name";
       }
+      description
+        "Reference to routing policy that defines traffic
+        eligible for this pool";
+    }
 
-      case access-list {
-        leaf acl-set {
-          type leafref {
-            path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
-                 "oc-acl:config/oc-acl:name";
-          }
-          description
-            "Reference to ACL set that defines traffic
-            eligible for this pool";
-        }
+    leaf acl-set {
+      when "../traffic-matcher-type = 'ACCESS_LIST'";
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
+             "oc-acl:config/oc-acl:name";
       }
+      description
+        "Reference to ACL set that defines traffic
+        eligible for this pool";
     }
 
     leaf persistent {
@@ -414,10 +472,18 @@ module openconfig-nat {
         "Number of addresses available in this pool";
     }
 
-    leaf hit-count {
+    leaf policy-hit-count {
+      when "../traffic-matcher-type = 'ROUTING_POLICY'";
       type yang:counter64;
       description
-        "Number of packets matching this pool's traffic criteria";
+        "Number of packets matching the routing policy";
+    }
+
+    leaf acl-hit-count {
+      when "../traffic-matcher-type = 'ACCESS_LIST'";
+      type yang:counter64;
+      description
+        "Number of packets matching the ACL set";
     }
 
     leaf active-sessions {
@@ -467,33 +533,39 @@ module openconfig-nat {
         "Protocol for the mapping";
     }
 
-    choice traffic-matcher {
+    leaf traffic-matcher-type {
+      type enumeration {
+        enum ROUTING_POLICY {
+          description "Use routing policy for traffic matching";
+        }
+        enum ACCESS_LIST {
+          description "Use ACL set for traffic matching";
+        }
+      }
       description
-        "Traffic matching criteria for static mapping";
+        "Type of traffic matcher to use for this static mapping";
+    }
 
-      case routing-policy {
-        leaf policy-definition {
-          type leafref {
-            path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
-                 "oc-rpol:policy-definition/oc-rpol:name";
-          }
-          description
-            "Reference to routing policy that defines traffic
-            matching criteria for this static mapping";
-        }
+    leaf policy-definition {
+      when "../traffic-matcher-type = 'ROUTING_POLICY'";
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+             "oc-rpol:policy-definition/oc-rpol:name";
       }
+      description
+        "Reference to routing policy that defines traffic
+        matching criteria for this static mapping";
+    }
 
-      case access-list {
-        leaf acl-set {
-          type leafref {
-            path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
-                 "oc-acl:config/oc-acl:name";
-          }
-          description
-            "Reference to ACL set that defines traffic
-            matching criteria for this static mapping";
-        }
+    leaf acl-set {
+      when "../traffic-matcher-type = 'ACCESS_LIST'";
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
+             "oc-acl:config/oc-acl:name";
       }
+      description
+        "Reference to ACL set that defines traffic
+        matching criteria for this static mapping";
     }
 
     leaf persistent {
@@ -553,10 +625,18 @@ module openconfig-nat {
         "Number of bytes translated using this mapping";
     }
 
-    leaf hit-count {
+    leaf policy-hit-count {
+      when "../traffic-matcher-type = 'ROUTING_POLICY'";
       type yang:counter64;
       description
-        "Number of packets matching this mapping's traffic criteria";
+        "Number of packets matching the routing policy";
+    }
+
+    leaf acl-hit-count {
+      when "../traffic-matcher-type = 'ACCESS_LIST'";
+      type yang:counter64;
+      description
+        "Number of packets matching the ACL set";
     }
 
     leaf active-sessions {
