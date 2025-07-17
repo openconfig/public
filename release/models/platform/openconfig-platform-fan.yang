@@ -29,7 +29,7 @@ module openconfig-platform-fan {
       "Add fan alarm thresholds.";
     reference "0.2.0";
   }
-  
+
   revision "2018-11-21" {
     description
       "Add OpenConfig module metadata extensions.";
@@ -54,6 +54,8 @@ module openconfig-platform-fan {
   // grouping statements
 
   grouping fan-threshold-state {
+    description
+      "Grouping for all alarm thresholds for a particular severity level.";
     leaf severity {
       type identityref {
         base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
@@ -107,7 +109,6 @@ module openconfig-platform-fan {
           config false;
           description
             "Operational alarm thresholds for the fan.";
-
           uses fan-threshold-state;
         }
       }
