@@ -47,6 +47,67 @@ module openconfig-platform-fan {
 
   // grouping statements
 
+  grouping fan-threshold-state {
+    leaf severity {
+      type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The type of alarm to which the thresholds apply.";
+    }
+
+    leaf upper {
+      type uint32;
+      units rpm;
+      description
+        "Upper fan speed alarm threshold";
+    }
+
+    leaf lower {
+      type uint32;
+      units rpm;
+      description
+        "Lower fan speed alarm threshold";
+    }
+  }
+
+  grouping threshold-top {
+    description
+      "Top-level grouping for fan speed alarm thresholds";
+
+    container thresholds {
+      description
+        "Enclosing container for fan speed alarm thresholds.";
+
+      list threshold {
+        key "severity";
+        config false;
+        description
+          "List of fan speed alarm thresholds, indexed by alarm severity.";
+
+        leaf severity {
+          type leafref {
+            path "../state/severity";
+          }
+          config false;
+          description
+           "The severity applied to the group of thresholds.
+            An implementation's highest severity threshold
+            should be mapped to OpenConfig's `CRITICAL`
+            severity level.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational alarm thresholds for the fan.";
+          
+          uses fan-threshold-state;
+        }
+      }
+    }
+  }
+
   grouping fan-state {
     description
       "Operational state data for fan components";
@@ -59,7 +120,6 @@ module openconfig-platform-fan {
     }
   }
 
-
   // data definition statements
 
   // augment statements
@@ -70,6 +130,14 @@ module openconfig-platform-fan {
       "Adding fan data to component model";
 
     uses fan-state;
+  }
+
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:fan" {
+    description
+      "Adding fan alarm threshold";
+
+    uses transceiver-threshold-top;
   }
 
 }
