@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.0.0";
+  oc-ext:openconfig-version "3.1.0";
+
+  revision "2025-07-17" {
+    description
+      "Add GRE and MPLS to encap-headers.";
+    reference "3.1.0";
+  }
 
   revision "2025-03-12" {
     description
@@ -270,7 +276,7 @@ submodule openconfig-aft-common {
             description
               "State parameters relating to GRE encapsulation.";
 
-            uses aft-common-entry-nexthop-gre-state;
+            uses aft-common-entry-nexthop-encap-gre-config;
           }
         }
 
@@ -323,7 +329,7 @@ submodule openconfig-aft-common {
                 description
                   "State parameters relating to GRE encapsulation headers.";
 
-                uses aft-common-entry-nexthop-gre-state;
+                uses aft-common-entry-nexthop-encap-gre-config;
               }
             }
 
@@ -627,16 +633,14 @@ submodule openconfig-aft-common {
     }
   }
 
-  grouping aft-common-entry-nexthop-gre-state {
+  grouping aft-common-entry-nexthop-encap-gre-config {
     description
       "GRE encapsulation applied on a IPv4 and IPv6 next-hop.";
 
     leaf src-ip {
       type oc-inet:ip-address;
       description
-        "The source IP address for the GRE encapsulation may be expressed
-        using this leaf (src-ip) or if may be derived from
-        '../../interface-ref/state/subinterface'";
+        "The source IP address for the GRE encapsulation.";
     }
 
     leaf dst-ip {
@@ -648,10 +652,9 @@ submodule openconfig-aft-common {
     leaf ttl {
       type uint8;
       description
-        "This leaf reflects the configured/default TTL value that is used in the
-         outer header during packet encapsulation. When this leaf is not set,
-         the TTL value of the inner packet is copied over as the outer packet's
-         TTL value during encapsulation.";
+        "If specified, this TTL value is used on the GRE header during
+        encapsulation. If unspecified, the TTL value of the inner packet is
+        copied to the GRE header TTL value during encapsulation.";
     }
   }
 
@@ -684,6 +687,22 @@ submodule openconfig-aft-common {
     }
   }
 
+  grouping aft-common-entry-nexthop-encap-mpls-config {
+    description
+      "MPLS encapsulation of a packet.";
+
+    leaf traffic-class {
+      type oc-mplst:mpls-tc;
+      description
+        "The value of the MPLS traffic class (TC) bits, formerly known as the
+         EXP bits.";
+    }
+    leaf label {
+      type oc-mplst:mpls-label;
+      description
+        "A MPLS label value.";
+    }
+  }
 
   grouping aft-common-entry-nexthop-encap-udp-v4-state {
     description
