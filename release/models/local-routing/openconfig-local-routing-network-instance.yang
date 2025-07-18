@@ -21,7 +21,14 @@ module openconfig-local-routing-network-instance {
     "This module adds leaves that relate to network-instances
      to the local routing subtree.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2025-07-01" {
+    description
+      "Add reference to static next-hop-group and augment the local routing
+      module.";
+    reference "1.1.0";
+  }
 
   revision "2025-06-30" {
     description
@@ -80,6 +87,59 @@ module openconfig-local-routing-network-instance {
         path "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:config/oc-ni:name";
       }
     }
+  }
+
+  grouping static-next-hop-group-networkinstance {
+    description
+      "Grouping of nodes for a reference to a static next-hop-group.";
+
+    container next-hop-group {
+      description
+        "Configuration and state parameters relating to the
+        next-hop-group. In the future, this container will replace the container
+        /network-instances/network-instance/protocols/protocol/static-routes/static/next-hops.
+        If a statically configured next-hop-group is used for a static route
+        prefix then the 'static-routes/static/next-hops' container must not
+        be used.";
+
+      container config {
+        description
+          "Configuration parameters relating to the next-hop-group.";
+
+        uses next-hop-group-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational parameters relating to the next-hop-group.";
+
+        uses next-hop-group-config;
+      }
+    }
+  }
+
+  grouping next-hop-group-config {
+    description
+      "Grouping of configuration parameters for a reference to a
+      static next-hop-group.";
+
+    leaf name {
+      description
+        "A user defined name to reference a static next-hop-group.";
+      // we are at /network-instances/network-instance/protocols/protocol/static-routes/static/next-hop-group/config/name	
+      type leafref {
+        path "../../../../../../../oc-ni:static/oc-ni:next-hop-groups/oc-ni:next-hop-group/oc-ni:config/oc-ni:name";
+      }
+
+    }
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:protocols/oc-ni:protocol/oc-ni:static-routes/oc-ni:static" {
+    description
+      "Add network-instance leaves to static routing next-hop container.";
+
+    uses static-next-hop-group-networkinstance;
   }
 
   augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:protocols/oc-ni:protocol/oc-ni:static-routes/oc-ni:static/oc-ni:next-hops/oc-ni:next-hop/oc-ni:config" {
