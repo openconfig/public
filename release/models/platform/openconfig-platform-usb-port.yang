@@ -37,9 +37,9 @@ module openconfig-platform-usb-port {
 
   // grouping statements
 
-  grouping usb-port-config {
+  grouping platform-usb-port-config {
     description
-      "Configuration data for usb port components";
+      "Configuration data for USB port";
 
     leaf enabled {
       type boolean;
@@ -47,7 +47,40 @@ module openconfig-platform-usb-port {
       description
         "The configured state (enabled/disabled) of this USB port.";
     }
-
   }
+
+  grouping platform-usb-port-state {
+    description
+      "Operational state data for USB port";
+  }
+
+  grouping usb-port-top {
+    description
+      "Top-level grouping for USB port data";
+
+    container usb-port {
+      description
+        "Top-level container for USB port";
+
+      container config {
+        description
+          "Configuration data for USB port";
+
+        uses platform-usb-port-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for USB port";
+
+        uses platform-usb-port-config;
+        uses platform-usb-port-state;
+      }
+    }
+  }
+  uses usb-port-top;
 
 }
