@@ -35,40 +35,19 @@ module openconfig-platform-usb-port {
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
 
-  // identity statements
-
-  // typedef statements
-
   // grouping statements
 
   grouping usb-port-config {
     description
       "Configuration data for usb port components";
 
-    uses oc-platform:component-power-management;
-  }
+    leaf enabled {
+      type boolean;
+      default "false";
+      description
+        "The configured state (enabled/disabled) of this USB port.";
+    }
 
-
-  // data definition statements
-
-  // augment statements
-
-  augment "/oc-platform:components/oc-platform:component/" +
-    "oc-platform:usb-port/oc-platform:config" {
-    description
-      "Configuration data for usb port components.
-      A USB port can be configured for persistent powered-off
-      mode using the config/power-admin-state leaf.";
-
-    uses usb-port-config;
-  }
-
-  augment "/oc-platform:components/oc-platform:component/" +
-    "oc-platform:usb/oc-platform:state" {
-    description
-      "Adding USB port data to component model.";
-
-    uses usb-port-config;
   }
 
 }
