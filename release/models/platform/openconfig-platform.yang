@@ -65,7 +65,25 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.28.0";
+  oc-ext:openconfig-version "0.31.0";
+
+  revision "2025-01-30" {
+    description
+      "Deprecate last-reboot-time and add boot-time.";
+    reference "0.31.0";
+  }
+
+  revision "2024-10-13" {
+    description
+      "Add storage state io-errors.";
+    reference "0.30.0";
+  }
+
+  revision "2024-10-13" {
+    description
+      "Deprecate component id leaf";
+    reference "0.29.0";
+  }
 
   revision "2024-08-08" {
     description
@@ -73,7 +91,7 @@ module openconfig-platform {
     reference "0.28.0";
   }
 
-  revision "2024-05-29" {
+revision "2024-05-29" {
     description
       "Change install-position from leaf-ref to string.";
     reference "0.27.0";
@@ -88,13 +106,11 @@ module openconfig-platform {
 
   revision "2024-01-30" {
     description
-      "Add rules for controller-card power-off
-       Also introduces last-poweroff-reason container
-       and last-poweroff-time leaf";
+      "Updated description for component-power-type";
     reference "0.25.0";
   }
 
-  revision "2023-11-28" {
+    revision "2023-11-28" {
     description
       "Add model-name";
     reference "0.24.0";
@@ -423,6 +439,7 @@ module openconfig-platform {
 
     leaf id {
       type string;
+      status deprecated;
       description
         "Unique identifier assigned by the system for the
         component";
@@ -626,8 +643,9 @@ module openconfig-platform {
          - USER_INITIATED
          - SYSTEM_INITIATED
          - POWER_FAILURE
-         This field is not updated during reboots; those are tracked
-         in the 'last-reboot-time' leaf.";
+         This field is only updated when power is shut off.  It is not
+         updated during reboots; those are tracked in the 'boot-time'
+         leaf.";
     }
 
     container last-switchover-reason {
@@ -663,11 +681,25 @@ module openconfig-platform {
     leaf last-reboot-time {
       type oc-types:timeticks64;
       units "nanoseconds";
+      status deprecated;
       description
         "This reports the time of the last reboot of the component. The
         value is the timestamp in nanoseconds relative to the Unix Epoch
-        (Jan 1, 1970 00:00:00 UTC). This timer is not updated during
-        power shutdowns; those are tracked in 'last-poweroff-time' leaf.";
+        (Jan 1, 1970 00:00:00 UTC). This timer is updated when the component
+        starts up, either due to a power-on event or a reboot.  This timer
+        is not updated during power shutdowns; those are tracked in
+        the 'last-poweroff-time' leaf.
+        This leaf is deprecated and the boot-time leaf should be used
+        instead.";
+    }
+
+    leaf boot-time {
+      type oc-types:timeticks64;
+      units "nanoseconds";
+      description
+        "This timestamp indicates the time that the component was started.
+        The value is the timestamp in nanoseconds relative to the Unix
+        Epoch (Jan 1, 1970 00:00:00 UTC).";
     }
 
     leaf switchover-ready {
