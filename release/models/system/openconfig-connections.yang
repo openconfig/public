@@ -1,0 +1,225 @@
+module openconfig-connections {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/system/connections";
+
+  prefix "oc-conn";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-inet-types { prefix oc-inet; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module provides data definitions for network connections.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2025-07-23" {
+    description
+      "Initial public release";
+    reference "0.1.0";
+  }
+  
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // grouping statements
+
+  grouping system-connections-top {
+    description
+      "Top level grouping for attributes for network connections.";
+
+    container internet-sockets {
+      description
+        "Parameters related to all active internet connections";
+
+      list internet-socket {
+        key "socket";
+        config false;
+        description
+          "List of active internet connections";
+
+        leaf socket {
+          type leafref {
+            path "../state/socket";
+          }
+          description
+            "Reference to the inernet-connections socket key";
+        }
+
+        container state {
+          config false;
+          description
+            "State parameters related to active internet connections";
+
+          uses connections-internet-attributes-state;
+        }
+      }
+    }
+  }
+
+  grouping connections-internet-attributes-state {
+    description
+      "Attributes state definitions for active internet connections";
+
+    leaf socket {
+      type string;
+      description
+        "The socket of the connection; combination of local-address 
+        and local-port.";
+    }
+    
+    leaf protocol {
+      type union {
+        type enumeration {
+          enum IP {
+            description
+              "Index value indicating IP";
+          }
+          enum ICMP {
+            description
+              "Index value indicating ICMP";
+          }
+          enum TCP {
+            description
+              "Index value indicating TCP";
+          }
+          enum TCP6 {
+            description
+              "Index value indicating TCP over IPv6";
+          }
+          enum UDP {
+            description
+              "Index value indicating UDP";
+          }
+          enum UDP6 {
+            description
+              "Index value indicating UDP over IPv6";
+          }
+          enum UDPL {
+            description
+              "Index value indicating UDP-Lite";
+          }
+          enum RAW {
+            description
+              "Index value indicating a RAW socket";
+          }
+        }
+        type string;
+      }
+      description
+        "The protocol of the connection.";
+    }
+
+    leaf local-address {
+      type oc-inet:host;
+      description
+        "The local address of the connection";
+    }
+
+    leaf local-port {
+      type oc-inet:port-number;
+      description
+        "The local port of the connection";
+    }
+
+    leaf foreign-address {
+      type oc-inet:host;
+      description
+        "The address at the remote end of the connection";
+    }
+
+    leaf foreign-port {
+      type oc-inet:port-number;
+      description
+        "The port at the remote end of the connection";
+    }
+
+    leaf tcp-state {
+      when "../protocol = 'TCP' or ../protocol = 'TCP6'";
+      type enumeration {
+        enum ESTABLISHED {
+          description
+            "The connection is established.";
+        }
+        enum SYN_SENT {
+          description
+            "A connection request has been sent.";
+        }
+        enum SYN_RECV {
+          description
+            "A connection request has been received.";
+        }
+        enum FIN_WAIT1 {
+          description
+            "The socket is closed, and the connection is shutting down.";
+        }
+        enum FIN_WAIT2 {
+          description
+            "The connection is closed, and the socket is waiting for a shutdown from the remote end.";
+        }
+        enum TIME_WAIT {
+          description
+            "The socket is waiting after closing to handle packets still in the network.";
+        }
+        enum CLOSE {
+          description
+            "The socket is not being used.";
+        }
+        enum CLOSE_WAIT {
+          description
+            "The remote end has shut down, and the socket is waiting for the local close.";
+        }
+        enum LAST_ACK {
+          description
+            "The remote end has shut down, and the socket is waiting for an acknowledgment of the last packet to be sent.";
+        }
+        enum LISTEN {
+          description
+            "The socket is listening for incoming connections.";
+        }
+        enum CLOSING {
+          description
+            "Both sockets are shut down but we still don't have all our data sent.";
+        }
+        enum UNKNOWN {
+          description
+            "The TCP state is unknown.";
+        }
+      }
+      description
+        "The current state of the TCP connection.";
+    }
+
+    leaf process-name {
+      type string;
+      mandatory false;
+      description
+        "The name of the process associated with the connection.";
+    }
+
+    leaf pid {
+      type uint64;
+      mandatory false;
+      description
+        "The process ID of the process associated with the connection.";
+    }
+  }
+
+  // augment statements
+
+  // rpc statements
+
+  // notification statements
+}
