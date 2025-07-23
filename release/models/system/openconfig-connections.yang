@@ -40,15 +40,15 @@ module openconfig-connections {
     description
       "Top level grouping for attributes for network connections.";
 
-    container internet-sockets {
+    container network-sockets {
       description
-        "Parameters related to all active internet connections";
+        "Parameters related to all active network connections";
 
-      list internet-socket {
+      list network-socket {
         key "socket";
         config false;
         description
-          "List of active internet connections";
+          "List of active network connections";
 
         leaf socket {
           type leafref {
@@ -61,17 +61,17 @@ module openconfig-connections {
         container state {
           config false;
           description
-            "State parameters related to active internet connections";
+            "State parameters related to active network connections";
 
-          uses connections-internet-attributes-state;
+          uses connections-network-attributes-state;
         }
       }
     }
   }
 
-  grouping connections-internet-attributes-state {
+  grouping connections-network-attributes-state {
     description
-      "Attributes state definitions for active internet connections";
+      "Attributes state definitions for active network connections";
 
     leaf socket {
       type string;
