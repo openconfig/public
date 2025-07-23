@@ -21,6 +21,7 @@ module openconfig-system {
   import openconfig-messages { prefix oc-messages; }
   import openconfig-license { prefix oc-license; }
   import openconfig-network-instance { prefix oc-ni; }
+  import openconfig-connections { prefix oc-conn; }
 
   // meta
   organization "OpenConfig working group";
@@ -47,8 +48,14 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.3.0";
+  oc-ext:openconfig-version "2.4.0";
 
+  revision "2025-07-23" {
+    description
+      "Added internet sockets list to describe active internet connections.";
+    reference "2.4.0";
+  }
+  
   revision "2024-09-24" {
     description
       "Added mount-point type leaf to describe the type of file system.";
@@ -1362,6 +1369,7 @@ module openconfig-system {
       uses system-macaddr-top;
       uses system-memory-top;
       uses system-ntp-top;
+      uses system-connections-top;
     }
   }
 
