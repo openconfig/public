@@ -1,0 +1,191 @@
+module openconfig-platform-sensor {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/platform/sensor";
+
+  prefix "oc-sensor";
+
+  import openconfig-platform { prefix oc-platform; }
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-alarm-types { prefix oc-alarm-types; }
+
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines data related to SENSOR components in the
+    OpenConfig platform model.";
+
+  oc-ext:openconfig-version "0.1.1";
+
+  revision "2025-09-16" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // identity statements
+  identity UNITS_BASE {
+    description
+      "Base identity for sensor unit type";
+  }
+
+  identity UNITS_VOLTS {
+    base UNITS_BASE;
+    description
+      "Volts";
+  }
+
+  identity UNITS_AMPS {
+    base UNITS_BASE;
+    description
+      "Amps";
+  }
+
+  identity UNITS_WATTS {
+    base UNITS_BASE;
+    description
+      "Watts";
+  }
+  
+  identity UNITS_CELSIUS_DEGREES {
+    base UNITS_BASE;
+    description
+      "Celsius degrees";
+  }
+
+  identity UNITS_RELATIVE_HUMIDITY {
+    base UNITS_BASE;
+    description
+      "Relative humidity expressed in percentage; where 1=1%";
+  }
+
+  identity UNITS_ABSOLUTE_HUMIDITY {
+    base UNITS_BASE;
+    description
+      "Absoltue humidity expressed in grams per cubic meter (g/m^3)";
+  }
+
+  // typedef statements
+
+  // grouping statements
+
+  grouping sensor-state {
+    description
+      "Operational state data for sensor components";
+
+    leaf instant-precision2 {
+      type decimal64 {
+        fraction-digits 2;
+      }
+      description
+        "Current (instantaneous) sensor value with 2 fraction digits";
+    }
+
+    leaf units {
+      type identityref {
+        base UNITS_BASE;
+      }
+      description
+        "The unit type for this sensor (volts, amps, celsius degree, ect)";
+    }
+  }
+  
+  grouping sensor-threshold-state {
+    description
+      "Grouping for all alarm thresholds for a particular severity level.";
+    leaf severity {
+      type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The type of alarm to which the thresholds apply.";
+    }
+
+    leaf upper {
+      type decimal64{
+        fraction-digits 2;
+      }
+      description
+        "Upper sensor alarm threshold";
+    }
+
+    leaf lower {
+      type decimal64{
+        fraction-digits 2;
+      }
+      description
+        "Lower sensor alarm threshold";
+    }
+  }
+
+  grouping sensor-threshold-top {
+    description
+      "Top-level grouping for sensor alarm thresholds";
+
+    container thresholds {
+      description
+        "Enclosing container for sensor alarm thresholds.";
+
+      list threshold {
+        key "severity";
+        config false;
+        description
+          "List of sensor alarm thresholds, indexed by alarm severity.";
+
+        leaf severity {
+          type leafref {
+            path "../state/severity";
+          }
+          config false;
+          description
+           "The severity applied to the group of thresholds.
+            An implementation's highest severity threshold
+            should be mapped to OpenConfig's `CRITICAL`
+            severity level.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational alarm thresholds for the sensor.";
+          uses sensor-threshold-state;
+        }
+      }
+    }
+  }
+
+
+  // data definition statements
+
+  // augment statements
+
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:sensor" {
+    description
+      "Adding fan data to component model";
+
+    uses sensor-threshold-top ;
+  }
+
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:sensor/oc-platform:state" {
+    description
+      "Adding fan state data to component model";
+
+    uses sensor-state;
+  }
+
+}

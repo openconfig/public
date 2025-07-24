@@ -65,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.32.0";
+  oc-ext:openconfig-version "0.33.0";
+
+  revision "2025-09-16" {
+    description
+      "Add sensor container.";
+    reference "0.33.0";
+  }
 
   revision "2025-07-15" {
     description
@@ -1171,6 +1177,17 @@ revision "2024-05-29" {
         config false;
         description
           "Operational state data for fan components";
+      }
+    }
+
+    container sensor {
+      description
+        "Data for sensor components";
+
+      container state {
+        config false;
+        description
+          "Operational state data for sensor components";
       }
     }
 
