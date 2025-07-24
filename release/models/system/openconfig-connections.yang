@@ -10,6 +10,7 @@ module openconfig-connections {
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-system {prefix oc-sys;}
 
   // meta
   organization "OpenConfig working group";
@@ -36,7 +37,7 @@ module openconfig-connections {
 
   // grouping statements
 
-  grouping system-connections-top {
+  grouping connections-top {
     description
       "Top level grouping for attributes for network connections.";
 
@@ -218,6 +219,13 @@ module openconfig-connections {
   }
 
   // augment statements
+
+  augment "/oc-sys:system" {
+    description
+      "Augment for monitoring connections.";
+
+    uses connections-top;
+  }
 
   // rpc statements
 
