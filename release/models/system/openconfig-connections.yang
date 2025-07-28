@@ -11,6 +11,7 @@ module openconfig-connections {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-system {prefix oc-sys;}
+  import openconfig-network-instance { prefix oc-ni; }
 
   // meta
   organization "OpenConfig working group";
@@ -133,6 +134,13 @@ module openconfig-connections {
       type oc-inet:port-number;
       description
         "The local port of the connection";
+    }
+
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "The network instance used to for the connection.  If no
+        instance is specified, DEFAULT_INSTANCE is used.";
     }
 
     leaf remote-address {
