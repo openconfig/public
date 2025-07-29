@@ -10,7 +10,6 @@ module openconfig-nat {
   // import some basic types
   import ietf-inet-types { prefix inet; }
   import ietf-yang-types { prefix yang; }
-  import openconfig-routing-policy { prefix oc-rpol; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-acl { prefix oc-acl; }
@@ -31,7 +30,7 @@ module openconfig-nat {
     - NAPT44 (Network Address Port Translation)
     - Static mappings
     - Dynamic address pools
-    - Policy-based NAT using routing policies and ACLs";
+    - Policy-based NAT using ACLs for traffic matching";
 
   oc-ext:openconfig-version "0.1.0";
 
@@ -141,18 +140,7 @@ module openconfig-nat {
       "Logging level for NAT operations";
   }
 
-  typedef traffic-matcher-type {
-    type enumeration {
-      enum ROUTING_POLICY {
-        description "Use routing policy for traffic matching";
-      }
-      enum ACCESS_LIST {
-        description "Use ACL set for traffic matching";
-      }
-    }
-    description
-      "Type of traffic matcher to use";
-  }
+
 
   // Grouping statements
 
@@ -290,31 +278,7 @@ module openconfig-nat {
     }
   }
 
-  grouping policy-definition-config {
-    description
-      "Configuration parameters for NAT policy definition";
 
-    leaf policy-definition {
-      type leafref {
-        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
-             "oc-rpol:policy-definition/oc-rpol:name";
-      }
-      description
-        "Reference to routing policy that defines traffic
-        eligible for this pool";
-    }
-  }
-
-  grouping policy-definition-state {
-    description
-      "Operational state data for NAT policy definition";
-
-    leaf hit-count {
-      type yang:counter64;
-      description
-        "Number of packets matching this policy definition";
-    }
-  }
 
   grouping acl-set-config {
     description
@@ -382,25 +346,7 @@ module openconfig-nat {
         "Number of ports allocated per mapping";
     }
 
-    leaf traffic-matcher-type {
-      type traffic-matcher-type;
-      description
-        "Type of traffic matcher to use for this pool";
-    }
-
-    leaf policy-definition {
-      when "../traffic-matcher-type = 'ROUTING_POLICY'";
-      type leafref {
-        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
-             "oc-rpol:policy-definition/oc-rpol:name";
-      }
-      description
-        "Reference to routing policy that defines traffic
-        eligible for this pool";
-    }
-
     leaf acl-set {
-      when "../traffic-matcher-type = 'ACCESS_LIST'";
       type leafref {
         path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
              "oc-acl:config/oc-acl:name";
@@ -492,15 +438,7 @@ module openconfig-nat {
         "Number of addresses available in this pool";
     }
 
-    leaf policy-hit-count {
-      when "../traffic-matcher-type = 'ROUTING_POLICY'";
-      type yang:counter64;
-      description
-        "Number of packets matching the routing policy";
-    }
-
     leaf acl-hit-count {
-      when "../traffic-matcher-type = 'ACCESS_LIST'";
       type yang:counter64;
       description
         "Number of packets matching the ACL set";
@@ -553,25 +491,7 @@ module openconfig-nat {
         "Protocol for the mapping";
     }
 
-    leaf traffic-matcher-type {
-      type traffic-matcher-type;
-      description
-        "Type of traffic matcher to use for this static mapping";
-    }
-
-    leaf policy-definition {
-      when "../traffic-matcher-type = 'ROUTING_POLICY'";
-      type leafref {
-        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
-             "oc-rpol:policy-definition/oc-rpol:name";
-      }
-      description
-        "Reference to routing policy that defines traffic
-        matching criteria for this static mapping";
-    }
-
     leaf acl-set {
-      when "../traffic-matcher-type = 'ACCESS_LIST'";
       type leafref {
         path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
              "oc-acl:config/oc-acl:name";
@@ -635,15 +555,7 @@ module openconfig-nat {
         "Number of bytes translated using this mapping";
     }
 
-    leaf policy-hit-count {
-      when "../traffic-matcher-type = 'ROUTING_POLICY'";
-      type yang:counter64;
-      description
-        "Number of packets matching the routing policy";
-    }
-
     leaf acl-hit-count {
-      when "../traffic-matcher-type = 'ACCESS_LIST'";
       type yang:counter64;
       description
         "Number of packets matching the ACL set";
