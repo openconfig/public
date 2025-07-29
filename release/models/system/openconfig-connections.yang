@@ -10,7 +10,7 @@ module openconfig-connections {
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-inet-types { prefix oc-inet; }
-  import openconfig-system {prefix oc-sys;}
+  import openconfig-system { prefix oc-sys; }
   import openconfig-network-instance { prefix oc-ni; }
 
   // meta
@@ -25,7 +25,7 @@ module openconfig-connections {
 
   oc-ext:openconfig-version "0.1.0";
 
-  revision "2025-07-23" {
+  revision "2025-07-29" {
     description
       "Initial public release";
     reference "0.1.0";
@@ -42,11 +42,71 @@ module openconfig-connections {
     description
       "Top level grouping for attributes for network connections.";
 
-    container network-sockets {
+    container connections {
       description
         "Parameters related to all active network connections";
 
-      list network-socket {
+      container network-instances {
+        description
+          "Parameters related to all active network connections";
+
+        uses network-instances-top;
+      }
+    }
+  }
+
+  grouping network-instances-top {
+    description
+      "Top level grouping for the network instance used for the connection.";
+
+    list network-instance {
+      key "instance";
+      config false;
+      description
+        "List of network instances used for connections";
+
+      leaf instance {
+        type leafref {
+          path "../state/instance";
+        }
+        description
+          "Reference to the network-instance key";
+      }
+
+      container state {
+        config false;
+        description
+          "State parameters related to network instances used for connections";
+
+        uses network-instances-state;
+      }
+
+      container network-sockets {
+        description
+          "Parameters related to all active network connections";
+
+        uses network-sockets-top;
+      }
+    }
+  }
+
+  grouping network-instances-state {
+    description
+      "State parameters related to the network instance used for the connection.";
+
+    leaf instance {
+      type oc-ni:network-instance-ref;
+      description
+        "The network instance used to for the connection.  If no
+        instance is specified, DEFAULT_INSTANCE is used.";
+    }
+  }
+
+  grouping network-sockets-top {
+    description
+      "Top level grouping for attributes for network sockets.";
+
+    list network-socket {
         key "socket";
         config false;
         description
@@ -60,20 +120,19 @@ module openconfig-connections {
             "Reference to the inernet-connections socket key";
         }
 
-        container state {
-          config false;
-          description
-            "State parameters related to active network connections";
+      container state {
+        config false;
+        description
+          "State parameters related to the network instance used for the connection";
 
-          uses connections-network-attributes-state;
-        }
+        uses network-socket-state;
       }
     }
   }
 
-  grouping connections-network-attributes-state {
+  grouping network-socket-state {
     description
-      "Attributes state definitions for active network connections";
+      "Definitions for active network connections";
 
     leaf socket {
       type string;
@@ -134,13 +193,6 @@ module openconfig-connections {
       type oc-inet:port-number;
       description
         "The local port of the connection";
-    }
-
-    leaf network-instance {
-      type oc-ni:network-instance-ref;
-      description
-        "The network instance used to for the connection.  If no
-        instance is specified, DEFAULT_INSTANCE is used.";
     }
 
     leaf remote-address {
