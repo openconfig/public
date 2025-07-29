@@ -13,6 +13,7 @@ module openconfig-if-ip {
   import openconfig-vlan { prefix oc-vlan; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-network-instance {prefix oc-ni; }
 
   // meta
   organization "OpenConfig working group";
@@ -44,7 +45,19 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.6.0";
+  oc-ext:openconfig-version "3.8.0";
+
+    revision "2025-06-20" {
+    description
+      "Add model for support of URPF source address validation through network-instance different then one used for destination lookup";
+      reference "3.8.0";
+  }
+
+  revision "2025-05-12" {
+    description
+      "Add model for support of URPF source address verification";
+      reference "3.7.0";
+  }
 
   revision "2024-05-28" {
     description
@@ -220,6 +233,22 @@ revision "2023-06-30" {
 
     description
       "The type of an IPv4 address.";
+  }
+
+  typedef urpf-mode {
+    description
+      "The uRPF modes";
+    type enumeration {
+      enum LOOSE {
+        description "uRFP operates in loose mode. Packet source address
+        must match some route in FIB, but may be recived on any interface";
+      }
+      enum STRICT {
+        description "uRFP operates in strict mode. Packet source address
+        must match some route in FIB, and must be recived on interfacee
+        corresponding to one of next-hops of matched FIB route.";
+      }
+    }
   }
 
   // grouping statements
@@ -446,6 +475,20 @@ revision "2023-06-30" {
         reference
           "RFC 4293 - Management Information Base for the
           Internet Protocol (IP)";
+      }
+
+      leaf urpf-drop-pkts {
+        type oc-yang:counter64;
+        description
+          "This counter counts packet discarded as result of Unicast
+          Reverse Path Forwarding verification.";
+      }
+
+      leaf urpf-drop-bytes {
+        type oc-yang:counter64;
+        description
+          "This counter counts bytes/octets discarded as result of
+          Unicast Reverse Path Forwarding verification.";
       }
     }
 
@@ -1224,6 +1267,63 @@ revision "2023-06-30" {
     }
   }
 
+  grouping urpf-config {
+    description
+        "Grouping configuration coniguration of URPF";
+    reference
+      "RFC2827: Network Ingress Filtering: Defeating Denial of
+      Service Attacks which employ IP Source Address Spoofing
+      RFC3704: Ingress Filtering for Multihomed Networks";
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "Turns ON/OFF packet's source address verification against content of
+        FIB. This is one of anti-spoofing protection techniques.";
+    }
+    leaf mode {
+      type urpf-mode;
+      description
+        "The URPF in STRICT mode requires the ingress packet source address
+        to have a longest prefix match (LPM) for a route in the forwarding table
+        with a next-hop of the interface the packet was received on.
+        The URPF in LOOSE mode requires the ingress packet source address to
+        LPM a route in the forwarding table, but may have any next-hop.";
+    }
+    leaf allow-default-route {
+      type boolean;
+      description
+      "If set to false, and the packet's source address LPMs to the
+      default route (0.0.0.0/0 or ::/0) then the URPF check fails and the
+      packet is discarded.";
+    }
+    leaf allow-drop-next-hop {
+      type boolean;
+      description
+        "If set to false, and the packet's source address LPMs to a route
+        with DROP as the next-hop, then the URPF check fails and the packet
+        is discarded.";
+    }
+    leaf allow-feasible-path {
+      type boolean;
+      description
+        "The routing system may select subset of all learned paths.  For example,
+        BGP without multi-path enabled will install only one of many possible ECMP
+        paths into the FIB or ECMP multipath limits may select only a subset of all
+        available paths. If set to true, the URPF check passes if the source address
+        LPMs to any path in the RIB, even if it is not selected for forwarding in the
+        FIB.";
+    }
+    leaf lookup-network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "If populated, this leaf provides the name of the network instance
+        used to look up a packet's source address. When this leaf is
+        omitted and uRPF is enabled, the packet's source address is looked
+        up in the network-instance in which this interface is a member of.";
+    }
+  }
+
   grouping ipv4-top {
     description "Top-level configuration and state for IPv4
     interfaces";
@@ -1349,6 +1449,29 @@ revision "2023-06-30" {
 
         uses ipv4-global-config;
         uses ip-common-counters-state;
+      }
+
+      container urpf {
+
+        description
+          "URPF container.";
+
+        container config {
+
+          description
+            "URPF configuration container.";
+
+          uses urpf-config;
+        }
+        container state {
+
+          description
+            "URPF states container.";
+
+          config false;
+
+          uses urpf-config;
+        }
       }
     }
   }
@@ -1518,6 +1641,22 @@ revision "2023-06-30" {
         uses ipv6-global-config;
         uses ip-common-counters-state;
 
+      }
+
+      container urpf {
+        description
+          "URPF container";
+        container config {
+          description
+            "Container for URPF configuration";
+          uses urpf-config;
+        }
+        container state {
+          description
+            "Container for URPF states";
+          config false;
+          uses urpf-config;
+        }
       }
     }
   }

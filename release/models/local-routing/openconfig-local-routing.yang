@@ -43,12 +43,26 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "2.3.0";
+  oc-ext:openconfig-version "4.1.0";
 
-  revision "2025-05-09" {
+  revision "2025-07-29" {
     description
       "Add wecmp-weight leaf to support wECMP with static routes.";
-    reference "2.3.0";
+    reference "4.1.0";
+
+
+  revision "2025-07-01" {
+    description
+      "Move static next-hop-group to local-routing-network-instance and
+      augment the local routing module.";
+    reference "4.0.0";
+  }
+
+  revision "2025-06-30" {
+    description
+      "Remove leaves that referenced network instances (see 2.2.0)
+       and replace with augment";
+    reference "3.0.0";
   }
 
   revision "2025-03-31" {
@@ -279,22 +293,6 @@ module openconfig-local-routing {
         only support a numeric value for this string. ";
     }
 
-    leaf next-network-instance {
-      description
-        "Instead of finding the next-hop for a destination address in the current
-	network-instance, look up the destination address in the routing table
-	of the specified network-instance.
-	 For example, let 'next-network-instance' = 'DEFAULT'.  If a packet arrives
-        in the 'BLUE' network-instance and the destination address matches this
-        route, the destination address will be looked up again in the 'DEFAULT'
-	network-instance to find the next-hop.
-	This leaf is mutually exclusive with 'next-hop', 'nh-network-instance'
-        leaves";
-      type leafref {
-        path "/network-instances/network-instance/config/name";
-      }
-    }
-
     leaf next-hop {
       type union {
         type inet:ip-address;
@@ -312,25 +310,6 @@ module openconfig-local-routing {
         interface.
         This leaf is mutualy exclusive with next-network-instance
         leaf";
-    }
-
-    leaf nh-network-instance {
-      description
-        "Network-instance in which IP address of next-hop should
-        be looked up, to find egress interface. This attribute
-        is only valid if next-hop is given as IP address.
-        This attribute may be combined with recurse attribute of any
-        value, in which case recurse setting applies to
-        nh-network-instance.
-        For example, let 'nh-network-instance' = 'DEFAULT'.  If a
-        packet arrives on the 'BLUE' network-instance and the
-        destination address matches this route, look up the IP
-        configured as next-hop in the 'DEFAULT' network-instance.
-        This leaf is mutually exclusive with next-network-instance
-        leaf";
-      type leafref {
-        path "/network-instances/network-instance/config/name";
-      }
     }
 
     leaf recurse {
@@ -397,31 +376,6 @@ module openconfig-local-routing {
 
           uses local-static-config;
           uses local-static-state;
-        }
-
-        container next-hop-group {
-          description
-            "Configuration and state parameters relating to the
-            next-hop-group. In the future, this container will replace the container
-            /network-instances/network-instance/protocols/protocol/static-routes/static/next-hops.
-            If a statically configured next-hop-group is used for a static route
-            prefix then the 'static-routes/static/next-hops' container must not
-            be used.";
-
-          container config {
-            description
-              "Configuration parameters relating to the next-hop-group.";
-
-            uses next-hop-group-config;
-          }
-
-          container state {
-            config false;
-            description
-              "Operational parameters relating to the next-hop-group.";
-
-            uses next-hop-group-config;
-          }
         }
 
         container next-hops {
@@ -556,21 +510,6 @@ module openconfig-local-routing {
           uses local-aggregate-state;
         }
       }
-    }
-  }
-
-  grouping next-hop-group-config {
-    description
-      "Grouping of configuration parameters for a static route's reference
-      to a next-hop-group.";
-
-    leaf name {
-      type leafref {
-        path "/network-instances/network-instance/static/next-hop-groups/next-hop-group/name";
-      }
-
-      description
-        "A user defined name for a next-hop-group.";
     }
   }
 
