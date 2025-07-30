@@ -66,7 +66,13 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.16.0";
+  oc-ext:openconfig-version "0.17.0";
+
+  revision "2025-07-21" {
+    description
+      "Mark transceiver serial-no and vendor-part leaves as deprecated.";
+    reference "0.17.0";
+  }
 
   revision "2024-10-09" {
     description
@@ -727,11 +733,15 @@ module openconfig-platform-transceiver {
       type string {
         length 1..16;
       }
+      status deprecated;
       description
         "Transceiver vendor's part number. 16-octet field that
         contains ASCII characters, left-aligned and padded on the
         right with ASCII spaces (20h). If part number is undefined,
-        all 16 octets = 0h";
+        all 16 octets = 0h. This deprecated leaf should continue
+        to be supported by implementations but clients should stop
+        using this leaf and instead use
+        '/components/component/state/part-no'.";
     }
 
     leaf vendor-rev {
@@ -776,11 +786,15 @@ module openconfig-platform-transceiver {
       type string {
         length 1..16;
       }
+      status deprecated;
       description
         "Transceiver serial number. 16-octet field that contains
         ASCII characters, left-aligned and padded on the right with
         ASCII spaces (20h). If part serial number is undefined, all
-        16 octets = 0h";
+        16 octets = 0h. This deprecated leaf should continue
+        to be supported by implementations but clients should stop
+        using this leaf and instead use
+        '/components/component/state/serial-no'.";
     }
 
     leaf date-code {
