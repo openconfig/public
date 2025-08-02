@@ -21,6 +21,7 @@ module openconfig-system {
   import openconfig-messages { prefix oc-messages; }
   import openconfig-license { prefix oc-license; }
   import openconfig-network-instance { prefix oc-ni; }
+  import openconfig-fs-types { prefix oc-fs-types; }
 
   // meta
   organization "OpenConfig working group";
@@ -47,7 +48,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "2.3.0";
+  oc-ext:openconfig-version "3.0.0";
+
+  revision "2025-07-08" {
+    description
+      "Expand the mount-point type leaf to union of identityref/string.";
+    reference "3.0.0";
+  }
 
   revision "2024-09-24" {
     description
@@ -428,11 +435,15 @@ module openconfig-system {
     }
 
     leaf type {
-      type string;
+      type union {
+        type identityref {
+          base oc-fs-types:OPENCONFIG_FS_MOUNT;
+        }
+        type string;
+      }
       description
-        "A human readable string indicating the filesystem type used
-        for storage.  Examples might include flash, hard disk, tmpfs/ramdisk
-        or remote/network based storage.";
+        "This identify indicates the filesystem type used for storage.
+        The string type exists to support backwards compatibility.";
     }
   }
 
