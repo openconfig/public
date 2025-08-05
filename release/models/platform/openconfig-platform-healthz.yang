@@ -62,7 +62,48 @@ module openconfig-platform-healthz {
       "Indicates that a sensor is measuring below its lower operating
       threshold.";
   }
-  // TODO: add the remaining symptoms
+
+  identity SYMPTOM_FATAL_FAULT {
+    base SYMPTOM_BASE;
+    description
+      "A fatal fault.";
+  }
+
+  identity SYMPTOM_UNCORRECTABLE_MEMORY_ERRORS {
+    base SYMPTOM_BASE;
+    description
+      "Uncorrectable memory errors";
+  }
+
+  identity SYMPTOM_TOTAL_MEMORY_ERRORS {
+    base SYMPTOM_BASE;
+    description
+      "Total memory errors";
+  }
+
+  identity SYMPTOM_LOGICALLY_MISSING_COMPONENT {
+    base SYMPTOM_BASE;
+    description
+      "Component is logically missing";
+  }
+
+  identity SYMPTOM_PHYSICALLY_MISSING_COMPONENT {
+    base SYMPTOM_BASE;
+    description
+      "Component is physically missing";
+  }
+
+  identity SYMPTOM_MISWIRED {
+    base SYMPTOM_BASE;
+    description
+      "Component is miswired";
+  }
+
+  identity SYMPTOM_UNKNOWN {
+    base SYMPTOM_BASE;
+    description
+      "An unknown symptom";
+  }
 
   identity ACTION_BASE {
     description
@@ -111,7 +152,6 @@ module openconfig-platform-healthz {
     description
       "Replace component.";
   }
-
 
   grouping platform-health-top {
     description
@@ -210,7 +250,14 @@ module openconfig-platform-healthz {
         key "symptom";
         config false;
         description
-          "List of active faults, indexed by alarm symptom.";
+          "List of active faults, indexed by symptom.
+          
+          A fault indicates that a component has recently exhibited a symptom.
+          Conditions that trigger a symptom may fluctuate. To avoid excessive
+          fault creation and deletion, it is recommended that once a fault is
+          raised, the device only deletes the fault after a suitable period
+          outside of the triggering condition. This will serve to dampen
+          events.";
 
         leaf symptom {
           type leafref {
@@ -224,7 +271,7 @@ module openconfig-platform-healthz {
         container state {
           config false;
           description
-            "Operational alarm thresholds for the fan.";
+            "Operational fault state.";
           uses fault-state;
         }
 
@@ -245,17 +292,21 @@ module openconfig-platform-healthz {
     leaf origin-time {
       type oc-types:timeticks64;
       description
-        "The time at which the fault became active. 
-        To account for symptoms that may rapidly ocillate in and out of a
-        triggering condition, the fault should be cleared only after sufficient
-        time (to be defined by the device) outside of the fault state.";
+        "The time at which the fault first became active.
+        This value should not change until the fault is deleted";
     }
 
-    leaf recurrence-time {
+    leaf last-detection-time {
       type oc-types:timeticks64;
       description
-        "The time at which the fault's underlying condition was most recently
-        reasserted.";
+        "The time at which the fault's underlying condition was last sampled
+        and confirmed asserted.";
+    }
+
+    leaf occurrences {
+      type uint64;
+      description
+        "The number of times this fault transitioned into the active state.";
     }
 
     leaf description {
@@ -319,15 +370,16 @@ module openconfig-platform-healthz {
           leaf index {
             type uint64;
             description
-            "This index indicates the order of in which the actions applied.";
+            "This index indicates the order in which the actions should be
+            applied.";
           }
 
-          leaf-list action {
+          leaf action {
               type identityref {
                 base ACTION_BASE;
               }
               description
-                  "A list of actions to be performed during this remediation";
+                  "The specific action to be performed";
           }
           leaf target {
             type leafref {
