@@ -22,8 +22,13 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "1.9.0";
+  oc-ext:openconfig-version "1.10.0";
 
+  revision "2025-01-07" {
+    description
+      "Add OPENCONFIG_INSTALL_STATUS";
+    reference "1.10.0";
+  }
 
   revision "2024-11-04" {
     description
@@ -562,6 +567,41 @@ module openconfig-platform-types {
     base COMPONENT_REBOOT_REASON;
     description
       "The component reboots due to critical errors.";
+  }
+
+  identity OPENCONFIG_INSTALL_STATUS {
+    description
+      "Base entity for component install status.";
+  }
+
+  identity INSTALL_FILE_LOADING {
+    base OPENCONFIG_INSTALL_STATUS;
+    description
+      "The file is being loaded on the component.";
+  }
+
+  identity INSTALL_IN_PROGRESS {
+    base OPENCONFIG_INSTALL_STATUS;
+    description
+      "The install is in-progress.";
+  }
+
+  identity INSTALL_COMPLETE {
+    base OPENCONFIG_INSTALL_STATUS;
+    description
+      "The install was completed.";
+  }
+
+  identity INSTALL_ABORT {
+    base OPENCONFIG_INSTALL_STATUS;
+    description
+      "The install was aborted.";
+  }
+
+  identity INSTALL_FAIL {
+    base OPENCONFIG_INSTALL_STATUS;
+    description
+      "The install failed.";
   }
 
   typedef component-redundant-role {
