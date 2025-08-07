@@ -1,10 +1,15 @@
 # Overview of OpenConfig QoS
 
-Contributors: aashaikh†, robjs†  
+Contributors: aashaikh†, robjs†, dloher†
 † @google.com  
-December ‘17
+September 2024
 
-# Overview of the QoS Model
+## Schema of the QoS Model
+
+The schema of the QoS model can be visualized with this diagram which
+highlights the relationships between the objects in the model.
+
+![QoS schema relationships](img/qos_schema.svg)
 
 The OpenConfig quality of service model is made up of two sets of definitions:
 
@@ -19,9 +24,11 @@ The OpenConfig quality of service model is made up of two sets of definitions:
    correspond to each of the instantiated elements (e.g., schedulers, or
    queues). This is located under `/qos/interfaces`.
 
-The flow of the QoS model is shown in the diagram below:
+## Flow of data through the QoS Model
 
-![Overview of QoS model](img/qos_layout.svg)
+The flow of packets through of the QoS model is shown in the diagram below.
+
+![QoS model data flow](img/qos_layout.svg)
 
 When a packet arrives at an interface it is initially classified according to
 the classifier that is described under
@@ -52,15 +59,15 @@ to virtual output queues that are instantiated for remote interfaces. In this
 case, statistics for each egress interface are reported within the ingress
 interface's entry in the `/qos/interfaces/interface` list.
 
-# Annotated QoS Example
+## Annotated QoS Examples
 
-## Ingress Classification with Egress Scheduling
+### Example 1: Ingress Classification with Egress Scheduling
 
 The example QoS configuration below shows the configuration of an interface,
 assumed to be facing a customer which has ingress classification based on DSCP
 markings. The same interface has an egress scheduler policy applied to it.
 
-```
+```json
 {
   #
   # The standard definition of an interface, assumed to be facing the customer.
@@ -419,6 +426,281 @@ markings. The same interface has an egress scheduler policy applied to it.
         }
       ]
     }
+  }
+}
+```
+
+### Example 2: Ingress Classification with Ingress Scheduling (Policer) on a VOQ device
+
+The example QoS configuration below shows the configuration of an interface,
+assumed to be facing a customer which has ingress classification based on
+the next-hop group the packet is being sent to.  The same interface has an
+ingress scheduler policy applied to it which implements an
+`ONE_RATE_TWO_COLOR` policer.
+
+In this scenario, the device has a VOQ architecture is does not have hardware
+or software to implement in ingress queue.  To satisfy the OC schema
+requirements, a dummy or "fake" queue is created for the ingress side of the
+pipeline.  Note, an egress queue could still be defined on the egress side,
+but it is not included here for simplication.
+
+```json
+{
+  #
+  # A classifer is created to match packets belonging to certain
+  # next-hop-groups and map them either forwarding-group input_dest_A or
+  # input_dest_B
+  "openconfig-qos": {
+    "classifers": [
+      {
+        "classifer": "“dest_A”",
+        "config": {
+          "name": "“dest_A”"
+        },
+        "terms": [
+          {
+            "term": null,
+            "config": {
+              "id": "match_1_dest_A1"
+            },
+            "conditions": {
+              "next-hop-group": {
+                "config": {
+                  "name": "nhg_A1"
+                }
+              }
+            },
+            "actions": {
+              "config": {
+                "target-group": "input_dest_A"
+              }
+            }
+          },
+          {
+            "term": null,
+            "config": {
+              "id": "match_1_dest_A2"
+            },
+            "conditions": {
+              "next-hop-group": {
+                "config": {
+                  "name": "nhg_A2"
+                }
+              }
+            },
+            "actions": {
+              "config": {
+                "target-group": "input_dest_A"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "classifer": "“dest_B”",
+        "config": {
+          "name": "“dest_B”"
+        },
+        "terms": [
+          {
+            "term": null,
+            "config": {
+              "id": "match_1_dest_B1"
+            },
+            "conditions": {
+              "next-hop-group": {
+                "config": {
+                  "name": "nhg_B1"
+                }
+              }
+            },
+            "actions": {
+              "config": {
+                "target-group": "input_dest_B"
+              }
+            }
+          },
+          {
+            "term": null,
+            "config": {
+              "id": "match_1_dest_B2"
+            },
+            "conditions": {
+              "next-hop-group": {
+                "config": {
+                  "name": "nhg_B2"
+                }
+              }
+            },
+            "actions": {
+              "config": {
+                "target-group": "input_dest_B"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    #
+    # Forwarding groups are created named input_dest_A and input_dest_B.
+    # These are mapped to 'fake' queues 
+    "forwarding-groups": [
+      {
+        "forwarding-group": "input_dest_A",
+        "config": {
+          "name": "input_dest_A",
+          "output-queue": "dummy_input_queue_A"
+        }
+      },
+      {
+        "forwarding-group": "input_dest_B",
+        "config": {
+          "name": "input_dest_B",
+          "output-queue": "dummy_input_queue_B"
+        }
+      }
+    ],
+    "queues": [
+      {
+        "queue": null,
+        "config": {
+          "name": "dummy_input_queue_A"
+        }
+      },
+      {
+        "queue": null,
+        "config": {
+          "name": "dummy_input_queue_B"
+        }
+      }
+    ],
+    #
+    # Two scheduler policies are created, limit_1Gb and limit_2Gb
+    # and are associated with the dummy queue they are servicing.
+    "scheduler-policies": [
+      {
+        "scheduler-policy": null,
+        "config": {
+          "name": "limit_1Gb"
+        },
+        "schedulers": [
+          {
+            "scheduler": null,
+            "config": {
+              "sequence": 1,
+              "type": "ONE_RATE_TWO_COLOR"
+            },
+            "inputs": [
+              {
+                "input": "my input policer 1Gb",
+                "config": {
+                  "id": "my input policer 1Gb",
+                  "input-type": "QUEUE",
+                  "queue": "dummy_input_queue_A"
+                }
+              }
+            ],
+            "one-rate-two-color": {
+              "config": {
+                "cir": 1000000000,
+                "bc": 100000,
+                "queuing-behavior": "POLICE"
+              },
+              "exceed-action": {
+                "config": {
+                  "drop": true
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "scheduler-policy": null,
+        "config": {
+          "name": "limit_2Gb"
+        },
+        "schedulers": [
+          {
+            "scheduler": null,
+            "config": {
+              "sequence": 1,
+              "type": "ONE_RATE_TWO_COLOR"
+            },
+            "inputs": [
+              {
+                "input": "my input policer 2Gb",
+                "config": {
+                  "id": "my input policer 2Gb",
+                  "input-type": "QUEUE",
+                  "queue": "dummy_input_queue_B"
+                }
+              }
+            ],
+            "one-rate-two-color": {
+              "config": {
+                "cir": 2000000000,
+                "bc": 100000,
+                "queuing-behavior": "POLICE"
+              },
+              "exceed-action": {
+                "config": {
+                  "drop": true
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    #
+    # Interfaces input are mapped to the desired classifier and scheduler.
+    "interfaces": [
+      {
+        "interface": null,
+        "config": {
+          "interface-id": "PortChannel1.100"
+        },
+        "input": {
+          "classifiers": [
+            {
+              "classifier": null,
+              "config": {
+                "name": "dest_A",
+                "type": "IPV4"
+              }
+            }
+          ],
+          "scheduler-policy": {
+            "config": {
+              "name": "limit_group_A_1Gb"
+            }
+          }
+        }
+      },
+      {
+        "interface": null,
+        "config": {
+          "interface-id": "PortChannel1.200"
+        },
+        "input": {
+          "classifiers": [
+            {
+              "classifier": null,
+              "config": {
+                "name": "dest_B",
+                "type": "IPV4"
+              }
+            }
+          ],
+          "scheduler-policy": {
+            "config": {
+              "name": "limit_group_B_1Gb"
+            }
+          }
+        }
+      }
+    ]
   }
 }
 ```
