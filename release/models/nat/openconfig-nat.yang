@@ -30,7 +30,7 @@ module openconfig-nat {
     - NAPT44 (Network Address Port Translation)
     - Static mappings
     - Dynamic address pools
-    - Policy-based NAT using ACLs for traffic matching";
+    - Policy-based NAT using ACLs";
 
   oc-ext:openconfig-version "0.1.0";
 
@@ -67,25 +67,6 @@ module openconfig-nat {
   }
 
   // Typedef statements
-
-  typedef nat-direction {
-    type enumeration {
-      enum INSIDE_TO_OUTSIDE {
-        description
-          "Translation from inside (private) to outside (public)";
-      }
-      enum OUTSIDE_TO_INSIDE {
-        description
-          "Translation from outside (public) to inside (private)";
-      }
-      enum BIDIRECTIONAL {
-        description
-          "Translation in both directions";
-      }
-    }
-    description
-      "Direction of NAT translation";
-  }
 
   typedef protocol-type {
     type enumeration {
@@ -140,7 +121,18 @@ module openconfig-nat {
       "Logging level for NAT operations";
   }
 
-
+  typedef interface-type {
+    type enumeration {
+      enum INSIDE {
+        description "Inside interface - connected to private/internal network";
+      }
+      enum OUTSIDE {
+        description "Outside interface - connected to public/external network";
+      }
+    }
+    description
+      "Type of NAT interface indicating its role in translation";
+  }
 
   // Grouping statements
 
@@ -208,10 +200,10 @@ module openconfig-nat {
         "Reference to the interface";
     }
 
-    leaf direction {
-      type nat-direction;
+    leaf type {
+      type interface-type;
       description
-        "NAT translation direction for this interface";
+        "Type of NAT interface - inside (private) or outside (public)";
     }
   }
 
@@ -277,8 +269,6 @@ module openconfig-nat {
       }
     }
   }
-
-
 
   grouping acl-set-config {
     description
@@ -511,13 +501,6 @@ module openconfig-nat {
       type uint32;
       description
         "Maximum number of concurrent sessions";
-    }
-
-    leaf bidirectional {
-      type boolean;
-      description
-        "Enable bidirectional translation for inside-to-outside
-        and outside-to-inside directions";
     }
 
     leaf enabled {
