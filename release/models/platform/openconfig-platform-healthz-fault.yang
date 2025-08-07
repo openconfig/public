@@ -148,12 +148,12 @@ module openconfig-platform-healthz-fault {
           the triggering condition";
 
         leaf symptom {
-          type leafref {
-            path "../state/symptom";
-          }
           config false;
           description
            "The symptom that raised this fault";
+          type leafref {
+            path "../state/symptom";
+          }
         }
 
         container state {
@@ -169,6 +169,8 @@ module openconfig-platform-healthz-fault {
   }
 
   grouping fault-state {
+    description
+      "The fault's operational state";
     leaf symptom {
       type identityref {
         base SYMPTOM_BASE;
@@ -249,29 +251,38 @@ module openconfig-platform-healthz-fault {
           type leafref {
             path "../state/index";
           }
+          description
+            "This index indicates the order in which the actions should be
+            applied. The order should progress from least to most disruptive.";
         }
         description
           "List of recommended actions to respond to the fault";
 
         container state {
           config false;
+          description
+            "The remediation's operational state.";
           leaf index {
             type uint64;
             description
-            "This index indicates the order in which the actions should be
-            applied. The order should progress from least to most disruptive.";
+              "This index indicates the order in which the actions should be
+              applied. The order should progress from least to most
+              disruptive.";
           }
 
           leaf action {
-              type identityref {
-                base ACTION_BASE;
-              }
-              description
-                  "The specific action to be performed";
+            description
+              "The specific action to be performed";
+            type identityref {
+              base ACTION_BASE;
+            }
           }
           leaf target {
+            description
+              "The component on which the action should be applied";
             type leafref {
-              path "../../../../../../component/config/name";
+              path "/oc-platform:components/oc-platform:component/" +
+                   "oc-platform:name";
             }
           }
         }
