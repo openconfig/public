@@ -1,0 +1,85 @@
+module openconfig-platform-usb-port {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/platform/usb-port";
+
+  prefix "oc-usb-port";
+
+  import openconfig-platform { prefix oc-platform; }
+  import openconfig-extensions { prefix oc-ext; }
+
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines data related to USB port components in the
+    OpenConfig platform model.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2025-07-12" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // grouping statements
+
+  grouping platform-usb-port-config {
+    description
+      "Configuration data for USB port";
+
+    leaf enabled {
+      type boolean;
+      description
+        "The configured state (enabled/disabled) of this USB port.";
+    }
+  }
+
+  grouping platform-usb-port-state {
+    description
+      "Operational state data for USB port";
+  }
+
+  grouping usb-port-top {
+    description
+      "Top-level grouping for USB port data";
+
+    container usb-port {
+      description
+        "Top-level container for USB port";
+
+      container config {
+        description
+          "Configuration data for USB port";
+
+        uses platform-usb-port-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for USB port";
+
+        uses platform-usb-port-config;
+        uses platform-usb-port-state;
+      }
+    }
+  }
+  uses usb-port-top;
+
+}
