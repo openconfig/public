@@ -55,6 +55,13 @@ module openconfig-inet-types-test {
     pt:pattern-test-fail "10.1.1.1%-Channel1";
     pt:pattern-test-fail "10.1.1.1%Port-";
     pt:pattern-test-fail "10.1.1.1%Port--Channel";
+    // ADDRESS%(IF_NAME)?[-](SUB_IF_NAME) tests with underscore
+    pt:pattern-test-pass "10.0.0.1%Port_Channel-sub_if1";
+    pt:pattern-test-pass "10.1.1.1%uplink_1-sub_if_2";
+    pt:pattern-test-pass "192.168.1.1%eth_0-sub_if_3";
+    pt:pattern-test-fail "10.1.1.1%-";
+    pt:pattern-test-fail "10.1.1.1%Port_-";
+    pt:pattern-test-fail "10.1.1.1%Port--sub_if";
   }
   leaf ip-address {
     type ocinet:ip-address;
@@ -111,6 +118,12 @@ module openconfig-inet-types-test {
     pt:pattern-test-fail "fe80::1%-Channel1";
     pt:pattern-test-fail "fe80::1%Port-";
     pt:pattern-test-fail "fe80::1%Port--Channel";
+    // ADDRESS%(IF_NAME)?[-](SUB_IF_NAME) tests with underscore
+    pt:pattern-test-pass "2001:db8::1%Port_Channel-Channel10";
+    pt:pattern-test-pass "fe80::1%uplink_1-sub_if_2";
+    pt:pattern-test-fail "fe80::1%-";
+    pt:pattern-test-fail "fe80::1%Port_-";
+    pt:pattern-test-fail "fe80::1%Port--sub_if";
   }
   leaf ipv4-prefix {
     type ocinet:ipv4-prefix;
