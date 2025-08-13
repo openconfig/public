@@ -2,7 +2,7 @@
 
 Contributors: aashaikh†, robjs†, dloher†
 † @google.com  
-September 2024
+August 2025
 
 ## Schema of the QoS Model
 
