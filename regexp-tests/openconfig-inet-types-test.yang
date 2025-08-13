@@ -16,17 +16,52 @@ module openconfig-inet-types-test {
   }
   leaf ipv4-address-zoned {
     type ocinet:ipv4-address-zoned;
+    // Invalid chars and base tests
     pt:pattern-test-pass "255.1.1.1%eth0";
-    pt:pattern-test-pass "255.255.255.255%eth1";
     pt:pattern-test-pass "0.0.0.0%PoRt3";
     pt:pattern-test-pass "1.1.1.1%FOX10_mouse5";
-    pt:pattern-test-fail "255.1.1.1%";
-    pt:pattern-test-fail "255.255.255.255";
-    pt:pattern-test-fail "0.0.0.0";
-    pt:pattern-test-fail "1.1.1.1";
-    pt:pattern-test-fail "256.255.255.255";
-    pt:pattern-test-fail "1.1.1.256";
-    pt:pattern-test-fail "256.1.1.1%eth0";
+    pt:pattern-test-fail "10.1.1.1";
+    pt:pattern-test-fail "10.1.1.1%";
+    pt:pattern-test-fail "10.1.1.1%zone#1";
+    pt:pattern-test-fail "10.1.1.1%eth0@";
+    pt:pattern-test-fail "10.1.1.1%eth0!";
+    pt:pattern-test-fail "10.1.1.1%eth0$";
+    pt:pattern-test-fail "10.1.1.1%eth0 ";
+    // ADDRESS%(IF_NAME)?[:](SUB_IF_NAME) tests
+    pt:pattern-test-pass "10.10.10.10%ns:eth0";
+    pt:pattern-test-pass "10.10.10.10%abc:123";
+    pt:pattern-test-fail "10.10.10.10%:";
+    pt:pattern-test-fail "10.10.10.10%:eth0";
+    pt:pattern-test-fail "10.10.10.10%eth0:";  
+    pt:pattern-test-fail "10.10.10.10%:.-";
+    // ADDRESS%(IF_NAME)?[.](SUB_IF_NAME) tests
+    pt:pattern-test-pass "172.16.0.1%Ethernet1.1";
+    pt:pattern-test-pass "10.0.0.1%abc.123";
+    pt:pattern-test-fail "10.0.0.1%.";
+    pt:pattern-test-fail "10.0.0.1%eth0.";
+    pt:pattern-test-fail "10.0.0.1%.eth0";
+    pt:pattern-test-fail "10.0.0.1%..";
+    // ADDRESS%(IF_NAME)?[/](SUB_IF_NAME) tests
+    pt:pattern-test-pass "192.168.1.1%Ethernet1/2";
+    pt:pattern-test-pass "10.10.10.10%uplink/4";
+    pt:pattern-test-fail "10.10.10.10%/";
+    pt:pattern-test-fail "10.10.10.10%/uplink";
+    pt:pattern-test-fail "10.10.10.10%uplink/";
+    pt:pattern-test-fail "10.10.10.10%uplink//2";
+    // ADDRESS%(IF_NAME)?[-](SUB_IF_NAME) tests
+    pt:pattern-test-pass "10.0.0.1%Port-Channel10";
+    pt:pattern-test-pass "10.1.1.1%uplink-1";
+    pt:pattern-test-fail "10.1.1.1%-";
+    pt:pattern-test-fail "10.1.1.1%-Channel1";
+    pt:pattern-test-fail "10.1.1.1%Port-";
+    pt:pattern-test-fail "10.1.1.1%Port--Channel";
+    // ADDRESS%(IF_NAME)?[-](SUB_IF_NAME) tests with underscore
+    pt:pattern-test-pass "10.0.0.1%Port_Channel-sub_if1";
+    pt:pattern-test-pass "10.1.1.1%uplink_1-sub_if_2";
+    pt:pattern-test-pass "192.168.1.1%eth_0-sub_if_3";
+    pt:pattern-test-fail "10.1.1.1%-";
+    pt:pattern-test-fail "10.1.1.1%Port_-";
+    pt:pattern-test-fail "10.1.1.1%Port--sub_if";
   }
   leaf ip-address {
     type ocinet:ip-address;
@@ -42,6 +77,53 @@ module openconfig-inet-types-test {
     pt:pattern-test-fail "fe80::23e:NOTVALID:fec7:7112";
     pt:pattern-test-fail "FFFF::NOTE::FFFF";
     pt:pattern-test-fail "FFFF::1::42";
+  }
+  leaf ipv6-address-zoned {
+    type ocinet:ipv6-address-zoned;
+    // Invalid chars and base tests
+    pt:pattern-test-pass "fe80::1%eth0";
+    pt:pattern-test-pass "::1%lo";
+    pt:pattern-test-fail "fe80::1";
+    pt:pattern-test-fail "fe80::1%";
+    pt:pattern-test-fail "fe80::1%bad zone";
+    pt:pattern-test-fail "fe80::1%zone#1";
+    pt:pattern-test-fail "fe80::1%eth0@";
+    pt:pattern-test-fail "fe80::1%eth0$";
+    pt:pattern-test-fail "fe80::1%eth0 ";
+    // ADDRESS%(IF_NAME)?[:](SUB_IF_NAME) tests
+    pt:pattern-test-pass "fe80::1%ns:eth0";
+    pt:pattern-test-pass "2001:db8::1%tenant:1/0";
+    pt:pattern-test-fail "fe80::1%:";
+    pt:pattern-test-fail "fe80::1%:eth0";
+    pt:pattern-test-fail "fe80::1%eth0:";
+    pt:pattern-test-fail "fe80::1%:.-";
+    // ADDRESS%(IF_NAME)?[.](SUB_IF_NAME) tests
+    pt:pattern-test-pass "fe80::2%Ethernet1.1";
+    pt:pattern-test-pass "fe80::1%uplink.4";
+    pt:pattern-test-fail "fe80::1%.";
+    pt:pattern-test-fail "fe80::1%eth0.";
+    pt:pattern-test-fail "fe80::1%.eth0";
+    pt:pattern-test-fail "fe80::1%..";
+    // ADDRESS%(IF_NAME)?[/](SUB_IF_NAME) tests
+    pt:pattern-test-pass "fe80::a%Ethernet1/2";
+    pt:pattern-test-pass "fe80::1%uplink/4";
+    pt:pattern-test-fail "fe80::1%/";
+    pt:pattern-test-fail "fe80::1%/uplink";
+    pt:pattern-test-fail "fe80::1%uplink/";
+    pt:pattern-test-fail "fe80::1%uplink//2";
+    // ADDRESS%(IF_NAME)?[-](SUB_IF_NAME) tests
+    pt:pattern-test-pass "2001:db8::1%Port-Channel10";
+    pt:pattern-test-pass "fe80::1%uplink-1";
+    pt:pattern-test-fail "fe80::1%-";
+    pt:pattern-test-fail "fe80::1%-Channel1";
+    pt:pattern-test-fail "fe80::1%Port-";
+    pt:pattern-test-fail "fe80::1%Port--Channel";
+    // ADDRESS%(IF_NAME)?[-](SUB_IF_NAME) tests with underscore
+    pt:pattern-test-pass "2001:db8::1%Port_Channel-Channel10";
+    pt:pattern-test-pass "fe80::1%uplink_1-sub_if_2";
+    pt:pattern-test-fail "fe80::1%-";
+    pt:pattern-test-fail "fe80::1%Port_-";
+    pt:pattern-test-fail "fe80::1%Port--sub_if";
   }
   leaf ipv4-prefix {
     type ocinet:ipv4-prefix;
