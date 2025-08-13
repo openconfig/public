@@ -438,10 +438,10 @@ DSCP values.  The same interface has an ingress scheduler policy applied to it
 which implements a `ONE_RATE_TWO_COLOR` policer.
 
 In this scenario, the device has a VOQ architecture and does not have hardware
-or software to implement in ingress queue.  To satisfy the OC schema
-requirements, a dummy or "fake" queue is created for the ingress side of the
-pipeline.  Note, an egress queue could still be defined on the egress side,
-but it is not included here for simplication.
+or software to implement in ingress queue.  To allow a consistent representation
+to be used across different architectures, a dummy or "fake" queue is created for
+the ingress side of the pipeline.  Note, an egress queue could still be defined
+on the egress side, but it is not included here for simplication.
 
 ```json
 {
