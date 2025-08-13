@@ -3,7 +3,7 @@ tagged with "Note" can be removed from the template.]
 
 [Note: Before this PR can be reviewed please agree to the CLA covering this
 repo. Please also review the contribution guide -
-https://github.com/openconfig/public/blob/master/doc/external-contributions-guide.md]
+https://github.com/openconfig/public/blob/master/doc/contributions-guide.md]
 
 ### Change Scope
 
