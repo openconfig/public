@@ -29,10 +29,9 @@ module openconfig-nat {
     different network domains.
 
     The model supports:
-    - Static source NAT
-    - Static destination NAT
-    - Dynamic many-to-many NAT
-    - Many-to-one NAT (PAT)
+    - Source NAT (SNAT) for outbound traffic translation
+    - Destination NAT (DNAT) for inbound traffic translation
+    - Static and dynamic address/port mappings
     - Policy-based NAT using ACLs
     - Active translation table showing current NAT entries
     - Multiple address families (IPv4/NAT44, IPv6/NAT66).";
@@ -52,30 +51,18 @@ module openconfig-nat {
       "Base identity for NAT types.";
   }
 
-  identity STATIC_SOURCE_NAT {
+  identity SOURCE {
     base NAT_TYPE;
     description
-      "Static source NAT - fixed mapping of source addresses.";
+      "Source NAT - translates source addresses/ports of outbound
+      traffic.";
   }
 
-  identity STATIC_DESTINATION_NAT {
+  identity DESTINATION {
     base NAT_TYPE;
     description
-      "Static destination NAT - fixed mapping of destination
-      addresses.";
-  }
-
-  identity DYNAMIC_MANY_TO_MANY_NAT {
-    base NAT_TYPE;
-    description
-      "Dynamic many-to-many NAT - pool of addresses for translation.";
-  }
-
-  identity MANY_TO_ONE_NAT {
-    base NAT_TYPE;
-    description
-      "Many-to-one NAT (PAT) - multiple addresses share one
-      external address using port translation.";
+      "Destination NAT - translates destination addresses/ports
+      of inbound traffic.";
   }
 
   identity ADDRESS_FAMILY {
