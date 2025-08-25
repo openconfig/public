@@ -319,7 +319,7 @@ module openconfig-nat {
       }
       description
         "Reference to ACL set that defines traffic
-        eligible for this pool.";
+        eligible for this NAT instance.";
     }
   }
 
@@ -339,27 +339,27 @@ module openconfig-nat {
     }
   }
 
-  grouping nat-pool-config {
+  grouping nat-dynamic-config {
     description
-      "Configuration parameters for NAT address pools.";
+      "Configuration parameters for dynamic NAT.";
 
     leaf name {
       type string;
       description
-        "Unique name for the NAT pool.";
+        "Unique name for the dynamic NAT pool.";
     }
 
     leaf start-address {
       type inet:ip-address;
       description
-        "Starting IP address of the pool range. Must match the
+        "Starting IP address of the address range. Must match the
         address family configured for the NAT instance.";
     }
 
     leaf end-address {
       type inet:ip-address;
       description
-        "Ending IP address of the pool range. Must match the
+        "Ending IP address of the address range. Must match the
         address family configured for the NAT instance.";
     }
 
@@ -368,7 +368,7 @@ module openconfig-nat {
         range "1..128";
       }
       description
-        "Prefix length for the address pool. For IPv4, valid range
+        "Prefix length for the address range. For IPv4, valid range
         is 1-32. For IPv6, valid range is 1-128.";
     }
 
@@ -397,7 +397,7 @@ module openconfig-nat {
       }
       description
         "Reference to ACL set that defines traffic
-        eligible for this pool.";
+        eligible for this dynamic NAT pool.";
     }
 
     leaf max-translations {
@@ -467,30 +467,32 @@ module openconfig-nat {
     }
   }
 
-  grouping nat-pool-state {
+  grouping nat-dynamic-state {
     description
-      "Operational state data for NAT address pools.";
+      "Operational state data for dynamic NAT.";
 
     container counters {
       description
-        "Counters for NAT pool operations.";
+        "Counters for dynamic NAT pool operations.";
 
       leaf allocated-addresses {
         type yang:counter32;
         description
-          "Number of addresses currently allocated from this pool.";
+          "Number of addresses currently allocated from this
+          dynamic NAT pool.";
       }
 
       leaf available-addresses {
         type yang:counter32;
         description
-          "Number of addresses available in this pool.";
+          "Number of addresses available in this dynamic NAT pool.";
       }
 
       leaf active-translations {
         type yang:counter64;
         description
-          "Number of currently active translations using this pool.";
+          "Number of currently active translations using this
+          dynamic NAT pool.";
       }
 
       leaf acl-hit-count {
@@ -501,14 +503,14 @@ module openconfig-nat {
     }
   }
 
-  grouping nat-mapping-config {
+  grouping nat-static-config {
     description
-      "Configuration parameters for static NAT mappings.";
+      "Configuration parameters for static NAT.";
 
     leaf name {
       type string;
       description
-        "Unique name for the static mapping.";
+        "Unique name for the static NAT mapping.";
     }
 
     leaf type {
@@ -516,7 +518,7 @@ module openconfig-nat {
         base NAT_TYPE;
       }
       description
-        "Type of static mapping: source or destination.";
+        "Type of static NAT: source or destination.";
     }
 
     leaf internal-address {
@@ -536,19 +538,19 @@ module openconfig-nat {
     leaf internal-port {
       type inet:port-number;
       description
-        "Internal port number for NAPT mappings.";
+        "Internal port number for static NAPT mappings.";
     }
 
     leaf external-port {
       type inet:port-number;
       description
-        "External port number for NAPT mappings.";
+        "External port number for static NAPT mappings.";
     }
 
     leaf protocol {
       type protocol-type;
       description
-        "Protocol for the mapping.";
+        "Protocol for the static NAT mapping.";
     }
 
     leaf acl-set {
@@ -557,7 +559,7 @@ module openconfig-nat {
              "oc-acl:config/oc-acl:name";
       }
       description
-        "Reference to ACL set for this static mapping.";
+        "Reference to ACL set for this static NAT mapping.";
     }
 
     leaf max-translations {
@@ -569,24 +571,24 @@ module openconfig-nat {
     leaf enabled {
       type boolean;
       description
-        "Administrative state of the static mapping.";
+        "Administrative state of the static NAT mapping.";
     }
   }
 
-  grouping nat-mapping-state {
+  grouping nat-static-state {
     description
-      "Operational state data for static NAT mappings.";
+      "Operational state data for static NAT.";
 
     leaf creation-time {
       type yang:date-and-time;
       description
-        "Timestamp when the mapping was created.";
+        "Timestamp when the static NAT mapping was created.";
     }
 
     leaf last-used {
       type yang:date-and-time;
       description
-        "Timestamp when the mapping was last used.";
+        "Timestamp when the static NAT mapping was last used.";
     }
 
     container counters {
@@ -596,19 +598,21 @@ module openconfig-nat {
       leaf active-translations {
         type yang:counter64;
         description
-          "Number of currently active translations for this mapping.";
+          "Number of currently active translations for this static
+          NAT mapping.";
       }
 
       leaf packet-count {
         type yang:counter64;
         description
-          "Number of packets translated using this mapping.";
+          "Number of packets translated using this static NAT
+          mapping.";
       }
 
       leaf byte-count {
         type yang:counter64;
         description
-          "Number of bytes translated using this mapping.";
+          "Number of bytes translated using this static NAT mapping.";
       }
 
       leaf acl-hit-count {
@@ -676,14 +680,14 @@ module openconfig-nat {
     leaf source-pool {
       type string;
       description
-        "Name of the NAT pool that allocated this translation,
-        if applicable.";
+        "Name of the dynamic NAT pool that allocated this
+        translation, if applicable.";
     }
 
     leaf source-mapping {
       type string;
       description
-        "Name of the static mapping that created this translation,
+        "Name of the static NAT mapping that created this translation,
         if applicable.";
     }
 
@@ -799,60 +803,60 @@ module openconfig-nat {
         }
 
         uses nat-interface-top;
-        uses nat-pool-top;
-        uses nat-mapping-top;
+        uses nat-dynamic-top;
+        uses nat-static-top;
         uses nat-translation-table-top;
       }
     }
   }
 
-  grouping nat-pool-top {
+  grouping nat-dynamic-top {
     description
-      "Top-level grouping for NAT pools.";
+      "Top-level grouping for dynamic NAT.";
 
-    container pools {
+    container dynamic {
       description
-        "NAT address pool configuration and state.";
+        "Dynamic NAT configuration and state.";
 
       list pool {
         key "name";
         description
-          "List of NAT address pools.";
+          "List of dynamic NAT pools.";
 
         leaf name {
           type leafref {
             path "../config/name";
           }
           description
-            "Reference to pool name.";
+            "Reference to dynamic NAT pool name.";
         }
 
         container config {
           description
-            "Configuration parameters for the NAT pool.";
+            "Configuration parameters for the dynamic NAT pool.";
 
-          uses nat-pool-config;
+          uses nat-dynamic-config;
         }
 
         container state {
           config false;
           description
-            "Operational state data for the NAT pool.";
+            "Operational state data for the dynamic NAT pool.";
 
-          uses nat-pool-config;
-          uses nat-pool-state;
+          uses nat-dynamic-config;
+          uses nat-dynamic-state;
         }
       }
     }
   }
 
-  grouping nat-mapping-top {
+  grouping nat-static-top {
     description
-      "Top-level grouping for static NAT mappings.";
+      "Top-level grouping for static NAT.";
 
-    container mappings {
+    container static {
       description
-        "Static NAT mapping configuration and state.";
+        "Static NAT configuration and state.";
 
       list mapping {
         key "name";
@@ -864,23 +868,23 @@ module openconfig-nat {
             path "../config/name";
           }
           description
-            "Reference to mapping name.";
+            "Reference to static NAT mapping name.";
         }
 
         container config {
           description
-            "Configuration parameters for the static mapping.";
+            "Configuration parameters for the static NAT mapping.";
 
-          uses nat-mapping-config;
+          uses nat-static-config;
         }
 
         container state {
           config false;
           description
-            "Operational state data for the static mapping.";
+            "Operational state data for the static NAT mapping.";
 
-          uses nat-mapping-config;
-          uses nat-mapping-state;
+          uses nat-static-config;
+          uses nat-static-state;
         }
       }
     }
