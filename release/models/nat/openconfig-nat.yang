@@ -156,7 +156,13 @@ module openconfig-nat {
 
   grouping nat-instance-config {
     description
-      "Configuration parameters for NAT instances.";
+      "Configuration parameters for NAT instances.
+
+      When both static and dynamic NAT are configured within the same
+      NAT instance, static NAT takes precedence over dynamic NAT.
+      Static NAT entries are permanent mappings that will always match
+      their configured address/port tuples before any dynamic NAT
+      rules are evaluated.";
 
     leaf name {
       type string;
@@ -397,7 +403,10 @@ module openconfig-nat {
     leaf max-translations {
       type uint64;
       description
-        "Maximum number of concurrent translations.";
+        "Maximum number of concurrent translations for this dynamic
+        NAT pool. When this threshold is reached, new translation
+        requests are dropped until the number of active translations
+        falls below this limit.";
     }
 
     leaf address-only {
@@ -559,7 +568,10 @@ module openconfig-nat {
     leaf max-translations {
       type uint64;
       description
-        "Maximum number of concurrent translations.";
+        "Maximum number of concurrent translations for this static
+        NAT mapping. When this threshold is reached, new translation
+        requests using this mapping are dropped until the number of
+        active translations falls below this limit.";
     }
   }
 
@@ -903,7 +915,10 @@ module openconfig-nat {
         leaf max-translations {
           type uint64;
           description
-            "Maximum number of concurrent translations globally.";
+            "Maximum number of concurrent translations globally across
+            all NAT instances. When this threshold is reached, new
+            translation requests are dropped until the total number
+            of active translations falls below this limit.";
         }
 
         leaf log-level {
@@ -931,7 +946,10 @@ module openconfig-nat {
         leaf max-translations {
           type uint64;
           description
-            "Maximum number of concurrent translations globally.";
+            "Maximum number of concurrent translations globally across
+            all NAT instances. When this threshold is reached, new
+            translation requests are dropped until the total number
+            of active translations falls below this limit.";
         }
 
         leaf log-level {
