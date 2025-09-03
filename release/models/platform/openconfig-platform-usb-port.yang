@@ -1,0 +1,70 @@
+module openconfig-platform-usb-port {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/platform/usb-port";
+
+  prefix "oc-usb-port";
+
+  import openconfig-platform { prefix oc-platform; }
+  import openconfig-extensions { prefix oc-ext; }
+
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines data related to USB port components in the
+    OpenConfig platform model.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2025-08-18" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // grouping statements
+
+  grouping usb-port-config {
+    description
+      "Configuration data for USB ports";
+
+    uses oc-platform:component-power-management;
+  }
+
+  // data definition statements
+
+  // augment statements
+
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:usb-port/oc-platform:config" {
+    description
+      "Configuration data for USB ports.
+      A USB port can be configured for persistent powered-off
+      mode using the config/power-admin-state leaf.";
+
+    uses usb-port-config;
+  }
+
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:usb-port/oc-platform:state" {
+    description
+      "Adding USB port data to physical inventory. This subtree
+      is only valid when the type of the component is USB_PORT.";
+
+    uses usb-port-config;
+  }
+
+}
