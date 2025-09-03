@@ -37,34 +37,58 @@ module openconfig-platform-usb-port {
 
   // grouping statements
 
+  grouping usb-port-top {
+    description
+      "Top level grouping for attributes related to USB ports.";
+  
+    container usb-port {
+      description
+        "Parameters related to all USB ports.";
+  
+      container config {
+        description
+          "Configuration data for USB ports.";
+  
+        uses usb-port-config;
+      }
+  
+      container state {
+        description
+          "State data for USB ports.";
+        config false;
+  
+        uses usb-port-config;
+        uses usb-port-state;
+      }
+    }
+  }
+
   grouping usb-port-config {
     description
-      "Configuration data for USB ports";
-
-    uses oc-platform:component-power-management;
+      "Configuration data for USB ports.";
+  
+    leaf enabled {
+      type boolean;
+      description
+        "Turns power on / off to the USB port."
+    }
+  }
+  
+  grouping usb-port-state {
+    description
+      "State data for USB ports.";
   }
 
   // data definition statements
 
   // augment statements
 
-  augment "/oc-platform:components/oc-platform:component/" +
-    "oc-platform:usb-port/oc-platform:config" {
+  augment "/oc-platform:components/oc-platform:component/" {
     description
       "Configuration data for USB ports.
       A USB port can be configured for persistent powered-off
       mode using the config/power-admin-state leaf.";
 
-    uses usb-port-config;
+    uses usb-port-top;
   }
-
-  augment "/oc-platform:components/oc-platform:component/" +
-    "oc-platform:usb-port/oc-platform:state" {
-    description
-      "Adding USB port data to physical inventory. This subtree
-      is only valid when the type of the component is USB_PORT.";
-
-    uses usb-port-config;
-  }
-
 }
