@@ -1,0 +1,132 @@
+module openconfig-ipsec-types {
+  yang-version "1";
+  namespace "http://openconfig.net/yang/ipsec/types";
+  prefix "oc-ipsect";
+
+  import openconfig-extensions { prefix oc-ext; }
+
+  organization "OpenConfig working group";
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+  description
+    "This module defines types related to the MACsec configuration
+    and operational state model.";
+
+  oc-ext:openconfig-version "0.1.0";
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  revision 2025-04-23 {
+    description
+      "Initial public revision";
+    reference
+      "0.1.0";
+  }
+
+  // Not all vendors will support all algorithms
+  // FIPS mode only allows AES based algorithms
+  typedef ipsec-cipher-suite {
+    type union {
+      type enumeration {
+        enum ENCR_AES_CBC { description "ENCR_AES_CBC Cipher Suite. Key length 128, 192, or 256 bits."; }
+        enum ENCR_AES_CTR { description "ENCR_AES_CTR Cipher Suite. Key length 128, 192, or 256 bits."; }
+        enum ENCR_AES_CCM_8 { description "ENCR_AES_CCM_8 Cipher Suite. Key length 128, 192, or 256 bits. AEAD."; }
+        enum ENCR_AES_CCM_12 { description "ENCR_AES_CCM_8 Cipher Suite. Key length 128, 192, or 256 bits. AEAD."; }
+        enum ENCR_AES_CCM_16 { description "ENCR_AES_CCM_8 Cipher Suite. Key length 128, 192, or 256 bits. AEAD."; }
+        enum ENCR_AES_GCM_8 { description "ENCR_AES_GCM_16 Cipher Suite. Key length 128, 192, or 256 bits. AEAD."; }
+        enum ENCR_AES_GCM_12 { description "ENCR_AES_GCM_16 Cipher Suite. Key length 128, 192, or 256 bits. AEAD."; }
+        enum ENCR_AES_GCM_16 { description "ENCR_AES_GCM_16 Cipher Suite. Key length 128, 192, or 256 bits. RECOMMENDED. AEAD."; }
+        enum ENCR_CHACHA20_POLY1305 { description "ENCR_CHACHA20_POLY1305 Cipher Suite. Key length 128, 192, or 256 bits. AEAD."; }
+      }
+      type uint8 {
+        range 1..35;
+      }
+    }
+    description
+      "Set Cipher suite(s) for IPSec by either the IANA number or the algorithm name
+      (only specified for commonly used, recommended algorithms).";
+  }
+
+
+  // Not all vendors will support all algorithms
+  // FIPS mode only allows SHA2 based algorithms
+  typedef ipsec-hash-algorithms {
+    type union {
+      type enumeration {
+        enum AUTH_NONE { description "AUTH_NONE Hash Algorithm. DO NOT USE UNLESS USING AEAD Cipher Suite."; }
+        enum AUTH_AES_128_GMAC { description "AUTH_AES_128_GMAC Hash Algorithm."; }
+        enum AUTH_AES_256_GMAC { description "AUTH_AES_256_GMAC Hash Algorithm."; }
+        enum AUTH_HMAC_SHA2_256_128 { description "AUTH_HMAC_SHA2_256_128 Hash Algorithm."; }
+        enum AUTH_HMAC_SHA2_384_102 { description "AUTH_HMAC_SHA2_384_192 Hash Algorithm."; }
+        enum AUTH_HMAC_SHA2_512_256 { description "AUTH_HMAC_SHA2_512_256 Hash Algorithm. RECOMMENDED"; }
+      }
+      type uint8 {
+        range 1..14;
+      }
+    }
+    description
+      "Set Hash Algoritm(s) for IPSec by either the IANA number or the algorithm name
+      (only specified for commonly used, recommended algorithms).";
+  }
+
+
+  // Not all vendors will support all algorithms
+  // FIPS mode only allows SHA2 based algorithms
+  typedef ipsec-prf-algorithms {
+    type union {
+      type enumeration {
+        enum PRF_AES128_XCBC { description "PRF_AES128_XCBC PRF Algorithm."; }
+        enum PRF_HMAC_SHA2_256 { description "PRF_HMAC_SHA2_256 PRF Algorithm."; }
+        enum PRF_HMAC_SHA2_384 { description "PRF_HMAC_SHA2_384 PRF Algorithm."; }
+        enum PRF_HMAC_SHA2_512 { description "PRF_HMAC_SHA2_512 PRF Algorithm. RECOMMENDED"; }
+        enum PRF_AES128_CMAC { description "PRF_AES128_CMAC PRF Algorithm."; }
+      }
+      type uint8 {
+        range 1..14;
+      }
+    }
+    description
+      "Set PRF Algorithm(s) for IPSec by either the IANA number or the algorithm name
+      (only specified for commonly used, recommended algorithms).";
+  }
+
+
+  // Not all vendors will support all algorithms
+  // FIPS mode only allows AES and SHA2 based algorithms
+  typedef ipsec-authentication-algorithms {
+    type union {
+      type enumeration {
+        enum RSA_DIGITAL_SIGNATURE { description "RSA Digital Signature	Authentication method. Key size must be between 2048 and 4096 for FIPS, larger than 3072 recommended."; }
+        enum SHARED_KEY_MESSAGE_INTEGRITY_CODE { description "Shared Key Message Integrity Code Authentication method. Key size field unused."; }
+        enum ECDSA_SHA_256_P_256 { description "ECDSA with SHA-256 on the P-256 curve Authentication method. Key size field unused."; }
+        enum ECDSA_SHA_384_P_384 { description "ECDSA with SHA-384 on the P-384 curve Authentication method. Key size field unused."; }
+        enum ECDSA_SHA_512_P_521 { description "ECDSA with SHA-512 on the P-521 curve Authentication method. Key size field unused."; }
+        enum DIGITAL_SIGNATURE { description "Digital Signature Authentication method. Key size depends on algorithm. Digital Signature leaf must be filled in."; }
+      }
+      type uint8 {
+        range 1..14;
+      }
+    }
+    description
+      "Set Authentication method(s) for IPSec by either the IANA number or the algorithm name
+      (only specified for commonly used, recommended algorithms).";
+  }
+
+  typedef ipsec-type {
+    type enumeration {
+      enum AH { description "Use Authentication Header."; }
+      enum ESP { description "Use Encapsulating Security Payload."; }
+    }
+    description
+      "The Type of IPSec to use.";
+  }
+
+  identity DIGITAL_SIGNATURE_TYPE {
+    description
+      "Base Type for Digital Signature methods supported.
+      Specific values should derive from this type and depend on the platform.";
+  }
+
+}
