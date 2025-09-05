@@ -26,7 +26,14 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.4.2";
+
+  revision "2025-09-03" {
+    description
+      "Add the enable-echo leaf in bfd-interface-config to allow
+      BFD echo mode to be enabled per interface.";
+    reference "0.4.2";
+ }
 
   revision "2025-03-18" {
     description
@@ -269,6 +276,14 @@ module openconfig-bfd {
       description
         "When this leaf is set to true - BFD will be enabled on
         each member interface of the aggregated Ethernet bundle.";
+    }
+
+    leaf enable-echo {
+      type boolean;
+      default false;
+      description
+        "When this leaf is set to true, the BFD echo mode is enabled
+        for all sessions on the interface.";
     }
   }
 
