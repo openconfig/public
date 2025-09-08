@@ -134,10 +134,15 @@ module openconfig-platform-healthz-fault {
         config false;
         description
           "A fault indicates that a component has recently or is currently
-          experiencing a problem as expressed by a symptom. These symptoms
-          have underlying conditions that are platform-specific. The fault
-          should not be deleted as soon as the underlying condition is no
-          longer asserted to avoid excessive fault creation and deletion.
+          experiencing a problem as expressed by a symptom. These symptoms have
+          underlying conditions that are platform-specific.
+          
+          Faults should only be raised if the component is no longer able to
+          perform the function expected of it and requires
+          remediation/intervention.
+
+          The fault should not be deleted as soon as the underlying condition
+          is no longer asserted to avoid excessive fault creation and deletion.
           Deletion of the fault should occur after a suitable period outside of
           the triggering condition";
 
@@ -177,7 +182,7 @@ module openconfig-platform-healthz-fault {
       type oc-types:timeticks64;
       description
         "The time at which the fault first became active.
-        This value should not change.";
+        This value is static for the life of the fault.";
     }
 
     leaf last-detection-time {
@@ -190,13 +195,17 @@ module openconfig-platform-healthz-fault {
     leaf occurrences {
       type uint64;
       description
-        "The number of times this fault transitioned into the active state.";
+        "The number of times this fault transitioned into the active state.
+        When a fault is added, this value should start at 1.";
     }
 
     leaf description {
       type string;
       description
-        "Description of the fault to assist with debuggability";
+        "Description of the fault to assist with debuggability.
+        This is purely for informational purposes and consuming systems
+        should not expect a common behaviour/pattern, even across software
+        releases or hardware platforms";
     }
 
     leaf status {
