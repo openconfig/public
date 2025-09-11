@@ -120,23 +120,6 @@ module openconfig-platform-healthz-fault {
       "Replace component.";
   }
 
-  identity OPENCONFIG_FAULT_SEVERITY {
-    description
-      "Base identity for fault severity.";
-  }
-
-  identity URGENT {
-    base OPENCONFIG_FAULT_SEVERITY;
-    description
-      "Indicates that a fault requires urgent remediation.";
-  }
-
-  identity NON_URGENT {
-    base OPENCONFIG_FAULT_SEVERITY;
-    description
-      "Indicates that a fault does not require urgent remediation.";
-  }
-
   grouping platform-health-faults {
     description
       "Grouping containing a component's active faults";
@@ -245,14 +228,6 @@ module openconfig-platform-healthz-fault {
       description
         "The status of the fault, indicates whether the underlying condition
         is actively asserted.";
-    }
-
-    leaf severity {
-      type identityref {
-        base OPENCONFIG_FAULT_SEVERITY;
-      }
-      description
-        "Indicates the urgency of the fault.";
     }
   }
 
