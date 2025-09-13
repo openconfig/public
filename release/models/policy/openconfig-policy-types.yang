@@ -25,7 +25,13 @@ module openconfig-policy-types {
     policy.  It can be imported by modules that contain protocol-
     specific policy conditions and actions.";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "3.4.0";
+  }
 
   revision "2024-05-14" {
     description
@@ -248,6 +254,22 @@ revision "2022-11-08" {
       "Protocol Independent Multicast";
     reference
       "RFC 7761";
+  }
+
+  identity MSDP {
+    base INSTALL_PROTOCOL_TYPE;
+    description
+      "Multicast Source Discovery Protocol";
+    reference
+      "RFC 3618";
+  }
+
+  identity MLD {
+    base INSTALL_PROTOCOL_TYPE;
+    description
+      "Multicast Listener Discovery";
+    reference
+      "RFC 2710";
   }
 
   identity IGMP {
