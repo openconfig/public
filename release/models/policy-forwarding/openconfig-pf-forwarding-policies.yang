@@ -540,4 +540,34 @@ submodule openconfig-pf-forwarding-policies {
         encapsulating the packet matching the rule.";
     }
   }
+
+  grouping pf-forwarding-policy-top {
+    description
+      "Grouping for top-level policy-forwarding.";
+
+    container config {
+      description
+        "Configuration parameters relating to top-level policy-forwarding.";
+      uses pf-forwarding-policy-top-parameters;
+    }
+
+    container state {
+      config false;
+      description
+        "State parameters relating to top-level policy-forwarding.";
+      uses pf-forwarding-policy-top-parameters;
+    }
+  }
+
+  grouping pf-forwarding-policy-top-parameters {
+    description
+      "Grouping of parameters relating to top-level policy-forwarding.";
+
+    leaf global-decap-policy {
+      type string;
+      description
+        "A decap policy that is applicable to a network instance and not a
+        particular interface.";
+    }
+  }
 }
