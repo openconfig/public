@@ -1063,6 +1063,20 @@ revision "2024-05-29" {
     }
   }
 
+  grouping platform-component-sensor-state {
+    container sensor {
+      //when "../state/type = 'oc-platform-types:SENSOR'";
+      description
+        "Data for sensor components";
+
+      container state {
+        config false;
+        description
+          "Operational state data for sensor components";
+      }
+    }
+  }
+
   grouping platform-anchors-top {
     description
       "This grouping is used to add containers for components that
@@ -1177,17 +1191,6 @@ revision "2024-05-29" {
         config false;
         description
           "Operational state data for fan components";
-      }
-    }
-
-    container sensor {
-      description
-        "Data for sensor components";
-
-      container state {
-        config false;
-        description
-          "Operational state data for sensor components";
       }
     }
 
@@ -1368,6 +1371,9 @@ revision "2024-05-29" {
             when "./type = 'oc-platform-types:STORAGE' or " +
               "'oc-platform-types:INTEGRATED_CIRCUIT' or " +
               "'oc-platform-types:FRU'";
+          }
+          uses platform-component-sensor-state {
+            when "./type = 'oc-platform-types:SENSOR'";
           }
         }
 

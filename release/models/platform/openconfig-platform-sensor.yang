@@ -23,7 +23,7 @@ module openconfig-platform-sensor {
     "This module defines data related to SENSOR components in the
     OpenConfig platform model.";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.1.0";
 
   revision "2025-09-16" {
     description
@@ -75,7 +75,7 @@ module openconfig-platform-sensor {
   identity UNITS_ABSOLUTE_HUMIDITY {
     base UNITS_BASE;
     description
-      "Absoltue humidity expressed in grams per cubic meter (g/m^3)";
+      "Absolute humidity expressed in grams per cubic meter (g/m^3)";
   }
 
   // typedef statements
@@ -99,7 +99,7 @@ module openconfig-platform-sensor {
         base UNITS_BASE;
       }
       description
-        "The unit type for this sensor (volts, amps, celsius degree, ect)";
+        "The unit type for this sensor (volts, amps, celsius degree, etc.)";
     }
   }
 
@@ -172,18 +172,18 @@ module openconfig-platform-sensor {
 
   // augment statements
 
-  augment "/oc-platform:components/oc-platform:component/" +
+  augment "/oc-platform:components/oc-platform:component/oc-platform:state/" +
     "oc-platform:sensor" {
     description
-      "Adding fan data to component model";
+      "Adding sensor data to component model";
 
-    uses sensor-threshold-top ;
+    uses sensor-threshold-top;
   }
 
-  augment "/oc-platform:components/oc-platform:component/" +
+  augment "/oc-platform:components/oc-platform:component/oc-platform:state/" +
     "oc-platform:sensor/oc-platform:state" {
     description
-      "Adding fan state data to component model";
+      "Adding sensor state data to component model";
 
     uses sensor-state;
   }
