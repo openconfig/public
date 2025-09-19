@@ -8,6 +8,7 @@ module openconfig-platform-sensor {
   prefix "oc-sensor";
 
   import openconfig-platform { prefix oc-platform; }
+  import openconfig-platform-types { prefix oc-platform-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-alarm-types { prefix oc-alarm-types; }
 
@@ -167,25 +168,30 @@ module openconfig-platform-sensor {
     }
   }
 
+  grouping sensor-top {
+    container sensor {
+      description
+        "Data for sensor components";
+
+      container state {
+        when "../../oc-platform:state/oc-platform:type = 'oc-platform-types:SENSOR'";
+        config false;
+        description
+          "Operational state data for sensor components";
+        uses sensor-state;
+        uses sensor-threshold-top;
+      }
+    }
+  }
 
   // data definition statements
 
   // augment statements
 
-  augment "/oc-platform:components/oc-platform:component/oc-platform:state/" +
-    "oc-platform:sensor" {
+  augment "/oc-platform:components/oc-platform:component" {
     description
-      "Adding sensor data to component model";
+      "Adding sensor container to component";
 
-    uses sensor-threshold-top;
+    uses sensor-top;
   }
-
-  augment "/oc-platform:components/oc-platform:component/oc-platform:state/" +
-    "oc-platform:sensor/oc-platform:state" {
-    description
-      "Adding sensor state data to component model";
-
-    uses sensor-state;
-  }
-
 }
