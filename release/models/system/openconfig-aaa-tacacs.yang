@@ -25,7 +25,13 @@ submodule openconfig-aaa-tacacs {
     related to the TACACS+ protocol for authentication,
     authorization, and accounting.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2024-05-03" {
+    description
+      "Deprecate port and make it a common key for aaa servers";
+      reference "1.1.0";
+  }
 
   revision "2022-07-29" {
     description
@@ -91,6 +97,7 @@ submodule openconfig-aaa-tacacs {
 
     leaf port {
       type oc-inet:port-number;
+      status deprecated;
       default 49;
       description
         "The port number on which to contact the TACACS server";
