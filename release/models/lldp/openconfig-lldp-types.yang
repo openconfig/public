@@ -21,7 +21,13 @@ module openconfig-lldp-types {
   description
     "This module defines types related to the LLDP protocol model.";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2025-05-02" {
+    description
+      "Add Management interface numbering subtype typedef.";
+    reference "0.2.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -302,5 +308,30 @@ module openconfig-lldp-types {
       "IEEE 802.1AB LLDP MIB";
   }
 
+  typedef mgmt-interface-number-subtype {
+    type enumeration {
+      enum UNKNOWN {
+        value 1;
+        description
+          "Interface is not known";
+      }
+      enum IFINDEX {
+        value 2;
+        description
+          "Interface is based on the IF-MIB ifIndex";
+      }
+      enum SYSTEM_PORT_NUMBER {
+        value 3;
+        description
+          "Interface is based on the system port number";
+      }
+    }
+    description
+      "The Management address interface numbering subtype field
+      indicating the numbering method used for defining the interface
+      number.";
+    reference
+     "Sec 8.5.9.5 of IEEE Std 802.1AB-2016";
+  }
 
 }
