@@ -114,7 +114,7 @@ user-counters subtree is introduced.
 +    |  |  +--rw config
 +    |        +--rw name?           string
 +    |  |  +--rw state
-+    |  |     +--rw name?           stringk
++    |  |     +--rw name?           string
 +    |  |     +--rw counters
 +    |  |        +--rw count?       oc-yang:counter64
 ```
