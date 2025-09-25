@@ -39,6 +39,12 @@ module openconfig-packet-match {
     reference "2.2.0";
   }
 
+  revision "2024-12-19" {
+    description
+      "Support for ACL entry with wildcard netmask.";
+    reference "2.2.0";
+  }
+
   revision "2023-03-01" {
     description
       "Add ICMP Fields for filtering.";
@@ -319,6 +325,21 @@ module openconfig-packet-match {
         "Source IPv4 address prefix.";
     }
 
+    leaf masked-source-address {
+      type oc-inet:ipv4-address;
+      description
+        "Source IPv4 address, to be used with source-wildcard-mask.
+        This node must only be used if a masked address is required.
+        If this node is populated, ../source-address must not be used.";
+    }
+
+    leaf source-wildcard-mask {
+      type oc-inet:ipv4-address;
+      description
+        "Source IPv4 address wildcard mask used
+        by masked-source-address.";
+    }
+
     leaf source-address-prefix-set {
       type leafref {
          path "/oc-sets:defined-sets/oc-sets:ipv4-prefix-sets"
@@ -333,6 +354,21 @@ module openconfig-packet-match {
       type oc-inet:ipv4-prefix;
       description
         "Destination IPv4 address prefix.";
+    }
+
+    leaf masked-destination-address {
+      type oc-inet:ipv4-address;
+      description
+        "Destination IPv4 address, to be used with destination-wildcard-mask.
+        This node must only be used if a masked address is required.
+        If this node is populated, ../destination-address must not be used.";
+    }
+
+    leaf destination-wildcard-mask {
+      type oc-inet:ipv4-address;
+      description
+        "Destination IPv4 address wildcard mask used
+        by masked-destination-address.";
     }
 
     leaf destination-address-prefix-set {
@@ -398,6 +434,21 @@ module openconfig-packet-match {
         "Source IPv6 address prefix.";
     }
 
+    leaf masked-source-address {
+      type oc-inet:ipv6-address;
+      description
+        "Source IPv6 address, to be used with source-wildcard-mask.
+        This node must only be used if a masked address is required.
+        If this node is populated, ../source-address must not be used.";
+    }
+
+    leaf source-wildcard-mask {
+      type oc-inet:ipv4-address;
+      description
+        "Source IPv6 address wildcard mask used
+        by masked-source-address.";
+    }
+
     leaf source-address-prefix-set {
       type leafref {
          path "/oc-sets:defined-sets/oc-sets:ipv6-prefix-sets"
@@ -418,6 +469,21 @@ module openconfig-packet-match {
       type oc-inet:ipv6-prefix;
       description
         "Destination IPv6 address prefix.";
+    }
+
+    leaf masked-destination-address {
+      type oc-inet:ipv6-address;
+      description
+        "Destination IPv6 address, to be used with destination-wildcard-mask.
+        This node must only be used if a masked address is required.
+        If this node is populated, ../destination-address must not be used.";
+    }
+
+    leaf destination-wildcard-mask {
+      type oc-inet:ipv6-address;
+      description
+        "Destination IPv6 address wildcard mask used
+        by masked-destination-address.";
     }
 
     leaf destination-address-prefix-set {
