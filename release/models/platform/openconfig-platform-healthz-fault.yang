@@ -92,26 +92,30 @@ module openconfig-platform-healthz-fault {
   identity ACTION_WARM_REBOOT {
     base ACTION_BASE;
     description
-      "Reboot that does not interrupt device operation.";
+      "Reboot that does not interrupt device operation, ie
+      a gNOI.System Reboot with a WARM or NSF RebootMethod";
   }
 
   identity ACTION_COLD_REBOOT {
     base ACTION_BASE;
     description
-      "Reboot that does interrupt device operation.";
+      "Reboot that interrupts device operation, ie a gNOI.System Reboot with
+      COLD RebootMethod";
   }
 
   identity ACTION_POWER_CYCLE {
     base ACTION_BASE;
     description
-      "The process of turning a component off completely and then turning it back
-      on.";
+      "The process of turning a component off completely and then turning it
+      back on.";
   }
 
   identity ACTION_FACTORY_RESET {
     base ACTION_BASE;
     description
-      "Restores a component to its original factory settings.";
+      "Restores a component to its original factory settings.
+      At the device level, this could be acheived with the gNOI.FactoryReset
+      service";
   }
 
   identity ACTION_REPLACE {
