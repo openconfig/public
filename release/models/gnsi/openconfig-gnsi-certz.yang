@@ -30,7 +30,13 @@ module openconfig-gnsi-certz {
     "This module provides a data model for the metadata of gRPC credentials
     installed on a networking device.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision 2025-09-26 {
+    description
+      "Add certificate-expires-on leaf";
+    reference "0.7.0";
+  }
 
   revision 2024-03-05 {
     description
@@ -140,6 +146,13 @@ module openconfig-gnsi-certz {
     }
     leaf certificate-created-on {
       type created-on;
+      description
+        "The timestamp of the moment when the certificate
+        (and associated private key) that is currently used
+        by this gRPC server was created.";
+    }
+    leaf certificate-expires-on {
+      type oc-types:timeticks64;
       description
         "The timestamp of the moment when the certificate
         (and associated private key) that is currently used
