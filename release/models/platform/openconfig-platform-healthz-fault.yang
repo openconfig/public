@@ -241,7 +241,14 @@ module openconfig-platform-healthz-fault {
 
     container remediations {
       description
-        "Enclosing container for a fault's recommended remediations.";
+        "List of actions recommended to remediate the fault.
+        
+        Not all actions in this list are necessarily required. Ultimately any
+        fault can be mitigated by replacing the chassis, but that's expensive.
+        Providing alternatives enables the operator to explore less expensive
+        solutions first. The device is not expected to know whether any
+        remediations have previously been performed, so this list is not
+        expected to change with progressive interventions.";
 
       list remediation {
         key "index";
