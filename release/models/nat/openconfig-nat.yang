@@ -1,0 +1,1012 @@
+module openconfig-nat {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/nat";
+
+  prefix "oc-nat";
+
+  // import some basic types
+  import ietf-inet-types { prefix inet; }
+  import ietf-yang-types { prefix yang; }
+  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-acl { prefix oc-acl; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines configuration and operational state data
+    for Network Address Translation (NAT) functionality.
+
+    NAT enables translation of IP addresses and/or ports between
+    different network domains.
+
+    The model supports:
+    - Source NAT (SNAT) for outbound traffic translation
+    - Destination NAT (DNAT) for inbound traffic translation
+    - Static and dynamic address/port mappings
+    - Policy-based NAT using ACLs
+    - Active translation table showing current NAT entries
+    - Multiple address families (IPv4/NAT44, IPv6/NAT66).";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2025-07-15" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+  // Identity statements
+
+  identity NAT_TYPE {
+    description
+      "Base identity for NAT types.";
+  }
+
+  identity SOURCE {
+    base NAT_TYPE;
+    description
+      "Source NAT - translates source addresses/ports of outbound
+      traffic.";
+  }
+
+  identity DESTINATION {
+    base NAT_TYPE;
+    description
+      "Destination NAT - translates destination addresses/ports
+      of inbound traffic.";
+  }
+
+  identity ADDRESS_FAMILY {
+    description
+      "Base identity for NAT address families.";
+  }
+
+  identity IPV4 {
+    base ADDRESS_FAMILY;
+    description
+      "IPv4 address family for NAT44 translations.";
+  }
+
+  identity IPV6 {
+    base ADDRESS_FAMILY;
+    description
+      "IPv6 address family for NAT66 translations.";
+  }
+
+  // Typedef statements
+
+  typedef protocol-type {
+    type enumeration {
+      enum TCP {
+        description "Transmission Control Protocol";
+      }
+      enum UDP {
+        description "User Datagram Protocol";
+      }
+      enum ICMP {
+        description "Internet Control Message Protocol";
+      }
+      enum ALL {
+        description "All protocols";
+      }
+    }
+    description
+      "Protocol types supported for NAT translation.";
+  }
+
+  typedef nat-action {
+    type enumeration {
+      enum TRANSLATE {
+        description
+          "Apply NAT translation.";
+      }
+      enum BYPASS {
+        description
+          "Bypass NAT translation.";
+      }
+    }
+    description
+      "Action to take for matching traffic.";
+  }
+
+  typedef log-level {
+    type enumeration {
+      enum NONE {
+        description "No logging";
+      }
+      enum ERROR {
+        description "Log only errors";
+      }
+      enum INFO {
+        description "Log informational messages";
+      }
+      enum DEBUG {
+        description "Log debug messages";
+      }
+    }
+    description
+      "Logging level for NAT operations.";
+  }
+
+  typedef interface-type {
+    type enumeration {
+      enum INSIDE {
+        description
+          "Source interface for NAT address translation.";
+      }
+      enum OUTSIDE {
+        description
+          "Destination interface for translated addresses.";
+      }
+    }
+    description
+      "NAT interface role: INSIDE or OUTSIDE.";
+  }
+
+  // Grouping statements
+
+  grouping nat-instance-config {
+    description
+      "Configuration parameters for NAT instances.
+
+      When both static and dynamic NAT are configured within the same
+      NAT instance, static NAT takes precedence over dynamic NAT.
+      Static NAT entries are permanent mappings that will always match
+      their configured address/port tuples before any dynamic NAT
+      rules are evaluated.";
+
+    leaf name {
+      type string;
+      description
+        "Unique name for the NAT instance.";
+    }
+
+    leaf type {
+      type identityref {
+        base NAT_TYPE;
+      }
+      description
+        "Type of NAT translation to be performed.";
+    }
+
+    leaf address-family {
+      type identityref {
+        base ADDRESS_FAMILY;
+      }
+      description
+        "Address family for NAT translations - IPv4 for NAT44,
+        IPv6 for NAT66.";
+    }
+
+    leaf description {
+      type string;
+      description
+        "Textual description of the NAT instance.";
+    }
+  }
+
+  grouping nat-instance-state {
+    description
+      "Operational state data for NAT instances.";
+
+    container counters {
+      description
+        "Counters for NAT instance operations.";
+
+      leaf active-mappings {
+        type yang:counter64;
+        description
+          "Number of currently active NAT mappings.";
+      }
+
+      leaf total-mappings {
+        type yang:counter64;
+        description
+          "Total number of NAT mappings created since instance
+          startup.";
+      }
+
+      leaf mapping-failures {
+        type yang:counter64;
+        description
+          "Number of mapping creation failures.";
+      }
+    }
+  }
+
+  grouping nat-interface-config {
+    description
+      "Configuration parameters for NAT interfaces.";
+
+    leaf interface {
+      type oc-if:base-interface-ref;
+      description
+        "Reference to the interface.";
+    }
+
+    leaf type {
+      type interface-type;
+      description
+        "Type of NAT interface - inside or outside.";
+    }
+  }
+
+  grouping nat-interface-state {
+    description
+      "Operational state data for NAT interfaces.";
+
+    container counters {
+      description
+        "Counters for NAT interface operations.";
+
+      leaf packets-translated {
+        type yang:counter64;
+        description
+          "Number of packets that have been translated.";
+      }
+
+      leaf bytes-translated {
+        type yang:counter64;
+        description
+          "Number of bytes that have been translated.";
+      }
+
+      leaf translation-errors {
+        type yang:counter64;
+        description
+          "Number of translation errors encountered.";
+      }
+    }
+  }
+
+  grouping nat-interface-top {
+    description
+      "Top-level grouping for NAT interface data.";
+
+    container interfaces {
+      description
+        "Interface configuration and state for NAT.";
+
+      list interface {
+        key "interface";
+        description
+          "List of interfaces participating in NAT.";
+
+        leaf interface {
+          type leafref {
+            path "../config/interface";
+          }
+          description
+            "Reference to interface list key.";
+        }
+
+        container config {
+          description
+            "Configuration parameters for the NAT interface.";
+
+          uses nat-interface-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for the NAT interface.";
+
+          uses nat-interface-config;
+          uses nat-interface-state;
+        }
+      }
+    }
+  }
+
+  grouping acl-set-config {
+    description
+      "Configuration parameters for NAT ACL set.";
+
+    leaf acl-set {
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
+             "oc-acl:config/oc-acl:name";
+      }
+      description
+        "Reference to ACL set that defines traffic
+        eligible for this NAT instance.";
+    }
+  }
+
+  grouping acl-set-state {
+    description
+      "Operational state data for NAT ACL set.";
+
+    container counters {
+      description
+        "Counters for ACL set operations.";
+
+      leaf hit-count {
+        type yang:counter64;
+        description
+          "Number of packets matching this ACL set.";
+      }
+    }
+  }
+
+  grouping nat-dynamic-config {
+    description
+      "Configuration parameters for dynamic NAT.";
+
+    leaf name {
+      type string;
+      description
+        "Unique name for the dynamic NAT pool.";
+    }
+
+    leaf start-address {
+      type inet:ip-address;
+      description
+        "Starting IP address of the address range. Must match the
+        address family configured for the NAT instance.";
+    }
+
+    leaf end-address {
+      type inet:ip-address;
+      description
+        "Ending IP address of the address range. Must match the
+        address family configured for the NAT instance.";
+    }
+
+    leaf prefix-length {
+      type uint8 {
+        range "1..128";
+      }
+      description
+        "Prefix length for the address range. For IPv4, valid range
+        is 1-32. For IPv6, valid range is 1-128.";
+    }
+
+    leaf port-range-start {
+      type inet:port-number;
+      description
+        "Starting port number for NAPT translations.";
+    }
+
+    leaf port-range-end {
+      type inet:port-number;
+      description
+        "Ending port number for NAPT translations.";
+    }
+
+    leaf port-block-size {
+      type uint16;
+      description
+        "Number of ports allocated per mapping.";
+    }
+
+    leaf acl-set {
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
+             "oc-acl:config/oc-acl:name";
+      }
+      description
+        "Reference to ACL set that defines traffic
+        eligible for this dynamic NAT pool.";
+    }
+
+    leaf max-translations {
+      type uint64;
+      description
+        "Maximum number of concurrent translations for this dynamic
+        NAT pool. When this threshold is reached, new translation
+        requests are dropped until the number of active translations
+        falls below this limit.";
+    }
+
+    leaf address-only {
+      type boolean;
+      description
+        "Enable address-only translation without port translation.";
+    }
+
+    leaf timeout {
+      type uint32;
+      units "seconds";
+      description
+        "Default time a NAT translation entry remains active
+        without traffic. Applies to all traffic unless specific
+        protocol timeouts (TCP, UDP, ICMP) are configured.";
+    }
+
+    leaf tcp-timeout {
+      type uint32;
+      units "seconds";
+      description
+        "Time a TCP NAT translation entry remains active
+        without traffic.";
+    }
+
+    leaf udp-timeout {
+      type uint32;
+      units "seconds";
+      description
+        "Time a UDP NAT translation entry remains active
+        without traffic.";
+    }
+
+    leaf icmp-timeout {
+      type uint32;
+      units "seconds";
+      description
+        "Time an ICMP NAT translation entry remains active
+        without traffic.";
+    }
+
+    leaf overload {
+      type boolean;
+      description
+        "Enable port overloading (PAT) allowing multiple internal
+        addresses to share the same external address with
+        different ports.";
+    }
+
+    leaf log-translations {
+      type boolean;
+      description
+        "Enable logging of NAT translations.";
+    }
+
+    leaf max-translations-per-address {
+      type uint32;
+      description
+        "Maximum number of concurrent translations per external
+        address.";
+    }
+  }
+
+  grouping nat-dynamic-state {
+    description
+      "Operational state data for dynamic NAT.";
+
+    container counters {
+      description
+        "Counters for dynamic NAT pool operations.";
+
+      leaf allocated-addresses {
+        type yang:counter32;
+        description
+          "Number of addresses currently allocated from this
+          dynamic NAT pool.";
+      }
+
+      leaf available-addresses {
+        type yang:counter32;
+        description
+          "Number of addresses available in this dynamic NAT pool.";
+      }
+
+      leaf active-translations {
+        type yang:counter64;
+        description
+          "Number of currently active translations using this
+          dynamic NAT pool.";
+      }
+
+      leaf acl-hit-count {
+        type yang:counter64;
+        description
+          "Number of packets matching the ACL set.";
+      }
+    }
+  }
+
+  grouping nat-static-config {
+    description
+      "Configuration parameters for static NAT.";
+
+    leaf name {
+      type string;
+      description
+        "Unique name for the static NAT mapping.";
+    }
+
+    leaf type {
+      type identityref {
+        base NAT_TYPE;
+      }
+      description
+        "Type of static NAT: source or destination.";
+    }
+
+    leaf internal-address {
+      type inet:ip-address;
+      description
+        "Internal (source) IP address. Must match the address
+        family configured for the NAT instance.";
+    }
+
+    leaf external-address {
+      type inet:ip-address;
+      description
+        "External (destination) IP address. Must match the address
+        family configured for the NAT instance.";
+    }
+
+    leaf internal-port {
+      type inet:port-number;
+      description
+        "Internal port number for static NAPT mappings. When
+        specified, this option enables port forwarding, where both
+        the IP address and the port are translated. If omitted,
+        only the IP address is translated.";
+    }
+
+    leaf external-port {
+      type inet:port-number;
+      description
+        "External port number for static NAPT mappings. When
+        specified, this option enables port forwarding, where both
+        the IP address and the port are translated. If omitted,
+        only the IP address is translated.";
+    }
+
+    leaf protocol {
+      type protocol-type;
+      description
+        "Protocol for the static NAT mapping.";
+    }
+
+    leaf acl-set {
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
+             "oc-acl:config/oc-acl:name";
+      }
+      description
+        "Reference to ACL set for this static NAT mapping.";
+    }
+
+    leaf max-translations {
+      type uint64;
+      description
+        "Maximum number of concurrent translations for this static
+        NAT mapping. When this threshold is reached, new translation
+        requests using this mapping are dropped until the number of
+        active translations falls below this limit.";
+    }
+  }
+
+  grouping nat-static-state {
+    description
+      "Operational state data for static NAT.";
+
+    leaf creation-time {
+      type yang:date-and-time;
+      description
+        "Timestamp when the static NAT mapping was created.";
+    }
+
+    leaf last-used {
+      type yang:date-and-time;
+      description
+        "Timestamp when the static NAT mapping was last used.";
+    }
+
+    container counters {
+      description
+        "Counters for static NAT mapping operations.";
+
+      leaf active-translations {
+        type yang:counter64;
+        description
+          "Number of currently active translations for this static
+          NAT mapping.";
+      }
+
+      leaf packet-count {
+        type yang:counter64;
+        description
+          "Number of packets translated using this static NAT
+          mapping.";
+      }
+
+      leaf byte-count {
+        type yang:counter64;
+        description
+          "Number of bytes translated using this static NAT mapping.";
+      }
+
+      leaf acl-hit-count {
+        type yang:counter64;
+        description
+          "Number of packets matching the ACL set.";
+      }
+    }
+  }
+
+  grouping nat-translation-entry-state {
+    description
+      "Operational state data for active NAT translation entries.";
+
+    leaf internal-address {
+      type inet:ip-address;
+      description
+        "Internal (private) IP address being translated.";
+    }
+
+    leaf internal-port {
+      type inet:port-number;
+      description
+        "Internal port number being translated.";
+    }
+
+    leaf external-address {
+      type inet:ip-address;
+      description
+        "External (public) IP address used for translation.";
+    }
+
+    leaf external-port {
+      type inet:port-number;
+      description
+        "External port number used for translation.";
+    }
+
+    leaf protocol {
+      type protocol-type;
+      description
+        "Protocol of the translation entry.";
+    }
+
+    leaf creation-time {
+      type yang:date-and-time;
+      description
+        "Timestamp when the translation entry was created.";
+    }
+
+    leaf last-activity {
+      type yang:date-and-time;
+      description
+        "Timestamp of the last packet activity for this translation.";
+    }
+
+    leaf timeout {
+      type uint32;
+      units "seconds";
+      description
+        "Remaining time before this translation entry expires
+        due to inactivity.";
+    }
+
+    leaf source-pool {
+      type string;
+      description
+        "Name of the dynamic NAT pool that allocated this
+        translation, if applicable.";
+    }
+
+    leaf source-mapping {
+      type string;
+      description
+        "Name of the static NAT mapping that created this translation,
+        if applicable.";
+    }
+
+    container counters {
+      description
+        "Counters for NAT translation entry operations.";
+
+      leaf packet-count-inbound {
+        type yang:counter64;
+        description
+          "Number of inbound packets (external to internal) for
+          this translation.";
+      }
+
+      leaf packet-count-outbound {
+        type yang:counter64;
+        description
+          "Number of outbound packets (internal to external) for
+          this translation.";
+      }
+
+      leaf byte-count-inbound {
+        type yang:counter64;
+        description
+          "Number of inbound bytes (external to internal) for
+          this translation.";
+      }
+
+      leaf byte-count-outbound {
+        type yang:counter64;
+        description
+          "Number of outbound bytes (internal to external) for
+          this translation.";
+      }
+    }
+  }
+
+  grouping nat-translation-table-top {
+    description
+      "Top-level grouping for NAT translation table.";
+
+    container translations {
+      config false;
+      description
+        "Active NAT translation entries showing current
+        address/port mappings.";
+
+      list translation {
+        key "translation-id";
+        description
+          "List of active NAT translation entries.";
+
+        leaf translation-id {
+          type leafref {
+            path "../state/translation-id";
+          }
+          description
+            "Reference to translation entry identifier.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for the NAT translation entry.";
+
+          leaf translation-id {
+            type uint64;
+            description
+              "Unique identifier for the translation entry.";
+          }
+
+          uses nat-translation-entry-state;
+        }
+      }
+    }
+  }
+
+  grouping nat-instance-top {
+    description
+      "Top-level grouping for NAT instances.";
+
+    container instances {
+      description
+        "NAT instance configuration and state.";
+
+      list instance {
+        key "name";
+        description
+          "List of NAT instances.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to NAT instance name.";
+        }
+
+        container config {
+          description
+            "Configuration parameters for the NAT instance.";
+
+          uses nat-instance-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for the NAT instance.";
+
+          uses nat-instance-config;
+          uses nat-instance-state;
+        }
+
+        uses nat-interface-top;
+        uses nat-dynamic-top;
+        uses nat-static-top;
+        uses nat-translation-table-top;
+      }
+    }
+  }
+
+  grouping nat-dynamic-top {
+    description
+      "Top-level grouping for dynamic NAT.";
+
+    container dynamic {
+      description
+        "Dynamic NAT configuration and state.";
+
+      list pool {
+        key "name";
+        description
+          "List of dynamic NAT pools.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to dynamic NAT pool name.";
+        }
+
+        container config {
+          description
+            "Configuration parameters for the dynamic NAT pool.";
+
+          uses nat-dynamic-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for the dynamic NAT pool.";
+
+          uses nat-dynamic-config;
+          uses nat-dynamic-state;
+        }
+      }
+    }
+  }
+
+  grouping nat-static-top {
+    description
+      "Top-level grouping for static NAT.";
+
+    container static {
+      description
+        "Static NAT configuration and state.";
+
+      list mapping {
+        key "name";
+        description
+          "List of static NAT mappings.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to static NAT mapping name.";
+        }
+
+        container config {
+          description
+            "Configuration parameters for the static NAT mapping.";
+
+          uses nat-static-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for the static NAT mapping.";
+
+          uses nat-static-config;
+          uses nat-static-state;
+        }
+      }
+    }
+  }
+
+  grouping nat-top {
+    description
+      "Top-level grouping for NAT configuration and state.";
+
+    container nat {
+      description
+        "Top-level container for NAT.";
+
+      container config {
+        description
+          "Global NAT configuration parameters.";
+
+        leaf translation-timeout {
+          type uint32;
+          units "seconds";
+          description
+            "Default time a NAT translation entry remains active
+            without traffic for all NAT instances. Applies to all
+            traffic unless specific protocol timeouts are
+            configured.";
+        }
+
+        leaf max-translations {
+          type uint64;
+          description
+            "Maximum number of concurrent translations globally across
+            all NAT instances. When this threshold is reached, new
+            translation requests are dropped until the total number
+            of active translations falls below this limit.";
+        }
+
+        leaf log-level {
+          type log-level;
+          description
+            "Global NAT logging level.";
+        }
+      }
+
+      container state {
+        config false;
+        description
+          "Global NAT operational state data.";
+
+        leaf translation-timeout {
+          type uint32;
+          units "seconds";
+          description
+            "Default time a NAT translation entry remains active
+            without traffic for all NAT instances. Applies to all
+            traffic unless specific protocol timeouts are
+            configured.";
+        }
+
+        leaf max-translations {
+          type uint64;
+          description
+            "Maximum number of concurrent translations globally across
+            all NAT instances. When this threshold is reached, new
+            translation requests are dropped until the total number
+            of active translations falls below this limit.";
+        }
+
+        leaf log-level {
+          type log-level;
+          description
+            "Global NAT logging level.";
+        }
+
+        leaf memory-usage {
+          type uint32;
+          units "kilobytes";
+          description
+            "Memory used by the NAT subsystem.";
+        }
+
+        container counters {
+          description
+            "Counters for global NAT operations.";
+
+          leaf total-instances {
+            type yang:counter32;
+            description
+              "Total number of configured NAT instances.";
+          }
+
+          leaf active-instances {
+            type yang:counter32;
+            description
+              "Number of currently active NAT instances.";
+          }
+
+          leaf total-active-translations {
+            type yang:counter64;
+            description
+              "Total number of active translations across all
+              instances.";
+          }
+
+          leaf total-translation-failures {
+            type yang:counter64;
+            description
+              "Total number of translation failures across all
+              instances.";
+          }
+        }
+      }
+
+      uses nat-instance-top;
+    }
+  }
+
+  // data definition statements
+  uses nat-top;
+}

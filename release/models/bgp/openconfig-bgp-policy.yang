@@ -28,7 +28,13 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "8.1.0";
+  oc-ext:openconfig-version "8.2.0";
+
+  revision "2025-05-23" {
+    description
+      "Refactor must restriction behavior for BGP MED values/actions.";
+    reference "8.2.0";
+  }
 
   revision "2024-11-13" {
     description
@@ -1385,24 +1391,19 @@ module openconfig-bgp-policy {
 
     leaf set-med {
       type bgp-set-med-type;
-      must "../set-med-action" {
-        error-message
-          "set-med cannot be specified without a valid set-med-action";
-      }
       description
-        "Set the MED metric attribute in the route update.  When set, a
-        valid `set-med-action` must be specified.";
+        "Set the MED metric attribute in the route update.  When set to
+        an integer metric, all `set-med-action` options apply.  When set
+        to 'IGP', the `set-med-action` must be set to 'SET'.";
     }
 
     leaf set-med-action {
       type bgp-set-med-action;
-      must "../set-med" {
-        error-message
-          "set-med-action cannot be specified without a set-med value";
-      }
       description
-        "When set-med is specified, this leaf is mandatory to set the
-        appropriate action on the MED metric value.";
+        "This leaf is mandatory when `set-med` is specified.  When
+        `set-med` is specified as a integer metric, all actions are
+        valid options.  When set to 'IGP', this action must be set to
+        'SET'.";
     }
   }
 
@@ -1424,6 +1425,14 @@ module openconfig-bgp-policy {
           "Configuration data for BGP-specific actions";
 
         uses bgp-actions-config;
+
+        must "(set-med != 'IGP' and set-med-action) or" +
+             "(set-med = 'IGP' and set-med-action = 'SET')" {
+          error-message
+            "set-med-action must be set to 'SET' when set-med = 'IGP', " +
+            "otherwise any action must be specified if set-med is an " +
+            "integer value.";
+        }
       }
 
       container state {
@@ -1435,6 +1444,14 @@ module openconfig-bgp-policy {
 
         uses bgp-actions-config;
         uses bgp-actions-state;
+
+        must "(set-med != 'IGP' and set-med-action) or" +
+             "(set-med = 'IGP' and set-med-action = 'SET')" {
+          error-message
+            "set-med-action must be set to 'SET' when set-med = 'IGP', " +
+            "otherwise any action must be specified if set-med is an " +
+            "integer value.";
+        }
       }
       uses as-path-prepend-top;
       uses set-community-action-top;
