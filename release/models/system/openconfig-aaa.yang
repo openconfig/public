@@ -770,22 +770,21 @@ module openconfig-aaa {
       "Operational state data for global authentication";
   }
 
-  grouping aaa-authentication-glome {
+  grouping aaa-authentication-glome-top {
     description
       "grouping for top-level glome";
 
-    container authentication {
+    container authentication-glome {
         description
-           "Top-level container for glome authentication data";
-    }
+           "Top-level container for glome authentication state data";
+        container state {
+            config false;
 
-    container state {
-        config false;
+            description
+                "Operational state data for glome authentication";
 
-        description
-            "Operational state data for glome authentication";
-
-        uses aaa-glome-state;
+            uses aaa-glome-state;
+        }
     }
   }
 
