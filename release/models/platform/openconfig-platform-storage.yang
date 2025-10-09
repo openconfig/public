@@ -43,7 +43,14 @@ description
     S.M.A.R.T. Attribute: Reallocated Sectors Count | Knowledge Base
     http://kb.acronis.com.";
 
-oc-ext:openconfig-version "0.1.0";
+oc-ext:openconfig-version "0.1.1";
+
+revision "2025-10-09" {
+  description
+    "Generalize storage counters in OpenConfig for broader support.";
+  reference
+    "0.1.1";
+}
 
 revision "2024-08-26" {
   description
@@ -62,16 +69,17 @@ oc-ext:origin "openconfig";
 // grouping statements
   grouping storage-counters-state {
     description
-      "Operational state for storage component statistics.  These leaves
-      are derived from a list of commonly supported S.M.A.R.T. counters.
+      "Operational state for storage component statistics. These leaves
+      are derived from a list of commonly supported storage counters.
       Note that while common, these attributes may not be supported by
       all storage device vendors and media types.";
 
     leaf soft-read-error-rate {
       type oc-yang:counter64;
       description
-        "Uncorrected read errors reported to the operating system. SMART ID
-        201.";
+        "Uncorrected read errors reported to the operating system.
+        This leaf applies to multiple storage technologies, such as:
+          - SMART attribute 201.";
       reference
       "S.M.A.R.T. Attribute: Soft Read Error Rate / Off Track Errors (Maxtor)
       | Knowledge Base. kb.acronis.com.";
@@ -81,7 +89,9 @@ oc-ext:origin "openconfig";
       type oc-yang:counter64;
       description
         "Count of reallocated sectors. The raw value represents a count of
-        the bad sectors that have been found and remapped. SMART ID 5.";
+        the bad sectors that have been found and remapped.
+        This leaf applies to multiple storage technologies, such as:
+          - SMART attribute 5 on SSDs.";
       reference
         "S.M.A.R.T. Attribute: Reallocated Sectors Count | Knowledge Base -
         kb.acronis.com";
@@ -91,7 +101,8 @@ oc-ext:origin "openconfig";
       type oc-yang:counter64;
       description
         "Count of parity errors which occur in the data path to the media.
-        SMART ID 184.";
+        This leaf applies to multiple storage technologies, such as:
+          - SMART attribute 184.";
       reference
         "Acronis Drive Monitor: Disk Health Calculation Knowledge Base -
         kb.acronis.com";
@@ -101,7 +112,9 @@ oc-ext:origin "openconfig";
       type oc-yang:counter64;
       description
         "The total count of uncorrectable errors when reading/writing a
-        sector. SMART ID 198.";
+        sector.
+        This leaf applies to multiple storage technologies, such as:
+          - SMART attribute 198.";
       reference
         "Acronis Drive Monitor: Disk Health Calculation Knowledge Base -
         kb.acronis.com";
@@ -110,25 +123,32 @@ oc-ext:origin "openconfig";
     leaf life-left {
       type uint8;
       description
-        "Indicates the approximate SSD life left, in terms of program/erase
-        cycles or available reserved blocks. A normalized value of 100
-        represents a new drive, with a threshold value at 10 indicating a need
-        for replacement. A value of 0 may mean that the drive is operating in
-        read-only mode to allow data recovery. SMART ID 231.";
+        "Indicates the approximate remaining life of the storage device, in terms of
+        program/erase cycles, available reserved blocks, or an equivalent
+        vendor-specific endurance metric. A normalized value of 100 represents
+        a new device, with a threshold value at 10 indicating a need for replacement.
+        A value of 0 may indicate that the device is operating in read-only mode
+        to allow data recovery.
+        This leaf applies to multiple storage technologies, such as:
+          - SMART attribute 231 on SSDs
+          - JEDEC eMMC EXT_CSD life time estimation fields.";
       reference
-        "SMART attribute details,
-        https://media.kingston.com/support/downloads/MKP_306_SMART_attribute.pdf";
+        "SMART attribute details:
+        https://media.kingston.com/support/downloads/MKP_306_SMART_attribute.pdf
+        eMMC lifecycle details:
+        https://www.kingston.com/en/blog/embedded-and-industrial/emmc-lifecycle";
     }
 
     leaf percentage-used {
       type uint8;
       description
-        "Contains a vendor specific estimate of the percentage of NVM
-        subsystem life used based on the actual usage and the manufacturer’s
-        prediction of NVM life. A value of 100 indicates that the estimated
-        endurance of the NVM in the NVM subsystem has been consumed, but may
-        not indicate an NVM subsystem failure. The value is allowed to exceed
-        100. Percentages greater than 254 shall be represented as 255.";
+        "Contains a vendor specific estimate of the percentage of device life
+        used based on actual usage and the manufacturer’s prediction of device life.
+        A value of 100 indicates that the estimated endurance has been consumed,
+        but may not indicate device failure. The value is allowed to exceed 100.
+        Percentages greater than 254 shall be represented as 255.
+        This leaf applies to multiple storage technologies, such as:
+          - NVMe devices using the NVM subsystem life estimate.";
       reference
         "NVM Express Base Specification Revision 2.0a
         https://nvmexpress.org/wp-content/uploads/NVMe-NVM-Express-2.0a-2021.07.26-Ratified.pdf";
