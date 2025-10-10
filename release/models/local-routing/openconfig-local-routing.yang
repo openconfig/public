@@ -43,7 +43,40 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "4.1.0";
+
+  revision "2025-07-29" {
+    description
+      "Add wecmp-weight leaf to support wECMP with static routes.";
+    reference "4.1.0";
+  }
+
+  revision "2025-07-01" {
+    description
+      "Move static next-hop-group to local-routing-network-instance and
+      augment the local routing module.";
+    reference "4.0.0";
+  }
+
+  revision "2025-06-30" {
+    description
+      "Remove leaves that referenced network instances (see 2.2.0)
+       and replace with augment";
+    reference "3.0.0";
+  }
+
+  revision "2025-03-31" {
+    description
+      "Add static routing to other network instance for destination
+      lookup";
+    reference "2.2.0";
+  }
+
+  revision "2025-02-20" {
+    description
+      "Add static next-hop-groups and encapsulation headers.";
+    reference "2.1.0";
+  }
 
   revision "2022-11-01" {
     description
@@ -118,6 +151,18 @@ module openconfig-local-routing {
       link-layer address discovery against";
   }
 
+  identity LOCAL_DEFINED_WEIGHT {
+    description
+      "A base identity type of locally defined next-hop weight.";
+  }
+
+  identity AUTO {
+    base LOCAL_DEFINED_WEIGHT;
+    description
+      "The wecmp-weight leaf inherits value from egress interface
+      bandwidth expressed in bps.";
+  }
+
   // typedef statements
 
   typedef local-defined-next-hop {
@@ -127,6 +172,15 @@ module openconfig-local-routing {
     description
       "Pre-defined next-hop designation for locally generated
       routes";
+  }
+
+  typedef local-defined-weight {
+    type identityref {
+      base LOCAL_DEFINED_WEIGHT;
+    }
+    description
+      "Pre-defined wECMP weight for locally generated
+      static route next-hops";
   }
 
   // grouping statements
@@ -182,6 +236,26 @@ module openconfig-local-routing {
         inherited from the default preference of the implementation for
         static routes.";
     }
+
+    leaf wecmp-weight {
+      type union {
+        type uint64;
+        type local-defined-weight;
+      }
+      description
+        "The weight of next-hop used for WECMP (a.k.a. UCMP, WCMP). This
+        leaf has significance only if multiple next-hops of given prefix
+        form ECMP group, and all of this next-hops have ecmp-weight leaf
+        specified. Else, wecmp-weight should be ignored.
+        The value 'AUTO' sets value to be equal to egress interface
+        bandwidth expressed in bps (not Bps as BGP link-bandwidth
+        extended-community does).
+        It is recommended to express explicit value in bps to be compatible
+        if mixing next-hops with wecmp-weight = 'AUTO'.
+        This leaf is valid only if recurse leaf is set to false, or
+        if interface-ref is specified.";
+    }
+
   }
 
   grouping local-static-config {
@@ -226,12 +300,16 @@ module openconfig-local-routing {
       }
       description
         "The next-hop that is to be used for the static route
-        - this may be specified as an IP address, an interface
-        or a pre-defined next-hop type - for instance, DROP or
-        LOCAL_LINK. When this leaf is not set, and the interface-ref
+        - this may be specified as:
+          -  an IP address or
+          - a pre-defined next-hop type - for instance, DROP or
+        LOCAL_LINK or
+        When this leaf is not set, and the interface-ref
         value is specified for the next-hop, then the system should
         treat the prefix as though it is directly connected to the
-        interface.";
+        interface.
+        This leaf is mutualy exclusive with next-network-instance
+        leaf";
     }
 
     leaf recurse {
@@ -246,7 +324,9 @@ module openconfig-local-routing {
         instance. When the interface reference specified within the
         next-hop entry is set (i.e., is not null) then forwarding is
         restricted to being via the interface specified - and
-        recursion is hence disabled.";
+        recursion is hence disabled.
+        This leaf is mutualy exclusive with next-network-instance
+        leaf";
     }
 
     uses local-common-route-attributes;
@@ -300,16 +380,24 @@ module openconfig-local-routing {
 
         container next-hops {
           description
-            "Configuration and state parameters relating to the
-            next-hops that are to be utilised for the static
-            route being specified";
+            "Configuration and state parameters relating
+            to the next-hops that are to be utilised for the static
+            route being specified.
+            In the future, this container will be deprecated in favor of the
+            /network-instances/network-instance/static/next-hop-groups
+            container. If a statically configured next-hop-group is used
+            for a static route prefix then the 'static-routes/static/next-hops'
+            container must not be used.";
 
           list next-hop {
+
             key "index";
 
             description
               "A list of next-hops to be utilised for the static
-              route being specified.";
+              route being specified.  In the future, this list will be
+              deprecated in favor of
+              /network-instances/network-instance/static/next-hop-groups.";
 
             leaf index {
               type leafref {

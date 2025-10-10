@@ -22,6 +22,7 @@ module openconfig-network-instance {
   import openconfig-mpls { prefix "oc-mpls"; }
   import openconfig-vlan { prefix "oc-vlan"; }
   import openconfig-ospfv2 { prefix "oc-ospfv2"; }
+  import openconfig-ospf   { prefix "oc-ospf"; }
   import openconfig-policy-forwarding { prefix "oc-pf"; }
   import openconfig-segment-routing { prefix "oc-sr"; }
   import openconfig-isis { prefix "oc-isis"; }
@@ -30,6 +31,7 @@ module openconfig-network-instance {
   import openconfig-igmp { prefix "oc-igmp"; }
   import openconfig-evpn { prefix "oc-evpn"; }
   import openconfig-pcep { prefix "oc-pcep"; }
+  import openconfig-network-instance-static { prefix "oc-ni-static"; }
 
   // include submodules
   include openconfig-network-instance-l2;
@@ -48,7 +50,19 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.4.1";
+  oc-ext:openconfig-version "4.6.0";
+
+  revision "2025-03-26" {
+    description
+      "Add OSPFv3 container";
+    reference "4.6.0";
+  }
+
+  revision "2025-02-20" {
+    description
+      "Add static next-hop-groups and encapsulation headers.";
+    reference "4.5.0";
+  }
 
   revision "2024-02-27" {
     description
@@ -856,6 +870,8 @@ module openconfig-network-instance {
 
         uses oc-pf:policy-forwarding-top;
 
+        uses oc-ni-static:ni-static-structural;
+
         uses oc-aft:aft-top;
 
         container protocols {
@@ -946,6 +962,14 @@ module openconfig-network-instance {
                 description
                   "Include OSPFv2 parameters only when the protocol
                   is of type OSPFv2";
+              }
+            }
+
+            uses oc-ospf:ospfv3-top {
+              when "./config/identifier = 'oc-pol-types:OSPF3'" {
+                description
+                  "Include OSPFv3 parameters only when the protocol
+                  is of type OSPFv3";
               }
             }
 

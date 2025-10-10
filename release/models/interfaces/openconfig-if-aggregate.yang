@@ -23,7 +23,13 @@ module openconfig-if-aggregate {
   description
     "Model for managing aggregated (aka bundle, LAG) interfaces.";
 
-  oc-ext:openconfig-version "2.4.4";
+  oc-ext:openconfig-version "2.4.5";
+
+  revision "2025-04-22" {
+    description
+      "Updated the definition of lag-speed leaf";
+    reference "2.4.5";
+  }
 
   revision "2022-06-28" {
     description
@@ -147,8 +153,10 @@ module openconfig-if-aggregate {
       type uint32;
       units Mbps;
       description
-        "Reports effective speed of the aggregate interface,
-        based on speed of active member interfaces";
+        "Reports the effective speed of the aggregate interface, calculated
+        as the sum of the speeds of member interfaces that are
+        active (operationally up), forwarding-viable and selected by the
+        aggregation protocol (e.g., LACP) for active traffic distribution";
     }
 
     leaf-list member {

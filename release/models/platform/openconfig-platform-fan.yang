@@ -9,7 +9,7 @@ module openconfig-platform-fan {
 
   import openconfig-platform { prefix oc-platform; }
   import openconfig-extensions { prefix oc-ext; }
-
+  import openconfig-alarm-types { prefix oc-alarm-types; }
 
   // meta
   organization "OpenConfig working group";
@@ -22,7 +22,13 @@ module openconfig-platform-fan {
     "This module defines data related to FAN components in the
     OpenConfig platform model.";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2025-07-16" {
+    description
+      "Add fan alarm thresholds.";
+    reference "0.2.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -47,6 +53,69 @@ module openconfig-platform-fan {
 
   // grouping statements
 
+  grouping fan-threshold-state {
+    description
+      "Grouping for all alarm thresholds for a particular severity level.";
+    leaf severity {
+      type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The type of alarm to which the thresholds apply.";
+    }
+
+    leaf speed-upper {
+      type uint32;
+      units rpm;
+      description
+        "Upper fan speed alarm threshold";
+    }
+
+    leaf speed-lower {
+      type uint32;
+      units rpm;
+      description
+        "Lower fan speed alarm threshold";
+    }
+  }
+
+  grouping fan-threshold-top {
+    description
+      "Top-level grouping for fan speed alarm thresholds";
+
+    container thresholds {
+      description
+        "Enclosing container for fan speed alarm thresholds.";
+
+      list threshold {
+        key "severity";
+        config false;
+        description
+          "List of fan speed alarm thresholds, indexed by alarm severity.";
+
+        leaf severity {
+          type leafref {
+            path "../state/severity";
+          }
+          config false;
+          description
+           "The severity applied to the group of thresholds.
+            An implementation's highest severity threshold
+            should be mapped to OpenConfig's `CRITICAL`
+            severity level.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational alarm thresholds for the fan.
+            These thresholds should be sourced by the device manufacturer";
+          uses fan-threshold-state;
+        }
+      }
+    }
+  }
+
   grouping fan-state {
     description
       "Operational state data for fan components";
@@ -59,7 +128,6 @@ module openconfig-platform-fan {
     }
   }
 
-
   // data definition statements
 
   // augment statements
@@ -70,6 +138,14 @@ module openconfig-platform-fan {
       "Adding fan data to component model";
 
     uses fan-state;
+  }
+
+  augment "/oc-platform:components/oc-platform:component/" +
+    "oc-platform:fan" {
+    description
+      "Adding fan alarm threshold";
+
+    uses fan-threshold-top;
   }
 
 }
