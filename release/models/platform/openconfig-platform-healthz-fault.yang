@@ -93,21 +93,28 @@ module openconfig-platform-healthz-fault {
     base ACTION_BASE;
     description
       "Reboot that does not interrupt device operation, ie
-      a gNOI.System Reboot with a WARM or NSF RebootMethod";
+      a gNOI.System.RebootRequest with a WARM or NSF RebootMethod";
   }
 
   identity ACTION_COLD_REBOOT {
     base ACTION_BASE;
     description
-      "Reboot that interrupts device operation, ie a gNOI.System Reboot with
-      COLD RebootMethod";
+      "Reboot that interrupts device operation, ie a gNOI.System.RebootRequest
+      with COLD RebootMethod";
   }
 
   identity ACTION_POWER_CYCLE {
     base ACTION_BASE;
     description
       "The process of turning a component off completely and then turning it
-      back on.";
+      back on.
+
+      This could be acheived with two gNOI.System.RebootRequest calls:
+      a POWERDOWN RebootMethod followed by a POWERUP RebootMethod.
+      
+      At the device level, using a remote controlled power strip to
+      mechanically disconnect the power source (ie: pull the plug) is another
+      example";
   }
 
   identity ACTION_FACTORY_RESET {
