@@ -178,7 +178,16 @@ module openconfig-wifi-phy {
       units MHz;
       default 20;
       description
-        "Operating channel-width of this radio.";
+        "[DEPRECATED] Operating channel-width of this radio.";
+    }
+
+    leaf channel-bandwidth {
+      type uint16;
+      units MHz;
+      default 20;
+      description
+        "Operating channel-bandwidth of this radio, supports channel
+        bandwidths of 320Mhz and greater";
     }
 
     leaf bss-coloring {
@@ -305,6 +314,30 @@ module openconfig-wifi-phy {
       description
         "Do not perform scanning if any traffic received from an
         active Station in the past 100ms marked as AC_VO or AC_VI.";
+    }
+
+    leaf preamble-puncturing {
+      when "../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:80211_BE' 
+        or ../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:80211_AX'"; 
+      type boolean;
+      description
+        "Enable Preamble Puncturing on this radio";
+    }
+
+    leaf mru {
+      when "../ofdma = 'true' and 
+           ../../../ssids/ssid/config/wifi-protocol ='oc-wifi-types:80211_BE'";
+      type boolean;
+      description
+        "Enable/Disable MRU on this radio when OFDMA is enabled";
+    }
+
+    leaf ofdma {
+      when "../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:80211_BE' 
+        or ../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:80211_AX'"; 
+      type boolean;
+      description
+        "Enable/Disable OFDMA DL/UL on this radio";
     }
   }
 
