@@ -1,16 +1,15 @@
-module openconfig-connections {
+module openconfig-sockets {
 
   yang-version "1";
 
   // namespace
-  namespace "http://openconfig.net/yang/system/connections";
+  namespace "http://openconfig.net/yang/network-instance/sockets";
 
-  prefix "oc-conn";
+  prefix "oc-sockets";
 
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-inet-types { prefix oc-inet; }
-  import openconfig-system { prefix oc-sys; }
   import openconfig-network-instance { prefix oc-ni; }
 
   // meta
@@ -21,11 +20,11 @@ module openconfig-connections {
     www.openconfig.net";
 
   description
-    "This module provides data definitions for network connections.";
+    "This module provides data definitions for network sockets.";
 
   oc-ext:openconfig-version "0.1.0";
 
-  revision "2025-08-13" {
+  revision "2025-10-22" {
     description
       "Initial public release";
     reference "0.1.0";
@@ -38,66 +37,51 @@ module openconfig-connections {
 
   // grouping statements
 
-  grouping connections-top {
+  grouping sockets-top {
     description
-      "Top level grouping for attributes for network connections.";
+      "Top level grouping for attributes for network sockets.";
 
-    container connections {
+    container sockets {
       description
-        "Parameters related to all active network connections";
+        "Parameters related to all active network sockets";
 
-      list connection {
-        key "network-instance socket";
+      list socket {
+        key "socket";
         config false;
         description
-          "Parameters related to individual active network connections";
-
-        leaf network-instance {
-            type leafref {
-                path "../state/network-instance";
-            }
-            description
-                "List key referencing the connection network-instance.";
-        }
+          "Parameters related to individual active network sockets";
 
         leaf socket {
           type leafref {
             path "../state/socket";
           }
           description
-            "List key referencing the connection socket.";
+            "List key referencing the socket socket.";
         }
 
         container state {
           config false;
           description
-            "State parameters related to the network instance used for the connection";
+            "State parameters related to the network instance used for the socket";
 
-          uses connection-state;
+          uses socket-state;
         }
       }
     }
   }
 
-  grouping connection-state {
+  grouping socket-state {
     description
-      "Definitions for active network connections";
+      "Definitions for active network sockets";
 
     leaf socket {
       type string;
       description
-        "The socket of the connection; combination of local-address
+        "The socket of the socket; combination of local-address
         and local-port.";
     }
 
-    leaf network-instance {
-      type oc-ni:network-instance-ref;
-      description
-        "The network instance used to for the connection.  If no
-        instance is specified, DEFAULT_INSTANCE is used.";
-    }
-
-    leaf protocol {
+    leaf socket-type {
       type union {
         type enumeration {
           enum IP {
@@ -112,17 +96,9 @@ module openconfig-connections {
             description
               "Index value indicating TCP";
           }
-          enum TCP6 {
-            description
-              "Index value indicating TCP over IPv6";
-          }
           enum UDP {
             description
               "Index value indicating UDP";
-          }
-          enum UDP6 {
-            description
-              "Index value indicating UDP over IPv6";
           }
           enum UDPL {
             description
@@ -136,35 +112,35 @@ module openconfig-connections {
         type string;
       }
       description
-        "The protocol of the connection.";
+        "The type of the socket.";
     }
 
     leaf local-address {
       type oc-inet:host;
       description
-        "The local address of the connection";
+        "The local address of the socket";
     }
 
     leaf local-port {
       type oc-inet:port-number;
       description
-        "The local port of the connection";
+        "The local port of the socket";
     }
 
     leaf remote-address {
       type oc-inet:host;
       description
-        "The address at the remote end of the connection";
+        "The address at the remote end of the socket";
     }
 
     leaf remote-port {
       type oc-inet:port-number;
       description
-        "The port at the remote end of the connection";
+        "The port at the remote end of the socket";
     }
 
     leaf tcp-state {
-      when "../protocol = 'TCP' or ../protocol = 'TCP6'";
+      when "../socket-type = 'TCP'";
       type enumeration {
         enum ESTABLISHED {
           description
@@ -222,23 +198,23 @@ module openconfig-connections {
     leaf process-name {
       type string;
       description
-        "The name of the process associated with the connection.";
+        "The name of the process associated with the socket.";
     }
 
     leaf pid {
       type uint64;
       description
-        "The process ID of the process associated with the connection.";
+        "The process ID of the process associated with the socket.";
     }
   }
 
   // augment statements
 
-  augment "/oc-sys:system" {
+  augment "/oc-ni:network-instances/oc-ni:network-instance" {
     description
-      "Augment for monitoring connections.";
+      "Augment for monitoring sockets.";
 
-    uses connections-top;
+    uses sockets-top;
   }
 
   // rpc statements
