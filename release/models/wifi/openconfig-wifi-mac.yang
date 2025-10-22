@@ -410,6 +410,16 @@ module openconfig-wifi-mac {
       description
         "Management Frame Protection is required for WPA3 and OWE.";
     }
+
+    leaf wifi-protocol {
+      type identityref {
+        base oc-wifi-types:WIFI_PROTOCOL;
+      }
+      default "oc-wifi-types:80211_AC";
+      description
+        "WIFi Protocol of this SSID. When none specified, the
+        default is 802.11AC";
+    }
   }
 
     grouping dot11v-config {
@@ -577,6 +587,43 @@ module openconfig-wifi-mac {
     }
   }
 
+  grouping mlo-config {
+    description
+      "MLO config, per BSS.";
+
+    leaf mlo-enable {
+      when "../config/wifi-protocol = 'oc-wifi-types:80211_BE'";
+      type boolean;
+      default "true";
+      description
+        "Enable Multi-Link Operation by default per BSS";
+    }
+
+    leaf mlo-mode {
+      type enumeration {
+        enum MLSR {
+          description
+            "Multi-Link Single Radio mode";
+        } 
+        enum EMLSR {
+          description { 
+            "Enhanced Multi-Link Single Radio mode";
+        }
+        enum MLMR-STR {
+          description { 
+            "Multi-Link Multi-Radio Simultaneous Tx/Rx Transmission mode";
+        }
+        enum MLMR-NSTR {
+          description { 
+            "Multi-Link Multi-Radio Non Simultaneous Tx/Rx Transmission mode";
+        }
+      }
+      description
+        "The MLO mode of operation per BSS";
+      }
+    }
+  }
+
   grouping bssid-common-state {
     description
       "Grouping for defining bssid-specific operational state";
@@ -608,6 +655,15 @@ module openconfig-wifi-mac {
           }
           description
             "References the configured id of the radio.";
+        }
+
+        leaf mld-address {
+          type leafref {
+            path "../state/mld-address";
+          }
+        	config false;
+          description
+            "MLD-address of the SSID.";
         }
 
         container state {
@@ -900,6 +956,18 @@ module openconfig-wifi-mac {
           description
             "Rx Data frames at MCS 11.";
         }
+
+        leaf mcs12 {
+          type oc-yang:counter64;
+          description
+            "Rx Data frames at MCS 12.";
+        }
+
+        leaf mcs13 {
+          type oc-yang:counter64;
+          description
+            "Rx Data frames at MCS 13.";
+        }
       }
 
       leaf rx-retries {
@@ -1191,6 +1259,18 @@ module openconfig-wifi-mac {
             description
               "Tx Data frames at MCS 11.";
         }
+
+        leaf mcs12 {
+          type oc-yang:counter64;
+            description
+              "Tx Data frames at MCS 12.";
+        }
+
+        leaf mcs13 {
+          type oc-yang:counter64;
+            description
+              "Tx Data frames at MCS 13.";
+        }
       }
 
       leaf tx-retries {
@@ -1256,6 +1336,12 @@ module openconfig-wifi-mac {
       type oc-yang:mac-address;
       description
         "MAC address of the client.";
+    }
+
+    leaf mld-address {
+      type oc-yang:mac-address;
+      description
+        "MLD-address for the client";
     }
 
     container counters {
@@ -1499,6 +1585,10 @@ module openconfig-wifi-mac {
             description
               "Client connected using 802.11ax.";
           }
+          enum BE {
+            description
+              "Client connected using 802.11be.";
+          }
         }
         description
           "802.11 protocol used for the client's connection.";
@@ -1698,6 +1788,31 @@ module openconfig-wifi-mac {
     }
   }
 
+  grouping mlo-top {
+    description
+      "Top-level grouping for MLO configuration and operational
+      state data.";
+
+    container mlo {
+      description
+        "Top-level container for MLO configuration and
+        state container.";
+
+      container config {
+        description
+          "Container for MLO configuration elements.";
+        uses mlo-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Container for MLO state elements.";
+        uses mlo-config;
+      }
+    }
+  }
+
   grouping ssid-top {
     description
       "Top-level grouping for SSID configuration and operational state
@@ -1742,6 +1857,7 @@ module openconfig-wifi-mac {
         uses clients-top;
         uses dot1x-timers-top;
         uses band-steering-top;
+        uses mlo-top;
       }
     }
   }
