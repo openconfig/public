@@ -30,8 +30,9 @@ module openconfig-bfd {
 
   revision "2025-09-03" {
     description
-      "Add the enable-echo leaf in bfd-interface-config to allow
-      BFD echo mode to be enabled per interface.";
+      "Add desired-min-echo-tx-interval and required-min-echo-rx-interval
+      leaves in bfd-interface-config to allow RFC 9127-compliant BFD echo
+      mode configuration per interface.";
     reference "0.4.2";
  }
 
@@ -278,12 +279,30 @@ module openconfig-bfd {
         each member interface of the aggregated Ethernet bundle.";
     }
 
-    leaf enable-echo {
-      type boolean;
-      default false;
+    leaf desired-min-echo-tx-interval {
+      type uint32;
+      units microseconds;
       description
-        "When this leaf is set to true, the BFD echo mode is enabled
-        for all sessions on the interface.";
+        "The minimum interval between transmission of BFD echo
+        packets that the operator desires. This value controls the
+        transmission rate of echo packets sent by the local system.
+        Setting this value to 0 disables BFD echo mode on this
+        interface. This value is specified as an integer number
+        of microseconds.";
+      reference "RFC 9127, Appendix A.1";
+    }
+
+    leaf required-min-echo-rx-interval {
+      type uint32;
+      units microseconds;
+      description
+        "The minimum interval between received BFD echo packets that
+        this system should support. This value is advertised to the
+        remote peer and allows the peer to opt-out of echo mode or
+        specify receive capabilities. Setting this value to 0 indicates
+        that the local system does not support receiving echo packets.
+        This value is specified as an integer number of microseconds.";
+      reference "RFC 9127, Appendix A.1";
     }
   }
 
