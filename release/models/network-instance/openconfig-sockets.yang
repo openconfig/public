@@ -46,17 +46,41 @@ module openconfig-sockets {
         "Parameters related to all active network sockets";
 
       list socket {
-        key "socket";
+        key "local-address local-port remote-address remote-port";
         config false;
         description
           "Parameters related to individual active network sockets";
 
-        leaf socket {
+        leaf local-address {
           type leafref {
-            path "../state/socket";
+            path "../state/local-address";
           }
           description
-            "List key referencing the socket socket.";
+            "List key referencing the local address of the socket.";
+        }
+
+        leaf local-port {
+          type leafref {
+            path "../state/local-port";
+          }
+          description
+            "List key referencing the local port of the socket.";
+        }
+
+        leaf remote-address {
+          type leafref {
+            path "../state/remote-address";
+          }
+          description
+            "List key referencing the remote address of the socket.";
+        }
+
+        leaf remote-port {
+          type leafref {
+            path "../state/remote-port";
+          }
+          description
+            "List key referencing the remote-port of the socket.";
         }
 
         container state {
@@ -73,13 +97,6 @@ module openconfig-sockets {
   grouping socket-state {
     description
       "Definitions for active network sockets";
-
-    leaf socket {
-      type string;
-      description
-        "The socket of the socket; combination of local-address
-        and local-port.";
-    }
 
     leaf socket-type {
       type union {
