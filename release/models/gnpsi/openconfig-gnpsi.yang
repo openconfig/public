@@ -1,0 +1,39 @@
+module openconfig-gnpsi {
+  yang-version "1";
+
+  prefix "oc-gnpsi";
+
+  namespace "http://openconfig.net/yang/gnpsi";
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-system-grpc { prefix oc-grpc; }
+
+  organization
+    "OpenConfig Working Group";
+
+  contact
+    "www.openconfig.net";
+
+  description
+    "This module defines a set of extensions that provide gNPSI (the gRPC
+    Network Packet Sampling Interface) specific extensions to the OpenConfig
+    data models. Specifically, the parameters for the configuration of the
+    service, and configuration and state are added.
+
+    The gNPSI protobufs and documentation are published at
+    https://github.com/openconfig/gnpsi.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision 2025-10-29 {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  identity GRIBI {
+    base "oc-grpc:GRPC_SERVICE";
+    description
+      "gNPSI: gRPC Network Packet Sampling Interface";
+  }
+}
