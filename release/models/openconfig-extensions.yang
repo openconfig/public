@@ -18,7 +18,13 @@ module openconfig-extensions {
     "This module provides extensions to the YANG language to allow
     OpenConfig specific functionality and meta-data to be defined.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2025-01-02" {
+    description
+      "Update telemetry-atomic description.";
+    reference "0.7.0";
+  }
 
   revision "2024-09-19" {
     description
@@ -164,7 +170,13 @@ module openconfig-extensions {
       within the subtree are always updated together within the data
       model. For example, all elements under the subtree may be updated
       as a result of a new alarm being raised, or the arrival of a new
-       protocol message.
+      protocol message. When the annotation is specified in the context
+      of a list and a single list entry changes, only that specific list
+      entry and all its descendants are updated, not all entries in
+      the list. For example, say ipv4-entry list has two elements,
+      prefix1 and prefix2, all the elements under the prefix1 subtree
+      may be updated as a result of a next-hop group change while
+      prefix2 subtree is not updated.
 
       Transport protocols may use the atomic specification to determine
       optimisations for sending or storing the corresponding data.";
