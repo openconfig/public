@@ -760,32 +760,9 @@ module openconfig-aaa {
     }
   }
 
-  grouping aaa-glome-state {
-      description
-          "Operational state data for GLOME authentication";
-  }
-
   grouping aaa-authentication-state {
     description
       "Operational state data for global authentication";
-  }
-
-  grouping aaa-authentication-glome-top {
-    description
-      "grouping for top-level glome";
-
-    container authentication-glome {
-        description
-           "Top-level container for glome authentication state data";
-        container state {
-            config false;
-
-            description
-                "Operational state data for glome authentication";
-
-            uses aaa-glome-state;
-        }
-    }
   }
 
   grouping aaa-authentication-top {
@@ -796,7 +773,19 @@ module openconfig-aaa {
       description
         "Top-level container for global authentication data";
 
-      container config {
+      container glome {
+         description
+            "GLOME (Generic Low Overhead Message Exchange) authentication parameters for console access.";
+
+         container state {
+              config false;
+                description
+                "Operational state parameters for GLOME.";
+            }
+         }
+
+
+        container config {
         description
           "Configuration data for global authentication services";
 
