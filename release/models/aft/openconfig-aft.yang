@@ -22,6 +22,8 @@ module openconfig-aft {
   include openconfig-aft-common;
   // Include the state synced submodule.
   include openconfig-aft-state-synced;
+  // Include the counters submodule.
+  include openconfig-aft-counters;
 
   organization
     "OpenConfig working group";
@@ -42,9 +44,15 @@ module openconfig-aft {
     is referred to as an Abstract Forwarding Table (AFT), rather than
     the FIB.";
 
-  oc-ext:openconfig-version "3.1.0";
+  oc-ext:openconfig-version "3.2.0";
 
-  revision "2025-07-17" {
+  revision "2025-08-07" {
+    description
+      "Factor out AFT counters from atomic container into a unified subtree.";
+    reference "3.2.0";
+  }
+
+  revision "2025-05-15" {
     description
       "Add GRE and MPLS to encap-headers.";
     reference "3.1.0";
@@ -312,6 +320,7 @@ module openconfig-aft {
         uses aft-state-synced-structural;
       }
 
+      uses aft-counters;
       uses aft-next-hop-groups-structural;
       uses aft-nhop-structural;
     }
