@@ -25,7 +25,13 @@ module openconfig-wifi-phy {
   description
     "Model for managing PHY layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "1.3.0";
+  oc-ext:openconfig-version "1.4.0";
+
+  revision "2025-11-03" {
+    description
+      "Adding support for WiFi 7 features";
+    reference "1.4.0";
+  }
 
   revision "2025-04-08" {
     description
@@ -317,8 +323,8 @@ module openconfig-wifi-phy {
     }
 
     leaf preamble-puncturing {
-      when "../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:80211_BE' 
-        or ../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:80211_AX'"; 
+      when "../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:WIFI_80211_BE' 
+        or ../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:WIFI_80211_AX'"; 
       type boolean;
       description
         "Enable Preamble Puncturing on this radio";
@@ -326,15 +332,15 @@ module openconfig-wifi-phy {
 
     leaf mru {
       when "../ofdma = 'true' and 
-           ../../../ssids/ssid/config/wifi-protocol ='oc-wifi-types:80211_BE'";
+           ../../../ssids/ssid/config/wifi-protocol ='oc-wifi-types:WIFI_80211_BE'";
       type boolean;
       description
         "Enable/Disable MRU on this radio when OFDMA is enabled";
     }
 
     leaf ofdma {
-      when "../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:80211_BE' 
-        or ../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:80211_AX'"; 
+      when "../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:WIFI_80211_BE' 
+        or ../../../ssids/ssid/config/wifi-protocol = 'oc-wifi-types:WIFI_80211_AX'"; 
       type boolean;
       description
         "Enable/Disable OFDMA DL/UL on this radio";
