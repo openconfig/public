@@ -7,8 +7,8 @@ module openconfig-gnpsi-types {
     prefix oc-ext;
   }
 
-  import openconfig-grpc-types {
-    prefix oc-grpct;
+  import openconfig-system-grpc {
+    prefix oc-grpc;
   }
 
   organization
@@ -26,7 +26,8 @@ module openconfig-gnpsi-types {
 
   revision 2025-10-29 {
     description
-      "Update description.";
+      "Update description and move the GNPSI identity to be a GRPC_SERVICE
+      under openconfig-system-grpc.";
     reference "0.1.1";
   }
 
@@ -37,7 +38,7 @@ module openconfig-gnpsi-types {
   }
 
   identity GNPSI {
-    base oc-grpct:GRPC_SERVICE;
+    base "oc-grpc:GRPC_SERVICE";
     description
       "gNPSI: gRPC Network Packet Sampling Interface.";
   }
