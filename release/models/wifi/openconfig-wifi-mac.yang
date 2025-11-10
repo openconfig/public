@@ -415,16 +415,6 @@ module openconfig-wifi-mac {
       description
         "Management Frame Protection is required for WPA3 and OWE.";
     }
-
-    leaf wifi-protocol {
-      type identityref {
-        base oc-wifi-types:WIFI_PROTOCOL;
-      }
-      default "oc-wifi-types:WIFI_80211_AX";
-      description
-        "WIFi Protocol of this SSID. When none specified, the
-        default is 802.11AX";
-    }
   }
 
     grouping dot11v-config {
@@ -597,7 +587,6 @@ module openconfig-wifi-mac {
       "MLO config, per BSS.";
 
     leaf mlo-enable {
-      when "../../../config/wifi-protocol = 'oc-wifi-types:WIFI_80211_BE'";
       type boolean;
       default "false";
       description
