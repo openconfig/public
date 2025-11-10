@@ -584,13 +584,13 @@ module openconfig-wifi-mac {
 
   grouping mlo-config {
     description
-      "MLO config, per BSS.";
+      "MLO config, per SSID.";
 
     leaf mlo-enable {
       type boolean;
       default "false";
       description
-        "Enable Multi-Link Operation by default per BSS";
+        "Enable Multi-Link Operation";
     }
   }
 
@@ -627,15 +627,6 @@ module openconfig-wifi-mac {
             "References the configured id of the radio.";
         }
 
-        leaf mld-address {
-          type leafref {
-            path "../state/mld-address";
-          }
-        	config false;
-          description
-            "References MLD-address of the SSID.";
-        }
-
         container state {
           config false;
           description
@@ -669,7 +660,6 @@ module openconfig-wifi-mac {
       description
         "The MLD-address of the SSID";
     }
-
 
     leaf num-associated-clients {
       type uint8;
