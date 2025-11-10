@@ -77,7 +77,14 @@ module openconfig-terminal-device {
     ports per linecard, separate linecards for client and line ports,
     etc.).";
 
-  oc-ext:openconfig-version "1.9.2";
+  oc-ext:openconfig-version "1.10.0";
+
+  revision "2025-11-07" {
+    description
+      "Update fec-uncorrectable-blocks to correspond with implementation
+      intent and association to PM interval.";
+    reference "1.10.0";
+  }
 
   revision "2024-06-12" {
     description
@@ -607,10 +614,11 @@ module openconfig-terminal-device {
       performance";
 
     leaf fec-uncorrectable-blocks {
-      type yang:counter64;
+      type yang:gauge64;
       description
-        "The number of blocks or frames that were uncorrectable by
-        the FEC";
+        "The number of blocks or frames that were uncorrectable by the
+        FEC. The reported value is the cumulative count over the prior
+        Performance Monitoring (PM) interval defined by the host.";
     }
 
     container pre-fec-ber {
