@@ -1,11 +1,11 @@
-submodule openconfig-aft-counters {
-  belongs-to "openconfig-aft" {
-    prefix "oc-aft";
-  }
+module openconfig-aft-counters {
+  namespace "http://openconfig.net/yang/aft-counters";
+  prefix "oc-aft-counters";
 
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-inet-types { prefix "oc-inet"; }
   import openconfig-mpls-types { prefix "oc-mplst"; }
+  import openconfig-network-instance { prefix "oc-ni"; }
   import openconfig-yang-types { prefix "oc-yang"; }
 
   organization
@@ -64,7 +64,7 @@ submodule openconfig-aft-counters {
     }
   }
 
-  grouping aft-counters {
+  grouping aft-counters-top {
     description
       "Unified subtree for AFT entry counters, organized by protocol and entry.";
 
@@ -282,4 +282,12 @@ submodule openconfig-aft-counters {
       }
     }
   }
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:afts" {
+    description
+      "Attach counters to AFT tree.";
+
+    uses aft-counters-top;
+  }
 }
+
+
