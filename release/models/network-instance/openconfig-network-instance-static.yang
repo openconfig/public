@@ -22,7 +22,19 @@ module openconfig-network-instance-static {
   description
     "Static configurations associated with a network instance";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2025-08-05" {
+    description
+      "Fix typo in description of MPLS encapsulation headers.";
+    reference "0.2.1";
+  }
+
+  revision "2025-07-17" {
+    description
+      "Adding static encapsulation headers for GRE and MPLS.";
+    reference "0.2.0";
+  }
 
   revision "2025-02-20" {
     description
@@ -280,6 +292,54 @@ module openconfig-network-instance-static {
               "State parameters relating to encapsulation headers.";
 
             uses oc-aft:aft-common-entry-nexthop-encap-udp-v4-state;
+          }
+        }
+
+        container gre {
+          when "../config/type = 'oc-aftt:GRE'";
+          description
+            "Container of nodes for GRE encapsulation.  When this
+            container is used, a GRE header is added to the encapsulation
+            list.";
+
+          container config {
+            description
+              "Configuration parameters relating to GRE encapsulation headers.";
+
+            uses oc-aft:aft-common-entry-nexthop-encap-gre-config;
+          }
+          container state {
+            config false;
+            description
+              "State parameters relating to GRE encapsulation headers.";
+
+            uses oc-aft:aft-common-entry-nexthop-encap-gre-config;
+          }
+        }
+
+        container mpls {
+          when "../config/type = 'oc-aftt:MPLS'";
+          description
+            "Container of nodes for MPLS encapsulation.  When this
+            container is used, a MPLS header is added to the encapsulation
+            list.  Only client configured leaves are defined.  The system
+            should set the MPLS TTL and Bottom of Stack bit per RFC 3032.
+            To specify multiple labels, the client should create multiple
+            encap-header list entries.";
+
+          container config {
+            description
+              "Configuration parameters relating to MPLS encapsulation headers.";
+
+            uses oc-aft:aft-common-entry-nexthop-encap-mpls-config;
+          }
+
+          container state {
+            config false;
+            description
+              "State parameters relating to MPLS encapsulation headers.";
+
+            uses oc-aft:aft-common-entry-nexthop-encap-mpls-config;
           }
         }
 
