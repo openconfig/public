@@ -86,7 +86,19 @@ module openconfig-policy-forwarding {
     The forwarding action of the corresponding policy is set to
     PATH_GROUP and references the configured group of LSPs.";
 
-  oc-ext:openconfig-version "0.8.0";
+  oc-ext:openconfig-version "0.10.0";
+
+  revision "2025-09-30" {
+    description
+      "Add global decapsulation policy to policy-forwarding.";
+    reference "0.10.0";
+  }
+
+  revision "2025-09-19" {
+    description
+      "Add action to set IP TTL.";
+    reference "0.9.0";
+  }
 
   revision "2025-07-08" {
     description
@@ -170,6 +182,7 @@ module openconfig-policy-forwarding {
         "Configuration and operational state relating to policy-forwarding within
         a network instance.";
 
+      uses pf-forwarding-policy-top;
       uses pf-forwarding-policy-structural;
       uses pf-interfaces-structural;
       uses pf-path-groups-structural;
