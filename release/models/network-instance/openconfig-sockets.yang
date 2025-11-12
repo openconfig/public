@@ -1,0 +1,240 @@
+module openconfig-sockets {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/network-instance/sockets";
+
+  prefix "oc-sockets";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-network-instance { prefix oc-ni; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module provides data definitions for network sockets.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2025-10-22" {
+    description
+      "Initial public release";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // grouping statements
+
+  grouping sockets-top {
+    description
+      "Top level grouping for attributes for network sockets.";
+
+    container sockets {
+      description
+        "Parameters related to all active network sockets";
+
+      list socket {
+        key "local-address local-port remote-address remote-port";
+        config false;
+        description
+          "Parameters related to individual active network sockets";
+
+        leaf local-address {
+          type leafref {
+            path "../state/local-address";
+          }
+          description
+            "List key referencing the local address of the socket.";
+        }
+
+        leaf local-port {
+          type leafref {
+            path "../state/local-port";
+          }
+          description
+            "List key referencing the local port of the socket.";
+        }
+
+        leaf remote-address {
+          type leafref {
+            path "../state/remote-address";
+          }
+          description
+            "List key referencing the remote address of the socket.";
+        }
+
+        leaf remote-port {
+          type leafref {
+            path "../state/remote-port";
+          }
+          description
+            "List key referencing the remote-port of the socket.";
+        }
+
+        container state {
+          config false;
+          description
+            "State parameters related to the network instance used for the socket";
+
+          uses socket-state;
+        }
+      }
+    }
+  }
+
+  grouping socket-state {
+    description
+      "Definitions for active network sockets";
+
+    leaf socket-type {
+      type union {
+        type enumeration {
+          enum IP {
+            description
+              "Index value indicating IP";
+          }
+          enum ICMP {
+            description
+              "Index value indicating ICMP";
+          }
+          enum TCP {
+            description
+              "Index value indicating TCP";
+          }
+          enum UDP {
+            description
+              "Index value indicating UDP";
+          }
+          enum UDPL {
+            description
+              "Index value indicating UDP-Lite";
+          }
+          enum RAW {
+            description
+              "Index value indicating a RAW socket";
+          }
+        }
+        type string;
+      }
+      description
+        "The type of the socket.";
+    }
+
+    leaf local-address {
+      type oc-inet:host;
+      description
+        "The local address of the socket";
+    }
+
+    leaf local-port {
+      type oc-inet:port-number;
+      description
+        "The local port of the socket";
+    }
+
+    leaf remote-address {
+      type oc-inet:host;
+      description
+        "The address at the remote end of the socket";
+    }
+
+    leaf remote-port {
+      type oc-inet:port-number;
+      description
+        "The port at the remote end of the socket";
+    }
+
+    leaf tcp-state {
+      when "../socket-type = 'TCP'";
+      type enumeration {
+        enum ESTABLISHED {
+          description
+            "The connection is established.";
+        }
+        enum SYN_SENT {
+          description
+            "A connection request has been sent.";
+        }
+        enum SYN_RECV {
+          description
+            "A connection request has been received.";
+        }
+        enum FIN_WAIT1 {
+          description
+            "The socket is closed, and the connection is shutting down.";
+        }
+        enum FIN_WAIT2 {
+          description
+            "The connection is closed, and the socket is waiting for a shutdown from the remote end.";
+        }
+        enum TIME_WAIT {
+          description
+            "The socket is waiting after closing to handle packets still in the network.";
+        }
+        enum CLOSE {
+          description
+            "The socket is not being used.";
+        }
+        enum CLOSE_WAIT {
+          description
+            "The remote end has shut down, and the socket is waiting for the local close.";
+        }
+        enum LAST_ACK {
+          description
+            "The remote end has shut down, and the socket is waiting for an acknowledgment of the last packet to be sent.";
+        }
+        enum LISTEN {
+          description
+            "The socket is listening for incoming connections.";
+        }
+        enum CLOSING {
+          description
+            "Both sockets are shut down but we still don't have all our data sent.";
+        }
+        enum UNKNOWN {
+          description
+            "The TCP state is unknown.";
+        }
+      }
+      description
+        "The current state of the TCP connection.";
+    }
+
+    leaf process-name {
+      type string;
+      description
+        "The name of the process associated with the socket.";
+    }
+
+    leaf pid {
+      type uint64;
+      description
+        "The process ID of the process associated with the socket.";
+    }
+  }
+
+  // augment statements
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance" {
+    description
+      "Augment for monitoring sockets.";
+
+    uses sockets-top;
+  }
+
+  // rpc statements
+
+  // notification statements
+}
