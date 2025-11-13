@@ -8,9 +8,10 @@ module openconfig-platform-healthz-fault {
   prefix "oc-platform-healthz-fault";
 
   import openconfig-extensions { prefix oc-ext; }
-  import openconfig-types { prefix oc-types; }
   import openconfig-platform { prefix oc-platform; }
   import openconfig-platform-healthz { prefix oc-platform-healthz; }
+  import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-types { prefix oc-types; }
 
   // meta
   organization "OpenConfig working group";
@@ -177,6 +178,18 @@ module openconfig-platform-healthz-fault {
     }
   }
 
+  grouping fault-state-counters {
+    description
+      "Operational state for fault component counters.";
+
+    leaf occurrences {
+      type oc-yang:counter64;
+      description
+        "The number of times this fault transitioned into the active state.
+        When a fault is added, this value should start at 1.";
+    }
+  }
+
   grouping fault-state {
     description
       "The fault's operational state";
@@ -192,21 +205,20 @@ module openconfig-platform-healthz-fault {
       type oc-types:timeticks64;
       description
         "The time at which the fault first became active.
-        This value is static for the life of the fault.";
+        This value is static for the life of the fault.
+
+        The value is a Unix Epoch timestamp (nanoseconds since
+        Jan 1, 1970 00:00:00 UTC)";
     }
 
     leaf last-detection-time {
       type oc-types:timeticks64;
       description
         "The time at which the fault's underlying condition was last sampled
-        and confirmed asserted.";
-    }
+        and confirmed asserted.
 
-    leaf occurrences {
-      type uint64;
-      description
-        "The number of times this fault transitioned into the active state.
-        When a fault is added, this value should start at 1.";
+        The value is a Unix Epoch timestamp (nanoseconds since
+        Jan 1, 1970 00:00:00 UTC)";
     }
 
     leaf description {
@@ -239,6 +251,13 @@ module openconfig-platform-healthz-fault {
       description
         "The status of the fault, indicates whether the underlying condition
         is actively asserted.";
+    }
+
+    container counters {
+      description
+        "A collection of fault counters.";
+
+      uses fault-state-counters;
     }
   }
 
