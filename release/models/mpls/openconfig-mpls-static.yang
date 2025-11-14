@@ -12,7 +12,6 @@ submodule openconfig-mpls-static {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-interfaces { prefix oc-if; }
 
-
   // meta
   organization "OpenConfig working group";
 
@@ -199,33 +198,13 @@ submodule openconfig-mpls-static {
     leaf ip-address {
       type inet:ip-address;
       description
-        "Next hop IP address for the LSP";e
+        "Next hop IP address for the LSP";
     }
 
     leaf push-label {
       type oc-mplst:mpls-label;
       description
-        "Label value to push at the current hop for the
-        LSP";
-    }
-
-    leaf nh-network-instance {
-      description
-        "Network-instance in which IP address of next-hop should
-        be looked up, to find egress interface. This attribute
-        is only valid if next-hop is given as IP address.
-        This attribute may be combined with recurse attribute of any
-        value, in which case recurse setting applies to
-        nh-network-instance.
-
-        For example, let 'nh-network-instance' = 'DEFAULT'.  If a
-        packet arrives on the 'BLUE' network-instance and the
-        destination address matches this route, look up the IP
-        configured as next-hop in the 'DEFAULT' network-instance.";
-
-      type leafref {
-        path "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:config/oc-ni:name";
-      }
+        "Label value to push at the current hop for the LSP";
     }
 
     // interface-ref

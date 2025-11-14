@@ -1,0 +1,132 @@
+module openconfig-mpls-network-instance {
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/mpls-netinst";
+
+  prefix "oc-mpls-ni";
+
+  import openconfig-network-instance { prefix "oc-ni"; }
+  import openconfig-extensions { prefix "oc-ext"; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module adds leaves that relate to network-instances
+     to the mpls subtree.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2025-11-13" {
+    description
+      "Add reference to static next-hop-group and augment the local routing
+      module.";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  grouping static-lsp-nexthop-networkinstance {
+    description
+      "This grouping define leaves that need references to the network-instance
+       subtree within the local routing module. It is used to augment the
+       /network-instances/network-instance/protocols/protocol/static-routes/ +
+       static-route/next-hops/next-hop/{config,state} containers.";
+
+    leaf nh-network-instance {
+      description
+        "Network-instance in which IP address of next-hop should
+        be looked up, to find egress interface. This attribute
+        is only valid if next-hop is given as IP address.
+        This attribute may be combined with recurse attribute of any
+        value, in which case recurse setting applies to
+        nh-network-instance.
+
+        For example, let 'nh-network-instance' = 'DEFAULT'.  If a
+        packet arrives on the 'BLUE' network-instance and the
+        destination address matches this route, look up the IP
+        configured as next-hop in the 'DEFAULT' network-instance.
+        This leaf is mutually exclusive with next-network-instance
+        leaf";
+
+      type leafref {
+        path "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:config/oc-ni:name";
+      }
+    }
+  }
+
+  grouping static-lsp-next-hop-group-networkinstance {
+    description
+      "Grouping of nodes for a reference to a static next-hop-group.";
+
+    container next-hop-group {
+      description
+        "Configuration and state parameters relating to the
+        next-hop-group. In the future, this container will replace the container
+        /network-instances/network-instance/mpls/lsps/static-lsps/static-lsp/egress/lsp-next-hops.
+        If a statically configured next-hop-group is used for a static MPLS LSP
+        then the 'mpls/lsps/static-lsps/static-lsp/egress/next-hops' container
+        must not be used.";
+
+      container config {
+        description
+          "Configuration parameters relating to the next-hop-group.";
+
+        uses lsp-next-hop-group-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational parameters relating to the next-hop-group.";
+
+        uses lsp-next-hop-group-config;
+      }
+    }
+  }
+
+  grouping lsp-next-hop-group-config {
+    description
+      "Grouping of configuration parameters for a reference to a
+      static next-hop-group.";
+
+    leaf name {
+      description
+        "A user defined name to reference a static next-hop-group.";
+      // we are at /network-instances/network-instance/mpls/lsps/static-lsps/static-lsp/egress/next-hop-group/config/name
+      type leafref {
+        path "../../../../../../../../../oc-ni:static/oc-ni:next-hop-groups/oc-ni:next-hop-group/oc-ni:config/oc-ni:name";
+      }
+    }
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:mpls/oc-ni:lsps/oc-ni:static-lsps/oc-ni:static-lsp/oc-ni:egress/oc-ni:config" {
+    description
+      "Add network-instance leaves to egress static lsp container.";
+
+    uses static-lsp-next-hop-group-networkinstance;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:mpls/oc-ni:lsps/oc-ni:static-lsps/oc-ni:static-lsp/oc-ni:egress/oc-ni:lsp-next-hops/oc-ni:lsp-next-hop/oc-ni:config" {
+    description
+      "Add network-instance leaves to egress static lsp next-hop container.";
+
+    uses static-lsp-nexthop-networkinstance;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:mpls/oc-ni:lsps/oc-ni:static-lsps/oc-ni:static-lsp/oc-ni:egress/oc-ni:lsp-next-hops/oc-ni:lsp-next-hop/oc-ni:state" {
+    description
+      "Add network-instance leaves to egress static routing next-hop container.";
+
+    uses static-lsp-nexthop-networkinstance;
+  }
+
+}
