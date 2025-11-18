@@ -42,7 +42,13 @@ module openconfig-alarms {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "0.3.2";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2025-11-18" {
+    description
+      "Mark alarm list entries as telemetry-atomic";
+    reference "0.4.0";
+  }
 
   revision "2019-07-09" {
     description
@@ -176,6 +182,7 @@ module openconfig-alarms {
       config false;
 
       list alarm {
+        oc-ext:telemetry-atomic;
         key "id";
         description
           "List of alarms, keyed by a unique id";
