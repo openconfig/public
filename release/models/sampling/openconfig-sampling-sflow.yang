@@ -165,6 +165,19 @@ module openconfig-sampling-sflow {
         "RFC 3176 - InMon Corporation's sFlow: sFlowRcvrMaximumDatagramSize.";
     }
 
+    leaf dont-fragment {
+      type boolean;
+      description
+        "When this leaf is set to true, it sets the 'Don't fragment'
+         (DF) bit in the IPv4 header for all sFLOW packets.  When set to
+         false the DF bit is not set.  If this leaf is not configured,
+         then the device may decide whether to set the DF bit for SFLOW
+         packets by default.
+
+         This leaf has no meaning for sFlow datagrams sent over IPv6
+         networks and should be ignored.";
+    }
+
     leaf network-instance {
       type oc-netinst:network-instance-ref;
       description
