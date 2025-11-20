@@ -12,6 +12,8 @@ module openconfig-if-ethernet {
   import iana-if-type { prefix ianaift; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-transport-types { prefix oc-opt-types; }
+
 
   // meta
   organization "OpenConfig working group";
@@ -427,6 +429,13 @@ module openconfig-if-ethernet {
 
     // ingress counters
 
+    leaf fec-uncorrectable-words {
+      type oc-yang:counter64;
+      description
+        "The number of words that were uncorrectable by the FEC;
+        Applicable if fec-mode is not NONE;";
+    }
+
     leaf in-mac-control-frames {
       type oc-yang:counter64;
       description
@@ -676,6 +685,35 @@ module openconfig-if-ethernet {
 
       uses ethernet-interface-state-counters;
     }
+    container pre-fec-ber {
+      description
+        "Bit error rate before forward error correction -- computed
+        value with 18 decimal precision. Note that decimal64
+        supports values as small as i x 10^-18 where i is an
+        integer. Values smaller than this should be reported as 0
+        to inidicate error free or near error free performance.
+        Values include the instantaneous, average, minimum, and
+        maximum statistics. If avg/min/max statistics are not
+        supported, the target is expected to just supply the
+        instant value. Applicable id gec-mode is not NONE.";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision18-ber;
+    }
+
+    container post-fec-ber {
+      description
+        "Bit error rate after forward error correction -- computed
+        value with 18 decimal precision. Note that decimal64
+        supports values as small as i x 10^-18 where i is an
+        integer. Values smaller than this should be reported as 0
+        to inidicate error free or near error free performance.
+        Values include the instantaneous, average, minimum, and
+        maximum statistics. If avg/min/max statistics are not
+        supported, the target is expected to just supply the
+        instant value. Applicable id gec-mode is not NONE.";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision18-ber;
+    }    
   }
 
   // data definition statements
