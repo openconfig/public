@@ -26,7 +26,14 @@ module openconfig-bfd {
     "An OpenConfig model of Bi-Directional Forwarding Detection (BFD)
     configuration and operational state.";
 
-  oc-ext:openconfig-version "0.4.1";
+  oc-ext:openconfig-version "0.4.3";
+
+  revision "2025-09-03" {
+    description
+      "Added stats-update-time leaf to expose the timestamp of
+       the most recent refresh of BFD session statistics.";
+    reference "0.4.3";
+ }
 
   revision "2025-03-18" {
     description
@@ -327,6 +334,18 @@ module openconfig-bfd {
         This leaf is deprecated and will be replaced by a single
         up-transitions leaf in state container. New path:
         /bfd/interfaces/interface/peers/peer/state/up-transitions.";
+    }
+
+    leaf stats-update-time {
+      type uint64;
+      description
+        "Timestamp of the most recent refresh of the BFD session statistics,
+        such as last-packet-transmitted, last-packet-received, and packet
+        counters, expressed as nanoseconds since the Unix epoch. Although
+        statistics may be expressed with nanosecond granularity, updates
+        may not be reflected immediately. This leaf indicates the actual
+        time the statistics were last updated, providing an accurate view
+        of their freshness.";
     }
   }
 
