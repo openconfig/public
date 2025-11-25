@@ -30,9 +30,9 @@ module openconfig-if-ethernet {
 
   revision "2025-11-20" {
     description
-      "Add ethernet FEC statistics - fec-uncorrectable-words and
-      per-/post-FEC BER statics. Deprecate in-block-errors as it
-      is ambigous.";
+      "Add ethernet FEC statistics - fec-uncorrectable-blocks,
+      fec-uncorrectable-words and per-/post-FEC BER statics.
+      Deprecate in-block-errors as it is ambigous.";
     reference "2.16.0";
   }
 
@@ -437,11 +437,20 @@ module openconfig-if-ethernet {
 
     // ingress counters
 
+    leaf fec-uncorrectable-blocks {
+      type oc-yang:counter64;
+      description
+        "The number of block/codeword that were uncorrectable by
+        the FEC;
+        Applicable if fec-mode is not NONE.";
+    }
+
     leaf fec-uncorrectable-words {
       type oc-yang:counter64;
       description
-        "The number of words that were uncorrectable by the FEC;
-        Applicable if fec-mode is not NONE;";
+        "The number of words/symbols that were uncorrectable by 
+        the FEC;
+        Applicable if fec-mode is not NONE.";
     }
 
     leaf in-mac-control-frames {
