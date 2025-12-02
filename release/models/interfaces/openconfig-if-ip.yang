@@ -45,7 +45,13 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.8.0";
+  oc-ext:openconfig-version "3.9.0";
+
+    revision "2025-06-20" {
+    description
+      "Add IPv6 Router Advertisement Options for DNS Configuration (RDNSS) RFC 8106.";
+      reference "3.8.0";
+  }
 
     revision "2025-06-20" {
     description
@@ -1224,6 +1230,7 @@ revision "2023-06-30" {
       description
         "When set to true, the prefix is marked as being on link by setting the
         L-bit for the prefix within a router advertisement.";
+
       reference "RFC4861: Neighbor Discovery for IPv6, section 4.6.1";
     }
   }
@@ -1241,15 +1248,28 @@ revision "2023-06-30" {
 
     leaf lifetime {
       type uint32;
+      units seconds;
       description
-        "Lifetime of the DNS server entry in the router advertisement message.";
+        "The maximum time in seconds (relative to the time the packet is
+        received) over which these RDNSS addresses MAY be used for name
+        resolution.
+
+        The value of Lifetime SHOULD by default be at least
+        3 * MaxRtrAdvInterval, where MaxRtrAdvInterval is the maximum RA
+        interval as defined in [RFC4861].  A value of all one bits
+        (0xffffffff) represents infinity.  A value of zero means that the
+        RDNSS addresses MUST no longer be used.";
+
+      reference "RFC 8106, Section 5.1";
     }
   }
 
   grouping ipv6-dns-server-top {
     description
-      "Top-level grouping for IPv6 DNS server list advertisement (RDNSS)
+      "Top-level grouping for IPv6 Router Advertisement Options for DNS Configuration (RDNSS)
       configuration.";
+
+    reference "RFC 8106";
 
     container dns-servers {
       description
