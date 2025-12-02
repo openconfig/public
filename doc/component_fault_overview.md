@@ -173,11 +173,12 @@ An INACTIVE fault, which means that the underlying condition was not present dur
 This proposal is motivated by hardware component failures, but there is no reason to prevent fault reporting on software components should they rise to the healthz “UNHEALTHY” standard; ie “the component is not performing the function expected of it.”
 
 > Is the operator expected to ACK or clear remediation actions or faults?
-There is no expectation that the operator should ack/clear the event. If the underlying fault condition is no longer asserted, after a vendor-defined cool down period (in the interest of fault dampening), the fault is expected to be removed by the device.
+
+There is no expectation that the operator should ack/clear the event. If the underlying fault condition is no longer asserted, after a vendor-defined cool down period (in the interest of fault dampening), the fault is expected to be removed by the device. This could occur due to the operator performing a remediation or not.
 
 > Must the operator perform all remediations?
 
-Not all actions in this list are necessarily required. Ultimately any fault can be mitigated by replacing the chassis, but that's expensive. Providing alternatives enables the operator to explore less expensive solutions first. The device is not expected to know whether any        remediations have previously been performed, so this list is not expected to change with progressive interventions. Additionally, the expense of executing a remediation depends on the deployment context and is ultimately defined by the operator. 
+Not all actions in this list are necessarily required. Ultimately any fault can be mitigated by replacing the chassis, but that's expensive. Providing alternatives enables the operator to explore less expensive solutions first. The device is not expected to know whether any remediations have previously been performed, so this list is not expected to change with progressive interventions. Additionally, the expense of executing a remediation depends on the deployment context and is ultimately defined by the operator.
 
 > How about fault categories or severities?
 
