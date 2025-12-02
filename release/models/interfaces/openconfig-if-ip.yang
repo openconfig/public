@@ -1228,6 +1228,69 @@ revision "2023-06-30" {
     }
   }
 
+  grouping ipv6-dns-server-config {
+    description
+      "IPv6 DNS server advertisement interface configuration data.";
+
+    leaf ip-address {
+      type oc-inet:ipv6-address;
+      description
+        "IPv6 DNS server address to be advertised within the router
+        advertisement message.";
+    }
+
+    leaf lifetime {
+      type uint32;
+      description
+        "Lifetime of the DNS server entry in the router advertisement message.";
+    }
+  }
+
+  grouping ipv6-dns-server-top {
+    description
+      "Top-level grouping for IPv6 DNS server list advertisement (RDNSS)
+      configuration.";
+
+    container dns-servers {
+      description
+        "Top-level container for the list of IPv6 DNS servers configured to be
+        advertised on the interface.";
+
+      list dns-server {
+        key "ip-address";
+
+        description
+          "List of DNS servers that are to be advertised on the interface
+          (RDNSS). The list is keyed by the IPv6 address of the DNS server.";
+
+        leaf ip-address {
+          type leafref {
+            path "../config/ip-address";
+          }
+          description
+            "Reference to the DNS server IPv6 address for the list of DNS
+            servers.";
+        }
+
+        container config {
+          description
+            "Configuration data for the IPv6 DNS server advertisement.";
+
+          uses ipv6-dns-server-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for the IPv6 DNS server advertisement.";
+
+          uses ipv6-dns-server-config;
+        }
+      }
+    }
+  }
+
+
   grouping ipv4-proxy-arp-config {
     description
       "Configuration parameters for IPv4 proxy ARP";
@@ -1587,6 +1650,8 @@ revision "2023-06-30" {
             }
           }
         }
+
+        uses ipv6-dns-server-top;
       }
 
       container neighbors {
