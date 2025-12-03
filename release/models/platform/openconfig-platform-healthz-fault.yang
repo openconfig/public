@@ -61,12 +61,6 @@ module openconfig-platform-healthz-fault {
       "Component is missing";
   }
 
-  identity SYMPTOM_MISWIRED {
-    base SYMPTOM_BASE;
-    description
-      "Component is miswired";
-  }
-
   identity SYMPTOM_COMM_ERROR {
     base SYMPTOM_BASE;
     description
@@ -81,7 +75,7 @@ module openconfig-platform-healthz-fault {
 
   identity ACTION_BASE {
     description
-      "Base identity for fault symptoms";
+      "Base identity for remediation actions";
   }
 
   identity ACTION_RESEAT {
@@ -110,7 +104,7 @@ module openconfig-platform-healthz-fault {
       "The process of turning a component off completely and then turning it
       back on.
 
-      This could be acheived with two gNOI.System.RebootRequest calls:
+      This could be achieved with two gNOI.System.RebootRequest calls:
       a POWERDOWN RebootMethod followed by a POWERUP RebootMethod.
 
       At the device level, using a remote controlled power strip to
@@ -263,7 +257,7 @@ module openconfig-platform-healthz-fault {
 
   grouping fault-remediations {
     description
-      "Grouping containing a faults recommended remediations";
+      "Grouping containing a fault's recommended remediations";
 
     container remediations {
       description
