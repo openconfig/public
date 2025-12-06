@@ -1,858 +1,1377 @@
-module openconfig-ipsec {
+module openconfig-security {
 
-    yang-version "1";
-    namespace "http://openconfig.net/yang/security";
-    prefix "oc-ipsec";
+  yang-version "1";
+  namespace "http://openconfig.net/yang/security";
+  prefix "oc-ipsec";
 
-    import ietf-inet-types {
-        prefix inet;
-    }
-    import ietf-yang-types {
-        prefix yang;
-    }
-    import openconfig-interfaces {
-        prefix oc-if;
-    }
-    import openconfig-types {
-        prefix oc-types;
-    }
-    import openconfig-extensions {
-        prefix oc-ext;
-    }
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import ietf-yang-types {
+    prefix yang;
+  }
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+  import openconfig-network-instance {
+    prefix oc-ni;
+  }
+  import openconfig-keychain-types {
+    prefix oc-keychain-types;
+  }
+  import openconfig-interfaces {
+    prefix oc-if;
+  }
 
-    // meta
-    organization
-      "OpenConfig working group";
+// meta
+  organization
+    "OpenConfig working group";
 
-    contact
-      "OpenConfig working group
-       netopenconfig@googlegroups.com";
+  contact
+    "OpenConfig working group
+     netopenconfig@googlegroups.com";
 
+  description
+    "This module defines configuration and operational state for IPSec.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision 2025-12-03 {
     description
-      "This module defines configuration and operational state for IPSec.";
+      "Generated from YANG hierarchy with metadata enrichment";
+    reference
+      "0.1.0";
+  }
 
-    oc-ext:openconfig-version "0.1.0";
+// OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
 
-    revision 2025-11-26 {
-        description
-          "Generated from YANG hierarchy with metadata enrichment";
-        reference
-          "0.1.0";
-    }
+  // --- Base and Derived Identities ---
+  identity CONNECTION_STATUS {
+    description
+      "Base identity for the operational status of an IPsec connection";
+  }
+  identity UNKNOWN {
+    base CONNECTION_STATUS;
+    description
+      "No connection state is currently present or known.";
+  }
+  identity CONNECTING {
+    base CONNECTION_STATUS;
+    description
+      "In the process of negotiating an IPsec connection.";
+  }
+  identity IDLE {
+    base CONNECTION_STATUS;
+    description
+      "Waiting for an incoming IPsec negotiation.";
+  }
+  identity ACTIVE {
+    base CONNECTION_STATUS;
+    description
+      "The IPsec negotiation is complete and ready for data transfer.";
+  }
+  identity INVALID {
+    base CONNECTION_STATUS;
+    description
+      "The connection is in an invalid state due to a configuration or system error that prevents connection establishment.";
+  }
+  identity ESTABLISHED {
+    base CONNECTION_STATUS;
+    description
+      "The IPsec negotiation is complete.";
+  }
 
-    // OpenConfig specific extensions for module metadata.
-    oc-ext:regexp-posix;
-    oc-ext:catalog-organization "openconfig";
-    oc-ext:origin "openconfig";
+  identity CONNECTION_ROLE {
+    description
+      "Base identity for the role of IPsec connection.";
+  }
+  identity INITIATOR {
+    base CONNECTION_ROLE;
+    description
+      "This device starts the connection attempt.";
+  }
+  identity RESPONDER {
+    base CONNECTION_ROLE;
+    description
+      "This device only accepts incoming connection requests.";
+  }
 
-    // extension statements
-    // feature statements
-    // identity statements
-    identity CONNECTION_STATUS {
-        description
-          "Base identity for the operational status of an IPsec connection";
-    }
-    identity NONE {
-        base CONNECTION_STATUS;
-        description
-          "No connection state is currently present or known.";
-    }
-    identity CONNECTING {
-        base CONNECTION_STATUS;
-        description
-          "In the process of negotiating an IPsec connection.";
-    }
-    identity IDLE {
-        base CONNECTION_STATUS;
-        description
-          "Waiting for an incoming IPsec negotiation.";
-    }
-    identity ACTIVE {
-        base CONNECTION_STATUS;
-        description
-          "The IPsec negotiation is complete and ready for data transfer.";
-    }
-    identity INVALID {
-        base CONNECTION_STATUS;
-        description
-          "The connection is in an invalid state due to a configuration or system error that prevents establishment.";
-    }
-    identity ESTABLISHED {
-        base CONNECTION_STATUS;
-        description
-          "The IPsec negotiation is complete.";
-    }
+  identity DH_GROUP {
+    description
+      "Base identity for Diffie-Hellman groups used for key exchange (IKE Phase 1) and Perfect Forward Secrecy (PFS in Phase 2).";
+  }
+  identity DH_GROUP_1 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 1 (768 bit)";
+  }
+  identity DH_GROUP_2 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 2 (1024 bit)";
+  }
+  identity DH_GROUP_5 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 5 (1536 bit)";
+  }
+  identity DH_GROUP_14 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 14 (2048 bit)";
+  }
+  identity DH_GROUP_15 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 15 (3072 bit)";
+  }
+  identity DH_GROUP_16 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 16 (4096 bit)";
+  }
+  identity DH_GROUP_17 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 17 (6144 bit)";
+  }
+  identity DH_GROUP_19 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 19 (256 bit ecp)";
+  }
+  identity DH_GROUP_20 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 20 (384 bit ecp)";
+  }
+  identity DH_GROUP_21 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 21 (521 bit ecp)";
+  }
+  identity DH_GROUP_24 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 24 (2048 bit, 256 bit subgroup)";
+  }
 
-    identity CONNECTION_ROLE {
-        description
-          "Base identity for the role of IPsec connection.";
-    }
-    identity INITIATOR {
-        base CONNECTION_ROLE;
-        description
-          "This device starts the connection attempt.";
-    }
-    identity RESPONDER {
-        base CONNECTION_ROLE;
-        description
-          "This device only accepts incoming connection requests.";
-    }
+  identity IKE_AUTH_METHOD {
+    description
+      "Base identity for the authentication method used in the IKE exchange.";
+  }
+  identity PRE_SHARED_KEY {
+    base IKE_AUTH_METHOD;
+    description
+      "Authentication using a pre-configured symmetric key (PSK).";
+  }
+  identity PKI_CERTS {
+    base IKE_AUTH_METHOD;
+    description
+      "Authentication using PKI certificates.";
+  }
 
-    identity CRYPTO_TYPE {
-        description
-          "Base identity for crypto type";
-    }
+  identity IKE_VERSION {
+    description
+      "Base identity for the Internet Key Exchange protocol version.";
+  }
+  identity IKEV1 {
+    base IKE_VERSION;
+    description
+      "Internet Key Exchange Protocol Version 1 (Legacy).";
+  }
+  identity IKEV2 {
+    base IKE_VERSION;
+    description
+      "Internet Key Exchange Protocol Version 2 (Recommended standard).";
+  }
 
-    identity DH_GROUP {
-        description
-          "Base identity for Diffie-Hellman groups used for key exchange (IKE Phase 1) and Perfect Forward Secrecy (PFS in Phase 2).";
-    }
-    identity DH_GROUP_1 {
-        base DH_GROUP;
-        description
-          "Diffie-Hellman group 1 (768 bit)";
-    }
-    identity DH_GROUP_2 {
-        base DH_GROUP;
-        description
-          "Diffie-Hellman group 2 (1024 bit)";
-    }
-    identity DH_GROUP_5 {
-        base DH_GROUP;
-        description
-          "Diffie-Hellman group 5 (1536 bit)";
-    }
-    identity DH_GROUP_14 {
-        base DH_GROUP;
-        description
-          "Diffie-Hellman group 14 (2048 bit)";
-    }
-    identity DH_GROUP_15 {
-        base DH_GROUP;
-        description
-          "Diffie-Hellman group 15 (3072 bit)";
-    }
-    identity DH_GROUP_16 {
-        base DH_GROUP;
-        description
-          "Diffie-Hellman group 16 (4096 bit)";
-    }
-    identity DH_GROUP_17 {
-        base DH_GROUP;
-        description
-          "Diffie-Hellman group 17 (6144 bit)";
-    }
-    identity DH_GROUP_19 {
-        base DH_GROUP;
-        description
-          "Diffie-Hellman group 19 (256 bit ecp)";
-    }
-    identity DH_GROUP_20 {
-        base DH_GROUP;
-        description
-          "Diffie-Hellman group 20 (384 bit ecp)";
-    }
-    identity DH_GROUP_21 {
-        base DH_GROUP;
-        description
-          "Diffie-Hellman group 21 (521 bit ecp)";
-    }
-    identity DH_GROUP_24 {
-        base DH_GROUP;
-        description
-          "Diffie-Hellman group 24 (2048 bit, 256 bit subgroup)";
-    }
+  identity IPSEC_MODE {
+    description
+      "Base identity for the IPsec mode of operation.";
+  }
+  identity TUNNEL {
+    base IPSEC_MODE;
+    description
+      "IPsec Tunnel mode, where the original IP packet is encapsulated with new IP headers.";
+  }
+  identity TRANSPORT {
+    base IPSEC_MODE;
+    description
+      "IPsec Transport mode, where the IPsec header is inserted between the original IP header and the transport layer (TCP/UDP).";
+  }
 
-    identity IKE_AUTH_METHOD {
-        description
-          "Base identity for the authentication method used in the IKE exchange.";
-    }
-    identity PRE_SHARED_KEY {
-        base IKE_AUTH_METHOD;
-        description
-          "Authentication using a pre-configured symmetric key (PSK).";
-    }
-    identity PKI_CERTS {
-        base IKE_AUTH_METHOD;
-        description
-          "Authentication using PKI certificates.";
-    }
+  identity IPSEC_PROTOCOL {
+    description
+      "Base identity for the IPsec protocol encapsulation.";
+  }
+  identity IPPROTO_ESP {
+    base IPSEC_PROTOCOL;
+    description
+      "Encapsulating Security Payload (ESP), providing confidentiality (encryption), integrity, and authentication.";
+  }
+  identity IPPROTO_AH {
+    base IPSEC_PROTOCOL;
+    description
+      "Authentication Header (AH), providing integrity and authentication, but *no* confidentiality (encryption).";
+  }
 
-    identity IKE_VERSION {
-        description
-          "Base identity for the Internet Key Exchange protocol version.";
-    }
-    identity IKEV1 {
-        base IKE_VERSION;
-        description
-          "Internet Key Exchange Protocol Version 1 (Legacy).";
-    }
-    identity IKEV2 {
-        base IKE_VERSION;
-        description
-          "Internet Key Exchange Protocol Version 2 (Recommended standard).";
-    }
+  identity SA_DIRECTION {
+    description
+      "Base identity for the direction of a Security Association.";
+  }
+  identity EGRESS {
+    base SA_DIRECTION;
+    description
+      "The Security Association used for encrypting outgoing traffic.";
+  }
+  identity INGRESS {
+    base SA_DIRECTION;
+    description
+      "The Security Association used for decrypting incoming traffic.";
+  }
 
-    identity IPSEC_MODE {
-        description
-          "Base identity for the IPsec mode of operation.";
-    }
-    identity TUNNEL {
-        base IPSEC_MODE;
-        description
-          "IPsec Tunnel mode, where the original IP packet is encapsulated with new IP headers.";
-    }
-    identity TRANSPORT {
-        base IPSEC_MODE;
-        description
-          "IPsec Transport mode, where the IPsec header is inserted between the original IP header and the transport layer (TCP/UDP).";
-    }
+  identity TUNNEL_MODE {
+    description
+      "Base identity for the encapsulation mode of the tunnel interface.";
+  }
+  identity IPSEC {
+    base TUNNEL_MODE;
+    description
+      "A Layer 3 IPsec tunnel, often referred to as a VTI (Virtual Tunnel Interface) or equivalent, used for route-based VPNs.";
+  }
+  identity GRE {
+    base TUNNEL_MODE;
+    description
+      "Generic Routing Encapsulation (GRE) tunnel encapsulation.";
+  }
 
-    identity IPSEC_PROTOCOL {
-        description
-          "Base identity for the IPsec protocol encapsulation.";
-    }
-    identity IPPROTO_ESP {
-        base IPSEC_PROTOCOL;
-        description
-          "Encapsulating Security Payload (ESP), providing confidentiality (encryption), integrity, and authentication.";
-    }
-    identity IPPROTO_AH {
-        base IPSEC_PROTOCOL;
-        description
-          "Authentication Header (AH), providing integrity and authentication, but *no* confidentiality (encryption).";
-    }
+  // --- End of Identities ---
+  grouping security-top {
 
-    identity SA_DIRECTION {
+    container security {
+      description
+        "Container for security";
+      container ike {
         description
-          "Base identity for the direction of a Security Association.";
-    }
-    identity EGRESS {
-        base SA_DIRECTION;
-        description
-          "The Security Association used for encrypting outgoing traffic.";
-    }
-    identity INGRESS {
-        base SA_DIRECTION;
-        description
-          "The Security Association used for decrypting incoming traffic.";
-    }
-
-    identity TUNNEL_MODE {
-        description
-          "Base identity for the encapsulation mode of the tunnel interface.";
-    }
-    identity IPSEC {
-        base TUNNEL_MODE;
-        description
-          "A Layer 3 IPsec tunnel, often referred to as a VTI (Virtual Tunnel Interface) or equivalent, used for route-based VPNs.";
-    }
-    identity GRE {
-        base TUNNEL_MODE;
-        description
-          "Generic Routing Encapsulation (GRE) tunnel encapsulation.";
-    }
-
-    // --- End of Identities ---
-    container network-instances {
-        description
-          "Container for network-instances";
-        list network-instance {
-            key "name";
+          "Container for ike";
+        container ike-sa {
+          description
+            "Container for ike-sa";
+          container ipv4 {
             description
-              "List of network-instance entries";
-            leaf name {
-                type string;
+              "Container for ipv4";
+            container security-associations {
+              description
+                "Container for security-associations";
+              list security-association {
+                key "initiator-spi responder-spi remote-address local-address";
+                config false;
+                description
+                  "List of IKE security-association entries";
+                leaf initiator-spi {
+                  type leafref {
+                    path "../state/initiator-spi";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to initiator's Security Parameter Index (SPI), a key identifier for the SA.";
+                }
+                leaf responder-spi {
+                  type leafref {
+                    path "../state/responder-spi";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to responder's Security Parameter Index (SPI), a key identifier for the SA.";
+                }
+
+                leaf remote-address {
+                  type leafref {
+                    path "../state/remote-address";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to remote Peer's IP address used for the IKE exchange";
+                }
+
+                leaf local-address {
+                  type leafref {
+                    path "../state/local-address";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to the local IP address used for the IKE exchange.";
+                }
+
+                container state {
+                  config false;
+                  description
+                    "State data";
+
+                  leaf initiator-spi {
+                    type uint64;
+                    mandatory true;
+                    description
+                      "The initiator's Security Parameter Index (SPI), a key identifier for the SA.";
+                    reference
+                      "https://datatracker.ietf.org/doc/html/rfc7296#section-3";
+                  }
+                  leaf responder-spi {
+                    type uint64;
+                    mandatory true;
+                    description
+                      "The responder's Security Parameter Index (SPI), a key identifier for the SA.";
+                    reference
+                      "https://datatracker.ietf.org/doc/html/rfc7296#section-3";
+                  }
+
+                  leaf remote-address {
+                    type inet:ipv4-address;
+                    mandatory true;
+                    description
+                      "The remote peer's IP address used for the IKE exchange.";
+                  }
+
+                  leaf local-address {
+                    type inet:ipv4-address;
+                    mandatory true;
+                    description
+                      "The local IP address used for the IKE exchange.";
+                  }
+                }
+              }
+            }
+          }
+
+          container ipv6 {
+            description
+              "Container for ipv6";
+            container security-associations {
+              description
+                "Container for security-associations";
+              list security-association {
+                key "initiator-spi responder-spi remote-address local-address";
+                config false;
+                description
+                  "List of IKE security-association entries";
+                leaf initiator-spi {
+                  type leafref {
+                    path "../state/initiator-spi";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to initiator's Security Parameter Index (SPI), a key identifier for the IKE SA.";
+                }
+                leaf responder-spi {
+                  type leafref {
+                    path "../state/responder-spi";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to responder's Security Parameter Index (SPI), a key identifier for the IKE SA.";
+                }
+
+                leaf remote-address {
+                  type leafref {
+                    path "../state/remote-address";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to remote Peer's IP address used for the IKE exchange.";
+                }
+
+                leaf local-address {
+                  type leafref {
+                    path "../state/local-address";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to the local IP address used for the IKE exchange.";
+                }
+
+                container state {
+                  config false;
+                  description
+                    "State data";
+
+                  leaf initiator-spi {
+                    type uint64;
+                    mandatory true;
+                    description
+                      "The initiator's Security Parameter Index (SPI), a key identifier for the IKE SA.";
+                    reference
+                      "https://datatracker.ietf.org/doc/html/rfc7296#section-3";
+                  }
+                  leaf responder-spi {
+                    type uint64;
+                    mandatory true;
+                    description
+                      "The responder's Security Parameter Index (SPI), a key identifier for the IKE SA.";
+                    reference
+                      "https://datatracker.ietf.org/doc/html/rfc7296#section-3";
+                  }
+
+                  leaf remote-address {
+                    type inet:ipv6-address;
+                    mandatory true;
+                    description
+                      "The remote peer's IP address used for the IKE exchange.";
+                  }
+
+                  leaf local-address {
+                    type inet:ipv6-address;
+                    mandatory true;
+                    description
+                      "The local IP address used for the IKE exchange.";
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        container child-sa {
+          description
+            "Container for child-sa";
+          container ipv4 {
+            description
+              "Container for ipv4";
+            container security-associations {
+              description
+                "Container for security-associations";
+              list security-association {
+                key "spi destination-address protocol";
+                config false;
+                description
+                  "List of Child SA security-association entries";
+                leaf spi {
+                  type leafref {
+                    path "../state/spi";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to Security Parameter Index (SPI), a key identifier for the child SA.";
+                }
+
+                leaf destination-address {
+                  type leafref {
+                    path "../state/destination-address";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to the destination IP address of the child SA.";
+                }
+
+                leaf protocol {
+                  type leafref {
+                    path "../state/protocol";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to the IPsec protocol (ESP or AH).";
+                }
+
+                container state {
+                  config false;
+                  description
+                    "State data";
+
+                  container counters {
+                    description
+                      "Container for counters";
+                    leaf bytes-processed {
+                      type yang:counter64;
+                      mandatory true;
+                      description
+                        "The total number of bytes processed by this SA.";
+                    }
+
+                    leaf packets-processed {
+                      type yang:counter64;
+                      mandatory true;
+                      description
+                        "The total number of packets processed by this SA.";
+                    }
+                  }
+
+                  leaf spi {
+                    type uint32;
+                    mandatory true;
+                    description
+                      "The Security Parameter Index (SPI), a key identifier for the child SA.";
+                    reference
+                      "https://datatracker.ietf.org/doc/html/rfc4303#section-2.1";
+                  }
+
+                  leaf destination-address {
+                    type inet:ipv4-address;
+                    mandatory true;
+                    description
+                      "The destination IP address.";
+                    reference
+                      "https://datatracker.ietf.org/doc/html/rfc4303#section-2.1";
+                  }
+
+                  leaf protocol {
+                    type identityref {
+                      base IPSEC_PROTOCOL;
+                    }
+                    mandatory true;
+                    description
+                      "The IPsec protocol used for this SA.";
+                    reference
+                      "https://datatracker.ietf.org/doc/html/rfc4303#section-2.1";
+                  }
+
+                  leaf active {
+                    type boolean;
+                    mandatory true;
+                    description
+                      "Indicates if the Child SA is currently active (true) or not (false).";
+                  }
+
+                  leaf direction {
+                    type identityref {
+                      base SA_DIRECTION;
+                    }
+                    mandatory true;
+                    description
+                      "The direction of the traffic protected by this SA.";
+                  }
+
+                  leaf anti-replay-window {
+                    type uint16;
+                    mandatory true;
+                    description
+                      "The size of the anti-replay window in use. The value 0 here means anti-replay detection is disabled.";
+                  }
+
+                  leaf source-address {
+                    type inet:ipv4-address;
+                    mandatory true;
+                    description
+                      "The source IP address of the SA.";
+                  }
+
+                  leaf encryption-algorithm {
+                    type identityref {
+                      base oc-keychain-types:CRYPTO_TYPE;
+                    }
+                    mandatory true;
+                    description
+                      "The encryption algorithm in use for this SA.";
+                  }
+
+                  leaf integrity-algorithm {
+                    type identityref {
+                      base oc-keychain-types:CRYPTO_TYPE;
+                    }
+                    mandatory true;
+                    description
+                      "The integrity/hash algorithm in use for this SA.";
+                  }
+
+                  leaf pfs-dh-group {
+                    type identityref {
+                      base DH_GROUP;
+                    }
+                    mandatory true;
+                    description
+                      "The PFS Diffie-Hellman group in use for this SA.";
+                  }
+
+                  container lifetime {
+                    description
+                      "Container for lifetime";
+                    leaf sa-add-time {
+                      type yang:date-and-time;
+                      mandatory true;
+                      description
+                        "The timestamp when the SA was added.";
+                    }
+
+                    leaf sa-rekey-time {
+                      type yang:date-and-time;
+                      mandatory true;
+                      description
+                        "The timestamp for the next scheduled SA rekey operation.";
+                    }
+                  }
+
+                  container lifetime-config {
+                    description
+                      "Container for lifetime-config";
+                    leaf time {
+                      type uint64;
+                      mandatory true;
+                      description
+                        "The configured time-based lifetime for the SA, in seconds.";
+                    }
+
+                    leaf bytes {
+                      type uint64;
+                      mandatory true;
+                      description
+                        "The configured byte-count lifetime for the SA.";
+                    }
+
+                    leaf packets {
+                      type uint64;
+                      mandatory true;
+                      description
+                        "The configured packet-count lifetime for the SA.";
+                    }
+                  }
+
+                  container ike-sa {
+                    description
+                      "Container for ike-sa";
+                    leaf initiator-spi {
+                      type leafref {
+                        path "../../../../../../../ike-sa/ipv4/security-associations/security-association/initiator-spi";
+                      }
+                      description
+                        "Reference to the parent IKE SA's initiator SPI.";
+                    }
+                    leaf responder-spi {
+                      type leafref {
+                        path "../../../../../../../ike-sa/ipv4/security-associations/security-association/responder-spi";
+                      }
+                      description
+                        "Reference to the parent IKE SA's responder SPI.";
+                    }
+
+                    leaf remote-address {
+                      type leafref {
+                        path "../../../../../../../ike-sa/ipv4/security-associations/security-association/remote-address";
+                      }
+                      description
+                        "Reference to the parent IKE SA's remote address.";
+                    }
+
+                    leaf local-address {
+                      type leafref {
+                        path "../../../../../../../ike-sa/ipv4/security-associations/security-association/local-address";
+                      }
+                      mandatory true;
+                      description
+                        "Reference to the parent IKE SA's local address.";
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          container ipv6 {
+            description
+              "Container for ipv6";
+            container security-associations {
+              description
+                "Container for security-associations";
+              list security-association {
+                key "spi destination-address protocol";
+                config false;
+                description
+                  "List of Child SA security-association entries";
+                leaf spi {
+                  type leafref {
+                    path "../state/spi";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to Security Parameter Index (SPI), a key identifier for the child SA.";
+                }
+
+                leaf destination-address {
+                  type leafref {
+                    path "../state/destination-address";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to the destination IP address of the child SA.";
+                }
+
+                leaf protocol {
+                  type leafref {
+                    path "../state/protocol";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to the IPsec protocol (ESP or AH).";
+                }
+
+                container state {
+                  config false;
+                  description
+                    "State data";
+
+                  container counters {
+                    description
+                      "Container for counters";
+                    leaf bytes-processed {
+                      type yang:counter64;
+                      mandatory true;
+                      description
+                        "The total number of bytes processed by this SA.";
+                    }
+
+                    leaf packets-processed {
+                      type yang:counter64;
+                      mandatory true;
+                      description
+                        "The total number of packets processed by this SA.";
+                    }
+                  }
+
+                  leaf spi {
+                    type uint32;
+                    mandatory true;
+                    description
+                      "The Security Parameter Index (SPI), a key identifier for the child SA.";
+                    reference
+                      "https://datatracker.ietf.org/doc/html/rfc4303#section-2.1";
+                  }
+
+                  leaf destination-address {
+                    type inet:ipv6-address;
+                    mandatory true;
+                    description
+                      "The destination IP address.";
+                    reference
+                      "https://datatracker.ietf.org/doc/html/rfc4303#section-2.1";
+                  }
+
+                  leaf protocol {
+                    type identityref {
+                      base IPSEC_PROTOCOL;
+                    }
+                    mandatory true;
+                    description
+                      "The IPsec protocol used for this SA.";
+                    reference
+                      "https://datatracker.ietf.org/doc/html/rfc4303#section-2.1";
+                  }
+
+                  leaf active {
+                    type boolean;
+                    mandatory true;
+                    description
+                      "Indicates if the Child SA is currently active (true) or not (false).";
+                  }
+
+                  leaf direction {
+                    type identityref {
+                      base SA_DIRECTION;
+                    }
+                    mandatory true;
+                    description
+                      "The direction of the traffic protected by this SA.";
+                  }
+
+                  leaf anti-replay-window {
+                    type uint16;
+                    mandatory true;
+                    description
+                      "The size of the anti-replay window in use. The value 0 here means anti-replay detection is disabled.";
+                  }
+
+                  leaf source-address {
+                    type inet:ipv6-address;
+                    mandatory true;
+                    description
+                      "The source IP address of the SA.";
+                  }
+
+                  leaf encryption-algorithm {
+                    type identityref {
+                      base oc-keychain-types:CRYPTO_TYPE;
+                    }
+                    mandatory true;
+                    description
+                      "The encryption algorithm in use for this SA.";
+                  }
+
+                  leaf integrity-algorithm {
+                    type identityref {
+                      base oc-keychain-types:CRYPTO_TYPE;
+                    }
+                    mandatory true;
+                    description
+                      "The integrity/hash algorithm in use for this SA.";
+                  }
+
+                  leaf pfs-dh-group {
+                    type identityref {
+                      base DH_GROUP;
+                    }
+                    mandatory true;
+                    description
+                      "The PFS Diffie-Hellman group in use for this SA.";
+                  }
+
+                  container lifetime {
+                    description
+                      "Container for lifetime";
+                    leaf sa-add-time {
+                      type yang:date-and-time;
+                      mandatory true;
+                      description
+                        "The timestamp when the SA was added.";
+                    }
+
+                    leaf sa-rekey-time {
+                      type yang:date-and-time;
+                      mandatory true;
+                      description
+                        "The timestamp for the next scheduled SA rekey operation.";
+                    }
+                  }
+
+                  container lifetime-config {
+                    description
+                      "Container for lifetime-config";
+                    leaf time {
+                      type uint64;
+                      mandatory true;
+                      description
+                        "The configured time-based lifetime for the SA, in seconds.";
+                    }
+
+                    leaf bytes {
+                      type uint64;
+                      mandatory true;
+                      description
+                        "The configured byte-count lifetime for the SA.";
+                    }
+
+                    leaf packets {
+                      type uint64;
+                      mandatory true;
+                      description
+                        "The configured packet-count lifetime for the SA.";
+                    }
+                  }
+
+                  container ike-sa {
+                    description
+                      "Container for ike-sa";
+                    leaf initiator-spi {
+                      type leafref {
+                        path "../../../../../../../ike-sa/ipv6/security-associations/security-association/initiator-spi";
+                      }
+                      description
+                        "Reference to the parent IKE SA's initiator SPI.";
+                    }
+                    leaf responder-spi {
+                      type leafref {
+                        path "../../../../../../../ike-sa/ipv6/security-associations/security-association/responder-spi";
+                      }
+                      description
+                        "Reference to the parent IKE SA's responder SPI.";
+                    }
+
+                    leaf remote-address {
+                      type leafref {
+                        path "../../../../../../../ike-sa/ipv6/security-associations/security-association/remote-address";
+                      }
+                      description
+                        "Reference to the parent IKE SA's remote address.";
+                    }
+
+                    leaf local-address {
+                      type leafref {
+                        path "../../../../../../../ike-sa/ipv6/security-associations/security-association/local-address";
+                      }
+                      mandatory true;
+                      description
+                        "Reference to the parent IKE SA's local address.";
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      container ipsec {
+        description
+          "Container for ipsec";
+        container ipv4 {
+          description
+            "Container for ipv4";
+          container connections {
+            description
+              "Container for connections";
+            list connection {
+              key "name";
+              config false;
+              description
+                "List of IPsec connection entries";
+              leaf name {
+                type leafref {
+                  path "../state/name";
+                }
                 mandatory true;
                 description
-                  "The network instance name";
-            }
+                  "Reference to the IPsec connection name.";
+              }
 
-            container security {
+              container state {
+                config false;
                 description
-                  "Container for security";
-                container ike {
-                    description
-                      "Container for ike";
-                    container ike-sa {
-                        description
-                          "Container for ike-sa";
-                        container ipv4 {
-                            description
-                              "Container for ipv4";
-                            container security-associations {
-                                description
-                                  "Container for security-associations";
-                                list security-association {
-                                    key "spi remote-address local-address";
-                                    config false;
-                                    description
-                                      "List of IKE security-association entries";
-                                    leaf spi {
-                                        type leafref {
-                                            path "../state/spi";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to Security Parameter Index (SPI), a key identifier for the SA.";
-                                    }
+                  "State data";
 
-                                    leaf remote-address {
-                                        type leafref {
-                                            path "../state/remote-address";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to remote Peer's IP address used for the IKE exchange";
-                                    }
-
-                                    leaf local-address {
-                                        type leafref {
-                                            path "../state/local-address";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to the local IP address used for the IKE exchange.";
-                                    }
-
-                                    container state {
-                                        config false;
-                                        description
-                                          "State data";
-
-                                        leaf spi {
-                                            type uint64;
-                                            mandatory true;
-                                            description
-                                              "The Security Parameter Index (SPI), a key identifier for the SA.";
-                                        }
-
-                                        leaf remote-address {
-                                            type string;
-                                            mandatory true;
-                                            description
-                                              "The remote peer's IP address used for the IKE exchange.";
-                                        }
-
-                                        leaf local-address {
-                                            type string;
-                                            mandatory true;
-                                            description
-                                              "The local IP address used for the IKE exchange.";
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        container ipv6 {
-                            description
-                              "Container for ipv6";
-                            container security-associations {
-                                description
-                                  "Container for security-associations";
-                                list security-association {
-                                    key "spi remote-address local-address";
-                                    config false;
-                                    description
-                                      "List of IKE security-association entries";
-                                    leaf spi {
-                                        type leafref {
-                                            path "../state/spi";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to Security Parameter Index (SPI), a key identifier for the IKE SA.";
-                                    }
-
-                                    leaf remote-address {
-                                        type leafref {
-                                            path "../state/remote-address";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to remote Peer's IP address used for the IKE exchange.";
-                                    }
-
-                                    leaf local-address {
-                                        type leafref {
-                                            path "../state/local-address";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to the local IP address used for the IKE exchange.";
-                                    }
-
-                                    container state {
-                                        config false;
-                                        description
-                                          "State data";
-
-                                        leaf spi {
-                                            type uint64;
-                                            mandatory true;
-                                            description
-                                              "The Security Parameter Index (SPI), a key identifier for the IKE SA.";
-                                        }
-
-                                        leaf remote-address {
-                                            type string;
-                                            mandatory true;
-                                            description
-                                              "The remote peer's IP address used for the IKE exchange.";
-                                        }
-
-                                        leaf local-address {
-                                            type string;
-                                            mandatory true;
-                                            description
-                                              "The local IP address used for the IKE exchange.";
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    container child-sa {
-                        description
-                          "Container for child-sa";
-                        container ipv4 {
-                            description
-                              "Container for ipv4";
-                            container security-associations {
-                                description
-                                  "Container for security-associations";
-                                list security-association {
-                                    key "spi destination-address protocol";
-                                    config false;
-                                    description
-                                      "List of Child SA security-association entries";
-                                    leaf spi {
-                                        type leafref {
-                                            path "../state/spi";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to Security Parameter Index (SPI), a key identifier for the child SA.";
-                                    }
-
-                                    leaf destination-address {
-                                        type leafref {
-                                            path "../state/destination-address";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to the destination IP address of the child SA.";
-                                    }
-
-                                    leaf protocol {
-                                        type leafref {
-                                            path "../state/protocol";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to the IPsec protocol (ESP or AH).";
-                                    }
-
-                                    container state {
-                                        config false;
-                                        description
-                                          "State data";
-
-                                        container counters {
-                                            description
-                                              "Container for counters";
-                                            leaf bytes-processed {
-                                                type yang:counter64;
-                                                mandatory true;
-                                                description
-                                                  "The total number of bytes processed by this SA.";
-                                            }
-
-                                            leaf packets-processed {
-                                                type yang:counter64;
-                                                mandatory true;
-                                                description
-                                                  "The total number of packets processed by this SA.";
-                                            }
-                                        }
-
-                                        leaf spi {
-                                            type uint32;
-                                            mandatory true;
-                                            description
-                                              "The Security Parameter Index (SPI), a key identifier for the child SA.";
-                                        }
-
-                                        leaf destination-address {
-                                            type string;
-                                            mandatory true;
-                                            description
-                                              "The destination IP address.";
-                                        }
-
-                                        leaf protocol {
-                                            type identityref {
-                                                base IPSEC_PROTOCOL;
-                                            }
-                                            mandatory true;
-                                            description
-                                              "The IPsec protocol used for this SA.";
-                                        }
-
-                                        leaf active {
-                                            type boolean;
-                                            mandatory true;
-                                            description
-                                              "Indicates if the Child SA is currently active (true) or not (false).";
-                                        }
-
-                                        leaf direction {
-                                            type identityref {
-                                                base SA_DIRECTION;
-                                            }
-                                            mandatory true;
-                                            description
-                                              "The direction of the traffic protected by this SA.";
-                                        }
-
-                                        leaf anti-replay-window {
-                                            type uint16;
-                                            mandatory true;
-                                            description
-                                              "The size of the anti-replay window in use. The value 0 here means anti-replay detection is disabled.";
-                                        }
-
-                                        leaf source-address {
-                                            type string;
-                                            mandatory true;
-                                            description
-                                              "The source IP address of the SA.";
-                                        }
-
-                                        leaf encryption-algorithm {
-                                            type identityref {
-                                                base CRYPTO_TYPE;
-                                            }
-                                            mandatory true;
-                                            description
-                                              "The encryption algorithm in use for this SA.";
-                                        }
-
-                                        leaf integrity-algorithm {
-                                            type identityref {
-                                                base CRYPTO_TYPE;
-                                            }
-                                            mandatory true;
-                                            description
-                                              "The integrity/hash algorithm in use for this SA.";
-                                        }
-
-                                        leaf pfs-dh-group {
-                                            type identityref {
-                                                base DH_GROUP;
-                                            }
-                                            mandatory true;
-                                            description
-                                              "The PFS Diffie-Hellman group in use for this SA.";
-                                        }
-
-                                        container lifetime {
-                                            description
-                                              "Container for lifetime";
-                                            leaf sa-add-time {
-                                                type yang:date-and-time;
-                                                mandatory true;
-                                                description
-                                                  "The timestamp when the SA was added.";
-                                            }
-
-                                            leaf sa-rekey-time {
-                                                type yang:date-and-time;
-                                                mandatory true;
-                                                description
-                                                  "The timestamp for the next scheduled SA rekey operation.";
-                                            }
-                                        }
-
-                                        container lifetime-config {
-                                            description
-                                              "Container for lifetime-config";
-                                            leaf time {
-                                                type uint64;
-                                                mandatory true;
-                                                description
-                                                  "The configured time-based lifetime for the SA, in seconds.";
-                                            }
-
-                                            leaf bytes {
-                                                type uint64;
-                                                mandatory true;
-                                                description
-                                                  "The configured byte-count lifetime for the SA.";
-                                            }
-
-                                            leaf packets {
-                                                type uint64;
-                                                mandatory true;
-                                                description
-                                                  "The configured packet-count lifetime for the SA.";
-                                            }
-                                        }
-
-                                        container ike-sa {
-                                            description
-                                              "Container for ike-sa";
-                                            leaf spi {
-                                                type leafref {
-                                                    path "../../../../../../../ike-sa/ipv4/security-associations/security-association/spi";
-                                                }
-                                                description
-                                                  "Reference to the parent IKE SA's SPI.";
-                                            }
-
-                                            leaf remote-address {
-                                                type leafref {
-                                                    path "../../../../../../../ike-sa/ipv4/security-associations/security-association/remote-address";
-                                                }
-                                                description
-                                                  "Reference to the parent IKE SA's remote address.";
-                                            }
-
-                                            leaf local-address {
-                                                type leafref {
-                                                    path "../../../../../../../ike-sa/ipv4/security-associations/security-association/local-address";
-                                                }
-                                                mandatory true;
-                                                description
-                                                  "Reference to the parent IKE SA's local address.";
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        container ipv6 {
-                            description
-                              "Container for ipv6";
-                            container security-associations {
-                                description
-                                  "Container for security-associations";
-                                list security-association {
-                                    key "spi destination-address protocol";
-                                    config false;
-                                    description
-                                      "List of Child SA security-association entries";
-                                    leaf spi {
-                                        type leafref {
-                                            path "../state/spi";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to Security Parameter Index (SPI), a key identifier for the child SA.";
-                                    }
-
-                                    leaf destination-address {
-                                        type leafref {
-                                            path "../state/destination-address";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to the destination IP address of the child SA.";
-                                    }
-
-                                    leaf protocol {
-                                        type leafref {
-                                            path "../state/protocol";
-                                        }
-                                        mandatory true;
-                                        description
-                                          "Reference to the IPsec protocol (ESP or AH).";
-                                    }
-
-                                    container state {
-                                        config false;
-                                        description
-                                          "State data";
-
-                                        container counters {
-                                            description
-                                              "Container for counters";
-                                            leaf bytes-processed {
-                                                type yang:counter64;
-                                                mandatory true;
-                                                description
-                                                  "The total number of bytes processed by this SA.";
-                                            }
-
-                                            leaf packets-processed {
-                                                type yang:counter64;
-                                                mandatory true;
-                                                description
-                                                  "The total number of packets processed by this SA.";
-                                            }
-                                        }
-
-                                        leaf spi {
-                                            type uint32;
-                                            mandatory true;
-                                            description
-                                              "The Security Parameter Index (SPI), a key identifier for the child SA.";
-                                        }
-
-                                        leaf destination-address {
-                                            type string;
-                                            mandatory true;
-                                            description
-                                              "The destination IP address.";
-                                        }
-
-                                        leaf protocol {
-                                            type identityref {
-                                                base IPSEC_PROTOCOL;
-                                            }
-                                            mandatory true;
-                                            description
-                                              "The IPsec protocol used for this SA.";
-                                        }
-
-                                        leaf active {
-                                            type boolean;
-                                            mandatory true;
-                                            description
-                                              "Indicates if the Child SA is currently active (true) or not (false).";
-                                        }
-
-                                        leaf direction {
-                                            type identityref {
-                                                base SA_DIRECTION;
-                                            }
-                                            mandatory true;
-                                            description
-                                              "The direction of the traffic protected by this SA.";
-                                        }
-
-                                        leaf anti-replay-window {
-                                            type uint16;
-                                            mandatory true;
-                                            description
-                                              "The size of the anti-replay window in use. The value 0 here means anti-replay detection is disabled.";
-                                        }
-
-                                        leaf source-address {
-                                            type string;
-                                            mandatory true;
-                                            description
-                                              "The source IP address of the SA.";
-                                        }
-
-                                        leaf encryption-algorithm {
-                                            type identityref {
-                                                base CRYPTO_TYPE;
-                                            }
-                                            mandatory true;
-                                            description
-                                              "The encryption algorithm in use for this SA.";
-                                        }
-
-                                        leaf integrity-algorithm {
-                                            type identityref {
-                                                base CRYPTO_TYPE;
-                                            }
-                                            mandatory true;
-                                            description
-                                              "The integrity/hash algorithm in use for this SA.";
-                                        }
-
-                                        leaf pfs-dh-group {
-                                            type identityref {
-                                                base DH_GROUP;
-                                            }
-                                            mandatory true;
-                                            description
-                                              "The PFS Diffie-Hellman group in use for this SA.";
-                                        }
-
-                                        container lifetime {
-                                            description
-                                              "Container for lifetime";
-                                            leaf sa-add-time {
-                                                type yang:date-and-time;
-                                                mandatory true;
-                                                description
-                                                  "The timestamp when the SA was added.";
-                                            }
-
-                                            leaf sa-rekey-time {
-                                                type yang:date-and-time;
-                                                mandatory true;
-                                                description
-                                                  "The timestamp for the next scheduled SA rekey operation.";
-                                            }
-                                        }
-
-                                        container lifetime-config {
-                                            description
-                                              "Container for lifetime-config";
-                                            leaf time {
-                                                type uint64;
-                                                mandatory true;
-                                                description
-                                                  "The configured time-based lifetime for the SA, in seconds.";
-                                            }
-
-                                            leaf bytes {
-                                                type uint64;
-                                                mandatory true;
-                                                description
-                                                  "The configured byte-count lifetime for the SA.";
-                                            }
-
-                                            leaf packets {
-                                                type uint64;
-                                                mandatory true;
-                                                description
-                                                  "The configured packet-count lifetime for the SA.";
-                                            }
-                                        }
-
-                                        container ike-sa {
-                                            description
-                                              "Container for ike-sa";
-                                            leaf spi {
-                                                type leafref {
-                                                    path "../../../../../../../ike-sa/ipv6/security-associations/security-association/spi";
-                                                }
-                                                description
-                                                  "Reference to the parent IKE SA's SPI.";
-                                            }
-
-                                            leaf remote-address {
-                                                type leafref {
-                                                    path "../../../../../../../ike-sa/ipv6/security-associations/security-association/remote-address";
-                                                }
-                                                description
-                                                  "Reference to the parent IKE SA's remote address.";
-                                            }
-
-                                            leaf local-address {
-                                                type leafref {
-                                                    path "../../../../../../../ike-sa/ipv6/security-associations/security-association/local-address";
-                                                }
-                                                mandatory true;
-                                                description
-                                                  "Reference to the parent IKE SA's local address.";
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                leaf name {
+                  type string;
+                  mandatory true;
+                  description
+                    "The name of the IPsec connection.";
                 }
+
+                leaf profile-name {
+                  // TODO this could be a leafref to a configured profile such as security/ipsec/profiles/profile/config/name
+                  type string;
+                  mandatory true;
+                  description
+                    "Reference to the configured IPsec profile name used by this connection.";
+                }
+
+                leaf tunnel-interface {
+                  type leafref {
+                    path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to the associated tunnel interface name.";
+                }
+
+                leaf status {
+                  type identityref {
+                    base CONNECTION_STATUS;
+                  }
+                  mandatory true;
+                  description
+                    "The current status of the IPsec connection.";
+                }
+
+                leaf local-address {
+                  type inet:ipv4-address;
+                  mandatory true;
+                  description
+                    "The local IP address of the IPsec connection.";
+                }
+
+                leaf remote-address {
+                  type inet:ipv4-address;
+                  mandatory true;
+                  description
+                    "The remote peer's IP address of the IPsec connection.";
+                }
+
+                leaf connection-uptime {
+                  type yang:date-and-time;
+                  mandatory true;
+                  description
+                    "The timestamp indicating when the connection was last active.";
+                }
+
+                leaf next-sa-rekey-time {
+                  type yang:date-and-time;
+                  mandatory true;
+                  description
+                    "The timestamp for the next scheduled rekey event for the Child SA within this connection.";
+                }
+
+                leaf error {
+                  type string;
+                  mandatory true;
+                  description
+                    "The error occurred on the IPsec connection.";
+                }
+
+                container counters {
+                  description
+                    "Container for counters";
+                  leaf input-bytes {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Total input bytes received on the IPsec connection.";
+                  }
+
+                  leaf input-packets {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Total input packets received on the IPsec connection.";
+                  }
+
+                  leaf output-bytes {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Total output bytes sent on the IPsec connection.";
+                  }
+
+                  leaf output-packets {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Total output packets sent on the IPsec connection.";
+                  }
+
+                  leaf replay-failure {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Count of packets dropped due to anti-replay failures during decryption.";
+                  }
+
+                  leaf integrity-failure {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Count of packets dropped due to integrity check failures during decryption.";
+                  }
+
+                  leaf encryption-failure {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Count of packets dropped due to encryption failures.";
+                  }
+                }
+              }
+
+              container ike-security-associations {
+                description
+                  "Container for ike-security-associations";
+                list security-association {
+                  key "initiator-spi responder-spi remote-address local-address";
+                  description
+                    "List of security-association entries";
+                  leaf initiator-spi {
+                    type leafref {
+                      path "../../../../../../../ike/ike-sa/ipv4/security-associations/security-association/initiator-spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's SPI.";
+                  }
+                  leaf responder-spi {
+                    type leafref {
+                      path "../../../../../../../ike/ike-sa/ipv4/security-associations/security-association/responder-spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's SPI.";
+                  }
+
+                  leaf remote-address {
+                    type leafref {
+                      path "../../../../../../../ike/ike-sa/ipv4/security-associations/security-association/remote-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's remote address.";
+                  }
+
+                  leaf local-address {
+                    type leafref {
+                      path "../../../../../../../ike/ike-sa/ipv4/security-associations/security-association/local-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's local address.";
+                  }
+                }
+              }
+
+              container child-security-associations {
+                description
+                  "Container for child-security-associations";
+                list security-association {
+                  key "spi destination-address protocol";
+                  description
+                    "List of security-association entries";
+                  leaf spi {
+                    type leafref {
+                      path "../../../../../../../ike/child-sa/ipv4/security-associations/security-association/spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's SPI.";
+                  }
+
+                  leaf destination-address {
+                    type leafref {
+                      path "../../../../../../../ike/child-sa/ipv4/security-associations/security-association/destination-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's destination address.";
+                  }
+
+                  leaf protocol {
+                    type leafref {
+                      path "../../../../../../../ike/child-sa/ipv4/security-associations/security-association/protocol";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's protocol.";
+                  }
+                }
+              }
             }
+          }
         }
+
+        container ipv6 {
+          description
+            "Container for ipv6";
+          container connections {
+            description
+              "Container for connections";
+            list connection {
+              key "name";
+              config false;
+              description
+                "List of IPsec connection entries";
+              leaf name {
+                type leafref {
+                  path "../state/name";
+                }
+                mandatory true;
+                description
+                  "Reference to the IPsec connection name";
+              }
+
+              container state {
+                config false;
+                description
+                  "State container";
+
+                leaf name {
+                  type string;
+                  mandatory true;
+                  description
+                    "The name of the IPsec connection.";
+                }
+
+                leaf profile-name {
+                  // TODO this could be a leafref to a configured profile such as security/ipsec/profiles/profile/config/name
+                  type string;
+                  mandatory true;
+                  description
+                    "Reference to the configured IPsec profile name used by this connection.";
+                }
+
+                leaf tunnel-interface {
+                  type leafref {
+                    path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+                  }
+                  mandatory true;
+                  description
+                    "Reference to the associated tunnel interface name.";
+                }
+
+                leaf status {
+                  type identityref {
+                    base CONNECTION_STATUS;
+                  }
+                  mandatory true;
+                  description
+                    "The current status of the IPsec connection.";
+                }
+
+                leaf local-address {
+                  type inet:ipv6-address;
+                  mandatory true;
+                  description
+                    "The local IP address of the IPsec connection.";
+                }
+
+                leaf remote-address {
+                  type inet:ipv6-address;
+                  mandatory true;
+                  description
+                    "The remote peer's IP address of the IPsec connection.";
+                }
+
+                leaf connection-uptime {
+                  type yang:date-and-time;
+                  mandatory true;
+                  description
+                    "The timestamp indicating when the connection was last active.";
+                }
+
+                leaf next-sa-rekey-time {
+                  type yang:date-and-time;
+                  mandatory true;
+                  description
+                    "The timestamp for the next scheduled rekey event for the Child SA within this connection.";
+                }
+
+                leaf error {
+                  type string;
+                  mandatory true;
+                  description
+                    "The error occurred on the IPsec connection.";
+                }
+
+                container counters {
+                  description
+                    "Container for counters";
+                  leaf input-bytes {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Total input bytes received on the IPsec connection.";
+                  }
+
+                  leaf input-packets {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Total input packets received on the IPsec connection.";
+                  }
+
+                  leaf output-bytes {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Total output bytes sent on the IPsec connection.";
+                  }
+
+                  leaf output-packets {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Total output packets sent on the IPsec connection.";
+                  }
+
+                  leaf replay-failure {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Count of packets dropped due to anti-replay failures during decryption.";
+                  }
+
+                  leaf integrity-failure {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Count of packets dropped due to integrity check failures during decryption.";
+                  }
+
+                  leaf encryption-failure {
+                    type yang:counter64;
+                    mandatory true;
+                    description
+                      "Count of packets dropped due to encryption failures.";
+                  }
+                }
+              }
+
+              container ike-security-associations {
+                description
+                  "Container for ike-security-associations";
+                list security-association {
+                  key "initiator-spi responder-spi remote-address local-address";
+                  description
+                    "List of security-association entries";
+                  leaf initiator-spi {
+                    type leafref {
+                      path "../../../../../../../ike/ike-sa/ipv6/security-associations/security-association/initiator-spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's SPI.";
+                  }
+                  leaf responder-spi {
+                    type leafref {
+                      path "../../../../../../../ike/ike-sa/ipv6/security-associations/security-association/responder-spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's SPI.";
+                  }
+
+                  leaf remote-address {
+                    type leafref {
+                      path "../../../../../../../ike/ike-sa/ipv6/security-associations/security-association/remote-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's remote address.";
+                  }
+
+                  leaf local-address {
+                    type leafref {
+                      path "../../../../../../../ike/ike-sa/ipv6/security-associations/security-association/local-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's local address.";
+                  }
+                }
+              }
+
+              container child-security-associations {
+                description
+                  "Container for child-security-associations";
+                list security-association {
+                  key "spi destination-address protocol";
+                  description
+                    "List of security-association entries";
+                  leaf spi {
+                    type leafref {
+                      path "../../../../../../../ike/child-sa/ipv6/security-associations/security-association/spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's SPI.";
+                  }
+
+                  leaf destination-address {
+                    type leafref {
+                      path "../../../../../../../ike/child-sa/ipv6/security-associations/security-association/destination-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's destination address.";
+                  }
+
+                  leaf protocol {
+                    type leafref {
+                      path "../../../../../../../ike/child-sa/ipv6/security-associations/security-association/protocol";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's protocol.";
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
+  }
+
+  // augment statements
+  augment "/oc-ni:network-instances/oc-ni:network-instance" {
+    description
+      "Add security grouping to the network-instances tree.";
+
+    uses security-top;
+  }
+// rpc statements
+// notification statements
 }
