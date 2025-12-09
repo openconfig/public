@@ -23,7 +23,7 @@ module openconfig-lldp-types {
 
   oc-ext:openconfig-version "0.2.0";
 
-  revision "2025-05-02" {
+  revision "2025-12-09" {
     description
       "Add Management interface numbering subtype typedef.";
     reference "0.2.0";
@@ -313,17 +313,20 @@ module openconfig-lldp-types {
       enum UNKNOWN {
         value 1;
         description
-          "Interface is not known";
+          "Represents the case where the interface is not known. In this
+          case, the corresponding interface number is of zero length.";
       }
       enum IFINDEX {
         value 2;
         description
-          "Interface is based on the IF-MIB ifIndex";
+          "Represents interface identifier based on the ifIndex MIB
+          object.";
       }
       enum SYSTEM_PORT_NUMBER {
         value 3;
         description
-          "Interface is based on the system port number";
+          "Represents interface identifier based on the system port
+          numbering convention.";
       }
     }
     description
