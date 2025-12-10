@@ -28,7 +28,14 @@ module openconfig-mpls-rsvp {
      parameters and LSP-specific configuration for constrained-path
      LSPs";
 
-  oc-ext:openconfig-version "4.0.1";
+  oc-ext:openconfig-version "4.0.2";
+
+  revision "2025-12-10" {
+    description
+      "Add bypass-tunnel leaf-list to RSVP-TE interface protection 
+      attributes for explicit bypass tunnel assignment.";
+    reference "4.0.2";
+  }
 
   revision "2023-02-06" {
     description
@@ -428,6 +435,16 @@ module openconfig-mpls-rsvp {
         of the bypass LSPs";
       // note: this is interface specific on juniper
       // on iox, this is global. need to resolve.
+    }
+
+    leaf-list bypass-tunnel {
+      type leafref {
+        path "../../../../../../../" +
+          "lsps/constrained-path/tunnels/tunnel/name";
+      }
+      description
+        "list of references to named tunnels to be used 
+        as bypass LSPs.";
     }
     // to be completed, things like enabling link protection,
     // optimization times, etc.
