@@ -1,0 +1,56 @@
+module openconfig-security {
+  yang-version "1";
+  namespace "http://openconfig.net/yang/security";
+  prefix "oc-sec";
+
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+
+  import openconfig-network-instance {
+    prefix oc-ni;
+  }
+
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+     www.openconfig.net";
+
+  description
+    "This module defines top-level configuration and operational
+     state data related to security.
+     
+     For modularity purposes, the top-level sampling container provides
+     a natural attachment point for implementations such as ipsec, ike,
+     and certificates.";
+
+  revision 2025-12-11 {
+    description
+      "Initial revision";
+    reference
+      "0.1.0";
+  }
+
+  oc-ext:openconfig-version "0.1.0";
+
+  grouping security-top {
+    description
+      "Top level security containers";
+
+    container security {
+      description
+        "Top-level container for security-related configuration and
+         operational state data";
+    }
+  }
+
+  // augment statements
+  augment "/oc-ni:network-instances/oc-ni:network-instance" {
+    description
+      "Add security grouping to the network-instances tree.";
+
+    uses security-top;
+  }
+}
