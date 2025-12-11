@@ -214,17 +214,19 @@ module openconfig-security-ipsec {
                 key "initiator-spi responder-spi remote-address local-address";
                 description
                   "List of security-association entries";
+
                 leaf initiator-spi {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:initiator-spi";
+                    path "../state/initiator-spi";
                   }
                   mandatory true;
                   description
                     "Reference to the IKE SA's SPI.";
                 }
+
                 leaf responder-spi {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:responder-spi";
+                    path "../state/responder-spi";
                   }
                   mandatory true;
                   description
@@ -233,7 +235,7 @@ module openconfig-security-ipsec {
 
                 leaf remote-address {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:remote-address";
+                    path "../state/remote-address";
                   }
                   mandatory true;
                   description
@@ -242,11 +244,45 @@ module openconfig-security-ipsec {
 
                 leaf local-address {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:local-address";
+                    path "../state/local-address";
                   }
                   mandatory true;
                   description
                     "Reference to the IKE SA's local address.";
+                }
+                container state {
+                  leaf initiator-spi {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:initiator-spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's SPI.";
+                  }
+                  leaf responder-spi {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:responder-spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's SPI.";
+                  }
+                  leaf remote-address {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:remote-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's remote address.";
+                  }
+                  leaf local-address {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:local-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's local address.";
+                  }
                 }
               }
             }
@@ -463,7 +499,7 @@ module openconfig-security-ipsec {
                   "List of security-association entries";
                 leaf initiator-spi {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:initiator-spi";
+                    path "../state/initiator-spi";
                   }
                   mandatory true;
                   description
@@ -471,7 +507,7 @@ module openconfig-security-ipsec {
                 }
                 leaf responder-spi {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:responder-spi";
+                    path "../state/responder-spi";
                   }
                   mandatory true;
                   description
@@ -480,7 +516,7 @@ module openconfig-security-ipsec {
 
                 leaf remote-address {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:remote-address";
+                    path "../state/remote-address";
                   }
                   mandatory true;
                   description
@@ -489,11 +525,47 @@ module openconfig-security-ipsec {
 
                 leaf local-address {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:local-address";
+                    path "../state/local-address";
                   }
                   mandatory true;
                   description
                     "Reference to the IKE SA's local address.";
+                }
+                container state {
+                  leaf initiator-spi {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:initiator-spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's SPI.";
+                  }
+                  leaf responder-spi {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:responder-spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's SPI.";
+                  }
+
+                  leaf remote-address {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:remote-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's remote address.";
+                  }
+
+                  leaf local-address {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:local-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the IKE SA's local address.";
+                  }
                 }
               }
             }
