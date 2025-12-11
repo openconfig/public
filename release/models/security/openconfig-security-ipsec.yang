@@ -260,29 +260,46 @@ module openconfig-security-ipsec {
                   "List of security-association entries";
                 leaf spi {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:spi";
+                    path "../state/spi";
                   }
-                  mandatory true;
-                  description
-                    "Reference to the Child SA's SPI.";
                 }
-
                 leaf destination-address {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:destination-address";
+                    path "../state/destination-address";
                   }
-                  mandatory true;
-                  description
-                    "Reference to the Child SA's destination address.";
                 }
-
                 leaf protocol {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:protocol";
+                    path "../state/protocol";
                   }
-                  mandatory true;
-                  description
-                    "Reference to the Child SA's protocol.";
+                }
+                container state {
+                  leaf spi {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's SPI.";
+                  }
+
+                  leaf destination-address {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:destination-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's destination address.";
+                  }
+
+                  leaf protocol {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:protocol";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's protocol.";
+                  }
                 }
               }
             }
@@ -490,29 +507,48 @@ module openconfig-security-ipsec {
                   "List of security-association entries";
                 leaf spi {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:spi";
+                    path "../state/spi";
                   }
-                  mandatory true;
-                  description
-                    "Reference to the Child SA's SPI.";
                 }
-
                 leaf destination-address {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:destination-address";
+                    path "../state/destination-address";
                   }
-                  mandatory true;
-                  description
-                    "Reference to the Child SA's destination address.";
                 }
-
                 leaf protocol {
                   type leafref {
-                    path "../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:protocol";
+                    path "../state/protocol";
                   }
-                  mandatory true;
+                }
+                container state {
                   description
-                    "Reference to the Child SA's protocol.";
+                    "State for child -security-association entries";
+                  leaf spi {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:spi";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's SPI.";
+                  }
+
+                  leaf destination-address {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:destination-address";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's destination address.";
+                  }
+
+                  leaf protocol {
+                    type leafref {
+                      path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:protocol";
+                    }
+                    mandatory true;
+                    description
+                      "Reference to the Child SA's protocol.";
+                  }
                 }
               }
             }
