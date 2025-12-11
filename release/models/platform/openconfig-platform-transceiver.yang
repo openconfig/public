@@ -820,11 +820,25 @@ module openconfig-platform-transceiver {
     }
 
     leaf fec-uncorrectable-blocks {
-      type yang:counter64;
+      type oc-yang:counter64;
       description
-        "The number of blocks that were uncorrectable by the FEC";
+        "The number of block/codeword that were uncorrectable by
+        the FEC;
+        Applicable if fec-mode is not NONE.
+        This is IEEE802.3 clause 119.3.3 (also IEEE802.3df clause
+        172.3.3 for 800GE) FEC_uncorrected_cw_counter.";
     }
 
+    leaf fec-corrected-blocks {
+      type oc-yang:counter64;
+      description
+        "The number of words/symbols that were corrected by
+        the FEC;
+        Applicable if fec-mode is not NONE.
+        This is IEEE802.3 clause 119.3.2 (also IEEE802.3df clause
+        172.3.2 for 800GE) FEC_corrected_cw_counter";
+    }
+    
     leaf fec-uncorrectable-words {
       type yang:counter64;
       description
