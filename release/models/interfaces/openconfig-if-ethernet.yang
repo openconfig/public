@@ -31,8 +31,8 @@ module openconfig-if-ethernet {
 
   revision "2025-11-20" {
     description
-      "Add ethernet FEC statistics - fec-uncorrectable-blocks
-      and per-/post-FEC BER statics.
+      "Add ethernet FEC statistics - fec-uncorrectable-blocks,
+      fec-corrected-blocks and per-/post-FEC BER statics.
       Deprecate in-block-errors as it is ambigous.";
     reference "2.16.0";
   }
@@ -448,6 +448,16 @@ module openconfig-if-ethernet {
         172.3.3 for 800GE) FEC_uncorrected_cw_counter.";
     }
 
+    leaf fec-corrected-blocks {
+      type oc-yang:counter64;
+      description
+        "The number of words/symbols that were corrected by
+        the FEC;
+        Applicable if fec-mode is not NONE.
+        This is IEEE802.3 clause 119.3.2 (also IEEE802.3df clause
+        172.3.2 for 800GE) FEC_corrected_cw_counter";
+    }
+
     leaf in-mac-control-frames {
       type oc-yang:counter64;
       description
@@ -726,30 +736,6 @@ module openconfig-if-ethernet {
         instant value. Applicable id gec-mode is not NONE.";
 
       uses oc-opt-types:avg-min-max-instant-stats-precision18-ber;
-    }
-
-    container q-value {
-      description
-        "Quality value (factor) in dB of a channel with two
-        decimal precision. Values include the instantaneous,
-        average, minimum, and maximum statistics. If avg/min/max
-        statistics are not supported, the target is expected
-        to just supply the instant value";
-
-      uses oc-types:avg-min-max-instant-stats-precision2-dB;
-    }
-
-    container esnr {
-      description
-        "Electrical signal to noise ratio. Baud rate
-        normalized signal to noise ratio based on
-        error vector magnitude in dB with two decimal
-        precision. Values include the instantaneous, average,
-        minimum, and maximum statistics. If avg/min/max
-        statistics are not supported, the target is expected
-        to just supply the instant value";
-
-      uses oc-types:avg-min-max-instant-stats-precision2-dB;
     }
   }
 
