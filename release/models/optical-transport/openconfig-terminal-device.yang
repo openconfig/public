@@ -606,13 +606,6 @@ module openconfig-terminal-device {
       "Counters and multi-value statistics for FEC-related error
       performance";
 
-    leaf fec-uncorrectable-blocks {
-      type yang:counter64;
-      description
-        "The number of blocks or frames that were uncorrectable by
-        the FEC";
-    }
-
     container pre-fec-ber {
       description
         "Bit error rate before forward error correction -- computed
@@ -684,6 +677,12 @@ module openconfig-terminal-device {
         type string;
         description
           "Remote defect indication (RDI) message received";
+      }
+      leaf fec-uncorrectable-blocks {
+        type yang:counter64;
+        description
+          "The number of blocks or frames that were uncorrectable by
+          the FEC";
       }
       uses terminal-otn-protocol-counter-stats;
       uses terminal-phy-protocol-stats {
