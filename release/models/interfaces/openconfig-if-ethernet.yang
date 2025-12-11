@@ -31,8 +31,8 @@ module openconfig-if-ethernet {
 
   revision "2025-11-20" {
     description
-      "Add ethernet FEC statistics - fec-uncorrectable-blocks,
-      fec-uncorrectable-words and per-/post-FEC BER statics.
+      "Add ethernet FEC statistics - fec-uncorrectable-blocks
+      and per-/post-FEC BER statics.
       Deprecate in-block-errors as it is ambigous.";
     reference "2.16.0";
   }
@@ -443,15 +443,9 @@ module openconfig-if-ethernet {
       description
         "The number of block/codeword that were uncorrectable by
         the FEC;
-        Applicable if fec-mode is not NONE.";
-    }
-
-    leaf fec-uncorrectable-words {
-      type oc-yang:counter64;
-      description
-        "The number of words/symbols that were uncorrectable by
-        the FEC;
-        Applicable if fec-mode is not NONE.";
+        Applicable if fec-mode is not NONE.
+        This is IEEE802.3 clause 119.3.3 (also IEEE802.3df clause
+        172.3.3 for 800GE) FEC_uncorrected_cw_counter.";
     }
 
     leaf in-mac-control-frames {
