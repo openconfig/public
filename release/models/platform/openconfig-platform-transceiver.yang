@@ -66,7 +66,14 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.17.0";
+  oc-ext:openconfig-version "0.18.0";
+
+  revision "2025-12-11" {
+    description
+      "Add fec-corrected-blocks leaf; Update description of
+      fec-uncorrectable-blocks w/ reference to IEEE";
+    reference "0.18.0";
+  }
 
   revision "2025-07-21" {
     description
@@ -829,8 +836,8 @@ module openconfig-platform-transceiver {
         172.3.3 for 800GE) FEC_uncorrected_cw_counter.";
     }
 
-    leaf fec-corrected-blocks {
-      type oc-yang:counter64;
+    leaf fec-corrected-blocks { 
+      type oc-yang:counter64; 
       description
         "The number of words/symbols that were corrected by
         the FEC;
@@ -838,7 +845,7 @@ module openconfig-platform-transceiver {
         This is IEEE802.3 clause 119.3.2 (also IEEE802.3df clause
         172.3.2 for 800GE) FEC_corrected_cw_counter";
     }
-    
+
     leaf fec-uncorrectable-words {
       type yang:counter64;
       description
