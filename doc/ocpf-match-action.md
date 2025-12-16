@@ -91,7 +91,6 @@ rendering will be replaced with a real rendering of the yang tree.
 +                            +--rw forwarding-action?    # enum (DROP,ACCEPT,REJECT)
 +                            +--rw forwarding-group?     ->  qos/forwarding-group
 +                            +--rw log?                  boolean
-+                            +--rw fabric-priority?      uint8 # same as qos fabric-priority
 +                            +--rw mpls-traffic-class?   oc-mplst:mpls-tc
                              +--rw network-instance?
                              +--rw next-hop?
