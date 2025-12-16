@@ -7,6 +7,10 @@ submodule openconfig-pf-forwarding-policies {
   import openconfig-packet-match { prefix "oc-pmatch"; }
   import openconfig-yang-types { prefix "oc-yang"; }
   import openconfig-inet-types { prefix "oc-inet"; }
+  import openconfig-types { prefix "oc-types"; }
+  import openconfig-inet-types { prefix "oc-inet-types";}
+  import openconfig-qos { prefix "oc-qos";}
+  import openconfig-mpls-types { prefix "oc-mplst";}
 
   include openconfig-pf-path-groups;
 
@@ -23,11 +27,18 @@ submodule openconfig-pf-forwarding-policies {
 
   oc-ext:openconfig-version "1.1.0";
 
-  revision "2025-12-15" {
+  revision "2025-12-16" {
     description
       "Add MATCH_ACTION_POLICY type and set conditions for actions which
       intended to be used by MATCH_ACTION_POLICY and PBR_POLICY.";
     reference "1.1.0";
+  }
+
+  revision "2025-12-15" {
+    description
+      "Set model version to 1.0.0 as it is noted that multiple implementations
+      support this model and have production deployments.";
+    reference "1.0.0";
   }
 
   revision "2025-09-30" {
@@ -108,6 +119,29 @@ submodule openconfig-pf-forwarding-policies {
     description
       "Initial revision";
     reference "0.0.1";
+  }
+
+  identity FORWARDING_ACTION {
+    description
+      "Base identity for actions in the forwarding category";
+  }
+
+  identity FORWARD {
+    base FORWARDING_ACTION;
+    description
+      "Send the packet.";
+  }
+
+  identity DROP {
+    base FORWARDING_ACTION;
+    description
+      "Drop packet without sending any ICMP error message.";
+  }
+
+  identity REJECT {
+    base FORWARDING_ACTION;
+    description
+      "Drop the packet and send an ICMP error message to the source";
   }
 
   grouping pf-forwarding-policy-structural {
@@ -254,7 +288,8 @@ submodule openconfig-pf-forwarding-policies {
             which include setting the next-hop, re-writing packet field and
             setting qos forwarding groups.  Actions intended to be used with
             MATCH_ACTION_POLICY are indicated by a where statement in the
-            action leaf.";
+            action leaf.  Match action policies are defined in more detail at
+            https://github.com/openconfig/public/doc/ocpf-match-action.md.";
         }
       }
       default PBR_POLICY;
@@ -274,6 +309,22 @@ submodule openconfig-pf-forwarding-policies {
       type uint32;
       description
         "Unique sequence number for the policy rule.";
+    }
+
+    leaf address-family {
+      type identityref {
+        base oc-types:ADDRESS_FAMILY;
+      }
+      description
+        "The type determines the address family allowed in the
+        policy-fowarding match entries belonging to the rule.";
+    }
+
+    leaf name {
+      type string;
+      description
+      "A user defined name for a rule, used to give a user friendly
+      description of the rule.";
     }
   }
 
@@ -300,6 +351,7 @@ submodule openconfig-pf-forwarding-policies {
 
     leaf discard {
       type boolean;
+      status deprecated;
       default false;
       description
         "When this leaf is set to true, the local system should drop
@@ -360,6 +412,49 @@ submodule openconfig-pf-forwarding-policies {
         NI specified by this leaf might contain different mixed next hop
         actions (e.g. next hop IP, decapsulation, redirect to another NI,
         etc).";
+    }
+
+    leaf dscp {
+      when "../../../../../config/type = 'MATCH_ACTION_POLICY'";
+      type oc-inet-types:dscp;
+      description
+        "Set the matching packet DSCP value.";
+    }
+  
+    leaf forwarding-action {
+      when "../../../../../config/type = 'MATCH_ACTION_POLICY'";
+      type identityref {
+        base FORWARDING_ACTION;
+      }
+      default FORWARD;
+      description
+        "Specifies the if the packet should be forwarded.  One forwarding
+        action must be specified for each rule.";
+    }
+
+    leaf forwarding-group {
+      when "../../../../../config/type = 'MATCH_ACTION_POLICY'";
+      type leafref {
+        path "/oc-qos:qos/oc-qos:forwarding-groups/oc-qos:forwarding-group/oc-qos:config/oc-qos:name";
+      }
+      description
+      "When set, the packet should be mapped into the specified qos
+      forwarding-group. The policy-forwarding rule functions as a qos classfier.";
+    }
+
+    leaf log {
+      type boolean;
+      description
+        "Create a system logging message when this rule is matched.  Note,
+        this is intended to be used for debugging purposes.  Enabling per
+        packet logging is expected to have significant performance
+        limitations.";
+    }
+
+    leaf mpls-traffic-class {
+      type oc-mplst:mpls-tc;
+      description
+        "Set the MPLS traffic class (EXP) value.";
     }
 
     leaf post-decap-network-instance {
@@ -452,6 +547,7 @@ submodule openconfig-pf-forwarding-policies {
     }
 
     leaf ip-ttl {
+      when "../../../../../config/type='MATCH_ACTION_POLICY'";
       type uint8;
       description
         "If set, this leaf causes the local system to not decrement the TTL
@@ -462,7 +558,6 @@ submodule openconfig-pf-forwarding-policies {
         not affected by this policy and should be processed according to
         normal forwarding rules.";
     }
-
   }
 
   grouping pf-forwarding-policy-action-encapsulate-gre {
