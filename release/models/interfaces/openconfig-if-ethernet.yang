@@ -451,12 +451,14 @@ module openconfig-if-ethernet {
 
     leaf fec-corrected-blocks {
       type oc-yang:counter64;
-      description
-        "The number of words/symbols that were corrected by
-        the FEC;
-        Applicable if fec-mode is not NONE.
-        This is IEEE802.3 clause 119.3.2 (also IEEE802.3df clause
-        172.3.2 for 800GE) FEC_corrected_cw_counter";
+      when "../../config/fec-mode != 'FEC_DISABLED'" {
+        description
+          "The number of words/symbols that were corrected by
+          the FEC;
+          Applicable if fec-mode is not NONE.
+          This is IEEE802.3 clause 119.3.2 (also IEEE802.3df clause
+          172.3.2 for 800GE) FEC_corrected_cw_counter";
+      }
     }
 
     leaf in-mac-control-frames {
