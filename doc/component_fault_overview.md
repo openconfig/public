@@ -10,7 +10,7 @@
 
 This proposal introduces a list of faults under a component's healthz container.
 
-A fault indicates that a component has recently or is currently experiencing a problem as expressed by a symptom. These symptoms have underlying conditions that are platform-specific. The fault should not be deleted as soon as the underlying condition is no longer asserted to avoid excessive fault creation and deletion. Deletion of the fault should occur after a suitable period outside of the triggering condition
+A fault indicates that a component has recently or is currently experiencing a problem as expressed by a symptom. These symptoms have underlying conditions that are platform-specific. The fault should not be deleted as soon as the underlying condition is no longer asserted to avoid excessive fault creation and deletion. Deletion of the fault should occur after a suitable period outside of the triggering condition. The `status` leaf should be updated to `INACTIVE` to indicate that the fault has entered this cooldown period.
 
 Nested under each fault is a list of actions recommended to remediate the fault condition.
 
