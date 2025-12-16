@@ -7,7 +7,8 @@ submodule openconfig-pf-forwarding-policies {
   import openconfig-packet-match { prefix "oc-pmatch"; }
   import openconfig-yang-types { prefix "oc-yang"; }
   import openconfig-inet-types { prefix "oc-inet"; }
-
+  import openconfig-user-counters { prefix "oc-user-counters"; }
+  
   include openconfig-pf-path-groups;
 
   organization
@@ -279,6 +280,15 @@ submodule openconfig-pf-forwarding-policies {
   grouping pf-forwarding-policy-action-config {
     description
       "Forwarding policy action configuration parameters.";
+
+    leaf count {
+      type leafref {
+        path "/user-counters/user-counter/config/name";
+      }
+      description
+        "When specified, the system will increment the referenced user
+        defined counter.";
+    }
 
     leaf discard {
       type boolean;
