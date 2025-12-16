@@ -441,24 +441,27 @@ module openconfig-if-ethernet {
       type oc-yang:counter64;
       when "../../config/fec-mode != 'FEC_DISABLED'" {
         description
-          "The number of block/codeword that were uncorrectable by
-          the FEC;
-          Applicable if fec-mode is not FEC_DISABLED.
-          This is IEEE802.3 clause 119.3.3 (also IEEE802.3df clause
-          172.3.3 for 800GE) FEC_uncorrected_cw_counter.";
+          "Applicable if FEC is enabled.";
       }
+      description
+        "The number of block/codeword that were uncorrectable by
+        the FEC;
+        This is IEEE802.3 clause 119.3.3 (also IEEE802.3df clause
+        172.3.3 for 800GE) FEC_uncorrected_cw_counter.";
     }
 
     leaf fec-corrected-blocks {
       type oc-yang:counter64;
       when "../../config/fec-mode != 'FEC_DISABLED'" {
         description
-          "The number of words/symbols that were corrected by
-          the FEC;
-          Applicable if fec-mode is not NONE.
-          This is IEEE802.3 clause 119.3.2 (also IEEE802.3df clause
-          172.3.2 for 800GE) FEC_corrected_cw_counter";
+          "Applicable if FEC is enabled.";
       }
+      description
+        "The number of words/symbols that were corrected by
+        the FEC;
+        Applicable if fec-mode is not NONE.
+        This is IEEE802.3 clause 119.3.2 (also IEEE802.3df clause
+        172.3.2 for 800GE) FEC_corrected_cw_counter";
     }
 
     leaf in-mac-control-frames {
