@@ -15,73 +15,87 @@ module openconfig-user-counters {
 
   contact
     "OpenConfig working group
-    www.openconfig.net";
+     www.openconfig.net";
 
   description
     "This module defines a top-level container for user-defined counters.
-    These counters can be referenced by other OpenConfig models to allow
-    users to track statistics for specific policies, rules, or other
-    configuration entities.";
+     These counters can be referenced by other OpenConfig models to allow
+     users to track statistics for specific policies, rules, or other
+     configuration entities.";
 
   oc-ext:openconfig-version "0.1.0";
 
   revision "2025-12-16" {
     description
-      "Initial public release of the user-counters model.";
-    reference "0.1.0";
+      "Initial release of the user-counters model.";
+    reference
+      "0.1.0";
   }
 
-  container user-counters {
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  grouping user-counters-top {
     description
-      "Top-level container for user-defined counters.";
+      "Top-level grouping for user-defined counters.";
 
-    list user-counter {
-      key "name";
-
+    container user-counters {
       description
-        "A user-defined counter. It can be used for counting packets or
-        bytes for a particular feature, e.g., a policy forwarding rule.";
+        "Top-level container for user-defined counters.";
 
-      leaf name {
-        type leafref {
-          path "../config/name";
-        }
-        description
-          "Reference to the name of the user-defined counter.";
-      }
+      list user-counter {
+        key "name";
 
-      container config {
         description
-          "Configuration parameters for the user-defined counter.";
+          "A user-defined counter. It can be used for counting packets or
+           bytes for a particular feature, e.g., a policy forwarding rule.";
 
         leaf name {
-          type string;
+          type leafref {
+            path "../config/name";
+          }
           description
-            "A unique name for the user-defined counter.";
-        }
-      }
-
-      container state {
-        config false;
-        description
-          "Operational state parameters for the user-defined counter.";
-
-        leaf name {
-          type string;
-          description
-            "A unique name for the user-defined counter.";
+            "Reference to the name of the user-defined counter.";
         }
 
-        container counters {
+        container config {
           description
-            "A container for the counter values.";
-          leaf value {
-            type oc-yang:counter64;
+            "Configuration parameters for the user-defined counter.";
+
+          leaf name {
+            type string;
             description
-              "The current value of the user-defined counter.";
+              "A unique name for the user-defined counter.";
+          }
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters for the user-defined counter.";
+
+          leaf name {
+            type string;
+            description
+              "A unique name for the user-defined counter.";
+          }
+
+          container counters {
+            description
+              "A container for the counter values.";
+            leaf value {
+              type oc-yang:counter64;
+              description
+                "The current value of the user-defined counter.";
+            }
           }
         }
       }
     }
   }
+
+
+  uses user-counters-top;
+
 }
