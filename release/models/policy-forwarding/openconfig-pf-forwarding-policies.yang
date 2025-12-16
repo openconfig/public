@@ -7,8 +7,8 @@ submodule openconfig-pf-forwarding-policies {
   import openconfig-packet-match { prefix "oc-pmatch"; }
   import openconfig-yang-types { prefix "oc-yang"; }
   import openconfig-inet-types { prefix "oc-inet"; }
-  import openconfig-user-counters { prefix "oc-user-counters"; }
-  
+  import openconfig-user-counters { prefix "oc-uc"; }
+
   include openconfig-pf-path-groups;
 
   organization
@@ -283,7 +283,7 @@ submodule openconfig-pf-forwarding-policies {
 
     leaf count {
       type leafref {
-        path "/user-counters/user-counter/config/name";
+        path "/oc-uc:user-counters/oc-uc:user-counter/oc-uc:config/oc-uc:name";
       }
       description
         "When specified, the system will increment the referenced user
@@ -414,7 +414,7 @@ submodule openconfig-pf-forwarding-policies {
     }
 
     leaf next-hop-group {
-      // we are at /network-instances/network-instance/policy-forwarding/policies/policy/rules/rule/action/config/next-hop-group	
+      // we are at /network-instances/network-instance/policy-forwarding/policies/policy/rules/rule/action/config/next-hop-group
       type leafref {
         path "../../../../../../../../static/next-hop-groups/next-hop-group/config/name";
       }
