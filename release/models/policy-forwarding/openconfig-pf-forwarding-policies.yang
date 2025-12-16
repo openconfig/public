@@ -21,7 +21,14 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "0.10.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2025-12-15" {
+    description
+      "Add MATCH_ACTION_POLICY type and set conditions for actions which
+      intended to be used by MATCH_ACTION_POLICY and PBR_POLICY.";
+    reference "1.1.0";
+  }
 
   revision "2025-09-30" {
     description
@@ -237,6 +244,17 @@ submodule openconfig-pf-forwarding-policies {
           description
             "The policy is used only to classify incoming packets into corresponding
             network instances.";
+        }
+        enum MATCH_ACTION_POLICY {
+          description
+            "A policy which defines one or more packet match criteria rules
+            and one or more actions to perform on matched packets.  While
+            PBR_POLICY generally supports setting the next-hop as an action,
+            MATCH_ACTION_POLICY allows a wide variety of actions to be combined
+            which include setting the next-hop, re-writing packet field and
+            setting qos forwarding groups.  Actions intended to be used with
+            MATCH_ACTION_POLICY are indicated by a where statement in the
+            action leaf.";
         }
       }
       default PBR_POLICY;
