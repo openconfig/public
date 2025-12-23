@@ -12,6 +12,7 @@ module openconfig-aaa {
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-aaa-types { prefix oc-aaa-types; }
+  import openconfig-network-instance { prefix "oc-ni"; }
 
   include openconfig-aaa-tacacs;
   include openconfig-aaa-radius;
@@ -32,7 +33,13 @@ module openconfig-aaa {
     Portions of this model reuse data definitions or structure from
     RFC 7317 - A YANG Data Model for System Management";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2024-05-03" {
+    description
+      "Use reference of servers in server groups";
+      reference "1.1.0";
+  }
 
   revision "2022-07-29" {
     description
@@ -124,6 +131,66 @@ module openconfig-aaa {
     //TODO: add list of group members as opstate
   }
 
+  grouping aaa-servergroup-member-config {
+    description
+      "Common configuration data for server group member";
+
+    leaf name {
+      type leafref {
+        // Reference to /system/aaa/servers/server/name
+        path "../../../../../../servers/server/name";
+      }
+      description
+        "Reference to the name of the server group member";
+    }
+  }
+
+  grouping aaa-servergroup-member-state {
+    description
+      "Operational state data for server group member";
+  }
+
+  grouping aaa-servergroup-member-top {
+    description
+      "Top-level grouping for list of AAA servers";
+
+    container group-members {
+      description
+        "Enclosing container for server group members";
+
+      list group-member {
+        key "name";
+        description
+          "List of server group members";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the name of the server group member";
+        }
+
+        container config {
+          description
+            "Configuration data ";
+
+          uses aaa-servergroup-member-config;
+        }
+
+        container state {
+          config false;
+
+          description
+            "Operational state data ";
+
+          uses aaa-servergroup-member-config;
+          uses aaa-servergroup-common-state;
+        }
+      }
+    }
+  }
+
   grouping aaa-servergroup-common-top {
     description
       "Top-level grouping for AAA server groups";
@@ -164,7 +231,11 @@ module openconfig-aaa {
           uses aaa-servergroup-common-state;
         }
 
-        uses aaa-server-top;
+        uses aaa-servergroup-member-top;
+
+        uses aaa-server-top {
+          status deprecated;
+        }
       }
     }
   }
@@ -172,6 +243,7 @@ module openconfig-aaa {
   grouping aaa-server-config {
     description
       "Common configuration data for AAA servers";
+    status deprecated;
 
     leaf name {
       type string;
@@ -193,6 +265,49 @@ module openconfig-aaa {
         server";
     }
   }
+
+  grouping aaa-server-config-data {
+    description
+      "Common configuration data for AAA servers";
+
+    leaf name {
+      type string;
+      description
+        "Name assigned to the server";
+    }
+
+    leaf address {
+      type oc-inet:ip-address;
+      description "Address of the authentication server";
+    }
+
+    leaf port {
+      type oc-inet:port-number;
+      description "Port of the authentication server";
+    }
+
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      description "Network-instance of the authentication server";
+    }
+
+    leaf type {
+      type identityref {
+        base oc-aaa-types:AAA_SERVER_TYPE;
+      }
+      description
+        "AAA server type";
+    }
+
+    leaf timeout {
+      type uint16;
+      units seconds;
+      description
+        "Set the timeout in seconds on responses from the AAA
+        server";
+    }
+  }
+
 
   grouping aaa-server-state {
     description
@@ -251,9 +366,59 @@ module openconfig-aaa {
 
   }
 
+  grouping aaa-server-list-top {
+    description
+      "Top-level grouping for list of AAA servers";
+
+    container servers {
+      description
+        "Enclosing container the list of servers";
+
+      list server {
+        key "name";
+        description
+          "List of AAA servers";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the configured name of the AAA server";
+        }
+
+        container config {
+          description
+            "Configuration data ";
+
+          uses aaa-server-config-data;
+        }
+
+        container state {
+          config false;
+
+          description
+            "Operational state data ";
+
+          uses aaa-server-config-data;
+          uses aaa-server-state;
+        }
+
+        uses aaa-tacacs-server-top {
+          when "config/type = 'oc-aaa:TACACS'";
+        }
+
+        uses aaa-radius-server-top {
+          when "config/type = 'oc-aaa:RADIUS'";
+        }
+      }
+    }
+  }
+
   grouping aaa-server-top {
     description
       "Top-level grouping for list of AAA servers";
+    status deprecated;
 
     container servers {
       description
@@ -276,7 +441,9 @@ module openconfig-aaa {
           description
             "Configuration data ";
 
-          uses aaa-server-config;
+          uses aaa-server-config {
+            status deprecated;
+          }
         }
 
         container state {
@@ -285,7 +452,9 @@ module openconfig-aaa {
           description
             "Operational state data ";
 
-          uses aaa-server-config;
+          uses aaa-server-config {
+            status deprecated;
+          }
           uses aaa-server-state;
         }
 
@@ -834,6 +1003,7 @@ module openconfig-aaa {
       uses aaa-authentication-top;
       uses aaa-authorization-top;
       uses aaa-accounting-top;
+      uses aaa-server-list-top;
       uses aaa-servergroup-common-top;
 
     }
