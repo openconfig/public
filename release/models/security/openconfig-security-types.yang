@@ -1,0 +1,239 @@
+module openconfig-security-types {
+
+  yang-version "1";
+  namespace "http://openconfig.net/yang/security/types";
+  prefix "oc-sec-types";
+
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+
+// meta
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+     netopenconfig@googlegroups.com";
+
+  description
+    "This module defines configuration and operational state for IPSec.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision 2025-12-10 {
+    description
+      "Generated from YANG hierarchy with metadata enrichment";
+    reference
+      "0.1.0";
+  }
+
+// OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // --- Base and Derived Identities ---
+  identity CONNECTION_STATUS {
+    description
+      "Base identity for the operational status of an IPsec connection";
+  }
+  identity UNKNOWN {
+    base CONNECTION_STATUS;
+    description
+      "No connection state is currently present or known.";
+  }
+  identity CONNECTING {
+    base CONNECTION_STATUS;
+    description
+      "In the process of negotiating an IPsec connection.";
+  }
+  identity IDLE {
+    base CONNECTION_STATUS;
+    description
+      "Waiting for an incoming IPsec negotiation.";
+  }
+  identity ACTIVE {
+    base CONNECTION_STATUS;
+    description
+      "The IPsec negotiation is complete and ready for data transfer.";
+  }
+  identity INVALID {
+    base CONNECTION_STATUS;
+    description
+      "The connection is in an invalid state due to a configuration or system error that prevents connection establishment.";
+  }
+  identity ESTABLISHED {
+    base CONNECTION_STATUS;
+    description
+      "The IPsec negotiation is complete.";
+  }
+
+  identity CONNECTION_ROLE {
+    description
+      "Base identity for the role of IPsec connection.";
+  }
+  identity INITIATOR {
+    base CONNECTION_ROLE;
+    description
+      "This device starts the connection attempt.";
+  }
+  identity RESPONDER {
+    base CONNECTION_ROLE;
+    description
+      "This device only accepts incoming connection requests.";
+  }
+
+  identity DH_GROUP {
+    description
+      "Base identity for Diffie-Hellman groups used for key exchange (IKE Phase 1) and Perfect Forward Secrecy (PFS in Phase 2).";
+  }
+  identity DH_GROUP_1 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 1 (768 bit)";
+  }
+  identity DH_GROUP_2 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 2 (1024 bit)";
+  }
+  identity DH_GROUP_5 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 5 (1536 bit)";
+  }
+  identity DH_GROUP_14 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 14 (2048 bit)";
+  }
+  identity DH_GROUP_15 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 15 (3072 bit)";
+  }
+  identity DH_GROUP_16 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 16 (4096 bit)";
+  }
+  identity DH_GROUP_17 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 17 (6144 bit)";
+  }
+  identity DH_GROUP_19 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 19 (256 bit ecp)";
+  }
+  identity DH_GROUP_20 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 20 (384 bit ecp)";
+  }
+  identity DH_GROUP_21 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 21 (521 bit ecp)";
+  }
+  identity DH_GROUP_24 {
+    base DH_GROUP;
+    description
+      "Diffie-Hellman group 24 (2048 bit, 256 bit subgroup)";
+  }
+
+  identity IKE_AUTH_METHOD {
+    description
+      "Base identity for the authentication method used in the IKE exchange.";
+  }
+  identity PRE_SHARED_KEY {
+    base IKE_AUTH_METHOD;
+    description
+      "Authentication using a pre-configured symmetric key (PSK).";
+  }
+  identity PKI_CERTS {
+    base IKE_AUTH_METHOD;
+    description
+      "Authentication using PKI certificates.";
+  }
+
+  identity IKE_VERSION {
+    description
+      "Base identity for the Internet Key Exchange protocol version.";
+  }
+  identity IKEV1 {
+    base IKE_VERSION;
+    description
+      "Internet Key Exchange Protocol Version 1 (Legacy).";
+  }
+  identity IKEV2 {
+    base IKE_VERSION;
+    description
+      "Internet Key Exchange Protocol Version 2 (Recommended standard).";
+  }
+
+  identity IPSEC_MODE {
+    description
+      "Base identity for the IPsec mode of operation.";
+  }
+  identity TUNNEL {
+    base IPSEC_MODE;
+    description
+      "IPsec Tunnel mode, where the original IP packet is encapsulated with new IP headers.";
+  }
+  identity TRANSPORT {
+    base IPSEC_MODE;
+    description
+      "IPsec Transport mode, where the IPsec header is inserted between the original IP header and the transport layer (TCP/UDP).";
+  }
+
+  identity IPSEC_PROTOCOL {
+    description
+      "Base identity for the IPsec protocol encapsulation.";
+  }
+  identity IPPROTO_ESP {
+    base IPSEC_PROTOCOL;
+    description
+      "Encapsulating Security Payload (ESP), providing confidentiality (encryption), integrity, and authentication.";
+  }
+  identity IPPROTO_AH {
+    base IPSEC_PROTOCOL;
+    description
+      "Authentication Header (AH), providing integrity and authentication, but *no* confidentiality (encryption).";
+  }
+
+  identity SA_DIRECTION {
+    description
+      "Base identity for the direction of a Security Association.";
+  }
+  identity EGRESS {
+    base SA_DIRECTION;
+    description
+      "The Security Association used for encrypting outgoing traffic.";
+  }
+  identity INGRESS {
+    base SA_DIRECTION;
+    description
+      "The Security Association used for decrypting incoming traffic.";
+  }
+
+  identity TUNNEL_MODE {
+    description
+      "Base identity for the encapsulation mode of the tunnel interface.";
+  }
+  identity IPSEC {
+    base TUNNEL_MODE;
+    description
+      "A Layer 3 IPsec tunnel, often referred to as a VTI (Virtual Tunnel Interface) or equivalent, used for route-based VPNs.";
+  }
+  identity GRE {
+    base TUNNEL_MODE;
+    description
+      "Generic Routing Encapsulation (GRE) tunnel encapsulation.";
+  }
+// augment statements
+// rpc statements
+// notification statements
+}
