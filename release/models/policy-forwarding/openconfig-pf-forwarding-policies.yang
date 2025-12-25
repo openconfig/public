@@ -7,6 +7,7 @@ submodule openconfig-pf-forwarding-policies {
   import openconfig-packet-match { prefix "oc-pmatch"; }
   import openconfig-yang-types { prefix "oc-yang"; }
   import openconfig-inet-types { prefix "oc-inet"; }
+  import openconfig-user-counters { prefix "oc-uc"; }
 
   include openconfig-pf-path-groups;
 
@@ -21,7 +22,12 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2025-12-16" {
+    description
+      "Add count as a policy-forwarding action.";
+    reference "1.2.0";
 
   revision "2025-12-15" {
     description
@@ -287,6 +293,15 @@ submodule openconfig-pf-forwarding-policies {
     description
       "Forwarding policy action configuration parameters.";
 
+    leaf count {
+      type leafref {
+        path "/oc-uc:user-counters/oc-uc:user-counter/oc-uc:config/oc-uc:name";
+      }
+      description
+        "When specified, the system will increment the referenced user
+        defined counter.";
+    }
+
     leaf discard {
       type boolean;
       default false;
@@ -411,7 +426,7 @@ submodule openconfig-pf-forwarding-policies {
     }
 
     leaf next-hop-group {
-      // we are at /network-instances/network-instance/policy-forwarding/policies/policy/rules/rule/action/config/next-hop-group	
+      // we are at /network-instances/network-instance/policy-forwarding/policies/policy/rules/rule/action/config/next-hop-group
       type leafref {
         path "../../../../../../../../static/next-hop-groups/next-hop-group/config/name";
       }
