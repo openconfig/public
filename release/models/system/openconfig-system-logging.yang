@@ -23,7 +23,13 @@ module openconfig-system-logging {
     "This module defines configuration and operational state data
     for common logging facilities on network systems.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "0.8.0";
+
+  revision "2025-04-13" {
+    description
+      "Add additional security features.";
+    reference "0.8.0";
+  }
 
 revision "2024-08-20" {
     description
@@ -650,6 +656,64 @@ revision "2023-07-20" {
     }
   }
 
+  grouping logging-global-state {
+    description
+      "Contains the global state for logging.";
+
+    leaf logging-starts-on-boot {
+      type boolean;
+      description
+        "Whether or not logging to the specified locations starts on boot";
+    }
+
+    leaf account-creation-logged {
+      type boolean;
+      description
+        "Whether or not account creation is logged";
+    }
+
+    leaf account-modification-logged {
+      type boolean;
+      description
+        "Whether or not account modification is logged";
+    }
+
+    leaf account-disabling-logged {
+      type boolean;
+      description
+        "Whether or not account disabling is logged";
+    }
+
+    leaf account-enabling-logged {
+      type boolean;
+      description
+        "Whether or not account enabling is logged";
+    }
+
+    leaf account-removal-logged {
+      type boolean;
+      description
+        "Whether or not account removal is logged";
+    }
+
+    leaf privileged-operations-logged {
+      type boolean;
+      description
+        "Whether or not privileged operations are logged";
+    }
+  }
+
+  grouping logging-global-config {
+    description
+      "Contains the global configuration options for logging.";
+
+    leaf log-full-commands {
+      type boolean;
+      description
+        "Whether or not the full command entered is logged by syslog";
+    }
+  }
+
   grouping logging-top {
     description
       "Top-level grouping for logging data";
@@ -663,6 +727,19 @@ revision "2023-07-20" {
       uses logging-files-top;
       uses logging-vty-top;
 
+      container config {
+        description
+          "Global configuration for logging";
+        uses logging-global-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Global state for logging";
+        uses logging-global-config;
+        uses logging-global-state;
+      }
     }
   }
   // data definition statements
