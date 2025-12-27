@@ -32,7 +32,15 @@ module openconfig-aaa {
     Portions of this model reuse data definitions or structure from
     RFC 7317 - A YANG Data Model for System Management";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2025-07-04" {
+    description
+      "Add accounting-method and authorization-method leaf-lists
+      inside accounting/events/event and authorization/events/event
+      lists, respectively.";
+    reference "1.1.0";
+  }
 
   revision "2022-07-29" {
     description
@@ -467,7 +475,7 @@ module openconfig-aaa {
           base oc-aaa-types:AAA_METHOD_TYPE;
         }
         type string;
-        //TODO:  in YANG 1.1 this should be converted to a leafref to
+        //TODO: in YANG 1.1 this should be converted to a leafref to
         //point to the server group name.
       }
       ordered-by user;
@@ -547,6 +555,7 @@ module openconfig-aaa {
             "Configuration data for accounting events";
 
           uses aaa-accounting-events-config;
+          uses aaa-accounting-methods-common;
         }
 
         container state {
@@ -557,6 +566,7 @@ module openconfig-aaa {
 
           uses aaa-accounting-events-config;
           uses aaa-accounting-events-state;
+          uses aaa-accounting-methods-common;
         }
       }
     }
@@ -566,8 +576,9 @@ module openconfig-aaa {
     description
       "Configuration data for event accounting";
 
-    uses aaa-accounting-methods-common;
-
+    uses aaa-accounting-methods-common {
+      status deprecated;
+    }
   }
 
   grouping aaa-accounting-state {
@@ -605,10 +616,9 @@ module openconfig-aaa {
     }
   }
 
-  grouping aaa-authorization-methods-config {
+  grouping aaa-authorization-methods-common {
     description
-      "Common definitions for authorization methods for global
-      and per-event type";
+      "Common definitions for authorization methods";
 
     leaf-list authorization-method {
       type union {
@@ -674,6 +684,7 @@ module openconfig-aaa {
             "Configuration data for each authorized event";
 
           uses aaa-authorization-events-config;
+          uses aaa-authorization-methods-common;
         }
 
         container state {
@@ -684,6 +695,7 @@ module openconfig-aaa {
 
           uses aaa-authorization-events-config;
           uses aaa-authorization-events-state;
+          uses aaa-authorization-methods-common;
         }
       }
     }
@@ -693,7 +705,9 @@ module openconfig-aaa {
     description
       "Configuration data for AAA authorization";
 
-    uses aaa-authorization-methods-config;
+    uses aaa-authorization-methods-common {
+      status deprecated;
+    }
   }
 
   grouping aaa-authorization-state {
