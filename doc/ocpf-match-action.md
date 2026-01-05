@@ -1,44 +1,71 @@
-OpenConfig policy-forwarding match/action
+# OpenConfig policy-forwarding match/action
+
 =============
 
-Authors:
- Darren Loher
+Authors: Darren Loher
 
-Reviewers:
- Veerender Attri Sachendra Shetty Tianheng Chen Lakshmana Varahabhotla Masood Shah Rob Shakir
+Reviewers: Veerender Attri Sachendra Shetty Tianheng Chen Lakshmana Varahabhotla
+ Masood Shah Rob Shakir
 
 Date: Created Sep 18, 2025
 
-# 1. Summary
+## 1. Summary
 
-There are operational use cases to create packet “match / action”  policies which can match on L2, L3, and L4 packet fields and execute actions like next-hop selection, encapsulation/decapsulation, egress forwarding class/queue assignment, and packet field manipulation.
+There are operational use cases to create packet “match / action”  policies
+which can match on L2, L3, and L4 packet fields and execute actions like
+next-hop selection, encapsulation/decapsulation, egress forwarding class/queue
+assignment, and packet field manipulation.
 
-Currently, OpenConfig data models for performing these actions are split into ACL, QoS, and OC Policy-Forwarding (OCPF) trees, each with unique match and action paths and slightly different schemas.
-Instead of writing 3 groups of rules, we can express them all in one policy:
+Currently, OpenConfig data models for performing these actions are split into
+ACL, QoS, and OC Policy-Forwarding (OCPF) trees, each with unique match and
+action paths and slightly different schemas. Instead of writing 3 groups of
+rules, we can express them all in one policy:
 
 ![OCPF Summary](img/ocpf-match-action-summary.png)
 
-This document proposes extending the OCPF schema with rules and actions and a new OCPF policy type which allows more flexible rules and actions and provides references to existing vendor implementations.  This provides benefits of simplified rule expression, reducing the number of matches to be configured and providing more readable policies.
+This document proposes extending the OCPF schema with rules and actions and a
+new OCPF policy type which allows more flexible rules and actions and provides
+references to existing vendor implementations.  This provides benefits of
+simplified rule expression, reducing the number of matches to be configured and
+providing more readable policies.
 
-[insert drawing here]
+Further, it allows porting existing policies written in vendor configuration to
+OpenConfig with minimal rewrites and a feasible pathway for vendors to develop
+support for a common model.
 
-Further, it allows porting existing policies written in vendor configuration to OpenConfig with minimal rewrites and a feasible pathway for vendors to develop support for a common model.
+## 2. Background
 
-# 2. Background
+Existing OpenConfig (OC) models for Access Control Lists (ACL), Quality of
+Service (QoS), and OpenConfig Policy-Forwarding (OCPF) all define match-action
+rules, with actions grouped by type. ACL rules primarily involve drop and accept
+actions. OC QoS focuses on classifying packets and setting specific fields,
+which must be combined with scheduling, policing, and queuing definitions. OCPF
+introduces a third schema for packet matching, with expected actions including
+next-hop setting, encapsulation, and decapsulation.
 
-Existing OpenConfig (OC) models for Access Control Lists (ACL), Quality of Service (QoS), and OpenConfig Policy-Forwarding (OCPF) all define match-action rules, with actions grouped by type. ACL rules primarily involve drop and accept actions. OC QoS focuses on classifying packets and setting specific fields, which must be combined with scheduling, policing, and queuing definitions. OCPF introduces a third schema for packet matching, with expected actions including next-hop setting, encapsulation, and decapsulation.
+Modern hardware and Network Operating Systems (NOS) offer greater flexibility in
+defining match-action rules, extending beyond the categories currently defined
+by OC (ACL, OCPF, and QoS). Examples include JunOS's filter-based forwarding,
+Arista EOS's traffic policy features and Cisco IOS XR ACL based forwarding.
 
-Modern hardware and Network Operating Systems (NOS) offer greater flexibility in defining match-action rules, extending beyond the categories currently defined by OC (ACL, OCPF, and QoS). Examples include JunOS's filter-based forwarding, Arista EOS's traffic policy features and Cisco IOS XR ACL based forwarding.
+This proposal defines an additional model and an order of operations which
+allows match action rules to coexist with OC’s ACL, QoS classifiers, policer,
+queuing, policy-based match and action rules, and next-hop based packet actions.
 
-This proposal defines an order of operations which allow match action rules to coexist with OC’s traditional ACL, QoS classifiers, policing, queuing, TCAM-based match and forward rules, and LPM-based match and forward rules.
+## 3. OC Model Design
 
-# 3. OC Model Design
+This design expands the policy-forwarding tree with more rules and actions and a
+new policy type, `MATCH_ACTION_POLICY`.
 
-This design expands the policy-forwarding tree with more rules and actions and a new policy type, MATCH_ACTION_POLICY.
+If we apply an OCPF policy with actions to accept/drop and set forwarding-group
+to an interface, it would be wise to not define any ACL or QoS policy to that
+same interface to prevent ambiguity.  To ensure there is no ambiguity regarding
+mixing of ACL, QOS and OCPF MATCH-ACTION on a single interface, the
+/policy-forwarding/policies/policy/config/type  `MATCH_ACTION_POLICY` is
+introduced.  When set, the implementation should reject configuration of other
+OCPF types, ACL or QOS classifier on a given interface.
 
-If we apply an OCPF policy with actions to accept/drop and set forwarding-group to an interface, it would be wise to not define any ACL or QoS policy to that same interface to prevent ambiguity.  To ensure there is no ambiguity regarding mixing of ACL, QOS and OCPF MATCH-ACTION on a single interface, the   /policy-forwarding/policies/policy/config/type  MATCH_ACTION_POLICY is introduced.  When set, the implementation should reject configuration of other OCPF types, ACL or QOS classifier on a given interface.
-
-## 3.1. policy-forwarding tree additions
+### 3.1. policy-forwarding tree additions
 
 The following tree summarizes the leaves to be added to the model.  This fake
 rendering will be replaced with a real rendering of the yang tree.
@@ -56,7 +83,8 @@ rendering will be replaced with a real rendering of the yang tree.
 +                      +--rw type?              -> oc-pf:rule-type # identity ref, similar to /acl/type
 +                      +--rw name?              string  # user defined name for a rule
                        +--rw l2?
-+                      +--rw mpls-traffic-class?     oc-mplst:mpls-tc
++                      +--rw mpls
+                          +--rw traffic-class?     oc-mplst:mpls-tc
                        +--rw ipv4
                           +--rw source-address?
                           +--rw destination-address?
@@ -79,7 +107,7 @@ rendering will be replaced with a real rendering of the yang tree.
                           +--rw source-address-prefix-set?
                        +--rw action
                           +--rw config
-+                            +--rw count?              string  #user defined counter
++                            +--rw count?               --> /user-counters/user-counter/name
 !                            x--rw discard?  # deprecate in favor of forwarding-action
                              +--rw decapsulate-gre?                   boolean
                              +--rw decapsulate-gue?                   boolean
@@ -89,7 +117,7 @@ rendering will be replaced with a real rendering of the yang tree.
 +                            +--rw dscp?                 oc-inet:dscp
                              x--rw encapsulate-gre      # (deprecated in favor of next-hop-group)
 +                            +--rw forwarding-action?    # enum (DROP,ACCEPT,REJECT)
-+                            +--rw forwarding-group?     ->  qos/forwarding-group
++                            +--rw forwarding-group?     --> qos/forwarding-group
 +                            +--rw log?                  boolean
 +                            +--rw mpls-traffic-class?   oc-mplst:mpls-tc
                              +--rw network-instance?
@@ -102,7 +130,7 @@ rendering will be replaced with a real rendering of the yang tree.
 +                            +--rw ip-ttl?               uint8   # see openconfig/public#1313
 ```
 
-## 3.2. User defined counters tree
+### 3.2. User defined counters tree
 
 In order to support the `action/config/count` leaf, a new top level
 user-counters subtree is introduced.
@@ -118,45 +146,57 @@ user-counters subtree is introduced.
 +    |  |        +--rw count?       oc-yang:counter64
 ```
 
-# 4. Multiple Rules and Actions
+## 4. Multiple Rules and Actions
 
-OC does not explicitly state what logic is used when an OCPF policy has multiple rules, multiple criteria within a rule and if there are multiple actions on a rule.  OC is not clear on what should happen after an OCPF rule is matched or not matched.  The following text is proposed to be added to the OCPF model to describe how to handle multiple rules and actions.
+OC does not does currently explicitly state what logic is used when an OCPF
+policy has multiple rules, multiple criteria within a rule and if there are
+multiple actions on a rule.  OC is not clear on what should happen after an OCPF
+rule is matched or not matched.  The following text is proposed to be added to
+the OCPF model to describe how to handle multiple rules and actions.
 
-Multiple match criteria in a single rule is treated logically as “AND”.
+* Multiple match criteria in a single rule is treated logically as “AND”.
+* Multiple rules in a policy should be treated logically as “OR”.
+* Each rule must have one or more actions.
+* When a packet matches a rule, all actions associated with a rule are
+  performed.
+* When a rule is matched, processing stops, unless the `next-rule` leaf is
+  populated.
 
-Multiple rules in a policy should be treated logically as “OR”.
+## 5. Order of operations and mapping match/action rules into device implementations
 
-Each rule must have one or more actions.
+### 5.1. OC defined order of operations
 
-When a packet matches a rule, all actions associated with a rule are performed.
-
-When a rule is matched, processing stops, unless the `next-rule` leaf is populated.
-
-# 5. Order of operations and mapping match/action rules into device implementations
-
-## 5.1. OC defined order of operations
-
-Today OC defines the following order of operations between ACL, QOS and OCPF.  “Routing” is included as the step expected to follow policy forwarding.  Note that In today’s OC model, the sequence of ACL and QOS is ambiguous; OCPF is defined to happen after ACL and QOS.
+Today OC defines the following order of operations between ACL, QOS and OCPF.
+“Routing” is included as the step expected to follow policy forwarding.  Note
+that in today’s OC model, the sequence of ACL and QOS is ambiguous; OCPF is
+defined to happen after ACL and QOS.
 
 ![OCPF Summary](img/ocpf-match-action-old-order.png)
 
-In practice, implementations using ASICs for their packet processing compile their “match action rule” (ACL, QoS classifier,  policy forwarding, PBR, firewall, traffic policy, etc…) configurations into banks of TCAM memories.   The rules are compiled as bitfield masks which extract key data from packets.  The keys are looked up in TCAM memory to map to an action.    The TCAM memories are often rather limited in scale and the implementation details of the hardware and programming vary widely between ASICs and NOSs.
+In practice, many implementations using ASICs for packet processing compile
+their “match action rule” (ACL, QoS classifier, policy forwarding, PBR,
+firewall, traffic policy, etc…) configurations as bitfield masks that are that
+are used to extract key data from packets. The keys are looked up against the
+programmed rules.
 
-Abstractly the programming of these rules can be organized as follows:
+The programming of these rules can be organized in a way that is independent of
+the implementation details of many ASICs as follows:
 
 ![OCPF Summary](img/ocpf-match-action-abstract-processing.png)
 
-This diagram is an example to provide context for this design and not a specification of OpenConfig.  Note that match rules on destination prefixes with actions related to egress/next-hop could be implemented in LPM, even if they are not traditional “routing”.  This could allow LPM tables may be used as a more scalable solution as compared to TCAM.  (or LEM in the case of say, MPLS or host routes).  Whether or not this is done is implementation specific.
+This diagram describes an example packet processing pipeline as context for this
+design.  Actual implementations may vary and deliver partial functionality.
 
-## 5.2. OC order of operations with MATCH-ACTION
+### 5.2. OC order of operations with MATCH-ACTION
 
 When considering all OCPF policy types, the resulting order of operations is:
 
 ![OCPF Summary](img/ocpf-match-action-order-ops.png)
 
-## 5.3. Multiple actions in OCPF
+### 5.3. Multiple actions in OCPF
 
-OCPF rule processing stops when there is a match.  To execute multiple actions for a given match, write a single rule with two actions:
+OCPF rule processing stops when there is a match.  To execute multiple actions
+for a given match, write a single rule with two actions:
 
 ```json
         "policy-forwarding": {
@@ -194,36 +234,48 @@ OCPF rule processing stops when there is a match.  To execute multiple actions f
         },
 ```
 
-## 5.4. Chaining OCPF Rules
+### 5.4. Chaining OCPF Rules
 
-Use cases exist to chain multiple rules.  An OCPF leaf action/config/next-rule is defined to support rule chaining.   If action/config/next-rule is true, processing continues to the next rule.  If not true, then rule processing stops.  It is observed that chaining rules could have a performance impact on some implementations which may also depend on the depth of the chain.
+Use cases exist to chain multiple rules.  An OCPF leaf action/config/next-rule
+is defined to support rule chaining.   If action/config/next-rule is true,
+processing continues to the next rule.  If not true, then rule processing stops.
+It is observed that chaining rules could have a performance impact on some
+implementations which may also depend on the depth of the chain.
 
-Rule chaining is supported by Juniper `next-term` and Arista EOS `goto next` action.
+Rule chaining is supported by Juniper `next-term` and Arista EOS `goto next`
+action.
 
-# 6. Use cases
+## 6. Use cases
 
-Below is a survey of use cases where match and action criteria can be written today using Juniper filter based forwarding and/or Arista traffic policy.  These use cases include fields that are not supported in OC today and/or implement expressions which mix what OC defines across ACL, QoS and OCPF.
+Below is a survey of use cases where match and action criteria can be written
+today using Juniper filter based forwarding and/or Arista traffic policy. These
+use cases include fields that are not supported in OC today and/or implement
+expressions which mix what OC defines across ACL, QoS and OCPF.
 
-## 6.1. Summary of use cases
+### 6.1. Summary of use cases
 
 A quick enumeration of the operational use cases is:
 
-Match by src and/or dst ip, count, sample and drop
-Match by ip fragment and ip protocol icmp, tcp, udp. Action: drop
-Match from “configured bgp neighbors” , Action: count, ratelimit, set qos, accept
-Match icmp to “locally configured interfaces”, Action: count, set qos, accept
-Match ttl=1, Action: count, police, set next-hop-group
-Match all src ip except some prefixes, and list of dest prefixes. Action: count, encap, queue, sample
-Match a prefix list, set-dscp, update a user defined counter and set the next-hop
+* MATCH: src ip, and/or dst ip. ACTION: count, sample and drop
+* MATCH: ip fragment and ip protocol icmp, tcp, udp. ACTION: drop
+* MATCH from “configured bgp neighbors”. ACTION: count, ratelimit, set qos,
+  accept
+* MATCH icmp to “locally configured interfaces”, ACTION: count, set qos, accept
+* MATCH ttl=1, ACTION: count, police, set next-hop-group
+* MATCH all src ip except some prefixes, and list of dest prefixes. ACTION:
+  count, encap, queue, sample
+* MATCH a prefix list, ACTION: set-dscp, update a user defined counter and set
+  the next-hop
 
-Using today’s OC equivalent for these policy terms would require writing
-A series of ACL’s
-With new actions for count and sample
-With new match criteria to allow “except” prefixes
-And a series of QoS policies restating the match criteria to set the queuing and policing
-And a series of policy-forwarding policies restating the match criteria for terms which use encapsulation
+Using today’s OC equivalent for these policy terms would require writing A
+series of ACL’s With new actions for count and sample With new match criteria to
+allow “except” prefixes And a series of QoS policies restating the match
+criteria to set the queuing and policing And a series of policy-forwarding
+policies restating the match criteria for terms which use encapsulation
 
-## 6.2. set-dscp
+### 6.2. set-dscp
+
+Re-write a packet's DSCP value based on packet MATCH criteria.
 
 Arista EOS traffic policies
 
@@ -261,21 +313,30 @@ ipv4 access-list ABF_EXAMPLE
 !
 ```
 
-## 6.3. Accept, Reject and Continue for policy-forwarding rules processing
+### 6.3. Accept, Reject and Continue for policy-forwarding rules processing
 
-This global-edge-filter policy shows examples of Juniper filter forwarding rules where policy-forwarding rules (Juniper terms) are chained using a “next term;” statement.  Currently OC policy-forwarding does not define what should happen when a rule matches in a chain of rules.  See the “Chaining OCPF Rules” section for a proposal for how to meet this use case.
+This global-edge-filter policy shows examples of Juniper filter forwarding rules
+where policy-forwarding rules (Juniper terms) are chained using a “next term;”
+statement.  Currently OC policy-forwarding does not define what should happen
+when a rule matches in a chain of rules.  See the “Chaining OCPF Rules” section
+for a proposal for how to meet this use case.
 
-## 6.4. Match IP TTL
+### 6.4. Match IP TTL
 
-The operational use case related to matching TTL  is when a customer packet arrives with a TTL=1 which the operator wishes to encapsulate and send to a distant host for processing.
+The operational use case related to matching TTL  is when a customer packet
+arrives with a TTL=1 which the operator wishes to encapsulate and send to a
+distant host for processing.
 
-The generalized solution for this is that OCPF rules matching packet fields on ingress should be processed before TTL decrement.  See relevant PR for adding a TTL match rule at [openconfig/public#1313](https://github.com/openconfig/public/pull/1313).
+The generalized solution for this is that OCPF rules matching packet fields on
+ingress should be processed before TTL decrement.  See relevant PR for adding a
+TTL match rule at
+[openconfig/public#1313](https://github.com/openconfig/public/pull/1313).
 
-# 7. Appendix - Example Vendor configuration references
+## 7. Appendix - Example Vendor configuration references
 
-## 7.1. Arista EOS
+### 7.1. Arista EOS
 
-### 7.1.1. Arista EOS decap with QoS
+#### 7.1.1. Arista EOS decap with QoS
 
 ```none
 !
@@ -286,9 +347,10 @@ ip decap-group pf-mpls-in-udp-decap-range
 !
 ```
 
-### 7.1.2. Arista EOS traffic-policy and QoS
+#### 7.1.2. Arista EOS traffic-policy and QoS
 
-Use case to apply traffic policy on the aggregate sub-interface and QoS (classification) on the aggregate interface.
+Use case to apply traffic policy on the aggregate sub-interface and QoS
+(classification) on the aggregate interface.
 
 ```none
 interface Port-Channel5
@@ -329,11 +391,12 @@ interface Port-Channel5.1100
    !
 ```
 
-Using the recommended OC solution,  this should be configured with QoS on the aggregate interface and OCPF for the subinterface.
+Using the recommended OC solution,  this should be configured with QoS on the
+aggregate interface and OCPF for the subinterface.
 
-## 7.2. JunOS
+### 7.2. JunOS
 
-### 7.2.1. JunOS filter based forwarding
+#### 7.2.1. JunOS filter based forwarding
 
 ```none
             term abc123 {
@@ -355,7 +418,8 @@ Using the recommended OC solution,  this should be configured with QoS on the ag
             }
 ```
 
-JunOS with locally configured BGP neighbors and actions for policer, counter and qos
+JunOS with locally configured BGP neighbors and actions for policer, counter and
+qos
 
 ```none
            term myterm2 {
@@ -376,10 +440,15 @@ JunOS with locally configured BGP neighbors and actions for policer, counter and
             }
 ```
 
-## 7.3. Appendix - Vendor Config References
+### 7.3. Appendix - Vendor Config References
 
-* [Juniper JunOS - Filter-Based Forwarding Overview](https://www.juniper.net/documentation/us/en/software/junos/routing-policy/topics/concept/firewall-filter-option-filter-based-forwarding-overview.html)
-* [Cisco IOS XR - ACL Based Forwarding (ABF)](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/ip-addresses/25xx/configuration/guide/b-ip-addresses-cg-8k-25xx/implementing-access-lists.html#concept_cqm_tpf_kmb)
-* [Cisco IOSXR - Policy Based Routing](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/routing/24xx/configuration/guide/b-routing-cg-cisco8000-24xx/m-policy-based-routing.html)
-* [Arista EOS - Traffic Policy](https://www.arista.com/en/support/toi/eos-4-24-2f/14550-support-for-traffic-policy-on-interfaces)
-* [Nokia SR Linux - policy-forwarding](https://documentation.nokia.com/srlinux/24-10/books/pdf/ACL_and_Policy-based_Routing_Guide_24.10.pdf).
+* [Juniper JunOS - Filter-Based Forwarding
+  Overview](https://www.juniper.net/documentation/us/en/software/junos/routing-policy/topics/concept/firewall-filter-option-filter-based-forwarding-overview.html)
+* [Cisco IOS XR - ACL Based Forwarding
+  (ABF)](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/ip-addresses/25xx/configuration/guide/b-ip-addresses-cg-8k-25xx/implementing-access-lists.html#concept_cqm_tpf_kmb)
+* [Cisco IOSXR - Policy Based
+  Routing](https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/routing/24xx/configuration/guide/b-routing-cg-cisco8000-24xx/m-policy-based-routing.html)
+* [Arista EOS - Traffic
+  Policy](https://www.arista.com/en/support/toi/eos-4-24-2f/14550-support-for-traffic-policy-on-interfaces)
+* [Nokia SR Linux -
+  policy-forwarding](https://documentation.nokia.com/srlinux/24-10/books/pdf/ACL_and_Policy-based_Routing_Guide_24.10.pdf).
