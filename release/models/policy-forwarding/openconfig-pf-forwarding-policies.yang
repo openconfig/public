@@ -21,7 +21,32 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2025-12-15" {
+    description
+      "Set model version to 1.0.0 as it is noted that multiple implementations
+      support this model and have production deployments.";
+    reference "1.0.0";
+  }
+
+  revision "2025-09-30" {
+    description
+      "Add global decapsulation policy to policy-forwarding.";
+    reference "0.10.0";
+  }
+
+  revision "2025-09-19" {
+    description
+      "Add action to set IP TTL.";
+    reference "0.9.0";
+  }
+
+  revision "2025-07-08" {
+    description
+      "Add policy-forwarding action next-hop-group.";
+    reference "0.8.0";
+  }
 
   revision "2024-11-14" {
     description
@@ -385,6 +410,16 @@ submodule openconfig-pf-forwarding-policies {
         lookup on the local system.";
     }
 
+    leaf next-hop-group {
+      // we are at /network-instances/network-instance/policy-forwarding/policies/policy/rules/rule/action/config/next-hop-group	
+      type leafref {
+        path "../../../../../../../../static/next-hop-groups/next-hop-group/config/name";
+      }
+      description
+        "When specified, the next-hop of a packet is resolved from referenced
+        static next-hop-group in the same network-instance.";
+    }
+
     leaf decapsulate-mpls-in-udp {
       type boolean;
       default false;
@@ -404,6 +439,19 @@ submodule openconfig-pf-forwarding-policies {
         the rule. Following the decapsulation it should subsequently forward the
         encapsulated packet according to the underlying IPv4 or IPv6 header.";
     }
+
+    leaf ip-ttl {
+      type uint8;
+      description
+        "If set, this leaf causes the local system to not decrement the TTL
+        and instead re-write the IP TTL of matching packets to the specified
+        value.
+
+        When this leaf is not set, the TTL value of the matching packet is
+        not affected by this policy and should be processed according to
+        normal forwarding rules.";
+    }
+
   }
 
   grouping pf-forwarding-policy-action-encapsulate-gre {
@@ -522,6 +570,36 @@ submodule openconfig-pf-forwarding-policies {
       description
         "The TTL that should be specified in the IP header of the GRE packet
         encapsulating the packet matching the rule.";
+    }
+  }
+
+  grouping pf-forwarding-policy-top {
+    description
+      "Grouping for top-level policy-forwarding.";
+
+    container config {
+      description
+        "Configuration parameters relating to top-level policy-forwarding.";
+      uses pf-forwarding-policy-top-parameters;
+    }
+
+    container state {
+      config false;
+      description
+        "State parameters relating to top-level policy-forwarding.";
+      uses pf-forwarding-policy-top-parameters;
+    }
+  }
+
+  grouping pf-forwarding-policy-top-parameters {
+    description
+      "Grouping of parameters relating to top-level policy-forwarding.";
+
+    leaf global-decap-policy {
+      type string;
+      description
+        "A decap policy that is applicable to a network instance and not a
+        particular interface.";
     }
   }
 }

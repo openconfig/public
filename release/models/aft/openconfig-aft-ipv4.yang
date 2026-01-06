@@ -20,7 +20,25 @@ submodule openconfig-aft-ipv4 {
     "Submodule containing definitions of groupings for the abstract
     forwarding tables for IPv4.";
 
-  oc-ext:openconfig-version "2.8.0";
+  oc-ext:openconfig-version "3.2.0";
+
+  revision "2025-08-07" {
+    description
+      "Factor out AFT counters from atomic container into a unified subtree.";
+    reference "3.2.0";
+  }
+
+  revision "2025-05-15" {
+    description
+      "Add GRE and MPLS to encap-headers.";
+    reference "3.1.0";
+  }
+
+  revision "2025-03-12" {
+    description
+      "Use IP address-family specific types for UDP-V4 and UDP-V6 encapsulations in AFT.";
+    reference "3.0.0";
+  }
 
   revision "2024-09-19" {
     description
@@ -211,8 +229,9 @@ submodule openconfig-aft-ipv4 {
     uses aft-common-entry-state {
       augment counters {
         description
-          "The number of packets and octets matched the AFT entry
-          and routed to next-hops within the backup next-hop-group";
+          "Deprecated location for the number of packets and octets
+           matched the AFT entry and routed to next-hops within the
+           backup next-hop-group.";
 
         uses aft-common-backup-entry-counter-state;
       }

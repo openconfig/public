@@ -22,8 +22,19 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "1.9.0";
+  oc-ext:openconfig-version "1.11.0";
 
+revision "2025-09-03" {
+    description
+      "Add USB_PORT";
+    reference "1.11.0";
+  }
+
+revision "2025-07-09" {
+    description
+      "Add FPGA, BOOT_LOADER_GRUB, BOOT_LOADER_ONIE";
+    reference "1.10.0";
+  }
 
   revision "2024-11-04" {
     description
@@ -384,6 +395,12 @@ module openconfig-platform-types {
       cables";
   }
 
+  identity USB_PORT {
+    base OPENCONFIG_HARDWARE_COMPONENT;
+    description
+      "Non-serial USB ports of any type.";
+  }
+
   identity TRANSCEIVER {
     base OPENCONFIG_HARDWARE_COMPONENT;
     description
@@ -415,6 +432,14 @@ module openconfig-platform-types {
     description
       "A device that attaches to a an Ethernet network and creates a wireless
        local area network";
+  }
+
+  identity FPGA {
+    base OPENCONFIG_HARDWARE_COMPONENT;
+    description
+      "Field-Programmable Gate Array (FPGA) is a type of integrated circuit
+      that can be configured after manufacturing. This type should not be
+      used to represent a switching ASIC";
   }
 
   identity OPERATING_SYSTEM {
