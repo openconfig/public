@@ -45,7 +45,13 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.8.0";
+  oc-ext:openconfig-version "3.9.0";
+
+    revision "2025-06-20" {
+    description
+      "Add IPv6 Router Advertisement Options for DNS Configuration (RDNSS) RFC 8106.";
+      reference "3.9.0";
+  }
 
     revision "2025-06-20" {
     description
@@ -1224,9 +1230,86 @@ revision "2023-06-30" {
       description
         "When set to true, the prefix is marked as being on link by setting the
         L-bit for the prefix within a router advertisement.";
+
       reference "RFC4861: Neighbor Discovery for IPv6, section 4.6.1";
     }
   }
+
+  grouping ipv6-dns-server-config {
+    description
+      "IPv6 DNS server advertisement interface configuration data.";
+
+    leaf ip-address {
+      type oc-inet:ipv6-address;
+      description
+        "IPv6 DNS server address to be advertised within the router
+        advertisement message.";
+    }
+
+    leaf lifetime {
+      type uint32;
+      units seconds;
+      description
+        "The maximum time in seconds (relative to the time the packet is
+        received) over which these RDNSS addresses MAY be used for name
+        resolution.
+
+        The value of Lifetime SHOULD by default be at least
+        3 * MaxRtrAdvInterval, where MaxRtrAdvInterval is the maximum RA
+        interval as defined in [RFC4861].  A value of all one bits
+        (0xffffffff) represents infinity.  A value of zero means that the
+        RDNSS addresses MUST no longer be used.";
+
+      reference "RFC 8106, Section 5.1";
+    }
+  }
+
+  grouping ipv6-dns-server-top {
+    description
+      "Top-level grouping for IPv6 Router Advertisement Options for DNS Configuration (RDNSS)
+      configuration.";
+
+    reference "RFC 8106";
+
+    container dns-servers {
+      description
+        "Top-level container for the list of IPv6 DNS servers configured to be
+        advertised on the interface.";
+
+      list dns-server {
+        key "ip-address";
+
+        description
+          "List of DNS servers that are to be advertised on the interface
+          (RDNSS). The list is keyed by the IPv6 address of the DNS server.";
+
+        leaf ip-address {
+          type leafref {
+            path "../config/ip-address";
+          }
+          description
+            "Reference to the DNS server IPv6 address for the list of DNS
+            servers.";
+        }
+
+        container config {
+          description
+            "Configuration data for the IPv6 DNS server advertisement.";
+
+          uses ipv6-dns-server-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for the IPv6 DNS server advertisement.";
+
+          uses ipv6-dns-server-config;
+        }
+      }
+    }
+  }
+
 
   grouping ipv4-proxy-arp-config {
     description
@@ -1587,6 +1670,8 @@ revision "2023-06-30" {
             }
           }
         }
+
+        uses ipv6-dns-server-top;
       }
 
       container neighbors {
