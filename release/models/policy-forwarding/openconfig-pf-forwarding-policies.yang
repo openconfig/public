@@ -233,6 +233,7 @@ submodule openconfig-pf-forwarding-policies {
                 "The forwarding policy action to be applied for
                 packets matching the rule.";
 
+
               container config {
                 description
                   "Configuration parameters relating to the forwarding
@@ -249,6 +250,8 @@ submodule openconfig-pf-forwarding-policies {
               }
 
               uses pf-forwarding-policy-action-encapsulate-gre;
+              uses pf-forwarding-policy-action-mpls;
+              uses pf-forwarding-policy-action-forwarding;
             }
           }
         }
@@ -289,7 +292,7 @@ submodule openconfig-pf-forwarding-policies {
             setting qos forwarding groups.  Actions intended to be used with
             MATCH_ACTION_POLICY are indicated by a where statement in the
             action leaf.  Match action policies are defined in more detail at
-            https://github.com/openconfig/public/doc/ocpf-match-action.md.";
+            https://github.com/openconfig/public/blob/master/doc/ocpf-match-action.md.";
         }
       }
       default PBR_POLICY;
@@ -324,7 +327,8 @@ submodule openconfig-pf-forwarding-policies {
       type string;
       description
       "A user defined name for a rule, used to give a user friendly
-      description of the rule.";
+      description of the rule.  This leaf should not be used as a leafref
+      but rather only to provide some meaningful name for the rule.";
     }
   }
 
@@ -344,6 +348,93 @@ submodule openconfig-pf-forwarding-policies {
         "Bytes matched by the rule.";
     }
   }
+
+  grouping pf-forwarding-policy-action-mpls {
+    description
+      "Forwarding policy action parameters related to MPLS.";
+
+    container mpls {
+      description
+      "Container for forwarding policy actions related to MPLS.";
+
+      container config {
+        description
+          "Configuration parameters for MPLS rules action.";
+        uses pf-forwarding-policy-action-mpls-config;
+      }
+
+      container state {
+        description
+          "Operational state parameters for MPLS rules action.";
+
+        config false;
+        uses pf-forwarding-policy-action-mpls-config;
+      }
+    }
+  }
+
+  grouping pf-forwarding-policy-action-mpls-config {
+    description
+      "Configuration parameters for the MPLS action.";
+
+      leaf mpls-traffic-class {
+        type oc-mplst:mpls-tc;
+        description
+          "Set the MPLS traffic class (EXP) value.";
+      }
+  }
+
+  grouping pf-forwarding-policy-action-forwarding {
+    description
+      "Forwarding policy action configuration parameters related to packet
+      forwarding actions.";
+
+    container forwarding {
+      description
+        "Container for ocpf forwarding actions.";
+
+      container config {
+        description
+          "Configuration parameters for MPLS rules action.";
+        uses pf-forwarding-policy-action-forwarding-config;
+      }
+
+      container state {
+        description
+          "Operational state parameters for MPLS rules action.";
+
+        config false;
+        uses pf-forwarding-policy-action-forwarding-config;
+      }
+    }
+  }
+
+grouping pf-forwarding-policy-action-forwarding-config {
+  description
+    "Configuration parameters for the forwarding action.";
+
+  leaf forwarding-action {
+    when "../../../../../../config/type = 'MATCH_ACTION_POLICY'";
+    type identityref {
+      base FORWARDING_ACTION;
+    }
+    default FORWARD;
+    description
+      "Specifies the if the packet should be forwarded.  One forwarding
+      action must be specified for each rule.";
+  }
+
+  leaf qos-forwarding-group {
+    when "../../../../../../config/type = 'MATCH_ACTION_POLICY'";
+    type leafref {
+      path "/oc-qos:qos/oc-qos:forwarding-groups/oc-qos:forwarding-group/oc-qos:config/oc-qos:name";
+    }
+    description
+    "When set, the packet should be mapped into the specified qos
+    forwarding-group. The policy-forwarding rule functions as a qos classfier.";
+  }
+
+}
 
   grouping pf-forwarding-policy-action-config {
     description
@@ -421,27 +512,6 @@ submodule openconfig-pf-forwarding-policies {
         "Set the matching packet DSCP value.";
     }
 
-    leaf forwarding-action {
-      when "../../../../../config/type = 'MATCH_ACTION_POLICY'";
-      type identityref {
-        base FORWARDING_ACTION;
-      }
-      default FORWARD;
-      description
-        "Specifies the if the packet should be forwarded.  One forwarding
-        action must be specified for each rule.";
-    }
-
-    leaf forwarding-group {
-      when "../../../../../config/type = 'MATCH_ACTION_POLICY'";
-      type leafref {
-        path "/oc-qos:qos/oc-qos:forwarding-groups/oc-qos:forwarding-group/oc-qos:config/oc-qos:name";
-      }
-      description
-      "When set, the packet should be mapped into the specified qos
-      forwarding-group. The policy-forwarding rule functions as a qos classfier.";
-    }
-
     leaf log {
       type boolean;
       description
@@ -449,12 +519,6 @@ submodule openconfig-pf-forwarding-policies {
         this is intended to be used for debugging purposes.  Enabling per
         packet logging is expected to have significant performance
         limitations.";
-    }
-
-    leaf mpls-traffic-class {
-      type oc-mplst:mpls-tc;
-      description
-        "Set the MPLS traffic class (EXP) value.";
     }
 
     leaf post-decap-network-instance {
@@ -558,6 +622,7 @@ submodule openconfig-pf-forwarding-policies {
         not affected by this policy and should be processed according to
         normal forwarding rules.";
     }
+
   }
 
   grouping pf-forwarding-policy-action-encapsulate-gre {
