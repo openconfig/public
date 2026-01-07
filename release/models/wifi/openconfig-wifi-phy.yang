@@ -25,7 +25,14 @@ module openconfig-wifi-phy {
   description
     "Model for managing PHY layer configuration of Radio interfaces.";
 
-  oc-ext:openconfig-version "1.4.0";
+  oc-ext:openconfig-version "1.4.1";
+
+  revision "2025-11-18" {
+    description
+      "Remove default for 'channel-bandwidth' and update descriptions for:
+      'channel-width' and 'wifi-protocol";
+    reference "1.4.1";
+  }
 
   revision "2025-11-03" {
     description
@@ -182,18 +189,20 @@ module openconfig-wifi-phy {
     leaf channel-width {
       type uint8;
       units MHz;
+      status deprecated;
       default 20;
       description
-        "[DEPRECATED] Operating channel-width of this radio.";
+        "[DEPRECATED] Operating channel-width of this radio. Deprecated
+        nodes must continue to be supported but it is advised to use the
+        new node 'channel-bandwidth'.";
     }
 
     leaf channel-bandwidth {
       type uint16;
       units MHz;
-      default 20;
       description
         "Operating channel-bandwidth of this radio, supports channel
-        bandwidths of 320Mhz and greater";
+        bandwidths of 320Mhz and greater.";
     }
 
     leaf bss-coloring {
@@ -327,27 +336,26 @@ module openconfig-wifi-phy {
         base oc-wifi-types:WIFI_PROTOCOL;
       }
       description
-        "WIFi Protocol of this SSID. When none specified, the
-        default is 802.11ax";
+        "WIFi Protocol of this SSID.";
     }
 
     leaf preamble-puncturing {
       type boolean;
       description
-        "Enable Preamble Puncturing on this radio";
+        "Enable Preamble Puncturing on this radio.";
     }
 
     leaf mru {
       when "../ofdma = 'true'";
       type boolean;
       description
-        "Enable/Disable MRU on this radio when OFDMA is enabled";
+        "Enable/Disable MRU on this radio when OFDMA is enabled.";
     }
 
     leaf ofdma {
       type boolean;
       description
-        "Enable/Disable OFDMA DL/UL on this radio";
+        "Enable/Disable OFDMA DL/UL on this radio.";
     }
   }
 
