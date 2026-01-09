@@ -1,0 +1,139 @@
+module openconfig-containerz {
+  yang-version 1;
+  namespace "https://github.com/openconfig/yang/gnoi/containerz";
+  prefix oc-gnoi-containerz;
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-system {
+    prefix oc-sys;
+  }
+  import openconfig-system-grpc {
+    prefix oc-sys-grpc;
+  }
+  import openconfig-types {
+    prefix oc-types;
+  }
+  import openconfig-yang-types {
+    prefix oc-yang;
+  }
+  organization
+    "OpenConfig Working Group";
+
+  contact
+    "OpenConfig working group
+    netopenconfig@googlegroups.com";
+
+  description
+    "This module provides a data model for the metadata of gNOI.containerz
+    running on this system as well as the containers running on the system.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision 2025-11-09 {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+
+
+  // gRPC server related definitions.
+  // Success/failure counters.
+  grouping grpc-server-containerz-counters  {
+    description
+      "A collection of counters that were collected while evaluating
+      access to the gRPC server.";
+
+    container counters {
+      config false;
+      description
+      "A collection of counters that were collected by the gRPC during
+      the authentication process.";
+
+      leaf connection-rejects {
+        type oc-yang:counter64;
+        description
+        "The total number of times that gRPC clients have failed
+        in establishing a connection to the server.";
+      }
+      leaf last-connection-reject {
+        type oc-types:timeticks64;
+        description
+        "A timestamp of the last time a gRPC client failed
+        in establishing a connection to the server.";
+      }
+      leaf connection-accepts {
+        type oc-yang:counter64;
+        description
+        "The total number of times that gRPC clients have succeeded
+        in establishing a connection to the server.";
+      }
+      leaf last-connection-accept {
+        type oc-types:timeticks64;
+        description
+        "A timestamp of the last time a gRPC client succeeded
+        in establishing a connection to the server.";
+      }
+      leaf running-containers {
+        type oc-yang:counter64;
+        description
+        "The number of containers currently running on the system.";
+      }
+    }
+  }
+
+  grouping grpc-server-containerz-state {
+    description
+      "gRPC server containerz freshness-related data.";
+
+    container containers {
+      list container {
+        key "name";
+
+        leaf name {
+          type string;
+        }
+
+        leaf created-on {
+          type oc-types:timeticks64;
+          description
+           "The timestamp when the container was created.
+            The value is the timestamp in nanoseconds relative to
+            the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+        }
+
+        leaf restarts {
+           type oc-yang:counter64;
+           description
+             "The number of times the container was restarted.";
+        }
+
+        leaf version {
+          type string;
+          description
+            "The version of the of the container. This corresponds to the
+             tag of of the image associated to this container.";
+        }
+      }
+    }
+  }
+
+  // Augments section.
+
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
+          "oc-sys-grpc:state" {
+    when "../config[contains(services, 'oc-containerz:CONTAINERZ')]/enable = 'true'";
+    description
+      "A gRPC server containerz freshness information.";
+
+    uses grpc-server-containerz-state;
+  }
+
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
+          "oc-sys-grpc:state" {
+    when "../config[contains(services, 'oc-containerz:CONTAINERZ')]/enable = 'true'";
+    uses grpc-server-containerz-counters;
+    description
+      "gNOI Containerz server access counters.";
+  }
+}
