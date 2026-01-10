@@ -3,7 +3,7 @@
 
 **Contributors:** Anees Shaikh, Rob Shakir, Kristian Larsson, Darren Loher
 **October 26, 2015**<br>
-*Updated: June 12, 2025*
+*Updated: January 9th 2026*
 
 ## Background
 This document describes conventions adopted in the OpenConfig operator group
@@ -49,6 +49,7 @@ and released soon.
     - [`choice`](#choice)
     - [XPath](#xpath)
     - [Regular expressions](#regular-expressions)
+  - [Schema Usability](#schema-usability)
   - [Appendix](#appendix)
     - [Example groupings for containers](#example-groupings-for-containers)
     - [OpenConfig YANG module template](#openconfig-yang-module-template)
@@ -476,6 +477,33 @@ reference for [regular
 expressions](http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/#regexs).
 However, this is not a commonly used standard for implementors.
 
+## Schema Usability
+
+Some elements of the OpenConfig style guide are implemented in order to provide
+consistent programmatic handling of the schema. For instance, the `config` and
+`state` containers used for operational state, and surrounding containers for
+YANG `list` statements. In some cases (e.g., programmatically generating
+configuration), this schema verbosity negatively impacts usability -- e.g.,
+requiring programmers to reference longer paths that they could. Tooling
+generating programmatic APIs around OpenConfig can improve usability by
+transforming the schema. Clearly, this is wholly reliant on consistency
+in the modelling approach.
+
+The following rules MUST be adherered to within the OpenConfig models to
+ensure that downstream tooling does not break.
+
+* **`list` nodes MUST NOT share their identifier with any grandparent
+  node.** It is not legal for `/foos/foo` and `/foo` to exist. This rule
+  exists to allow the `foos` container to be removed during schema
+  transformation.
+* **A leaf-node may not share a name with a grandparent**. It is not legal
+  for `/a/config/leaf` and `/a/leaf` to both exist nor for `/b/state/leaf` 
+  and `/b/leaf` to both exist. This rule ensures that the `config` and `state`
+  containers can be removed during schema transformation.
+
+An example of programmatic compression is implemented for the generation of
+code in ygot -- both for Go and Protobuf artifact generation
+((reference)[https://github.com/openconfig/ygot/blob/master/docs/design.md#openconfig-path-compression]).
 
 ## Appendix
 
