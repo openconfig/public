@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.2.0";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2026-01-12" {
+    description
+      "Add suport for Segment Routing over IPv6 (SRv6).";
+    reference "3.3.0";
+  }
 
   revision "2025-08-07" {
     description
@@ -366,6 +372,8 @@ submodule openconfig-aft-common {
                   "State parameters relating to IP encapsulation headers.";
 
                 uses aft-common-entry-nexthop-ip-state;
+
+                uses aft-common-entry-nexthop-ipv6-state;
               }
             }
 
@@ -639,6 +647,41 @@ submodule openconfig-aft-common {
     }
   }
 
+  grouping aft-common-entry-nexthop-ipv6-state {
+    description
+      "IPv6 encapsulation applied on a next-hop";
+
+    leaf-list srv6-sid-list {
+      type oc-inet:ipv6-address;
+      ordered-by user;
+      description
+        "Additional SRv6 SIDs set on the Segment Routing Header (SRH).";
+    }
+
+    leaf flow-label {
+      type uint32 {
+        range "0..1048575";
+      }
+      description
+        "Flow Label, used to identify a packet belong to a particular flow.
+        If this value is set, it overrides the hashing computed by the device
+        and forces the value configured.";
+    }
+
+    leaf traffic-class {
+      type uint8;
+      description
+        "Traffic Class value.";
+    }
+
+    leaf hop-limit {
+      type uint8;
+      default "64";
+      description
+        "Hop Limit value.";
+    }
+  }
+
   grouping aft-common-entry-nexthop-encap-gre-config {
     description
       "GRE encapsulation applied on a IPv4 and IPv6 next-hop.";
@@ -860,6 +903,338 @@ submodule openconfig-aft-common {
         forwarding lookup is performed on the packet encapsulated
         within the header, matched within the relevant AFT within the
         specified network-instance.";
+    }
+  }
+
+  grouping aft-common-ipv6-state {
+    description
+      "Common parameters across IPv6 address family";
+
+    leaf srv6-behavior-type {
+      type enumeration {
+        enum RESERVED {
+          value 0;
+          description "Reserved";
+        }
+        enum END {
+          value 1;
+          description "End";
+        }
+        enum END_WITH_PSP {
+          value 2;
+          description "End with PSP";
+        }
+        enum END_WITH_USP {
+          value 3;
+          description "End with USP";
+        }
+        enum END_WITH_PSP_USP {
+          value 4;
+          description "End with PSP & USP";
+        }
+        enum END_X {
+          value 5;
+          description "End.X";
+        }
+        enum END_X_WITH_PSP {
+          value 6;
+          description "End.X with PSP";
+        }
+        enum END_X_WITH_USP {
+          value 7;
+          description "End.X with USP";
+        }
+        enum END_X_WITH_PSP_USP {
+          value 8;
+          description "End.X with PSP & USP";
+        }
+        enum END_T {
+          value 9;
+          description "End.T";
+        }
+        enum END_T_WITH_PSP {
+          value 10;
+          description "End.T with PSP";
+        }
+        enum END_T_WITH_USP {
+          value 11;
+          description "End.T with USP";
+        }
+        enum END_T_WITH_PSP_USP {
+          value 12;
+          description "End.T with PSP & USP";
+        }
+        enum END_B6_INSERT {
+          value 13;
+          description "End.B6.Insert";
+        }
+        enum END_B6_ENCAPS {
+          value 14;
+          description "End.B6.Encaps";
+        }
+        enum END_BM {
+          value 15;
+          description "End.BM";
+        }
+        enum END_DX6 {
+          value 16;
+          description "End.DX6";
+        }
+        enum END_DX4 {
+          value 17;
+          description "End.DX4";
+        }
+        enum END_DT6 {
+          value 18;
+          description "End.DT6";
+        }
+        enum END_DT4 {
+          value 19;
+          description "End.DT4";
+        }
+        enum END_DT46 {
+          value 20;
+          description "End.DT46";
+        }
+        enum END_DX2 {
+          value 21;
+          description "End.DX2";
+        }
+        enum END_DX2V {
+          value 22;
+          description "End.DX2V";
+        }
+        enum END_DT2U {
+          value 23;
+          description "End.DT2U";
+        }
+        enum END_DT2M {
+          value 24;
+          description "End.DT2M";
+        }
+        enum END_B6_INSERT_RED {
+          value 26;
+          description "End.B6.Insert.Red";
+        }
+        enum END_B6_ENCAPS_RED {
+          value 27;
+          description "End.B6.Encaps.Red";
+        }
+        enum END_WITH_USD {
+          value 28;
+          description "End with USD";
+        }
+        enum END_WITH_PSP_USD {
+          value 29;
+          description "End with PSP & USD";
+        }
+        enum END_WITH_USP_USD {
+          value 30;
+          description "End with USP & USD";
+        }
+        enum END_WITH_PSP_USP_USD {
+          value 31;
+          description "End with PSP, USP & USD";
+        }
+        enum END_X_WITH_USD {
+          value 32;
+          description "End.X with USD";
+        }
+        enum END_X_WITH_PSP_USD {
+          value 33;
+          description "End.X with PSP & USD";
+        }
+        enum END_X_WITH_USP_USD {
+          value 34;
+          description "End.X with USP & USD";
+        }
+        enum END_X_WITH_PSP_USP_USD {
+          value 35;
+          description "End.X with PSP, USP & USD";
+        }
+        enum END_T_WITH_USD {
+          value 36;
+          description "End.T with USD";
+        }
+        enum END_T_WITH_PSP_USD {
+          value 37;
+          description "End.T with PSP & USD";
+        }
+        enum END_T_WITH_USP_USD {
+          value 38;
+          description "End.T with USP & USD";
+        }
+        enum END_T_WITH_PSP_USP_USD {
+          value 39;
+          description "End.T with PSP, USP & USD";
+        }
+        enum END_WITH_NEXT_ONLY_CSID {
+          value 42;
+          description "End with NEXT-ONLY-CSID";
+        }
+        enum END_WITH_NEXT_CSID {
+          value 43;
+          description "End with NEXT-CSID";
+        }
+        enum END_WITH_NEXT_CSID_PSP {
+          value 44;
+          description "End with NEXT-CSID & PSP";
+        }
+        enum END_WITH_NEXT_CSID_USP {
+          value 45;
+          description "End with NEXT-CSID & USP";
+        }
+        enum END_WITH_NEXT_CSID_PSP_USP {
+          value 46;
+          description "End with NEXT-CSID, PSP & USP";
+        }
+        enum END_WITH_NEXT_CSID_USD {
+          value 47;
+          description "End with NEXT-CSID & USD";
+        }
+        enum END_WITH_NEXT_CSID_PSP_USD {
+          value 48;
+          description "End with NEXT-CSID, PSP & USD";
+        }
+        enum END_WITH_NEXT_CSID_USP_USD {
+          value 49;
+          description "End with NEXT-CSID, USP & USD";
+        }
+        enum END_WITH_NEXT_CSID_PSP_USP_USD {
+          value 50;
+          description "End with NEXT-CSID, PSP, USP & USD";
+        }
+        enum END_X_WITH_NEXT_ONLY_CSID {
+          value 51;
+          description "End.X with NEXT-ONLY-CSID";
+        }
+        enum END_X_WITH_NEXT_CSID {
+          value 52;
+          description "End.X with NEXT-CSID";
+        }
+        enum END_X_WITH_NEXT_CSID_PSP {
+          value 53;
+          description "End.X with NEXT-CSID & PSP";
+        }
+        enum END_X_WITH_NEXT_CSID_USP {
+          value 54;
+          description "End.X with NEXT-CSID & USP";
+        }
+        enum END_X_WITH_NEXT_CSID_PSP_USP {
+          value 55;
+          description "End.X with NEXT-CSID, PSP & USP";
+        }
+        enum END_X_WITH_NEXT_CSID_USD {
+          value 56;
+          description "End.X with NEXT-CSID & USD";
+        }
+        enum END_X_WITH_NEXT_CSID_PSP_USD {
+          value 57;
+          description "End.X with NEXT-CSID, PSP & USD";
+        }
+        enum END_X_WITH_NEXT_CSID_USP_USD {
+          value 58;
+          description "End.X with NEXT-CSID, USP & USD";
+        }
+        enum END_X_WITH_NEXT_CSID_PSP_USP_USD {
+          value 59;
+          description "End.X with NEXT-CSID, PSP, USP & USD";
+        }
+        enum UDX6 {
+          value 60;
+          description "uDX6 (End.DX6 with NEXT-CSID)";
+        }
+        enum UDX4 {
+          value 61;
+          description "uDX4 (End.DX4 with NEXT-CSID)";
+        }
+        enum UDT6 {
+          value 62;
+          description "uDT6 (End.DT6 with NEXT-CSID)";
+        }
+        enum UDT4 {
+          value 63;
+          description "uDT4 (End.DT4 with NEXT-CSID)";
+        }
+        enum UDT46 {
+          value 64;
+          description "uDT46 (End.DT46 with NEXT-CSID)";
+        }
+        enum UDX2 {
+          value 65;
+          description "uDX2 (End.DX2 with NEXT-CSID)";
+        }
+        enum UDX2V {
+          value 66;
+          description "uDX2V (End.DX2V with NEXT-CSID)";
+        }
+        enum UDT2U {
+          value 67;
+          description "uDT2U (End.DT2U with NEXT-CSID)";
+        }
+        enum UDT2M {
+          value 68;
+          description "uDT2M (End.DT2M with NEXT-CSID)";
+        }
+        enum END_T_WITH_NEXT_CSID {
+          value 85;
+          description "End.T with NEXT-CSID";
+        }
+        enum END_T_WITH_NEXT_CSID_PSP {
+          value 86;
+          description "End.T with NEXT-CSID & PSP";
+        }
+        enum END_T_WITH_NEXT_CSID_USP {
+          value 87;
+          description "End.T with NEXT-CSID & USP";
+        }
+        enum END_T_WITH_NEXT_CSID_PSP_USP {
+          value 88;
+          description "End.T with NEXT-CSID, PSP & USP";
+        }
+        enum END_T_WITH_NEXT_CSID_USD {
+          value 89;
+          description "End.T with NEXT-CSID & USD";
+        }
+        enum END_T_WITH_NEXT_CSID_PSP_USD {
+          value 90;
+          description "End.T with NEXT-CSID, PSP & USD";
+        }
+        enum END_T_WITH_NEXT_CSID_USP_USD {
+          value 91;
+          description "End.T with NEXT-CSID, USP & USD";
+        }
+        enum END_T_WITH_NEXT_CSID_PSP_USP_USD {
+          value 92;
+          description "End.T with NEXT-CSID, PSP, USP & USD";
+        }
+        enum END_B6_ENCAPS_WITH_NEXT_CSID {
+          value 93;
+          description "End.B6.Encaps with NEXT-CSID";
+        }
+        enum END_B6_ENCAPS_RED_WITH_NEXT_CSID {
+          value 94;
+          description "End.B6.Encaps.Red with NEXT-CSID";
+        }
+        enum END_BM_WITH_NEXT_CSID {
+          value 95;
+          description "End.BM with NEXT-CSID";
+        }
+        enum END_B6_ENCAPS_RED_WITH_NEXT_CSID_PSP_USD {
+          value 98;
+          description "End.B6.Encaps.Red with NEXT-CSID, PSP & USD";
+        }
+        enum END_B6_INSERT_RED_WITH_NEXT_CSID_PSP_USD {
+          value 99;
+          description "End.B6.Insert.Red with NEXT-CSID, PSP & USD";
+        }
+      }
+      description
+        "Behavior type associated with the SID. The behavior types are
+        defined in the IANA SRv6 Endpoint Behaviors registry.";
+      reference
+        "IANA SRv6 Endpoint Behaviors registry
+        (https://www.iana.org/assignments/segment-routing/segment-routing.xhtml)";
     }
   }
 
