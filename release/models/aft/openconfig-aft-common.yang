@@ -907,8 +907,10 @@ submodule openconfig-aft-common {
     description
       "Common parameters across IPv6 address family";
 
-    leaf srv6-behavior-type {
-      type oc-inet:srv6-endpoint-type;
+    leaf srv6-endpoint-behavior {
+      type identityref {
+        base oc-inet:srv6-endpoint-type;
+      }
       description
         "Behavior type associated with the SID. The behavior types are
         defined in the IANA SRv6 Endpoint Behaviors registry.";
