@@ -509,4 +509,419 @@ module openconfig-inet-types {
       "RFC 3986, paragraph 1.1.3";
   }
 
+  // SRv6 endpoint behavior identities
+
+  identity srv6-endpoint-type {
+    description
+      "Base identity for SRv6 endpoint behavior types.";
+    reference
+      "IANA SRv6 Endpoint Behaviors registry
+       (https://www.iana.org/assignments/segment-routing/segment-routing.xhtml)";
+  }
+
+  identity End {
+    base srv6-endpoint-type;
+    description "Endpoint function";
+  }
+
+  identity End_PSP {
+    base srv6-endpoint-type;
+    description "End with PSP";
+  }
+
+  identity End_USP {
+    base srv6-endpoint-type;
+    description "End with USP";
+  }
+
+  identity End_PSP_USP {
+    base srv6-endpoint-type;
+    description "End with PSP & USP";
+  }
+
+  identity End.X {
+    base srv6-endpoint-type;
+    description "Endpoint with L3 cross-connect";
+  }
+
+  identity End.X_PSP {
+    base srv6-endpoint-type;
+    description "End.X with PSP";
+  }
+
+  identity End.X_USP {
+    base srv6-endpoint-type;
+    description "End.X with USP";
+  }
+
+  identity End.X_PSP_USP {
+    base srv6-endpoint-type;
+    description "End.X with PSP & USP";
+  }
+
+  identity End.T {
+    base srv6-endpoint-type;
+    description "Endpoint with specific IPv6 table lookup";
+  }
+
+  identity End.T_PSP {
+    base srv6-endpoint-type;
+    description "End.T with PSP";
+  }
+
+  identity End.T_USP {
+    base srv6-endpoint-type;
+    description "End.T with USP";
+  }
+
+  identity End.T_PSP_USP {
+    base srv6-endpoint-type;
+    description "End.T with PSP & USP";
+  }
+
+  identity End.B6.Insert {
+    base srv6-endpoint-type;
+    description "End.B6.Insert";
+  }
+
+  identity End.B6.Encaps {
+    base srv6-endpoint-type;
+    description "Endpoint bound to an SRv6 Policy with encapsulation";
+  }
+
+  identity End.BM {
+    base srv6-endpoint-type;
+    description "Endpoint bound to an SR-MPLS Policy";
+  }
+
+  identity End.DX6 {
+    base srv6-endpoint-type;
+    description "Endpoint with decapsulation and IPv6 cross-connect";
+  }
+
+  identity End.DX4 {
+    base srv6-endpoint-type;
+    description "Endpoint with decapsulation and IPv4 cross-connect";
+  }
+
+  identity End.DT6 {
+    base srv6-endpoint-type;
+    description "Endpoint with decapsulation and specific
+      IPv6 table lookup";
+  }
+
+  identity End.DT4 {
+    base srv6-endpoint-type;
+    description "Endpoint with decapsulation and specific
+      IPv4 table lookup";
+  }
+
+  identity End.DT46 {
+    base srv6-endpoint-type;
+    description "Endpoint with decapsulation and specific IP
+      table lookup";
+  }
+
+  identity End.DX2 {
+    base srv6-endpoint-type;
+    description "Endpoint with decapsulation and L2 cross-connect";
+  }
+
+  identity End.DX2V {
+    base srv6-endpoint-type;
+    description "Endpoint with decapsulation and VLAN L2 table lookup";
+  }
+
+  identity End.DT2U {
+    base srv6-endpoint-type;
+    description "Endpoint with decapsulation and unicast MAC L2 table lookup";
+  }
+
+  identity End.DT2M {
+    base srv6-endpoint-type;
+    description "Endpoint with decapsulation and L2 table flooding";
+  }
+
+  identity End.B6.Insert.Red {
+    base srv6-endpoint-type;
+    description "End.B6.Insert with reduced SRH";
+  }
+
+  identity End.B6.Encaps.Red {
+    base srv6-endpoint-type;
+    description "End.B6.Encaps with reduced SRH";
+  }
+
+  identity End_USD {
+    base srv6-endpoint-type;
+    description "End with USD";
+  }
+
+  identity End_PSP_USD {
+    base srv6-endpoint-type;
+    description "End with PSP & USD";
+  }
+
+  identity End_USP_USD {
+    base srv6-endpoint-type;
+    description "End with USP and USD";
+  }
+
+  identity End_PSP_USP_USD {
+    base srv6-endpoint-type;
+    description "End with PSP, USP & USD";
+  }
+
+  identity End.X_USD {
+    base srv6-endpoint-type;
+    description "End.X with USD";
+  }
+
+  identity End.X_PSP_USD {
+    base srv6-endpoint-type;
+    description "End.X with PSP & USD";
+  }
+
+  identity End.X_USP_USD {
+    base srv6-endpoint-type;
+    description "End.X with USP & USD";
+  }
+
+  identity End.X_PSP_USP_USD {
+    base srv6-endpoint-type;
+    description "End.X with PSP, USP & USD";
+  }
+
+  identity End.T_USD {
+    base srv6-endpoint-type;
+    description "End.T with USD";
+  }
+
+  identity End.T_PSP_USD {
+    base srv6-endpoint-type;
+    description "End.T with PSP & USD";
+  }
+
+  identity End.T_USP_USD {
+    base srv6-endpoint-type;
+    description "End.T with USP & USD";
+  }
+
+  identity End.T_PSP_USP_USD {
+    base srv6-endpoint-type;
+    description "End.T with PSP, USP & USD";
+  }
+
+  identity End_NEXT-ONLY-CSID {
+    base srv6-endpoint-type;
+    description "End with NEXT-ONLY-CSID";
+  }
+
+  identity END_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End with NEXT-CSID";
+  }
+
+  identity End_NEXT-CSID_PSP {
+    base srv6-endpoint-type;
+    description "End with NEXT-CSID & PSP";
+  }
+
+  identity End_NEXT-CSID_USP {
+    base srv6-endpoint-type;
+    description "End with NEXT-CSID & USP";
+  }
+
+  identity End_NEXT-CSID_PSP_USP {
+    base srv6-endpoint-type;
+    description "End with NEXT-CSID, PSP & USP";
+  }
+
+  identity End_NEXT-CSID_USD {
+    base srv6-endpoint-type;
+    description "End with NEXT-CSID & USD";
+  }
+
+  identity End_NEXT-CSID_PSP_USD {
+    base srv6-endpoint-type;
+    description "End with NEXT-CSID, PSP & USD";
+  }
+
+  identity End_NEXT-CSID_USP_USD {
+    base srv6-endpoint-type;
+    description "End with NEXT-CSID, USP & USD";
+  }
+
+  identity End_NEXT-CSID_PSP_USP_USD {
+    base srv6-endpoint-type;
+    description "End with NEXT-CSID, PSP, USP & USD";
+  }
+
+  identity End.X_NEXT-ONLY-CSID {
+    base srv6-endpoint-type;
+    description "End.X with NEXT-ONLY-CSID";
+  }
+
+  identity End.X_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.X with NEXT-CSID";
+  }
+
+  identity End.X_NEXT-CSID_PSP {
+    base srv6-endpoint-type;
+    description "End.X with NEXT-CSID & PSP";
+  }
+
+  identity End.X_NEXT-CSID_USP {
+    base srv6-endpoint-type;
+    description "End.X with NEXT-CSID & USP";
+  }
+
+  identity End.X_NEXT-CSID_PSP_USP {
+    base srv6-endpoint-type;
+    description "End.X with NEXT-CSID, PSP & USP";
+  }
+
+  identity End.X_NEXT-CSID_USD {
+    base srv6-endpoint-type;
+    description "End.X with NEXT-CSID & USD";
+  }
+
+  identity End.X_NEXT-CSID_PSP_USD {
+    base srv6-endpoint-type;
+    description "End.X with NEXT-CSID, PSP & USD";
+  }
+
+  identity End.X_NEXT-CSID_USP_USD {
+    base srv6-endpoint-type;
+    description "End.X with NEXT-CSID, USP & USD";
+  }
+
+  identity End.X_NEXT-CSID_PSP_USP_USD {
+    base srv6-endpoint-type;
+    description "End.X with NEXT-CSID, PSP, USP & USD";
+  }
+
+  identity End.DX6_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.DX6 with NEXT-CSID";
+  }
+
+  identity End.DX4_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.DX4 with NEXT-CSID";
+  }
+
+  identity End.DT6_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.DT6 with NEXT-CSID";
+  }
+
+  identity End.DT4_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.DT4 with NEXT-CSID";
+  }
+
+  identity End.DT46_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.DT46 with NEXT-CSID";
+  }
+
+  identity End.DX2_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.DX2 with NEXT-CSID";
+  }
+
+  identity End.DX2V_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.DX2V with NEXT-CSID";
+  }
+
+  identity End.DT2U_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.DT2U with NEXT-CSID";
+  }
+
+  identity End.DT2M_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.DT2M with NEXT-CSID";
+  }
+
+  identity End.T_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.T with NEXT-CSID";
+  }
+
+  identity End.T_NEXT-CSID_PSP {
+    base srv6-endpoint-type;
+    description "End.T with NEXT-CSID & PSP";
+  }
+
+  identity End.T_NEXT-CSID_USP {
+    base srv6-endpoint-type;
+    description "End.T with NEXT-CSID & USP";
+  }
+
+  identity End.T_NEXT-CSID_PSP_USP {
+    base srv6-endpoint-type;
+    description "End.T with NEXT-CSID, PSP & USP";
+  }
+
+  identity End.T_NEXT-CSID_USD {
+    base srv6-endpoint-type;
+    description "End.T with NEXT-CSID & USD";
+  }
+
+  identity End.T_NEXT-CSID_PSP_USD {
+    base srv6-endpoint-type;
+    description "End.T with NEXT-CSID, PSP & USD";
+  }
+
+  identity End.T_NEXT-CSID_USP_USD {
+    base srv6-endpoint-type;
+    description "End.T with NEXT-CSID, USP & USD";
+  }
+
+  identity End.T_NEXT-CSID_PSP_USP_USD {
+    base srv6-endpoint-type;
+    description "End.T with NEXT-CSID, PSP, USP & USD";
+  }
+
+  identity End.B6.Encaps_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.B6.Encaps with NEXT-CSID";
+  }
+
+  identity End.B6.Encaps.Red_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.B6.Encaps.Red with NEXT-CSID";
+  }
+
+  identity End.BM_NEXT-CSID {
+    base srv6-endpoint-type;
+    description "End.BM with NEXT-CSID";
+  }
+
+  identity End.B6.Encaps.Red_NEXT-CSID_PSP_USD {
+    base srv6-endpoint-type;
+    description "End.B6.Encaps.Red with NEXT-CSID, PSP & USD";
+  }
+
+  identity End.B6.Insert.Red_NEXT-CSID_PSP_USD {
+    base srv6-endpoint-type;
+    description "End.B6.Insert.Red with NEXT-CSID, PSP & USD";
+  }
+
+  typedef srv6-endpoint-behavior-type {
+    type identityref {
+      base srv6-endpoint-type;
+    }
+    description
+      "SRv6 endpoint behavior type. The behavior types are defined in the
+      IANA SRv6 Endpoint Behaviors registry.";
+    reference
+      "IANA SRv6 Endpoint Behaviors registry
+       (https://www.iana.org/assignments/segment-routing/segment-routing.xhtml)";
+  }
+
 }
