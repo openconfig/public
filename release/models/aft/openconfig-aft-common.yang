@@ -659,9 +659,7 @@ submodule openconfig-aft-common {
     }
 
     leaf flow-label {
-      type uint32 {
-        range "0..1048575";
-      }
+      type oc-inet:ipv6-flow-label;
       description
         "Flow Label, used to identify a packet belong to a particular flow.
         If this value is set, it overrides the hashing computed by the device
@@ -669,16 +667,15 @@ submodule openconfig-aft-common {
     }
 
     leaf traffic-class {
-      type uint8;
+      type oc-inet:ipv6-traffic-class;
       description
-        "Traffic Class value.";
+        "Traffic Class value to use for the encapsulated packet.";
     }
 
     leaf hop-limit {
-      type uint8;
-      default "64";
+      type oc-inet:ipv6-hop-limit;
       description
-        "Hop Limit value.";
+        "Hop Limit value to use for the encapsulated packet.";
     }
   }
 
