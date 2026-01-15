@@ -93,7 +93,8 @@ module openconfig-security-ipsec {
               }
 
               leaf profile-name {
-                // TODO this could be a leafref to a configured profile such as security/ipsec/profiles/profile/config/name
+                // TODO this could be a leafref to a configured profile such as
+                // security/ipsec/profiles/profile/config/name
                 type string;
                 mandatory true;
                 description
@@ -251,6 +252,8 @@ module openconfig-security-ipsec {
                     "Reference to the IKE SA's local address.";
                 }
                 container state {
+                  description
+                    "Container for IKE security association state data.";
                   leaf initiator-spi {
                     type leafref {
                       path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:initiator-spi";
@@ -289,27 +292,38 @@ module openconfig-security-ipsec {
 
             container child-security-associations {
               description
-                "Container for child-security-associations";
+                "Container for child-security-associations.";
               list child-security-association {
                 key "spi destination-address protocol";
                 description
-                  "List of security-association entries";
+                  "List of security-association entries.";
                 leaf spi {
+                  description
+                    "Reference to the Security Parameter Index (SPI) for child
+                     security associations list key.";
                   type leafref {
                     path "../state/spi";
                   }
                 }
                 leaf destination-address {
+                  description
+                    "Reference to destination IP address for child security
+                     associations list key.";
                   type leafref {
                     path "../state/destination-address";
                   }
                 }
                 leaf protocol {
+                  description
+                    "Reference to protocol for child security associations
+                     list key.";
                   type leafref {
                     path "../state/protocol";
                   }
                 }
                 container state {
+                  description
+                    "Container for state of child-security-associations.";
                   leaf spi {
                     type leafref {
                       path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:child-sa/oc-sec-ike:ipv4/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:spi";
@@ -376,11 +390,13 @@ module openconfig-security-ipsec {
               }
 
               leaf profile-name {
-                // TODO this could be a leafref to a configured profile such as security/ipsec/profiles/profile/config/name
+                // TODO this could be a leafref to a configured profile such as
+                // security/ipsec/profiles/profile/config/name
                 type string;
                 mandatory true;
                 description
-                  "Reference to the configured IPsec profile name used by this connection.";
+                  "Reference to the configured IPsec profile name used by this
+                   connection.";
               }
 
               leaf tunnel-interface {
@@ -419,14 +435,16 @@ module openconfig-security-ipsec {
                 type yang:date-and-time;
                 mandatory true;
                 description
-                  "The timestamp indicating when the connection was last active.";
+                  "The timestamp indicating when the connection was last
+                   active.";
               }
 
               leaf next-sa-rekey-time {
                 type yang:date-and-time;
                 mandatory true;
                 description
-                  "The timestamp for the next scheduled rekey event for the Child SA within this connection.";
+                  "The timestamp for the next scheduled rekey event for the
+                   Child SA within this connection.";
               }
 
               leaf error {
@@ -532,6 +550,8 @@ module openconfig-security-ipsec {
                     "Reference to the IKE SA's local address.";
                 }
                 container state {
+                  description
+                    "Container for IKE security association state data.";
                   leaf initiator-spi {
                     type leafref {
                       path "../../../../../../../../oc-sec-ike:ike/oc-sec-ike:ike-sa/oc-sec-ike:ipv6/oc-sec-ike:security-associations/oc-sec-ike:security-association/oc-sec-ike:initiator-spi";
@@ -578,16 +598,25 @@ module openconfig-security-ipsec {
                 description
                   "List of security-association entries";
                 leaf spi {
+                  description
+                    "Reference to Security Parameter Index for child security
+                     associations list key.";
                   type leafref {
                     path "../state/spi";
                   }
                 }
                 leaf destination-address {
+                  description
+                    "Reference to destination IP address for child security
+                     associations list key.";
                   type leafref {
                     path "../state/destination-address";
                   }
                 }
                 leaf protocol {
+                  description
+                    "Reference to protocol for child security associations list
+                     key.";
                   type leafref {
                     path "../state/protocol";
                   }
@@ -637,6 +666,5 @@ module openconfig-security-ipsec {
 
     uses security-ipsec-top;
   }
-// rpc statements
-// notification statements
+// rpc statements notification statements
 }
