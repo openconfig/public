@@ -12,6 +12,8 @@ module openconfig-if-ethernet {
   import iana-if-type { prefix ianaift; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-transport-types { prefix oc-opt-types; }
+
 
   // meta
   organization "OpenConfig working group";
@@ -24,7 +26,15 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.15.0";
+  oc-ext:openconfig-version "2.16.0";
+
+  revision "2025-11-20" {
+    description
+      "Add ethernet FEC statistics - fec-uncorrectable-blocks,
+      fec-corrected-blocks and per-/post-FEC BER statics.
+      Deprecate in-block-errors as it is ambigous.";
+    reference "2.16.0";
+  }
 
   revision "2025-11-14" {
     description
@@ -427,6 +437,33 @@ module openconfig-if-ethernet {
 
     // ingress counters
 
+    leaf fec-uncorrectable-blocks {
+      type oc-yang:counter64;
+      when "../../../config/fec-mode != 'FEC_DISABLED'" {
+        description
+          "Applicable if FEC is enabled.";
+      }
+      description
+        "The number of block/codeword that were uncorrectable by
+        the FEC;
+        This is IEEE802.3 clause 119.3.3 (also IEEE802.3df clause
+        172.3.3 for 800GE) FEC_uncorrected_cw_counter.";
+    }
+
+    leaf fec-corrected-blocks {
+      type oc-yang:counter64;
+      when "../../../config/fec-mode != 'FEC_DISABLED'" {
+        description
+          "Applicable if FEC is enabled.";
+      }
+      description
+        "The number of words/symbols that were corrected by
+        the FEC;
+        Applicable if fec-mode is not NONE.
+        This is IEEE802.3 clause 119.3.2 (also IEEE802.3df clause
+        172.3.2 for 800GE) FEC_corrected_cw_counter";
+    }
+
     leaf in-mac-control-frames {
       type oc-yang:counter64;
       description
@@ -503,6 +540,7 @@ module openconfig-if-ethernet {
     }
 
     leaf in-block-errors {
+      status deprecated;
       type oc-yang:counter64;
       description
         "The number of received errored blocks. Error detection codes
@@ -675,6 +713,35 @@ module openconfig-if-ethernet {
       description "Ethernet interface counters";
 
       uses ethernet-interface-state-counters;
+    }
+    container pre-fec-ber {
+      description
+        "Bit error rate before forward error correction -- computed
+        value with 18 decimal precision. Note that decimal64
+        supports values as small as i x 10^-18 where i is an
+        integer. Values smaller than this should be reported as 0
+        to inidicate error free or near error free performance.
+        Values include the instantaneous, average, minimum, and
+        maximum statistics. If avg/min/max statistics are not
+        supported, the target is expected to just supply the
+        instant value. Applicable id gec-mode is not NONE.";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision18-ber;
+    }
+
+    container post-fec-ber {
+      description
+        "Bit error rate after forward error correction -- computed
+        value with 18 decimal precision. Note that decimal64
+        supports values as small as i x 10^-18 where i is an
+        integer. Values smaller than this should be reported as 0
+        to inidicate error free or near error free performance.
+        Values include the instantaneous, average, minimum, and
+        maximum statistics. If avg/min/max statistics are not
+        supported, the target is expected to just supply the
+        instant value. Applicable id gec-mode is not NONE.";
+
+      uses oc-opt-types:avg-min-max-instant-stats-precision18-ber;
     }
   }
 
