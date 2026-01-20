@@ -29,7 +29,14 @@ submodule openconfig-qos-mem-mgmt {
       per-queue basis, and determine how packets are marked/dropped within
       the queue instantiation.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "2.0.0";
+
+  revision "2026-01-16" {
+    description
+      "Revert percentage types to uint64 with appropriate
+      scoping/units";
+    reference "2.0.0";
+  }
 
   revision "2025-12-16" {
     description
@@ -366,7 +373,10 @@ revision "2023-07-26" {
     }
 
     leaf min-threshold-percent {
-      type oc-types:percentage;
+      type uint64 {
+        range "0..100";
+      }
+      units percentage;
       description
         "The mininum threshold parameter for a RED-managed queue in percent.
         When the average queue length is less than minth, all packets are
@@ -375,7 +385,10 @@ revision "2023-07-26" {
     }
 
     leaf max-threshold-percent {
-      type oc-types:percentage;
+      type uint64 {
+        range "0..100";
+      }
+      units percentage;
       description
         "The maximum threshold parameter for a RED-managed queue in percent.
         When the average queue length exceeds the maxth value, all packets
