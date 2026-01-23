@@ -251,6 +251,7 @@ submodule openconfig-pf-forwarding-policies {
 
               uses pf-forwarding-policy-action-encapsulate-gre;
               uses pf-forwarding-policy-action-ipv4;
+              uses pf-forwarding-policy-action-ipv6;
               uses pf-forwarding-policy-action-mpls;
               uses pf-forwarding-policy-action-forwarding;
             }
@@ -402,13 +403,13 @@ submodule openconfig-pf-forwarding-policies {
     description
       "Forwarding policy action parameters related to IPv6.";
 
-    container ipv4 {
+    container ipv6 {
       description
       "Container for forwarding policy actions related to IPv6.";
       container config {
         description
           "Configuration parameters for IPv6 actions.";
-        uses pf-forwarding-policy-action-ipv4-config;
+        uses pf-forwarding-policy-action-ipv6-config;
       }
 
       container state {
@@ -416,7 +417,7 @@ submodule openconfig-pf-forwarding-policies {
           "Operational state parameters for IPv4 rules action.";
 
         config false;
-        uses pf-forwarding-policy-action-ipv4-config;
+        uses pf-forwarding-policy-action-ipv6-config;
       }
     }
   }
@@ -432,16 +433,16 @@ submodule openconfig-pf-forwarding-policies {
         "Set the matching packet DSCP value.";
     }
 
-    leaf ip-ttl {
+    leaf hop-limit {
       when "../../../../../../config/type='MATCH_ACTION_POLICY'";
       type uint8;
       description
-        "If set, this leaf causes the local system to not decrement the TTL
-        and instead re-write the IP TTL of matching packets to the specified
-        value.
+        "If set, this leaf causes the local system to not decrement the hop
+        limit and instead re-write the hop limit of matching packets to the
+        specified value.
 
-        When this leaf is not set, the TTL value of the matching packet is
-        not affected by this policy and should be processed according to
+        When this leaf is not set, the hop limit value of the matching packet
+        is not affected by this policy and should be processed according to
         normal forwarding rules.";
     }
   }
