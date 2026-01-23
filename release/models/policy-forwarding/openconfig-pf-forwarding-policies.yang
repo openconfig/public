@@ -250,6 +250,7 @@ submodule openconfig-pf-forwarding-policies {
               }
 
               uses pf-forwarding-policy-action-encapsulate-gre;
+              uses pf-forwarding-policy-action-ipv4;
               uses pf-forwarding-policy-action-mpls;
               uses pf-forwarding-policy-action-forwarding;
             }
@@ -349,6 +350,102 @@ submodule openconfig-pf-forwarding-policies {
     }
   }
 
+  grouping pf-forwarding-policy-action-ipv4 {
+    description
+      "Forwarding policy action parameters related to IPv4.";
+
+    container ipv4 {
+      description
+      "Container for forwarding policy actions related to IPv4.";
+      container config {
+        description
+          "Configuration parameters for IPv4 rules action.";
+        uses pf-forwarding-policy-action-ipv4-config;
+      }
+
+      container state {
+        description
+          "Operational state parameters for IPv4 rules action.";
+
+        config false;
+        uses pf-forwarding-policy-action-ipv4-config;
+      }
+    }
+  }
+
+  grouping pf-forwarding-policy-action-ipv4-config {
+    description
+      "Configuration parameters for IPv4 actions.";
+
+    leaf dscp {
+      when "../../../../../../config/type = 'MATCH_ACTION_POLICY'";
+      type oc-inet-types:dscp;
+      description
+        "Set the matching packet DSCP value.";
+    }
+
+    leaf ip-ttl {
+      when "../../../../../../config/type='MATCH_ACTION_POLICY'";
+      type uint8;
+      description
+        "If set, this leaf causes the local system to not decrement the TTL
+        and instead re-write the IP TTL of matching packets to the specified
+        value.
+
+        When this leaf is not set, the TTL value of the matching packet is
+        not affected by this policy and should be processed according to
+        normal forwarding rules.";
+    }
+  }
+
+  grouping pf-forwarding-policy-action-ipv6 {
+    description
+      "Forwarding policy action parameters related to IPv6.";
+
+    container ipv4 {
+      description
+      "Container for forwarding policy actions related to IPv6.";
+      container config {
+        description
+          "Configuration parameters for IPv6 actions.";
+        uses pf-forwarding-policy-action-ipv4-config;
+      }
+
+      container state {
+        description
+          "Operational state parameters for IPv4 rules action.";
+
+        config false;
+        uses pf-forwarding-policy-action-ipv4-config;
+      }
+    }
+  }
+
+  grouping pf-forwarding-policy-action-ipv6-config {
+    description
+      "Configuration parameters for IPv6 actions.";
+
+    leaf dscp {
+      when "../../../../../../config/type = 'MATCH_ACTION_POLICY'";
+      type oc-inet-types:dscp;
+      description
+        "Set the matching packet DSCP value.";
+    }
+
+    leaf ip-ttl {
+      when "../../../../../../config/type='MATCH_ACTION_POLICY'";
+      type uint8;
+      description
+        "If set, this leaf causes the local system to not decrement the TTL
+        and instead re-write the IP TTL of matching packets to the specified
+        value.
+
+        When this leaf is not set, the TTL value of the matching packet is
+        not affected by this policy and should be processed according to
+        normal forwarding rules.";
+    }
+  }
+
   grouping pf-forwarding-policy-action-mpls {
     description
       "Forwarding policy action parameters related to MPLS.";
@@ -414,7 +511,6 @@ grouping pf-forwarding-policy-action-forwarding-config {
     "Configuration parameters for the forwarding action.";
 
   leaf forwarding-action {
-    when "../../../../../../config/type = 'MATCH_ACTION_POLICY'";
     type identityref {
       base FORWARDING_ACTION;
     }
@@ -503,13 +599,6 @@ grouping pf-forwarding-policy-action-forwarding-config {
         NI specified by this leaf might contain different mixed next hop
         actions (e.g. next hop IP, decapsulation, redirect to another NI,
         etc).";
-    }
-
-    leaf dscp {
-      when "../../../../../config/type = 'MATCH_ACTION_POLICY'";
-      type oc-inet-types:dscp;
-      description
-        "Set the matching packet DSCP value.";
     }
 
     leaf log {
@@ -613,8 +702,13 @@ grouping pf-forwarding-policy-action-forwarding-config {
     leaf ip-ttl {
       when "../../../../../config/type='MATCH_ACTION_POLICY'";
       type uint8;
+      status deprecated;
       description
-        "If set, this leaf causes the local system to not decrement the TTL
+        "This is is deprecated and may be removed in a future OC model release.
+        Instead use the ip-ttl leaf in the appropriate the address family
+        container.
+
+        If set, this leaf causes the local system to not decrement the TTL
         and instead re-write the IP TTL of matching packets to the specified
         value.
 
