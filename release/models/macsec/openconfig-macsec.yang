@@ -240,6 +240,8 @@ revision "2023-06-08" {
     description
       "MKA interface state grouping";
 
+    uses macsec-session-status;
+
     container counters {
       description
         "MKA interface counters";
@@ -299,6 +301,11 @@ revision "2023-06-08" {
         that are accepted. A value of 0 means that frames are accepted only in
         the correct order.";
     }
+  }
+
+  grouping macsec-session-status {
+    description
+      "Media Access Control Security (MACsec) status grouping";
 
     leaf status {
       type enumeration {
@@ -587,6 +594,7 @@ revision "2023-06-08" {
             "Operational state data ";
 
           uses macsec-interface-config;
+          uses macsec-session-status;
 
           container counters {
             description
