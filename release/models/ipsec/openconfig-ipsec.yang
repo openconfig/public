@@ -1,0 +1,300 @@
+module openconfig-ipsec {
+  yang-version 1;
+  namespace "http://openconfig.net/yang/ipsec";
+  prefix "oc-ipsec";
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-ipsec-types { prefix ipsec-types; }
+  import openconfig-keychain { prefix "oc-keychain"; }
+  import openconfig-acl { prefix oc-acl; }
+  import openconfig-inet-types { prefix oc-inet; }
+
+  organization
+    "OpenConfig working group";
+  contact
+    "Openconfig working group
+     www.openconfig.net";
+  description
+    "This module defines configuration and state data for
+     IPSec Using IKEv2.";
+
+  oc-ext:openconfig-version "0.1.0";
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  revision "2025-04-23" {
+    description
+      "Initial public revision";
+    reference
+      "0.1.0";
+  }
+
+  grouping acl-selector-config {
+    description
+      "Grouping for ACL parameters relating to the system control-plane.";
+
+    leaf set-name {
+      type leafref {
+          path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/" +
+                "oc-acl:config/oc-acl:name";
+      }
+      description
+        "Reference to the ACL to be applied to traffic
+        in the specified context (ingress or egress).";
+    }
+
+    leaf type {
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set" +
+            "[oc-acl:name=current()/../set-name]" +
+            "/oc-acl:config/oc-acl:type";
+      }
+      description
+        "Reference to the ACL set type applied to traffic
+        in the specified context (ingress or egress).";
+    }
+  }
+
+  grouping ipsec-tunnel-config {
+    description
+      "Parameters for configuring IPSec Tunnel.";
+
+    leaf name {
+      type string;
+      description
+        "Name for this IPSec tunnel.";
+    }
+
+    leaf peer-address {
+      type oc-inet:ip-address;
+      description
+        "IP address of the peer to connect to.";
+    }
+
+    leaf-list cipher-suites {
+      type ipsec-types:ipsec-cipher-suite;
+      description
+        "List of allowed cipher suites. Default is all the AES
+        based cipher suites.";
+    }
+    leaf-list cipher-key-lengths {
+      type uint16;
+      description
+        "Allowed key lengths for encryptions. Default depends on the
+        algorithms chosen, but should be all available key sizes for the chosen
+        algorithms.";
+    }
+
+    leaf-list hash-algorithms {
+      type ipsec-types:ipsec-hash-algorithms;
+      description
+        "List of allowed hash algorithms. Default is all the SHA2
+        based prf algorithms.";
+    }
+
+    leaf-list prf-algorithms {
+      type ipsec-types:ipsec-prf-algorithms;
+      description
+        "List of allowed prf algorithms. Default is all the SHA2
+        based prf algorithms.";
+    }
+
+    leaf auth-algorithm {
+      type ipsec-types:ipsec-authentication-algorithms;
+      default "ECDSA_SHA_512_P_521";
+      description
+        "Authentication algorithm to use";
+    }
+
+    leaf digital-signature-type {
+      type identityref {
+        base ipsec-types:DIGITAL_SIGNATURE_TYPE;
+      }
+      description
+        "Specific version of digital signature authentication to use.";
+    }
+
+    leaf auth-key-size {
+      type uint16;
+      description
+        "Allowed key lengths for authentication. Default depends on the
+        algorithms chosen, but should be largest available key size for
+        the algorithm.";
+    }
+
+    leaf key-chain {
+      type leafref {
+        path "/oc-keychain:keychains/oc-keychain:keychain/" +
+           "oc-keychain:name";
+      }
+      description
+        "Configure Key Chain name. Only required for Shared Key Message
+        Integrity Code Authentication Method. Can be specified for
+        signature based authentication types, or the system can generate
+        one.";
+    }
+
+    leaf phase-one-sa-life {
+      type uint32;
+      units seconds;
+      description
+        "How long the Phase 1 SA lasts for. Default is the SA lasts forever
+        (not recommended).";
+    }
+
+    leaf phase-two-key-life {
+      type uint32;
+      units seconds;
+      description
+        "How long the keys for phase two last.Default is the SA lasts forever
+        (not recommended).";
+    }
+  }
+
+  grouping traffic-selector-top {
+    description
+      "Grouping for IPSec Tunnel Traffic Selector";
+    container traffic-selector {
+      description
+        "ACL to use to select traffic for this IPSec Tunnel";
+      container config {
+        description
+        "Configuration of Traffic Selector";
+
+        uses acl-selector-config;
+      }
+
+      container state {
+        config false;
+        description
+        "Operational state data for Traffic Selector";
+
+        uses acl-selector-config;
+      }
+    }
+  }
+
+  grouping ipsec-tunnels-top {
+    description
+      "Grouping for IPSec Tunnels";
+    container ipsec-tunnels {
+      description
+        "Container for list of IPSec Tunnels";
+      list ipsec-tunnel {
+        key "name";
+
+        description
+          "List of IPSec Tunnels";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the IPSec Tunnel Name";
+        }
+
+        container config {
+          description
+          "Configuration of IPSec Tunnel";
+
+          uses ipsec-tunnel-config;
+        }
+
+        container state {
+          config false;
+          description
+          "Operational state data for IPSec Tunnel";
+
+          uses ipsec-tunnel-config;
+        }
+
+        uses traffic-selector-top;
+      }
+    }
+  }
+
+  grouping ipsec-interface-config {
+    description
+      "IPSec interface config grouping";
+
+    leaf-list ipsec-tunnel {
+      type leafref {
+        path "/ipsec/ipsec-tunnels/ipsec-tunnel/name";
+      }
+      description
+        "Apply IPSec Tunnel(s) to the interface";
+    }
+
+    leaf name {
+      type oc-if:base-interface-ref;
+      description
+        "Reference to the IPSec Ethernet interface";
+    }
+
+    leaf enable {
+      type boolean;
+      default false;
+      description
+        "Enable IPSec on an interface";
+    }
+
+  }
+
+  grouping ipsec-interface-top {
+    description
+      "Top-level grouping ";
+
+    container interfaces {
+      description
+        "Enclosing container for the MACsec interfaces list";
+
+      list interface {
+        key "name";
+        description
+          "List of interfaces on which MACsec is enabled / available";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the list key";
+        }
+
+        container config {
+          description
+            "Configuration data for MACsec on each interface";
+
+          uses ipsec-interface-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data ";
+
+          uses ipsec-interface-config;
+        }
+      }
+    }
+  }
+
+
+  grouping ipsec-top {
+    description
+      "IPSec top level grouping";
+
+    container ipsec {
+      description
+        "The IPSec";
+
+      uses ipsec-tunnels-top;
+      uses ipsec-interface-top;
+    }
+  }
+
+  uses ipsec-top;
+}
