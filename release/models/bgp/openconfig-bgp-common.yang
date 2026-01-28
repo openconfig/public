@@ -24,7 +24,13 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.10.0";
+
+  revision "2025-05-19" {
+    description
+      "Support for Extended-route-retention (ExRR)";
+          reference "9.10.0";
+  }
 
   revision "2025-04-18" {
     description
@@ -598,7 +604,93 @@ submodule openconfig-bgp-common {
     }
   }
 
-  grouping bgp-common-use-multiple-paths-config {
+  grouping bgp-extended-route-retention-config {
+    description
+      "Configuration parameters relating to BGP Extended Route Retention (ERR).
+  
+      Extended Route Retention is a mechanism to retain routing information
+      in the Local-RIB and maintain forwarding functionality in the event of
+      a prolonged BGP control-plane failure of a neighbor. It allows a BGP
+      speaker to hold stale routes from a failed peer for a configurable
+      duration.
+  
+      key difference from RFC 9494 Long-Lived Graceful Restart (LLGR).";
+        - ExRR processes stale routes through an operator-defined, configurable
+          routing policy, providing granular control over attributes and
+          acceptance.
+        - ExRR is a purely local behavior of the receiving speaker (helper) and
+          does not require negotiation via BGP capabilities. This allows ExRR to
+          be enabled unilaterally.";
+  
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "Enable or disable Extended Route Retention. When enabled, upon
+        certain BGP session failure conditions, stale routes from a neighbor
+        are held for a configurable duration.";
+    }
+  
+    leaf retention-time {
+      type uint32;
+      units "seconds";
+      description
+        "Time duration in seconds for which the device will retain stale
+        routes under Extended Route Retention conditions. A NOS Must
+        support at least 180 days of retention-time";
+    }
+  
+    leaflist retention-policy {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+             "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      ordered-by user;
+      description
+        "A list of routing policy definitions that are applied to stale
+        routes, evaluated in the specified order. This policy chain can
+        modify attributes or selectively accept/reject routes.";
+    }
+  
+    leaf default-retention-policy {
+      type oc-pol-types:default-policy-type;
+      default "REJECT_ROUTE";
+      description
+        "Explicitly defines the action to take for stale routes that do not
+        match any of the policies in the retention-policy chain. If no
+        policy is specified in the retention-policy leaflist, this
+        default action is applied.";
+    }
+  }
+
+grouping bgp-extended-route-retention-state {
+  description
+    "Operational state parameters relating to BGP Extended Route
+    Retention (ERR).";
+
+  leaf extended-retention-active {
+    type boolean;
+    description
+      "Indicates whether Extended Route Retention is currently
+      active for the BGP session.";
+  }
+
+  leaf remaining-retention-time { 
+    type uint32; 
+    units "seconds"; 
+    description 
+    "The time remaining, in seconds, before the stale routes are purged. 
+    Its behavior will be as follow: 
+      1. When ExRR is not active (extended-retention-active =
+      false), remaining-retention-time will report the full configured 
+      retention-time.
+      2. When ExRR is active (extended-retention-active = true),
+      remaining-retention-time will count down from the configured 
+      retention-time."; 
+  }
+}
+
+grouping bgp-common-use-multiple-paths-config {
     description
       "Generic configuration options relating to use of multiple
       paths for a referenced AFI-SAFI, group or neighbor";
