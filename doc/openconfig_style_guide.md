@@ -484,26 +484,32 @@ consistent programmatic handling of the schema. For instance, the `config` and
 `state` containers used for operational state, and surrounding containers for
 YANG `list` statements. In some cases (e.g., programmatically generating
 configuration), this schema verbosity negatively impacts usability -- e.g.,
-requiring programmers to reference longer paths that they could. Tooling
+requiring programmers to reference longer paths than are necessary. Tooling
 generating programmatic APIs around OpenConfig can improve usability by
 transforming the schema. Clearly, this is wholly reliant on consistency
 in the modelling approach.
 
-The following rules MUST be adherered to within the OpenConfig models to
+The following rules MUST be adhered to within the OpenConfig models to
 ensure that downstream tooling does not break.
 
-* **`list` nodes MUST NOT share their identifier with any grandparent
-  node.** It is not legal for `/foos/foo` and `/foo` to exist. This rule
-  exists to allow the `foos` container to be removed during schema
-  transformation.
-* **A leaf-node may not share a name with a grandparent**. It is not legal
+* **`list` nodes MUST NOT share their identifier with any of the children
+  of its grandparent node.** It is not legal for `/a/foos/foo` and `/a/foo` 
+  to exist, or for `/interfaces/interface` and `/interface` to exist, where
+  `/a/foos/foo` and `/interfaces/interface` are `list` nodes. This rule
+  exists to allow the (style-guide-required) "surrounding" container of 
+  a list to be removed during schema transformation.
+* **A leaf node may not share a name with a grandparent**. It is not legal
   for `/a/config/leaf` and `/a/leaf` to both exist nor for `/b/state/leaf` 
-  and `/b/leaf` to both exist. This rule ensures that the `config` and `state`
-  containers can be removed during schema transformation.
+  and `/b/leaf` to both exist. The single exception to this rule is the
+  special case of nodes which act as the `key` of a `list`, where the leaf
+  must be a direct child of the `list` node. Such leaves MUST be the `key` 
+  of the `list` and must be of type `leafref` as specified elsewhere in this
+  guide. This rule ensures that the `config` and `state` containers can be removed
+  during schema transformation.
 
 An example of programmatic compression is implemented for the generation of
 code in ygot -- both for Go and Protobuf artifact generation
-((reference)[https://github.com/openconfig/ygot/blob/master/docs/design.md#openconfig-path-compression]).
+([reference](https://github.com/openconfig/ygot/blob/master/docs/design.md#openconfig-path-compression)).
 
 ## Appendix
 
