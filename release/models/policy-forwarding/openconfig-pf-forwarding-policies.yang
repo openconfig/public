@@ -325,12 +325,10 @@ submodule openconfig-pf-forwarding-policies {
         policy-fowarding match entries belonging to the rule.";
     }
 
-    leaf name {
+    leaf description {
       type string;
       description
-      "A user defined name for a rule, used to give a user friendly
-      description of the rule.  This leaf should not be used as a leafref
-      but rather only to provide some meaningful name for the rule.";
+      "A user defined description of a rule.";
     }
   }
 
@@ -705,9 +703,9 @@ grouping pf-forwarding-policy-action-forwarding-config {
       type uint8;
       status deprecated;
       description
-        "This is is deprecated and may be removed in a future OC model release.
-        Instead use the ip-ttl leaf in the appropriate the address family
-        container.
+        "This leaf is deprecated and may be removed in a future OC model
+        release. Instead use the ttl leaf in the appropriate the address
+        family container.
 
         If set, this leaf causes the local system to not decrement the TTL
         and instead re-write the IP TTL of matching packets to the specified
