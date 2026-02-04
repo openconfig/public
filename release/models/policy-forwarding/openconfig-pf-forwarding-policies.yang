@@ -7,7 +7,6 @@ submodule openconfig-pf-forwarding-policies {
   import openconfig-packet-match { prefix "oc-pmatch"; }
   import openconfig-yang-types { prefix "oc-yang"; }
   import openconfig-inet-types { prefix "oc-inet"; }
-  import openconfig-user-counters { prefix "oc-uc"; }
 
   include openconfig-pf-path-groups;
 
@@ -28,6 +27,7 @@ submodule openconfig-pf-forwarding-policies {
     description
       "Add count as a policy-forwarding action.";
     reference "1.2.0";
+  }
 
   revision "2025-12-15" {
     description
@@ -143,6 +143,8 @@ submodule openconfig-pf-forwarding-policies {
             "Reference to the identifier for the forwarding-policy.";
         }
 
+        uses pf-policy-user-counters;
+
         container config {
           description
             "Configuration options relating to the forwarding
@@ -224,6 +226,7 @@ submodule openconfig-pf-forwarding-policies {
             }
           }
         }
+
       }
     }
   }
@@ -261,6 +264,72 @@ submodule openconfig-pf-forwarding-policies {
     }
   }
 
+
+  grouping pf-policy-user-counters {
+    description
+      "Grouping for user-defined counters for policy-forwarding policies.";
+
+    container user-counters {
+      description
+        "Container for user-defined counters for policy-forwarding
+        policies.";
+
+      list user-counter {
+        key "name";
+
+        description
+          "A user-defined counter for policy-forwarding policies. Entries in
+          this list are created when the 'count' action is defined for a
+          policy-forwarding rule.  The string in the 'count' action refers to
+          an entry in this list.  Counters are defined per policy.  One or
+          more rules may reference the same named counter.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the name of the user-defined counter.";
+        }
+
+        container config {
+          description
+            "Configuration parameters for the policy-fowarding policy
+            user-defined counters.";
+
+          leaf name {
+            type string;
+            description
+              "A unique name for the user-defined counter.";
+          }
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters for the user-defined counter.";
+
+          leaf name {
+            type string;
+            description
+              "A unique name for the user-defined counter.";
+          }
+
+          container counters {
+            description
+              "A container for the counter values.";
+
+            leaf value {
+              type oc-yang:counter64;
+              description
+                "The current value of the user-defined counter.";
+            }
+          }
+        }
+      }
+    }
+  }
+
   grouping pf-forwarding-policy-rule-config {
     description
       "Configuration parameters relating to a policy rule.";
@@ -295,8 +364,10 @@ submodule openconfig-pf-forwarding-policies {
 
     leaf count {
       type leafref {
-        path "/oc-uc:user-counters/oc-uc:user-counter/oc-uc:config/oc-uc:name";
+        path "../../../../../user-counters/user-counter/config/name";
       }
+
+      // type string;
       description
         "When specified, the system will increment the referenced user
         defined counter.";
