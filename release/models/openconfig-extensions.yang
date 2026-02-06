@@ -18,7 +18,13 @@ module openconfig-extensions {
     "This module provides extensions to the YANG language to allow
     OpenConfig specific functionality and meta-data to be defined.";
 
-  oc-ext:openconfig-version "0.7.0";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2026-02-04" {
+    description
+    "Add allow-config-mismatch extension.";
+    reference "1.0.0";
+  }
 
   revision "2025-01-02" {
     description
@@ -68,6 +74,15 @@ module openconfig-extensions {
     reference "0.1.0";
   }
 
+  extension allow-config-mismatch {
+    description
+      "This extension is applied to configuration leaves that may
+      contain values which mismatch or are invalid for currently
+      installed hardware.  The target must accepted these invalid
+      values and should generate a warning message.  In this case
+      the related hardware component is expected to be in an operational
+      down or error state.";
+  }
 
   // extension statements
   extension openconfig-version {
