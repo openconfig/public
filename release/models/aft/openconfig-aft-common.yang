@@ -606,7 +606,6 @@ submodule openconfig-aft-common {
     }
 
     list encap-mpls-label-stack {
-      type oc-mplst:mpls-label;
       ordered-by user;
       description
         "The MPLS label stack imposed when forwarding packets to the
@@ -630,6 +629,33 @@ submodule openconfig-aft-common {
         encap-headers/encap-header tree.  A future release of OpenConfig
         will deprecate this node in favor of the
         encap-headers/encap-header subtree.";
+
+      key "index";
+
+      leaf index {
+          type leafref {
+            path "../state/index";
+          }
+          description
+            "Reference to list key";
+      }
+
+      container state {
+        description
+          "State parameters relating to nexthop encap";
+
+        leaf index {
+          type uint8;
+          description
+            "Index for a label in the list.";
+        }
+
+        leaf label {
+          type oc-mplst:mpls-label;
+          description
+            "MPLS label value.";
+        }
+      }
     }
 
     leaf encapsulate-header {
@@ -732,7 +758,6 @@ submodule openconfig-aft-common {
     }
 
     list encap-mpls-label-stack {
-      type oc-mplst:mpls-label;
       ordered-by user;
       description
         "A stack of MPLS label values.  The first entry in the list is the
@@ -746,6 +771,33 @@ submodule openconfig-aft-common {
 
         Note: a swap operation is reflected by entries in the
         decap-mpls-label-stack and the encap-mpls-label-stack";
+
+      key "index";
+
+      leaf index {
+          type leafref {
+            path "../state/index";
+          }
+          description
+            "Reference to list key";
+      }
+
+      container state {
+        description
+          "State parameters relating to nexthop encap";
+
+        leaf index {
+          type uint8;
+          description
+            "Index for a label in the list.";
+        }
+
+        leaf label {
+          type oc-mplst:mpls-label;
+          description
+            "MPLS label value.";
+        }
+      }
     }
   }
 
