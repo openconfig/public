@@ -29,7 +29,7 @@ submodule openconfig-aft-common {
     description
       "Deprecate popped-mpls-label-stack and AFT NH pushed-mpls-label-stack
        and mpls-label-stack leafs as they do not support duplicates.
-       Add decap-mpls-label-stack and AFT NH encah-mpls-label-stack
+       Add decap-mpls-label-stack and AFT NH encap-mpls-label-stack
        and encap-mpls-label-stack leafs that support duplicates.";
     reference "3.3.0";
   }
@@ -599,63 +599,8 @@ submodule openconfig-aft-common {
         A swap operation is reflected by entries in the
         popped-mpls-label-stack and pushed-mpls-label-stack nodes.
 
-        This node must be supported in addition to the
-        encap-headers/encap-header tree.  A future release of OpenConfig
-        will deprecate this node in favor of the
-        encap-headers/encap-header subtree.";
-    }
-
-    list encap-mpls-label-stack {
-      ordered-by user;
-      description
-        "The MPLS label stack imposed when forwarding packets to the
-        next-hop
-        - the stack is encoded as a leaf list whereby the order of the
-          entries is such that the first entry in the list is the
-          label at the bottom of the stack to be pushed. This supports
-          duplicate labels.
-
-        To this end, a packet which is to forwarded to a device using
-        a service label of 42, and a transport label of 8072 will be
-        represented with a label stack list of [42, 8072].
-
-        The MPLS label stack list is ordered by the user, such that no
-        system re-ordering of leaves is permitted by the system.
-
-        A swap operation is reflected by entries in the
-        decap-mpls-label-stack and encap-mpls-label-stack nodes.
-
-        This node must be supported in addition to the
-        encap-headers/encap-header tree.  A future release of OpenConfig
-        will deprecate this node in favor of the
-        encap-headers/encap-header subtree.";
-
-      key "index";
-
-      leaf index {
-          type leafref {
-            path "../state/index";
-          }
-          description
-            "Reference to list key";
-      }
-
-      container state {
-        description
-          "State parameters relating to nexthop encap";
-
-        leaf index {
-          type uint8;
-          description
-            "Index for a label in the list.";
-        }
-
-        leaf label {
-          type oc-mplst:mpls-label;
-          description
-            "MPLS label value.";
-        }
-      }
+        This node is deprecated in favor of the encap-headers/encap-header
+        subtree.";
     }
 
     leaf encapsulate-header {
@@ -684,6 +629,54 @@ submodule openconfig-aft-common {
     }
 
     uses aft-common-install-protocol;
+  }
+
+  grouping aft-common-entry-nexthop-mpls-label-state {
+    description
+      "Parameters relating to a next-hop mpls state.";
+
+    list encap-mpls-label-stack {
+      ordered-by user;
+      description
+        "A stack of MPLS label values.  The first entry in the list is the
+        label at the bottom of the stack.  The bottom of the stack is adjacent
+        to the MPLS payload. This supports duplicate labels.
+
+        For example, a packet with a label stack of two labels, the bottom
+        label being 42 and the top label being 8072 will be represented with
+        a leaf-list of [42, 8072].  The resulting packet, starting with the
+        beginning of the packet will be '[8072][42][Payload]'.
+
+        Note: a swap operation is reflected by entries in the
+        decap-mpls-label-stack and the encap-mpls-label-stack";
+
+      key "index";
+
+      leaf index {
+          type leafref {
+            path "../state/index";
+          }
+          description
+            "Reference to list key";
+      }
+
+      container state {
+        description
+          "State parameters relating to nexthop encap";
+
+        leaf index {
+          type uint8;
+          description
+            "Index for a label in the list.";
+        }
+
+        leaf label {
+          type oc-mplst:mpls-label;
+          description
+            "MPLS label value.";
+        }
+      }
+    }
   }
 
   grouping aft-common-entry-nexthop-ip-state {
@@ -748,6 +741,8 @@ submodule openconfig-aft-common {
         label at the bottom of the stack.  The bottom of the stack is adjacent
         to the MPLS payload. This does not support duplicate labels.
 
+        This node is deprecated in favor of the list encap-mpls-label-stack.
+
         For example, a packet with a label stack of two labels, the bottom
         label being 42 and the top label being 8072 will be represented with
         a leaf-list of [42, 8072].  The resulting packet, starting with the
@@ -757,48 +752,7 @@ submodule openconfig-aft-common {
         popped-mpls-label-stack and the pushed-mpls-label-stack";
     }
 
-    list encap-mpls-label-stack {
-      ordered-by user;
-      description
-        "A stack of MPLS label values.  The first entry in the list is the
-        label at the bottom of the stack.  The bottom of the stack is adjacent
-        to the MPLS payload. This supports duplicate labels.
-
-        For example, a packet with a label stack of two labels, the bottom
-        label being 42 and the top label being 8072 will be represented with
-        a leaf-list of [42, 8072].  The resulting packet, starting with the
-        beginning of the packet will be '[8072][42][Payload]'.
-
-        Note: a swap operation is reflected by entries in the
-        decap-mpls-label-stack and the encap-mpls-label-stack";
-
-      key "index";
-
-      leaf index {
-          type leafref {
-            path "../state/index";
-          }
-          description
-            "Reference to list key";
-      }
-
-      container state {
-        description
-          "State parameters relating to nexthop encap";
-
-        leaf index {
-          type uint8;
-          description
-            "Index for a label in the list.";
-        }
-
-        leaf label {
-          type oc-mplst:mpls-label;
-          description
-            "MPLS label value.";
-        }
-      }
-    }
+    uses aft-common-entry-nexthop-mpls-label-state;
   }
 
   grouping aft-common-entry-nexthop-encap-mpls-config {
