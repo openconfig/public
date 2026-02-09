@@ -254,47 +254,52 @@ submodule openconfig-aft-mpls {
         popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
     }
 
-    list decap-mpls-label-stack {
-      ordered-by user;
+    container decap-mpls-label-stacks {
       description
-        "The MPLS label stack to be popped from the packet when
-        switched by the system. The stack is encoded as a list
-        such that the first entry is the label that is outer-most (i.e.,
-        furthest from the bottom of the stack). This supports duplicate
-        labels.
+        "Surrounding container for groups of decap-mpls-label-stack.";
 
-        If the local system pops the outer-most label 400, then the
-        value of this list is [400,]. If the local system removes two
-        labels, the outer-most being 500, and the second of which is
-        400, then the value of the list is [500, 400].
+      list decap-mpls-label-stack {
+        ordered-by user;
+        description
+          "The MPLS label stack to be popped from the packet when
+          switched by the system. The stack is encoded as a list
+          such that the first entry is the label that is outer-most (i.e.,
+          furthest from the bottom of the stack). This supports duplicate
+          labels.
 
-        A swap operation is reflected by entries in the
-        decap-mpls-label-stack and encap-mpls-label-stack nodes.";
+          If the local system pops the outer-most label 400, then the
+          value of this list is [400,]. If the local system removes two
+          labels, the outer-most being 500, and the second of which is
+          400, then the value of the list is [500, 400].
 
-      key "id";
+          A swap operation is reflected by entries in the
+          decap-mpls-label-stack and encap-mpls-label-stack nodes.";
 
-      leaf id {
+        key "id";
+
+        leaf id {
           type leafref {
             path "../state/id";
           }
           description
             "Reference to list key";
-      }
-
-      container state {
-        description
-          "State parameters relating to nexthop encap";
-
-        leaf id {
-          type uint8;
-          description
-            "Index for a label in the list.";
         }
 
-        leaf label {
-          type oc-mplst:mpls-label;
+        container state {
           description
-            "MPLS label value.";
+            "State parameters relating to nexthop encap";
+
+          leaf id {
+            type uint8;
+            description
+              "Index for a label in the list.";
+          }
+
+          leaf label {
+            type oc-mplst:mpls-label;
+            description
+              "MPLS label value.";
+          }
         }
       }
     }

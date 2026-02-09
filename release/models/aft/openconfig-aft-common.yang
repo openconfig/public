@@ -635,45 +635,50 @@ submodule openconfig-aft-common {
     description
       "Parameters relating to a next-hop mpls state.";
 
-    list encap-mpls-label-stack {
-      ordered-by user;
+    container encap-mpls-label-stacks {
       description
-        "A stack of MPLS label values.  The first entry in the list is the
-        label at the bottom of the stack.  The bottom of the stack is adjacent
-        to the MPLS payload. This supports duplicate labels.
+        "Surrounding container for groups of encap-mpls-label-stack.";
 
-        For example, a packet with a label stack of two labels, the bottom
-        label being 42 and the top label being 8072 will be represented with
-        a leaf-list of [42, 8072].  The resulting packet, starting with the
-        beginning of the packet will be '[8072][42][Payload]'.
+      list encap-mpls-label-stack {
+        ordered-by user;
+        description
+          "A stack of MPLS label values.  The first entry in the list is the
+          label at the bottom of the stack.  The bottom of the stack is adjacent
+          to the MPLS payload. This supports duplicate labels.
 
-        Note: a swap operation is reflected by entries in the
-        decap-mpls-label-stack and the encap-mpls-label-stack";
+          For example, a packet with a label stack of two labels, the bottom
+          label being 42 and the top label being 8072 will be represented with
+          a leaf-list of [42, 8072].  The resulting packet, starting with the
+          beginning of the packet will be '[8072][42][Payload]'.
 
-      key "id";
+          Note: a swap operation is reflected by entries in the
+          decap-mpls-label-stack and the encap-mpls-label-stack";
 
-      leaf id {
+        key "id";
+
+        leaf id {
           type leafref {
             path "../state/id";
           }
           description
             "Reference to list key";
-      }
-
-      container state {
-        description
-          "State parameters relating to nexthop encap";
-
-        leaf id {
-          type uint8;
-          description
-            "Index for a label in the list.";
         }
 
-        leaf label {
-          type oc-mplst:mpls-label;
+        container state {
           description
-            "MPLS label value.";
+            "State parameters relating to nexthop encap";
+
+          leaf id {
+            type uint8;
+            description
+              "Index for a label in the list.";
+          }
+
+          leaf label {
+            type oc-mplst:mpls-label;
+            description
+              "MPLS label value.";
+          }
         }
       }
     }
