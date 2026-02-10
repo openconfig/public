@@ -32,7 +32,13 @@ module openconfig-gnsi-pathz {
     OpenConfig-path-based authorization policies installed on a networking
     device.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.3.1";
+  
+  revision 2026-02-10 {
+    description
+      "Fix yanglint schema warnings";
+    reference "0.3.1";
+  }
 
   revision 2024-02-13 {
     description
@@ -312,7 +318,8 @@ module openconfig-gnsi-pathz {
   }
   augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" +
           "/oc-sys-grpc:state" {
-    when "../config[contains(services, 'oc-gnsi:GNSI')]/enable = 'true'";
+    when "../oc-sys-grpc:config[contains(oc-sys-grpc:services, 'oc-gnsi:GNSI')]" +
+         "/oc-sys-grpc:enable = 'true'";
     description
       "A gNMI server OpenConfig-path-based authorization policy freshness
       information.";
