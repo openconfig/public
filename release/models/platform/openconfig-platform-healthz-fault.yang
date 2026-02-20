@@ -1,0 +1,324 @@
+module openconfig-platform-healthz-fault {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/platform/healthz-fault";
+
+  prefix "oc-platform-healthz-fault";
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-platform { prefix oc-platform; }
+  import openconfig-platform-healthz { prefix oc-platform-healthz; }
+  import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-types { prefix oc-types; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This model defines device reported fault";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2025-08-05" {
+    description
+      "Initial fault schema";
+    reference "0.1.0";
+  }
+
+  identity SYMPTOM_BASE {
+    description
+      "Base identity for fault symptoms";
+  }
+
+  identity SYMPTOM_OVER_THRESHOLD {
+    base SYMPTOM_BASE;
+    description
+      "Indicates that a sensor exceeds its upper operating threshold.";
+  }
+
+  identity SYMPTOM_UNDER_THRESHOLD {
+    base SYMPTOM_BASE;
+    description
+      "Indicates that a sensor is measuring below its lower operating
+      threshold.";
+  }
+
+  identity SYMPTOM_MEMORY_ERRORS {
+    base SYMPTOM_BASE;
+    description
+      "Memory errors";
+  }
+
+  identity SYMPTOM_MISSING_COMPONENT {
+    base SYMPTOM_BASE;
+    description
+      "Component is missing";
+  }
+
+  identity SYMPTOM_COMM_ERROR {
+    base SYMPTOM_BASE;
+    description
+      "Internal communication error occurred on the component";
+  }
+
+  identity SYMPTOM_UNKNOWN {
+    base SYMPTOM_BASE;
+    description
+      "An unknown symptom";
+  }
+
+  identity ACTION_BASE {
+    description
+      "Base identity for remediation actions";
+  }
+
+  identity ACTION_RESEAT {
+    base ACTION_BASE;
+    description
+      "Reseat component.";
+  }
+
+  identity ACTION_WARM_REBOOT {
+    base ACTION_BASE;
+    description
+      "Reboot that does not interrupt device operation, ie
+      a gNOI.System.RebootRequest with a WARM or NSF RebootMethod";
+  }
+
+  identity ACTION_COLD_REBOOT {
+    base ACTION_BASE;
+    description
+      "Reboot that interrupts device operation, ie a gNOI.System.RebootRequest
+      with COLD RebootMethod";
+  }
+
+  identity ACTION_POWER_CYCLE {
+    base ACTION_BASE;
+    description
+      "The process of turning a component off completely and then turning it
+      back on.
+
+      This could be achieved with two gNOI.System.RebootRequest calls:
+      a POWERDOWN RebootMethod followed by a POWERUP RebootMethod.
+
+      At the device level, using a remote controlled power strip to
+      mechanically disconnect the power source (ie: pull the plug) is another
+      example";
+  }
+
+  identity ACTION_FACTORY_RESET {
+    base ACTION_BASE;
+    description
+      "Restores a component to its original factory settings.
+      At the device level, this could be acheived with the gNOI.FactoryReset
+      service";
+  }
+
+  identity ACTION_REPLACE {
+    base ACTION_BASE;
+    description
+      "Replace component.";
+  }
+
+  grouping platform-health-faults {
+    description
+      "Grouping containing a component's active faults";
+
+    container faults {
+      description
+        "Enclosing container for a component's active faults.";
+
+      list fault {
+        key "symptom";
+        config false;
+        description
+          "A fault indicates that a component has recently or is currently
+          experiencing a problem as expressed by a symptom. These symptoms have
+          underlying conditions that are platform-specific.
+
+          Faults should only be raised if the component is no longer able to
+          perform the function expected of it and requires
+          remediation/intervention.
+
+          The fault should not be deleted as soon as the underlying condition
+          is no longer asserted to avoid excessive fault creation and deletion.
+          Deletion of the fault should occur after a suitable period outside of
+          the triggering condition";
+
+        leaf symptom {
+          config false;
+          description
+           "The symptom that raised this fault";
+          type leafref {
+            path "../state/symptom";
+          }
+        }
+
+        container state {
+          config false;
+          description
+            "Operational fault state.";
+          uses fault-state;
+        }
+
+        uses fault-remediations;
+      }
+    }
+  }
+
+  grouping fault-state-counters {
+    description
+      "Operational state for fault component counters.";
+
+    leaf occurrences {
+      type oc-yang:counter64;
+      description
+        "The number of times this fault transitioned into the active state.
+        When a fault is added, this value should start at 1.";
+    }
+  }
+
+  grouping fault-state {
+    description
+      "The fault's operational state";
+    leaf symptom {
+      type identityref {
+        base SYMPTOM_BASE;
+      }
+      description
+        "The symptom that raised this fault";
+    }
+
+    leaf origin-time {
+      type oc-types:timeticks64;
+      description
+        "The time at which the fault first became active.
+        This value is static for the life of the fault.
+
+        The value is a Unix Epoch timestamp (nanoseconds since
+        Jan 1, 1970 00:00:00 UTC)";
+    }
+
+    leaf last-detection-time {
+      type oc-types:timeticks64;
+      description
+        "The time at which the fault's underlying condition was last sampled
+        and confirmed asserted.
+
+        The value is a Unix Epoch timestamp (nanoseconds since
+        Jan 1, 1970 00:00:00 UTC)";
+    }
+
+    leaf description {
+      type string;
+      description
+        "Description of the fault to assist with debuggability.
+        This is purely for informational purposes and consuming systems
+        should not expect a common behaviour/pattern, even across software
+        releases or hardware platforms";
+    }
+
+    leaf status {
+      type enumeration {
+        enum UNSPECIFIED {
+          description
+            "The component's health status has not yet been checked
+            by the system.";
+        }
+
+        enum ACTIVE {
+          description
+            "The underlying condition is asserted";
+        }
+
+        enum INACTIVE {
+          description
+            "The underlying condition is not asserted.";
+        }
+      }
+      description
+        "The status of the fault, indicates whether the underlying condition
+        is actively asserted.";
+    }
+
+    container counters {
+      description
+        "A collection of fault counters.";
+
+      uses fault-state-counters;
+    }
+  }
+
+  grouping fault-remediations {
+    description
+      "Grouping containing a fault's recommended remediations";
+
+    container remediations {
+      description
+        "List of actions recommended to remediate the fault.
+
+        Not all actions in this list are necessarily required. Ultimately any
+        fault can be mitigated by replacing the chassis, but that's expensive.
+        Providing alternatives enables the operator to explore less expensive
+        solutions first. The device is not expected to know whether any
+        remediations have previously been performed, so this list is not
+        expected to change with progressive interventions.";
+
+      list remediation {
+        key "index";
+        leaf index {
+          type leafref {
+            path "../state/index";
+          }
+          description
+            "This index indicates the order in which the actions should be
+            applied. The order should progress from least to most disruptive.";
+        }
+        description
+          "List of recommended actions to respond to the fault";
+
+        container state {
+          config false;
+          description
+            "The remediation's operational state.";
+          leaf index {
+            type uint64;
+            description
+              "This index indicates the order in which the actions should be
+              applied. The order should progress from least to most
+              disruptive.";
+          }
+
+          leaf action {
+            description
+              "The specific action to be performed";
+            type identityref {
+              base ACTION_BASE;
+            }
+          }
+          leaf target {
+            description
+              "The component on which the action should be applied";
+            type leafref {
+              path "/oc-platform:components/oc-platform:component/" +
+                   "oc-platform:name";
+            }
+          }
+        }
+      }
+    }
+  }
+
+  augment "/oc-platform:components/oc-platform:component/oc-platform-healthz:healthz" {
+    description
+      "Augment fault information into the /components/component/healthz.";
+
+    uses platform-health-faults;
+  }
+}

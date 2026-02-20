@@ -22,9 +22,15 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "1.10.0";
+  oc-ext:openconfig-version "1.11.0";
 
-  revision "2025-07-09" {
+revision "2025-09-03" {
+    description
+      "Add USB_PORT";
+    reference "1.11.0";
+  }
+
+revision "2025-07-09" {
     description
       "Add FPGA, BOOT_LOADER_GRUB, BOOT_LOADER_ONIE";
     reference "1.10.0";
@@ -387,6 +393,12 @@ module openconfig-platform-types {
     description
       "Physical port, e.g., for attaching pluggables and networking
       cables";
+  }
+
+  identity USB_PORT {
+    base OPENCONFIG_HARDWARE_COMPONENT;
+    description
+      "Non-serial USB ports of any type.";
   }
 
   identity TRANSCEIVER {
