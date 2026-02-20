@@ -29,67 +29,55 @@ module openconfig-containerz {
 
   oc-ext:openconfig-version "0.1.0";
 
-  revision 2025-11-09 {
+  revision 2026-02-20 {
     description
       "Initial revision.";
     reference "0.1.0";
   }
 
-
-
-  // gRPC server related definitions.
-  // Success/failure counters.
-  grouping grpc-server-containerz-counters  {
+  grouping containerz-config {
     description
-      "A collection of counters that were collected while evaluating
-      access to the gRPC server.";
+            "Containerz gRPC server configuration data.";
 
-    container counters {
-      config false;
+    leaf vrf {
+      type string;
       description
-      "A collection of counters that were collected by the gRPC during
-      the authentication process.";
-
-      leaf connection-rejects {
-        type oc-yang:counter64;
-        description
-        "The total number of times that gRPC clients have failed
-        in establishing a connection to the server.";
-      }
-      leaf last-connection-reject {
-        type oc-types:timeticks64;
-        description
-        "A timestamp of the last time a gRPC client failed
-        in establishing a connection to the server.";
-      }
-      leaf connection-accepts {
-        type oc-yang:counter64;
-        description
-        "The total number of times that gRPC clients have succeeded
-        in establishing a connection to the server.";
-      }
-      leaf last-connection-accept {
-        type oc-types:timeticks64;
-        description
-        "A timestamp of the last time a gRPC client succeeded
-        in establishing a connection to the server.";
-      }
-      leaf running-containers {
-        type oc-yang:counter64;
-        description
-        "The number of containers currently running on the system.";
-      }
+            "The vrf instance where the container runtime should be started.";
     }
+
+    leaf soft-memory-limit {
+      type uint64;
+      units megabytes;
+      description
+            "The amount of memory to limit the entire container workload to if
+             memory contention is detected.";
+    }
+
+    leaf hard-memory-limit {
+      type uint64;
+      units megabytes;
+      description
+        "The amount of memory to limit the entire container workload.";
+    }
+
+    leaf cpu-limit {
+       type oc-types:percentage;
+        description
+            "The percentage of system cpu to allocate to the entire container
+                    workload.";
+    }
+
   }
 
-  grouping grpc-server-containerz-state {
+
+  grouping containerz-state {
     description
-      "gRPC server containerz freshness-related data.";
+      "Containerz base container operational data.";
 
     container containers {
+
       list container {
         key "name";
-
         leaf name {
           type string;
         }
@@ -108,32 +96,54 @@ module openconfig-containerz {
              "The number of times the container was restarted.";
         }
 
-        leaf version {
+        leaf build-label {
           type string;
           description
-            "The version of the of the container. This corresponds to the
+            "This build-label of the container. This corresponds to the
+            build label associated to the container if any.";
+        }
+
+        leaf tag {
+          type string;
+          description
+            "The version of the container. This corresponds to the
              tag of of the image associated to this container.";
         }
       }
     }
   }
 
-  // Augments section.
-
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
-          "oc-sys-grpc:state" {
-    when "../config[contains(services, 'oc-containerz:CONTAINERZ')]/enable = 'true'";
+  grouping containerz-top {
     description
-      "A gRPC server containerz freshness information.";
+        "Top level configuration and state data for Containerz";
 
-    uses grpc-server-containerz-state;
+    container state {
+      config false;
+      description
+            "Operational data for Containerz";
+
+      uses containerz-state;
+    }
+
+    container config {
+    config true;
+    description
+      "Configuration data for Containerz";
+
+      uses containerz-config;
+    }
+  }
+  identity CONTAINERZ {
+    base "oc-sys-grpc:GRPC_SERVICE";
+    description
+      "Containerz: gRPC Container Lifecycle Management";
   }
 
-  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server/" +
-          "oc-sys-grpc:state" {
-    when "../config[contains(services, 'oc-containerz:CONTAINERZ')]/enable = 'true'";
-    uses grpc-server-containerz-counters;
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
+    when "config[contains(services, 'oc-containerz:CONTAINERZ')]/enable = 'true'";
     description
-      "gNOI Containerz server access counters.";
+      "Containerz gRPC Server.";
+
+    uses containerz-top;
   }
 }
