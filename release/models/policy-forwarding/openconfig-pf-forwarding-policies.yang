@@ -269,38 +269,35 @@ submodule openconfig-pf-forwarding-policies {
     description
       "Grouping for user-defined counters for policy-forwarding policies.";
 
-    container user-counters {
+    container policy-counters {
       description
-        "Container for user-defined counters for policy-forwarding
-        policies.";
+        "Container for counters defined within policy-forwarding policies.";
 
-      list user-counter {
+      list policy-counter {
         key "name";
 
         description
-          "A user-defined counter for policy-forwarding policies. Entries in
-          this list are created when the 'count' action is defined for a
-          policy-forwarding rule.  The string in the 'count' action refers to
-          an entry in this list.  Counters are defined per policy.  One or
-          more rules may reference the same named counter.";
+          "A list of counters for a given policy-forwarding policy. Counters
+          are defined per policy.  The counters are updated where defined as
+          a policy-forwarding action.  One or more rules may contain actions
+          that reference the same policy-counter.";
 
         leaf name {
           type leafref {
             path "../config/name";
           }
           description
-            "Reference to the name of the user-defined counter.";
+            "Reference to the name of the policy counter.";
         }
 
         container config {
           description
-            "Configuration parameters for the policy-fowarding policy
-            user-defined counters.";
+            "Configuration parameters for a policy-counter.";
 
           leaf name {
             type string;
             description
-              "A unique name for the user-defined counter.";
+              "A unique name for a policy-counter.";
           }
         }
 
@@ -319,10 +316,17 @@ submodule openconfig-pf-forwarding-policies {
             description
               "A container for the counter values.";
 
-            leaf value {
+            leaf packets {
               type oc-yang:counter64;
               description
-                "The current value of the user-defined counter.";
+                "The number of packets matching the rules where this counter
+                is defined as an action.";
+            }
+            leaf bytes {
+              type oc-yang:counter64;
+              description
+                "The number of bytes matching the rules where this counter
+                is defined as an action.";
             }
           }
         }
@@ -364,7 +368,7 @@ submodule openconfig-pf-forwarding-policies {
 
     leaf count {
       type leafref {
-        path "../../../../../user-counters/user-counter/config/name";
+        path "../../../../../policy-counters/policy-counter/config/name";
       }
 
       // type string;
