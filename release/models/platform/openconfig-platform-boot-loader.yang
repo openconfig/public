@@ -25,7 +25,7 @@ module openconfig-platform-boot-loader {
 
   revision "2026-02-27" {
     description
-      "Added uboot and systemd-boot types";
+      "Added uboot, linuxboot, and systemd-boot types";
     reference "0.2.0";
   }
 
@@ -68,6 +68,14 @@ module openconfig-platform-boot-loader {
     description
       "Das U-Boot, or the Universal Boot Loader.";
       reference "https://u-boot.org/about/";
+  }
+
+  identity BOOT_LOADER_LINUXBOOT {
+    base BOOT_LOADER_BASE;
+    description
+      "LinuxBoot is the concept of using a Linux kernel and initramfs as a
+      bootloader.";
+      reference "https://www.linuxboot.org/";
   }
 
   identity BOOT_LOADER_SYSTEMD_BOOT {
