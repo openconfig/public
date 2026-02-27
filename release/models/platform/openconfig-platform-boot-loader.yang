@@ -21,7 +21,13 @@ module openconfig-platform-boot-loader {
     "This module defines data related to BOOT_LOADER components in the
     OpenConfig platform model.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2026-02-27" {
+    description
+      "Added uboot and systemd-boot types";
+    reference "0.2.0";
+  }
 
   revision "2025-07-10" {
     description
@@ -44,14 +50,37 @@ module openconfig-platform-boot-loader {
     base BOOT_LOADER_BASE;
     description
       "GRUB is a boot-loader and boot manager for Linux and other Unix-based
-      OSes.";
+      OSes.
+      
+      https://www.gnu.org/software/grub/";
   }
 
   identity BOOT_LOADER_ONIE {
     base BOOT_LOADER_BASE;
     description
       "Open Network Install Environment (ONIE) is the combination of a boot
-      loader and a small operating system for network switches.";
+      loader and a small operating system for network switches.
+      
+      https://opencomputeproject.github.io/onie/overview/";
+  }
+
+  identity BOOT_LOADER_UBOOT {
+    base BOOT_LOADER_BASE;
+    description
+      "Das U-Boot, or the Universal Boot Loader.
+      
+      https://u-boot.org/about/";
+  }
+
+  identity BOOT_LOADER_SYSTEMD_BOOT {
+    base BOOT_LOADER_BASE;
+    description
+      "systemd-boot, previously called gummiboot (German for 'rubber dinghy')
+      and sometimes referred to as sd-boot, is an easy-to-configure UEFI boot
+      manager. It provides a textual menu to select the boot entry and an editor
+      for the kernel command line.
+      
+      https://wiki.archlinux.org/title/Systemd-boot";
   }
 
   // typedef statements
