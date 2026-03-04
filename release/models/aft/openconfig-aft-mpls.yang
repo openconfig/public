@@ -217,6 +217,7 @@ submodule openconfig-aft-mpls {
           entry.";
         uses aft-mpls-entry-state;
       }
+      uses aft-mpls-entry-label-state;
     }
   }
 
@@ -253,7 +254,9 @@ submodule openconfig-aft-mpls {
         A swap operation is reflected by entries in the
         popped-mpls-label-stack and pushed-mpls-label-stack nodes.";
     }
+  }
 
+  grouping aft-mpls-entry-label-state {
     container decap-mpls-label-stacks {
       description
         "Surrounding container for groups of decap-mpls-label-stack.";
@@ -286,6 +289,7 @@ submodule openconfig-aft-mpls {
         }
 
         container state {
+          config false;
           description
             "State parameters relating to nexthop encap";
 
