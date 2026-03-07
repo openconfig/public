@@ -41,7 +41,13 @@ module openconfig-wavelength-router {
          target spectrum power profile over the full spectrum instead
          of individual media channels.";
 
-  oc-ext:openconfig-version "1.2.0";
+  oc-ext:openconfig-version "1.2.1";
+  
+  revision "2026-02-10" {
+    description
+      "Fix yanglint schema warnings";
+    reference "1.2.1";
+  }
 
   revision "2024-04-08" {
     description
@@ -622,7 +628,7 @@ module openconfig-wavelength-router {
       type decimal64 {
         fraction-digits 2;
       }
-      when "../attenuation-control-range = 'CONTROL_RANGE_LIMITED'";
+      when "../attenuation-control-range = 'oc-wave-router:CONTROL_RANGE_LIMITED'";
       units dB;
       description
         "Defines the maximum allowable WSS attenuation adjustment
@@ -636,7 +642,7 @@ module openconfig-wavelength-router {
       type decimal64 {
         fraction-digits 2;
       }
-      when "../attenuation-control-range = 'CONTROL_RANGE_LIMITED'";
+      when "../attenuation-control-range = 'oc-wave-router:CONTROL_RANGE_LIMITED'";
       units dB;
       description
         "Defines the maximum allowable WSS attenuation adjustment

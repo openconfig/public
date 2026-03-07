@@ -26,7 +26,13 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.16.0";
+  oc-ext:openconfig-version "2.16.1";
+  
+  revision "2026-02-10" {
+    description
+      "Fix yanglint schema warnings";
+    reference "2.16.1";
+  }
 
   revision "2025-11-20" {
     description
@@ -439,7 +445,7 @@ module openconfig-if-ethernet {
 
     leaf fec-uncorrectable-blocks {
       type oc-yang:counter64;
-      when "../../../config/fec-mode != 'FEC_DISABLED'" {
+      when "../../../config/fec-mode != 'oc-eth:FEC_DISABLED'" {
         description
           "Applicable if FEC is enabled.";
       }
@@ -452,7 +458,7 @@ module openconfig-if-ethernet {
 
     leaf fec-corrected-blocks {
       type oc-yang:counter64;
-      when "../../../config/fec-mode != 'FEC_DISABLED'" {
+      when "../../../config/fec-mode != 'oc-eth:FEC_DISABLED'" {
         description
           "Applicable if FEC is enabled.";
       }
