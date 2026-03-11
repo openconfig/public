@@ -9,7 +9,6 @@ module openconfig-network-instance-static {
 
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-aft { prefix "oc-aft"; }
-  import openconfig-aft-types { prefix "oc-aftt"; }
   import openconfig-local-routing { prefix "oc-loc-rt"; }
 
   // meta
@@ -22,7 +21,13 @@ module openconfig-network-instance-static {
   description
     "Static configurations associated with a network instance";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.2.2";
+  
+  revision "2026-02-10" {
+    description
+      "Fix yanglint schema warnings";
+    reference "0.2.2";
+  }
 
   revision "2025-08-05" {
     description
@@ -273,7 +278,7 @@ module openconfig-network-instance-static {
         }
 
         container udp-v4 {
-          when "../config/type = 'oc-aftt:UDPV4'";
+          when "../config/type = 'UDPV4'";
           description
             "Container of nodes for UDP in IPv4 encapsulation.  When this
             container is used, an IPv4 header with a UDP header is added
@@ -296,7 +301,7 @@ module openconfig-network-instance-static {
         }
 
         container gre {
-          when "../config/type = 'oc-aftt:GRE'";
+          when "../config/type = 'GRE'";
           description
             "Container of nodes for GRE encapsulation.  When this
             container is used, a GRE header is added to the encapsulation
@@ -318,7 +323,7 @@ module openconfig-network-instance-static {
         }
 
         container mpls {
-          when "../config/type = 'oc-aftt:MPLS'";
+          when "../config/type = 'MPLS'";
           description
             "Container of nodes for MPLS encapsulation.  When this
             container is used, a MPLS header is added to the encapsulation

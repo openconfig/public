@@ -27,7 +27,13 @@ module openconfig-gnsi-acctz {
     "This module provides counters of gNSI accountZ requests and responses and
     the quantity of data transferred.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.4.1";
+  
+  revision 2026-02-10 {
+    description
+      "Fix yanglint schema warnings";
+    reference "0.4.1";
+  }
 
   revision 2024-12-24 {
     description
@@ -263,7 +269,8 @@ module openconfig-gnsi-acctz {
 
   // Augments section.
   augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
-    when "config[contains(services, 'oc-gnsi:GNSI')]/enable = 'true'";
+    when "oc-sys-grpc:config[contains(oc-sys-grpc:services, " +
+         "'oc-gnsi:GNSI')]/oc-sys-grpc:enable = 'true'";
     description
       "Counters collected by the gNSI.acctz module regarding grpc servers.";
 

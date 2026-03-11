@@ -24,7 +24,13 @@ submodule openconfig-rib-bgp-attributes {
     attributes for use in BGP RIB tables.";
 
 
-  oc-ext:openconfig-version "0.9.0";
+  oc-ext:openconfig-version "0.9.1";
+  
+  revision "2026-02-10" {
+    description
+      "Fix yanglint schema warnings";
+    reference "0.9.1";
+  }
 
   revision "2022-12-20" {
     description
@@ -917,7 +923,7 @@ submodule openconfig-rib-bgp-attributes {
     }
 
     leaf remote-ipv4-address {
-      when "../type = 'IPV4_NODE_ADDRESS' or ../type='../IPV4_ADDRESS_INDEX'" +
+      when "../type = 'IPV4_NODE_ADDRESS'" +
            "or ../type='IPV4_LOCAL_INTF_ID' or " +
            "../type='IPV4_LOCAL_REMOTE_ADDR'" {
         description
@@ -946,7 +952,7 @@ submodule openconfig-rib-bgp-attributes {
     }
 
     leaf remote-ipv6-address {
-      when "../type = 'IPV6_NODE_ADDRESS' or ../type='IPV6_ADDRESS_INDEX'" +
+      when "../type = 'IPV6_NODE_ADDRESS'" +
            "or ../type='IPV6_LOCAL_INTF_ID' or " +
            "../type='IPV6_LOCAL_REMOTE_ADDR'" {
         description
