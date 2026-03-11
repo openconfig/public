@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.2.0";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2026-03-10" {
+    description
+      "Add global-filter container to support per-network-instance AFT prefix filtering.";
+    reference "3.3.0";
+  }
 
   revision "2025-08-07" {
     description
@@ -194,6 +200,7 @@ submodule openconfig-aft-common {
       "Structural grouping describing a next-hop entry.";
 
     container next-hops {
+      config false;
       description
         "The list of next-hops that are to be used for entry within
         the AFT table. The structure of each next-hop is address
@@ -868,6 +875,7 @@ submodule openconfig-aft-common {
       "Logical grouping for groups of next-hops.";
 
     container next-hop-groups {
+      config false;
       description
         "Surrounding container for groups of next-hops.";
 

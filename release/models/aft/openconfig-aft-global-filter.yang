@@ -1,0 +1,72 @@
+submodule openconfig-aft-global-filter {
+  belongs-to "openconfig-aft" {
+    prefix "oc-aft";
+  }
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-routing-policy { prefix "oc-rpol"; }
+
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Submodule containing definitions of groupings for the global
+    filter configuration applicable to abstract forwarding tables.";
+
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2026-03-10" {
+    description
+      "Add global-filter container to support per-network-instance
+      AFT prefix filtering.";
+    reference "3.3.0";
+  }
+
+  grouping aft-global-filter-config {
+    description
+      "Configuration parameters for the AFT global filter.";
+
+    leaf policy-name {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions" +
+             "/oc-rpol:policy-definition/oc-rpol:config/oc-rpol:name";
+      }
+      description
+        "Reference to a routing policy that is used to filter the
+        prefixes that are installed into the AFT. Only prefixes that
+        are accepted by the referenced policy are installed.";
+    }
+  }
+
+  grouping aft-global-filter-structural {
+    description
+      "Structural grouping defining the schema for the global filter
+      applied to the abstract forwarding tables.";
+
+    container global-filter {
+      description
+        "Configuration and state for a global filter applied to the
+        AFT. The filter is used to restrict which prefixes are
+        installed into the AFT for the network instance.";
+
+      container config {
+        description
+          "Configuration parameters for the AFT global filter.";
+
+        uses aft-global-filter-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters for the AFT global filter.";
+
+        uses aft-global-filter-config;
+      }
+    }
+  }
+}
