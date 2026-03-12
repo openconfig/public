@@ -1,0 +1,149 @@
+module openconfig-containerz {
+  yang-version 1;
+  namespace "https://github.com/openconfig/yang/gnoi/containerz";
+  prefix oc-gnoi-containerz;
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-system {
+    prefix oc-sys;
+  }
+  import openconfig-system-grpc {
+    prefix oc-sys-grpc;
+  }
+  import openconfig-types {
+    prefix oc-types;
+  }
+  import openconfig-yang-types {
+    prefix oc-yang;
+  }
+  organization
+    "OpenConfig Working Group";
+
+  contact
+    "OpenConfig working group
+    netopenconfig@googlegroups.com";
+
+  description
+    "This module provides a data model for the metadata of gNOI.containerz
+    running on this system as well as the containers running on the system.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision 2026-02-20 {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  grouping containerz-config {
+    description
+            "Containerz gRPC server configuration data.";
+
+    leaf vrf {
+      type string;
+      description
+            "The vrf instance where the container runtime should be started.";
+    }
+
+    leaf soft-memory-limit {
+      type uint64;
+      units megabytes;
+      description
+            "The amount of memory to limit the entire container workload to if
+             memory contention is detected.";
+    }
+
+    leaf hard-memory-limit {
+      type uint64;
+      units megabytes;
+      description
+        "The amount of memory to limit the entire container workload.";
+    }
+
+    leaf cpu-limit {
+       type oc-types:percentage;
+        description
+            "The percentage of system cpu to allocate to the entire container
+                    workload.";
+    }
+
+  }
+
+
+  grouping containerz-state {
+    description
+      "Containerz base container operational data.";
+
+    container containers {
+
+      list container {
+        key "name";
+        leaf name {
+          type string;
+        }
+
+        leaf created-on {
+          type oc-types:timeticks64;
+          description
+           "The timestamp when the container was created.
+            The value is the timestamp in nanoseconds relative to
+            the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+        }
+
+        leaf restarts {
+           type oc-yang:counter64;
+           description
+             "The number of times the container was restarted.";
+        }
+
+        leaf build-label {
+          type string;
+          description
+            "This build-label of the container. This corresponds to the
+            build label associated to the container if any.";
+        }
+
+        leaf tag {
+          type string;
+          description
+            "The version of the container. This corresponds to the
+             tag of of the image associated to this container.";
+        }
+      }
+    }
+  }
+
+  grouping containerz-top {
+    description
+        "Top level configuration and state data for Containerz";
+
+    container state {
+      config false;
+      description
+            "Operational data for Containerz";
+
+      uses containerz-state;
+    }
+
+    container config {
+    config true;
+    description
+      "Configuration data for Containerz";
+
+      uses containerz-config;
+    }
+  }
+  identity CONTAINERZ {
+    base "oc-sys-grpc:GRPC_SERVICE";
+    description
+      "Containerz: gRPC Container Lifecycle Management";
+  }
+
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" {
+    when "config[contains(services, 'oc-containerz:CONTAINERZ')]/enable = 'true'";
+    description
+      "Containerz gRPC Server.";
+
+    uses containerz-top;
+  }
+}
