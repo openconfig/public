@@ -38,7 +38,14 @@ module openconfig-srte-policy {
   reference
     "draft-ietf-spring-segment-routing-policy";
 
-  oc-ext:openconfig-version "0.2.3";
+  oc-ext:openconfig-version "0.2.4";
+
+  revision "2026-02-09" {
+    description
+      "Update segment-lists nexthop state container to use
+      aft-common-entry-nexthop-mpls-label-state.";
+    reference "0.2.4";
+  }
 
   revision "2021-07-28" {
     description
@@ -451,6 +458,7 @@ module openconfig-srte-policy {
                   }
                 }
 
+                uses oc-aft:aft-common-entry-nexthop-mpls-label-state;
                 uses oc-if:interface-ref-state;
               }
             }
