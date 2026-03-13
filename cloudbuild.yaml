@@ -147,12 +147,12 @@ steps:
   id: 'regexp'
 
 ############### YANGLINT ##############
-- name: gcr.io/cloud-builders/gsutil
-  args: ['cp', 'gs://openconfig/libyang.deb', '/workspace/libyang.deb']
+- name: gcr.io/cloud-builders/gcloud
+  args: ['storage', 'cp', 'gs://openconfig/libyang.deb', '/workspace/libyang.deb']
   waitFor: ['validator prep']
   id: 'yanglint prep1'
-- name: gcr.io/cloud-builders/gsutil
-  args: ['cp', 'gs://openconfig/yanglint.deb', '/workspace/yanglint.deb']
+- name: gcr.io/cloud-builders/gcloud
+  args: ['storage', 'cp', 'gs://openconfig/yanglint.deb', '/workspace/yanglint.deb']
   waitFor: ['validator prep']
   id: 'yanglint prep2'
 - name: 'us-west1-docker.pkg.dev/$PROJECT_ID/models-ci/models-ci-image'
