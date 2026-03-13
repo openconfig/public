@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.2.0";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2026-01-12" {
+    description
+      "Add suport for Segment Routing over IPv6 (SRv6).";
+    reference "3.3.0";
+  }
 
   revision "2025-08-07" {
     description
@@ -366,6 +372,8 @@ submodule openconfig-aft-common {
                   "State parameters relating to IP encapsulation headers.";
 
                 uses aft-common-entry-nexthop-ip-state;
+
+                uses aft-common-entry-nexthop-ipv6-state;
               }
             }
 
@@ -639,6 +647,38 @@ submodule openconfig-aft-common {
     }
   }
 
+  grouping aft-common-entry-nexthop-ipv6-state {
+    description
+      "IPv6 encapsulation applied on a next-hop";
+
+    leaf-list srv6-sid-list {
+      type oc-inet:ipv6-address;
+      ordered-by user;
+      description
+        "Additional SRv6 SIDs set on the Segment Routing Header (SRH).";
+    }
+
+    leaf flow-label {
+      type oc-inet:ipv6-flow-label;
+      description
+        "Flow Label, used to identify a packet belong to a particular flow.
+        If this value is set, it overrides the hashing computed by the device
+        and forces the value configured.";
+    }
+
+    leaf traffic-class {
+      type oc-inet:ipv6-traffic-class;
+      description
+        "Traffic Class value to use for the encapsulated packet.";
+    }
+
+    leaf hop-limit {
+      type oc-inet:ipv6-hop-limit;
+      description
+        "Hop Limit value to use for the encapsulated packet.";
+    }
+  }
+
   grouping aft-common-entry-nexthop-encap-gre-config {
     description
       "GRE encapsulation applied on a IPv4 and IPv6 next-hop.";
@@ -860,6 +900,23 @@ submodule openconfig-aft-common {
         forwarding lookup is performed on the packet encapsulated
         within the header, matched within the relevant AFT within the
         specified network-instance.";
+    }
+  }
+
+  grouping aft-common-ipv6-state {
+    description
+      "Common parameters across IPv6 address family";
+
+    leaf srv6-endpoint-behavior {
+      type identityref {
+        base oc-inet:srv6-endpoint-type;
+      }
+      description
+        "Behavior type associated with the SID. The behavior types are
+        defined in the IANA SRv6 Endpoint Behaviors registry.";
+      reference
+        "IANA SRv6 Endpoint Behaviors registry
+        (https://www.iana.org/assignments/segment-routing/segment-routing.xhtml)";
     }
   }
 
