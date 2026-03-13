@@ -21,8 +21,8 @@ submodule openconfig-aft-global-filter {
 
   revision "2026-03-10" {
     description
-      "Add global-filter container to support per-network-instance
-      AFT prefix filtering.";
+      "Add global-filter container to support per-network-instance and per
+      AFT filtering, with routing policy split by address family.";
     reference "3.3.0";
   }
 
@@ -30,15 +30,26 @@ submodule openconfig-aft-global-filter {
     description
       "Configuration parameters for the AFT global filter.";
 
-    leaf policy-name {
+    leaf ipv4-policy {
       type leafref {
         path "/oc-rpol:routing-policy/oc-rpol:policy-definitions" +
              "/oc-rpol:policy-definition/oc-rpol:config/oc-rpol:name";
       }
       description
         "Reference to a routing policy that is used to filter the
-        prefixes that are installed into the AFT. Only prefixes that
-        are accepted by the referenced policy are installed.";
+        IPv4 prefixes that are installed into the AFT. Only prefixes
+        that are accepted by the referenced policy are installed.";
+    }
+
+    leaf ipv6-policy {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions" +
+             "/oc-rpol:policy-definition/oc-rpol:config/oc-rpol:name";
+      }
+      description
+        "Reference to a routing policy that is used to filter the
+        IPv6 prefixes that are installed into the AFT. Only prefixes
+        that are accepted by the referenced policy are installed.";
     }
   }
 
