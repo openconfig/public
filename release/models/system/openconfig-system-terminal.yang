@@ -22,7 +22,13 @@ module openconfig-system-terminal {
     "This module defines configuration and operational state data
     related to remote terminal services such as ssh and telnet.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2025-11-10" {
+    description
+      "Add a host-certificate leaf.";
+    reference "0.4.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -152,6 +158,12 @@ module openconfig-system-terminal {
       default V2;
       description
         "Set the protocol version for SSH connections to the system";
+    }
+
+    leaf host-certificate {
+      type string;
+      description
+        "SSH Host Certificate string. This is the full content of an openssh host certificate";
     }
 
     uses system-terminal-common-config;

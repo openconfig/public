@@ -23,9 +23,15 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.1.0";
+  oc-ext:openconfig-version "3.2.0";
 
-  revision "2025-07-17" {
+  revision "2025-08-07" {
+    description
+      "Factor out AFT counters from atomic container into a unified subtree.";
+    reference "3.2.0";
+  }
+
+  revision "2025-05-15" {
     description
       "Add GRE and MPLS to encap-headers.";
     reference "3.1.0";
@@ -230,7 +236,7 @@ submodule openconfig-aft-common {
 
           container counters {
             description
-              "Surrounding container for counters.";
+              "Deprecated container for counters.";
 
             uses aft-common-entry-counter-state;
           }
@@ -454,7 +460,7 @@ submodule openconfig-aft-common {
     container counters {
       config false;
       description
-        "Surrounding container for counters.";
+        "Deprecated container for counters.";
 
       uses aft-common-entry-counter-state;
     }
@@ -1164,42 +1170,56 @@ submodule openconfig-aft-common {
   }
 
   grouping aft-common-entry-counter-state {
-    oc-ext:telemetry-atomic-exempt;
     description
       "Counters relating to a forwarding entry";
 
     leaf packets-forwarded {
       type oc-yang:counter64;
+      status deprecated;
       description
         "The number of packets which have matched, and been forwarded,
-         based on the AFT entry.";
+        based on the AFT entry.
+
+        This leaf has been deprecated and replaced by
+        .../afts/counters/.../state/packets-forwarded";
     }
 
     leaf octets-forwarded {
       type oc-yang:counter64;
+      status deprecated;
       description
         "The number of octets which have matched, and been forwarded,
-         based on the AFT entry";
+        based on the AFT entry
+
+        This leaf has been deprecated and replaced by
+        .../afts/counters/.../state/octets-forwarded";
     }
   }
 
   grouping aft-common-backup-entry-counter-state {
-    oc-ext:telemetry-atomic-exempt;
     description
       "Counters relating to a backup forwarding entry";
 
     leaf packets-forwarded-backup {
       type oc-yang:counter64;
+      status deprecated;
       description
         "The number of packets which have matched, and been forwarded,
-         based on the AFT backup entry.";
+        based on the AFT backup entry.
+
+        This leaf has been deprecated and replaced by
+        .../afts/counters/.../state/packets-forwarded-backup";
     }
 
     leaf octets-forwarded-backup {
       type oc-yang:counter64;
+      status deprecated;
       description
         "The number of octets which have matched, and been forwarded,
-         based on the AFT backup entry";
+        based on the AFT backup entry
+
+        This leaf has been deprecated and replaced by
+        .../afts/counters/.../state/octets-forwarded-backup";
     }
   }
 }
