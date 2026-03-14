@@ -29,6 +29,19 @@ submodule openconfig-aft-global-filter {
   grouping aft-global-filter-config {
     description
       "Configuration parameters for the AFT global filter.";
+    leaf ipv6-policy {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions" +
+             "/oc-rpol:policy-definition/oc-rpol:config/oc-rpol:name";
+      }
+      description
+        "Reference to a routing policy that is used to filter the
+        IPv6 prefixes that are installed into the AFT. Only prefixes
+        that are accepted by the referenced policy are installed.
+        The policy may, for example, use an explicit prefix set to
+        match prefixes, or match prefixes that are more specific than
+        a given prefix.";
+    }
 
     leaf ipv4-policy {
       type leafref {
@@ -43,21 +56,8 @@ submodule openconfig-aft-global-filter {
         match prefixes, or match prefixes that are more specific than
         a given prefix.";
     }
-
-    leaf ipv6-policy {
-      type leafref {
-        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions" +
-             "/oc-rpol:policy-definition/oc-rpol:config/oc-rpol:name";
-      }
-      description
-        "Reference to a routing policy that is used to filter the
-        IPv6 prefixes that are installed into the AFT. Only prefixes
-        that are accepted by the referenced policy are installed.
-        The policy may, for example, use an explicit prefix set to
-        match prefixes, or match prefixes that are more specific than
-        a given prefix.";
-    }
   }
+
 
   grouping aft-global-filter-structural {
     description
