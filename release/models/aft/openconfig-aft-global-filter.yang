@@ -15,14 +15,14 @@ submodule openconfig-aft-global-filter {
 
   description
     "Submodule containing definitions of groupings for the global
-    filter configuration applicable to abstract forwarding tables.";
+     filter configuration applicable to abstract forwarding tables.";
 
   oc-ext:openconfig-version "3.3.0";
 
   revision "2026-03-10" {
     description
       "Add global-filter container to support per-network-instance and per
-      AFT filtering, with routing policy split by address family.";
+       AFT filtering, with routing policy split by address family.";
     reference "3.3.0";
   }
 
@@ -36,11 +36,11 @@ submodule openconfig-aft-global-filter {
       }
       description
         "Reference to a routing policy that is used to filter the
-        IPv6 prefixes that are installed into the AFT. Only prefixes
-        that are accepted by the referenced policy are installed.
-        The policy may, for example, use an explicit prefix set to
-        match prefixes, or match prefixes that are more specific than
-        a given prefix.";
+         IPv6 prefixes that are present in the FIB. Only prefixes
+         that are accepted by the referenced policy are streamed.
+         The policy may, for example, use an explicit prefix set to
+         match prefixes, or match prefixes that are more specific than
+         a given prefix.";
     }
 
     leaf ipv4-policy {
@@ -50,11 +50,11 @@ submodule openconfig-aft-global-filter {
       }
       description
         "Reference to a routing policy that is used to filter the
-        IPv4 prefixes that are installed into the AFT. Only prefixes
-        that are accepted by the referenced policy are installed.
-        The policy may, for example, use an explicit prefix set to
-        match prefixes, or match prefixes that are more specific than
-        a given prefix.";
+         IPv4 prefixes that are in the FIB. Only prefixes
+         that are accepted by the referenced policy are streamed.
+         The policy may, for example, use an explicit prefix set to
+         match prefixes, or match prefixes that are more specific than
+         a given prefix.";
     }
   }
 
@@ -62,13 +62,13 @@ submodule openconfig-aft-global-filter {
   grouping aft-global-filter-structural {
     description
       "Structural grouping defining the schema for the global filter
-      applied to the abstract forwarding tables.";
+       applied to the abstract forwarding tables.";
 
     container global-filter {
       description
         "Configuration and state for a global filter applied to the
-        AFT. The filter is used to restrict which prefixes are
-        installed into the AFT for the network instance.";
+         AFT. The filter is used to restrict which prefixes are
+         installed into the AFT for the network instance.";
 
       container config {
         description
