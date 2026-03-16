@@ -65,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.31.0";
+  oc-ext:openconfig-version "0.32.0";
+
+  revision "2025-07-15" {
+    description
+      "Add boot-loader container.";
+    reference "0.32.0";
+  }
 
   revision "2025-01-30" {
     description
@@ -1281,6 +1287,22 @@ revision "2024-05-29" {
         config false;
         description
           "Operational state data for controller card components";
+      }
+    }
+
+    container boot-loader {
+      description
+        "Data for boot-loader components";
+
+      container config {
+        description
+          "Configuration data for boot-loader components";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for boot-loader components";
       }
     }
   }

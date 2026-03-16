@@ -31,7 +31,13 @@ module openconfig-packet-match {
     wildcard ('any') for that field.";
 
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.2.0";
+
+  revision "2025-06-10" {
+    description
+      "Add Fragment Offsets as a match condition";
+    reference "2.2.0";
+  }
 
   revision "2023-03-01" {
     description
@@ -337,6 +343,15 @@ module openconfig-packet-match {
       description
           "Reference to a IPv4 address prefix set
           to match the destination address";
+    }
+
+    leaf-list fragment-offsets {
+      type oc-pkt-match-types:fragment-offset-range;
+      description
+        "A list of Fragment Offset values to be matched for incoming packets.
+        An OR match should be performed, such that a packet must match one of
+        the values defined in this list. If the field is left empty then any
+        packet matches. Ranges and single values may be overlapping";
     }
 
     uses ip-protocol-fields-common-config;

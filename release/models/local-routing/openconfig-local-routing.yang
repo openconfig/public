@@ -43,7 +43,13 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "4.0.0";
+  oc-ext:openconfig-version "4.1.0";
+
+  revision "2025-07-29" {
+    description
+      "Add wecmp-weight leaf to support wECMP with static routes.";
+    reference "4.1.0";
+  }
 
   revision "2025-07-01" {
     description
@@ -145,6 +151,18 @@ module openconfig-local-routing {
       link-layer address discovery against";
   }
 
+  identity LOCAL_DEFINED_WEIGHT {
+    description
+      "A base identity type of locally defined next-hop weight.";
+  }
+
+  identity AUTO {
+    base LOCAL_DEFINED_WEIGHT;
+    description
+      "The wecmp-weight leaf inherits value from egress interface
+      bandwidth expressed in bps.";
+  }
+
   // typedef statements
 
   typedef local-defined-next-hop {
@@ -154,6 +172,15 @@ module openconfig-local-routing {
     description
       "Pre-defined next-hop designation for locally generated
       routes";
+  }
+
+  typedef local-defined-weight {
+    type identityref {
+      base LOCAL_DEFINED_WEIGHT;
+    }
+    description
+      "Pre-defined wECMP weight for locally generated
+      static route next-hops";
   }
 
   // grouping statements
@@ -209,6 +236,26 @@ module openconfig-local-routing {
         inherited from the default preference of the implementation for
         static routes.";
     }
+
+    leaf wecmp-weight {
+      type union {
+        type uint64;
+        type local-defined-weight;
+      }
+      description
+        "The weight of next-hop used for WECMP (a.k.a. UCMP, WCMP). This
+        leaf has significance only if multiple next-hops of given prefix
+        form ECMP group, and all of this next-hops have ecmp-weight leaf
+        specified. Else, wecmp-weight should be ignored.
+        The value 'AUTO' sets value to be equal to egress interface
+        bandwidth expressed in bps (not Bps as BGP link-bandwidth
+        extended-community does).
+        It is recommended to express explicit value in bps to be compatible
+        if mixing next-hops with wecmp-weight = 'AUTO'.
+        This leaf is valid only if recurse leaf is set to false, or
+        if interface-ref is specified.";
+    }
+
   }
 
   grouping local-static-config {

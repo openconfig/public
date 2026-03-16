@@ -35,10 +35,14 @@ module openconfig-terminal-device-properties {
       the OTSi (OTSiMC). It also includes (optional) aspects such as
       filter characterization, CD and DGD tolerance.";
 
-  oc-ext:openconfig-version "0.2.0";
-
+  oc-ext:openconfig-version "0.2.1";
 
   // Revisions
+  revision "2025-08-06" {
+    description "Correct order of string type in unions.";
+    reference "0.2.1";
+  }
+
   revision "2024-05-28" {
       description "Comprehensive model update to undertake the limitations
       of the first version of the model, such the introduction of modes
@@ -111,8 +115,8 @@ module openconfig-terminal-device-properties {
 
     leaf fec-coding {
       type union {
-        type string;
         type oc-opt-term-prop-types:fec-coding;
+        type string;
       }
       description
         "Forward error correction (FEC) coding schema used in the
@@ -148,8 +152,8 @@ module openconfig-terminal-device-properties {
 
     leaf pulse-shaping-type {
       type union {
-        type string;
         type oc-opt-term-prop-types:pulse-shaping-type;
+        type string;
       }
       description
        "Pulse/spectral shaping type such as Raised-cosine (RC),
@@ -398,13 +402,13 @@ module openconfig-terminal-device-properties {
 
     leaf value {
       type union {
-        type string;
         type boolean;
         type int64;
         type uint64;
         type decimal64 {
           fraction-digits 2;
         }
+        type string;
       }
       description
         "Property values can take on a variety of types.  Signed and
@@ -425,8 +429,8 @@ module openconfig-terminal-device-properties {
 
     leaf publisher-organization {
       type union {
-        type string;
         type oc-opt-term-prop-types:interoperability-modes-organization;
+        type string;
       }
       description
         "Name of the organization, standard body, Multi-Source Agreement, or
@@ -533,8 +537,8 @@ module openconfig-terminal-device-properties {
 
     leaf modulation-format {
       type union {
-        type string;
         type oc-opt-term-prop-types:modulation-format;
+        type string;
       }
       description
         "Optical modulation format associated to the mode. The
