@@ -49,23 +49,37 @@ module openconfig-bgp-bmp {
       "Type to define the connection mode for BMP sessions";
   }
 
-  typedef route-monitoring-policy-type {
+typedef route-monitoring-policy-type {
     type enumeration {
-      enum PRE_POLICY {
+      enum ADJ_RIB_IN_PRE_POLICY {
         description
-          "Send pre-policy route monitoring messages";
+          "Send messages for routes received from a peer before 
+           inbound filters are applied.";
       }
-      enum POST_POLICY {
+      enum ADJ_RIB_IN_POST_POLICY {
         description
-          "Send post-policy route monitoring messages";
+          "Send messages for routes received from a peer after 
+           inbound filters are applied.";
       }
-      enum BOTH {
+      enum ADJ_RIB_OUT_PRE_POLICY {
         description
-          "Send both pre-policy and post-policy route monitoring messages";
+          "Send messages for routes to be sent to a peer before 
+           outbound filters are applied.";
+      }
+      enum ADJ_RIB_OUT_POST_POLICY {
+        description
+          "Send messages for routes to be sent to a peer after 
+           outbound filters are applied.";
+      }
+      enum LOC_RIB {
+        description
+          "Send messages for routes selected for the local 
+           Routing Information Base (Loc-RIB).";
       }
     }
     description
-      "Type to define the route monitoring policy for BMP";
+      "Type to define the specific RIB view to be monitored by BMP,
+       supporting the five standard monitoring points.";
   }
 
   typedef connection-status-type {
@@ -152,44 +166,49 @@ module openconfig-bgp-bmp {
     }
   }
 
-  grouping bmp-route-monitoring-config {
+grouping bmp-route-monitoring-config {
     description
-      "Configuration parameters for BMP route monitoring";
+      "Operational config/state parameters for BMP route monitoring";
 
     leaf policy-type {
       type route-monitoring-policy-type;
       description
-        "Specifies whether to send pre-policy, post-policy, or both
-        types of route monitoring messages";
+        "Specifies the RIB view to be monitored (e.g., pre-policy, 
+         post-policy, or Loc-RIB).";
     }
 
-    leaf exclude-non-eligible {
+   leaf exclude-non-eligible {
       type boolean;
       default false;
+      when "../policy-type = 'ADJ_RIB_IN_POST_POLICY'" {
+        description
+          "This leaf is only applicable when monitoring the 
+           Adj-RIB-In Post-Policy view.";
+      }
       description
         "When true, exclude routes that are not eligible for
-        installation in the routing table from route monitoring
-        messages";
-    }
-  }
+         installation in the routing table from route monitoring messages.
 
-  grouping bmp-route-monitoring-state {
-    description
-      "Operational state parameters for BMP route monitoring";
-
-    leaf policy-type {
-      type route-monitoring-policy-type;
-      description
-        "Specifies whether to send pre-policy, post-policy, or both
-        types of route monitoring messages";
+         Routes that have post-policy protocol next-hops that are 
+         unresolved or are otherwise unusable are considered to be 
+         non-eligible. If using post-policy with exclude-non-eligible, 
+         routes that are accepted by import policy but considered 
+         non-eligible will be advertised as unreachable.";
     }
 
-    leaf exclude-non-eligible {
+    leaf exclude-non-feasible {
       type boolean;
+      default false;
+      when "../policy-type = 'ADJ_RIB_IN_PRE_POLICY'" {
+        description
+          "This leaf is only applicable when monitoring the 
+           Adj-RIB-In Pre-Policy view.";
+      }
       description
-        "When true, exclude routes that are not eligible for
-        installation in the routing table from route monitoring
-        messages";
+        "When true, routes that are considered non-feasible (hidden 
+         due to AS path loops, martian next-hops, etc.) will be 
+         advertised by BMP as unreachable. This is specifically 
+         applicable to the rib-in-pre-policy view.";
     }
   }
 
@@ -216,25 +235,47 @@ module openconfig-bgp-bmp {
     }
   }
 
-  grouping bmp-station-config {
+grouping bmp-station-config {
     description
       "Configuration parameters for a BMP monitoring station";
 
-    leaf address {
+    leaf station-address {
       type oc-inet:ip-address;
       mandatory true;
       description
         "IP address of the BMP monitoring station";
     }
 
-    leaf port {
+   leaf station-port {
       type oc-inet:port-number;
-      default 7039;
+      // Default is removed to allow 'must' logic to catch unconfigured ports
       description
         "TCP port number of the BMP monitoring station";
+      
+      must "../connection-mode = 'ACTIVE'" {
+        error-message "The station-port must be configured when connection-mode is ACTIVE.";
+        description
+          "Enforce that the port is provided for active outgoing connections.";
+      }
     }
 
     uses bmp-route-monitoring-config;
+  }
+
+  grouping bmp-config {
+    description
+      "Top-level configuration parameters for BMP";
+
+    // This is where you would call the station-config, 
+    // likely as a list if you support multiple collectors.
+    list stations {
+      key "station-address";
+      description
+        "List of BMP monitoring stations (collectors) to which 
+         the device should send data.";
+
+      uses bmp-station-config;
+    }
   }
 
   grouping bmp-station-state {
@@ -247,10 +288,17 @@ module openconfig-bgp-bmp {
         "IP address of the BMP monitoring station";
     }
 
-    leaf port {
+   leaf station-port {
       type oc-inet:port-number;
+      // Default is removed to allow 'must' logic to catch unconfigured ports
       description
         "TCP port number of the BMP monitoring station";
+      
+      must "../connection-mode = 'ACTIVE'" {
+        error-message "The station-port must be configured when connection-mode is ACTIVE.";
+        description
+          "Enforce that the port is provided for active outgoing connections.";
+      }
     }
 
     leaf connection-status {
@@ -260,17 +308,21 @@ module openconfig-bgp-bmp {
     }
 
     leaf uptime {
-      type oc-types:timeticks64;
+      type uint64;
+      units "seconds";
       description
-        "Time in seconds that the BMP session has been established";
+        "The time in seconds that the BMP session has been established.
+         This represents the duration since the transition into the 
+         ESTABLISHED state.";
     }
 
     leaf flap-count {
-      type uint32;
-      type oc-yang:counter32;
-      description
-        "Number of times the BMP session has flapped";
-    }
+        type oc-yang:counter64;
+        description
+          "Number of times the BMP session has transitioned from 
+           ESTABLISHED to DOWN. This counter is cumulative since 
+          the session was created or the counters were reset.";
+      }
 
     container message-counters {
       description
@@ -349,10 +401,12 @@ module openconfig-bgp-bmp {
         description
           "List of BMP monitoring stations";
 
-        leaf name {
-          type string;
-          description
-            "Name or identifier for the BMP monitoring station";
+      leaf name {
+      type leafref {
+        path "../config/name";
+        }
+      description
+        "Reference to the name of the BMP monitoring station.";
         }
 
         container config {
