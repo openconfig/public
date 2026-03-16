@@ -70,6 +70,10 @@ module openconfig-bgp-bmp {
 
   typedef connection-status-type {
     type enumeration {
+      enum listening {
+        description
+          "BMP session state if the station is in the passive mode";
+      }
       enum CONNECTED {
         description
           "BMP session is established and operational";
@@ -81,6 +85,14 @@ module openconfig-bgp-bmp {
       enum DISCONNECTED {
         description
           "BMP session is not connected";
+      }
+      enum CLEANUP {
+        description
+          "When BMP station goes into cleanup phase due to configuration change or socket disconnection";
+      }
+      enum HOLDDOWN {
+        description
+          "When BMP station goes into holddown";
       }
     }
     description
@@ -94,7 +106,8 @@ module openconfig-bgp-bmp {
       "Configuration parameters for BMP TCP keepalive settings";
 
     leaf idle-time {
-      type oc-types:timeticks64;
+      type uint32;
+      units "seconds";
       description
         "The time in seconds before sending a TCP keepalive probe
         when the connection is idle";
@@ -108,36 +121,13 @@ module openconfig-bgp-bmp {
     }
 
     leaf probe-interval {
-      type oc-types:timeticks64;
+      type uint32;
+      units "seconds";
       description
         "The time in seconds between TCP keepalive probes";
     }
   }
 
-  grouping bmp-tcp-keepalive-state {
-    description
-      "Operational state parameters for BMP TCP keepalive settings";
-
-    leaf idle-time {
-      type oc-types:timeticks64;
-      description
-        "The time in seconds before sending a TCP keepalive probe
-        when the connection is idle";
-    }
-
-    leaf probe-count {
-      type uint8;
-      description
-        "The maximum number of TCP keepalive probes to send before
-        declaring the connection dead";
-    }
-
-    leaf probe-interval {
-      type oc-types:timeticks64;
-      description
-        "The time in seconds between TCP keepalive probes";
-    }
-  }
 
   grouping bmp-tcp-keepalive-top {
     description
@@ -168,7 +158,6 @@ module openconfig-bgp-bmp {
 
     leaf policy-type {
       type route-monitoring-policy-type;
-      default "BOTH";
       description
         "Specifies whether to send pre-policy, post-policy, or both
         types of route monitoring messages";
