@@ -453,9 +453,10 @@ grouping bmp-station-config {
     }
   }
 
-  grouping bmp-config {
+grouping bmp-config {
     description
       "Configuration parameters for BGP Monitoring Protocol";
+
     leaf enabled {
       type boolean;
       default false;
@@ -465,7 +466,7 @@ grouping bmp-station-config {
 
     leaf connection-mode {
       type connection-mode-type;
-      default "ACTIVE";
+      mandatory true;  // Removed default, made mandatory as requested
       description
         "Specifies whether the BMP client actively initiates connections
         to BMP servers or passively listens for connections";
@@ -477,45 +478,49 @@ grouping bmp-station-config {
         "Source IP address to use for BMP connections";
     }
 
-    leaf statistics-timeout {
-      type oc-types:timeticks64;
+    leaf local-port {
+      type oc-inet:port-number;
+      when "../connection-mode = 'PASSIVE'" {
+        description
+          "Local port is only relevant when the device is in listening (PASSIVE) mode.";
+      }
+      must "../connection-mode = 'PASSIVE'" {
+        error-message "local-port cannot be configured when connection-mode is ACTIVE.";
+      }
       description
-        "Time in seconds between periodic statistics messages";
+        "Local port to listen on for incoming BMP connections. 
+         This is mandatory when connection-mode is PASSIVE.";
+    }
+
+    leaf station-address {
+      type oc-inet:ip-address;
+      must "../connection-mode = 'ACTIVE'" {
+        error-message "station-address is required when connection-mode is ACTIVE.";
+      }
+      description
+        "Destination IP address of the BMP collector. 
+         Mandatory when connection-mode is ACTIVE.";
+    }
+
+    leaf station-port {
+      type oc-inet:port-number;
+      must "../connection-mode = 'ACTIVE'" {
+        error-message "station-port is required when connection-mode is ACTIVE.";
+      }
+      description
+        "Destination TCP port of the BMP collector. 
+         Mandatory when connection-mode is ACTIVE.";
+    }
+
+    leaf statistics-timeout {
+      type uint32;
+      units "seconds";
+      description
+        "Time in seconds between periodic statistics messages. 
+         Replaces oc-types:timeticks64 to use seconds as the base unit.";
     }
 
     uses bmp-tcp-keepalive-config;
-  }
-
-  grouping bmp-config {
-    description
-      "Operational state parameters for BGP Monitoring Protocol";
-
-    leaf enabled {
-      type boolean;
-      description
-        "When true, BGP Monitoring Protocol is enabled";
-    }
-
-    leaf connection-mode {
-      type connection-mode-type;
-      description
-        "Specifies whether the BMP client actively initiates connections
-        to BMP servers or passively listens for connections";
-    }
-
-    leaf local-address {
-      type oc-inet:ip-address;
-      description
-        "Source IP address used for BMP connections";
-    }
-
-    leaf statistics-timeout {
-      type oc-types:timeticks64;
-      description
-        "Time in seconds between periodic statistics messages";
-    }
-
-    uses bmp-tcp-keepalive-state;
   }
 
   grouping bmp-top {
@@ -545,26 +550,29 @@ grouping bmp-station-config {
     }
   }
 
-  grouping bmp-neighbor-config {
+grouping bmp-neighbor-config {
     description
-      "Configuration parameters for BMP at the neighbor level";
+      "Configuration parameters for BMP at the neighbor or group level";
 
-    leaf enabled {
+    leaf-list enabled-bm-views {
+      type route-monitoring-policy-type;
+      description
+        "The set of RIB views enabled for monitoring on this BGP neighbor 
+         or group. 
+
+         By using a leaf-list, the operator can specifically select 
+         any combination of views (e.g., rib-in-pre-policy and 
+         rib-out-post-policy) to be streamed to the BMP station.";
+    }
+
+    // Optional: Keep a global enable/disable if you want to toggle 
+    // all monitoring for a neighbor without clearing the list
+    leaf monitoring-enabled {
       type boolean;
       default false;
       description
-        "When true, BMP monitoring is enabled for this BGP neighbor";
-    }
-  }
-
-  grouping bmp-neighbor-state {
-    description
-      "Operational state parameters for BMP at the neighbor level";
-
-    leaf enabled {
-      type boolean;
-      description
-        "When true, BMP monitoring is enabled for this BGP neighbor";
+        "Master toggle to enable or disable BMP monitoring for this 
+         specific neighbor or group.";
     }
   }
 
