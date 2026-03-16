@@ -1,9 +1,9 @@
-submodule openconfig-aft-global-filter {
-  belongs-to "openconfig-aft" {
-    prefix "oc-aft";
-  }
+module openconfig-aft-global-filter {
+  namespace "http://openconfig.net/yang/aft/global-filter";
+  prefix "oc-aft-gf";
 
   import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-network-instance { prefix "oc-ni"; }
   import openconfig-routing-policy { prefix "oc-rpol"; }
 
   organization
@@ -14,7 +14,7 @@ submodule openconfig-aft-global-filter {
     www.openconfig.net";
 
   description
-    "Submodule containing definitions of groupings for the global
+    "Module containing definitions of groupings for the global
      filter configuration applicable to abstract forwarding tables.";
 
   oc-ext:openconfig-version "3.3.0";
@@ -85,5 +85,12 @@ submodule openconfig-aft-global-filter {
         uses aft-global-filter-config;
       }
     }
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:afts" {
+    description
+      "Add global filter to AFT tree.";
+
+    uses aft-global-filter-structural;
   }
 }
