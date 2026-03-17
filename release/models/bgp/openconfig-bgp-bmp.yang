@@ -237,20 +237,6 @@ grouping bmp-station-config {
   grouping bmp-station-state {
     description
       "Operational state parameters for a BMP monitoring station";
-    leaf address {
-      type oc-inet:ip-address;
-      description
-        "IP address of the BMP monitoring station";
-    leaf station-port {
-      type oc-inet:port-number;
-      description
-        "TCP port number of the BMP monitoring station";
-      must "../connection-mode = 'ACTIVE'" {
-        error-message "The station-port must be configured when connection-mode is ACTIVE.";
-        description
-          "Enforce that the port is provided for active outgoing connections.";
-      }
-    }
     leaf connection-status {
       type connection-status-type;
       description
