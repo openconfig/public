@@ -24,7 +24,13 @@ submodule openconfig-bgp-common-multiprotocol {
     for multiple protocols in BGP. The groupings are common across
     multiple contexts.";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.10.0";
+
+  revision "2026-03-17" {
+    description
+      "Add enable-aigp to unicast address families.";
+    reference "9.10.0";
+  }
 
   revision "2025-04-18" {
     description
@@ -754,6 +760,14 @@ submodule openconfig-bgp-common-multiprotocol {
       default "false";
       description
         "If set to true, send the default-route to the neighbor(s)";
+    }
+
+    leaf enable-aigp {
+      type boolean;
+      default false;
+      description
+        "Flag to enable sending / receiving accumulated IGP
+        attribute in routing updates for the address family.";
     }
   }
 }

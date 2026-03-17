@@ -28,7 +28,13 @@ module openconfig-bgp-policy {
     It augments the base routing-policy module with BGP-specific
     options for conditions and actions.";
 
-  oc-ext:openconfig-version "8.2.0";
+  oc-ext:openconfig-version "8.3.0";
+
+  revision "2026-03-17" {
+    description
+      "Add set-aigp to BGP policy actions.";
+    reference "8.3.0";
+  }
 
   revision "2025-05-23" {
     description
@@ -1404,6 +1410,12 @@ module openconfig-bgp-policy {
         `set-med` is specified as a integer metric, all actions are
         valid options.  When set to 'IGP', this action must be set to
         'SET'.";
+    }
+
+    leaf set-aigp {
+      type uint32;
+      description
+        "Set the AIGP metric attribute in the route update.";
     }
   }
 
