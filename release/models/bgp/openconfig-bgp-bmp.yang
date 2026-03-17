@@ -53,33 +53,27 @@ typedef route-monitoring-policy-type {
     type enumeration {
       enum ADJ_RIB_IN_PRE_POLICY {
         description
-          "Send messages for routes received from a peer before 
-           inbound filters are applied.";
+          "Send messages for routes received from a peer before inbound filters are applied.";
       }
       enum ADJ_RIB_IN_POST_POLICY {
         description
-          "Send messages for routes received from a peer after 
-           inbound filters are applied.";
+          "Send messages for routes received from a peer after inbound filters are applied.";
       }
       enum ADJ_RIB_OUT_PRE_POLICY {
         description
-          "Send messages for routes to be sent to a peer before 
-           outbound filters are applied.";
+          "Send messages for routes to be sent to a peer before outbound filters are applied.";
       }
       enum ADJ_RIB_OUT_POST_POLICY {
         description
-          "Send messages for routes to be sent to a peer after 
-           outbound filters are applied.";
+          "Send messages for routes to be sent to a peer after outbound filters are applied.";
       }
       enum LOC_RIB {
         description
-          "Send messages for routes selected for the local 
-           Routing Information Base (Loc-RIB).";
+          "Send messages for routes selected for the local Routing Information Base (Loc-RIB).";
       }
     }
     description
-      "Type to define the specific RIB view to be monitored by BMP,
-       supporting the five standard monitoring points.";
+      "Type to define the specific RIB view to be monitored by BMP,supporting the five standard monitoring points.";
   }
 
   typedef connection-status-type {
@@ -123,15 +117,13 @@ typedef route-monitoring-policy-type {
       type uint32;
       units "seconds";
       description
-        "The time in seconds before sending a TCP keepalive probe
-        when the connection is idle";
+        "The time in seconds before sending a TCP keepalive probe when the connection is idle";
     }
 
     leaf probe-count {
       type uint8;
       description
-        "The maximum number of TCP keepalive probes to send before
-        declaring the connection dead";
+        "The maximum number of TCP keepalive probes to send before declaring the connection dead";
     }
 
     leaf probe-interval {
@@ -173,8 +165,7 @@ grouping bmp-route-monitoring-config {
     leaf policy-type {
       type route-monitoring-policy-type;
       description
-        "Specifies the RIB view to be monitored (e.g., pre-policy, 
-         post-policy, or Loc-RIB).";
+        "Specifies the RIB view to be monitored (e.g., pre-policy, post-policy, or Loc-RIB).";
     }
 
    leaf exclude-non-eligible {
@@ -182,18 +173,10 @@ grouping bmp-route-monitoring-config {
       default false;
       when "../policy-type = 'ADJ_RIB_IN_POST_POLICY'" {
         description
-          "This leaf is only applicable when monitoring the 
-           Adj-RIB-In Post-Policy view.";
+          "This leaf is only applicable when monitoring the Adj-RIB-In Post-Policy view.";
       }
       description
-        "When true, exclude routes that are not eligible for
-         installation in the routing table from route monitoring messages.
-
-         Routes that have post-policy protocol next-hops that are 
-         unresolved or are otherwise unusable are considered to be 
-         non-eligible. If using post-policy with exclude-non-eligible, 
-         routes that are accepted by import policy but considered 
-         non-eligible will be advertised as unreachable.";
+        "When true, exclude routes that are not eligible for installation in the routing table from route monitoring messages. Routes that have post-policy protocol next-hops that are unresolved or are otherwise unusable are considered to be non-eligible. If using post-policy with exclude-non-eligible, routes that are accepted by import policy but considered non-eligible will be advertised as unreachable.";
     }
 
     leaf exclude-non-feasible {
@@ -201,14 +184,10 @@ grouping bmp-route-monitoring-config {
       default false;
       when "../policy-type = 'ADJ_RIB_IN_PRE_POLICY'" {
         description
-          "This leaf is only applicable when monitoring the 
-           Adj-RIB-In Pre-Policy view.";
+          "This leaf is only applicable when monitoring the Adj-RIB-In Pre-Policy view.";
       }
       description
-        "When true, routes that are considered non-feasible (hidden 
-         due to AS path loops, martian next-hops, etc.) will be 
-         advertised by BMP as unreachable. This is specifically 
-         applicable to the rib-in-pre-policy view.";
+        "When true, routes that are considered non-feasible (hidden due to AS path loops, martian next-hops, etc.) will be advertised by BMP as unreachable. This is specifically applicable to the rib-in-pre-policy view.";
     }
   }
 
@@ -265,15 +244,12 @@ grouping bmp-station-config {
   grouping bmp-config {
     description
       "Top-level configuration parameters for BMP";
-
     // This is where you would call the station-config, 
     // likely as a list if you support multiple collectors.
     list stations {
       key "station-address";
       description
-        "List of BMP monitoring stations (collectors) to which 
-         the device should send data.";
-
+        "List of BMP monitoring stations (collectors) to which the device should send data.";
       uses bmp-station-config;
     }
   }
@@ -281,7 +257,6 @@ grouping bmp-station-config {
   grouping bmp-station-state {
     description
       "Operational state parameters for a BMP monitoring station";
-
     leaf address {
       type oc-inet:ip-address;
       description
@@ -311,17 +286,13 @@ grouping bmp-station-config {
       type uint64;
       units "seconds";
       description
-        "The time in seconds that the BMP session has been established.
-         This represents the duration since the transition into the 
-         ESTABLISHED state.";
+        "The time in seconds that the BMP session has been established.This represents the duration since the transition into the ESTABLISHED state.";
     }
 
     leaf flap-count {
         type oc-yang:counter64;
         description
-          "Number of times the BMP session has transitioned from 
-           ESTABLISHED to DOWN. This counter is cumulative since 
-          the session was created or the counters were reset.";
+          "Number of times the BMP session has transitioned from ESTABLISHED to DOWN. This counter is cumulative since the session was created or the counters were reset.";
       }
 
     container message-counters {
@@ -468,8 +439,7 @@ grouping bmp-config {
       type connection-mode-type;
       mandatory true;  // Removed default, made mandatory as requested
       description
-        "Specifies whether the BMP client actively initiates connections
-        to BMP servers or passively listens for connections";
+        "Specifies whether the BMP client actively initiates connections to BMP servers or passively listens for connections";
     }
 
     leaf local-address {
@@ -516,8 +486,7 @@ grouping bmp-config {
       type uint32;
       units "seconds";
       description
-        "Time in seconds between periodic statistics messages. 
-         Replaces oc-types:timeticks64 to use seconds as the base unit.";
+        "Time in seconds between periodic statistics messages. Replaces oc-types:timeticks64 to use seconds as the base unit.";
     }
 
     uses bmp-tcp-keepalive-config;
@@ -557,12 +526,7 @@ grouping bmp-neighbor-config {
     leaf-list enabled-bm-views {
       type route-monitoring-policy-type;
       description
-        "The set of RIB views enabled for monitoring on this BGP neighbor 
-         or group. 
-
-         By using a leaf-list, the operator can specifically select 
-         any combination of views (e.g., rib-in-pre-policy and 
-         rib-out-post-policy) to be streamed to the BMP station.";
+        "The set of RIB views enabled for monitoring on this BGP neighbor or group. By using a leaf-list, the operator can specifically select any combination of views (e.g., rib-in-pre-policy and rib-out-post-policy) to be streamed to the BMP station.";
     }
 
     // Optional: Keep a global enable/disable if you want to toggle 
@@ -571,8 +535,7 @@ grouping bmp-neighbor-config {
       type boolean;
       default false;
       description
-        "Master toggle to enable or disable BMP monitoring for this 
-         specific neighbor or group.";
+        "Master toggle to enable or disable BMP monitoring for this specific neighbor or group.";
     }
   }
 
