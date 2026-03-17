@@ -131,7 +131,6 @@ typedef route-monitoring-policy-type {
     }
   }
 
-
   grouping bmp-tcp-keepalive-top {
     description
       "Top-level grouping for BMP TCP keepalive settings";
@@ -213,7 +212,6 @@ grouping bmp-station-config {
     }
    leaf station-port {
       type oc-inet:port-number;
-      // Default is removed to allow 'must' logic to catch unconfigured ports
       description
         "TCP port number of the BMP monitoring station";
       must "../connection-mode = 'ACTIVE'" {
@@ -228,8 +226,6 @@ grouping bmp-station-config {
   grouping bmp-config {
     description
       "Top-level configuration parameters for BMP";
-    // This is where you would call the station-config,
-    // likely as a list if you support multiple collectors.
     list stations {
       key "station-address";
       description
@@ -245,9 +241,8 @@ grouping bmp-station-config {
       type oc-inet:ip-address;
       description
         "IP address of the BMP monitoring station";
-   leaf station-port {
+    leaf station-port {
       type oc-inet:port-number;
-      // Default is removed to allow 'must' logic to catch unconfigured ports
       description
         "TCP port number of the BMP monitoring station";
       must "../connection-mode = 'ACTIVE'" {
@@ -398,7 +393,7 @@ grouping bmp-config {
     }
     leaf connection-mode {
       type connection-mode-type;
-      mandatory true;  // Removed default, made mandatory as requested
+      mandatory true;
       description
         "Specifies whether the BMP client actively initiates connections to BMP servers or passively listens for connections";
     }
@@ -475,8 +470,6 @@ grouping bmp-neighbor-config {
       description
         "The set of RIB views enabled for monitoring on this BGP neighbor or group. By using a leaf-list, the operator can specifically select any combination of views (e.g., rib-in-pre-policy and rib-out-post-policy) to be streamed to the BMP station.";
     }
-    // Optional: Keep a global enable/disable if you want to toggle
-    // all monitoring for a neighbor without clearing the list
     leaf monitoring-enabled {
       type boolean;
       default false;
