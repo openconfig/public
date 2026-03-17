@@ -151,6 +151,59 @@ typedef route-monitoring-policy-type {
     }
   }
 
+grouping bmp-afi-safi-config {
+    description
+      "Configuration parameters for AFI-SAFI specific BMP";
+    leaf afi-safi-name {
+      type identityref {
+        base oc-bgp-types:AFI_SAFI_TYPE;
+      }
+      description
+        "The name of the AFI-SAFI for which BMP monitoring is being
+        configured.";
+    }
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "When true, BMP monitoring is enabled for this specific
+        AFI-SAFI.";
+    }
+  }
+
+  grouping bmp-afi-safis-top {
+    description
+      "Top-level grouping for AFI-SAFI specific BMP configuration
+      and state";
+    container afi-safis {
+      description
+        "List of address families for which BMP monitoring is configured.";
+      list afi-safi {
+        key "afi-safi-name";
+        description
+          "Configuration and state for a specific AFI-SAFI.";
+        leaf afi-safi-name {
+          type leafref {
+            path "../config/afi-safi-name";
+          }
+          description
+            "Reference to the AFI-SAFI name.";
+        }
+        container config {
+          description
+            "Configuration parameters for the AFI-SAFI.";
+          uses bmp-afi-safi-config;
+        }
+        container state {
+          config false;
+          description
+            "Operational state parameters for the AFI-SAFI.";
+          uses bmp-afi-safi-config;
+        }
+      }
+    }
+  }
+
 grouping bmp-route-monitoring-config {
     description
       "Operational config/state parameters for BMP route monitoring";
