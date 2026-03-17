@@ -1,20 +1,16 @@
 module openconfig-bgp-bmp {
 
   yang-version "1";
-
   namespace "http://openconfig.net/yang/bgp-bmp";
-
   prefix "oc-bgp-bmp";
 
-  import openconfig-bgp { prefix oc-bgp; }
   import openconfig-bgp-types { prefix oc-bgp-types; }
   import openconfig-network-instance { prefix oc-netinst; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-yang-types { prefix oc-yang; }
 
-  organization
-    "OpenConfig working group";
+  organization "OpenConfig working group";
 
   contact
     "OpenConfig working group
@@ -27,473 +23,210 @@ module openconfig-bgp-bmp {
   oc-ext:openconfig-version "0.1.0";
 
   revision "2025-04-21" {
-    description
-      "Initial revision";
-    reference
-      "0.1.0";
+    description "Initial revision";
+    reference "0.1.0";
   }
 
-  // Typedefs and identities
+  // Typedefs
   typedef connection-mode-type {
     type enumeration {
       enum ACTIVE {
-        description
-          "BMP client actively initiates connections to BMP servers";
+        description "BMP client actively initiates connections to BMP servers";
       }
       enum PASSIVE {
-        description
-          "BMP client passively listens for connections from BMP servers";
+        description "BMP client passively listens for connections from BMP servers";
       }
     }
-    description
-      "Type to define the connection mode for BMP sessions";
+    description "Type to define the connection mode for BMP sessions";
   }
 
-typedef route-monitoring-policy-type {
+  typedef route-monitoring-policy-type {
     type enumeration {
-      enum ADJ_RIB_IN_PRE_POLICY {
-        description
-          "Send messages for routes received from a peer before inbound filters are applied.";
-      }
-      enum ADJ_RIB_IN_POST_POLICY {
-        description
-          "Send messages for routes received from a peer after inbound filters are applied.";
-      }
-      enum ADJ_RIB_OUT_PRE_POLICY {
-        description
-          "Send messages for routes to be sent to a peer before outbound filters are applied.";
-      }
-      enum ADJ_RIB_OUT_POST_POLICY {
-        description
-          "Send messages for routes to be sent to a peer after outbound filters are applied.";
-      }
-      enum LOC_RIB {
-        description
-          "Send messages for routes selected for the local Routing Information Base (Loc-RIB).";
-      }
+      enum ADJ_RIB_IN_PRE_POLICY;
+      enum ADJ_RIB_IN_POST_POLICY;
+      enum ADJ_RIB_OUT_PRE_POLICY;
+      enum ADJ_RIB_OUT_POST_POLICY;
+      enum LOC_RIB;
     }
-    description
-      "Type to define the specific RIB view to be monitored by BMP,supporting the five standard monitoring points.";
+    description "Type to define the specific RIB view to be monitored by BMP";
   }
 
   typedef connection-status-type {
     type enumeration {
-      enum listening {
-        description
-          "BMP session state if the station is in the passive mode";
-      }
-      enum CONNECTED {
-        description
-          "BMP session is established and operational";
-      }
-      enum CONNECTING {
-        description
-          "BMP session is in the process of establishing connection";
-      }
-      enum DISCONNECTED {
-        description
-          "BMP session is not connected";
-      }
-      enum CLEANUP {
-        description
-          "When BMP station goes into cleanup phase due to configuration change or socket disconnection";
-      }
-      enum HOLDDOWN {
-        description
-          "When BMP station goes into holddown";
-      }
+      enum LISTENING;
+      enum CONNECTED;
+      enum CONNECTING;
+      enum DISCONNECTED;
+      enum CLEANUP;
+      enum HOLDDOWN;
     }
-    description
-      "Type to define the operational status of a BMP session";
+    description "Type to define the operational status of a BMP session";
   }
 
   // Groupings
-
   grouping bmp-tcp-keepalive-config {
-    description
-      "Configuration parameters for BMP TCP keepalive settings";
+    description "Configuration parameters for BMP TCP keepalive settings";
     leaf idle-time {
       type uint32;
       units "seconds";
-      description
-        "The time in seconds before sending a TCP keepalive probe when the connection is idle";
+      description "Time before sending a TCP keepalive probe when connection is idle";
     }
     leaf probe-count {
       type uint8;
-      description
-        "The maximum number of TCP keepalive probes to send before declaring the connection dead";
+      description "Maximum number of TCP keepalive probes before declaring connection dead";
     }
     leaf probe-interval {
       type uint32;
       units "seconds";
-      description
-        "The time in seconds between TCP keepalive probes";
+      description "Time between TCP keepalive probes";
     }
   }
 
   grouping bmp-tcp-keepalive-top {
-    description
-      "Top-level grouping for BMP TCP keepalive settings";
     container tcp-keepalive {
-      description
-        "Configuration and state parameters for BMP TCP keepalive";
-      container config {
-        description
-          "Configuration parameters for BMP TCP keepalive";
-        uses bmp-tcp-keepalive-config;
-      }
-      container state {
+      description "Top-level container for BMP TCP keepalive";
+      container config { uses bmp-tcp-keepalive-config; }
+      container state { 
         config false;
-        description
-          "Operational state parameters for BMP TCP keepalive";
-        uses bmp-tcp-keepalive-config;
+        uses bmp-tcp-keepalive-config; 
       }
     }
   }
 
-grouping bmp-afi-safi-config {
-    description
-      "Configuration parameters for AFI-SAFI specific BMP";
+  grouping bmp-afi-safi-config {
     leaf afi-safi-name {
       type identityref {
         base oc-bgp-types:AFI_SAFI_TYPE;
       }
-      description
-        "The name of the AFI-SAFI for which BMP monitoring is being
-        configured.";
     }
     leaf enabled {
       type boolean;
       default false;
-      description
-        "When true, BMP monitoring is enabled for this specific
-        AFI-SAFI.";
     }
   }
 
   grouping bmp-afi-safis-top {
-    description
-      "Top-level grouping for AFI-SAFI specific BMP configuration
-      and state";
     container afi-safis {
-      description
-        "List of address families for which BMP monitoring is configured.";
       list afi-safi {
         key "afi-safi-name";
-        description
-          "Configuration and state for a specific AFI-SAFI.";
         leaf afi-safi-name {
-          type leafref {
-            path "../config/afi-safi-name";
-          }
-          description
-            "Reference to the AFI-SAFI name.";
+          type leafref { path "../config/afi-safi-name"; }
         }
-        container config {
-          description
-            "Configuration parameters for the AFI-SAFI.";
-          uses bmp-afi-safi-config;
-        }
+        container config { uses bmp-afi-safi-config; }
         container state {
           config false;
-          description
-            "Operational state parameters for the AFI-SAFI.";
           uses bmp-afi-safi-config;
         }
       }
     }
   }
 
-grouping bmp-route-monitoring-config {
-    description
-      "Operational config/state parameters for BMP route monitoring";
+  grouping bmp-route-monitoring-config {
     leaf policy-type {
       type route-monitoring-policy-type;
-      description
-        "Specifies the RIB view to be monitored (e.g., pre-policy, post-policy, or Loc-RIB).";
     }
-   leaf exclude-non-eligible {
+    leaf exclude-non-eligible {
       type boolean;
       default false;
-      when "../policy-type = 'ADJ_RIB_IN_POST_POLICY'" {
-        description
-          "This leaf is only applicable when monitoring the Adj-RIB-In Post-Policy view.";
-      }
-      description
-        "When true, exclude routes that are not eligible for installation in the routing table from route monitoring messages. Routes that have post-policy protocol next-hops that are unresolved or are otherwise unusable are considered to be non-eligible. If using post-policy with exclude-non-eligible, routes that are accepted by import policy but considered non-eligible will be advertised as unreachable.";
+      when "../policy-type = 'ADJ_RIB_IN_POST_POLICY'";
     }
     leaf exclude-non-feasible {
       type boolean;
       default false;
-      when "../policy-type = 'ADJ_RIB_IN_PRE_POLICY'" {
-        description
-          "This leaf is only applicable when monitoring the Adj-RIB-In Pre-Policy view.";
-      }
-      description
-        "When true, routes that are considered non-feasible (hidden due to AS path loops, martian next-hops, etc.) will be advertised by BMP as unreachable. This is specifically applicable to the rib-in-pre-policy view.";
+      when "../policy-type = 'ADJ_RIB_IN_PRE_POLICY'";
     }
   }
 
-  grouping bmp-route-monitoring-top {
-    description
-      "Top-level grouping for BMP route monitoring";
-    container route-monitoring {
-      description
-        "Configuration and state parameters for BMP route monitoring";
-      container config {
-        description
-          "Configuration parameters for BMP route monitoring";
-        uses bmp-route-monitoring-config;
-      }
-      container state {
-        config false;
-        description
-          "Operational state parameters for BMP route monitoring";
-        uses bmp-route-monitoring-config;
-      }
+  grouping bmp-station-config {
+    leaf name {
+      type string;
+      description "Identifier for the BMP station";
     }
-  }
-
-grouping bmp-station-config {
-    description
-      "Configuration parameters for a BMP monitoring station";
     leaf station-address {
       type oc-inet:ip-address;
       mandatory true;
-      description
-        "IP address of the BMP monitoring station";
     }
-   leaf station-port {
+    leaf station-port {
       type oc-inet:port-number;
-      description
-        "TCP port number of the BMP monitoring station";
-      must "../connection-mode = 'ACTIVE'" {
-        error-message "The station-port must be configured when connection-mode is ACTIVE.";
-        description
-          "Enforce that the port is provided for active outgoing connections.";
-      }
     }
     uses bmp-route-monitoring-config;
-  }
-
-  grouping bmp-config {
-    description
-      "Top-level configuration parameters for BMP";
-    list stations {
-      key "station-address";
-      description
-        "List of BMP monitoring stations (collectors) to which the device should send data.";
-      uses bmp-station-config;
-    }
   }
 
   grouping bmp-station-state {
-    description
-      "Operational state parameters for a BMP monitoring station";
-    leaf connection-status {
-      type connection-status-type;
-      description
-        "Operational status of the BMP session";
-    }
-    leaf uptime {
+    leaf connection-status { type connection-status-type; }
+    leaf uptime { 
       type uint64;
       units "seconds";
-      description
-        "The time in seconds that the BMP session has been established.This represents the duration since the transition into the ESTABLISHED state.";
     }
-    leaf flap-count {
-        type oc-yang:counter64;
-        description
-          "Number of times the BMP session has transitioned from ESTABLISHED to DOWN. This counter is cumulative since the session was created or the counters were reset.";
-      }
+    leaf flap-count { type oc-yang:counter64; }
     container message-counters {
-      description
-        "Counters for different types of BMP messages";
-      leaf total {
-        type oc-yang:counter64;
-        description
-          "Total number of BMP messages sent to this station";
-      }
-      leaf tx-statistics {
-        type oc-yang:counter64;
-        description
-          "Number of statistics messages sent";
-      }
-      leaf route-monitoring {
-        type oc-yang:counter64;
-        description
-          "Number of route monitoring messages sent";
-      }
-      leaf peer-monitoring {
-        type oc-yang:counter64;
-        description
-          "Number of peer monitoring messages sent";
-      }
-      leaf route-mirroring {
-        type oc-yang:counter64;
-        description
-          "Number of route mirroring messages sent";
-      }
-    }
-    uses bmp-route-monitoring-config;
-  }
-
-  grouping bmp-station-group-config {
-    description
-      "Configuration parameters for a BMP station group";
-
-    leaf-list station-names {
-      type leafref {
-        path "../../../stations/station/config/name";
-      }
-      description
-        "List of BMP stations in this group";
-    }
-  }
-
-  grouping bmp-station-group-state {
-    description
-      "Operational state parameters for a BMP station group";
-    leaf-list station-names {
-      type leafref {
-        path "../../../stations/station/config/name";
-      }
-      description
-        "List of BMP stations in this group";
+      leaf total { type oc-yang:counter64; }
+      leaf tx-statistics { type oc-yang:counter64; }
+      leaf route-monitoring { type oc-yang:counter64; }
+      leaf peer-monitoring { type oc-yang:counter64; }
+      leaf route-mirroring { type oc-yang:counter64; }
     }
   }
 
   grouping bmp-stations-top {
-    description
-      "Top-level grouping for BMP monitoring stations";
     container stations {
-      description
-        "Configuration and state parameters for BMP monitoring stations";
       list station {
         key "name";
-        description
-          "List of BMP monitoring stations";
-      leaf name {
-      type leafref {
-        path "../config/name";
-        }
-      description
-        "Reference to the name of the BMP monitoring station.";
-        }
-        container config {
-          description
-            "Configuration parameters for the BMP monitoring station";
-          uses bmp-station-config;
-        }
+        leaf name { type leafref { path "../config/name"; } }
+        container config { uses bmp-station-config; }
         container state {
           config false;
-          description
-            "Operational state parameters for the BMP monitoring station";
+          uses bmp-station-config;
           uses bmp-station-state;
         }
         uses bmp-afi-safis-top;
       }
     }
     container station-groups {
-      description
-        "Groups of BMP monitoring stations";
       list station-group {
         key "name";
-        description
-          "A group of BMP monitoring stations";
-        leaf name {
-          type string;
-          description
-            "Name of the station group";
-        }
+        leaf name { type string; }
         container config {
-          description
-            "Configuration parameters for the station group";
-          uses bmp-station-group-config;
+          leaf-list station-names {
+            type leafref { path "../../../stations/station/name"; }
+          }
         }
         container state {
           config false;
-          description
-            "Operational state parameters for the station group";
-          uses bmp-station-group-state;
+          leaf-list station-names {
+            type leafref { path "../../../stations/station/name"; }
+          }
         }
       }
     }
   }
 
-grouping bmp-config {
-    description
-      "Configuration parameters for BGP Monitoring Protocol";
+  grouping bmp-global-config {
     leaf enabled {
       type boolean;
       default false;
-      description
-        "When true, BGP Monitoring Protocol is enabled";
     }
     leaf connection-mode {
       type connection-mode-type;
       mandatory true;
-      description
-        "Specifies whether the BMP client actively initiates connections to BMP servers or passively listens for connections";
     }
-    leaf local-address {
-      type oc-inet:ip-address;
-      description
-        "Source IP address to use for BMP connections";
-    }
+    leaf local-address { type oc-inet:ip-address; }
     leaf local-port {
       type oc-inet:port-number;
-      when "../connection-mode = 'PASSIVE'" {
-        description
-          "Local port is only relevant when the device is in listening (PASSIVE) mode.";
-      }
-      must "../connection-mode = 'PASSIVE'" {
-        error-message "local-port cannot be configured when connection-mode is ACTIVE.";
-      }
-      description
-        "Local port to listen on for incoming BMP connections. This is mandatory when connection-mode is PASSIVE.";
-    }
-    leaf station-address {
-      type oc-inet:ip-address;
-      must "../connection-mode = 'ACTIVE'" {
-        error-message "station-address is required when connection-mode is ACTIVE.";
-      }
-      description
-        "Destination IP address of the BMP collector. Mandatory when connection-mode is ACTIVE.";
-    }
-    leaf station-port {
-      type oc-inet:port-number;
-      must "../connection-mode = 'ACTIVE'" {
-        error-message "station-port is required when connection-mode is ACTIVE.";
-      }
-      description
-        "Destination TCP port of the BMP collector. Mandatory when connection-mode is ACTIVE.";
+      when "../connection-mode = 'PASSIVE'";
     }
     leaf statistics-timeout {
       type uint32;
       units "seconds";
-      description
-        "Time in seconds between periodic statistics messages. Replaces oc-types:timeticks64 to use seconds as the base unit.";
     }
-    uses bmp-tcp-keepalive-config;
   }
 
   grouping bmp-top {
-    description
-      "Top-level grouping for BGP Monitoring Protocol";
     container bmp {
-      description
-        "Configuration and state parameters for BGP Monitoring Protocol";
-      container config {
-        description
-          "Configuration parameters for BGP Monitoring Protocol";
-        uses bmp-config;
-      }
+      container config { uses bmp-global-config; }
       container state {
         config false;
-        description
-          "Operational state parameters for BGP Monitoring Protocol";
-        uses bmp-config;
+        uses bmp-global-config;
       }
       uses bmp-tcp-keepalive-top;
       uses bmp-stations-top;
@@ -501,44 +234,26 @@ grouping bmp-config {
     }
   }
 
-grouping bmp-neighbor-config {
-    description
-      "Configuration parameters for BMP at the neighbor or group level";
-    leaf-list enabled-bm-views {
-      type route-monitoring-policy-type;
-      description
-        "The set of RIB views enabled for monitoring on this BGP neighbor or group. By using a leaf-list, the operator can specifically select any combination of views (e.g., rib-in-pre-policy and rib-out-post-policy) to be streamed to the BMP station.";
-    }
+  grouping bmp-neighbor-config {
+    leaf-list enabled-bm-views { type route-monitoring-policy-type; }
     leaf monitoring-enabled {
       type boolean;
       default false;
-      description
-        "Master toggle to enable or disable BMP monitoring for this specific neighbor or group.";
     }
   }
 
   grouping bmp-neighbor-top {
-    description
-      "Top-level grouping for BMP at the neighbor level";
     container bmp {
-      description
-        "Configuration and state parameters for BMP at the neighbor level";
-      container config {
-        description
-          "Configuration parameters for BMP at the neighbor level";
-        uses bmp-neighbor-config;
-      }
+      container config { uses bmp-neighbor-config; }
       container state {
         config false;
-        description
-          "Operational state parameters for BMP at the neighbor level";
         uses bmp-neighbor-config;
       }
-      uses bmp-afi-safis-top;
-    }
+      uses bmp-afi-safis-top
   }
+}
 
-  // Augmentations
+// Augmentations
   augment "/oc-netinst:network-instances/oc-netinst:network-instance/oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:global" {
     description
       "Augments the global BGP configuration with BMP parameters";
@@ -557,3 +272,4 @@ grouping bmp-neighbor-config {
     uses bmp-neighbor-top;
   }
  }
+
