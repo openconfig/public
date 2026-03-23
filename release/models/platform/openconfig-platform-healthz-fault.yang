@@ -136,9 +136,21 @@ module openconfig-platform-healthz-fault {
     base ACTION_BASE;
     description
       "Force-reprogram the firmware for the targeted component.
+      In many cases where this action is required, the targeted
+      component must be powercycled for the reprogramming
+      to take effect.
+
+      In comparison to ACTION_FACTORY_RESET action,
+      ACTION_FW_REPROGRAM does not necessarily involve resetting
+      the firmware back to its factory default. It also does not
+      involve resetting any certificates on disk or removing
+      any config files or OS images.
+
       E.g. for the Chassis component this could mean
       force-reprogramming all FPGAs and reloading
-      all drivers on the Chassis";
+      all drivers on the Chassis.
+      This reprogramming would be to the currently-installed
+      version, not the factory default version."
   }
 
   grouping platform-health-faults {
