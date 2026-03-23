@@ -23,7 +23,13 @@ module openconfig-platform-healthz-fault {
   description
     "This model defines device reported fault";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.1.1";
+
+  revision "2026-03-23" {
+    description
+      "Add ACTION_FW_REPROGRAM";
+    reference "0.1.1";
+  }
 
   revision "2025-08-05" {
     description
@@ -124,6 +130,12 @@ module openconfig-platform-healthz-fault {
     base ACTION_BASE;
     description
       "Replace component.";
+  }
+
+  identity ACTION_FW_REPROGRAM {
+    base ACTION_BASE;
+    description
+      "Force-reprogram all FPGA images and reload drivers";
   }
 
   grouping platform-health-faults {
