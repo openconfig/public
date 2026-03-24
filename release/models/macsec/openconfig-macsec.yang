@@ -654,7 +654,11 @@ revision "2023-06-08" {
       type boolean;
       default "false";
       description
-        "Rekey on peer loss";
+        "When set to true, the loss of a peer triggers sak rekey only if the MKA
+         session still has other live peers. If no live peers remain, the rekey
+         behaviour is determined by the configured traffic policy. Depending on
+         the policy, the implementation may continue using the currently active
+         SAK to allow ongoing traffic or remove the SAK.";
     }
 
     leaf use-updated-eth-header {
