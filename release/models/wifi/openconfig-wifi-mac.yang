@@ -28,8 +28,8 @@ module openconfig-wifi-mac {
 
   oc-ext:openconfig-version "1.5.0";
 
-  revision "2026-03-23" {
-    description "Add RTT-enable to SSID config.";
+  revision "2026-03-24" {
+    description "Add 802.11mc RTT configuration and state containers.";
     reference "1.5.0";
   }
 
@@ -147,17 +147,6 @@ module openconfig-wifi-mac {
       default "false";
       description
         "Whether this SSID IE is hidden within Beacons.";
-    }
-    leaf enable-rtt {
-      type boolean;
-      default "false";
-      description
-        "Configures whether IEEE 802.11mc Fine Timing Measurement (FTM),
-        also known as Round Trip Time (RTT), is enabled for clients
-        associated with this SSID. When set to 'true', the Access Point
-        will respond to FTM requests from clients, allowing them to
-        perform accurate distance measurements. When 'false', FTM
-        responses are disabled for this SSID.";
     }
 
     leaf default-vlan {
@@ -616,6 +605,22 @@ module openconfig-wifi-mac {
       type boolean;
       description
         "Enable Multi-Link Operation";
+    }
+  }
+
+  grouping rtt-config {
+    description
+      "802.11mc RTT (Round Trip Time) configuration, per SSID.";
+
+    leaf rtt {
+      type boolean;
+      description
+        "Configures whether IEEE 802.11mc Fine Timing Measurement (FTM),
+        also known as Round Trip Time (RTT), is enabled for clients
+        associated with this SSID. When set to 'true', the Access Point
+        will respond to FTM requests from clients, allowing them to
+        perform accurate distance measurements. When 'false', FTM
+        responses are disabled for this SSID.";
     }
   }
 
@@ -1811,6 +1816,31 @@ module openconfig-wifi-mac {
     }
   }
 
+  grouping rtt-top {
+    description
+      "Top-level grouping for RTT configuration and operational
+      state data.";
+
+    container rtt {
+      description
+        "Top-level container for RTT configuration and
+        state container.";
+
+      container config {
+        description
+          "Container for RTT configuration elements.";
+        uses rtt-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Container for RTT state elements.";
+        uses rtt-config;
+      }
+    }
+  }
+
   grouping ssid-top {
     description
       "Top-level grouping for SSID configuration and operational state
@@ -1856,6 +1886,7 @@ module openconfig-wifi-mac {
         uses dot1x-timers-top;
         uses band-steering-top;
         uses mlo-top;
+        uses rtt-top;
       }
     }
   }
