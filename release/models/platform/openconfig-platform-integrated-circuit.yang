@@ -7,6 +7,7 @@ module openconfig-platform-integrated-circuit {
 
   import openconfig-platform { prefix oc-platform; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-yang-types { prefix oc-yang; }
 
   organization "OpenConfig working group";
   contact
@@ -19,7 +20,13 @@ module openconfig-platform-integrated-circuit {
     These components are generically forwarding NPUs or ASICs within
     the system for which configuration or state is applicable.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2026-04-30" {
+    description
+      "Add counters for packet trimming.";
+    reference "0.4.0";
+  }
 
   revision "2022-04-20" {
     description
@@ -168,6 +175,43 @@ module openconfig-platform-integrated-circuit {
       description
         "Total number of parity errors. This includes both the corrected and
         uncorrected parity errors.";
+    }
+  }
+
+  grouping trim-pkts-counters-top {
+    description
+      "Structural grouping for packet trimming counters.";
+
+    leaf out-trim-pkts {
+      type oc-yang:counter64;
+      description
+        "The number of packets that were trimmed and successfully
+        transmitted.";
+    }
+
+    uses trim-pkts-common-counters-top;
+  }
+
+  grouping trim-pkts-common-counters-top {
+    description
+      "Structural grouping for packet trimming counters.
+      Counters collected at port level, queue level and
+      switch level.";
+
+    leaf trim-pkts {
+      type oc-yang:counter64;
+      description
+        "The total number of packets that were trimmed.
+        This counter includes both packets that were
+        transmitted after trimming and those that were
+        subsequently dropped.";
+    }
+
+    leaf dropped-trim-pkts {
+      type oc-yang:counter64;
+      description
+        "The number of packets that were trimmed but dropped due to a
+        failed shared buffer admission on the trim queue.";
     }
   }
 
