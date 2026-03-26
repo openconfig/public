@@ -660,11 +660,14 @@ module openconfig-macsec {
       type boolean;
       default "false";
       description
-        "When set to true, the loss of a peer triggers sak rekey only if the MKA
-         session still has other live peers. If no live peers remain, the rekey
-         behavior is determined by the configured traffic policy. Depending on
-         the policy, the implementation may continue using the currently active
-         SAK to allow ongoing traffic or remove the SAK.";
+		  "When set to true, the loss of a peer triggers a SAK rekey only if the
+			MKA session still has other live peers. If the peer loss results in no
+			live peers remaining in the MKA session, an automatic rekey is not
+			triggered. Instead, the security-policy leaf configuration determines
+			the subsequent behavior. Based on the security-policy leaf configuration,
+			the system may retain the currently active SAK to allow encrypted traffic
+			exchange, or it may immediately remove the SAK to halt or allow unencrypted
+			transmission.";
     }
 
     leaf use-updated-eth-header {
