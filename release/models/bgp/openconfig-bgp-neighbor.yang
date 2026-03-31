@@ -30,13 +30,19 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.10.0";
+
+  revision "2026-03-31" {
+    description
+      "Add prefix sent path count.";
+    reference "9.10.0";
+  }
 
   revision "2025-04-18" {
     description
       "Clarification to usage of link-bandwidth-ext-community
       container under BGP use-multiple-paths`.";
-          reference "9.9.1";
+    reference "9.9.1";
   }
 
   revision "2025-03-30" {
@@ -686,6 +692,15 @@ submodule openconfig-bgp-neighbor {
           neighbor after applying any policies. This count is
           the number of prefixes present in the post-policy
           Adj-RIB-Out for the neighbor";
+      }
+
+      leaf sent-path-count {
+        type uint32;
+        description
+          "The number of add-paths advertised to a neighbor after
+          the post-policy Adj-RIB-Out.  This value reflects the total
+          number of paths present in the post-policy Adj-RIB-Out for
+          the neighbor once add-path configuration is applied.";
       }
 
       leaf installed {
