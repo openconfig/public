@@ -271,6 +271,17 @@ module openconfig-bgp-policy {
       bgp-set-med-type.";
   }
 
+  typedef bgp-set-aigp-action {
+    type enumeration {
+      enum SET {
+        description "Action to set the AIGP to a specific value.";
+      }
+    }
+    description
+      "Specifies which action to take on the value specified by the
+      set-aigp leaf.";
+  }
+
   // grouping statements
 
   grouping match-as-path-config {
@@ -1418,6 +1429,13 @@ module openconfig-bgp-policy {
         "Set the AIGP metric attribute in the route update (RFC 7311,
         Section 3.4)";
     }
+
+    leaf set-aigp-action {
+      type bgp-set-aigp-action;
+      description
+        "This leaf is mandatory when `set-aigp` is specified.  When
+        `set-aigp` is specified, the action must be set to 'SET'.";
+    }
   }
 
   grouping bgp-actions-state {
@@ -1446,6 +1464,10 @@ module openconfig-bgp-policy {
             "otherwise any action must be specified if set-med is an " +
             "integer value.";
         }
+
+        must "(not(set-aigp) or set-aigp-action)" {
+          error-message "set-aigp-action must be specified when set-aigp is set";
+        }
       }
 
       container state {
@@ -1464,6 +1486,10 @@ module openconfig-bgp-policy {
             "set-med-action must be set to 'SET' when set-med = 'IGP', " +
             "otherwise any action must be specified if set-med is an " +
             "integer value.";
+        }
+        
+        must "(not(set-aigp) or set-aigp-action)" {
+          error-message "set-aigp-action must be specified when set-aigp is set";
         }
       }
       uses as-path-prepend-top;
