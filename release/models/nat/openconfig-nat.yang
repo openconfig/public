@@ -33,7 +33,8 @@ module openconfig-nat {
     - Destination NAT (DNAT) for inbound traffic translation
     - Static and dynamic address/port mappings
     - Policy-based NAT using ACLs
-    - Active translation table showing current NAT entries
+    - Active translation table showing current NAT translations,
+      including original and post-NAT 5-tuples for all traffic
     - Multiple address families (IPv4/NAT44, IPv6/NAT66).";
 
   oc-ext:openconfig-version "0.1.0";
@@ -101,6 +102,25 @@ module openconfig-nat {
     }
     description
       "Protocol types supported for NAT translation.";
+  }
+
+  typedef nat-translation-type {
+    type enumeration {
+      enum SOURCE {
+        description
+          "Source address/port was translated (SNAT/PAT).";
+      }
+      enum DESTINATION {
+        description
+          "Destination address/port was translated (DNAT).";
+      }
+      enum BOTH {
+        description
+          "Both source and destination were translated (double NAT).";
+      }
+    }
+    description
+      "Which packet fields were modified by NAT in this entry.";
   }
 
   typedef nat-action {
@@ -631,36 +651,107 @@ module openconfig-nat {
 
   grouping nat-translation-entry-state {
     description
-      "Operational state data for active NAT translation entries.";
+      "Operational state data for active NAT translation entries.
 
-    leaf internal-address {
-      type inet:ip-address;
-      description
-        "Internal (private) IP address being translated.";
-    }
+      Each entry tracks the full bidirectional flow using two 5-tuples:
+      'original' contains the packet fields as sent by the initiator
+      (pre-NAT), and 'translated' contains those fields after NAT has
+      been applied (post-NAT).  For fields not modified by NAT the
+      values in both containers are identical, making it straightforward
+      to determine exactly what was changed.
 
-    leaf internal-port {
-      type inet:port-number;
-      description
-        "Internal port number being translated.";
-    }
-
-    leaf external-address {
-      type inet:ip-address;
-      description
-        "External (public) IP address used for translation.";
-    }
-
-    leaf external-port {
-      type inet:port-number;
-      description
-        "External port number used for translation.";
-    }
+      This representation covers SNAT, DNAT, double NAT, and
+      pass-through entries without any special casing.  For ICMP,
+      src-port and dst-port carry the ICMP query identifier,
+      consistent with RFC 8512 Section 4.1.";
 
     leaf protocol {
       type protocol-type;
       description
-        "Protocol of the translation entry.";
+        "IP protocol of the translation entry.";
+    }
+
+    leaf nat-type {
+      type nat-translation-type;
+      description
+        "Which address/port fields were modified by NAT.";
+    }
+
+    leaf interface {
+      type oc-if:base-interface-ref;
+      description
+        "Interface on which this translation was created.  Corresponds
+        to the 'Interface/Profile' column in Arista output and the
+        IDB field in Cisco verbose output.";
+    }
+
+    container original {
+      description
+        "The original 5-tuple as seen from the initiating side,
+        before any NAT transformation.  Corresponds to Cisco
+        'inside local' (src) and 'outside global' (dst), and to
+        the forward tuple in Linux conntrack.";
+
+      leaf src-address {
+        type inet:ip-address;
+        description
+          "Source IP address before NAT.";
+      }
+
+      leaf src-port {
+        type inet:port-number;
+        description
+          "Source port before NAT, or ICMP query identifier
+          when protocol is ICMP.";
+      }
+
+      leaf dst-address {
+        type inet:ip-address;
+        description
+          "Destination IP address before NAT.";
+      }
+
+      leaf dst-port {
+        type inet:port-number;
+        description
+          "Destination port before NAT, or ICMP query identifier
+          when protocol is ICMP.";
+      }
+    }
+
+    container translated {
+      description
+        "The 5-tuple after NAT has been applied, as seen by the
+        remote side.  Corresponds to Cisco 'inside global' (src)
+        and 'outside local' (dst), and to the post-NAT fields in
+        Linux conntrack.  Fields unchanged by NAT will have the
+        same value as in the original container.";
+
+      leaf src-address {
+        type inet:ip-address;
+        description
+          "Source IP address after NAT.";
+      }
+
+      leaf src-port {
+        type inet:port-number;
+        description
+          "Source port after NAT, or ICMP query identifier
+          when protocol is ICMP.";
+      }
+
+      leaf dst-address {
+        type inet:ip-address;
+        description
+          "Destination IP address after NAT.";
+      }
+
+      leaf dst-port {
+        type inet:port-number;
+        description
+          "Destination port after NAT, or ICMP query identifier
+          when protocol is ICMP.";
+      }
     }
 
     leaf creation-time {
@@ -679,18 +770,18 @@ module openconfig-nat {
       type uint32;
       units "seconds";
       description
-        "Remaining time before this translation entry expires
-        due to inactivity.";
+        "Remaining time before this entry expires due to inactivity.
+        Counts down to zero, at which point the entry is removed.";
     }
 
-    leaf source-pool {
+    leaf nat-pool {
       type string;
       description
-        "Name of the dynamic NAT pool that allocated this
-        translation, if applicable.";
+        "Name of the dynamic NAT pool that allocated this translation,
+        if applicable.";
     }
 
-    leaf source-mapping {
+    leaf nat-mapping {
       type string;
       description
         "Name of the static NAT mapping that created this translation,
@@ -699,34 +790,45 @@ module openconfig-nat {
 
     container counters {
       description
-        "Counters for NAT translation entry operations.";
+        "Per-direction packet and byte counters for this translation
+        entry.  'original-direction' counts traffic from initiator to
+        responder; 'reply-direction' counts traffic from responder
+        back to initiator.";
 
-      leaf packet-count-inbound {
-        type yang:counter64;
+      container original-direction {
         description
-          "Number of inbound packets (external to internal) for
-          this translation.";
+          "Counters for packets travelling in the original (initiator
+          to responder) direction.";
+
+        leaf packets {
+          type yang:counter64;
+          description
+            "Number of packets seen in the original direction.";
+        }
+
+        leaf bytes {
+          type yang:counter64;
+          description
+            "Number of bytes seen in the original direction.";
+        }
       }
 
-      leaf packet-count-outbound {
-        type yang:counter64;
+      container reply-direction {
         description
-          "Number of outbound packets (internal to external) for
-          this translation.";
-      }
+          "Counters for packets travelling in the reply (responder
+          to initiator) direction.";
 
-      leaf byte-count-inbound {
-        type yang:counter64;
-        description
-          "Number of inbound bytes (external to internal) for
-          this translation.";
-      }
+        leaf packets {
+          type yang:counter64;
+          description
+            "Number of packets seen in the reply direction.";
+        }
 
-      leaf byte-count-outbound {
-        type yang:counter64;
-        description
-          "Number of outbound bytes (internal to external) for
-          this translation.";
+        leaf bytes {
+          type yang:counter64;
+          description
+            "Number of bytes seen in the reply direction.";
+        }
       }
     }
   }
