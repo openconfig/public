@@ -45,29 +45,40 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.9.0";
+  oc-ext:openconfig-version "3.9.1";
 
-    revision "2025-06-20" {
+  revision "2026-04-05" {
     description
-      "Add IPv6 Router Advertisement Options for DNS Configuration (RDNSS) RFC 8106.";
-      reference "3.9.0";
+      "Update IPv6 mtu reference from obsoleted RFC 2460 to RFC 8200.
+      Add RFC 2675 reference for jumbogram support justifying the uint32
+      type.";
+    reference "3.9.1";
   }
 
-    revision "2025-06-20" {
+  revision "2025-06-20" {
     description
-      "Add model for support of URPF source address validation through network-instance different then one used for destination lookup";
-      reference "3.8.0";
+      "Add IPv6 Router Advertisement Options for DNS Configuration
+      (RDNSS) RFC 8106.";
+    reference "3.9.0";
+  }
+
+  revision "2025-06-20" {
+    description
+      "Add model for support of URPF source address validation through
+      network-instance different then one used for destination lookup";
+    reference "3.8.0";
   }
 
   revision "2025-05-12" {
     description
       "Add model for support of URPF source address verification";
-      reference "3.7.0";
+    reference "3.7.0";
   }
 
   revision "2024-05-28" {
     description
-      "Add gratuitous-arp-accepted for IPv4 and unsolicited-na-accepted for IPv6.";
+      "Add gratuitous-arp-accepted for IPv4 and unsolicited-na-accepted
+      for IPv6.";
     reference "3.6.0";
   }
 
@@ -83,10 +94,10 @@ module openconfig-if-ip {
     reference "3.5.0";
   }
 
-revision "2023-06-30" {
+  revision "2023-06-30" {
     description
-      "Deprecate IPv6 router advertisment config suppress leaf and add config
-      mode leaf.";
+      "Deprecate IPv6 router advertisment config suppress leaf and add
+      config mode leaf.";
     reference "3.4.0";
   }
 
@@ -134,9 +145,8 @@ revision "2023-06-30" {
 
   revision "2017-07-14" {
     description
-      "Added Ethernet/IP state data; Add dhcp-client;
-      migrate to OpenConfig types modules; Removed or
-      renamed opstate values";
+      "Added Ethernet/IP state data; Add dhcp-client; migrate to
+      OpenConfig types modules; Removed or renamed opstate values";
     reference "2.0.0";
   }
 
@@ -524,13 +534,13 @@ revision "2023-06-30" {
      units octets;
      description
        "The size, in octets, of the largest IPv4 packet that the
-        interface will send and receive.
+       interface will send and receive.
 
-        The server may restrict the allowed values for this leaf,
-        depending on the interface's type.
+       The server may restrict the allowed values for this leaf,
+       depending on the interface's type.
 
-        If this leaf is not configured, the operationally used MTU
-        depends on the interface's type.";
+       If this leaf is not configured, the operationally used MTU
+       depends on the interface's type.";
      reference
        "RFC 791: Internet Protocol";
     }
@@ -651,8 +661,9 @@ revision "2023-06-30" {
         If this leaf is not configured, the operationally used MTU
         depends on the interface's type.";
       reference
-        "RFC 2460: Internet Protocol, Version 6 (IPv6) Specification
-                  Section 5";
+        "RFC 8200: Internet Protocol, Version 6 (IPv6) Specification
+                   Section 5
+         RFC 2675: IPv6 Jumbograms";
     }
 
     leaf dup-addr-detect-transmits {

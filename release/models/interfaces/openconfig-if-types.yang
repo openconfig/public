@@ -1,0 +1,56 @@
+module openconfig-if-types {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/interfaces/types";
+
+  prefix "oc-ift";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    netopenconfig@googlegroups.com";
+
+  description
+    "";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2026-04-05" {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // typedef statements
+
+  typedef max-frame-size {
+    type uint32;
+    units octets;
+    description
+     "The maximum frame size in octets that may be transmitted or
+     received on an interface. For Ethernet interfaces, this value
+     includes the Ethernet header but excludes the 4-octet frame check
+     sequence (FCS) per IEEE 802.3. For non-Ethernet interface types
+     (e.g., loopback, tunnel), the value represents the maximum
+     transmission unit of the interface without Layer 2 framing overhead
+     specific to the encapsulation type.
+
+     If configured, the max-frame-size also limits the maximum frame
+     size of any child sub-interfaces. The MTU available to higher layer
+     protocols is restricted to the maximum frame payload size, and may
+     be further restricted by explicit Layer 3 or protocol specific MTU
+     configuration.";
+  }
+}
