@@ -67,8 +67,15 @@ module openconfig-aft-global-filter {
     container global-filter {
       description
         "Configuration and state for a global filter applied to the
-         AFT. The filter is used to restrict which prefixes are
-         installed into the AFT for the network instance.";
+         AFT. The filter is used to restrict which prefixes from the
+         network instance's AFT are streamed via gNMI; it does not
+         affect which prefixes are installed in the forwarding plane
+         (hardware FIB). All gNMI clients subscribing to the IPv4 or
+         IPv6 AFT for this network instance will only receive data
+         corresponding to prefixes accepted by the configured
+         filter policy. Prefixes rejected by the policy are omitted
+         from the streamed AFT state for every subscriber, regardless
+         of the client.";
 
       container config {
         description
