@@ -486,24 +486,24 @@ YANG `list` statements. In some cases (e.g., programmatically generating
 configuration), this schema verbosity negatively impacts usability -- e.g.,
 requiring programmers to reference longer paths than are necessary. Tooling
 generating programmatic APIs around OpenConfig can improve usability by
-transforming the schema. Clearly, this is wholly reliant on consistency
-in the modelling approach.
+transforming the schema. Such transformations rely on consistency in the
+modelling approach.
 
 The following rules MUST be adhered to within the OpenConfig models to
 ensure that downstream tooling does not break.
 
-* **`list` nodes MUST NOT share their identifier with any of the children
-  of its grandparent node.** It is not legal for `/a/foos/foo` and `/a/foo` 
+* **A `list` node MUST NOT share its identifier with any sibling
+  of its parent container.** It is not legal for `/a/foos/foo` and `/a/foo` 
   to exist, or for `/interfaces/interface` and `/interface` to exist, where
   `/a/foos/foo` and `/interfaces/interface` are `list` nodes. This rule
   exists to allow the (style-guide-required) "surrounding" container of 
   a list to be removed during schema transformation.
-* **A leaf node MUST NOT share a name with a grandparent**. It is not legal
+* **A leaf node MUST NOT share its identifier with any of the children of its grandparent node.** It is not legal
   for `/a/config/leaf` and `/a/leaf` to both exist nor for `/b/state/leaf` 
   and `/b/leaf` to both exist. The single exception to this rule is the
   OpenConfig list key pattern: a leaf inside the `config` or `state` container 
   is permitted to share its name with the `leafref` node acting as the `key` 
-  of the parent list. Such leaves MUST be the `key` of the `list` and MUST be 
+  of the parent list. The node acting as the key of the `list` MUST be 
   of type `leafref` as specified elsewhere in this guide. This rule ensures that 
   the `config` and `state` containers can be removed during schema transformation.
 
