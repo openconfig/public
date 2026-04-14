@@ -498,14 +498,14 @@ ensure that downstream tooling does not break.
   `/a/foos/foo` and `/interfaces/interface` are `list` nodes. This rule
   exists to allow the (style-guide-required) "surrounding" container of 
   a list to be removed during schema transformation.
-* **A leaf node may not share a name with a grandparent**. It is not legal
+* **A leaf node MUST NOT share a name with a grandparent**. It is not legal
   for `/a/config/leaf` and `/a/leaf` to both exist nor for `/b/state/leaf` 
   and `/b/leaf` to both exist. The single exception to this rule is the
-  special case of nodes which act as the `key` of a `list`, where the leaf
-  must be a direct child of the `list` node. Such leaves MUST be the `key` 
-  of the `list` and must be of type `leafref` as specified elsewhere in this
-  guide. This rule ensures that the `config` and `state` containers can be removed
-  during schema transformation.
+  OpenConfig list key pattern: a leaf inside the `config` or `state` container 
+  is permitted to share its name with the `leafref` node acting as the `key` 
+  of the parent list. Such leaves MUST be the `key` of the `list` and MUST be 
+  of type `leafref` as specified elsewhere in this guide. This rule ensures that 
+  the `config` and `state` containers can be removed during schema transformation.
 
 An example of programmatic compression is implemented for the generation of
 code in ygot -- both for Go and Protobuf artifact generation
