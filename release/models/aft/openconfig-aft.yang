@@ -42,7 +42,13 @@ module openconfig-aft {
     is referred to as an Abstract Forwarding Table (AFT), rather than
     the FIB.";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2026-03-10" {
+    description
+      "Add global-filter container to support per-network-instance AFT prefix filtering.";
+    reference "3.4.0";
+  }
 
   revision "2026-02-09" {
     description
@@ -231,7 +237,6 @@ module openconfig-aft {
       AFT.";
 
     container afts {
-      config false;
       description
         "The abstract forwarding tables (AFTs) that are associated
         with the network instance. An AFT is instantiated per-protocol
@@ -243,6 +248,7 @@ module openconfig-aft {
         forwarding entry.";
 
       container ipv4-unicast {
+        config false;
         description
           "The abstract forwarding table for IPv4 unicast. Entries
           within this table are uniquely keyed on the IPv4 unicast
@@ -257,6 +263,7 @@ module openconfig-aft {
       }
 
       container ipv6-unicast {
+        config false;
         description
           "The abstract forwarding table for IPv6 unicast. Entries
           within this table are uniquely keyed on the IPv6 unicast
@@ -271,6 +278,7 @@ module openconfig-aft {
       }
 
       container policy-forwarding {
+        config false;
         description
           "The abstract forwarding table for policy-based forwarding
           entries. Since multiple match criteria can be utilised
@@ -288,6 +296,7 @@ module openconfig-aft {
       }
 
       container mpls {
+        config false;
         description
           "The abstract forwarding table for MPLS label based
           forwarding entries. Entries within the table are keyed based
@@ -298,6 +307,7 @@ module openconfig-aft {
       }
 
       container ethernet {
+        config false;
         description
           "The abstract forwarding table for Ethernet based forwarding
           entries. Entries within the table are keyed based on the
@@ -307,6 +317,7 @@ module openconfig-aft {
       }
 
       container state-synced {
+        config false;
         description
           "In some cases AFT streaming (e.g., over gNMI) is an eventually consistent system.
           When the device updates an entry it is usually expected to
