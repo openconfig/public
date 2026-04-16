@@ -101,9 +101,11 @@ module openconfig-mpls-network-instance {
     leaf name {
       description
         "A user defined name to reference a static next-hop-group.";
-      // we are at /network-instances/network-instance/mpls/lsps/static-lsps/static-lsp/egress/next-hop-group/config/name
       type leafref {
-        path "../../../../../../../../../oc-ni:static/oc-ni:next-hop-groups/oc-ni:next-hop-group/oc-ni:config/oc-ni:name";
+        path "/oc-ni:network-instances" +
+        "/oc-ni:network-instance[oc-ni:name=current()/../oc-ni:network-instance/oc-ni:config/oc-ni:name]" +
+        "/oc-ni:static/oc-ni:next-hop-groups/oc-ni:next-hop-group" +
+        "/oc-ni:config/oc-ni:name";
       }
     }
   }
