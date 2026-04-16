@@ -26,7 +26,6 @@ module openconfig-bgp-bmp {
     description "Initial revision";
     reference "0.1.0";
   }
-
   // Typedefs
   typedef connection-mode-type {
     type enumeration {
@@ -39,7 +38,6 @@ module openconfig-bgp-bmp {
     }
     description "Type to define the connection mode for BMP sessions";
   }
-
   typedef route-monitoring-policy-type {
     type enumeration {
       enum ADJ_RIB_IN_PRE_POLICY;
@@ -50,7 +48,6 @@ module openconfig-bgp-bmp {
     }
     description "Type to define the specific RIB view to be monitored by BMP";
   }
-
   typedef connection-status-type {
     type enumeration {
       enum LISTENING;
@@ -62,9 +59,7 @@ module openconfig-bgp-bmp {
     }
     description "Type to define the operational status of a BMP session";
   }
-
   // Groupings
-
 grouping bmp-tcp-keepalive-config {
     description "Configuration parameters for BMP TCP keepalive settings";
     leaf idle-time {
@@ -82,7 +77,6 @@ grouping bmp-tcp-keepalive-config {
       description "Time between TCP keepalive probes";
     }
   }
-
   grouping bmp-tcp-keepalive-top {
     container tcp-keepalive {
       description "Top-level container for BMP TCP keepalive";
@@ -93,7 +87,6 @@ grouping bmp-tcp-keepalive-config {
       }
     }
   }
-
   grouping route-monitoring-afi-safi-config {
     description "Configuration parameters for an AFI-SAFI under route-monitoring.";
     leaf name {
@@ -103,10 +96,9 @@ grouping bmp-tcp-keepalive-config {
     leaf enabled {
       type boolean;
       default false;
-description "All RIBs should be monitored";
+      description "All RIBs should be monitored";
     }
   }
-
   grouping route-monitoring-rib-config {
     description "Configuration parameters for a specific RIB.";
     leaf rib-type {
@@ -117,7 +109,6 @@ description "All RIBs should be monitored";
       default false;
     }
   }
-
   grouping route-monitoring-afi-safis-list {
     description "List of AFI-SAFIs for route monitoring.";
     container afi-safis {
@@ -140,7 +131,6 @@ description "All RIBs should be monitored";
       }
     }
   }
-
   grouping route-monitoring-rib-list {
     description "List of RIBs for route monitoring.";
     container ribs {
@@ -163,14 +153,12 @@ description "All RIBs should be monitored";
       }
     }
   }
-
   grouping bmp-route-monitoring-top {
     description "Route monitoring configuration container.";
     container route-monitoring {
       uses route-monitoring-rib-list;
     }
   }
-
   grouping station-tcp-keepalive-config {
     description "Configuration for TCP keepalives to a station.";
     leaf idle-time {
@@ -186,7 +174,6 @@ description "All RIBs should be monitored";
       type uint16;
     }
   }
-
   grouping station-tcp-keepalive {
     description "TCP keepalive parameters.";
     container tcp-keepalive {
@@ -199,7 +186,6 @@ description "All RIBs should be monitored";
       }
     }
   }
-
   grouping station-route-monitoring-config {
     description "Route monitoring config specific to a station.";
     leaf exclude-non-eligible {
@@ -209,7 +195,6 @@ description "All RIBs should be monitored";
       type boolean;
     }
   }
-
   grouping station-route-monitoring {
     description "Route monitoring configuration for a specific station.";
     container route-monitoring {
@@ -219,7 +204,6 @@ description "All RIBs should be monitored";
       uses route-monitoring-rib-list;
     }
   }
-
   grouping station-config {
     description "Configuration parameters for a BMP station.";
     leaf name {
@@ -259,7 +243,6 @@ description "All RIBs should be monitored";
     description "This statistics interval sends the BMP stats report to the collector.";
     }
   }
-
   grouping station-top {
     description "Configuration and state for a list of BMP stations.";
     container stations {
@@ -284,9 +267,7 @@ description "All RIBs should be monitored";
         }
       }
     }
-  }
-
- 
+  } 
   grouping bmp-system-config {
     description "BMP top-level configuration at the system level.";
     leaf enabled {
@@ -331,7 +312,6 @@ description "All RIBs should be monitored";
       description "This is to enable BMP stats, and is optional config at global/system level, the same can be defined at station level as well";
     }
   }
-
   grouping bmp-top {
     description "Top-level container for BMP configuration and operational state augmented into openconfig-system.";
     container bmp {
@@ -347,10 +327,7 @@ description "All RIBs should be monitored";
     }
   }
 }
-
-
 // Augmentations
- 
 augment ".../bgp/global" { 
 container bmp { 
 container config { 
@@ -361,7 +338,6 @@ type boolean;
 uses oc-bgp-bmp:bmp-route-monitoring-top;
 } 
 }
-
 augment ".../bgp/neighbors/neighbor" { 
 container bmp { 
 container config { 
@@ -372,7 +348,6 @@ type boolean;
 uses oc-bgp-bmp:bmp-route-monitoring-top; 
 } 
 }
-
 augment ".../bgp/peer-groups/peer-group" { 
 container bmp { 
  config { 
