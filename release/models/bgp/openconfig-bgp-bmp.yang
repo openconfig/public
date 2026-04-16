@@ -327,34 +327,35 @@ grouping bmp-tcp-keepalive-config {
     }
   }
 }
+
 // Augmentations
 augment "/oc-bgp:bgp/oc-bgp:global" { 
-container bmp { 
-container config { 
-leaf enabled { 
-type boolean; 
-} 
-} 
-uses oc-bgp-bmp:bmp-route-monitoring-top;
-} 
+   container bmp { 
+      container config { 
+            leaf enabled { 
+              type boolean; 
+        } 
+      } 
+   uses oc-bgp-bmp:bmp-route-monitoring-top;
+  } 
 }
 augment "/oc-bgp:bgp/oc-bgp:neighbor" { 
-container bmp { 
-container config { 
-leaf enabled { 
-type boolean; 
-} 
-} 
-uses oc-bgp-bmp:bmp-route-monitoring-top; 
-} 
+  container bmp { 
+    container config { 
+      leaf enabled { 
+        type boolean; 
+      } 
+    } 
+  uses oc-bgp-bmp:bmp-route-monitoring-top; 
+  } 
 }
 augment "/oc-bgp:bgp/oc-bgp:peer-group" { 
-container bmp { 
- config { 
- leaf enabled { 
- type boolean; 
- } 
- } 
- uses oc-bgp-bmp:bmp-route-monitoring-top;
- } 
+  container bmp { 
+     config { 
+       leaf enabled { 
+         type boolean; 
+       } 
+     } 
+   uses oc-bgp-bmp:bmp-route-monitoring-top;
+   } 
  }
