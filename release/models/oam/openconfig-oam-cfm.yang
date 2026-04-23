@@ -238,6 +238,40 @@ module openconfig-oam-cfm {
                               uses remote-mep-config;
                               uses mep-oper-states;
                             }
+
+                            container pm-profiles {
+                              description
+                                "Performance measurement profiles associated with this remote MEP.";
+
+                              list pm-profile {
+                                description "Measurement profile name and state.";
+                                key "profile-name";
+
+                                leaf profile-name {
+                                  description "A unique profile name identifying the profile";
+                                  type leafref {
+                                    path "../config/profile-name";
+                                  }
+                                }
+
+                                container config {
+                                  description "Associated performance measurement profile.";
+                                  leaf profile-name {
+                                    description "A unique profile name identifying the profile";
+                                    type string;
+                                  }
+                                }
+
+                                container state {
+                                  description "Operational data for performance measurement.";
+                                  config false;
+                                  uses performance-measurement-config;
+                                  uses performance-measurement-state;
+                                }
+
+                                uses synthetic-loss-measurement-state;
+                              }
+                            }
                         } // end list remote-mep
                       } // end container remote-meps
                       } // end list mep-endpoint
