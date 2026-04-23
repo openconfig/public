@@ -29,6 +29,12 @@ module openconfig-oam-cfm {
 
   oc-ext:openconfig-version "0.1.0";
 
+  revision "2026-04-23" {
+    description
+      "Add SLM model and move pm-profile to remote MEP level";
+    reference "0.2.0";
+  }
+
   revision "2024-09-11" {
     description
       "Initial revision";
@@ -139,9 +145,13 @@ module openconfig-oam-cfm {
                       } //end container mep state
 
                       container pm-profiles {
+                        status deprecated;
                         description
                           "This container includes configuration and state objects for the Frame Loss
-                          Measurement & Delay Measurement functions defined in [Y.1731] and [MEF SOAM PM IA].";
+                          Measurement & Delay Measurement functions defined in [Y.1731] and [MEF SOAM PM IA].
+
+                          This container has been deprecated in favor of keeping pm-profiles at the remote
+                          mep level.";
 
                         list pm-profile {
                           description " Measurement profile name and state.";
@@ -273,6 +283,8 @@ module openconfig-oam-cfm {
               uses performance-measurement-config;
               uses performance-measurement-state;
             }
+
+            uses synthetic-loss-measurement-state;
           }
         }
     } // End container cfm
@@ -937,61 +949,56 @@ module openconfig-oam-cfm {
   }
  }
 
-  grouping loss-measurement-state {
-    description "Loss measurement state grouping.";
+  grouping loss-measurement-common-stats {
+    description "Shared loss measurement grouping.";
 
-    container loss-measurement-state {
-      description "Loss measurement state container.";
-
-      leaf far-end-min-frame-loss-ratio {
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
-        description
-          "This object contains the minimum one-way availability flr in the
-          egress direction (source --> destination),
-          from among the set of availability flr values
-          calculated by the MEP in this Measurement Interval. There is
-          one availability flr value for each 'delta_t' time period
-          within the Measurement Interval, as specified in MEF 10.2.1.
-
-          The flr value is a ratio that is expressed as a percent with a
-          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
-
-          Units are in milli-percent, where 1 indicates 0.001 percent.";
-          reference
-            "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMinFlr";
+    leaf far-end-min-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
       }
-      leaf far-end-max-frame-loss-ratio {
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
-        description
-          "This object contains the maximum one-way availability flr in the
-          forward direction (source --> destination),
-          from among the set of availability flr
-          values calculated by the MEP in this Measurement Interval.
-          There is one availability flr value for each 'delta_t' time
-          period within the Measurement Interval, as specified in MEF
-          10.2.1.
+      units milli-percent;
+      description
+        "This object contains the minimum one-way availability flr in the
+        egress direction (source --> destination),
+        from among the set of availability flr values
+        calculated by the MEP in this Measurement Interval. There is
+        one availability flr value for each 'delta_t' time period
+        within the Measurement Interval, as specified in MEF 10.2.1.
 
-          The flr value is a ratio that is expressed as a percent with a
-          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
 
-          Units are in milli-percent, where 1 indicates 0.001 percent.";
-        reference
-          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMaxFlr";
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMinFlr";
+    }
+    leaf far-end-max-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
       }
-      leaf far-end-average-frame-loss-ratio {
+      units milli-percent;
+      description
+        "This object contains the maximum one-way availability flr in the
+        forward direction (source --> destination),
+        from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
 
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
 
-        description
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMaxFlr";
+    }
+    leaf far-end-average-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
+      }
+      units milli-percent;
+      description
         "This object contains the average one-way availability flr in the
         forward direction, from among the set of availability flr
         values calculated by the MEP in this Measurement Interval.
@@ -1003,62 +1010,58 @@ module openconfig-oam-cfm {
         value of 0 (ratio 0.00) through 100000 (ratio 1.00).
 
         Units are in milli-percent, where 1 indicates 0.001 percent.";
-        reference
+      reference
         "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardAvgFlr";
-        }
-
-      leaf near-end-min-frame-loss-ratio {
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
-        description
-          "This object contains the minimum one-way availability flr in the
-          backward direction (destination --> source),
-          from among the set of availability flr
-          values calculated by the MEP in this Measurement Interval.
-          There is one availability flr value for each 'delta_t' time
-          period within the Measurement Interval, as specified in MEF
-          10.2.1.
-
-          The flr value is a ratio that is expressed as a percent with a
-          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
-
-          Units are in milli-percent, where 1 indicates 0.001 percent.";
-        reference
-          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMinFlr";
+    }
+    leaf near-end-min-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
       }
-      leaf near-end-max-frame-loss-ratio {
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
-        description
-          "This object contains the maximum one-way availability flr in the
-          backward direction, from among the set of availability flr
-          values calculated by the MEP in this Measurement Interval.
-          There is one availability flr value for each 'delta_t' time
-          period within the Measurement Interval, as specified in MEF
-          10.2.1.
+      units milli-percent;
+      description
+        "This object contains the minimum one-way availability flr in the
+        backward direction (destination --> source),
+        from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
 
-          The flr value is a ratio that is expressed as a percent with a
-          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
-          Service OAM Performance Monitoring YANG Module
-          MEF 39
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
 
-          Units are in milli-percent, where 1 indicates 0.001 percent.";
-        reference
-          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMaxFlr";
-        }
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMinFlr";
+    }
+    leaf near-end-max-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
+      }
+      units milli-percent;
+      description
+        "This object contains the maximum one-way availability flr in the
+        backward direction, from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
 
-      leaf near-end-average-frame-loss-ratio {
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+        Service OAM Performance Monitoring YANG Module
+        MEF 39
 
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
-
-        description
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMaxFlr";
+    }
+    leaf near-end-average-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
+      }
+      units milli-percent;
+      description
         "This object contains the average one-way availability flr in the
         backward direction, from among the set of availability flr
         values calculated by the MEP in this Measurement Interval.
@@ -1070,17 +1073,9 @@ module openconfig-oam-cfm {
         value of 0 (ratio 0.00) through 100000 (ratio 1.00).
 
         Units are in milli-percent, where 1 indicates 0.001 percent.";
-        reference
+      reference
         "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardAvgFlr";
-        }
-
-      uses loss-measurement-counters-state;
     }
-  }
-
-  grouping loss-measurement-counters-state {
-    description "Loss-measurement-related measurement counters state.";
-
     container counters {
       description
         "A collection of loss-measurement-related statistics objects.";
@@ -1103,6 +1098,64 @@ module openconfig-oam-cfm {
       leaf slr-received {
         type oc-yang:counter64;
         description "slm Probes sent.";
+      }
+    }
+  }
+
+  grouping loss-measurement-state {
+    description "Loss measurement state grouping.";
+
+    container loss-measurement-state {
+      description "Loss measurement state container.";
+      uses loss-measurement-common-stats;
+    }
+  }
+
+  grouping synthetic-loss-measurement-stats {
+    description "Synthetic loss measurement grouping.";
+
+    leaf cos {
+      type uint8;
+      description "Class of Service for this synthetic loss measurement entry.";
+    }
+    
+    leaf test-id {
+      type uint32;
+      description "Test ID for this synthetic loss measurement entry.";
+    }
+
+    uses loss-measurement-common-stats;
+  }
+
+  grouping synthetic-loss-measurement-state {
+    description "Synthetic loss measurement state grouping.";
+
+    container synthetic-loss-measurement-states {
+      config false;
+      description "Collection of synthetic loss measurement states.";
+
+      list synthetic-loss-measurement-state {
+        key "cos test-id";
+        description "Synthetic loss measurement state entry, keyed by CoS and test ID.";
+
+        leaf cos {
+          type leafref {
+            path "../state/cos";
+          }
+          description "Class of Service for this synthetic loss measurement entry.";
+        }
+
+        leaf test-id {
+          type leafref {
+            path "../state/test-id";
+          }
+          description "Test ID for this synthetic loss measurement entry.";
+        }
+        container state {
+          description "Statistical data for synthetic loss measurement";
+          config false;
+          uses synthetic-loss-measurement-stats;
+        }
       }
     }
   }
@@ -1316,3 +1369,5 @@ module openconfig-oam-cfm {
     uses cfm-top;
   }
 }
+
+
