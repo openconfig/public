@@ -11,6 +11,8 @@ module openconfig-bgp-bmp {
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-types { prefix oc-types; }
   import openconfig-bgp { prefix oc-bgp; }
+  import openconfig-types { prefix oc-types; }
+
 
   organization "OpenConfig working group";
 
@@ -212,9 +214,16 @@ module openconfig-bgp-bmp {
       }
       description "Network instance for station connection";
     }
-    leaf connection-mode { type connection-mode-type; description "Active or Passive mode"; }
-    leaf source-address {
-      type union {
+   leaf-list station-names {
+      type leafref {
+      // Ensure the path correctly climbs up to the 'bmp' container
+      path "../../../stations/station/name";
+     }
+  description "List of BMP stations included in this group.";
+   }
+  leaf connection-mode { type connection-mode-type; description "Active or Passive mode"; }
+  leaf source-address {
+    type union {
         type oc-inet:ip-address;
         type string;
       }
