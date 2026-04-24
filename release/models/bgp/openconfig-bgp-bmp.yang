@@ -2,7 +2,7 @@ module openconfig-bgp-bmp {
   yang-version "1";
   namespace "http://openconfig.net/yang/bgp-bmp";
   prefix "oc-bgp-bmp";
-  import openconfig-bgp-types { prefix oc-bgp-types; }
+  import openconfig-types { prefix oc-types; }
   import openconfig-network-instance { prefix oc-netinst; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-extensions { prefix oc-ext; }
@@ -68,16 +68,6 @@ grouping bmp-tcp-keepalive-config {
       type uint32;
       units "seconds";
       description "Time between TCP keepalive probes";
-    }
-  }
-  grouping bmp-tcp-keepalive-top {
-    container tcp-keepalive {
-      description "Top-level container for BMP TCP keepalive";
-      container config { uses bmp-tcp-keepalive-config; }
-      container state {
-        config false;
-        uses bmp-tcp-keepalive-config;
-      }
     }
   }
   grouping route-monitoring-afi-safi-config {
