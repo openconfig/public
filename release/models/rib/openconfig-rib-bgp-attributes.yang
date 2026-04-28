@@ -24,13 +24,7 @@ submodule openconfig-rib-bgp-attributes {
     attributes for use in BGP RIB tables.";
 
 
-  oc-ext:openconfig-version "0.10.0";
-
-  revision "2026-03-24" {
-    description
-      "Update aigp to use common AIGP metric typedef.";
-    reference "0.10.0";
-  }
+  oc-ext:openconfig-version "0.9.0";
 
   revision "2022-12-20" {
     description
@@ -356,10 +350,12 @@ submodule openconfig-rib-bgp-attributes {
     }
 
     leaf aigp {
-      type oc-bgpt:bgp-aigp-metric;
+      type uint64;
       description
         "BGP path attribute representing the accumulated IGP metric
         for the path";
+      reference
+        "RFC 7311 - The Accumulated IGP Metric Attribute for BGP";
     }
   }
 
