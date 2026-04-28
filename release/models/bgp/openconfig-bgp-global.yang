@@ -27,7 +27,14 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.10.0";
+
+  revision "2026-04-27" {
+    description
+      "Add schema for BGP Confederation member-ASN ranges and
+      loose-path-validation.";
+          reference "9.10.0";
+  }
 
   revision "2025-04-18" {
     description
@@ -57,7 +64,7 @@ submodule openconfig-bgp-global {
 
   revision "2023-12-28" {
     description
-      "Add support for controling use of link-bandwidth extended
+      "Add support for controlling use of link-bandwidth extended
       community for BGP multipath.";
     reference "9.7.0";
   }
@@ -272,6 +279,24 @@ submodule openconfig-bgp-global {
     }
   }
 
+  grouping member-as-range-config {
+    description "Grouping of member-AS-range configurable
+    attributes";
+
+    leaf first-asn {
+      type oc-inet:as-number;
+      description
+        "Lowest AS number included in this range";
+
+    }
+
+    leaf last-asn {
+      type oc-inet:as-number;
+      description
+        "Highest AS number included in this range";
+    }
+  }
+
   grouping bgp-global-confederation-config {
     description
       "Configuration options specifying parameters when the local
@@ -292,6 +317,27 @@ submodule openconfig-bgp-global {
         "Remote autonomous systems that are to be treated
         as part of the local confederation.";
     }
+   
+    leaf loose-path-validation {
+      type boolean;
+      description
+        "When set to FALSE, presence of ASN not listed in
+        member-as, memeber-as-range in BGP_CONFEDERATION_SEQUENCE
+        object of AS_PATH could be recognized as malformed path
+        attribute. This behaviour is not mandated or suggested
+        by RFC5065.
+
+        When set to TRUE, in scenario described above the BGP
+        AS_PATH attribute must be considered a valid path attribute.
+        This behaviour is fully compliant with RFC5065.
+        
+        If implementation support peer-ASN (leftmost) validation
+        in AS_PATH against peer-ASN negotiated in OPEN message,
+        the loose-path-validation set to TRUE do not relax this
+        validation.";
+    }
+
+
   }
 
   grouping bgp-global-dynamic-neighbors {
@@ -503,6 +549,48 @@ submodule openconfig-bgp-global {
         description
           "State information relating to the BGP confederations";
         uses bgp-global-confederation-config;
+      }
+
+      container member-as-ranges {
+        description
+          "The configuration of continuous member-ASN ranges
+          constituting this confederation.";
+
+        list member-as-range {
+          key "first-asn last-asn";
+
+          description
+            "Range of member-ASN belonging to this confederation
+            ";
+          leaf first-asn {
+            type leafref {
+              path "../config/first-asn";
+            }
+            description
+              "Lowest AS number included in this range";
+          }
+          leaf last-asn {
+            type leafref {
+              path "../config/last-asn";
+            }
+            description
+              "Highest AS number included in this range";
+
+          }
+          container config {
+            description "Configuration container for Member-AS
+            range";
+
+            uses member-as-range-config;
+          }
+          container state {
+            config false;
+            description "State container for Member-AS
+            range";
+
+            uses member-as-range-config;
+          }
+        }
       }
     }
 
