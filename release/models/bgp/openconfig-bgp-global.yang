@@ -292,6 +292,9 @@ submodule openconfig-bgp-global {
 
     leaf last-asn {
       type oc-inet:as-number;
+      must ". >= ../first-asn" {
+        error-message "The last-asn must be greater than or equal to the first-asn.";
+      }
       description
         "Highest AS number included in this range";
     }
