@@ -1,0 +1,143 @@
+submodule openconfig-aft-mpls-multicast {
+  belongs-to "openconfig-aft" {
+    prefix "oc-aft";
+  }
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-mpls-types { prefix "oc-mplst"; }
+
+  // Include common cross-AFT groupings from the common submodule.
+  include openconfig-aft-common;
+
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Submodule containing definitions of groupings for the abstract
+    forwarding table for MPLS multicast (P2MP) label forwarding.
+
+    This AFT type represents the forwarding state of MPLS P2MP transit
+    nodes, such as those running mLDP or RSVP-TE P2MP. At these nodes,
+    packets arrive with a specific incoming MPLS label and are replicated
+    to one or more outgoing interfaces, each potentially with a different
+    label stack. There is no IP-layer (source, group) state at transit
+    nodes; that state is captured in the ipv4-multicast and
+    ipv6-multicast AFT types at PE nodes.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2026-05-05" {
+    description
+      "Initial revision of the MPLS multicast abstract forwarding table.";
+    reference "0.1.0";
+  }
+
+  grouping aft-mpls-multicast-structural {
+    description
+      "Structural grouping defining the schema for the MPLS multicast
+      abstract forwarding table.";
+
+    list multicast-label-entry {
+      key "label";
+
+      oc-ext:telemetry-atomic;
+      description
+        "List of the MPLS multicast entries within the abstract
+        forwarding table. This list is keyed by the top-most incoming
+        MPLS label matched on the ingress packet.";
+
+      leaf label {
+        type leafref {
+          path "../state/label";
+        }
+        description
+          "Reference to the top-most MPLS label matched by the
+          entry.";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters for the MPLS multicast AFT
+          entry.";
+        uses aft-mpls-multicast-entry-state;
+      }
+
+      uses aft-mpls-multicast-entry-label-state;
+    }
+  }
+
+  grouping aft-mpls-multicast-entry-state {
+    description
+      "Operational state parameters for the MPLS multicast entry.";
+
+    leaf label {
+      type oc-mplst:mpls-label;
+      description
+        "The top-most MPLS label that is matched on the ingress packet
+        to select this forwarding entry.";
+    }
+
+    uses aft-common-entry-state;
+    uses aft-common-install-protocol;
+  }
+
+  grouping aft-mpls-multicast-entry-label-state {
+    description
+      "Parameters relating to the MPLS label stack for a multicast
+      forwarding entry.";
+
+    container decap-mpls-label-stacks {
+      description
+        "Surrounding container for the set of labels to be decapsulated
+        from the incoming packet before replication.";
+
+      list decap-mpls-label-stack {
+        ordered-by user;
+        description
+          "The MPLS label stack to be popped from the ingress packet
+          before replication. The stack is encoded as an ordered list
+          such that the first entry is the label that is outer-most
+          (i.e., furthest from the bottom of the stack). This encoding
+          supports duplicate label values.
+
+          A swap operation is reflected by entries in this
+          decap-mpls-label-stack and the encap-mpls-label-stack on
+          the associated next-hops.";
+
+        key "id";
+
+        leaf id {
+          type leafref {
+            path "../state/id";
+          }
+          description
+            "Reference to the list key.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters for the decapsulated label
+            entry.";
+
+          leaf id {
+            type uint8;
+            description
+              "Index identifying this label within the stack.";
+          }
+
+          leaf label {
+            type oc-mplst:mpls-label;
+            description
+              "MPLS label value.";
+          }
+        }
+      }
+    }
+  }
+}
