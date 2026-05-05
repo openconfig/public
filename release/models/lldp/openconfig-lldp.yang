@@ -151,12 +151,6 @@ module openconfig-lldp {
           "The number of frame transmit errors on the
           interface.";
       }
-
-      leaf loopback-packets-received {
-        type oc-yang:counter64;
-        description
-          "The number of Loopback LLDP PDU received on this interface.";
-      }
   }
 
   grouping lldp-interface-packet-timestamps {
@@ -479,6 +473,22 @@ module openconfig-lldp {
     description
       "Common data for custom LLDP TLVs";
 
+    leaf name {
+      type string;
+      description
+        "Administrative name of the custom TLV for human identification
+        and reference purposes, allowing operators to define a template
+        once at the global level and then reference it by name elsewhere
+        rather than by their numeric type, OUI, and subtype values.";
+    }
+
+    leaf type {
+      type int32;
+      description
+        "The integer value identifying the type of information
+        contained in the value field.";
+    }
+
     leaf oui {
       type string;
       description
@@ -509,13 +519,6 @@ module openconfig-lldp {
   grouping lldp-custom-tlv-state {
     description
       "Operational state data for custom LLDP TLVs";
-
-    leaf type {
-      type int32;
-      description
-        "The integer value identifying the type of information
-        contained in the value field.";
-    }
 
     uses lldp-custom-tlv-common;
   }
@@ -685,79 +688,6 @@ module openconfig-lldp {
     uses lldp-interface-packet-timestamps;
   }
 
-  grouping lldp-interface-custom-tlv-override-config {
-    description
-      "Configuration data for per-interface custom TLV value overrides";
-
-    leaf name {
-      type leafref {
-        path "/lldp/custom-tlvs/tlv/config/name";
-      }
-      description
-        "Reference to the globally-configured custom TLV name. The override
-        only applies if this name is also present in the interface's
-        custom-tlv-names list.";
-    }
-
-    leaf value {
-      type binary;
-      description
-        "Override value for the custom TLV on this interface. When present,
-        this value overrides the global custom TLV value for transmission on
-        this interface. The override applies only if the TLV is present in
-        the interface's custom-tlv-names list.
-
-        A variable-length octet-string containing the instance-specific
-        information for this custom TLV override.";
-    }
-  }
-
-  grouping lldp-interface-custom-tlv-override-top {
-    description
-      "Top-level grouping for per-interface custom TLV value overrides";
-
-    container custom-tlv-value-overrides {
-      description
-        "Enclosing container for list of per-interface custom TLV value
-        overrides. Overrides only apply to TLVs that are (1) defined in the
-        global /lldp/custom-tlvs list and (2) referenced in this interface's
-        custom-tlv-names list.";
-
-      list tlv {
-        key "name";
-        description
-          "List of custom TLV value overrides for this interface. Each entry
-          corresponds to a globally-configured custom TLV and allows
-          per-interface customization of the transmitted value.";
-
-        leaf name {
-          type leafref {
-            path "../config/name";
-          }
-          description
-            "Reference to the custom TLV name key";
-        }
-
-        container config {
-          description
-            "Configuration data for per-interface custom TLV value override";
-
-          uses lldp-interface-custom-tlv-override-config;
-        }
-
-        container state {
-
-          config false;
-
-          description
-            "Operational state data for per-interface custom TLV value override";
-
-          uses lldp-interface-custom-tlv-override-config;
-        }
-      }
-    }
-  }
-
   grouping lldp-interface-top {
     description
       "Top-level grouping ";
@@ -797,7 +727,6 @@ module openconfig-lldp {
           uses lldp-interface-state;
         }
 
-        uses lldp-interface-custom-tlv-override-top;
         uses lldp-neighbor-top;
       }
     }
@@ -891,15 +820,6 @@ module openconfig-lldp {
           description
             "Configuration data for global custom TLVs";
 
-          leaf name {
-            type string;
-            description
-              "Administrative name of the custom TLV for human identification
-              and reference purposes, allowing operators to define a template
-              once at the global level and then reference it by name elsewhere
-              rather than by their numeric type, OUI, and subtype values.";
-          }
-
           uses lldp-custom-tlv-common;
         }
 
@@ -909,15 +829,6 @@ module openconfig-lldp {
 
           description
             "Operational state data for global custom TLVs";
-
-          leaf name {
-            type string;
-            description
-              "Administrative name of the custom TLV for human identification
-              and reference purposes, allowing operators to define a template
-              once at the global level and then reference it by name elsewhere
-              rather than by their numeric type, OUI, and subtype values.";
-          }
 
           uses lldp-custom-tlv-common;
         }
