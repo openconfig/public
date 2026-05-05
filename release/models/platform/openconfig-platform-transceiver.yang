@@ -66,7 +66,14 @@ module openconfig-platform-transceiver {
       specify a physical-channel within a TRANSCEIVER component
       (i.e. gray optic) that it is associated with.";
 
-  oc-ext:openconfig-version "0.18.0";
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2026-03-25" {
+    description
+      "Add optics error counters per physical channel. Promote
+      model to version 1.0.0.";
+    reference "1.0.0";
+  }
 
   revision "2025-12-11" {
     description
@@ -426,6 +433,27 @@ module openconfig-platform-transceiver {
       uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
     }
 
+    container host-snr {
+      description
+        "The Signal-to-Noise Ratio (SNR) measured on the host-side
+        (electrical) interface.";
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
+    }
+
+    container media-snr {
+      description
+        "The Signal-to-Noise Ratio (SNR) measured on the media-side
+        (optical) interface.";
+      uses oc-opt-types:avg-min-max-instant-stats-precision2-pct;
+    }
+
+    container counters {
+      description
+        "Top-level container for counters per optical physical
+        channel.";
+      uses optical-error-counts;
+    }
+
     leaf tx-failure {
       type boolean;
       description
@@ -451,6 +479,49 @@ module openconfig-platform-transceiver {
 
     uses output-optical-frequency;
     uses optical-power-state;
+  }
+
+  grouping optical-error-counts {
+    description
+      "Top-level grouping for counters per optical physical
+      channel";
+    leaf tx-fault-count {
+      type oc-yang:counter64;
+      description
+        "Total number of transmitter fault conditions detected
+        on this lane.";
+      reference "QSFP-DD CMIS 5.0 Page 11h (Lane-Specific Flags)";
+    }
+
+    leaf tx-los-count {
+      type oc-yang:counter64;
+      description
+        "Total number of transmitter Loss of Signal (LOS) events.";
+      reference "QSFP-DD CMIS 5.0 Page 11h (Lane-Specific Flags)";
+    }
+
+    leaf tx-lol-count {
+      type oc-yang:counter64;
+      description
+        "Total number of transmitter Clock and Data Recovery (CDR)
+        Loss of Lock (LOL) events.";
+      reference "QSFP-DD CMIS 5.0 Page 11h (Lane-Specific Flags)";
+    }
+
+    leaf rx-los-count {
+      type oc-yang:counter64;
+      description
+        "Total number of receiver Loss of Signal (LOS) events.";
+      reference "QSFP-DD CMIS 5.0 Page 11h (Lane-Specific Flags)";
+    }
+
+    leaf rx-lol-count {
+      type oc-yang:counter64;
+      description
+        "Total number of receiver Clock and Data Recovery (CDR)
+        Loss of Lock (LOL) events.";
+      reference "QSFP-DD CMIS 5.0 Page 11h (Lane-Specific Flags)";
+    }
   }
 
   grouping physical-channel-top {
