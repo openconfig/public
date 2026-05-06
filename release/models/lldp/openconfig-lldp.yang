@@ -12,6 +12,7 @@ module openconfig-lldp {
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-types { prefix oc-types; }
 
 
   // meta
@@ -25,7 +26,13 @@ module openconfig-lldp {
     "This module defines configuration and operational state data
     for the LLDP protocol.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2026-04-06" {
+    description
+      "Add global TTL configuration/state leaf, interface port-description and custom-tlv-names leaves, custom TLV name leaf, global custom-tlvs list, and add interface counter timestamps for LLDP.";
+    reference "1.1.0";
+  }
 
   revision "2026-01-14" {
     description
@@ -143,6 +150,23 @@ module openconfig-lldp {
         description
           "The number of frame transmit errors on the
           interface.";
+      }
+  }
+
+  grouping lldp-interface-packet-timestamps {
+    description
+      "Definition of per-interface LLDP packet timestamps";
+
+      leaf last-packet-transmitted {
+        type oc-types:timeticks64;
+        description
+          "Timestamp of the last LLDP packet transmitted on this interface.";
+      }
+
+      leaf last-good-packet-received {
+        type oc-types:timeticks64;
+        description
+          "Timestamp of the last valid LLDP packet received on this interface.";
       }
   }
 
@@ -441,11 +465,22 @@ module openconfig-lldp {
   grouping lldp-custom-tlv-config {
     description
       "Configuration data for custom LLDP TLVs";
+
+    uses lldp-custom-tlv-common;
   }
 
-  grouping lldp-custom-tlv-state {
+  grouping lldp-custom-tlv-common {
     description
-      "Operational state data for custom LLDP TLVs";
+      "Common data for custom LLDP TLVs";
+
+    leaf name {
+      type string;
+      description
+        "Administrative name of the custom TLV for human identification
+        and reference purposes, allowing operators to define a template
+        once at the global level and then reference it by name elsewhere
+        rather than by their numeric type, OUI, and subtype values.";
+    }
 
     leaf type {
       type int32;
@@ -479,6 +514,13 @@ module openconfig-lldp {
         "A variable-length octet-string containing the
         instance-specific information for this TLV.";
     }
+  }
+
+  grouping lldp-custom-tlv-state {
+    description
+      "Operational state data for custom LLDP TLVs";
+
+    uses lldp-custom-tlv-common;
   }
 
   grouping lldp-custom-tlv-top {
@@ -522,9 +564,7 @@ module openconfig-lldp {
 
         container config {
           description
-            "Configuration data ";
-
-          uses lldp-custom-tlv-config;
+            "Configuration data for custom LLDP TLVs";
         }
 
         container state {
@@ -534,7 +574,6 @@ module openconfig-lldp {
           description
             "Operational state data ";
 
-          uses lldp-custom-tlv-config;
           uses lldp-custom-tlv-state;
         }
       }
@@ -604,6 +643,35 @@ module openconfig-lldp {
       description
         "Enable or disable the LLDP protocol on the interface.";
     }
+
+    leaf port-description {
+      type string;
+      description
+        "The binary string advertised in the 'Port Description' TLV
+        (Type 3) of LLDP.
+        When this leaf is populated, its value must be used as the
+        advertised port description, overriding any system-generated
+        strings or the generic interface description found in
+        /interfaces/interface/config/description.
+
+        If this leaf is not populated, the implementation
+        should default to advertising the value of
+        /interfaces/interface/state/description.";
+      reference
+        "Sec 8.5.4 of IEEE Std 802.1AB-2016";
+    }
+
+    leaf-list custom-tlv-names {
+      type leafref {
+        path "../../../../custom-tlvs/tlv/name";
+      }
+      description
+        "References to global custom TLV names to be advertised on this
+        interface. If a custom TLV name is present in this list, the
+        corresponding custom TLV will be advertised in LLDP PDUs transmitted
+        on this interface. If a custom TLV name is not present in this list,
+        it will not be advertised on this interface.";
+    }
   }
 
   grouping lldp-interface-state {
@@ -616,6 +684,8 @@ module openconfig-lldp {
 
       uses lldp-interface-counters;
     }
+
+    uses lldp-interface-packet-timestamps;
   }
 
   grouping lldp-interface-top {
@@ -681,6 +751,22 @@ module openconfig-lldp {
         "System level hello timer for the LLDP protocol.";
     }
 
+    leaf ttl {
+      type uint16;
+      units "seconds";
+      description
+        "Time-to-live value for LLDP PDUs transmitted by this system.
+        This value is carried in the TTL TLV and indicates the time
+        interval for which information contained in the LLDP PDU is
+        valid at the receiving system.
+        Note: The TTL value is independent from the hello-timer interval.
+        The hello-timer controls how frequently LLDP PDUs are transmitted,
+        while the TTL value indicates the validity duration of information
+        contained in those PDUs at the receiving system.";
+      reference
+        "Sec 8.5.3 of IEEE Std 802.1AB-2016";
+    }
+
     leaf-list suppress-tlv-advertisement {
       type identityref {
         base oc-lldp-types:LLDP_TLV;
@@ -703,6 +789,50 @@ module openconfig-lldp {
         "Global LLDP counters";
 
       uses lldp-global-counters;
+    }
+  }
+
+  grouping lldp-global-custom-tlv-top {
+    description
+      "Top-level grouping for global custom LLDP TLVs";
+
+    container custom-tlvs {
+      description
+        "Enclosing container for list of global custom TLVs.
+        Implementation Note: Custom TLV OUI/subtype combinations
+        MUST NOT collide with standard LLDP TLVs. Configuration
+        of conflicting OUI/subtype values is not permitted.";
+
+      list tlv {
+        key "name";
+        description
+          "List of global custom LLDP TLVs";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the list key";
+        }
+
+        container config {
+          description
+            "Configuration data for global custom TLVs";
+
+          uses lldp-custom-tlv-common;
+        }
+
+        container state {
+
+          config false;
+
+          description
+            "Operational state data for global custom TLVs";
+
+          uses lldp-custom-tlv-common;
+        }
+      }
     }
   }
 
@@ -736,6 +866,7 @@ module openconfig-lldp {
 
       uses lldp-management-addresses;
       uses lldp-interface-top;
+      uses lldp-global-custom-tlv-top;
     }
   }
 

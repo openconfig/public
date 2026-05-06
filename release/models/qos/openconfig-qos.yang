@@ -27,7 +27,13 @@ module openconfig-qos {
     "This module defines configuration and operational state data
     related to network quality-of-service.";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2026-03-25" {
+    description
+      "Add parameters for packet trimming configuration";
+    reference "2.1.0";
+  }
 
   revision "2026-01-24" {
     description
@@ -169,6 +175,52 @@ revision "2023-07-26" {
       "Operational state data for global QoS";
   }
 
+  grouping qos-packet-trim-top {
+    description
+      "Top-level grouping for packet trimming.";
+
+    container packet-trim {
+      description
+        "Container for switch level packet trimming
+        parameters.";
+
+      container config {
+        description
+          "Configuration data for switch level packet
+          trimming parameters.";
+
+        uses packet-trim-config;
+      }
+      container state {
+        description
+          "Operational state data for switch level packet
+          trimming parameters.";
+        config false;
+
+        uses packet-trim-config;
+      }
+    }
+  }
+
+  grouping packet-trim-config {
+    description
+      "Top-level grouping for switch level packet
+      trimming parameters";
+    leaf symmetric-dscp {
+      type uint8;
+      description
+        "The DSCP value for the notification packet
+        (sometimes called a 'symmetric packet') sent back
+        to the source when a packet is trimmed.";
+    }
+    leaf fabric-priority {
+      type uint8;
+      description
+        "Traffic class used to transmit trimmed
+        packets.";
+    }
+  }
+
   grouping qos-top {
     description
       "Top-level grouping for QoS model";
@@ -185,10 +237,10 @@ revision "2023-07-26" {
       }
 
       container state {
-        config false;
         description
           "Operational state data for global QoS";
 
+        config false;
         uses qos-config;
         uses qos-state;
       }
@@ -200,6 +252,7 @@ revision "2023-07-26" {
       uses qos-scheduler-top;
       uses qos-buffer-profile-top;
       uses qos-queue-mgmt-profile-top;
+      uses qos-packet-trim-top;
     }
   }
 

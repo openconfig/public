@@ -29,7 +29,13 @@ submodule openconfig-qos-mem-mgmt {
       per-queue basis, and determine how packets are marked/dropped within
       the queue instantiation.";
 
-  oc-ext:openconfig-version "2.0.1";
+  oc-ext:openconfig-version "2.1.0";
+
+  revision "2026-03-25" {
+    description
+      "Add packet discard action at queue level.";
+    reference "2.1.0";
+  }
 
   revision "2026-01-24" {
     description
@@ -340,6 +346,19 @@ revision "2023-07-26" {
         maximum buffer space from the shared pool that the queue is allowed to use is
         calculated as (free buffer * 2^scaling factor) ie. 10MB*2^3 = 80MB. Since the
         current usage is 79MB which is < 80MB, the packet is queued.";
+    }
+
+    leaf trim-enable {
+      type boolean;
+
+      description
+        "Flag to enable packet trimming per queue. If leaf is set
+         to false, the packet should be completely discarded,
+         without preserving any part of the data. If leaf is set to
+         true, the packet must be trimmed instead of discarded.
+         Typically, this involves truncating the payload while
+         preserving the packet header for notification or
+         diagnostic purposes.";
     }
   }
 
