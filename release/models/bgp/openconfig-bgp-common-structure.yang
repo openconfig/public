@@ -21,7 +21,14 @@ submodule openconfig-bgp-common-structure {
     "This sub-module contains groupings that are common across multiple BGP
     contexts and provide structure around other primitive groupings.";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.10.0";
+
+  revision "2025-05-07" {
+    description
+      "Add structural groupings for non-AFI-SAFI prefix-limit at neighbor,
+      peer-group, and global levels.";
+    reference "9.10.0";
+  }
 
   revision "2025-04-18" {
     description
@@ -396,6 +403,31 @@ submodule openconfig-bgp-common-structure {
         "Parameters related to automatic generation link-bandwidth
         extended community base on underlaying interface speed.";
       uses bgp-common-structure-neighbor-group-auto-gen-link-bandwidth;
+    }
+  }
+
+  grouping bgp-common-structure-prefix-limit {
+    description
+      "Structural grouping for a non-AFI-SAFI prefix-limit applicable at
+      the neighbor, peer-group, or global BGP level.";
+
+    container prefix-limit {
+      description
+        "Configure the maximum number of prefixes that will be received
+        across all address families.";
+
+      container config {
+        description
+          "Configuration parameters relating to the prefix-limit.";
+        uses bgp-common-prefix-limit-config;
+      }
+
+      container state {
+        config false;
+        description
+          "State information relating to the prefix-limit.";
+        uses bgp-common-prefix-limit-config;
+      }
     }
   }
 
