@@ -313,23 +313,35 @@ module openconfig-bgp-bmp {
   grouping station-top {
     description
       "Configuration and state for a list of BMP stations.";
-    container stations {
-      list station {
-        key "name";
-        leaf name {
-          type leafref {
-            path "../config/name";
+    container bmp {
+      description
+        "Container for BMP at a system level.";
+      container stations {
+        description
+          "Container for BMP Stations.";
+        list station {
+          description
+            "List of BMP Stations on the system.";
+          key "name";
+          leaf name {
+            type leafref {
+              path "../config/name";
+            }
           }
+          container config {
+            description
+              "Configuration of BMP Stations on the system.";
+            uses station-config;
+          }
+          container state {
+            description
+              "State of BMP Stations on the system.";
+            config false;
+            uses station-config;
+          }
+          uses station-tcp-keepalive;
+          uses station-route-monitoring;
         }
-        container config {
-          uses station-config;
-        }
-        container state {
-          config false;
-          uses station-config;
-        }
-        uses station-tcp-keepalive;
-        uses station-route-monitoring;
       }
     }
   }
@@ -383,7 +395,7 @@ module openconfig-bgp-bmp {
 
 // Augmentations
   augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
-        "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp" {
+        "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/oc-netinst:bmp" {
     description
       "Augments the global BGP configuration with BMP parameters";
     uses station-top;
