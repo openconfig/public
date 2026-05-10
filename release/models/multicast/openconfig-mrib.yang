@@ -1,0 +1,180 @@
+module openconfig-mrib {
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/mrib";
+
+  prefix "oc-mrib";
+
+  // import some basic types/interfaces
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-interfaces { prefix "oc-if"; }
+  import openconfig-inet-types { prefix "openconfig-inet-types"; }
+  import openconfig-interfaces { prefix "openconfig-interfaces"; }
+
+  // meta
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Support for Static MRIB Routes.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2025-05-12" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+  grouping mrib-next-hop-config {
+    description
+      "Configuration parameters relating to the next-hop entry.";
+
+    leaf index {
+      type string;
+      description
+        "An user-specified identifier utilised to uniquely reference the next-hop
+        entry in the next-hop list. The value of this index has no semantic meaning
+        other than for referencing the entry. It is observed that implementations
+        typically only support a numeric value for this string.";
+    }
+
+    leaf next-hop-addr {
+      type openconfig-inet-types:ip-address;
+      description
+        "The next-hop that is to be used for the static MRIB route - this one is
+        specified as an IP address.";
+    }
+
+    leaf preference {
+      type uint8;
+      description
+        "Administrative Distance (preference) of the entry. The preference defines
+        the order of selection when multiple sources (protocols, static, etc.)
+        contribute to the same prefix entry. The lower the preference, the more
+        preferable the prefix is. When this value is not specified, the preference
+        is inherited from the default preference of the implementation for
+        static MRIB routes.";
+    }
+  }
+
+  grouping static-mrib-config {
+    description
+      "Configuration data for static MRIB routes.";
+
+    leaf prefix {
+      type openconfig-inet-types:ip-prefix;
+      description
+        "Reference to the source prefix.";
+    }
+  }
+
+  grouping mrib-nexthops-container {
+    description
+      "Grouping for the next-hops container.";
+
+    container next-hops {
+      description
+        "Configuration and state parameters relating to the
+        next-hops that are to be utilised for the MRIB route being specified.";
+
+      list next-hop {
+        key "index";
+        description
+          "A list of next-hops to be utilised for the static MRIB
+          route being specified.";
+
+        leaf index {
+          type leafref {
+            path "../config/index";
+          }
+          description
+            "A reference to the index of the current next-hop.
+            The index is intended to be a user-specified value
+            which can be used to reference the next-hop in
+            question, without any other semantics being
+            assigned to it.";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the
+            next-hop entry.";
+
+          uses mrib-next-hop-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to the next-hop entry.";
+
+          uses mrib-next-hop-config;
+        }
+
+        uses oc-if:interface-ref;
+      }
+    }
+  }
+
+  grouping mrib-routes-list {
+    description
+      "Grouping for the list of Static MRIB Routes.";
+
+    container routes {
+      description
+        "Enclosing container for the list of Static MRIB Routes.";
+
+      list route {
+        key "prefix";
+        description
+          "List of MRIB routes.";
+
+        leaf prefix {
+          type leafref {
+            path "../config/prefix";
+          }
+          description
+            "Reference to the source prefix.";
+        }
+
+        container config {
+          description
+            "Configuration data for static MRIB routes.";
+
+          uses static-mrib-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for static MRIB routes.";
+
+          uses static-mrib-config;
+        }
+
+        uses mrib-nexthops-container;
+      }
+    }
+  }
+
+  grouping mrib-top {
+    description
+      "Top-level grouping for Static MRIB Routes.";
+
+    container static-mrib {
+      description
+        "Top-level container to globally configure all Static MRIB routes.";
+      reference
+        "section 2.1 of RFC 4601";
+
+      uses mrib-routes-list;
+    }
+  }
+
+}
