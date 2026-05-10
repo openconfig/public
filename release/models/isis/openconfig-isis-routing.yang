@@ -20,7 +20,13 @@ submodule openconfig-isis-routing {
   description
     "This module describes YANG model for ISIS Routing";
 
-  oc-ext:openconfig-version "1.7.0";
+  oc-ext:openconfig-version "1.8.0";
+
+  revision "2026-05-10" {
+    description
+      "Add IP reachability suppression on P2P links per level and per interface-level address family with inheritance.";
+    reference "1.8.0";
+  }
 
   revision "2024-02-28" {
     description
@@ -412,6 +418,7 @@ submodule openconfig-isis-routing {
         uses isis-afi-safi-config;
         uses isis-metric-config;
         uses rt-admin-config;
+        uses isis-reachability-interface-config;
       }
 
       container state {
@@ -421,6 +428,7 @@ submodule openconfig-isis-routing {
         uses isis-afi-safi-config;
         uses isis-metric-config;
         uses rt-admin-config;
+        uses isis-reachability-interface-config;
       }
 
       uses oc-sr:sr-igp-interface-top;
@@ -530,6 +538,80 @@ submodule openconfig-isis-routing {
         "This container defines AFI-SAFI multi-topology state information";
       uses isis-mt-config;
       uses rt-admin-config;
+      }
+    }
+  }
+
+  grouping isis-reachability-level-config {
+    description
+      "Grouping defining reachability options for ISIS at the level context.";
+
+    leaf ip-reachability-suppress {
+      type boolean;
+      default false;
+      description
+        "When set to true, IP reachability (TLVs 135/235) on P2P links is suppressed,
+        advertising only passive interfaces.";
+    }
+  }
+
+  grouping isis-reachability-interface-config {
+    description
+      "Grouping defining reachability options for ISIS at the interface level context.
+      When left unconfigured, the implementation inherits the value configured at the
+      protocol level.";
+
+    leaf ip-reachability-suppress {
+      type boolean;
+      description
+        "When set to true, IP reachability (TLVs 135/235) on P2P links is suppressed,
+        advertising only passive interfaces. If not specified, the value is inherited
+        from the protocol level configuration.";
+    }
+  }
+
+  grouping isis-level-afi-safi-list {
+    description
+      "This grouping defines address-family configuration and state
+      information per level.";
+
+    list af {
+      key "afi-name safi-name";
+
+      description
+        "Address-family/Subsequent Address-family list per level.";
+
+      leaf afi-name {
+        type leafref {
+          path "../config/afi-name";
+        }
+        description
+          "Reference to address-family type";
+      }
+
+      leaf safi-name {
+        type leafref {
+          path "../config/safi-name";
+        }
+        description
+          "Reference to subsequent address-family type";
+      }
+
+      container config {
+        description
+          "This container defines AFI-SAFI configuration parameters per level.";
+
+        uses isis-afi-safi-config;
+        uses isis-reachability-level-config;
+      }
+
+      container state {
+        config false;
+        description
+          "This container defines AFI-SAFI state information per level.";
+
+        uses isis-afi-safi-config;
+        uses isis-reachability-level-config;
       }
     }
   }
