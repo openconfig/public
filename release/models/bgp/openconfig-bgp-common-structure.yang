@@ -23,10 +23,10 @@ submodule openconfig-bgp-common-structure {
 
   oc-ext:openconfig-version "9.10.0";
 
-  revision "2025-05-07" {
+  revision "2025-05-08" {
     description
-      "Add structural groupings for non-AFI-SAFI prefix-limit at neighbor,
-      peer-group, and global levels.";
+      "Add structural groupings for non-AFI-SAFI prefix-limit and
+      prefix-limit-received at neighbor, peer-group, and global levels.";
     reference "9.10.0";
   }
 
@@ -413,7 +413,7 @@ submodule openconfig-bgp-common-structure {
 
     container prefix-limit {
       description
-        "Configure the maximum number of prefixes that will be received
+        "Configure the maximum number of prefixes that will be accepted
         across all address families.";
 
       container config {
@@ -426,6 +426,25 @@ submodule openconfig-bgp-common-structure {
         config false;
         description
           "State information relating to the prefix-limit.";
+        uses bgp-common-prefix-limit-config;
+      }
+    }
+
+    container prefix-limit-received {
+      description
+        "Configure the maximum number of prefixes that will be received
+        across all address families.";
+
+      container config {
+        description
+          "Configuration parameters relating to the prefix-limit-received.";
+        uses bgp-common-prefix-limit-config;
+      }
+
+      container state {
+        config false;
+        description
+          "State information relating to the prefix-limit-received.";
         uses bgp-common-prefix-limit-config;
       }
     }
