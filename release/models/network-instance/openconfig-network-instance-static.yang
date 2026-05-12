@@ -22,7 +22,13 @@ module openconfig-network-instance-static {
   description
     "Static configurations associated with a network instance";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.2.2";
+  
+  revision "2025-08-05" {
+    description
+      "Add static encapsulation headers with IPV6 header.";
+    reference "0.2.2";
+  }
 
   revision "2025-08-05" {
     description
@@ -292,6 +298,29 @@ module openconfig-network-instance-static {
               "State parameters relating to encapsulation headers.";
 
             uses oc-aft:aft-common-entry-nexthop-encap-udp-v4-state;
+          }
+        }
+
+        container udp-v6 {
+          when "../config/type = 'oc-aftt:UDPV6'";
+          description
+            "Container of nodes for UDP in IPv6 encapsulation.  When this
+            container is used, an IPv6 header with a UDP header is added
+            to the encapsulation list.";
+
+          container config {
+            description
+              "Configuration parameters relating to encapsulation headers.";
+
+            uses oc-aft:aft-common-entry-nexthop-encap-udp-v6-state;
+          }
+
+          container state {
+            config false;
+            description
+              "State parameters relating to encapsulation headers.";
+
+            uses oc-aft:aft-common-entry-nexthop-encap-udp-v6-state;
           }
         }
 
