@@ -24,7 +24,7 @@ submodule openconfig-isis-routing {
 
   revision "2026-05-10" {
     description
-      "Add IP reachability suppression on P2P links per level and per interface-level address family with inheritance.";
+      "Add IP reachability suppression per level and per interface-level address family with inheritance.";
     reference "1.8.0";
   }
 
@@ -546,12 +546,12 @@ submodule openconfig-isis-routing {
     description
       "Grouping defining reachability options for ISIS at the level context.";
 
-    leaf ip-reachability-suppress {
-      type boolean;
-      default false;
+    leaf suppress-interface-ip {
+      type oc-isis-types:suppress-interface-ip-mode;
+      default "NONE";
       description
-        "When set to true, IP reachability (TLVs 135/235) on P2P links is suppressed,
-        advertising only passive interfaces.";
+        "Controls IP reachability (TLVs 135/235/236/237) advertisement for interfaces
+        enabled in this level.";
     }
   }
 
@@ -561,12 +561,11 @@ submodule openconfig-isis-routing {
       When left unconfigured, the implementation inherits the value configured at the
       protocol level.";
 
-    leaf ip-reachability-suppress {
-      type boolean;
+    leaf suppress-interface-ip {
+      type oc-isis-types:suppress-interface-ip-mode;
       description
-        "When set to true, IP reachability (TLVs 135/235) on P2P links is suppressed,
-        advertising only passive interfaces. If not specified, the value is inherited
-        from the protocol level configuration.";
+        "Controls IP reachability (TLVs 135/235/236/237) advertisement for this interface.
+        If not specified, the value is inherited from the protocol level configuration.";
     }
   }
 
