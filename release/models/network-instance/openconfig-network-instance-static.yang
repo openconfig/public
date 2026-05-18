@@ -294,6 +294,29 @@ module openconfig-network-instance-static {
             uses oc-aft:aft-common-entry-nexthop-encap-udp-v4-state;
           }
         }
+        
+        container udp-v6 {
+          when "../config/type = 'oc-aftt:UDPV6'";
+          description
+            "Container of nodes for UDP in IPv6 encapsulation.  When this
+            container is used, an IPv6 header with a UDP header is added
+            to the encapsulation list.";
+
+          container config {
+            description
+              "Configuration parameters relating to encapsulation headers.";
+
+            uses oc-aft:aft-common-entry-nexthop-encap-udp-v6-state;
+          }
+
+          container state {
+            config false;
+            description
+              "State parameters relating to encapsulation headers.";
+
+            uses oc-aft:aft-common-entry-nexthop-encap-udp-v6-state;
+          }
+        }
 
         container gre {
           when "../config/type = 'oc-aftt:GRE'";
