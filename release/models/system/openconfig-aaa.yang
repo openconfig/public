@@ -400,6 +400,25 @@ module openconfig-aaa {
       description
         "SSH public key for the user (RSA or DSA)";
     }
+    
+    list authorized-ssh-keys {
+      key "key-name";
+      max-elements 10;
+      description
+        "Authorized SSH public keys for the user";
+        
+      leaf key-name {
+        type string;
+        description
+          "The name with which to reference the authorized SSH public key";
+      }
+      
+      leaf authorized-ssh-key {
+        type string;
+        description
+          "Authorized SSH public key for the user";
+      }
+    }
 
     leaf role {
       type union {
