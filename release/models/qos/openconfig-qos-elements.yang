@@ -39,7 +39,7 @@ submodule openconfig-qos-elements {
 
   revision "2026-04-30" {
     description
-      "Bump version to 2.2.0";
+      "Add packet trimming counters.";
     reference "2.2.0";
   }
 
@@ -1439,6 +1439,36 @@ submodule openconfig-qos-elements {
       reference
         "RFC 3270 - Multi-Protocol Label Switching (MPLS) Support of
         Differentiated Services";
+    }
+  }
+
+  grouping trim-pkts-counters-top {
+    description
+      "Structural grouping for packet trimming counters.
+      Counters collected at interface level, queue level and
+      integrated-circuit level.";
+
+    leaf trim-pkts {
+      type oc-yang:counter64;
+      description
+        "The total number of packets that were trimmed.
+        This counter includes both packets that were
+        transmitted after trimming and those that were
+        subsequently dropped.";
+    }
+
+    leaf out-trim-pkts {
+      type oc-yang:counter64;
+      description
+        "The number of packets that were trimmed and successfully
+        transmitted.";
+    }
+
+    leaf dropped-trim-pkts {
+      type oc-yang:counter64;
+      description
+        "The number of packets that were trimmed but dropped due to a
+        failed shared buffer admission on the trim queue.";
     }
   }
 }
