@@ -210,6 +210,98 @@ module openconfig-snmp {
     }
   }
 
+  grouping snmp-community-acl-config {
+    description
+      "Configuration data for SNMP community ACL
+      bindings.";
+
+    leaf name {
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets"
+          + "/oc-acl:acl-set/oc-acl:config/oc-acl:name";
+      }
+      description
+        "Name of the ACL set applied to this SNMP
+        community.";
+    }
+
+    leaf type {
+      type leafref {
+        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set"
+          + "[oc-acl:name=current()/../name]"
+          + "/oc-acl:config/oc-acl:type";
+      }
+      description
+        "Type of the ACL set referenced by name. The
+        pair (name, type) uniquely identifies an ACL
+        set.";
+    }
+  }
+
+  grouping snmp-community-acl-state {
+    description
+      "Operational state data for SNMP community ACL
+      bindings. Reserved for future per-binding
+      counters.";
+  }
+
+  grouping snmp-community-acl-top {
+    description
+      "Top-level grouping for SNMP community ACL
+      bindings.";
+
+    container access-lists {
+      description
+        "List of ACL bindings for this SNMP community.
+        Multiple tuples may be configured (for example,
+        IPv4 ACL, IPv6 ACL, or both). When any ACL
+        bindings are present, the managers list is
+        ignored and access is governed by these ACL
+        tuples. If no ACL bindings are present, the
+        managers list is consulted; if both are absent,
+        access is unrestricted.";
+
+      list access-list {
+        key "name type";
+        description
+          "List of ACL tuples applied to this SNMP
+          community.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the ACL name list key.";
+        }
+
+        leaf type {
+          type leafref {
+            path "../config/type";
+          }
+          description
+            "Reference to the ACL type list key.";
+        }
+
+        container config {
+          description
+            "Configuration data for an ACL tuple
+            applied to this SNMP community.";
+          uses snmp-community-acl-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for an ACL tuple
+            applied to this SNMP community.";
+          uses snmp-community-acl-config;
+          uses snmp-community-acl-state;
+        }
+      }
+    }
+  }
+
   grouping snmp-community-config {
     description
       "Configuration data for SNMP communities.";
@@ -223,41 +315,18 @@ module openconfig-snmp {
     leaf access-mode {
       type snmp-access-mode;
       description
-        "Access mode for this community.";
+        "Access mode for this community. If omitted,
+        the implementation-defined access mode is
+        used.";
     }
 
     leaf version {
       type snmp-version;
       description
         "SNMP version associated with this community.
-        Only V1 and V2C are supported by this module.";
-    }
-
-    leaf access-list {
-      type leafref {
-        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set"
-          + "/oc-acl:config/oc-acl:name";
-      }
-      description
-        "Reference to an ACL restricting which managers
-        may use this community. Used together with
-        access-list-type to uniquely identify the ACL
-        set. When set, the managers list is ignored and
-        access is governed solely by this ACL. If
-        omitted, the managers list is consulted; if
-        both are absent, access is unrestricted.";
-    }
-
-    leaf access-list-type {
-      type leafref {
-        path "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set"
-          + "/oc-acl:config/oc-acl:type";
-      }
-      description
-        "Type of the ACL set referenced by access-list.
-        Required to uniquely identify the ACL set when
-        multiple sets share the same name with different
-        types (e.g., IPv4 and IPv6).";
+        Only V1 and V2C are supported by this module.
+        If omitted, the implementation-defined
+        community version is used.";
     }
   }
 
@@ -303,6 +372,7 @@ module openconfig-snmp {
         }
 
         uses snmp-community-manager-top;
+        uses snmp-community-acl-top;
       }
     }
   }
@@ -320,7 +390,9 @@ module openconfig-snmp {
     leaf address {
       type oc-inet:ip-address;
       description
-        "Receiver address for notifications.";
+        "Receiver address for notifications. If
+        omitted, no notification destination is
+        configured for this receiver.";
     }
 
     leaf port {
@@ -334,14 +406,17 @@ module openconfig-snmp {
       type snmp-version;
       description
         "SNMP version used for this receiver. Only V1
-        and V2C are supported by this module.";
+        and V2C are supported by this module. If
+        omitted, the implementation-defined receiver
+        version is used.";
     }
 
     leaf community {
       type string;
       description
         "Community string used for v1/v2c
-        notifications.";
+        notifications. If omitted, no v1/v2c
+        notifications are sent for this receiver.";
     }
 
     leaf notification-type {
@@ -363,10 +438,13 @@ module openconfig-snmp {
         If empty, the receiver inherits the globally
         configured event-type list under
         notifications/config. If both are empty, no
-        notifications are sent. If the global list
-        contains ALL, all event types are sent unless
-        this receiver-level list restricts them to a
-        subset.";
+        notifications are sent. If this receiver-level
+        list contains ALL, all event types are enabled
+        for the receiver; any additional identities are
+        redundant and have no additional effect. If the
+        global list contains ALL, all event types are
+        sent unless this receiver-level list restricts
+        them to a subset.";
     }
   }
 
@@ -440,8 +518,8 @@ module openconfig-snmp {
         all receivers. Individual receivers may override
         this by specifying their own event-type list.
         If ALL is included, all event types are enabled
-        globally; specific identities should not be
-        combined with ALL.";
+        globally; any additional identities are
+        redundant and have no additional effect.";
     }
   }
 
