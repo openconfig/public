@@ -849,6 +849,7 @@ submodule openconfig-aft-common {
 
     leaf dscp-processing-mode {
       type oc-aftt:tunnel-header-field-mode-type;
+      default "oc-aftt:TUNNEL_HEADER_FIELD_MODE_UNIFORM";
       description
         "Specifies the tunnel processing mode for DSCP / Traffic Class.
 
@@ -915,14 +916,15 @@ submodule openconfig-aft-common {
 
     leaf ttl-processing-mode {
       type oc-aftt:tunnel-header-field-mode-type;
+      default "oc-aftt:TUNNEL_HEADER_FIELD_MODE_PIPE";
       description
-        "Specifies the tunnel processing mode for IPv4 TTL.
+        "Specifies the tunnel processing mode for IP TTL / Hop Limit.
 
-        When set to TUNNEL_HEADER_FIELD_MODE_UNIFORM, the IPv4 TTL value
-        is propagated from the inner packet header to the outer IP header
+        When set to TUNNEL_HEADER_FIELD_MODE_UNIFORM, the IP TTL / Hop Limit
+        value is propagated from the inner packet header to the outer IP header
         during encapsulation.
 
-        When set to TUNNEL_HEADER_FIELD_MODE_PIPE, the outer IPv4 TTL
+        When set to TUNNEL_HEADER_FIELD_MODE_PIPE, the outer IP TTL / Hop Limit
         value is set independently of the inner packet using the
         configured or default ip-ttl value.";
       reference
@@ -934,12 +936,12 @@ submodule openconfig-aft-common {
       type uint8;
       default "255";
       description
-        "Configured/default IPv4 TTL value used in the outer IP header
+        "Configured/default IP TTL / Hop Limit value used in the outer IP header
          during packet encapsulation when ttl-processing-mode is set to
          TUNNEL_HEADER_FIELD_MODE_PIPE.
 
          If ttl-processing-mode is set to
-         TUNNEL_HEADER_FIELD_MODE_UNIFORM, the TTL value from the inner
+         TUNNEL_HEADER_FIELD_MODE_UNIFORM, the TTL / Hop Limit value from the inner
          packet header is propagated to the outer IP header and this leaf
          is ignored for encapsulation.";
       reference
