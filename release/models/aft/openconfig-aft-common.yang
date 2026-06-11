@@ -23,7 +23,14 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.4.0";
+  oc-ext:openconfig-version "3.5.0";
+
+  revision "2026-06-11" {
+    description
+      "Add tunnel header-field processing modes and default TTL/DSCP
+       values for UDP encapsulation.";
+    reference "3.5.0";
+  }
 
   revision "2026-03-10" {
     description
@@ -840,11 +847,45 @@ submodule openconfig-aft-common {
     description
       "Common fields used for UDP in IPv4/IPv6 encapsulation applied on top of a packet.";
 
+    leaf dscp-processing-mode {
+      type oc-aftt:tunnel-header-field-mode-type;
+      description
+        "Specifies the tunnel processing mode for DSCP / Traffic Class.
+
+        When set to TUNNEL_HEADER_FIELD_MODE_UNIFORM, the DSCP value is
+        propagated from the inner packet header to the outer IP header
+        during encapsulation.
+
+        When set to TUNNEL_HEADER_FIELD_MODE_PIPE, the outer DSCP value
+        is set independently of the inner packet using the configured or
+        default dscp value.";
+      reference
+        "RFC 2474: Definition of the Differentiated Services Field
+         in the IPv4 and IPv6 Headers.
+
+         RFC 2983: Differentiated Services and Tunnels.
+
+         RFC 3270: Multi-Protocol Label Switching (MPLS) Support of
+         Differentiated Services.";
+    }
+
     leaf dscp {
       type oc-inet:dscp;
+      default "0";
       description
-        "DSCP value to use for the UDP header of the encapsulated
-         packet.";
+        "Configured/default DSCP value to use in the outer IP header
+         during packet encapsulation when dscp-processing-mode is set to
+         TUNNEL_HEADER_FIELD_MODE_PIPE.
+
+         If dscp-processing-mode is set to
+         TUNNEL_HEADER_FIELD_MODE_UNIFORM, the DSCP value from the inner
+         packet header is propagated to the outer IP header and this leaf
+         is ignored for encapsulation.";
+      reference
+        "RFC 2474: Definition of the Differentiated Services Field
+         in the IPv4 and IPv6 Headers.
+
+         RFC 2983: Differentiated Services and Tunnels.";
     }
 
     leaf src-udp-port {
@@ -872,13 +913,40 @@ submodule openconfig-aft-common {
         system is expected to utilize the appropriate port.";
     }
 
+    leaf ttl-processing-mode {
+      type oc-aftt:tunnel-header-field-mode-type;
+      description
+        "Specifies the tunnel processing mode for IPv4 TTL.
+
+        When set to TUNNEL_HEADER_FIELD_MODE_UNIFORM, the IPv4 TTL value
+        is propagated from the inner packet header to the outer IP header
+        during encapsulation.
+
+        When set to TUNNEL_HEADER_FIELD_MODE_PIPE, the outer IPv4 TTL
+        value is set independently of the inner packet using the
+        configured or default ip-ttl value.";
+      reference
+        "RFC 3443: Time To Live (TTL) Processing in Multi-Protocol
+         Label Switching (MPLS) Networks.";
+    }
+
     leaf ip-ttl {
       type uint8;
+      default "255";
       description
-        "This leaf reflects the configured/default IP TTL value that is used
-         in the outer header during packet encapsulation. When this leaf is
-         not set, the TTL value of the inner packet is copied over as the
-         outer packet's IP TTL value during encapsulation.";
+        "Configured/default IPv4 TTL value used in the outer IP header
+         during packet encapsulation when ttl-processing-mode is set to
+         TUNNEL_HEADER_FIELD_MODE_PIPE.
+
+         If ttl-processing-mode is set to
+         TUNNEL_HEADER_FIELD_MODE_UNIFORM, the TTL value from the inner
+         packet header is propagated to the outer IP header and this leaf
+         is ignored for encapsulation.";
+      reference
+        "RFC 791: Internet Protocol.
+
+         RFC 3443: Time To Live (TTL) Processing in Multi-Protocol
+         Label Switching (MPLS) Networks.";
     }
   }
 
