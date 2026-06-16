@@ -24,13 +24,21 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.10.0";
+
+  revision "2026-06-16" {
+    description
+      "Deprecation of ../config/local-as leaf and replacement with
+      local-as-options container. Extending with RFC7705 no-prepend
+      and replace-as explicit flags and dual-as option.";
+    reference "9.10.0";
+  }
 
   revision "2025-04-18" {
     description
       "Clarification to usage of link-bandwidth-ext-community
       container under BGP use-multiple-paths`.";
-          reference "9.9.1";
+    reference "9.9.1";
   }
 
   revision "2025-03-30" {
@@ -279,6 +287,56 @@ submodule openconfig-bgp-common {
     }
   }
 
+  grouping bgp-local-as-group-config {
+    description
+      "Local-as configuration items.
+      Local-as is migration tool described in RFC7705";
+
+    leaf local-as {
+      type oc-inet:as-number;
+      mandatory true;
+      description
+        "The local autonomous system number that is to be used
+        when establishing sessions with the remote peer or peer
+        group, if this differs from the global BGP router
+        autonomous system number. Value is set in My Autonomous
+         Sytem of the OPEN messagege send to establish session.";
+      reference
+        "RFC7705: Autonomous System Migration Mechanisms
+        and Their Effects on the BGP AS_PATH Attribute.
+        Section 3.1 - Modify Inbound BGP AS_PATH Attribute";
+    }
+
+    leaf no-prepend {
+      type boolean;
+      description
+        "When set to TRUE, the value configured as local-as is
+        not prepended to AS-PATH on recived routes.";
+      reference
+        "RFC7705: Autonomous System Migration Mechanisms
+        and Their Effects on the BGP AS_PATH Attribute.
+        Section 3.1 - Modify Inbound BGP AS_PATH Attribute";
+    }
+
+    leaf replace-as {
+      type boolean;
+      description
+        "When set to TRUE, the global AS is not added to AS-PATH
+        when route is advertised to peer. Only local-as is prepended.";
+      reference
+        "RFC7705: Autonomous System Migration Mechanisms
+        and Their Effects on the BGP AS_PATH Attribute.
+        Section 3.2 - Modify Outbound BGP AS_PATH Attribute";
+    }
+
+    leaf dual-as {
+      type boolean;
+      description
+        "When set to TRUE, the speaker alternate between local-ASN
+        and global ASN in every other OPEN messages.";
+    }
+  }
+
   grouping bgp-common-neighbor-group-config {
     description
       "Neighbor level configuration items.";
@@ -291,6 +349,7 @@ submodule openconfig-bgp-common {
 
     leaf local-as {
       type oc-inet:as-number;
+      deprecated;
       description
         "The local autonomous system number that is to be used
         when establishing sessions with the remote peer or peer
