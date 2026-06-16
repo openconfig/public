@@ -31,7 +31,13 @@ module openconfig-packet-match {
     wildcard ('any') for that field.";
 
 
-  oc-ext:openconfig-version "2.2.0";
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2026-03-25" {
+    description
+      "Add internal switching fabric parameters";
+    reference "2.3.0";
+  }
 
   revision "2025-06-10" {
     description
@@ -739,4 +745,48 @@ module openconfig-packet-match {
     }
   }
 
+  grouping fabric-params-top {
+    description
+      "Top-level grouping for parameters related to the internal
+       switching fabric of the device.";
+
+    container fabric {
+      description
+        "Enclosing container for managing device-specific fabric
+         attributes.";
+
+      container config {
+        description
+          "Configuration parameters relating to fabric
+          parameters.";
+
+        uses fabric-params-config;
+      }
+
+      container state {
+        description
+          "Operational state parameters relating to fabric
+          parameters.";
+        config false;
+
+        uses fabric-params-config;
+      }
+    }
+  }
+
+  grouping fabric-params-config {
+    description
+      "Top-level grouping for configurable parameters related to the
+      internal switching fabric of the device.";
+    leaf fabric-priority {
+      type uint8;
+      description
+        "Specifies the priority for the forwarding group for local
+         transmission through the device (e.g., across the internal
+         switching fabric). The priority is expressed as a numerical
+         value where higher values indicate higher precedence. For
+         example, traffic with fabric priority 128 is treated with
+         higher priority than traffic with fabric priority 0.";
+    }
+  }
 }
