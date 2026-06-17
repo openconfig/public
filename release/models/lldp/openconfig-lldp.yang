@@ -400,6 +400,9 @@ module openconfig-lldp {
       description
         "The serial number of the remote device as advertised in
         the LLDP-MED Inventory - Serial Number TLV.";
+      reference
+        "ANSI/TIA-1057, Sec 10.2.6.4 - Inventory - Serial Number
+        TLV (OUI 00-12-BB, subtype 8)";
     }
 
     leaf port-vlan-id {
@@ -410,32 +413,40 @@ module openconfig-lldp {
         "The port VLAN identifier advertised by the
         neighbor in the IEEE 802.1 Port VLAN ID TLV. A value of 0
         indicates that the port is not VLAN-aware.";
+      reference
+        "Annex D of IEEE Std 802.1Q - Port VLAN ID TLV
+        (OUI 00-80-C2, subtype 1)";
     }
 
-    container link-aggregation {
+    leaf link-aggregation-capable {
+      type boolean;
       description
-        "Link aggregation state advertised by the neighbor in
-        the IEEE 802.3 Link Aggregation TLV.";
+        "Indicates whether the neighbor port is capable of being
+        aggregated, as advertised in the IEEE 802.3 Link Aggregation
+        TLV.";
+      reference
+        "Sec 79.3.3 of IEEE Std 802.3 - Link Aggregation TLV
+        (OUI 00-12-0F, subtype 3)";
+    }
 
-      leaf capable {
-        type boolean;
-        description
-          "Indicates whether the neighbor port is capable of being
-          aggregated.";
-      }
+    leaf link-aggregation-enabled {
+      type boolean;
+      description
+        "Indicates whether the neighbor port is currently aggregated,
+        as advertised in the IEEE 802.3 Link Aggregation TLV.";
+      reference
+        "Sec 79.3.3 of IEEE Std 802.3 - Link Aggregation TLV
+        (OUI 00-12-0F, subtype 3)";
+    }
 
-      leaf enabled {
-        type boolean;
-        description
-          "Indicates whether the neighbor port is currently
-          aggregated.";
-      }
-
-      leaf port-id {
-        type uint32;
-        description
-          "The aggregated port identifier of the neighbor port.";
-      }
+    leaf link-aggregation-port-id {
+      type uint32;
+      description
+        "The aggregated port identifier of the neighbor port as
+        advertised in the IEEE 802.3 Link Aggregation TLV.";
+      reference
+        "Sec 79.3.3 of IEEE Std 802.3 - Link Aggregation TLV
+        (OUI 00-12-0F, subtype 3)";
     }
 
     leaf max-frame-size {
@@ -444,6 +455,9 @@ module openconfig-lldp {
         "The maximum frame size in octets supported by the
         neighbor port as advertised in the IEEE 802.3 Maximum
         Frame Size TLV.";
+      reference
+        "Sec 79.3.4 of IEEE Std 802.3 - Maximum Frame Size TLV
+        (OUI 00-12-0F, subtype 4)";
     }
   }
 
