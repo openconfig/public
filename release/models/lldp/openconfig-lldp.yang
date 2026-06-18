@@ -418,7 +418,24 @@ module openconfig-lldp {
         (OUI 00-80-C2, subtype 1)";
     }
 
-    leaf link-aggregation-capable {
+    leaf max-frame-size {
+      type uint16;
+      description
+        "The maximum frame size in octets supported by the
+        neighbor port as advertised in the IEEE 802.3 Maximum
+        Frame Size TLV.";
+      reference
+        "Sec 79.3.4 of IEEE Std 802.3 - Maximum Frame Size TLV
+        (OUI 00-12-0F, subtype 4)";
+    }
+  }
+
+  grouping lldp-link-aggregation-state {
+    description
+      "Operational state data for IEEE 802.3 Link Aggregation TLV
+      received from an LLDP neighbor.";
+
+    leaf capable {
       type boolean;
       description
         "Indicates whether the neighbor port is capable of being
@@ -429,7 +446,7 @@ module openconfig-lldp {
         (OUI 00-12-0F, subtype 3)";
     }
 
-    leaf link-aggregation-enabled {
+    leaf enabled {
       type boolean;
       description
         "Indicates whether the neighbor port is currently aggregated,
@@ -439,7 +456,7 @@ module openconfig-lldp {
         (OUI 00-12-0F, subtype 3)";
     }
 
-    leaf link-aggregation-port-id {
+    leaf port-id {
       type uint32;
       description
         "The aggregated port identifier of the neighbor port as
@@ -448,16 +465,30 @@ module openconfig-lldp {
         "Sec 79.3.3 of IEEE Std 802.3 - Link Aggregation TLV
         (OUI 00-12-0F, subtype 3)";
     }
+  }
 
-    leaf max-frame-size {
-      type uint16;
+  grouping lldp-link-aggregation-top {
+    description
+      "Top-level grouping for LLDP link aggregation data";
+
+    container link-aggregation {
+      config false;
       description
-        "The maximum frame size in octets supported by the
-        neighbor port as advertised in the IEEE 802.3 Maximum
-        Frame Size TLV.";
+        "Enclosing container for IEEE 802.3 Link Aggregation TLV
+        data received from an LLDP neighbor.";
       reference
-        "Sec 79.3.4 of IEEE Std 802.3 - Maximum Frame Size TLV
-        (OUI 00-12-0F, subtype 4)";
+        "Sec 79.3.3 of IEEE Std 802.3 - Link Aggregation TLV
+        (OUI 00-12-0F, subtype 3)";
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for link aggregation";
+
+        uses lldp-link-aggregation-state;
+      }
     }
   }
 
@@ -693,6 +724,7 @@ module openconfig-lldp {
           uses lldp-neighbor-state;
         }
 
+        uses lldp-link-aggregation-top;
         uses lldp-management-addresses;
         uses lldp-custom-tlv-top;
         uses lldp-capabilities-top;
