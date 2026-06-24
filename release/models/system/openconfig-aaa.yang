@@ -397,6 +397,7 @@ module openconfig-aaa {
 
     leaf ssh-key {
       type string;
+      status deprecated;
       description
         "SSH public key for the user (RSA or DSA)";
     }
@@ -425,7 +426,7 @@ module openconfig-aaa {
     description
       "Configuration data for user SSH keys";
     
-     leaf key-name {
+     leaf name {
        type string;
        description
          "The name with which to reference the authorized SSH public key";
@@ -434,7 +435,7 @@ module openconfig-aaa {
      leaf authorized-ssh-key {
        type string;
        description
-         "Authorized SSH public key for the user (RSA or ECDSA)";
+         "Authorized SSH public key for the user";
      }
   }
 
@@ -481,11 +482,11 @@ module openconfig-aaa {
 			"Top-level container for authorized SSH keys";
 		
 		  list authorized-ssh-key {
-			key "key-name";
+			key "name";
 			description
 			  "Authorized SSH public keys for the user (RSA or ECDSA)";
 
-			leaf key-name {
+			leaf name {
 			  type leafref {
 				path "../config/key-name";
 			  }
