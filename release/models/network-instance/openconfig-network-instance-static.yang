@@ -22,7 +22,13 @@ module openconfig-network-instance-static {
   description
     "Static configurations associated with a network instance";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2026-05-20" {
+    description
+      "Add hierarchical-fec leaf to static next-hop-group.";
+    reference "0.3.0";
+  }
 
   revision "2025-08-05" {
     description
@@ -148,6 +154,18 @@ module openconfig-network-instance-static {
       type string;
       description
         "A user defined name that uniquely identifies the next-hop-group.";
+    }
+
+    leaf hierarchical-fec {
+      type boolean;
+      description
+        "When set to true, the next-hop-group preserves its hierarchical
+        structure, with each next-hop entry explicitly pointing to the
+        resolving next-hop-group. This enables load-balancing of traffic
+        forwarded through each next-hop-group entry based on the
+        bandwidth of the resolving links. When set to false, the
+        next-hop-group contents are flattened, or a single next-hop is
+        selected from each referenced group.";
     }
   }
 
