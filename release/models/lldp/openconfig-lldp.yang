@@ -13,6 +13,7 @@ module openconfig-lldp {
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-types { prefix oc-types; }
+  import openconfig-vlan-types { prefix oc-vlan-types; }
 
 
   // meta
@@ -406,9 +407,7 @@ module openconfig-lldp {
     }
 
     leaf port-vlan-id {
-      type uint16 {
-        range "0..4094";
-      }
+      type oc-vlan-types:vlan-id-or-none;
       description
         "The port VLAN identifier advertised by the
         neighbor in the IEEE 802.1 Port VLAN ID TLV. A value of 0
