@@ -54,7 +54,13 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.7.0";
+  oc-ext:openconfig-version "1.7.1";
+
+  revision "2026-05-13" {
+    description
+      "Specify the unit as Mbps for reference-bandwidth.";
+    reference "1.7.1";
+  }
 
   revision "2024-02-28" {
     description
@@ -543,8 +549,10 @@ module openconfig-isis {
 
     leaf reference-bandwidth {
       type uint32;
+      units "Mbps";
       description
-        "ISIS Reference Bandwidth value";
+        "ISIS Reference Bandwidth value expressed in megabits per
+        second.";
     }
   }
 
