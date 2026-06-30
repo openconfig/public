@@ -13,6 +13,7 @@ module openconfig-lldp {
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-types { prefix oc-types; }
+  import openconfig-vlan-types { prefix oc-vlan-types; }
 
 
   // meta
@@ -26,7 +27,15 @@ module openconfig-lldp {
     "This module defines configuration and operational state data
     for the LLDP protocol.";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision "2026-04-14" {
+    description
+      "Add LLDP neighbor state leaves for LLDP-MED inventory serial
+      number, IEEE 802.1 port VLAN ID, and IEEE 802.3 link aggregation
+      and max frame size.";
+    reference "1.2.0";
+  }
 
   revision "2026-04-06" {
     description
@@ -386,6 +395,100 @@ module openconfig-lldp {
         typing to pair up with the 802.1AB Management Address TLV
         specification.";
     }
+
+    leaf med-inventory-serial-number {
+      type string;
+      description
+        "The serial number of the remote device as advertised in
+        the LLDP-MED Inventory - Serial Number TLV.";
+      reference
+        "ANSI/TIA-1057, Sec 10.2.6.4 - Inventory - Serial Number
+        TLV (OUI 00-12-BB, subtype 8)";
+    }
+
+    leaf port-vlan-id {
+      type oc-vlan-types:vlan-id-or-none;
+      description
+        "The port VLAN identifier advertised by the
+        neighbor in the IEEE 802.1 Port VLAN ID TLV. A value of 0
+        indicates that the port is not VLAN-aware.";
+      reference
+        "Annex D of IEEE Std 802.1Q - Port VLAN ID TLV
+        (OUI 00-80-C2, subtype 1)";
+    }
+
+    leaf max-frame-size {
+      type uint16;
+      description
+        "The maximum frame size in octets supported by the
+        neighbor port as advertised in the IEEE 802.3 Maximum
+        Frame Size TLV.";
+      reference
+        "Sec 79.3.4 of IEEE Std 802.3 - Maximum Frame Size TLV
+        (OUI 00-12-0F, subtype 4)";
+    }
+  }
+
+  grouping lldp-link-aggregation-state {
+    description
+      "Operational state data for IEEE 802.3 Link Aggregation TLV
+      received from an LLDP neighbor.";
+
+    leaf capable {
+      type boolean;
+      description
+        "Indicates whether the neighbor port is capable of being
+        aggregated, as advertised in the IEEE 802.3 Link Aggregation
+        TLV.";
+      reference
+        "Sec 79.3.3 of IEEE Std 802.3 - Link Aggregation TLV
+        (OUI 00-12-0F, subtype 3)";
+    }
+
+    leaf enabled {
+      type boolean;
+      description
+        "Indicates whether the neighbor port is currently aggregated,
+        as advertised in the IEEE 802.3 Link Aggregation TLV.";
+      reference
+        "Sec 79.3.3 of IEEE Std 802.3 - Link Aggregation TLV
+        (OUI 00-12-0F, subtype 3)";
+    }
+
+    leaf port-id {
+      type uint32;
+      description
+        "The aggregated port identifier of the neighbor port as
+        advertised in the IEEE 802.3 Link Aggregation TLV.";
+      reference
+        "Sec 79.3.3 of IEEE Std 802.3 - Link Aggregation TLV
+        (OUI 00-12-0F, subtype 3)";
+    }
+  }
+
+  grouping lldp-link-aggregation-top {
+    description
+      "Top-level grouping for LLDP link aggregation data";
+
+    container link-aggregation {
+      config false;
+      description
+        "Enclosing container for IEEE 802.3 Link Aggregation TLV
+        data received from an LLDP neighbor.";
+      reference
+        "Sec 79.3.3 of IEEE Std 802.3 - Link Aggregation TLV
+        (OUI 00-12-0F, subtype 3)";
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for link aggregation";
+
+        uses lldp-link-aggregation-state;
+      }
+    }
   }
 
   grouping lldp-capabilities-config {
@@ -620,6 +723,7 @@ module openconfig-lldp {
           uses lldp-neighbor-state;
         }
 
+        uses lldp-link-aggregation-top;
         uses lldp-management-addresses;
         uses lldp-custom-tlv-top;
         uses lldp-capabilities-top;
