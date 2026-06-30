@@ -13,6 +13,7 @@ module openconfig-system {
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-aaa { prefix oc-aaa; }
+  import openconfig-snmp { prefix oc-snmp; }
   import openconfig-system-logging { prefix oc-log; }
   import openconfig-system-terminal { prefix oc-sys-term; }
   import openconfig-procmon { prefix oc-proc; }
@@ -48,7 +49,15 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.1.0";
+  oc-ext:openconfig-version "3.2.0";
+
+  revision "2026-06-02" {
+    description
+      "Add SNMP community, notification, and receiver
+      configuration via openconfig-snmp.";
+    reference "3.2.0";
+  }
+
 
   revision "2026-03-31" {
     description
@@ -1390,6 +1399,7 @@ module openconfig-system {
       uses system-macaddr-top;
       uses system-memory-top;
       uses system-ntp-top;
+      uses oc-snmp:snmp-top;
     }
   }
 
