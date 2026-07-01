@@ -27,7 +27,13 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.10.0";
+
+  revision "2025-05-08" {
+    description
+      "Add global default prefix-limit and prefix-limit-received at BGP global level.";
+    reference "9.10.0";
+  }
 
   revision "2025-04-18" {
     description
@@ -522,6 +528,7 @@ submodule openconfig-bgp-global {
       }
     }
 
+    uses bgp-common-structure-prefix-limit;
     uses bgp-common-global-group-use-multiple-paths;
     uses bgp-common-route-selection-options;
 
