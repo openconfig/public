@@ -767,6 +767,188 @@ endeavour. If a device corresponds to only one of these configuration models (it
 is either just a switch, or a 'router'/'PE' device) then this hybrid
 configuration is unlikely to be required.
 
+## Use case: Routed Vlan (BVI/SVI)
+
+A device which supports switching VLAN ID 1024 and 2048 within the
+global network instance as well as routing between addressing associated with
+these VLAN ID's. Typically devices would support a logical interface which
+can be configured with IP addressing such is the case below leveraging the
+routed-vlan container.
+
+```
+{
+	"interfaces": {
+		"interface": {
+			"1/0": {
+				"config": {
+					"id": 1,
+					"name": "1/0",
+					"type": "ethernetCsmacd"
+				},
+				"ethernet": {
+					"config": {
+						"auto-negotiate": true,
+						"port-speed": "SPEED_100GB"
+					},
+                    #
+                    # the 'switched' VLANs mentioned below associating the interface with the vlan tag and mode
+                    #
+					"switched-vlan": {
+						"config": {
+							"access-vlan": 1024,
+							"interface-mode": "ACCESS"
+						}
+					}
+				},
+				"name": "1/0"
+			},
+			"2/0": {
+				"config": {
+					"id": 2,
+					"name": "2/0",
+					"type": "ethernetCsmacd"
+				},
+				"ethernet": {
+					"config": {
+						"auto-negotiate": true,
+						"port-speed": "SPEED_100GB"
+					},
+					"switched-vlan": {
+						"config": {
+							"access-vlan": 2048,
+							"interface-mode": "ACCESS"
+						}
+					}
+				},
+				"name": "2/0",
+			},
+            #
+            # the 'routed' VLAN portion,
+            # by creating this virtual interface the model resembles the common SVI/BVI approach of associating addressing with the vlan domain
+            #
+			"vlan-1024": {
+				"config": {
+					"id": 5120,
+					"name": "vlan-1024",
+					"type": "l3ipvlan"
+				},
+				"name": "vlan-1024",
+				"routed-vlan": {
+					"config": {
+						"vlan": 1024
+					},
+					"ipv4": {
+						"addresses": {
+							"address": {
+								"10.1.0.1": {
+									"config": {
+										"ip": "10.1.0.1",
+										"prefix-length": 24
+									},
+									"ip": "10.1.0.1",
+									"state": {
+										"origin": "STATIC"
+									}
+								}
+							}
+						}
+					}
+				},
+				"state": {
+					"logical": true
+				}
+			},
+			"vlan-2048": {
+				"config": {
+					"id": 6144,
+					"name": "vlan-2048",
+					"type": "l3ipvlan"
+				},
+				"name": "vlan-2048",
+				"routed-vlan": {
+					"config": {
+						"vlan": 2048
+					},
+					"ipv4": {
+						"addresses": {
+							"address": {
+								"10.0.0.4": {
+									"config": {
+										"ip": "10.0.0.4",
+										"prefix-length": 29
+									},
+									"ip": "10.0.0.4",
+									"state": {
+										"origin": "STATIC"
+									}
+								}
+							}
+						}
+					}
+				},
+				"state": {
+					"logical": true
+				}
+			}
+		}
+	},
+	"network-instances": {
+		"network-instance": {
+			"DEFAULT_INSTANCE": {
+				"config": {
+					"name": "DEFAULT_INSTANCE"
+				},
+				"name": "DEFAULT_INSTANCE",
+				"interfaces": {
+                    #
+                    # The top level /interfaces/interface are then associated with the
+                    # network-instance to pick up the 'switched' VLANs configured on that /interfaces/interface
+                    #
+					"interface": {
+						"1/0": {
+							"config": {
+								"interface": "1/0",
+								"id": "1/0"
+							},
+							"id": "1/0"
+						},
+						"2/0": {
+							"config": {
+								"interface": "2/0",
+								"id": "2/0"
+							},
+							"id": "2/0"
+						}
+					}
+				},
+                #
+                # By configuring VLANs within the network instance, the FDB for each
+                # VLAN within the default instance is created.
+                #
+				"vlans": {
+					"vlan": {
+						"1024": {
+							"config": {
+								"name": "GREEN",
+								"vlan-id": 1024
+							},
+							"vlan-id": 1024
+						},
+						"2048": {
+							"config": {
+								"name": "RED",
+								"vlan-id": 2048
+							},
+							"vlan-id": 2048
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+```
 ## References/Unannotated JSON
 
 *   OpenConfig interfaces - https://github.com/openconfig/public/tree/master/release/models/interfaces
