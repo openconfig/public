@@ -20,7 +20,13 @@ submodule openconfig-isis-routing {
   description
     "This module describes YANG model for ISIS Routing";
 
-  oc-ext:openconfig-version "1.7.0";
+  oc-ext:openconfig-version "1.7.1";
+
+  revision "2024-10-25" {
+    description
+      "Add enabled leaf into isis multi-topology configuration.";
+    reference "1.7.1";
+  }
 
   revision "2024-02-28" {
     description
@@ -297,6 +303,12 @@ submodule openconfig-isis-routing {
       description
         "Subsequent address-family type.";
     }
+    leaf enabled {
+      type boolean;
+      description
+        "When set to true, the functionality within which this leaf is
+        defined is enabled, when set to false it is explicitly disabled.";
+    }
     //prefer single topology
   }
 
@@ -529,7 +541,6 @@ submodule openconfig-isis-routing {
       description
         "This container defines AFI-SAFI multi-topology state information";
       uses isis-mt-config;
-      uses rt-admin-config;
       }
     }
   }
