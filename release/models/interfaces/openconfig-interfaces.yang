@@ -13,6 +13,7 @@ module openconfig-interfaces {
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-transport-types { prefix oc-opt-types; }
+  import openconfig-if-types { prefix oc-ift; }
 
   // meta
   organization "OpenConfig working group";
@@ -51,48 +52,54 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.8.1";
+  oc-ext:openconfig-version "4.0.0";
+
+  revision "2026-05-11" {
+    description
+      "Change interface mtu type from uint16 to max-frame-size (uint32)
+      typedef to support MTU values exceeding 16-bit boundaries as seen
+      on loopback and non-Ethernet interface types. Clarify L2 frame
+      size semantics in description.";
+    reference "4.0.0";
+  }
 
   revision "2026-01-06" {
-      description
-        "Fix typos in descriptions for hardware-specific and interface statistics entities.";
-      reference
-        "3.8.1";
+    description
+      "Fix typos in descriptions for hardware-specific and interface
+      statistics entities.";
+    reference "3.8.1";
   }
 
   revision "2024-12-05" {
-      description
-        "Add interface-transitions and link-transitions counters";
-      reference
-        "3.8.0";
+    description
+      "Add interface-transitions and link-transitions counters";
+    reference "3.8.0";
   }
 
   revision "2024-12-05" {
-      description
-        "Description typo for unnumbered/interface-ref/config/subinterface leaf";
-      reference
-        "3.7.2";
+    description
+      "Description typo for unnumbered/interface-ref/config/subinterface
+      leaf";
+    reference "3.7.2";
   }
 
   revision "2024-04-04" {
-      description
-        "Use single quotes in descriptions.";
-      reference
-        "3.7.1";
+    description
+      "Use single quotes in descriptions.";
+    reference "3.7.1";
   }
 
   revision "2023-11-06" {
-      description
-        "Clarify description for admin-status TESTING.";
-      reference
-        "3.7.0";
+    description
+      "Clarify description for admin-status TESTING.";
+    reference "3.7.0";
   }
 
   revision "2023-08-29" {
-      description
-        "Add augment for penalty-based additive-increase, exponential-decrease link damping algorithm.";
-      reference
-        "3.6.0";
+    description
+      "Add augment for penalty-based additive-increase,
+      exponential-decrease link damping algorithm.";
+    reference "3.6.0";
   }
 
   revision "2023-07-14" {
@@ -458,12 +465,11 @@ module openconfig-interfaces {
     }
 
     leaf mtu {
-      type uint16;
+      type oc-ift:max-frame-size;
       description
-        "Set the max transmission unit size in octets
-        for the physical interface.  If this is not set, the mtu is
-        set to the operational default -- e.g., 1514 bytes on an
-        Ethernet interface.";
+        "The maximum frame size for the physical interface. If this is
+        not set, the mtu is set to the operational default -- e.g., 1514
+        bytes on an Ethernet interface.";
     }
 
     leaf loopback-mode {
