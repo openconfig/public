@@ -54,7 +54,13 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.7.0";
+  oc-ext:openconfig-version "1.8.0";
+
+  revision "2026-05-23" {
+    description
+      "Add IP reachability suppression per global, level, and interface-level address family with inheritance.";
+    reference "1.8.0";
+  }
 
   revision "2024-02-28" {
     description
@@ -1664,6 +1670,13 @@ module openconfig-isis {
       description
         "This container defines ISIS authentication.";
       uses isis-level-authentication-group;
+    }
+
+    container afi-safi {
+      description
+        "This container defines address-family specific configuration
+        and state information per level.";
+      uses isis-level-afi-safi-list;
     }
   }
 
