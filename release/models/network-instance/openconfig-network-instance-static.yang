@@ -11,6 +11,7 @@ module openconfig-network-instance-static {
   import openconfig-aft { prefix "oc-aft"; }
   import openconfig-aft-types { prefix "oc-aftt"; }
   import openconfig-local-routing { prefix "oc-loc-rt"; }
+  import openconfig-inet-types { prefix "oc-inet"; }
 
   // meta
   organization "OpenConfig working group";
@@ -22,7 +23,13 @@ module openconfig-network-instance-static {
   description
     "Static configurations associated with a network instance";
 
-  oc-ext:openconfig-version "0.2.1";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2026-07-07" {
+    description
+      "Add a global encapsulation header template for static next-hops.";
+    reference "0.3.0";
+  }
 
   revision "2025-08-05" {
     description
@@ -54,6 +61,12 @@ module openconfig-network-instance-static {
         description
           "Configuration and state parameters relating to
           statically configured next hop group";
+      }
+
+      uses static-encap-header-template-top {
+        description
+          "Configuration and state parameters relating to the global
+          encapsulation header template.";
       }
 
       uses static-next-hops-top {
@@ -148,6 +161,59 @@ module openconfig-network-instance-static {
       type string;
       description
         "A user defined name that uniquely identifies the next-hop-group.";
+    }
+  }
+
+  grouping static-encap-header-template-top {
+    description
+      "Logical grouping for the global encapsulation header template.";
+
+    container encap-header-template {
+      description
+        "Surrounding container for groups of encap-header templates.";
+
+      container config {
+        description
+          "Configuration parameters relating to the encapsulation header
+          template.";
+
+        uses static-encap-header-template;
+      }
+
+      container state {
+        config false;
+        description
+          "State parameters relating to the encapsulation header template.";
+
+        uses static-encap-header-template;
+      }
+    }
+  }
+
+  grouping static-encap-header-template {
+    description
+      "Configuration parameters for the global encapsulation header
+      template.";
+
+    leaf ipv4-dst-udp-port {
+      type oc-inet:port-number;
+      description
+        "Destination UDP port to use when the encapsulated payload is an
+        IPv4 packet.";
+    }
+
+    leaf ipv6-dst-udp-port {
+      type oc-inet:port-number;
+      description
+        "Destination UDP port to use when the encapsulated payload is an
+        IPv6 packet.";
+    }
+
+    leaf mpls-dst-udp-port {
+      type oc-inet:port-number;
+      description
+        "Destination UDP port to use when the encapsulated payload is an
+        MPLS packet.";
     }
   }
 
