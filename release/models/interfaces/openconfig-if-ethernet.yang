@@ -26,7 +26,13 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.17.0";
+  oc-ext:openconfig-version "2.18.0";
+
+  revision "2026-06-22" {
+    description
+      "Add egress VLAN filter drop counter to Ethernet counters.";
+    reference "2.18.0";
+  }
 
   revision "2026-03-12" {
     description
@@ -684,6 +690,18 @@ module openconfig-if-ethernet {
       reference
         "RFC 1643 Definitions of Managed
         Objects for the Ethernet-like Interface Types.";
+     }
+
+     leaf out-vlan-filter-discards {
+       type oc-yang:counter64;
+       description
+         "The number of outbound packets that were dropped due to
+         VLAN egress filtering being enabled on the interface, where
+         the packet's VLAN tag did not match the allowed VLANs.
+
+         Discontinuities in the value of this counter can occur
+         at re-initialization of the management system, and at
+         other times as indicated by the value of 'last-clear'.";
      }
 
   }
