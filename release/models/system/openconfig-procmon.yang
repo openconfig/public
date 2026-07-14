@@ -25,7 +25,15 @@ module openconfig-procmon {
     "This module provides data definitions for process health
     monitoring of one or more processes running on the system.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2026-07-13" {
+    description
+      "Change cpu-utilization type from oc-types:percentage to
+      uint16 to support multi-core systems where CPU utilization
+      can exceed 100 percent.";
+    reference "0.5.0";
+  }
 
   revision "2019-03-15" {
     description
@@ -153,9 +161,11 @@ module openconfig-procmon {
     }
 
     leaf cpu-utilization {
-      type oc-types:percentage;
+      type uint16;
       description
-        "The percentage of CPU that is being used by the process.";
+        "The percentage of CPU that is being used by the process.
+        On multi-core systems, this value may exceed 100 percent,
+        up to 100 percent per core.";
     }
 
     leaf memory-usage {
