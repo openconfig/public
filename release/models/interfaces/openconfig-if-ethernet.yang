@@ -26,7 +26,19 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.16.0";
+  oc-ext:openconfig-version "2.18.0";
+
+  revision "2026-06-22" {
+    description
+      "Add egress VLAN filter drop counter to Ethernet counters.";
+    reference "2.18.0";
+  }
+
+  revision "2026-03-12" {
+    description
+      "Add ethernet FEC modes for 200g serdes";
+    reference "2.17.0";
+  }
 
   revision "2025-11-20" {
     description
@@ -217,10 +229,28 @@ module openconfig-if-ethernet {
       "RS544 is used for channels with PAM4 modulation.";
   }
 
+  identity FEC_RS544_LOW_LATENCY {
+    base INTERFACE_FEC;
+    description
+      "RS544-low-latency is used for channels with PAM4 modulation for low latency.";
+  }
+
   identity FEC_RS544_2X_INTERLEAVE {
     base INTERFACE_FEC;
     description
       "RS544-2x-interleave is used for channels with PAM4 modulation.";
+  }
+
+  identity FEC_RS544_2X_INTERLEAVE_CL172 {
+    base INTERFACE_FEC;
+    description
+      "RS544-2x-interleave-cl172 is used for channels with PAM4 modulation with the IEEE 802.3df variant.";
+  }
+
+  identity FEC_RS544_2X_INTERLEAVE_ETC {
+    base INTERFACE_FEC;
+    description
+      "RS544-2x-interleave-etc is used for channels with PAM4 modulation with the ETC variant.";
   }
 
   identity FEC_DISABLED {
@@ -660,6 +690,18 @@ module openconfig-if-ethernet {
       reference
         "RFC 1643 Definitions of Managed
         Objects for the Ethernet-like Interface Types.";
+     }
+
+     leaf out-vlan-filter-discards {
+       type oc-yang:counter64;
+       description
+         "The number of outbound packets that were dropped due to
+         VLAN egress filtering being enabled on the interface, where
+         the packet's VLAN tag did not match the allowed VLANs.
+
+         Discontinuities in the value of this counter can occur
+         at re-initialization of the management system, and at
+         other times as indicated by the value of 'last-clear'.";
      }
 
   }
