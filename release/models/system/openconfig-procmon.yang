@@ -27,10 +27,10 @@ module openconfig-procmon {
 
   oc-ext:openconfig-version "0.5.0";
 
-  revision "2026-07-13" {
+  revision "2026-07-14" {
     description
-      "Change cpu-utilization type from oc-types:percentage to
-      uint16 to support multi-core systems where CPU utilization
+      "Deprecate cpu-utilization and add cpu-utilization-pct as
+      uint32 to support multi-core systems where CPU utilization
       can exceed 100 percent.";
     reference "0.5.0";
   }
@@ -161,7 +161,18 @@ module openconfig-procmon {
     }
 
     leaf cpu-utilization {
-      type uint16;
+      status deprecated;
+      type oc-types:percentage;
+      description
+        "The percentage of CPU that is being used by the process.
+        This leaf is deprecated because its type constrains values
+        to 0-100, which is insufficient for multi-core systems.
+        Use cpu-utilization-pct instead.";
+    }
+
+    leaf cpu-utilization-pct {
+      type uint32;
+      units "percent";
       description
         "The percentage of CPU that is being used by the process.
         On multi-core systems, this value may exceed 100 percent,
