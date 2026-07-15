@@ -24,7 +24,13 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.9.2";
+
+  revision "2025-07-15" {
+    description
+      "Extend Add-path Send leaf with values ADDPATH-ECMP and ADDPATH-ALL";
+    reference "9.9.2";
+  }
 
   revision "2025-04-18" {
     description
@@ -525,11 +531,29 @@ submodule openconfig-bgp-common {
     }
 
     leaf send {
-      type boolean;
+      type union {
+        type boolean;
+        type enumeration {
+          enum ADDPATH_ECMP {
+            description
+              "Enable capability negotiation to send multiple paths, 
+              and select/advertise all active ECMP paths 
+              for a destination to the peer.";
+          }
+          enum ADDPATH_ALL {
+            description
+              "Enable capability negotiation to send multiple paths, 
+              and select/advertise the top N best paths to the peer, 
+              up to the threshold defined by the send-max leaf.";
+          }
+        }
+      }
       default false;
       description
         "Enable capability negotiation to send multiple path
-        advertisements for an NLRI from the neighbor or group";
+        advertisements for an NLRI from the neighbor or group.
+        Supports both backward-compatible boolean toggles or explicit 
+        selection modes (ADDPATH_ECMP, ADDPATH_ALL).";
       reference
         "RFC 7911 - Advertisement of Multiple Paths in BGP";
     }
