@@ -10,10 +10,10 @@ operators, an increasing number of vendors and open source projects have
 augmented the models with additional fields that have not fallen into the
 initial "minimum operationally viable" approach that OpenConfig has taken.
 However, this is not to say that these features are not used, or are not of
-interest for including in the models. It is desirable that these 
-augmentations - where they meet the style, and support requirements for
+interest for including in the models. It is desirable that these
+augmentations - where they meet the style and support requirements for
 including in the models - be included within the standard set of models,
-rather than have many different augmentations covering the same feature set. 
+rather than having many different augmentations covering the same feature set.
 To this end, this document outlines a process for external contributions to OpenConfig.
 
 OpenConfig considers schema consistency paramount -- since it greatly impacts
