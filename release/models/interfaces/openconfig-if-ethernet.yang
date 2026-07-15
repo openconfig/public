@@ -26,7 +26,13 @@ module openconfig-if-ethernet {
     "Model for managing Ethernet interfaces -- augments the OpenConfig
     model for interface configuration and state.";
 
-  oc-ext:openconfig-version "2.18.0";
+  oc-ext:openconfig-version "2.19.0";
+
+  revision "2026-07-15" {
+    description
+      "Add ingress link-down discard counter to Ethernet interface counters.";
+    reference "2.19.0";
+  }
 
   revision "2026-06-22" {
     description
@@ -658,6 +664,18 @@ module openconfig-if-ethernet {
         "The total number frames received that are well-formed but
         dropped due to exceeding the maximum frame size on the interface
         (e.g., MTU or MRU)";
+    }
+
+    leaf in-link-down-discards {
+      type oc-yang:counter64;
+      description
+        "The number of inbound packets received on the interface that
+        were dropped because the egress interface or next-hop link
+        selected by forwarding or routing was down.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of 'last-clear'.";
     }
 
     // egress counters
