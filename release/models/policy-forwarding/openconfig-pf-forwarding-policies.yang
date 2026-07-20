@@ -756,6 +756,25 @@ grouping pf-forwarding-policy-action-forwarding-config {
         lookup on the local system.";
     }
 
+    leaf recurse {
+      type enumeration {
+        enum INCLUDE_DEFAULT_RT {
+          description
+            "Default route (0.0.0.0/0 or ::/0) is considered a
+            valid longest prefix.";
+        }
+        enum EXCLUDE_DEFAULT_RT {
+          description
+            "Default route (0.0.0.0/0 or ::/0) is NOT considered a
+            valid longest prefix.";
+        }
+      }
+      description
+        "Determines if the next-hop can be resolved recursively
+        via longest prefix match in FIB. If not enabled, only directly
+        connected routes can resolve the next-hop.";
+    }
+
     leaf next-hop-group {
       // we are at /network-instances/network-instance/policy-forwarding/policies/policy/rules/rule/action/config/next-hop-group
       type leafref {
