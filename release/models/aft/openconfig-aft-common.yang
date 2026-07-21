@@ -843,8 +843,10 @@ submodule openconfig-aft-common {
     leaf dscp {
       type oc-inet:dscp;
       description
-        "DSCP value to use for the UDP header of the encapsulated
-         packet.";
+        "This leaf reflects the configured/default DSCP value that is used
+        in the outer header during packet encapsulation. When this leaf is
+        not set, the DSCP value of the inner packet is copied over as the
+        outer packet's DSCP value during encapsulation.";
     }
 
     leaf src-udp-port {
@@ -875,10 +877,10 @@ submodule openconfig-aft-common {
     leaf ip-ttl {
       type uint8;
       description
-        "This leaf reflects the configured/default IP TTL value that is used
+        "This leaf reflects the configured/default IP TTL / Hop Limit value that is used
          in the outer header during packet encapsulation. When this leaf is
-         not set, the TTL value of the inner packet is copied over as the
-         outer packet's IP TTL value during encapsulation.";
+         not set, the IP TTL / Hop Limit value of the inner packet is copied over as the
+         outer packet's IP TTL / Hop Limit value during encapsulation.";
     }
   }
 
