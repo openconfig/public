@@ -25,7 +25,15 @@ module openconfig-procmon {
     "This module provides data definitions for process health
     monitoring of one or more processes running on the system.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2026-07-14" {
+    description
+      "Deprecate cpu-utilization and add cpu-utilization-pct as
+      uint32 to support multi-core systems where CPU utilization
+      can exceed 100 percent.";
+    reference "0.5.0";
+  }
 
   revision "2019-03-15" {
     description
@@ -153,9 +161,22 @@ module openconfig-procmon {
     }
 
     leaf cpu-utilization {
+      status deprecated;
       type oc-types:percentage;
       description
-        "The percentage of CPU that is being used by the process.";
+        "The percentage of CPU that is being used by the process.
+        This leaf is deprecated because its type constrains values
+        to 0-100, which is insufficient for multi-core systems.
+        Use cpu-utilization-pct instead.";
+    }
+
+    leaf cpu-utilization-pct {
+      type uint32;
+      units "percent";
+      description
+        "The percentage of CPU that is being used by the process.
+        On multi-core systems, this value may exceed 100 percent,
+        up to 100 percent per core.";
     }
 
     leaf memory-usage {
