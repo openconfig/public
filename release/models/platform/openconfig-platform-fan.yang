@@ -22,7 +22,13 @@ module openconfig-platform-fan {
     "This module defines data related to FAN components in the
     OpenConfig platform model.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2026-07-21" {
+    description
+      "Add fan speed-percentage and direction operational leaves.";
+    reference "0.2.1";
+  }
 
   revision "2025-07-16" {
     description
@@ -125,6 +131,32 @@ module openconfig-platform-fan {
       units rpm;
       description
         "Current (instantaneous) fan speed";
+    }
+
+    leaf speed-percentage {
+      type uint8 {
+        range "0..100";
+      }
+      units "percent";
+      description
+        "Current fan speed as a percentage of maximum rated speed.
+         A value of 0 indicates the fan is stopped, and 100 indicates
+         maximum speed.";
+    }
+
+    leaf direction {
+      type enumeration {
+        enum intake {
+          description
+            "Fan airflow direction is intake (air drawn into the chassis).";
+        }
+        enum exhaust {
+          description
+            "Fan airflow direction is exhaust (air expelled from the chassis).";
+        }
+      }
+      description
+        "Current fan airflow direction.";
     }
   }
 
