@@ -65,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.32.0";
+  oc-ext:openconfig-version "0.32.1";
+
+  revision "2026-07-21" {
+    description
+      "Add critical high/low temperature threshold leaves.";
+    reference "0.32.1";
+  }
 
   revision "2025-07-15" {
     description
@@ -760,6 +766,24 @@ revision "2024-05-29" {
       }
       description
         "The severity of the current alarm.";
+    }
+
+    leaf critical-high-threshold {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "Critical high temperature threshold for this sensor.";
+    }
+
+    leaf critical-low-threshold {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units celsius;
+      description
+        "Critical low temperature threshold for this sensor.";
     }
   }
 
