@@ -22,7 +22,15 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "1.12.0";
+  oc-ext:openconfig-version "1.13.0";
+
+revision "2026-07-08" {
+    description
+      "Add component-power-oper-type typedef with POWER_TRANSITIONING
+      to reflect the operational power state of a component,
+      including transient transitions.";
+    reference "1.13.0";
+  }
 
 revision "2026-05-19" {
     description
@@ -579,6 +587,32 @@ revision "2025-07-09" {
     description
       "A generic type reflecting whether a hardware component
       is powered on or off";
+  }
+
+  typedef component-power-oper-type {
+    type enumeration {
+      enum POWER_ENABLED {
+        description
+          "The component is powered on.";
+      }
+      enum POWER_DISABLED {
+        description
+          "The component is powered off.";
+      }
+      enum POWER_TRANSITIONING {
+        description
+          "The component is transitioning between the POWER_ENABLED and
+          POWER_DISABLED states, for example while it is being powered
+          down but has not yet fully powered off, or while it is being
+          powered up but is not yet fully powered on.";
+      }
+    }
+    description
+      "A generic type reflecting the operational power state of a
+      hardware component.  This is the operational counterpart to
+      component-power-type (the configured, intended power state) and
+      may include operational-only values that are not valid as
+      configuration.";
   }
 
   identity COMPONENT_REBOOT_REASON {
