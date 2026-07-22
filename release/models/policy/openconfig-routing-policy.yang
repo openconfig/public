@@ -92,7 +92,14 @@ module openconfig-routing-policy {
     default value for the default-(import|export)-policy leaf must be
     applied.  See RFC6020 7.6.1 which applies to this model.";
 
-  oc-ext:openconfig-version "3.5.0";
+  oc-ext:openconfig-version "3.6.0";
+
+  revision "2026-07-22" {
+    description
+      "Add prefix-set description and prefix entry sequence-number and
+       action leaves to support ordered BGP-style prefix lists.";
+    reference "3.6.0";
+  }
 
   revision "2024-11-26" {
     description
@@ -224,6 +231,22 @@ module openconfig-routing-policy {
 
   // grouping statements
 
+  typedef prefix-set-prefix-action-type {
+    type enumeration {
+      enum PERMIT {
+        description
+          "Permit routes that match the prefix entry.";
+      }
+      enum DENY {
+        description
+          "Deny routes that match the prefix entry.";
+      }
+    }
+    default PERMIT;
+    description
+      "Action to take for routes matching a prefix list entry.";
+  }
+
   grouping prefix-set-config {
     description
       "Configuration data for prefix sets used in policy
@@ -259,6 +282,12 @@ module openconfig-routing-policy {
         reject the configuration if there is a discrepancy.  The
         MIXED mode may not be supported on devices that require
         prefix sets to be of only one address family.";
+    }
+
+    leaf description {
+      type string;
+      description
+        "Optional human-readable description of the prefix set.";
     }
 
   }
@@ -344,6 +373,26 @@ module openconfig-routing-policy {
         Example: 10.3.192.0/21 would be expressed as
         prefix: 10.3.192.0/21,
         masklength-range: exact";
+    }
+
+    leaf sequence-number {
+      type uint32 {
+        range "1..4294967295";
+      }
+      description
+        "Sequence number for the prefix entry within the prefix set.
+         Prefix list implementations evaluate entries in ascending
+         sequence order.  The list key for prefix entries remains
+         ip-prefix and masklength-range; sequence-number is an
+         additional attribute used by implementations that require
+         explicit ordering or permit/deny semantics per entry.";
+    }
+
+    leaf action {
+      type prefix-set-prefix-action-type;
+      description
+        "Action applied to routes matching this prefix entry within
+         the prefix set.";
     }
   }
 
