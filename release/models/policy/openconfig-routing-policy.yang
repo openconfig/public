@@ -665,6 +665,55 @@ module openconfig-routing-policy {
     }
   }
 
+  grouping rib-has-route-condition-config {
+    description
+      "Configuration data for rib-has-route conditions";
+
+    leaf prefix-set {
+        type leafref {
+          path "../../../../../../../../defined-sets/" +
+            "prefix-sets/prefix-set/config/name";
+        }
+        description "References a defined prefix set";
+      }
+      uses match-set-options-restricted-group;
+  }
+
+
+  grouping rib-has-route-condition-state {
+    description
+      "Operational state data for rib-has-route conditions";
+  }
+
+  grouping rib-has-route-condition-top {
+    description
+      "Top-level grouping for rib-has-route conditions";
+
+    container match-rib-has-route {
+      description
+        "Match a referenced prefix-set according to the logic
+        defined in the match-set-options leaf";
+
+      container config {
+        description
+          "Configuration data for a rib-has-route condition";
+
+        uses rib-has-route-condition-config;
+      }
+
+      container state {
+
+        config false;
+
+        description
+          "Operational state data for a rib-has-route condition";
+
+        uses rib-has-route-condition-config;
+        uses rib-has-route-condition-state;
+      }
+    }
+  }
+
   grouping neighbor-set-condition-config {
     description
       "Configuration data for neighbor-set conditions";
@@ -774,6 +823,7 @@ module openconfig-routing-policy {
 
     uses match-interface-condition-top;
     uses prefix-set-condition-top;
+    uses rib-has-route-condition-top;
     uses neighbor-set-condition-top;
     uses tag-set-condition-top;
 
