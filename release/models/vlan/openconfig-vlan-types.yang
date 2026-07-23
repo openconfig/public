@@ -21,7 +21,23 @@ module openconfig-vlan-types {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.2.0";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2026-07-23" {
+    description
+      "Pass the matched VLAN tag(s) through unmodified. No tag
+      push, pop, or swap operation is performed. The original
+      VLAN ID and priority (PCP/DEI) bits from the matched
+      client frame are preserved as-is on the network side.
+
+      This action is used when the subinterface encapsulation
+      requires that the original customer VLAN tag be carried
+      transparently through the network — for example, in
+      pseudowire services where the remote PE uses the VLAN
+      tag within the tunneled payload for service demultiplexing
+      or egress VLAN translation.";
+    reference "3.3.0";
+  }
 
   revision "2022-05-24" {
     description
@@ -272,6 +288,14 @@ module openconfig-vlan-types {
       enum SWAP {
         description
           "Swap the VLAN at the top of the VLAN stack.";
+      }
+      enum PASSTHROUGH {
+        description
+          "Pass the packet through without modifying the VLAN stack.
+           Used when a client-side dot1q VLAN is transparently carried
+           across the network unchanged, for both single-tagged
+           (client dot1q <id> network client) and double-tagged
+           (client dot1q outer <id> inner <id> network client) cases.";
       }
       // TODO: add push-push, pop-pop, push-swap etc
     }

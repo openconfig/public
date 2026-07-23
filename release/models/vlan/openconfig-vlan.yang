@@ -26,7 +26,14 @@ module openconfig-vlan {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.2.2";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2026-07-23" {
+    description
+      "Add optional outer-tag and inner-tag containers to ingress-mapping
+       and egress-mapping to support double-tagged network VLAN operations.";
+    reference "3.3.0";
+  }
 
   revision "2023-02-07" {
     description
@@ -690,6 +697,36 @@ module openconfig-vlan {
     }
   }
 
+  grouping vlan-logical-tag-mapping-config {
+    description
+      "Configuration for a single VLAN tag action used within ingress
+       or egress mapping (outer-tag or inner-tag).";
+
+    leaf vlan-stack-action {
+      type oc-vlan-types:vlan-stack-action;
+      description
+        "The action to take on this VLAN tag of a packet.";
+    }
+
+    leaf vlan-id {
+      type oc-vlan-types:vlan-id;
+      description
+        "Optionally specifies a fixed VLAN identifier used by the action
+         configured in 'vlan-stack-action'. This value must be non-zero
+         if the 'vlan-stack-action' is 'PUSH' or 'SWAP'.";
+    }
+
+    leaf tpid {
+      type identityref {
+        base oc-vlan-types:TPID_TYPES;
+      }
+      description
+        "Optionally override the tag protocol identifier field (TPID)
+         that is used by the action configured by 'vlan-stack-action'
+         when modifying the VLAN stack.";
+    }
+  }
+
   grouping vlan-logical-ingress-mapping-config {
     description
       "Configuration for ingress VLAN stack behaviors for
@@ -752,6 +789,44 @@ module openconfig-vlan {
 
         uses vlan-logical-ingress-mapping-config;
       }
+
+      container outer-tag {
+        description
+          "VLAN stack action applied to the outer VLAN tag of ingress
+           packets. Used for double-tagged operations where independent
+           per-tag actions are required.";
+
+        container config {
+          description
+            "Configuration for the outer tag ingress VLAN action.";
+          uses vlan-logical-tag-mapping-config;
+        }
+        container state {
+          config false;
+          description
+            "State for the outer tag ingress VLAN action.";
+          uses vlan-logical-tag-mapping-config;
+        }
+      }
+
+      container inner-tag {
+        description
+          "VLAN stack action applied to the inner VLAN tag of ingress
+           packets. Used for double-tagged operations where independent
+           per-tag actions are required.";
+
+        container config {
+          description
+            "Configuration for the inner tag ingress VLAN action.";
+          uses vlan-logical-tag-mapping-config;
+        }
+        container state {
+          config false;
+          description
+            "State for the inner tag ingress VLAN action.";
+          uses vlan-logical-tag-mapping-config;
+        }
+      }
     }
   }
 
@@ -811,6 +886,44 @@ module openconfig-vlan {
            that are destined for output via this subinterface.";
 
         uses vlan-logical-egress-mapping-config;
+      }
+
+      container outer-tag {
+        description
+          "VLAN stack action applied to the outer VLAN tag of egress
+           packets. Used for double-tagged operations where independent
+           per-tag actions are required.";
+
+        container config {
+          description
+            "Configuration for the outer tag egress VLAN action.";
+          uses vlan-logical-tag-mapping-config;
+        }
+        container state {
+          config false;
+          description
+            "State for the outer tag egress VLAN action.";
+          uses vlan-logical-tag-mapping-config;
+        }
+      }
+
+      container inner-tag {
+        description
+          "VLAN stack action applied to the inner VLAN tag of egress
+           packets. Used for double-tagged operations where independent
+           per-tag actions are required.";
+
+        container config {
+          description
+            "Configuration for the inner tag egress VLAN action.";
+          uses vlan-logical-tag-mapping-config;
+        }
+        container state {
+          config false;
+          description
+            "State for the inner tag egress VLAN action.";
+          uses vlan-logical-tag-mapping-config;
+        }
       }
     }
   }
