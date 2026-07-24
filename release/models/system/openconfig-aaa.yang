@@ -397,6 +397,7 @@ module openconfig-aaa {
 
     leaf ssh-key {
       type string;
+      status deprecated;
       description
         "SSH public key for the user (RSA or DSA)";
     }
@@ -419,6 +420,23 @@ module openconfig-aaa {
   grouping aaa-authentication-user-state {
     description
       "Operational state data for local users";
+  }
+  
+  grouping authorized-ssh-key-config {
+    description
+      "Configuration data for user SSH keys";
+    
+     leaf name {
+       type string;
+       description
+         "The name with which to reference the authorized SSH public key";
+     }
+    
+     leaf authorized-ssh-key {
+       type string;
+       description
+         "Authorized SSH public key for the user";
+     }
   }
 
   grouping aaa-authentication-user-top {
@@ -458,6 +476,38 @@ module openconfig-aaa {
           uses aaa-authentication-user-config;
           uses aaa-authentication-user-state;
         }
+        
+        container authorized-ssh-keys {
+		  description
+			"Top-level container for authorized SSH keys";
+		
+		  list authorized-ssh-key {
+			key "name";
+			description
+			  "Authorized SSH public keys for the user (RSA or ECDSA)";
+
+			leaf name {
+			  type leafref {
+				path "../config/key-name";
+			  }
+			  description
+				"References the key name in the configuration block";
+			}
+		
+			container config {
+			  description
+				"Configuration data for the authorized SSH key";
+			  uses authorized-ssh-key-config;
+			}
+		
+			container state {
+			  config false;
+			  description
+				"Operational state data for the authorized SSH key";
+			  uses authorized-ssh-key-config;
+			}
+		  }
+		}
       }
 
     }
