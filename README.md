@@ -30,5 +30,5 @@ or by opening a GitHub [issue](https://github.com/openconfig/public/issues).
 
 Please see the [OpenConfig web site](http://www.openconfig.net) for information
 for operators wishing to join OpenConfig, in particular the
-[FAQ for operators](http://openconfig.net/docs/faq-for-operators/).
+[FAQ for operators](https://openconfig.net/docs/faqs/operator_faq/).
 

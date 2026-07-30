@@ -25,8 +25,13 @@ submodule openconfig-qos-interfaces {
     configuration and operational state associated with
     interfaces.";
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.2.0";
 
+  revision "2026-04-30" {
+    description
+      "Add queue level packet trimming counters.";
+    reference "2.2.0";
+  }
   revision "2026-03-25" {
     description
       "Add parameters for packet trimming configuration";
@@ -421,7 +426,7 @@ submodule openconfig-qos-interfaces {
       description
         "Number of packets dropped by the queue due to overrun, that is tail-drop
         or AMQ (RED, WRED, etc) induced drops as indicated by the attached
-        queue-management-profile";
+        queue-management-profile.";
     }
 
     leaf dropped-octets {
@@ -516,11 +521,11 @@ submodule openconfig-qos-interfaces {
     }
   }
 
-  grouping qos-interface-queue-root-top {
+  grouping qos-interface-input-queue-root-top {
     description
       "Top-level grouping for the queue associated with the
-      interface - used only for /qos/interfaces/interface rather
-      than in multiple contexts.";
+      interface - used only for /qos/interfaces/interface/input
+      rather than in multiple contexts.";
 
     container queues {
       description
@@ -561,6 +566,57 @@ submodule openconfig-qos-interfaces {
           uses qos-interface-queue-config;
           uses qos-interface-queue-root-config;
           uses qos-interface-queue-state;
+        }
+      }
+    }
+  }
+
+  grouping qos-interface-output-queue-root-top {
+    description
+      "Top-level grouping for the queue associated with the
+      interface - used only for /qos/interfaces/interface/output
+      rather than in multiple contexts.";
+
+    container queues {
+      description
+        "Surrounding container for a list of queues that are
+        instantiated on an interface.";
+
+      list queue {
+        key "name";
+
+        description
+          "Top-level container for the queue associated with this
+          interface";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the name of the queue
+            instantiated on the interface.";
+        }
+
+        container config {
+          description
+            "Configuration data for the queue associated with the
+            interface";
+
+          uses qos-interface-queue-config;
+          uses qos-interface-queue-root-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for the queue associated with the
+            interface";
+
+          uses qos-interface-queue-config;
+          uses qos-interface-queue-root-config;
+          uses qos-interface-queue-state;
+          uses oc-qos:trim-pkts-counters-top;
         }
       }
     }
@@ -888,7 +944,7 @@ submodule openconfig-qos-interfaces {
       }
 
       uses qos-interface-classifier-top;
-      uses qos-interface-queue-root-top;
+      uses qos-interface-input-queue-root-top;
       uses qos-interface-scheduler-top;
       uses qos-interface-voqs-top;
     }
@@ -999,7 +1055,7 @@ submodule openconfig-qos-interfaces {
       }
 
       uses qos-interface-classifier-top;
-      uses qos-interface-queue-root-top;
+      uses qos-interface-output-queue-root-top;
       uses qos-interface-scheduler-top;
     }
   }

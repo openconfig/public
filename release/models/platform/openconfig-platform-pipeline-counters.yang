@@ -9,6 +9,7 @@ module openconfig-platform-pipeline-counters {
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-platform { prefix oc-platform; }
+  import openconfig-qos { prefix oc-qos; }
 
   organization
     "OpenConfig working group";
@@ -65,9 +66,15 @@ module openconfig-platform-pipeline-counters {
     5 blocks, is to have the abililty to receive all drop counters from
     all 5 blocks, for example, with one request.";
 
-  oc-ext:openconfig-version "0.5.1";
+  oc-ext:openconfig-version "0.6.0";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2026-04-30" {
+    description
+      "Add switch level packet trimming counters.";
+    reference "0.6.0";
+  }
 
   revision "2023-10-08" {
     description
@@ -203,6 +210,19 @@ module openconfig-platform-pipeline-counters {
             uses pipeline-counters-packet-host-interface-block-state;
           }
         }
+
+        container trim {
+          description
+            "Packet trimming counters for entire device.";
+          container state {
+            description
+              "State counters for packet trimming. The
+              number of dropped trimmed packets is not included
+              as it is concluded as part of dropped counters.";
+
+            uses oc-qos:trim-pkts-common-counters-top;
+          }
+        }
       }
 
       container drop {
@@ -212,6 +232,13 @@ module openconfig-platform-pipeline-counters {
           description
             "State container for IC drop counters";
 
+          leaf trim-pkts {
+            type oc-yang:counter64;
+            description
+              "The number of packets that were trimmed but dropped due to a
+              failed shared buffer admission on the trim queue at
+              integrated-circuit level.";
+          }
           uses pipeline-drop-packet-state;
         }
 
