@@ -175,14 +175,17 @@ module openconfig-system-grpc {
         are not supported, such as lab testing.";
     }
 
-    leaf tls-mutual {
-      type boolean;
-      default false;
-      description
-        "When set to true, mutual TLS (mTLS) client certificate verification
-        is enforced on the gRPC server. The client must present a certificate
-        validated against the trusted certificate authority.";
-    }
+    leaf tls-mutual {  
+      type boolean;  
+      default false;  
+      must "not(../transport-security) or ../transport-security = 'true'" {  
+        error-message "Mutual TLS requires transport-security to be enabled.";  
+      }  
+      description  
+        "When set to true, mutual TLS (mTLS) client certificate verification  
+        is enforced on the gRPC server. The client must present a certificate  
+        validated against the trusted certificate authority.";  
+    } 
 
     leaf certificate-id {
       type string;
@@ -234,42 +237,46 @@ module openconfig-system-grpc {
     }
   }
 
-  grouping grpc-server-keepalive-config {
-    description
-      "Configuration parameters relating to gRPC server keepalive.";
+  grouping grpc-server-keepalive-config {  
+    description  
+      "Configuration parameters relating to gRPC server keepalive.";  
 
-    leaf time {
-      type uint32 {
-        range "1..max";
-      }
-      units "seconds";
-      description
-        "Interval in seconds at which the server will send keepalive PING
-        frames to the client to verify connection health when no activity
-        is detected.";
-    }
+    leaf time {  
+      type uint32 {  
+        range "1..max";  
+      }  
+      units "seconds";  
+      description  
+        "Interval in seconds at which the server will send keepalive PING  
+        frames to the client to verify connection health when no activity  
+        is detected.";  
+    }  
 
-    leaf min-keepalive-interval {
-      type uint32 {
-        range "1..max";
-      }
-      units "seconds";
-      description
-        "Minimum interval in seconds that the server permits a client to wait
-        between sending keepalive PING frames without receiving a GOAWAY frame
-        (too_many_pings).";
-    }
+    leaf min-keepalive-interval {  
+      type uint32 {  
+        range "1..max";  
+      }  
+      units "seconds";  
+      description  
+        "Minimum interval in seconds that the server permits between client  
+        keepalive PING frames. If a client sends PING frames more frequently  
+        than this interval, the server will send a GOAWAY frame with  
+        'too_many_pings' and close the connection.";  
+    }  
 
-    leaf timeout {
-      type uint32 {
-        range "1..max";
-      }
-      units "seconds";
-      description
-        "Time in seconds the server waits for a keepalive PING response
-        before closing the connection.";
-    }
-  }
+    leaf timeout {  
+      type uint32 {  
+        range "1..max";  
+      }  
+      units "seconds";  
+      must "not(../time) or . < ../time" {  
+        error-message "Keepalive timeout must be less than the keepalive time interval.";  
+      }  
+      description  
+        "Time in seconds the server waits for a keepalive PING response  
+        before closing the connection.";  
+    }   
+  } 
 
   grouping grpc-server-keepalive-top {
     description
