@@ -26,9 +26,10 @@ submodule openconfig-bgp-common {
 
   oc-ext:openconfig-version "9.9.2";
 
-  revision "2026-07-15" {
+  revision "2026-08-18" {
     description
-      "Extend Add-path Send leaf with values ADDPATH-ECMP and ADDPATH-ALL";
+          "Extend Add-path Send leaf with values ADDPATH-ECMP, ADDPATH-ALL and ADDPATH-BACKUP";
+
     reference "9.9.2";
   }
 
@@ -545,6 +546,12 @@ submodule openconfig-bgp-common {
               "Enable capability negotiation to send all RIB/FIB paths
               to the peer.";
           }
+          enum ADDPATH_BACKUP {
+            description
+              "Enable capability negotiation to send multiple paths,
+              and select/advertise the best path and backup path
+              for a destination to the peer.";
+          }
         }
       }
       default false;
@@ -552,7 +559,7 @@ submodule openconfig-bgp-common {
         "Enable capability negotiation to send multiple path
         advertisements for an NLRI from the neighbor or group.
         Supports both backward-compatible boolean toggles or explicit
-        selection modes (ADDPATH_ECMP, ADDPATH_ALL).";
+        selection modes (ADDPATH_ECMP, ADDPATH_ALL, ADDPATH_BACKUP).";
       reference
         "RFC 7911 - Advertisement of Multiple Paths in BGP";
     }
