@@ -22,21 +22,27 @@ module openconfig-platform-types {
     "This module defines data types (e.g., YANG identities)
     to support the OpenConfig component inventory model.";
 
-  oc-ext:openconfig-version "1.12.0";
+  oc-ext:openconfig-version "1.13.0";
 
-revision "2026-05-19" {
+  revision "2026-08-29" {
+    description
+      "Add PACKAGED_TRANSCEIVER";
+    reference "1.13.0";
+  }
+
+  revision "2026-05-19" {
     description
       "Add MIDPLANE";
     reference "1.12.0";
   }
 
-revision "2025-09-03" {
+  revision "2025-09-03" {
     description
       "Add USB_PORT";
     reference "1.11.0";
   }
 
-revision "2025-07-09" {
+  revision "2025-07-09" {
     description
       "Add FPGA, BOOT_LOADER_GRUB, BOOT_LOADER_ONIE";
     reference "1.10.0";
@@ -411,6 +417,12 @@ revision "2025-07-09" {
     base OPENCONFIG_HARDWARE_COMPONENT;
     description
       "Pluggable module present in a port";
+  }
+
+  identity PACKAGED_TRANSCEIVER {
+    base OPENCONFIG_HARDWARE_COMPONENT;
+    description
+      "A pluggable module that contains multiple transceivers.";
   }
 
   identity CPU {
