@@ -22,7 +22,13 @@ module openconfig-platform-fabric {
     "This module defines data related to FABRIC components in
     the openconfig-platform model";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2026-07-08" {
+    description
+      "Add read-only power-oper-state leaf to fabric state.";
+    reference "0.2.0";
+  }
 
   revision "2022-07-28" {
     description
@@ -71,6 +77,7 @@ module openconfig-platform-fabric {
       is only valid when the type of the component is FABRIC.";
 
     uses fabric-config;
+    uses oc-platform:component-power-management-state;
   }
 
   // rpc statements
