@@ -24,7 +24,13 @@ module openconfig-bgp-types {
     policy. It can be imported by modules that make use of BGP
     attributes";
 
-  oc-ext:openconfig-version "6.1.0";
+  oc-ext:openconfig-version "6.2.0";
+
+  revision "2026-03-24" {
+    description
+      "Add bgp-aigp-metric typedef.";
+    reference "6.2.0";
+  }
 
   revision "2024-09-06" {
     description
@@ -840,5 +846,14 @@ module openconfig-bgp-types {
     }
     description
       "Defines the types of BGP AS path segments.";
+  }
+
+  typedef bgp-aigp-metric {
+    type uint64;
+    description
+      "Higher-precision metric, also known as Accumulated IGP
+      Metric [RFC7311].";
+    reference
+      "RFC 7311 - The Accumulated IGP Metric Attribute for BGP";
   }
 }
