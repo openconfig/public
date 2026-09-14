@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.4.0";
+  oc-ext:openconfig-version "3.5.0";
+
+  revision "2026-06-22" {
+    description
+      "Add DSCP leaf to GRE encapsulation config.";
+    reference "3.5.0";
+  }
 
   revision "2026-03-10" {
     description
@@ -732,6 +738,13 @@ submodule openconfig-aft-common {
         "If specified, this TTL value is used on the GRE header during
         encapsulation. If unspecified, the TTL value of the inner packet is
         copied to the GRE header TTL value during encapsulation.";
+    }
+
+    leaf dscp {
+      type oc-inet:dscp;
+      description
+        "DSCP value to use for the outer IP header of the GRE-encapsulated
+         packet.";
     }
   }
 
