@@ -22,6 +22,12 @@ module openconfig-aft {
   include openconfig-aft-common;
   // Include the state synced submodule.
   include openconfig-aft-state-synced;
+  // Include the IPv4 multicast AFT submodule.
+  include openconfig-aft-ipv4-multicast;
+  // Include the IPv6 multicast AFT submodule.
+  include openconfig-aft-ipv6-multicast;
+  // Include the MPLS multicast AFT submodule.
+  include openconfig-aft-mpls-multicast;
 
   organization
     "OpenConfig working group";
@@ -42,7 +48,17 @@ module openconfig-aft {
     is referred to as an Abstract Forwarding Table (AFT), rather than
     the FIB.";
 
-  oc-ext:openconfig-version "3.4.0";
+  oc-ext:openconfig-version "3.5.0";
+
+  revision "2026-05-05" {
+    description
+      "Add ipv4-multicast, ipv6-multicast, and mpls-multicast AFT types
+      for representing the active multicast forwarding table. Supports
+      native IP multicast (PIM-SM/DM/SSM/BiDir, DVMRP), MPLS P2MP
+      ingress/egress PE (mLDP, RSVP-TE P2MP), and MPLS P2MP transit
+      nodes.";
+    reference "3.5.0";
+  }
 
   revision "2026-03-10" {
     description
@@ -275,6 +291,68 @@ module openconfig-aft {
           exporting the data structure.";
 
         uses aft-ipv6-unicast-structural;
+      }
+
+      container ipv4-multicast {
+        config false;
+        description
+          "The abstract forwarding table for IPv4 multicast. Entries
+          within this table are keyed by the (source, group) pair
+          matched by ingress packets. The source address 0.0.0.0
+          represents any-source (*,G) entries.
+
+          This table captures multicast forwarding state installed by
+          any protocol (PIM-SM, PIM-DM, PIM-SSM, PIM-BiDir, DVMRP,
+          BGP MVPN, static) and represents the active replication
+          state including the upstream reverse-path interface and the
+          list of outgoing interfaces. For MPLS P2MP ingress and
+          egress PE nodes, outgoing interfaces may carry MPLS label
+          stacks or indicate MPLS decapsulation respectively.
+
+          MPLS P2MP transit node state, which has no IP-layer (S,G)
+          knowledge, is represented in the mpls-multicast table.";
+
+        uses aft-ipv4-multicast-structural;
+      }
+
+      container ipv6-multicast {
+        config false;
+        description
+          "The abstract forwarding table for IPv6 multicast. Entries
+          within this table are keyed by the (source, group) pair
+          matched by ingress packets. The source address ::
+          represents any-source (*,G) entries.
+
+          This table captures multicast forwarding state installed by
+          any protocol (PIM-SM, PIM-DM, PIM-SSM, PIM-BiDir, BGP MVPN,
+          static) and represents the active replication state
+          including the upstream reverse-path interface and the list
+          of outgoing interfaces. For MPLS P2MP ingress and egress PE
+          nodes, outgoing interfaces may carry MPLS label stacks or
+          indicate MPLS decapsulation respectively.
+
+          MPLS P2MP transit node state is represented in the
+          mpls-multicast table.";
+
+        uses aft-ipv6-multicast-structural;
+      }
+
+      container mpls-multicast {
+        config false;
+        description
+          "The abstract forwarding table for MPLS multicast (P2MP)
+          label forwarding. Entries within this table are keyed by
+          the top-most incoming MPLS label.
+
+          This table represents the forwarding state of MPLS P2MP
+          transit nodes such as those running mLDP or RSVP-TE P2MP,
+          where packets arrive with a specific label and are
+          replicated to one or more outgoing interfaces each
+          potentially with a different label stack. IP-layer (S,G)
+          state at PE nodes is captured in the ipv4-multicast and
+          ipv6-multicast tables.";
+
+        uses aft-mpls-multicast-structural;
       }
 
       container policy-forwarding {

@@ -18,7 +18,15 @@ module openconfig-aft-counters {
   description
     "Submodule providing a unified subtree for AFT entry counters.";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2026-05-20" {
+    description
+      "Add IPv4, IPv6, and MPLS multicast AFT counter containers, and a
+       new aft-multicast-entry-counter-state grouping for multicast-only
+       counters (rpf-discards).";
+    reference "3.4.0";
+  }
 
   revision "2026-02-09" {
     description
@@ -70,6 +78,19 @@ module openconfig-aft-counters {
       description
         "The number of octets which have matched, and been forwarded,
         based on the AFT backup entry";
+    }
+  }
+
+  grouping aft-multicast-entry-counter-state {
+    description
+      "Counters specific to multicast forwarding entries.";
+
+    leaf rpf-discards {
+      type oc-yang:counter64;
+      description
+        "The number of packets discarded because the arrival interface
+        did not match the reverse-path interface programmed for this
+        multicast entry.";
     }
   }
 
@@ -181,6 +202,141 @@ module openconfig-aft-counters {
               type oc-mplst:mpls-label;
               description
                 "The MPLS label that should be matched to utilize the AFT entry.";
+            }
+
+            uses aft-entry-counter-state;
+          }
+        }
+      }
+
+      container ipv4-multicast {
+        description
+          "Counters for IPv4 multicast AFT entries.";
+
+        list ipv4-multicast-entry {
+          key "source-address group-address";
+          description
+            "Counters for each IPv4 multicast AFT entry, keyed by the
+            (source, group) pair.";
+
+          leaf source-address {
+            type leafref {
+              path "../state/source-address";
+            }
+            description
+              "Reference to the IPv4 source address.";
+          }
+
+          leaf group-address {
+            type leafref {
+              path "../state/group-address";
+            }
+            description
+              "Reference to the IPv4 multicast group address.";
+          }
+
+          container state {
+            config false;
+            description
+              "Counter state for the IPv4 multicast AFT entry.";
+
+            leaf source-address {
+              type oc-inet:ipv4-address;
+              description
+                "The IPv4 source address for this multicast entry. The
+                value 0.0.0.0 represents any-source (*,G) entries.";
+            }
+
+            leaf group-address {
+              type oc-inet:ipv4-address;
+              description
+                "The IPv4 multicast group address for this entry.";
+            }
+
+            uses aft-entry-counter-state;
+            uses aft-multicast-entry-counter-state;
+          }
+        }
+      }
+
+      container ipv6-multicast {
+        description
+          "Counters for IPv6 multicast AFT entries.";
+
+        list ipv6-multicast-entry {
+          key "source-address group-address";
+          description
+            "Counters for each IPv6 multicast AFT entry, keyed by the
+            (source, group) pair.";
+
+          leaf source-address {
+            type leafref {
+              path "../state/source-address";
+            }
+            description
+              "Reference to the IPv6 source address.";
+          }
+
+          leaf group-address {
+            type leafref {
+              path "../state/group-address";
+            }
+            description
+              "Reference to the IPv6 multicast group address.";
+          }
+
+          container state {
+            config false;
+            description
+              "Counter state for the IPv6 multicast AFT entry.";
+
+            leaf source-address {
+              type oc-inet:ipv6-address;
+              description
+                "The IPv6 source address for this multicast entry. The
+                value :: represents any-source (*,G) entries.";
+            }
+
+            leaf group-address {
+              type oc-inet:ipv6-address;
+              description
+                "The IPv6 multicast group address for this entry.";
+            }
+
+            uses aft-entry-counter-state;
+            uses aft-multicast-entry-counter-state;
+          }
+        }
+      }
+
+      container mpls-multicast {
+        description
+          "Counters for MPLS multicast (P2MP) AFT entries.";
+
+        list multicast-label-entry {
+          key "label";
+          description
+            "Counters for each MPLS multicast AFT entry, keyed by the
+            incoming label.";
+
+          leaf label {
+            type leafref {
+              path "../state/label";
+            }
+            description
+              "Reference to the MPLS label.";
+          }
+
+          container state {
+            config false;
+            description
+              "Counter state for the MPLS multicast AFT entry.";
+
+            leaf label {
+              type oc-mplst:mpls-label;
+              description
+                "The MPLS label that should be matched to utilize the
+                AFT entry.";
             }
 
             uses aft-entry-counter-state;
