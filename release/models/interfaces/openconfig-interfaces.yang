@@ -9,9 +9,9 @@ module openconfig-interfaces {
 
   // import some basic types
   import ietf-interfaces { prefix ietf-if; }
-  import openconfig-yang-types { prefix oc-yang; }
   import openconfig-types { prefix oc-types; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-yang-types { prefix oc-yang; }
   import openconfig-transport-types { prefix oc-opt-types; }
 
   // meta
@@ -1292,7 +1292,7 @@ module openconfig-interfaces {
           description
             "Configurable items at the subinterface level";
           oc-ext:telemetry-on-change;
-
+          oc-ext:allow-config-mismatch;
           uses subinterfaces-config;
         }
 
@@ -1346,6 +1346,7 @@ module openconfig-interfaces {
             "Configurable items at the global, physical interface
             level";
           oc-ext:telemetry-on-change;
+          oc-ext:allow-config-mismatch;
 
           uses interface-phys-config;
         }
