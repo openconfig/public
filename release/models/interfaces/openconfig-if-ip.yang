@@ -45,7 +45,14 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.9.0";
+  oc-ext:openconfig-version "3.10.0";
+
+   revision "2026-06-01" {
+     description
+       "Add ipv4-address-range typedef; manual-ip-range accepts CIDR
+       prefix or start-end ip range.";
+     reference "3.10.0";
+  }
 
     revision "2025-06-20" {
     description
@@ -1311,6 +1318,48 @@ revision "2023-06-30" {
   }
 
 
+  typedef ipv4-address-range {
+    type string {
+      pattern
+        '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+        + '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+        + '(-'
+        + '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+        + '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))?';
+      oc-ext:posix-pattern
+        '^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+        + '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+        + '(-(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+        + '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))?$';
+    }
+    description
+      "An IPv4 address or address range expressed in dotted-decimal notation.
+       A single address (e.g. 10.0.0.1) or a range of two addresses separated
+       by a hyphen without spaces: start-end (e.g. 10.0.0.1-10.0.0.5).
+       A single address is semantically equivalent to a range where the start
+       and end addresses are identical (e.g. 10.0.0.1 is equivalent to
+       10.0.0.1-10.0.0.1).
+       When a range is specified, the start address must be numerically less
+       than or equal to the end address; validation is enforced by the system.";
+  }
+
+  grouping ipv4-proxy-arp-manual-ip-range-config {
+    description
+      "Configuration parameters for a proxy ARP manual IPv4
+      ip-range entry.";
+
+    leaf ip-range {
+      type union {
+        type oc-inet:ipv4-prefix;
+        type ipv4-address-range;
+      }
+      description
+        "IPv4 ip-range: single IP (CIDR notation, e.g. 10.0.0.0/24) or
+        address range (start-end notation, e.g. 10.0.0.1-10.0.0.5)
+        for which proxy ARP replies are sent when mode is MANUAL.";
+    }
+  }
+
   grouping ipv4-proxy-arp-config {
     description
       "Configuration parameters for IPv4 proxy ARP";
@@ -1335,6 +1384,14 @@ revision "2023-06-30" {
             and target IP addresses are in different subnets, as well
             as those where they are in the same subnet.";
         }
+        enum MANUAL {
+          description
+            "Proxy ARP operating mode in which the system responds to
+            ARP requests only when the target IPv4 address matches an
+            explicitly configured entry in manual-ip-range. In this mode,
+            proxy ARP responses are selectively generated based on the ARP
+            target IP address.";
+        }
       }
       default "DISABLE";
       description
@@ -1345,7 +1402,10 @@ revision "2023-06-30" {
         value is specified, replies are only sent when the target address
         falls outside the locally configured subnets on the interface,
         whereas with the ALL value, all requests, regardless of their
-        target address are replied to.";
+        target address are replied to. If MANUAL is specified, replies
+        are only sent for target addresses matching entries in the
+        manual-ip-ranges list, or that match the IP address assigned to
+        the receiving interface.";
       reference "RFC1027: Using ARP to Implement Transparent Subnet Gateways";
     }
   }
@@ -1470,6 +1530,50 @@ revision "2023-06-30" {
           description
             "Operational state parameters for proxy ARP";
           uses ipv4-proxy-arp-config;
+        }
+
+        container manual-ip-ranges {
+          when "../config/mode = 'MANUAL'" {
+            description
+              "manual-ip-ranges is applicable only when proxy ARP mode
+              is MANUAL.";
+          }
+          description
+            "Collection of IPv4 prefixes or address ranges for which
+            proxy ARP replies are sent when mode is MANUAL.";
+
+          list manual-ip-range {
+            key "ip-range";
+            description
+              "A configured IPv4 ip-range entry for proxy ARP manual
+              mode.";
+
+            leaf ip-range {
+              type leafref {
+                path "../config/ip-range";
+              }
+              description
+                "IPv4 ip-range for which proxy ARP replies are sent
+                when mode is MANUAL.";
+            }
+
+            container config {
+              description
+                "Configuration parameters for a proxy ARP manual IPv4
+                ip-range entry.";
+
+              uses ipv4-proxy-arp-manual-ip-range-config;
+            }
+
+            container state {
+              config false;
+              description
+                "Operational state parameters for a proxy ARP manual
+                IPv4 ip-range entry.";
+
+              uses ipv4-proxy-arp-manual-ip-range-config;
+            }
+          }
         }
       }
 
