@@ -21,12 +21,60 @@ module openconfig-cfm-types {
   description
     "This module contains general data definitions for use in CFM";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2026-05-28" {
+    description
+      "Add per PM type profile support.
+      Add SLM model and move pm-profile to remote MEP level";
+    reference "0.2.0";
+  }
 
   revision "2024-09-11" {
     description
       "Initial revision";
     reference "0.1.0";
+  }
+
+  identity PM_TYPE {
+    description
+      "Base identity for performance measurement types.";
+    reference
+      "ITU Y1731";
+  }
+
+  identity LMM {
+    base PM_TYPE;
+    description
+      "LMM SOAM PDU generated and received LMR responses tracked.";
+  }
+
+  identity SLM {
+    base PM_TYPE;
+    description
+      "SLM SOAM PDU generated and received SLR responses tracked.";
+  }
+
+  identity DMM {
+    base PM_TYPE;
+    description
+      "DMM SOAM PDU generated and received DMR responses tracked.";
+  }
+
+  identity CCM {
+    base PM_TYPE;
+    description
+      "CCM SOAM PDU generated and received CCM PDUs tracked.";
+  }
+
+  typedef pm-type {
+    type identityref {
+      base PM_TYPE;
+    }
+    description
+      "Performance measurement type.";
+    reference
+      "ITU Y1731";
   }
 
 typedef name-key-type {
