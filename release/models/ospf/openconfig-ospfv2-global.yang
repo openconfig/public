@@ -23,8 +23,16 @@ submodule openconfig-ospfv2-global {
     "This submodule provides OSPFv2 configuration and operational
     state parameters that are global to a particular OSPF instance";
 
-  oc-ext:openconfig-version "0.5.2";
+  oc-ext:openconfig-version "0.6.0";
 
+  revision "2026-09-06" {
+    description
+      "Add send-default-route container to the OSPFv2 global
+      structure, allowing origination of a default external route,
+      equivalent to send-default-route of BGP global and neighbors
+      config.";
+    reference "0.6.0";
+  }
   revision "2024-06-17" {
     description
       "Correct ROUTER_INFORMATION_LSA to ROUTER_INFORMATION.";
@@ -333,6 +341,60 @@ submodule openconfig-ospfv2-global {
     uses oc-rpol:default-policy-import-config;
   }
 
+  grouping ospfv2-global-send-default-route-config {
+    description
+      "Configuration parameters relating to origination of a default
+      external route into the local OSPFv2 instance.";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "When set to true, originate a default external route,
+        subject to the values of the always, metric, and
+        metric-type leafs.";
+    }
+
+    leaf always {
+      type boolean;
+      default false;
+      description
+        "When set to true, originate a default external route even
+        when no default route exists in the local system's routing
+        information base. When set to false (default), the default
+        external route is only originated when a default route is
+        already present locally.";
+    }
+
+    leaf metric {
+      type uint32 {
+        range "0..16777214";
+      }
+      description
+        "The metric to advertise for the originated default
+        external route.";
+    }
+
+    leaf metric-type {
+      type enumeration {
+        enum EXTERNAL_TYPE_1 {
+          description
+            "Advertise the default external route with an OSPFv2
+            external route type 1.";
+        }
+        enum EXTERNAL_TYPE_2 {
+          description
+            "Advertise the default external route with an OSPFv2
+            external route type 2.";
+        }
+      }
+      default "EXTERNAL_TYPE_2";
+      description
+        "Specify the external route type with which the default
+        external route is advertised.";
+    }
+  }
+
   grouping ospfv2-global-max-metric-config {
     description
       "Configuration paramters relating to setting the OSPFv2
@@ -582,6 +644,28 @@ submodule openconfig-ospfv2-global {
               propagation policy";
             uses ospfv2-global-inter-areapp-config;
           }
+        }
+      }
+
+      container send-default-route {
+        description
+          "Configuration and operational state parameters relating
+          to origination of a default external route into the local
+          OSPFv2 instance.";
+
+        container config {
+          description
+            "Configuration parameters relating to origination of a
+            default external route.";
+          uses ospfv2-global-send-default-route-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to origination
+            of a default external route.";
+          uses ospfv2-global-send-default-route-config;
         }
       }
     }
