@@ -10,6 +10,7 @@ module openconfig-local-routing {
   // import some basic types
   import openconfig-inet-types { prefix inet; }
   import openconfig-policy-types { prefix oc-pt; }
+  import openconfig-routing-policy { prefix oc-rpol; }
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-interfaces { prefix oc-if; }
   import openconfig-bfd { prefix oc-bfd; }
@@ -43,7 +44,13 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "4.1.0";
+  oc-ext:openconfig-version "4.2.0";
+
+  revision "2026-08-12" {
+    description
+      "Add conditional-routes for injecting local routes conditionally.";
+    reference "4.2.0";
+  }
 
   revision "2025-07-29" {
     description
@@ -161,6 +168,26 @@ module openconfig-local-routing {
     description
       "The wecmp-weight leaf inherits value from egress interface
       bandwidth expressed in bps.";
+  }
+
+  identity CONDITIONAL_ROUTES_ACTION {
+    description
+      "Base identity type of actions for conditional routes.";
+  }
+
+  identity NO_ACTION {
+    base CONDITIONAL_ROUTES_ACTION;
+    description
+      "No action to be taken when the conditions for the conditional routes
+      are resulted to true. The prefixes are NOT injected as routes.";
+  }
+
+  identity INSTALL_DROP_NEXTHOP {
+    base CONDITIONAL_ROUTES_ACTION;
+    description
+      "Install the conditional routes with a discard next-hop.
+      Traffic destined to the prefix will be discarded with no
+      ICMP message generated.";
   }
 
   // typedef statements
@@ -513,4 +540,106 @@ module openconfig-local-routing {
     }
   }
 
+  grouping conditional-prefix-set-ref-config {
+    description
+      "Grouping of configuration data for conditional prefix set reference";
+
+    leaf name {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:defined-sets/oc-rpol:conditional-prefix-sets/oc-rpol:conditional-prefix-set/oc-rpol:name";
+      }
+
+      description
+        "Reference to the conditional prefix set whose prefixes may be injected as routes.
+        If the condition is satisfied, routes may be injected for each prefix in the
+        target prefix-set.";
+    }
+
+    leaf action {
+      type identityref {
+        base CONDITIONAL_ROUTES_ACTION;
+      }
+      default NO_ACTION;
+      description
+        "The action to take when the conditions for the prefix set results in true.
+        The default behavior is to take no actions and will not inject the prefixes
+        as routes.";
+    }
+
+    leaf preference {
+      type uint32;
+      description
+        "Administrative Distance (preference) of the entry.  The
+        preference defines the order of selection when multiple
+        sources (protocols, static, etc.) contribute to the same
+        prefix entry.  The lower the preference, the more preferable the
+        prefix is.  When this value is not specified, the preference is
+        inherited from the default preference of the implementation for
+        static routes.";
+    }
+  }
+
+  grouping conditional-prefix-set-ref-state {
+    description
+      "Grouping of operational state data for conditional prefix set reference";
+
+    leaf condition-matched {
+      type boolean;
+      description
+        "When true, the match-policy has been resolved to ACCEPT_ROUTE and the
+        routes in the referenced conditional prefix set are currently injected
+        into the RIB.";
+    }
+  }
+
+  grouping conditional-prefix-list {
+    description
+      "Grouping for the list of conditional prefix set references.";
+
+    container conditional-prefix-set-refs {
+      description
+        "Enclosing container for conditional prefix set references.";
+
+      list conditional-prefix-set-ref {
+        key "name";
+        description
+          "List of conditional prefix set references.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the configured prefix set name for this conditional prefix set";
+        }
+
+        container config {
+          description
+            "Configuration data for conditional prefix set reference";
+
+          uses conditional-prefix-set-ref-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state for conditional prefix set reference";
+
+          uses conditional-prefix-set-ref-config;
+          uses conditional-prefix-set-ref-state;
+        }
+      }
+    }
+  }
+
+  grouping conditional-routes-top {
+    description
+      "Top-level grouping for the list of conditional route configurations";
+    container conditional-routes {
+      description
+        "Protocol container for conditional local routes";
+
+      uses conditional-prefix-list;
+    }
+  }
 }
