@@ -23,8 +23,14 @@ submodule openconfig-ospf-global {
     "This submodule provides common OSPF configuration and operational
     state parameters that are global to a particular OSPF instance";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.2.0";
 
+  revision "2026-09-06" {
+    description
+      "Add nsr container to OSPF global structure, equivalent to
+      that of ISIS global config.";
+    reference "0.2.0";
+  }
   revision "2025-08-10" {
     description
       "Removed duplicate import and updated prefixes in openconfig-ospf-area";
@@ -207,6 +213,20 @@ submodule openconfig-ospf-global {
 
     uses oc-rpol:apply-policy-import-config;
     uses oc-rpol:default-policy-import-config;
+  }
+
+  grouping ospf-global-admin-config {
+    description
+      "Re-usable grouping to enable or disable a particular OSPF
+      feature.";
+
+    leaf enabled {
+      type boolean;
+      description
+        "When set to true, the functionality within which this leaf
+        is defined is enabled; when set to false it is explicitly
+        disabled.";
+    }
   }
 
   grouping ospf-global-max-metric-config {
@@ -419,6 +439,27 @@ submodule openconfig-ospf-global {
               propagation policy";
             uses ospf-global-inter-areapp-config;
           }
+        }
+      }
+
+      container nsr {
+        description
+          "Configuration and operational state parameters for OSPF
+          Non-Stop Routing (NSR)";
+
+        container config {
+          description
+            "Configuration parameters relating to OSPF Non-Stop
+            Routing (NSR)";
+          uses ospf-global-admin-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to OSPF Non-Stop
+            Routing (NSR)";
+          uses ospf-global-admin-config;
         }
       }
     }
