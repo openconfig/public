@@ -23,8 +23,14 @@ submodule openconfig-ospf-global {
     "This submodule provides common OSPF configuration and operational
     state parameters that are global to a particular OSPF instance";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.2.0";
 
+  revision "2026-09-06" {
+    description
+      "Add reference-bandwidth container to OSPF global structure,
+      equivalent to that of ISIS global config.";
+    reference "0.2.0";
+  }
   revision "2025-08-10" {
     description
       "Removed duplicate import and updated prefixes in openconfig-ospf-area";
@@ -207,6 +213,22 @@ submodule openconfig-ospf-global {
 
     uses oc-rpol:apply-policy-import-config;
     uses oc-rpol:default-policy-import-config;
+  }
+
+  grouping ospf-global-reference-bandwidth-config {
+    description
+      "Configuration parameters relating to the OSPF auto-cost
+      reference bandwidth.";
+
+    leaf reference-bandwidth {
+      type uint32;
+      units Mbps;
+      description
+        "The reference bandwidth, in Mbps, used by the local
+        system to calculate the default metric for an interface
+        based on its bandwidth. Equivalent to the
+        reference-bandwidth leaf on the ISIS global config.";
+    }
   }
 
   grouping ospf-global-max-metric-config {
@@ -419,6 +441,27 @@ submodule openconfig-ospf-global {
               propagation policy";
             uses ospf-global-inter-areapp-config;
           }
+        }
+      }
+
+      container reference-bandwidth {
+        description
+          "Configuration and operational state parameters relating
+          to the OSPF auto-cost reference bandwidth.";
+
+        container config {
+          description
+            "Configuration parameters relating to the OSPF auto-cost
+            reference bandwidth.";
+          uses ospf-global-reference-bandwidth-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to the OSPF
+            auto-cost reference bandwidth.";
+          uses ospf-global-reference-bandwidth-config;
         }
       }
     }
