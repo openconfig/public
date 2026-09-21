@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.4.0";
+  oc-ext:openconfig-version "3.5.0";
+
+  revision "2026-09-01" {
+    description
+      "Add backup activation state for next-hop-groups.";
+    reference "3.5.0";
+  }
 
   revision "2026-03-10" {
     description
@@ -1080,6 +1086,50 @@ submodule openconfig-aft-common {
                 }
               }
             }
+          }
+        }
+      }
+    }
+  }
+
+  grouping aft-backup-activations-structural {
+    description
+      "Structural grouping for backup next-hop-group activation entries.";
+
+    container backup-activations {
+      config false;
+      description
+        "Surrounding container for external/software-driven backup next-hop-group activations.";
+
+      list backup-activation {
+        key "next-hop-group";
+
+        description
+          "An operational entry indicating that the backup-next-hop-group has been
+           activated for the specified next-hop-group.";
+
+        leaf next-hop-group {
+          type leafref {
+            path "../state/next-hop-group";
+          }
+
+          description
+            "Reference to the target next-hop-group whose backup next-hop-group is activated.";
+        }
+
+        container state {
+          config false;
+
+          description
+            "Operational state parameters relating to backup activation.";
+
+          leaf next-hop-group {
+            type leafref {
+              path "../../../../next-hop-groups/next-hop-group/state/id";
+            }
+
+            description
+              "The identifier of the next-hop-group for which backup is activated.";
           }
         }
       }
