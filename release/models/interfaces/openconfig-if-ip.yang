@@ -45,9 +45,15 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.9.0";
+  oc-ext:openconfig-version "3.10.0";
 
-    revision "2025-06-20" {
+  revision "2026-09-09" {
+    description
+      "Add reachable-time and router-preference to IPv6 Router Advertisement config and state.";
+    reference "3.10.0";
+  }
+
+  revision "2025-06-20" {
     description
       "Add IPv6 Router Advertisement Options for DNS Configuration (RDNSS) RFC 8106.";
       reference "3.9.0";
@@ -1173,6 +1179,43 @@ revision "2023-06-30" {
         advertised router advertisement. The O flag indicates that there is
         other configuration available via DHCPv6 (e.g., DNS servers).";
       reference "RFC4861: Neighbor Discovery for IPv6, section 4.2";
+    }
+
+    leaf reachable-time {
+      type uint32 {
+        range "0..3600000";
+      }
+      units milliseconds;
+      default 0;
+      description
+        "The time, in milliseconds, that a node assumes a neighbor is
+        reachable after having received a reachability confirmation.  Set
+        to 0 to indicate that reachable time is unspecified by this router.";
+      reference "RFC4861: Neighbor Discovery for IPv6, section 4.2 and 6.2.1";
+    }
+
+    leaf router-preference {
+      type enumeration {
+        enum HIGH {
+          description
+            "The router is a preferred default router over routers with
+            MEDIUM or LOW preference.";
+        }
+        enum MEDIUM {
+          description
+            "The router has standard/medium default router preference.";
+        }
+        enum LOW {
+          description
+            "The router is not a preferred default router.";
+        }
+      }
+      default "MEDIUM";
+      description
+        "Default Router Preference (Prf) advertised in the router
+        advertisement messages. Indicates whether this router is preferred
+        over other routers on the link.";
+      reference "RFC4191: Default Router Preferences and More-Specific Routes, section 2.1 and 2.2";
     }
   }
 
