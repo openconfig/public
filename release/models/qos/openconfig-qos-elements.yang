@@ -9,7 +9,8 @@ submodule openconfig-qos-elements {
   import openconfig-packet-match { prefix oc-pkt-match; }
   import openconfig-platform { prefix oc-platform; }
   import openconfig-types { prefix oc-types; }
-
+  import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-interfaces { prefix oc-if; }
 
   organization
     "OpenConfig working group";
@@ -35,7 +36,13 @@ submodule openconfig-qos-elements {
       packets for transmission, including policer and shaper
       functions";
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.2.0";
+
+  revision "2026-04-30" {
+    description
+      "Add packet trimming counters.";
+    reference "2.2.0";
+  }
 
   revision "2026-03-25" {
     description
@@ -1434,5 +1441,49 @@ submodule openconfig-qos-elements {
         "RFC 3270 - Multi-Protocol Label Switching (MPLS) Support of
         Differentiated Services";
     }
+  }
+
+  grouping trim-pkts-counters-top {
+    description
+      "Structural grouping for packet trimming counters.";
+
+    leaf dropped-trim-pkts {
+      type oc-yang:counter64;
+      description
+        "The number of packets that were trimmed but dropped due to a
+        failed shared buffer admission on the trim queue.";
+    }
+
+    uses trim-pkts-common-counters-top;
+  }
+
+  grouping trim-pkts-common-counters-top {
+    description
+      "Structural grouping for packet trimming counters.
+      Counters collected at interface level, queue level and
+      integrated-circuit level.";
+
+    leaf trim-pkts {
+      type oc-yang:counter64;
+      description
+        "The total number of packets that were trimmed.
+        This counter includes both packets that were
+        transmitted after trimming and those that were
+        subsequently dropped.";
+    }
+
+    leaf out-trim-pkts {
+      type oc-yang:counter64;
+      description
+        "The number of packets that were trimmed and successfully
+        transmitted.";
+    }
+  }
+
+  // augment statements
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:state/oc-if:counters" {
+    description
+      "Adds interface rates.";
+    uses trim-pkts-counters-top;
   }
 }
