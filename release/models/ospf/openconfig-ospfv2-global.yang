@@ -23,8 +23,15 @@ submodule openconfig-ospfv2-global {
     "This submodule provides OSPFv2 configuration and operational
     state parameters that are global to a particular OSPF instance";
 
-  oc-ext:openconfig-version "0.5.2";
+  oc-ext:openconfig-version "0.11.0";
 
+  revision "2026-09-06" {
+    description
+      "Add minimum-hold leaf to OSPFv2 global timers, equivalent to
+      spf-second-interval and lsp-second-wait-interval of IS-IS
+      global timers.";
+    reference "0.11.0";
+  }
   revision "2024-06-17" {
     description
       "Correct ROUTER_INFORMATION_LSA to ROUTER_INFORMATION.";
@@ -206,6 +213,15 @@ submodule openconfig-ospfv2-global {
         algorithm.";
     }
 
+    leaf minimum-hold {
+      type uint32;
+      units msec;
+      description
+        "The value of this leaf specifies the minimum hold time
+        between consecutive SPF runs. Equivalent to
+        spf-second-interval of IS-IS SPF timer.";
+    }
+
     leaf maximum-delay {
       // rjs TODO: same question as above
       type uint32;
@@ -216,12 +232,6 @@ submodule openconfig-ospfv2-global {
         running. This value is used for implementations that support
         increasing the wait time between SPF runs.";
     }
-
-    // rjs TODO: some questions here around what we should specify:
-    // JUNOS has rapid-runs and holddown
-    // Cisco has maximum time between runs, and then a doubling of
-    // the wait interval up to that maximum.
-    // ALU has first-wait, second-wait, max-wait
   }
 
   grouping ospfv2-global-lsa-generation-timers-config {
@@ -236,6 +246,15 @@ submodule openconfig-ospfv2-global {
         "The value of this leaf specifies the time between the first
         time an LSA is generated and advertised and the subsequent
         generation of that LSA.";
+    }
+
+    leaf minimum-hold {
+      type uint32;
+      units msec;
+      description
+        "The value of this leaf specifies the minimum hold time
+        between consecutive generations of an LSA. Equivalent to
+        lsp-second-wait-interval of IS-IS LSP generation timer.";
     }
 
     leaf maximum-delay {
