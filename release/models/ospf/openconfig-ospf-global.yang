@@ -23,8 +23,16 @@ submodule openconfig-ospf-global {
     "This submodule provides common OSPF configuration and operational
     state parameters that are global to a particular OSPF instance";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.6.0";
 
+  revision "2026-09-06" {
+    description
+      "Add send-default-route container to the OSPF global
+      structure, allowing origination of a default external route,
+      equivalent to send-default-route of BGP global and neighbors
+      config.";
+    reference "0.6.0";
+  }
   revision "2025-08-10" {
     description
       "Removed duplicate import and updated prefixes in openconfig-ospf-area";
@@ -207,6 +215,60 @@ submodule openconfig-ospf-global {
 
     uses oc-rpol:apply-policy-import-config;
     uses oc-rpol:default-policy-import-config;
+  }
+
+  grouping ospf-global-send-default-route-config {
+    description
+      "Configuration parameters relating to origination of a default
+      external route into the local OSPF instance.";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "When set to true, originate a default external route,
+        subject to the values of the always, metric, and
+        metric-type leafs.";
+    }
+
+    leaf always {
+      type boolean;
+      default false;
+      description
+        "When set to true, originate a default external route even
+        when no default route exists in the local system's routing
+        information base. When set to false (default), the default
+        external route is only originated when a default route is
+        already present locally.";
+    }
+
+    leaf metric {
+      type uint32 {
+        range "0..16777214";
+      }
+      description
+        "The metric to advertise for the originated default
+        external route.";
+    }
+
+    leaf metric-type {
+      type enumeration {
+        enum EXTERNAL_TYPE_1 {
+          description
+            "Advertise the default external route with an OSPF
+            external route type 1.";
+        }
+        enum EXTERNAL_TYPE_2 {
+          description
+            "Advertise the default external route with an OSPF
+            external route type 2.";
+        }
+      }
+      default "EXTERNAL_TYPE_2";
+      description
+        "Specify the external route type with which the default
+        external route is advertised.";
+    }
   }
 
   grouping ospf-global-max-metric-config {
@@ -419,6 +481,28 @@ submodule openconfig-ospf-global {
               propagation policy";
             uses ospf-global-inter-areapp-config;
           }
+        }
+      }
+
+      container send-default-route {
+        description
+          "Configuration and operational state parameters relating
+          to origination of a default external route into the local
+          OSPF instance.";
+
+        container config {
+          description
+            "Configuration parameters relating to origination of a
+            default external route.";
+          uses ospf-global-send-default-route-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to origination
+            of a default external route.";
+          uses ospf-global-send-default-route-config;
         }
       }
     }
