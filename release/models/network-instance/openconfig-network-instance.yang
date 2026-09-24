@@ -50,7 +50,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.7.0";
+  oc-ext:openconfig-version "4.8.0";
+
+  revision "2026-08-12" {
+    description
+      "Add conditional-routes protocol.";
+    reference "4.8.0";
+  }
 
   revision "2026-03-17" {
     description
@@ -952,6 +958,17 @@ module openconfig-network-instance {
                 locally generated aggregate routes";
             }
 
+            uses oc-loc-rt:conditional-routes-top {
+              when "./config/identifier = 'oc-pol-types:CONDITIONAL_ROUTES'" {
+                description
+                  "Include conditional route configuration when the protocol is of type
+                  CONDITIONAL_ROUTES";
+              }
+              description
+                "Configuration and state parameters relating to the
+                Conditional Routes.";
+            }
+
             uses oc-bgp:bgp-top {
               when "./config/identifier = 'oc-pol-types:BGP'" {
                 description
@@ -1012,7 +1029,7 @@ module openconfig-network-instance {
                 Group Management Protocol (IGMP).";
             }
 
-			uses oc-pcep:pcep-top {
+            uses oc-pcep:pcep-top {
               when "./config/identifier = 'oc-pol-types:PCEP'" {
                 description
                   "Include PCEP configuration when the protocol is of type
