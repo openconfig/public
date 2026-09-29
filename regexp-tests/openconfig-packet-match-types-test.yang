@@ -26,4 +26,23 @@ module openconfig-packet-match-types-test {
     pt:pattern-test-fail "66999..67890";
     pt:pattern-test-fail "70000..70000";
   }
+
+  leaf fragment-offset-range {
+    type oc-pkt-match-types:fragment-offset-range;
+    pt:pattern-test-pass "0..0";
+    pt:pattern-test-pass "0..8191";
+    pt:pattern-test-pass "8191..8191";
+    pt:pattern-test-pass "100..200";
+    pt:pattern-test-pass "00..00";
+    pt:pattern-test-pass "0000..0000";
+    pt:pattern-test-pass "1234..5678";
+    pt:pattern-test-pass "7999..8191";
+    pt:pattern-test-fail "100.200";
+    pt:pattern-test-fail "0.8191";
+    pt:pattern-test-fail "0..8192";
+    pt:pattern-test-fail "8192..8192";
+    pt:pattern-test-fail "9999..9999";
+    pt:pattern-test-fail "10000..10000";
+    pt:pattern-test-fail "-1..10";
+  }
 }
