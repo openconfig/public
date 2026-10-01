@@ -32,7 +32,18 @@ module openconfig-gnsi-pathz {
     OpenConfig-path-based authorization policies installed on a networking
     device.";
 
-  oc-ext:openconfig-version "0.3.0";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision 2026-09-09 {
+    description
+      "Add an aggregate per-rule match histogram for the pathz
+      authorization policy. The pathz evaluation model is
+      f(user, path, mode) -> rule; the new counters are keyed by
+      pathz policy rule ID. The pre-existing per-OpenConfig-path
+      counters are deprecated in favor of this model but remain
+      present for backwards compatibility.";
+    reference "0.4.0";
+  }
 
   revision 2024-02-13 {
     description
@@ -74,6 +85,8 @@ module openconfig-gnsi-pathz {
   }
 
   // gRPC server related definitions.
+  // Deprecated in favor of pathz-policy-rule-counters /
+  // pathz-policy-rules below -- kept for backwards compatibility.
   grouping counters {
     description
       "A collection of counters that were collected by the gNSI.pathz
@@ -81,24 +94,28 @@ module openconfig-gnsi-pathz {
 
     leaf access-rejects {
       type oc-yang:counter64;
+      status deprecated;
       description
         "The total number of times the gNSI.pathz module denied access
         to an OpenConfig path.";
     }
     leaf last-access-reject {
       type oc-types:timeticks64;
+      status deprecated;
       description
         "A timestamp of the last time the gNSI.pathz denied access to
         an OpenConfig path";
     }
     leaf access-accepts {
       type oc-yang:counter64;
+      status deprecated;
       description
         "The total number of times the gNSI.pathz module allowed access
         to an OpenConfig path.";
     }
     leaf last-access-accept {
       type oc-types:timeticks64;
+      status deprecated;
       description
         "A timestamp of the last time the gNSI.pathz allowed access to
         an OpenConfig path";
@@ -107,7 +124,9 @@ module openconfig-gnsi-pathz {
 
   grouping gnmi-pathz-policy-success-failure-counters {
     description
-      "A collection of counters collected by the gNSI.pathz module.";
+      "A collection of counters collected by the gNSI.pathz module.
+      Deprecated in favor of pathz-policy-rules, which is keyed by
+      pathz policy rule ID rather than by OpenConfig path.";
 
     container gnmi-pathz-policy-counters {
       config false;
@@ -120,7 +139,9 @@ module openconfig-gnsi-pathz {
 
   grouping gnmi-pathz-policy-xpath-success-failure-counters {
     description
-      "A collection of per-OpenConfig path counters.";
+      "A collection of per-OpenConfig path counters. Deprecated in
+      favor of pathz-policy-rules, which is keyed by pathz policy
+      rule ID rather than by OpenConfig path.";
 
     container paths {
       description
@@ -167,6 +188,76 @@ module openconfig-gnsi-pathz {
               schema path.";
             uses counters;
           }
+        }
+      }
+    }
+  }
+
+  // Per-rule counters for the pathz authorization policy.
+  grouping pathz-policy-rule-counters {
+    description
+      "Aggregate counters for a single pathz authorization policy
+      rule, summed across all users evaluated against it.";
+
+    leaf matches {
+      type oc-yang:counter64;
+      description
+        "The number of times this rule determined the pathz
+        authorization outcome, across all users.";
+    }
+    leaf last-match-time {
+      type oc-types:timeticks64;
+      description
+        "Timestamp of the last time this rule determined the
+        authorization outcome. Reported as nanoseconds since epoch.";
+    }
+  }
+
+  // Aggregate per-rule match histogram for the pathz policy.
+  grouping pathz-policy-rules {
+    description
+      "Aggregate per-rule match histogram for the pathz
+      authorization policy. Counters are keyed by pathz policy
+      rule ID only; there is no per-user dimension, which keeps
+      the counter footprint bounded by policy size (number of
+      rules) rather than by traffic volume or user population.";
+
+    container rules {
+      when "../state/instance = 'ACTIVE'";
+      description
+        "Collection of aggregate per-rule counters for this
+        pathz authorization policy. Aggregate per-rule counters
+        are only maintained for the active policy instance.";
+
+      list rule {
+        key "id";
+        description
+          "Aggregate counters for a specific AuthorizationRule.
+          Rule ID maps directly to AuthorizationRule.id in the
+          pathz policy. Implementations MUST use the well-known
+          value 'DEFAULT_DENY_RULE' for the implicit default deny
+          when no explicit rule matched.";
+
+        leaf id {
+          type leafref {
+            path "../state/id";
+          }
+          description
+            "The AuthorizationRule identifier.";
+        }
+        container state {
+          description
+            "Operational state for aggregate per-rule counters.";
+
+          leaf id {
+            type string;
+            description
+              "The AuthorizationRule identifier. Implementations
+              MUST use the value 'DEFAULT_DENY_RULE' when no
+              explicit rule matched the evaluation, representing
+              the implicit default deny outcome.";
+          }
+          uses pathz-policy-rule-counters;
         }
       }
     }
@@ -269,6 +360,7 @@ module openconfig-gnsi-pathz {
 
           uses gnmi-pathz-policy-state;
         }
+        uses pathz-policy-rules;
       }
     }
   }
@@ -324,8 +416,14 @@ module openconfig-gnsi-pathz {
         "/oc-sys-grpc:enable = 'true'";
     description
       "A gNMI server OpenConfig-path-based authorization policy
-      success/failure counters.";
+      success/failure counters. Deprecated in favor of the
+      aggregate per-rule counters under
+      /system/gnsi-pathz/gnmi-pathz-policies/policies/policy/rules,
+      which are keyed by pathz policy rule ID rather than by
+      OpenConfig path.";
 
-    uses gnmi-pathz-policy-success-failure-counters;
+    uses gnmi-pathz-policy-success-failure-counters {
+      status deprecated;
+    }
   }
 }
