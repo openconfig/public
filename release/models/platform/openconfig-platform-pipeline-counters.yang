@@ -66,9 +66,16 @@ module openconfig-platform-pipeline-counters {
     5 blocks, is to have the abililty to receive all drop counters from
     all 5 blocks, for example, with one request.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.6.1";
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2026-06-23" {
+    description
+      "Clarify the trigger semantics shared by pipeline-errors-common
+      'threshold' and 'active'";
+    reference "0.6.1";
+  }
 
   revision "2026-04-30" {
     description
@@ -988,8 +995,10 @@ module openconfig-platform-pipeline-counters {
     leaf threshold {
       type uint64;
       description
-        "Number of errors before a recovery action is automatically
-        taken by the system.";
+        "Error count value at or above which the system automatically
+        takes the recovery action(s) listed in './action'.  The action
+        is taken when './count' is greater than or equal to this value
+        (count >= threshold).";
     }
 
     leaf-list action {
@@ -1033,9 +1042,10 @@ module openconfig-platform-pipeline-counters {
       type boolean;
       default false;
       description
-        "The error is currently in an active state. When the system detects
-        that the specified threshold is exceeded, this value should be set to
-        true.";
+        "The error is currently in an active state.  This leaf
+        transitions to true when './count' becomes greater than or equal
+        to './threshold' (count >= threshold), and transitions back to
+        false when './count' is strictly less than './threshold'.";
       oc-ext:telemetry-on-change;
     }
 
