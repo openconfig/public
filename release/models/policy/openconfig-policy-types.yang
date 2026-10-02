@@ -25,7 +25,13 @@ module openconfig-policy-types {
     policy.  It can be imported by modules that contain protocol-
     specific policy conditions and actions.";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2026-08-12" {
+    description
+      "Add CONDITIONAL_ROUTES to INSTALL_PROTOCOL_TYPE identity.";
+    reference "3.4.0";
+  }
 
   revision "2024-05-14" {
     description
@@ -33,7 +39,7 @@ module openconfig-policy-types {
     reference "3.3.0";
   }
 
-revision "2022-11-08" {
+  revision "2022-11-08" {
     description
       "Add INSTALL_PROTOCOL_TYPE local.";
     reference "3.2.3";
@@ -293,5 +299,16 @@ revision "2022-11-08" {
       and the derived LOCAL route is
 
       10.244.136.79/32.";
+  }
+
+  identity CONDITIONAL_ROUTES {
+    base INSTALL_PROTOCOL_TYPE;
+    description
+      "Conditional local route.
+
+      A conditional local route is a locally defined prefix-set that can be
+      conditionally injected when the configured policy action results in
+      ACCEPT_ROUTE when that policy is applied against the set of routes
+      that are currently installed in the RIB.";
   }
 }
