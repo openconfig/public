@@ -51,7 +51,37 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.7.2";
+  oc-ext:openconfig-version "3.11.0";
+
+  revision "2026-09-22" {
+      description
+        "Add ingress low-TTL discard counter to interface and
+        subinterface counters.";
+      reference
+        "3.11.0";
+  }
+
+  revision "2026-07-29" {
+      description
+        "Add ingress link-down discard counter to interface and
+        subinterface counters.";
+      reference
+        "3.10.0";
+  }
+
+  revision "2026-01-06" {
+      description
+        "Fix typos in descriptions for hardware-specific and interface statistics entities.";
+      reference
+        "3.8.1";
+  }
+
+  revision "2024-12-05" {
+      description
+        "Add interface-transitions and link-transitions counters";
+      reference
+        "3.8.0";
+  }
 
   revision "2024-12-05" {
       description
@@ -759,8 +789,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifHCInOctets.
         RFC 4293: Management Information Base for the
@@ -788,8 +817,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifHCInUcastPkts.
         RFC 4293: Management Information Base for the
@@ -805,8 +833,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifHCInBroadcastPkts.
         RFC 4293: Management Information Base for the
@@ -823,8 +850,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifHCInMulticastPkts.
         RFC 4293: Management Information Base for the
@@ -844,8 +870,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifInErrors.
         RFC 4293: Management Information Base for the
@@ -863,14 +888,24 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
-
+        other times as indicated by the value of 'last-clear'.";
 
       reference
         "RFC 2863: The Interfaces Group MIB - ifInDiscards.
         RFC 4293: Management Information Base for the
         Internet Protocol (IP).";
+    }
+
+    leaf in-link-down-discards {
+      type oc-yang:counter64;
+      description
+        "The number of inbound packets received on the interface or
+        subinterface that were dropped because the egress interface or
+        next-hop link selected by forwarding or routing was down.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of 'last-clear'.";
     }
 
     leaf out-octets {
@@ -881,8 +916,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifHCOutOctets.
         RFC 4293: Management Information Base for the
@@ -911,8 +945,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifHCOutUcastPkts.
         RFC 4293: Management Information Base for the
@@ -929,8 +962,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifHCOutBroadcastPkts.
         RFC 4293: Management Information Base for the
@@ -949,8 +981,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifHCOutMulticastPkts.
         RFC 4293: Management Information Base for the
@@ -968,8 +999,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifOutDiscards.
         RFC 4293: Management Information Base for the
@@ -987,8 +1017,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifOutErrors.
         RFC 4293: Management Information Base for the
@@ -1004,6 +1033,19 @@ module openconfig-interfaces {
         The value is the timestamp in nanoseconds relative to
         the Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
       oc-ext:telemetry-on-change;
+    }
+
+    leaf in-low-ttl-discards {
+      type oc-yang:counter64;
+      description
+        "The number of inbound packets received on the interface or
+        subinterface that were dropped due to an expired Time-To-Live
+        (TTL) or Hop Limit during transit forwarding, indicating TTL
+        expiration or routing loops.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of 'last-clear'.";
     }
   }
 
@@ -1029,8 +1071,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifInUnknownProtos";
     }
@@ -1042,16 +1083,63 @@ module openconfig-interfaces {
         frame check sequence (FCS), i.e., framing errors.
 
         Discontinuities in the value of this counter can occur
-        when the device is re-initialization as indicated by the
-        value of 'last-clear'.";
+        at re-initialization of the management system, and at
+        other times as indicated by the value of 'last-clear'.";
     }
 
     leaf carrier-transitions {
       type oc-yang:counter64;
+      status deprecated;
       description
         "Number of times the interface state has transitioned
         between up and down since the time the device restarted
-        or the last-clear time, whichever is most recent.";
+        or the last-clear time, whichever is most recent.
+
+        Please use interface-transitions instead, which has
+        similar, but more precisely specified, semantics and a
+        clearer name.";
+      oc-ext:telemetry-on-change;
+    }
+
+    leaf interface-transitions {
+      type oc-yang:counter64;
+      description
+        "The total number of times the interface state (oper-status)
+        has either transitioned to 'UP' state from any other state, or
+        from state 'UP' to any other state.  I.e., an interface flap
+        from UP to DOWN back to UP increments the counter by 2.
+        Transitions between any other interface states other than to
+        or from 'UP' state are not included in the counter.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of 'last-clear'.";
+      oc-ext:telemetry-on-change;
+    }
+
+    leaf link-transitions {
+      type oc-yang:counter64;
+      description
+        "This is the number of times that the underlying link state
+        (e.g., at the optical receiver) has transitioned to or from
+        'UP' state before any holdtime, dampening, or other processing
+        has been applied that could suppress an update to the interface
+        'oper-status' and corresponding interface-transitions counter.
+
+        The counter is incremented both when the link transitions
+        to 'UP' state from any other link state and also when the link
+        transitions from 'UP' state to any other link state, i.e., an
+        interface flap from UP to DOWN back to UP increments the
+        counter by 2.
+
+        Implementations are not required to count all transitions,
+        e.g., if they are below the level of granularity monitored by
+        the system, and hence may not tally with the equivalent counter
+        on the remote end of the link.
+
+        Discontinuities in the value of this counter can occur
+        at re-initialization of the management system, and at
+        other times as indicated by the value of 'last-clear'.";
       oc-ext:telemetry-on-change;
     }
 
@@ -1059,7 +1147,7 @@ module openconfig-interfaces {
       type oc-yang:counter64;
       description
         "Number of times the interface hardware has been reset.  The
-        triggers and effects of this event are hardware-specifc.";
+        triggers and effects of this event are hardware-specific.";
       oc-ext:telemetry-on-change;
 
     }
@@ -1086,8 +1174,7 @@ module openconfig-interfaces {
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
-        other times as indicated by the value of
-        'last-clear'.";
+        other times as indicated by the value of 'last-clear'.";
       reference
         "RFC 2863: The Interfaces Group MIB - ifInUnknownProtos";
     }
@@ -1100,8 +1187,8 @@ module openconfig-interfaces {
         frame check sequence (FCS), i.e., framing errors.
 
         Discontinuities in the value of this counter can occur
-        when the device is re-initialization as indicated by the
-        value of 'last-clear'.";
+        at re-initialization of the management system, and at
+        other times as indicated by the value of 'last-clear'.";
     }
 
     leaf carrier-transitions {
@@ -1208,7 +1295,7 @@ module openconfig-interfaces {
 
     container counters {
       description
-        "A collection of interface specific statistics entitites which are
+        "A collection of interface specific statistics entities which are
         not common to subinterfaces.";
 
       uses interface-common-counters-state;
@@ -1315,7 +1402,7 @@ module openconfig-interfaces {
 
           container counters {
             description
-              "A collection of interface specific statistics entitites which are
+              "A collection of interface specific statistics entities which are
               not common to subinterfaces.";
 
             uses interface-common-counters-state;

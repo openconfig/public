@@ -6,7 +6,6 @@ submodule openconfig-ospf-area {
 
   import openconfig-extensions { prefix "oc-ext"; }
   import openconfig-ospf-types { prefix "oc-ospf-types"; }
-  import openconfig-ospf-types { prefix "oc-ospft"; }
   import ietf-inet-types { prefix "inet"; }
 
   // include other required submodules
@@ -23,8 +22,13 @@ submodule openconfig-ospf-area {
     "This submodule provides common OSPF configuration and operational
     state parameters that are specific to the area context";
 
-  oc-ext:openconfig-version "0.0.1";
+  oc-ext:openconfig-version "0.1.1";
 
+  revision "2025-08-10" {
+    description
+      "Removed duplicate import and updated prefixes";
+    reference "0.1.1";
+  }
   revision "2025-02-13" {
     description
       "Initial revision";
@@ -78,9 +82,9 @@ submodule openconfig-ospf-area {
 
     leaf type {
       type identityref {
-        base "oc-ospft:OSPF_AREA_TYPE";
+        base "oc-ospf-types:OSPF_AREA_TYPE";
       }
-      default oc-ospft:NORMAL;
+      default oc-ospf-types:NORMAL;
       description
         "OSPF area type.";
     }

@@ -23,7 +23,40 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.0.0";
+  oc-ext:openconfig-version "3.5.0";
+
+  revision "2026-09-01" {
+    description
+      "Add backup activation state for next-hop-groups.";
+    reference "3.5.0";
+  }
+
+  revision "2026-03-10" {
+    description
+      "Add global-filter container to support per-network-instance AFT prefix filtering.";
+    reference "3.4.0";
+  }
+
+  revision "2026-02-09" {
+    description
+      "Deprecate popped-mpls-label-stack and AFT NH pushed-mpls-label-stack
+       and mpls-label-stack leafs as they do not support duplicates.
+       Add decap-mpls-label-stack and AFT NH encap-mpls-label-stack
+       and encap-mpls-label-stack leafs that support duplicates.";
+    reference "3.3.0";
+  }
+
+  revision "2025-08-07" {
+    description
+      "Factor out AFT counters from atomic container into a unified subtree.";
+    reference "3.2.0";
+  }
+
+  revision "2025-05-15" {
+    description
+      "Add GRE and MPLS to encap-headers.";
+    reference "3.1.0";
+  }
 
   revision "2025-03-12" {
     description
@@ -182,6 +215,7 @@ submodule openconfig-aft-common {
       "Structural grouping describing a next-hop entry.";
 
     container next-hops {
+      config false;
       description
         "The list of next-hops that are to be used for entry within
         the AFT table. The structure of each next-hop is address
@@ -224,7 +258,7 @@ submodule openconfig-aft-common {
 
           container counters {
             description
-              "Surrounding container for counters.";
+              "Deprecated container for counters.";
 
             uses aft-common-entry-counter-state;
           }
@@ -270,7 +304,7 @@ submodule openconfig-aft-common {
             description
               "State parameters relating to GRE encapsulation.";
 
-            uses aft-common-entry-nexthop-gre-state;
+            uses aft-common-entry-nexthop-encap-gre-config;
           }
         }
 
@@ -323,7 +357,7 @@ submodule openconfig-aft-common {
                 description
                   "State parameters relating to GRE encapsulation headers.";
 
-                uses aft-common-entry-nexthop-gre-state;
+                uses aft-common-entry-nexthop-encap-gre-config;
               }
             }
 
@@ -368,6 +402,7 @@ submodule openconfig-aft-common {
 
                 uses aft-common-entry-nexthop-mpls-state;
               }
+              uses aft-common-entry-nexthop-mpls-label-state;
             }
 
             container udp-v4 {
@@ -448,7 +483,7 @@ submodule openconfig-aft-common {
     container counters {
       config false;
       description
-        "Surrounding container for counters.";
+        "Deprecated container for counters.";
 
       uses aft-common-entry-counter-state;
     }
@@ -559,12 +594,14 @@ submodule openconfig-aft-common {
     leaf-list pushed-mpls-label-stack {
       type oc-mplst:mpls-label;
       ordered-by user;
+      status deprecated;
       description
         "The MPLS label stack imposed when forwarding packets to the
         next-hop
         - the stack is encoded as a leaf list whereby the order of the
           entries is such that the first entry in the list is the
-          label at the bottom of the stack to be pushed.
+          label at the bottom of the stack to be pushed. This does not
+          support duplicate labels.
 
         To this end, a packet which is to forwarded to a device using
         a service label of 42, and a transport label of 8072 will be
@@ -576,10 +613,8 @@ submodule openconfig-aft-common {
         A swap operation is reflected by entries in the
         popped-mpls-label-stack and pushed-mpls-label-stack nodes.
 
-        This node must be supported in addition to the
-        encap-headers/encap-header tree.  A future release of OpenConfig
-        will deprecate this node in favor of the
-        encap-headers/encap-header subtree.";
+        This node is deprecated in favor of the encap-headers/encap-header
+        subtree.";
     }
 
     leaf encapsulate-header {
@@ -610,6 +645,60 @@ submodule openconfig-aft-common {
     uses aft-common-install-protocol;
   }
 
+  grouping aft-common-entry-nexthop-mpls-label-state {
+    description
+      "Parameters relating to a next-hop mpls state.";
+
+    container encap-mpls-label-stacks {
+      description
+        "Surrounding container for groups of encap-mpls-label-stack.";
+
+      list encap-mpls-label-stack {
+        ordered-by user;
+        description
+          "A stack of MPLS label values.  The first entry in the list is the
+          label at the bottom of the stack.  The bottom of the stack is adjacent
+          to the MPLS payload. This supports duplicate labels.
+
+          For example, a packet with a label stack of two labels, the bottom
+          label being 42 and the top label being 8072 will be represented with
+          a leaf-list of [42, 8072].  The resulting packet, starting with the
+          beginning of the packet will be '[8072][42][Payload]'.
+
+          Note: a swap operation is reflected by entries in the
+          decap-mpls-label-stack and the encap-mpls-label-stack";
+
+        key "id";
+
+        leaf id {
+          type leafref {
+            path "../state/id";
+          }
+          description
+            "Reference to list key";
+        }
+
+        container state {
+          config false;
+          description
+            "State parameters relating to nexthop encap";
+
+          leaf id {
+            type uint8;
+            description
+              "Index for a label in the list.";
+          }
+
+          leaf label {
+            type oc-mplst:mpls-label;
+            description
+              "MPLS label value.";
+          }
+        }
+      }
+    }
+  }
+
   grouping aft-common-entry-nexthop-ip-state {
     description
       "IP encapsulation applied on a next-hop";
@@ -627,16 +716,14 @@ submodule openconfig-aft-common {
     }
   }
 
-  grouping aft-common-entry-nexthop-gre-state {
+  grouping aft-common-entry-nexthop-encap-gre-config {
     description
       "GRE encapsulation applied on a IPv4 and IPv6 next-hop.";
 
     leaf src-ip {
       type oc-inet:ip-address;
       description
-        "The source IP address for the GRE encapsulation may be expressed
-        using this leaf (src-ip) or if may be derived from
-        '../../interface-ref/state/subinterface'";
+        "The source IP address for the GRE encapsulation.";
     }
 
     leaf dst-ip {
@@ -648,10 +735,9 @@ submodule openconfig-aft-common {
     leaf ttl {
       type uint8;
       description
-        "This leaf reflects the configured/default TTL value that is used in the
-         outer header during packet encapsulation. When this leaf is not set,
-         the TTL value of the inner packet is copied over as the outer packet's
-         TTL value during encapsulation.";
+        "If specified, this TTL value is used on the GRE header during
+        encapsulation. If unspecified, the TTL value of the inner packet is
+        copied to the GRE header TTL value during encapsulation.";
     }
   }
 
@@ -669,10 +755,13 @@ submodule openconfig-aft-common {
     leaf-list mpls-label-stack {
       type oc-mplst:mpls-label;
       ordered-by user;
+      status deprecated;
       description
         "A stack of MPLS label values.  The first entry in the list is the
         label at the bottom of the stack.  The bottom of the stack is adjacent
-        to the MPLS payload.
+        to the MPLS payload. This does not support duplicate labels.
+
+        This node is deprecated in favor of the list encap-mpls-label-stack.
 
         For example, a packet with a label stack of two labels, the bottom
         label being 42 and the top label being 8072 will be represented with
@@ -684,6 +773,22 @@ submodule openconfig-aft-common {
     }
   }
 
+  grouping aft-common-entry-nexthop-encap-mpls-config {
+    description
+      "MPLS encapsulation of a packet.";
+
+    leaf traffic-class {
+      type oc-mplst:mpls-tc;
+      description
+        "The value of the MPLS traffic class (TC) bits, formerly known as the
+         EXP bits.";
+    }
+    leaf label {
+      type oc-mplst:mpls-label;
+      description
+        "A MPLS label value.";
+    }
+  }
 
   grouping aft-common-entry-nexthop-encap-udp-v4-state {
     description
@@ -843,6 +948,7 @@ submodule openconfig-aft-common {
       "Logical grouping for groups of next-hops.";
 
     container next-hop-groups {
+      config false;
       description
         "Surrounding container for groups of next-hops.";
 
@@ -980,6 +1086,50 @@ submodule openconfig-aft-common {
                 }
               }
             }
+          }
+        }
+      }
+    }
+  }
+
+  grouping aft-backup-activations-structural {
+    description
+      "Structural grouping for backup next-hop-group activation entries.";
+
+    container backup-activations {
+      config false;
+      description
+        "Surrounding container for external/software-driven backup next-hop-group activations.";
+
+      list backup-activation {
+        key "next-hop-group";
+
+        description
+          "An operational entry indicating that the backup-next-hop-group has been
+           activated for the specified next-hop-group.";
+
+        leaf next-hop-group {
+          type leafref {
+            path "../state/next-hop-group";
+          }
+
+          description
+            "Reference to the target next-hop-group whose backup next-hop-group is activated.";
+        }
+
+        container state {
+          config false;
+
+          description
+            "Operational state parameters relating to backup activation.";
+
+          leaf next-hop-group {
+            type leafref {
+              path "../../../../next-hop-groups/next-hop-group/state/id";
+            }
+
+            description
+              "The identifier of the next-hop-group for which backup is activated.";
           }
         }
       }
@@ -1145,42 +1295,56 @@ submodule openconfig-aft-common {
   }
 
   grouping aft-common-entry-counter-state {
-    oc-ext:telemetry-atomic-exempt;
     description
       "Counters relating to a forwarding entry";
 
     leaf packets-forwarded {
       type oc-yang:counter64;
+      status deprecated;
       description
         "The number of packets which have matched, and been forwarded,
-         based on the AFT entry.";
+        based on the AFT entry.
+
+        This leaf has been deprecated and replaced by
+        .../afts/counters/.../state/packets-forwarded";
     }
 
     leaf octets-forwarded {
       type oc-yang:counter64;
+      status deprecated;
       description
         "The number of octets which have matched, and been forwarded,
-         based on the AFT entry";
+        based on the AFT entry
+
+        This leaf has been deprecated and replaced by
+        .../afts/counters/.../state/octets-forwarded";
     }
   }
 
   grouping aft-common-backup-entry-counter-state {
-    oc-ext:telemetry-atomic-exempt;
     description
       "Counters relating to a backup forwarding entry";
 
     leaf packets-forwarded-backup {
       type oc-yang:counter64;
+      status deprecated;
       description
         "The number of packets which have matched, and been forwarded,
-         based on the AFT backup entry.";
+        based on the AFT backup entry.
+
+        This leaf has been deprecated and replaced by
+        .../afts/counters/.../state/packets-forwarded-backup";
     }
 
     leaf octets-forwarded-backup {
       type oc-yang:counter64;
+      status deprecated;
       description
         "The number of octets which have matched, and been forwarded,
-         based on the AFT backup entry";
+        based on the AFT backup entry
+
+        This leaf has been deprecated and replaced by
+        .../afts/counters/.../state/octets-forwarded-backup";
     }
   }
 }

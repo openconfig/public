@@ -30,6 +30,12 @@ module openconfig-sampling-sflow {
     RFC 3176 - InMon Corporation's sFlow: A Method for
     Monitoring Traffic in Switched and Routed Networks";
 
+  revision "2025-05-13" {
+    description
+      "Add max-datagram-size per RFC 3176 - sFlowRcvrMaximumDatagramSize";
+    reference "1.1.0";
+  }
+
   revision "2022-06-21" {
     description
       "Add agent-id/source-address for IPv4/IPv6; add polling-interval;
@@ -45,7 +51,7 @@ module openconfig-sampling-sflow {
     reference "0.1.0";
   }
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
 
   grouping sflow-interfaces-config {
     description
@@ -146,6 +152,17 @@ module openconfig-sampling-sflow {
       description
         "Sets the source IPv4/IPv6 address for sFlow datagrams sent
         to sFlow collectors.";
+    }
+
+    leaf max-datagram-size {
+      type uint16;
+      units bytes;
+      description
+  	      "Sets the maximum size (in bytes) of the sFlow payload itself,
+        before it's encapsulated in a UDP packet sent to this collector.
+        This value does not include UDP or IP headers.";
+      reference
+        "RFC 3176 - InMon Corporation's sFlow: sFlowRcvrMaximumDatagramSize.";
     }
 
     leaf network-instance {
@@ -304,8 +321,8 @@ module openconfig-sampling-sflow {
       units bytes;
       default 128;
       description
-        "Sets the maximum number of bytes to be copied from a
-        sampled packet.";
+        "Sets the maximum number of bytes to be copied from a sampled
+        packet (content within one specific sample of a packet).";
       reference
         "RFC 3176 - InMon Corporation's sFlow: A Method for
         Monitoring Traffic in Switched and Routed Networks";

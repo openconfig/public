@@ -1,10 +1,9 @@
 
 # YANG authoring guidelines for OpenConfig models
 
-**Contributors:** Anees Shaikh, Rob Shakir, Kristian Larsson<br>
+**Contributors:** Anees Shaikh, Rob Shakir, Kristian Larsson, Darren Loher
 **October 26, 2015**<br>
-*Updated: June 2, 2019*
-
+*Updated: January 9th 2026*
 
 ## Background
 This document describes conventions adopted in the OpenConfig operator group
@@ -20,36 +19,40 @@ and released soon.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [General guidelines](#general-guidelines)
-  - [IETF guidelines](#ietf-guidelines)
-  - [Module compilation](#module-compilation)
-  - [Line length](#line-length)
-  - [Module template](#module-template)
-  - [Modeling operational state](#modeling-operational-state)
-  - [Top-level data nodes vs. groupings](#top-level-data-nodes-vs-groupings)
-  - [Module version](#module-version)
-- [YANG style conventions](#yang-style-conventions)
-  - [Naming](#naming)
-    - [Module naming](#module-naming)
-    - [Submodule naming](#submodule-naming)
-    - [Grouping naming](#grouping-naming)
-    - [Prefix naming](#prefix-naming)
-  - [Path references](#path-references)
-    - [Intra-model paths](#intra-model-paths)
-    - [Inter-model paths](#inter-model-paths)
-  - [Capitalization](#capitalization)
-    - [Enumerations](#enumerations)
-    - [Identities](#identities)
-- [YANG language usage](#yang-language-usage)
-  - [`list`](#list)
-  - [`presence`](#presence)
-  - [`feature` and `if-feature`](#feature-and-if-feature)
-  - [`choice`](#choice)
-  - [XPath](#xpath)
-  - [Regular expressions](#regular-expressions)
-- [Appendix](#appendix)
-  - [Example groupings for containers](#example-groupings-for-containers)
-  - [OpenConfig YANG module template](#openconfig-yang-module-template)
+- [YANG authoring guidelines for OpenConfig models](#yang-authoring-guidelines-for-openconfig-models)
+  - [Background](#background)
+  - [General guidelines](#general-guidelines)
+    - [IETF guidelines](#ietf-guidelines)
+    - [Module compilation](#module-compilation)
+    - [Line length](#line-length)
+    - [Module template](#module-template)
+    - [Modeling operational state](#modeling-operational-state)
+    - [Top-level data nodes vs. groupings](#top-level-data-nodes-vs-groupings)
+    - [Module version](#module-version)
+  - [YANG style conventions](#yang-style-conventions)
+    - [Naming](#naming)
+      - [Module naming](#module-naming)
+      - [Submodule naming](#submodule-naming)
+      - [Grouping naming](#grouping-naming)
+      - [Prefix naming](#prefix-naming)
+    - [Path references](#path-references)
+      - [Intra-model paths](#intra-model-paths)
+      - [Inter-model paths](#inter-model-paths)
+    - [Capitalization](#capitalization)
+      - [Enumerations](#enumerations)
+      - [Identities](#identities)
+  - [YANG language usage](#yang-language-usage)
+    - [`default`](#default)
+    - [`list`](#list)
+    - [`presence`](#presence)
+    - [`feature` and `if-feature`](#feature-and-if-feature)
+    - [`choice`](#choice)
+    - [XPath](#xpath)
+    - [Regular expressions](#regular-expressions)
+  - [Schema Usability](#schema-usability)
+  - [Appendix](#appendix)
+    - [Example groupings for containers](#example-groupings-for-containers)
+    - [OpenConfig YANG module template](#openconfig-yang-module-template)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -256,10 +259,20 @@ identity LC_CONNECTOR {
 }
 ```
 
-
 ## YANG language usage
 Language rules describe guidelines on use of specific YANG language statements,
 including how modules should be structured and parsed.
+
+### `default`
+
+The use of default should be avoided. Defaults are often a source of conflict
+between implementations where there is no clear and correct requirement. In
+these cases, it is more vendor neutral to simply require the caller to
+specify the value they want to use.
+
+Defaults may be defined when they are explicitly required by the feature
+specification (such as an IETF RFC or IEEE standard).  In these cases the OC
+model should define the defaults in line with the feature specification.
 
 ### `list`
 
@@ -464,6 +477,40 @@ reference for [regular
 expressions](http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/#regexs).
 However, this is not a commonly used standard for implementors.
 
+## Schema Usability
+
+Some elements of the OpenConfig style guide are implemented in order to provide
+consistent programmatic handling of the schema. For instance, the `config` and
+`state` containers used for operational state, and surrounding containers for
+YANG `list` statements. In some cases (e.g., programmatically generating
+configuration), this schema verbosity negatively impacts usability -- e.g.,
+requiring programmers to reference longer paths than are necessary. Tooling
+generating programmatic APIs around OpenConfig can improve usability by
+transforming the schema. Such transformations rely on consistency in the
+modelling approach.
+
+The following rules MUST be adhered to within the OpenConfig models to
+ensure that downstream tooling does not break.
+
+* **A `list` node MUST NOT share its identifier with any sibling of its
+  parent container.** It is not legal for `/a/foos/foo` and `/a/foo` to
+  exist, or for `/interfaces/interface` and `/interface` to exist, where
+  `/a/foos/foo` and `/interfaces/interface` are `list` nodes. This rule
+  exists to allow the (style-guide-required) "surrounding" container of a
+  list to be removed during schema transformation.
+* **A leaf node MUST NOT share its identifier with any of the children of
+  its grandparent node.** It is not legal for `/a/config/leaf` and `/a/leaf`
+  to both exist nor for `/b/state/leaf` and `/b/leaf` to both exist. The
+  single exception to this rule is the OpenConfig list key pattern: a leaf
+  inside the `config` or `state` container is permitted to share its name
+  with the `leafref` node acting as the `key` of the parent list. The node
+  acting as the key of the `list` MUST be of type `leafref` as specified
+  elsewhere in this guide. This rule ensures that the `config` and `state`
+  containers can be removed during schema transformation.
+
+An example of programmatic compression is implemented for the generation of
+code in ygot -- both for Go and Protobuf artifact generation
+([reference](https://github.com/openconfig/ygot/blob/master/docs/design.md#openconfig-path-compression)).
 
 ## Appendix
 

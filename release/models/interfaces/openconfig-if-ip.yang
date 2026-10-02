@@ -13,6 +13,7 @@ module openconfig-if-ip {
   import openconfig-vlan { prefix oc-vlan; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-extensions { prefix oc-ext; }
+  import openconfig-network-instance {prefix oc-ni; }
 
   // meta
   organization "OpenConfig working group";
@@ -44,7 +45,32 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.6.0";
+  oc-ext:openconfig-version "3.10.0";
+
+   revision "2026-06-01" {
+     description
+       "Add ipv4-address-range typedef; manual-ip-range accepts CIDR
+       prefix or start-end ip range.";
+     reference "3.10.0";
+  }
+
+  revision "2025-06-20" {
+    description
+      "Add IPv6 Router Advertisement Options for DNS Configuration (RDNSS) RFC 8106.";
+      reference "3.9.0";
+  }
+
+  revision "2025-06-20" {
+    description
+      "Add model for support of URPF source address validation through network-instance different then one used for destination lookup";
+      reference "3.8.0";
+  }
+
+  revision "2025-05-12" {
+    description
+      "Add model for support of URPF source address verification";
+      reference "3.7.0";
+  }
 
   revision "2024-05-28" {
     description
@@ -220,6 +246,22 @@ revision "2023-06-30" {
 
     description
       "The type of an IPv4 address.";
+  }
+
+  typedef urpf-mode {
+    description
+      "The uRPF modes";
+    type enumeration {
+      enum LOOSE {
+        description "uRFP operates in loose mode. Packet source address
+        must match some route in FIB, but may be recived on any interface";
+      }
+      enum STRICT {
+        description "uRFP operates in strict mode. Packet source address
+        must match some route in FIB, and must be recived on interfacee
+        corresponding to one of next-hops of matched FIB route.";
+      }
+    }
   }
 
   // grouping statements
@@ -446,6 +488,20 @@ revision "2023-06-30" {
         reference
           "RFC 4293 - Management Information Base for the
           Internet Protocol (IP)";
+      }
+
+      leaf urpf-drop-pkts {
+        type oc-yang:counter64;
+        description
+          "This counter counts packet discarded as result of Unicast
+          Reverse Path Forwarding verification.";
+      }
+
+      leaf urpf-drop-bytes {
+        type oc-yang:counter64;
+        description
+          "This counter counts bytes/octets discarded as result of
+          Unicast Reverse Path Forwarding verification.";
       }
     }
 
@@ -1181,7 +1237,126 @@ revision "2023-06-30" {
       description
         "When set to true, the prefix is marked as being on link by setting the
         L-bit for the prefix within a router advertisement.";
+
       reference "RFC4861: Neighbor Discovery for IPv6, section 4.6.1";
+    }
+  }
+
+  grouping ipv6-dns-server-config {
+    description
+      "IPv6 DNS server advertisement interface configuration data.";
+
+    leaf ip-address {
+      type oc-inet:ipv6-address;
+      description
+        "IPv6 DNS server address to be advertised within the router
+        advertisement message.";
+    }
+
+    leaf lifetime {
+      type uint32;
+      units seconds;
+      description
+        "The maximum time in seconds (relative to the time the packet is
+        received) over which these RDNSS addresses MAY be used for name
+        resolution.
+
+        The value of Lifetime SHOULD by default be at least
+        3 * MaxRtrAdvInterval, where MaxRtrAdvInterval is the maximum RA
+        interval as defined in [RFC4861].  A value of all one bits
+        (0xffffffff) represents infinity.  A value of zero means that the
+        RDNSS addresses MUST no longer be used.";
+
+      reference "RFC 8106, Section 5.1";
+    }
+  }
+
+  grouping ipv6-dns-server-top {
+    description
+      "Top-level grouping for IPv6 Router Advertisement Options for DNS Configuration (RDNSS)
+      configuration.";
+
+    reference "RFC 8106";
+
+    container dns-servers {
+      description
+        "Top-level container for the list of IPv6 DNS servers configured to be
+        advertised on the interface.";
+
+      list dns-server {
+        key "ip-address";
+
+        description
+          "List of DNS servers that are to be advertised on the interface
+          (RDNSS). The list is keyed by the IPv6 address of the DNS server.";
+
+        leaf ip-address {
+          type leafref {
+            path "../config/ip-address";
+          }
+          description
+            "Reference to the DNS server IPv6 address for the list of DNS
+            servers.";
+        }
+
+        container config {
+          description
+            "Configuration data for the IPv6 DNS server advertisement.";
+
+          uses ipv6-dns-server-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state data for the IPv6 DNS server advertisement.";
+
+          uses ipv6-dns-server-config;
+        }
+      }
+    }
+  }
+
+
+  typedef ipv4-address-range {
+    type string {
+      pattern
+        '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+        + '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+        + '(-'
+        + '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+        + '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))?';
+      oc-ext:posix-pattern
+        '^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+        + '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+        + '(-(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+        + '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))?$';
+    }
+    description
+      "An IPv4 address or address range expressed in dotted-decimal notation.
+       A single address (e.g. 10.0.0.1) or a range of two addresses separated
+       by a hyphen without spaces: start-end (e.g. 10.0.0.1-10.0.0.5).
+       A single address is semantically equivalent to a range where the start
+       and end addresses are identical (e.g. 10.0.0.1 is equivalent to
+       10.0.0.1-10.0.0.1).
+       When a range is specified, the start address must be numerically less
+       than or equal to the end address; validation is enforced by the system.";
+  }
+
+  grouping ipv4-proxy-arp-manual-ip-range-config {
+    description
+      "Configuration parameters for a proxy ARP manual IPv4
+      ip-range entry.";
+
+    leaf ip-range {
+      type union {
+        type oc-inet:ipv4-prefix;
+        type ipv4-address-range;
+      }
+      description
+        "IPv4 ip-range: single IP (CIDR notation, e.g. 10.0.0.0/24) or
+        address range (start-end notation, e.g. 10.0.0.1-10.0.0.5)
+        for which proxy ARP replies are sent when mode is MANUAL.";
     }
   }
 
@@ -1209,6 +1384,14 @@ revision "2023-06-30" {
             and target IP addresses are in different subnets, as well
             as those where they are in the same subnet.";
         }
+        enum MANUAL {
+          description
+            "Proxy ARP operating mode in which the system responds to
+            ARP requests only when the target IPv4 address matches an
+            explicitly configured entry in manual-ip-range. In this mode,
+            proxy ARP responses are selectively generated based on the ARP
+            target IP address.";
+        }
       }
       default "DISABLE";
       description
@@ -1219,8 +1402,68 @@ revision "2023-06-30" {
         value is specified, replies are only sent when the target address
         falls outside the locally configured subnets on the interface,
         whereas with the ALL value, all requests, regardless of their
-        target address are replied to.";
+        target address are replied to. If MANUAL is specified, replies
+        are only sent for target addresses matching entries in the
+        manual-ip-ranges list, or that match the IP address assigned to
+        the receiving interface.";
       reference "RFC1027: Using ARP to Implement Transparent Subnet Gateways";
+    }
+  }
+
+  grouping urpf-config {
+    description
+        "Grouping configuration coniguration of URPF";
+    reference
+      "RFC2827: Network Ingress Filtering: Defeating Denial of
+      Service Attacks which employ IP Source Address Spoofing
+      RFC3704: Ingress Filtering for Multihomed Networks";
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "Turns ON/OFF packet's source address verification against content of
+        FIB. This is one of anti-spoofing protection techniques.";
+    }
+    leaf mode {
+      type urpf-mode;
+      description
+        "The URPF in STRICT mode requires the ingress packet source address
+        to have a longest prefix match (LPM) for a route in the forwarding table
+        with a next-hop of the interface the packet was received on.
+        The URPF in LOOSE mode requires the ingress packet source address to
+        LPM a route in the forwarding table, but may have any next-hop.";
+    }
+    leaf allow-default-route {
+      type boolean;
+      description
+      "If set to false, and the packet's source address LPMs to the
+      default route (0.0.0.0/0 or ::/0) then the URPF check fails and the
+      packet is discarded.";
+    }
+    leaf allow-drop-next-hop {
+      type boolean;
+      description
+        "If set to false, and the packet's source address LPMs to a route
+        with DROP as the next-hop, then the URPF check fails and the packet
+        is discarded.";
+    }
+    leaf allow-feasible-path {
+      type boolean;
+      description
+        "The routing system may select subset of all learned paths.  For example,
+        BGP without multi-path enabled will install only one of many possible ECMP
+        paths into the FIB or ECMP multipath limits may select only a subset of all
+        available paths. If set to true, the URPF check passes if the source address
+        LPMs to any path in the RIB, even if it is not selected for forwarding in the
+        FIB.";
+    }
+    leaf lookup-network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "If populated, this leaf provides the name of the network instance
+        used to look up a packet's source address. When this leaf is
+        omitted and uRPF is enabled, the packet's source address is looked
+        up in the network-instance in which this interface is a member of.";
     }
   }
 
@@ -1288,6 +1531,50 @@ revision "2023-06-30" {
             "Operational state parameters for proxy ARP";
           uses ipv4-proxy-arp-config;
         }
+
+        container manual-ip-ranges {
+          when "../config/mode = 'MANUAL'" {
+            description
+              "manual-ip-ranges is applicable only when proxy ARP mode
+              is MANUAL.";
+          }
+          description
+            "Collection of IPv4 prefixes or address ranges for which
+            proxy ARP replies are sent when mode is MANUAL.";
+
+          list manual-ip-range {
+            key "ip-range";
+            description
+              "A configured IPv4 ip-range entry for proxy ARP manual
+              mode.";
+
+            leaf ip-range {
+              type leafref {
+                path "../config/ip-range";
+              }
+              description
+                "IPv4 ip-range for which proxy ARP replies are sent
+                when mode is MANUAL.";
+            }
+
+            container config {
+              description
+                "Configuration parameters for a proxy ARP manual IPv4
+                ip-range entry.";
+
+              uses ipv4-proxy-arp-manual-ip-range-config;
+            }
+
+            container state {
+              config false;
+              description
+                "Operational state parameters for a proxy ARP manual
+                IPv4 ip-range entry.";
+
+              uses ipv4-proxy-arp-manual-ip-range-config;
+            }
+          }
+        }
       }
 
       container neighbors {
@@ -1349,6 +1636,29 @@ revision "2023-06-30" {
 
         uses ipv4-global-config;
         uses ip-common-counters-state;
+      }
+
+      container urpf {
+
+        description
+          "URPF container.";
+
+        container config {
+
+          description
+            "URPF configuration container.";
+
+          uses urpf-config;
+        }
+        container state {
+
+          description
+            "URPF states container.";
+
+          config false;
+
+          uses urpf-config;
+        }
       }
     }
   }
@@ -1464,6 +1774,8 @@ revision "2023-06-30" {
             }
           }
         }
+
+        uses ipv6-dns-server-top;
       }
 
       container neighbors {
@@ -1518,6 +1830,22 @@ revision "2023-06-30" {
         uses ipv6-global-config;
         uses ip-common-counters-state;
 
+      }
+
+      container urpf {
+        description
+          "URPF container";
+        container config {
+          description
+            "Container for URPF configuration";
+          uses urpf-config;
+        }
+        container state {
+          description
+            "Container for URPF states";
+          config false;
+          uses urpf-config;
+        }
       }
     }
   }

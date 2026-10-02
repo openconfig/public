@@ -1,0 +1,111 @@
+module openconfig-fs-types {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/fs/types";
+
+  prefix "oc-fs-types";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines identifies based on linux mount api fs_type";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2025-07-08" {
+    description
+      "Initial public release";
+    reference "0.1.0";
+  }
+
+  identity OPENCONFIG_FS_MOUNT {
+    description
+      "Base identity for system filesystem mounting point types.
+      Derived identities are based on the linux mount api fs_type.";
+    reference
+      "https://docs.kernel.org/filesystems/mount_api.html";
+  }
+
+  identity UNKNOWN {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "Indicates that the mount type could not be determined.
+      Use of this identity SHOULD be avoided.";
+  }
+
+  identity CGROUP_FS {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "cgroup filesystem type.";
+  }
+
+  identity DEBUGFS_FS {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "debugfs filesystem type.";
+  }
+
+  identity DEVPTS_FS {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "devpts filesystem type.";
+  }
+
+  identity DEVTMPFS_FS {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "devtmpfs filesystem type.";
+  }
+
+  identity EXT4_FS {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "ext4 filesystem type.";
+  }
+
+  identity PROC_FS {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "proc filesystem type.";
+  }
+
+  identity RAMFS_FS {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "ramfs filesystem type.";
+  }
+
+  identity SYSFS_FS {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "sysfs filesystem type.";
+  }
+
+  identity TMPFS_FS {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "tmpfs filesystem type.";
+  }
+
+  identity VFAT_FS {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "vfat filesystem type.";
+  }
+
+  identity OVERLAY_FS {
+    base OPENCONFIG_FS_MOUNT;
+    description
+      "overlay filesystem type.";
+  }
+}
