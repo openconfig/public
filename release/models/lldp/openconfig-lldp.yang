@@ -37,6 +37,12 @@ module openconfig-lldp {
     reference "1.2.0";
   }
 
+  revision "2026-07-27" {
+    description
+      "Add interface port-id-type configuration/state leaf for LLDP.";
+    reference "1.2.0";
+  }
+
   revision "2026-04-06" {
     description
       "Add global TTL configuration/state leaf, interface port-description and custom-tlv-names leaves, custom TLV name leaf, global custom-tlvs list, and add interface counter timestamps for LLDP.";
@@ -746,6 +752,25 @@ module openconfig-lldp {
       default "true";
       description
         "Enable or disable the LLDP protocol on the interface.";
+    }
+
+    leaf port-id-type {
+      type oc-lldp-types:port-id-type;
+      description
+        "This field identifies the format and source of the port
+        identifier string of each interface. It is an enumerator
+        defined by the PtopoPortIdType object from RFC2922.
+
+        When this leaf is populated, its value must be used as the
+        advertised port id subtype, and corresponding port identifier
+        source value must be used in the advertised Port ID TLV.
+
+        If this leaf is not populated, the implementation should
+        default to advertising the value of
+        /interfaces/interface/state/port-id-type and corresponding
+        port identifier source.";
+      reference
+        "Sec 8.5.3 of IEEE Std 802.1AB-2016";
     }
 
     leaf port-description {
