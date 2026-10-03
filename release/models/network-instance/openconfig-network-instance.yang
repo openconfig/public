@@ -20,6 +20,7 @@ module openconfig-network-instance {
   import openconfig-types { prefix "oc-types"; }
   import openconfig-bgp { prefix "oc-bgp"; }
   import openconfig-mpls { prefix "oc-mpls"; }
+  import openconfig-mpls-types { prefix "oc-mplst"; }
   import openconfig-vlan { prefix "oc-vlan"; }
   import openconfig-ospfv2 { prefix "oc-ospfv2"; }
   import openconfig-ospf   { prefix "oc-ospf"; }
@@ -50,7 +51,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.7.0";
+  oc-ext:openconfig-version "4.8.0";
+
+  revision "2026-08-03" {
+    description
+      "Add static endpoint attributes.";
+    reference "4.8.0";
+  }
 
   revision "2026-03-17" {
     description
@@ -845,6 +852,36 @@ module openconfig-network-instance {
                     uses instance-endpoint-remote-config;
                   }
                 }
+
+                container static {
+                  when "../config/type = 'oc-ni-types:STATIC'" {
+                    description
+                      "Only include the static configuration when the endpoint
+                      type is STATIC.";
+                  }
+
+                  description
+                    "Configuration and operational state parameters
+                    relating to a statically configured endpoint of
+                    a connection point";
+
+                  container config {
+                    description
+                      "Configuration parameters relating to a statically
+                      configured endpoint of a connection point";
+                    uses instance-endpoint-static-config;
+                  }
+
+                  container state {
+                    config false;
+                    description
+                      "Operational state parameters relating to a
+                      statically configured endpoint of a connection
+                      point";
+                    uses instance-endpoint-static-config;
+                  }
+                }
+
                 container vxlan {
                   description
                     "Configuration and operational state parameters
@@ -1115,6 +1152,54 @@ module openconfig-network-instance {
         "Identifies remote sites. When BGP discovery is used this
         is the customer edge identifier";
       reference "RFC6624 Section 2.2.1";
+    }
+  }
+
+  grouping instance-endpoint-static-config {
+    description
+      "Configuration parameters relating to a statically configured endpoint
+      of a connection point";
+
+    leaf local-label {
+      type oc-mplst:mpls-label;
+      description
+        "Local MPLS label used for decapsulation by the static endpoint.";
+    }
+
+    leaf neighbor-label {
+      type oc-mplst:mpls-label;
+      description
+        "Neighbor MPLS label used for encapsulation by the static endpoint.";
+    }
+
+    leaf control-word {
+      type boolean;
+      description
+        "When true, a four-byte control word is prepended during
+        encapsulation and expected during decapsulation.
+        Both endpoints of the connection point must agree on control-word
+        usage for the connection point to come up.";
+      reference "RFC4385";
+    }
+
+    leaf tunnel-interface {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description
+        "A reference to the transport tunnel interface used by the
+        static endpoint.";
+    }
+
+    leaf next-hop-group {
+      type leafref {
+        // We are at network-instance/connection-points/connection-point/endpoints/endpoint/static/config/next-hop-group
+        path "../../../../../../../static/next-hop-groups/" +
+             "next-hop-group/config/name";
+      }
+      description
+        "A reference to the static next-hop-group used as transport
+        by the static endpoint.";
     }
   }
 
