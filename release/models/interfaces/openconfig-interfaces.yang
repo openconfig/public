@@ -51,7 +51,16 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.11.0";
+  oc-ext:openconfig-version "3.11.1";
+
+  revision "2026-10-05" {
+      description
+        "Clarify that in-discard must also be incremented when
+         in-low-ttl-discards discard and in-link-down counters
+         are incremented.";
+      reference
+        "3.11.1";
+  }
 
   revision "2026-09-22" {
       description
@@ -901,7 +910,11 @@ module openconfig-interfaces {
       description
         "The number of inbound packets received on the interface or
         subinterface that were dropped because the egress interface or
-        next-hop link selected by forwarding or routing was down.
+        next-hop link selected by forwarding or routing was down.  The
+        in-discards leaf must also be incremented as the packet was
+        discarded and for backwards compatibility.  The in-discards
+        leaf must also be incremented as the packet was discarded and
+        for backwards compatibility.
 
         Discontinuities in the value of this counter can occur
         at re-initialization of the management system, and at
