@@ -45,7 +45,15 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.10.0";
+  oc-ext:openconfig-version "3.11.0";
+
+  revision "2026-10-05" {
+    description
+      "Add per-interface ICMPv6 message counters (echo, errors,
+      neighbor solicitation/advertisement) and router
+      solicitation/advertisement counters for IPv6.";
+    reference "3.11.0";
+  }
 
    revision "2026-06-01" {
      description
@@ -1317,6 +1325,191 @@ revision "2023-06-30" {
     }
   }
 
+  grouping ipv6-icmp-counters-state {
+    description
+      "Operational state counters for ICMPv6 messages received and
+      sent on an IPv6 interface.";
+
+    container counters {
+      description
+        "Counters for ICMPv6 messages received and sent on the
+        interface. Counters are maintained for the IPv6 interface on
+        which an ICMPv6 message is received, or from which it is
+        transmitted.";
+
+      leaf in-echo-requests {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 Echo Request messages received on the
+          interface.";
+        reference
+          "RFC 4443: Internet Control Message Protocol (ICMPv6) for
+          the Internet Protocol Version 6 (IPv6) Specification,
+          Section 4.1";
+      }
+
+      leaf in-errors {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 messages received on the interface
+          that were discarded because of ICMPv6-specific errors, such
+          as an invalid ICMPv6 checksum, an invalid length or an
+          unknown message type.";
+        reference
+          "RFC 4293: Management Information Base for the Internet
+          Protocol (IP) - icmpStatsInErrors";
+      }
+
+      leaf in-checksum-errors {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 messages received on the interface
+          that were discarded because of an invalid ICMPv6 checksum.
+          This counter is a subset of in-errors.";
+        reference
+          "RFC 4443: Internet Control Message Protocol (ICMPv6) for
+          the Internet Protocol Version 6 (IPv6) Specification,
+          Section 2.3";
+      }
+
+      leaf in-neighbor-solicitations {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 Neighbor Solicitation messages
+          received on the interface.";
+        reference
+          "RFC 4861: Neighbor Discovery for IP version 6 (IPv6),
+          Section 4.3";
+      }
+
+      leaf in-neighbor-advertisements {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 Neighbor Advertisement messages
+          received on the interface.";
+        reference
+          "RFC 4861: Neighbor Discovery for IP version 6 (IPv6),
+          Section 4.4";
+      }
+
+      leaf out-echo-replies {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 Echo Reply messages sent on the
+          interface.";
+        reference
+          "RFC 4443: Internet Control Message Protocol (ICMPv6) for
+          the Internet Protocol Version 6 (IPv6) Specification,
+          Section 4.2";
+      }
+
+      leaf out-errors {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 messages that the interface did not
+          send due to problems discovered within ICMPv6, such as a
+          lack of buffers. This value does not include errors
+          discovered outside the ICMPv6 layer, such as the inability
+          of IPv6 to route the resulting datagram.";
+        reference
+          "RFC 4293: Management Information Base for the Internet
+          Protocol (IP) - icmpStatsOutErrors";
+      }
+
+      leaf out-neighbor-solicitations {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 Neighbor Solicitation messages sent on
+          the interface.";
+        reference
+          "RFC 4861: Neighbor Discovery for IP version 6 (IPv6),
+          Section 4.3";
+      }
+
+      leaf out-neighbor-advertisements {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 Neighbor Advertisement messages sent
+          on the interface.";
+        reference
+          "RFC 4861: Neighbor Discovery for IP version 6 (IPv6),
+          Section 4.4";
+      }
+    }
+  }
+
+  grouping ipv6-icmp-top {
+    description
+      "Top-level grouping for ICMPv6 operational state on an IPv6
+      interface.";
+
+    container icmp {
+      description
+        "Top-level container for ICMPv6 operational state on the
+        interface.";
+
+      container state {
+        config false;
+        description
+          "Operational state data for ICMPv6 on the interface.";
+
+        uses ipv6-icmp-counters-state;
+      }
+    }
+  }
+
+  grouping ipv6-ra-counters-state {
+    description
+      "Operational state counters for ICMPv6 Router Solicitation and
+      Router Advertisement messages received and sent on an IPv6
+      interface.";
+
+    container counters {
+      description
+        "Counters for ICMPv6 Router Solicitation and Router
+        Advertisement messages received and sent on the interface.";
+
+      leaf in-router-solicitations {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 Router Solicitation messages received
+          on the interface.";
+        reference
+          "RFC 4861: Neighbor Discovery for IP version 6 (IPv6),
+          Section 4.1";
+      }
+
+      leaf in-router-advertisements {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 Router Advertisement messages received
+          on the interface.";
+        reference
+          "RFC 4861: Neighbor Discovery for IP version 6 (IPv6),
+          Section 4.2";
+      }
+
+      leaf out-router-solicitations {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 Router Solicitation messages sent on
+          the interface.";
+        reference
+          "RFC 4861: Neighbor Discovery for IP version 6 (IPv6),
+          Section 4.1";
+      }
+
+      leaf out-router-advertisements {
+        type oc-yang:counter64;
+        description
+          "The number of ICMPv6 Router Advertisement messages sent on
+          the interface.";
+        reference
+          "RFC 4861: Neighbor Discovery for IP version 6 (IPv6),
+          Section 4.2";
+      }
+    }
+  }
 
   typedef ipv4-address-range {
     type string {
@@ -1727,6 +1920,7 @@ revision "2023-06-30" {
             "Operational state parameters relating to router
              advertisements for IPv6.";
           uses ipv6-ra-config;
+          uses ipv6-ra-counters-state;
         }
 
         container prefixes {
@@ -1814,6 +2008,7 @@ revision "2023-06-30" {
           }
         }
       }
+      uses ipv6-icmp-top;
       uses oc-if:sub-unnumbered-top;
 
       container config {
