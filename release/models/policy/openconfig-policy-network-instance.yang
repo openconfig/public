@@ -1,0 +1,70 @@
+module openconfig-policy-network-instance {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/policy-netinst";
+
+  prefix "oc-rpol-netinst";
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-network-instance { prefix "oc-ni"; }
+  import openconfig-routing-policy { prefix "oc-rpol"; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module adds leaves that relate to network-instances
+     to the routing-policy subtree.";
+
+  oc-ext:openconfig-version "1.0.0";
+
+  revision "2026-08-12" {
+    description
+      "Add leaves that relate to network-instances to the
+       routing policy module.";
+    reference "1.0.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  grouping conditional-prefix-set-network-instance {
+    description
+      "This grouping define leaves that need references to the network-instance
+       subtree within the routing policy module. It is used to augment the
+       /routing-policy/defined-sets/conditional-prefix-sets/conditional-prefix-set/config/
+       containers.";
+
+    leaf match-policy-network-instance {
+      type leafref {
+        path "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:name";
+      }
+
+      description
+        "The specific network instance of which routes from the RIB that will be used
+        for matching the configured match-policy.";
+    }
+  }
+
+  augment "/oc-rpol:routing-policy/oc-rpol:defined-sets/oc-rpol:conditional-prefix-sets/oc-rpol:conditional-prefix-set/oc-rpol:config" {
+    description
+      "Add network-instance leaves to conditional-prefix-set container.";
+
+    uses conditional-prefix-set-network-instance;
+  }
+
+  augment "/oc-rpol:routing-policy/oc-rpol:defined-sets/oc-rpol:conditional-prefix-sets/oc-rpol:conditional-prefix-set/oc-rpol:state" {
+    description
+      "Add network-instance leaves to conditional-prefix-set container.";
+
+    uses conditional-prefix-set-network-instance;
+  }
+}
