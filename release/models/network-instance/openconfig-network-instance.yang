@@ -50,7 +50,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.6.0";
+  oc-ext:openconfig-version "4.7.0";
+
+  revision "2026-03-17" {
+    description
+      "Add enable-aigp to BGP address families in neighbors and peer-groups.";
+    reference "4.7.0";
+  }
 
   revision "2025-03-26" {
     description
@@ -1453,5 +1459,98 @@ module openconfig-network-instance {
         in the network instance";
     }
   }
+
+  grouping ni-bgp-afi-aigp-config {
+    description
+      "Grouping for enable-aigp leaf";
+    leaf enable-aigp {
+      type boolean;
+      description
+        "Flag to enable sending / receiving accumulated IGP
+        attribute in routing updates for the address family as
+        stipulated by RFC 7311 Section 3.3";
+    }
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:neighbors/oc-netinst:neighbor/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv4-unicast/oc-netinst:config" {
+    description
+      "Add enable-aigp to BGP neighbor IPv4 unicast config";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:neighbors/oc-netinst:neighbor/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv4-unicast/oc-netinst:state" {
+    description
+      "Add enable-aigp to BGP neighbor IPv4 unicast state";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:neighbors/oc-netinst:neighbor/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv6-unicast/oc-netinst:config" {
+    description
+      "Add enable-aigp to BGP neighbor IPv6 unicast config";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:neighbors/oc-netinst:neighbor/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv6-unicast/oc-netinst:state" {
+    description
+      "Add enable-aigp to BGP neighbor IPv6 unicast state";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:peer-groups/oc-netinst:peer-group/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv4-unicast/oc-netinst:config" {
+    description
+      "Add enable-aigp to BGP peer-group IPv4 unicast config";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:peer-groups/oc-netinst:peer-group/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv4-unicast/oc-netinst:state" {
+    description
+      "Add enable-aigp to BGP peer-group IPv4 unicast state";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:peer-groups/oc-netinst:peer-group/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv6-unicast/oc-netinst:config" {
+    description
+      "Add enable-aigp to BGP peer-group IPv6 unicast config";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:peer-groups/oc-netinst:peer-group/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv6-unicast/oc-netinst:state" {
+    description
+      "Add enable-aigp to BGP peer-group IPv6 unicast state";
+    uses ni-bgp-afi-aigp-config;
+  }
+
   uses network-instance-top;
 }
