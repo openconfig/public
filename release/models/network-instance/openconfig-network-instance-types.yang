@@ -19,7 +19,13 @@ module openconfig-network-instance-types {
   description
     "Types associated with a network instance";
 
-  oc-ext:openconfig-version "0.10.0";
+  oc-ext:openconfig-version "0.11.0";
+
+  revision "2026-10-07" {
+    description
+      "Add STATIC endpoint type.";
+    reference "0.11.0";
+  }
 
   revision "2026-08-04" {
     description
@@ -200,6 +206,12 @@ module openconfig-network-instance-types {
     description
       "A remote interface which is being associated with the
       endpoint";
+  }
+
+  identity STATIC {
+    base ENDPOINT_TYPE;
+    description
+      "A statically configured endpoint.";
   }
 
   identity CONNECTION_POINT_OPER_STATUS {
