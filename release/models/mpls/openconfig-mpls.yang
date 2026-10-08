@@ -70,7 +70,14 @@ module openconfig-mpls {
                +------+      |ROUTING|      +-----+
                              +-------+
     ";
-  oc-ext:openconfig-version "3.6.2";
+  oc-ext:openconfig-version "3.7.0";
+
+  revision "2026-10-08" {
+    description
+      "Add static LSP enabled, payload-type, oper-status and down-reason
+      leaves, and a reference to a reserved label block for static LSPs.";
+    reference "3.7.0";
+  }
 
   revision "2025-12-10" {
     description
@@ -610,6 +617,22 @@ module openconfig-mpls {
       }
       description
         "The PDU type to use with pseudowires.";
+    }
+
+    leaf static-lsp-label-block {
+      type leafref {
+        // we are at /network-instances/network-instance/mpls/global/
+        // {config,state}/static-lsp-label-block
+        path "../../reserved-label-blocks/reserved-label-block/" +
+             "config/local-id";
+      }
+      description
+        "A reference to a reserved label block from which the incoming
+        labels of all static LSPs are taken. When set, the
+        incoming-label of every static LSP must fall within the
+        referenced label block, and the label block should be
+        dedicated to static LSPs. When not set, the range of labels
+        that can be used for static LSPs is implementation specific.";
     }
 
   }

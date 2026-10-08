@@ -1,0 +1,82 @@
+module openconfig-mpls-network-instance {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/mpls-netinst";
+
+  prefix "oc-mpls-ni";
+
+  import openconfig-network-instance { prefix "oc-ni"; }
+  import openconfig-extensions { prefix "oc-ext"; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module adds leaves that relate to network-instances to the
+    mpls subtree. It is defined as a separate module to avoid a
+    circular import between openconfig-mpls and
+    openconfig-network-instance.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2026-10-08" {
+    description
+      "Add next-network-instance to egress static LSPs.";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  grouping static-lsp-egress-networkinstance-config {
+    description
+      "Configuration parameters of an egress static LSP that reference
+      a network-instance.";
+
+    leaf next-network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "Instead of forwarding the packet to the next-hops of the
+        static LSP, pop the incoming label and look up the exposed
+        header in the forwarding tables of the specified
+        network-instance.
+
+        For example, let 'next-network-instance' = 'BLUE'. If an MPLS
+        packet arrives in the 'DEFAULT' network-instance with a top
+        label that matches the incoming-label of this static LSP, the
+        label is popped and the exposed packet is forwarded based on a
+        lookup in the 'BLUE' network-instance.
+
+        This leaf is mutually exclusive with the lsp-next-hops
+        container of the egress static LSP.";
+    }
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:mpls/" +
+          "oc-ni:lsps/oc-ni:static-lsps/oc-ni:static-lsp/oc-ni:egress/" +
+          "oc-ni:config" {
+    description
+      "Add network-instance leaves to the egress static LSP
+      configuration.";
+
+    uses static-lsp-egress-networkinstance-config;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:mpls/" +
+          "oc-ni:lsps/oc-ni:static-lsps/oc-ni:static-lsp/oc-ni:egress/" +
+          "oc-ni:state" {
+    description
+      "Add network-instance leaves to the egress static LSP
+      operational state.";
+
+    uses static-lsp-egress-networkinstance-config;
+  }
+}
