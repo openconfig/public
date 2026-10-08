@@ -51,11 +51,17 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.8.0";
+  oc-ext:openconfig-version "4.9.0";
 
-  revision "2026-08-03" {
+  revision "2026-10-07" {
     description
       "Add static endpoint attributes.";
+    reference "4.9.0";
+  }
+
+  revision "2026-08-04" {
+    description
+      "Add connection point operational status.";
     reference "4.8.0";
   }
 
@@ -1231,6 +1237,14 @@ module openconfig-network-instance {
     description
       "Operational state data relating to a forwarding-instance
       connection point";
+
+    leaf oper-status {
+      type identityref {
+        base oc-ni-types:CONNECTION_POINT_OPER_STATUS;
+      }
+      description
+        "Operational status of the connection point.";
+    }
   }
 
   grouping table-config {
