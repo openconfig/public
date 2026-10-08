@@ -18,10 +18,16 @@ module openconfig-macsec {
     "This module defines configuration and state data for
      MACsec IEEE Std 802.1AE-2018.";
 
-  oc-ext:openconfig-version "1.2.0";
+  oc-ext:openconfig-version "1.2.1";
   oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2026-03-24" {
+    description
+      "Updating description of openconfig/macsec leaf sak-rekey-on-live-peer-loss.";
+    reference "1.2.1";
+  }
 
   revision "2025-01-02" {
     description
@@ -36,7 +42,7 @@ module openconfig-macsec {
     reference "1.1.1";
   }
 
-revision "2023-06-08" {
+  revision "2023-06-08" {
     description
       "Support rx-late-pkts leaf.";
     reference "1.1.0";
@@ -654,7 +660,14 @@ revision "2023-06-08" {
       type boolean;
       default "false";
       description
-        "Rekey on peer loss";
+		  "When set to true, the loss of a peer triggers a SAK rekey only if the
+			MKA session still has other live peers. If the peer loss results in no
+			live peers remaining in the MKA session, an automatic rekey is not
+			triggered. Instead, the security-policy leaf configuration determines
+			the subsequent behavior. Based on the security-policy leaf configuration,
+			the system may retain the currently active SAK to allow encrypted traffic
+			exchange, or it may immediately remove the SAK to halt or allow unencrypted
+			transmission.";
     }
 
     leaf use-updated-eth-header {
