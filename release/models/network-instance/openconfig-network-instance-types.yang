@@ -19,7 +19,13 @@ module openconfig-network-instance-types {
   description
     "Types associated with a network instance";
 
-  oc-ext:openconfig-version "0.9.3";
+  oc-ext:openconfig-version "0.10.0";
+
+  revision "2026-08-04" {
+    description
+      "Add connection point operational status.";
+    reference "0.10.0";
+  }
 
   revision "2021-07-14" {
     description
@@ -194,6 +200,63 @@ module openconfig-network-instance-types {
     description
       "A remote interface which is being associated with the
       endpoint";
+  }
+
+  identity CONNECTION_POINT_OPER_STATUS {
+    description
+      "Base identity for the operational status of a connection point.";
+  }
+
+  identity ADMIN_DOWN {
+    base CONNECTION_POINT_OPER_STATUS;
+    description
+      "The connection point is administratively down.";
+  }
+
+  identity CONFIG_CONFLICT {
+    base CONNECTION_POINT_OPER_STATUS;
+    description
+      "The connection point is down due to a configuration conflict.
+      Examples are: - Multiple endpoints configured with the same local
+      MPLS label. - A static endpoint configured with both a tunnel interface
+      and a nexthop-group transport.";
+  }
+
+  identity DOWN {
+    base CONNECTION_POINT_OPER_STATUS;
+    description
+      "The connection point is operationally down due to a forwarding plane
+      or transport failure. This is distinct from ADMIN_DOWN, UNPROGRAMMED
+      and CONFIG_CONFLICT. Typical causes include a failed transport tunnel,
+      loss of the remote signaling session, or the local interface being down.";
+  }
+
+  identity UNPROGRAMMED {
+    base CONNECTION_POINT_OPER_STATUS;
+    description
+      "The connection point configuration has been resolved and validated,
+      but the hardware programming has not completed or has failed.";
+  }
+
+  identity UP {
+    base CONNECTION_POINT_OPER_STATUS;
+    description
+      "The connection point is fully operational.";
+  }
+
+  identity PARTIALLY_UP {
+    base CONNECTION_POINT_OPER_STATUS;
+    description
+      "At least one endpoint is up and programmed while at least one other
+      endpoint is not fully up or programmed.";
+  }
+
+  identity STANDBY {
+    base CONNECTION_POINT_OPER_STATUS;
+    description
+      "The connection point is configured as a backup and is not actively forwarding
+      traffic. It will transition to UP upon failure of the primary
+      connection point.";
   }
 
   identity LABEL_ALLOCATION_MODE {
