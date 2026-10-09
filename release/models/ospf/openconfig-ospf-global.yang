@@ -23,8 +23,14 @@ submodule openconfig-ospf-global {
     "This submodule provides common OSPF configuration and operational
     state parameters that are global to a particular OSPF instance";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.4.0";
 
+  revision "2026-09-06" {
+    description
+      "Add max-ecmp-paths leaf to OSPF global config, equivalent to
+      that of ISIS global config.";
+    reference "0.4.0";
+  }
   revision "2025-08-10" {
     description
       "Removed duplicate import and updated prefixes in openconfig-ospf-area";
@@ -77,6 +83,14 @@ submodule openconfig-ospf-global {
          exists or not. When the leaf is set to RFC3509_ABR,
          the router acts as an ABR when the router participates
          in multiple OSPF areas, one of which must be backbone.";
+    }
+
+    leaf max-ecmp-paths {
+      type uint8;
+      description
+        "The maximum number of equal-cost paths that OSPF can
+        install for a single destination. Equivalent to the
+        max-ecmp-paths of ISIS global config.";
     }
   }
 
