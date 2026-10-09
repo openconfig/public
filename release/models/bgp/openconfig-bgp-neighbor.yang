@@ -30,7 +30,15 @@ submodule openconfig-bgp-neighbor {
     "This sub-module contains groupings that are specific to the
     neighbor context of the OpenConfig BGP module.";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.10.0";
+
+  revision "2026-06-16" {
+    description
+      "Deprecation of ../config/local-as leaf and replacement with
+      local-as-options container. Extending with RFC7705 no-prepend
+      and replace-as explicit flags and dual-as option.";
+    reference "9.10.0";
+  }
 
   revision "2025-04-18" {
     description
@@ -876,6 +884,27 @@ submodule openconfig-bgp-neighbor {
         "Per-address-family configuration parameters associated with
         the neighbor";
       uses bgp-neighbor-afi-safi-list;
+    }
+
+    container local-as-options {
+      description
+        "Local-AS options.
+        Local-AS is a migration tool described in RFC7705.";
+
+      container config {
+        description
+          "Local-AS options configuration.
+          Local-AS is a migration tool described in RFC7705.";
+        uses bgp-local-as-group-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Local-AS options state.
+          Local-AS is a migration tool described in RFC7705.";
+        uses bgp-local-as-group-config;
+      }
     }
   }
 
