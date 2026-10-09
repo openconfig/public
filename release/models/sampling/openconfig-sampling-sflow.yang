@@ -67,8 +67,17 @@ module openconfig-sampling-sflow {
     leaf enabled {
       type boolean;
       description
-        "Enables or disables sFlow on the interface.  If sFlow is
-        globally disabled, this leaf is ignored.  If sFlow
+        "Enables or disables ingress sFlow on the interface.  If ingress sFlow
+        is globally disabled, this leaf is ignored.  If ingress sFlow
+        is globally enabled, this leaf may be used to disable it
+        for a specific interface.";
+    }
+
+    leaf egress-enabled {
+      type boolean;
+      description
+        "Enables or disables egress sFlow on the interface.  If egress sFlow is
+        globally disabled, this leaf is ignored.  If egress sFlow
         is globally enabled, this leaf may be used to disable it
         for a specific interface.";
     }
@@ -288,7 +297,14 @@ module openconfig-sampling-sflow {
       type boolean;
       default false;
       description
-        "Enables or disables sFlow sampling for the device.";
+        "Enables or disables ingress sFlow sampling for the device.";
+    }
+
+    leaf egress-enabled {
+      type boolean;
+      default false;
+      description
+        "Enables or disables egress sFlow sampling for the device.";
     }
 
     leaf agent-id-ipv4 {
