@@ -65,7 +65,14 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.33.0";
+  oc-ext:openconfig-version "0.34.0";
+
+  revision "2026-10-02" {
+    description
+      "Add operational temperature thresholds list keyed by alarm
+      severity, with temperature-upper and temperature-lower leaves.";
+    reference "0.34.0";
+  }
 
   revision "2026-07-08" {
     description
@@ -770,6 +777,84 @@ revision "2024-05-29" {
     }
   }
 
+  grouping platform-component-temp-threshold-state {
+    description
+      "Operational data for a temperature alarm threshold at a
+      given severity.";
+
+    leaf severity {
+      type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The type of alarm to which the thresholds apply.";
+    }
+
+    leaf temperature-upper {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "celsius";
+      description
+        "Upper temperature threshold for this severity, in degrees
+        Celsius. Compared against the instantaneous temperature
+        reading. If unset, the implementation does not define an
+        upper threshold at this severity.";
+    }
+
+    leaf temperature-lower {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "celsius";
+      description
+        "Lower temperature threshold for this severity, in degrees
+        Celsius. Compared against the instantaneous temperature
+        reading. If unset, the implementation does not define a
+        lower threshold at this severity.";
+    }
+  }
+
+  grouping platform-component-temp-threshold-top {
+    description
+      "Top-level grouping for temperature alarm thresholds keyed by
+      alarm severity.";
+
+    container thresholds {
+      description
+        "Enclosing container for temperature alarm thresholds.";
+
+      list threshold {
+        key "severity";
+        config false;
+        description
+          "List of temperature alarm thresholds, indexed by alarm
+          severity. An implementation's highest severity threshold
+          should be mapped to OpenConfig's CRITICAL severity level.
+          A missing list entry or unset leaf means that threshold is
+          not defined.";
+
+        leaf severity {
+          type leafref {
+            path "../state/severity";
+          }
+          config false;
+          description
+            "The severity applied to the group of thresholds.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational alarm thresholds for the temperature sensor.
+            These thresholds should be sourced by the device
+            manufacturer.";
+          uses platform-component-temp-threshold-state;
+        }
+      }
+    }
+  }
+
   grouping platform-component-power-state {
     description
       "Power-related operational state for device components.";
@@ -802,6 +887,7 @@ revision "2024-05-29" {
 
       uses oc-platform-types:avg-min-max-instant-stats-precision1-celsius;
       uses platform-component-temp-alarm-state;
+      uses platform-component-temp-threshold-top;
     }
   }
 
