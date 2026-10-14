@@ -28,7 +28,8 @@ submodule openconfig-mpls-static {
   revision "2026-10-08" {
     description
       "Add static LSP enabled, payload-type, oper-status and down-reason
-      leaves, and a reference to a reserved label block for static LSPs.";
+      leaves, a recurse leaf on static LSP next-hops, and a reference to
+      a reserved label block for static LSPs.";
     reference "3.7.0";
   }
 
@@ -217,6 +218,21 @@ submodule openconfig-mpls-static {
 
     // interface-ref
     uses oc-if:interface-ref-common;
+
+    leaf recurse {
+      type boolean;
+      default false;
+      description
+        "Determines whether the next-hop IP address may be resolved
+        recursively - i.e., via a RIB entry which has been installed
+        by a routing protocol, or a static route - rather than needing
+        to be connected directly to an interface of the local system
+        within the network instance in which the next-hop is resolved.
+        When the interface reference specified within the next-hop
+        entry is set (i.e., is not null) then forwarding is restricted
+        to being via the interface specified - and recursion is hence
+        disabled.";
+    }
   }
 
   grouping static-lsp-common-config {
@@ -461,21 +477,24 @@ submodule openconfig-mpls-static {
       type enumeration {
         enum UNICAST {
           description
-            "The LSP carries unicast traffic. The payload exposed after
-            the label operation is forwarded as unicast.";
+            "The payload exposed after the label operation is forwarded
+            as unicast traffic, with the destination MAC address taken
+            from the ARP or ND entry of the next-hop, or of the
+            next-hop of the resolving route when the next-hop is
+            resolved recursively.";
         }
         enum MULTICAST {
           description
-            "The LSP carries multicast traffic. The payload exposed
-            after the label operation is replicated as multicast
-            traffic, for example towards the receivers of a multicast
-            group in the network instance in which it is forwarded.";
+            "The payload exposed after the label operation is forwarded
+            as multicast traffic, with a multicast destination MAC
+            address derived from the destination IP address of the
+            payload.";
         }
       }
       description
-        "The type of traffic carried by the static LSP. This determines
-        whether the system programs unicast or multicast forwarding
-        state for the LSP.";
+        "Whether the payload exposed after the label operation is
+        forwarded as unicast or multicast traffic. The difference
+        affects the destination MAC address of the forwarded packet.";
     }
   }
 
