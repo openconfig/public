@@ -25,7 +25,13 @@ module openconfig-procmon {
     "This module provides data definitions for process health
     monitoring of one or more processes running on the system.";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2025-10-08" {
+    description
+      "Modify process args from leaf-list to leaf";
+    reference "0.5.0";
+  }
 
   revision "2019-03-15" {
     description
@@ -117,15 +123,10 @@ module openconfig-procmon {
         "The process name";
     }
 
-    leaf-list args {
+    leaf args {
       type string;
       description
-        "Current process command line arguments.  Arguments with
-        a parameter (e.g., --option 10  or -option=10) should be
-        represented as a single element of the list with the
-        argument name and parameter together.  Flag arguments, i.e.,
-        those without a parameter should also be in their own list
-        element.";
+        "Current process command line arguments.";
     }
 
     leaf start-time {
