@@ -25,11 +25,31 @@ submodule openconfig-ospfv2-global {
 
   oc-ext:openconfig-version "0.9.0";
 
-  revision "2026-09-06" {
+  revision "2026-09-09" {
     description
       "Add nsr container to OSPFv2 global structure, equivalent to
       that of ISIS global config.";
     reference "0.9.0";
+  }
+  revision "2026-09-08" {
+    description
+      "Add max-ecmp-paths leaf to OSPFv2 global config, equivalent to
+      that of ISIS global config.";
+    reference "0.8.0";
+  }
+  revision "2026-09-07" {
+    description
+      "Add reference-bandwidth container to OSPFv2 global structure,
+      equivalent to that of ISIS global config.";
+    reference "0.7.0";
+  }
+  revision "2026-09-06" {
+    description
+      "Add route-preference container to OSPFv2 global structure,
+      providing administrative distance (preference) leafs for
+      intra-area, inter-area and external OSPFv2 routes, equivalent
+      to those of ISIS global config.";
+    reference "0.6.0";
   }
   revision "2024-06-17" {
     description
@@ -194,6 +214,14 @@ submodule openconfig-ospfv2-global {
       reference
         "RFC6860 - Hiding Transit-Only Networks in OSPF";
     }
+
+    leaf max-ecmp-paths {
+      type uint8;
+      description
+        "The maximum number of equal-cost paths that OSPFv2 can
+        install for a single destination. Equivalent to the
+        max-ecmp-paths of ISIS global config.";
+    }
   }
 
   grouping ospfv2-global-spf-timers-config {
@@ -337,6 +365,58 @@ submodule openconfig-ospfv2-global {
 
     uses oc-rpol:apply-policy-import-config;
     uses oc-rpol:default-policy-import-config;
+  }
+
+  grouping ospfv2-global-route-preference-config {
+    description
+      "Configuration options relating to the administrative distance
+      (preference) assigned to routes per different OSPFv2 route
+      type, intra-area, inter-area and external routes. Equivalent
+      to external-route-preference and internal-route-preference of
+      ISIS route-preference grouping.";
+
+    leaf intra-area-route-preference {
+      type uint8 {
+        range "1..255";
+      }
+      description
+        "Administrative distance (preference) for intra-area OSPFv2
+        routes.";
+    }
+
+    leaf inter-area-route-preference {
+      type uint8 {
+        range "1..255";
+      }
+      description
+        "Administrative distance (preference) for inter-area OSPFv2
+        routes.";
+    }
+
+    leaf external-route-preference {
+      type uint8 {
+        range "1..255";
+      }
+      description
+        "Administrative distance (preference) for external OSPFv2
+        routes.";
+    }
+  }
+
+  grouping ospfv2-global-reference-bandwidth-config {
+    description
+      "Configuration parameters relating to the OSPFv2 auto-cost
+      reference bandwidth.";
+
+    leaf reference-bandwidth {
+      type uint32;
+      units Mbps;
+      description
+        "The reference bandwidth, in Mbps, used by the local
+        system to calculate the default metric for an interface
+        based on its bandwidth. Equivalent to the
+        reference-bandwidth leaf on the ISIS global config.";
+    }
   }
 
   grouping ospfv2-global-admin-config {
@@ -602,6 +682,49 @@ submodule openconfig-ospfv2-global {
               propagation policy";
             uses ospfv2-global-inter-areapp-config;
           }
+        }
+      }
+
+      container route-preference {
+        description
+          "Administrative distance (preference) assigned to routes
+          per different OSPFv2 route type, intra-area, inter-area,
+          external routes.";
+
+        container config {
+          description
+            "Configuration parameters relating to the OSPFv2 route
+            preference";
+          uses ospfv2-global-route-preference-config;
+        }
+
+        container state {
+          config false;
+          description
+            "State information relating to the OSPFv2 route
+            preference";
+          uses ospfv2-global-route-preference-config;
+        }
+      }
+
+      container reference-bandwidth {
+        description
+          "Configuration and operational state parameters relating
+          to the OSPFv2 auto-cost reference bandwidth.";
+
+        container config {
+          description
+            "Configuration parameters relating to the OSPFv2
+            auto-cost reference bandwidth.";
+          uses ospfv2-global-reference-bandwidth-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to the OSPFv2
+            auto-cost reference bandwidth.";
+          uses ospfv2-global-reference-bandwidth-config;
         }
       }
 
