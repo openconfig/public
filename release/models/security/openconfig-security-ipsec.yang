@@ -40,7 +40,14 @@ module openconfig-security-ipsec {
   description
     "This module defines configuration and operational state for IPSec.";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision 2026-10-15 {
+    description
+      "Add ingress SA failure counter to IPsec connections.";
+    reference
+      "0.2.0";
+  }
 
   revision 2025-12-03 {
     description
@@ -204,6 +211,14 @@ module openconfig-security-ipsec {
                   mandatory true;
                   description
                     "Count of packets dropped due to encryption failures.";
+                }
+
+                leaf ingress-sa-failure {
+                  type yang:counter64;
+                  mandatory true;
+                  description
+                    "Count of packets dropped due to invalid security
+                    association or SPI.";
                 }
               }
             }
