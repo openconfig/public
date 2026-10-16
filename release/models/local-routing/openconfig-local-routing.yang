@@ -43,7 +43,15 @@ module openconfig-local-routing {
     protocol-specific policy after importing the route into the
     protocol for distribution (again via routing policy).";
 
-  oc-ext:openconfig-version "4.1.0";
+  oc-ext:openconfig-version "4.2.0";
+
+  revision "2026-08-24" {
+    description
+      "Add per-nexthop tag and track-id leaves to local-static-nexthop-config
+      for static route next-hops. The tag leaf uses oc-pt:tag-type for
+      consistency with other OpenConfig tag fields.";
+    reference "4.2.0";
+  }
 
   revision "2025-07-29" {
     description
@@ -327,6 +335,31 @@ module openconfig-local-routing {
         recursion is hence disabled.
         This leaf is mutualy exclusive with next-network-instance
         leaf";
+    }
+
+    leaf tag {
+      type oc-pt:tag-type;
+      description
+        "Administrative tag associated with this static-route nexthop.
+         The tag is an opaque identifier used for policy actions such
+         as route-map matching, redistribution filtering, or BGP export
+         control. It does not affect route preference or nexthop
+         selection by itself.
+         When multiple ECMP nexthops are configured for the same prefix,
+         each nexthop may carry a distinct tag value.
+         If unset, the implementation default applies (typically no tag).";
+    }
+
+    leaf track-id {
+      type string;
+      description
+        "Identifier of a reachability track object associated with this
+         nexthop. The static route nexthop is eligible for installation
+         only while the referenced track object reports an 'up' state.
+         The track object is defined separately (e.g., IP SLA, NQA,
+         RPM, or active probe profile) and may monitor reachability to
+         an endpoint that is not necessarily identical to this nexthop
+         address.";
     }
 
     uses local-common-route-attributes;
