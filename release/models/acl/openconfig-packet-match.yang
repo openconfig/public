@@ -31,7 +31,14 @@ module openconfig-packet-match {
     wildcard ('any') for that field.";
 
 
-  oc-ext:openconfig-version "2.3.0";
+  oc-ext:openconfig-version "2.4.0";
+
+  revision "2026-05-11" {
+    description
+      "Deprecate source/destination flow-label definitions and replace
+      with single IPv6 flow-label leaf.";
+    reference "2.4.0";
+  }
 
   revision "2026-03-25" {
     description
@@ -416,8 +423,11 @@ module openconfig-packet-match {
 
     leaf source-flow-label {
       type oc-inet:ipv6-flow-label;
+      status deprecated;
       description
-        "Source IPv6 Flow label.";
+        "Deprecated: use flow-label instead.  The IPv6 header contains a
+        single flow-label field; there is no distinct source or
+        destination flow-label.";
     }
 
     leaf destination-address {
@@ -438,8 +448,17 @@ module openconfig-packet-match {
 
     leaf destination-flow-label {
       type oc-inet:ipv6-flow-label;
+      status deprecated;
       description
-        "Destination IPv6 Flow label.";
+        "Deprecated: use flow-label instead.  The IPv6 header contains a
+        single flow-label field; there is no distinct source or
+        destination flow-label.";
+    }
+
+    leaf flow-label {
+      type oc-inet:ipv6-flow-label;
+      description
+        "IPv6 Flow label.";
     }
 
     uses ip-protocol-fields-common-config;

@@ -20,7 +20,14 @@ submodule openconfig-platform-common {
     "This modules contains common groupings that are used in multiple
     components within the platform module.";
 
-  oc-ext:openconfig-version "0.32.0";
+  oc-ext:openconfig-version "0.33.0";
+
+  revision "2026-07-08" {
+    description
+      "Add component-power-management-state grouping with the
+      read-only power-oper-state leaf.";
+    reference "0.33.0";
+  }
 
   revision "2025-07-15" {
     description
@@ -286,6 +293,30 @@ revision "2024-10-13" {
         from becoming active even after a reboot of the system. A component
         (if controller-card) may not honor power-admin-state depending on rules
         defined in the description of the component config container.";
+    }
+  }
+
+  grouping component-power-management-state {
+    description
+      "Common grouping for reporting the operational power state of a
+      component";
+
+    leaf power-oper-state {
+      type oc-platform-types:component-power-oper-type;
+      description
+        "The operational power state of the component.  Whereas
+        power-admin-state reflects the configured (intended) power
+        state, power-oper-state reflects the actual, applied power
+        state as observed by the system.
+
+        While a power change is in progress, for example when a
+        component is being powered down but has not yet fully powered
+        off, this leaf reports POWER_TRANSITIONING and does not report
+        POWER_DISABLED until the component has fully powered off.  This
+        provides a consistent operational view across telemetry and
+        other management interfaces and allows management systems to
+        avoid initiating a subsequent power operation before the
+        current transition has completed.";
     }
   }
 
