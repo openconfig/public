@@ -25,7 +25,13 @@ submodule openconfig-pf-forwarding-policies {
     "This submodule contains configuration and operational state
     relating to the definition of policy-forwarding policies.";
 
-  oc-ext:openconfig-version "1.2.0";
+  oc-ext:openconfig-version "1.3.0";
+
+  revision "2026-10-04" {
+    description
+      "Add policer as a policy-forwarding action.";
+    reference "1.3.0";
+  }
 
   revision "2026-03-13" {
     description
@@ -621,6 +627,23 @@ grouping pf-forwarding-policy-action-forwarding-config {
       description
         "When specified, the system will increment the referenced user
         defined counter.";
+    }
+
+    leaf policer {
+      when "../../../../../config/type = 'MATCH_ACTION_POLICY'";
+      type leafref {
+        path "/oc-qos:qos/oc-qos:policers/oc-qos:policer/oc-qos:config/oc-qos:name";
+      }
+      description
+        "When specified, packets that match the rule are metered by the
+        referenced global policer, and each packet is subject to the
+        conform, exceed or violate action of the policer according to
+        its color.  Matching packets that the policer does not drop are
+        also subject to the other actions configured for the rule, for
+        example a redirect to a next-hop group.  Multiple rules, within
+        the same or different policies, may reference the same policer,
+        in which case the traffic matching all of those rules is metered
+        in aggregate.";
     }
 
     leaf discard {
