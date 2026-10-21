@@ -36,7 +36,13 @@ submodule openconfig-qos-elements {
       packets for transmission, including policer and shaper
       functions";
 
-  oc-ext:openconfig-version "2.2.0";
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2026-08-27" {
+    description
+      "Add forwarding-group identifier.";
+    reference "2.3.0";
+  }
 
   revision "2026-04-30" {
     description
@@ -426,6 +432,13 @@ submodule openconfig-qos-elements {
       type string;
       description
         "Name of the forwarding group";
+    }
+
+    leaf forwarding-group-id {
+      type uint8;
+      description
+        "An optional identifier which may be required by some hardware to map
+         the named forwarding group to a hardware forwarding group.";
     }
 
     // TODO(robjs, Simon G): Discuss optionally moving
