@@ -23,8 +23,14 @@ submodule openconfig-ospf-global {
     "This submodule provides common OSPF configuration and operational
     state parameters that are global to a particular OSPF instance";
 
-  oc-ext:openconfig-version "0.4.0";
+  oc-ext:openconfig-version "0.5.0";
 
+  revision "2026-09-09" {
+    description
+      "Add nsr container to OSPF global structure, equivalent to
+      that of ISIS global config.";
+    reference "0.5.0";
+  }
   revision "2026-09-08" {
     description
       "Add max-ecmp-paths leaf to OSPF global config, equivalent to
@@ -289,6 +295,20 @@ submodule openconfig-ospf-global {
     }
   }
 
+  grouping ospf-global-admin-config {
+    description
+      "Re-usable grouping to enable or disable a particular OSPF
+      feature.";
+
+    leaf enabled {
+      type boolean;
+      description
+        "When set to true, the functionality within which this leaf
+        is defined is enabled; when set to false it is explicitly
+        disabled.";
+    }
+  }
+
   grouping ospf-global-max-metric-config {
     description
       "Configuration paramters relating to setting the OSPF
@@ -542,6 +562,27 @@ submodule openconfig-ospf-global {
             "Operational state parameters relating to the OSPF
             auto-cost reference bandwidth.";
           uses ospf-global-reference-bandwidth-config;
+        }
+      }
+
+      container nsr {
+        description
+          "Configuration and operational state parameters for OSPF
+          Non-Stop Routing (NSR)";
+
+        container config {
+          description
+            "Configuration parameters relating to OSPF Non-Stop
+            Routing (NSR)";
+          uses ospf-global-admin-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to OSPF Non-Stop
+            Routing (NSR)";
+          uses ospf-global-admin-config;
         }
       }
     }
