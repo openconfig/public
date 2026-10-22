@@ -27,6 +27,12 @@ module openconfig-optical-amplifier {
 
   oc-ext:openconfig-version "0.5.0";
 
+  revision "2026-10-22" {
+    description
+      "Add min/max/avg stats for target-output-power";
+    reference "0.6.0";
+  }
+
   revision "2019-12-06" {
     description
       "Add DYNAMIC_GAIN mode and related leaves.";
@@ -296,15 +302,6 @@ module openconfig-optical-amplifier {
         "The operating mode of the amplifier";
     }
 
-    leaf target-output-power {
-      type decimal64 {
-        fraction-digits 2;
-      }
-      units dBm;
-      description
-        "Output optical power of the amplifier.";
-    }
-
     leaf max-output-power {
       type decimal64 {
         fraction-digits 2;
@@ -466,6 +463,16 @@ module openconfig-optical-amplifier {
 
       uses oc-types:avg-min-max-instant-stats-precision2-dBm;
     }
+
+    container target-output-power {
+        description
+          "Operational target output power of the amplifier.
+          Statistics describe the target power over the reported
+          interval, rather than measured output power.
+          Systems without statistical support report only instant.";
+    
+        uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+      }
   }
 
   grouping optical-amplifier-top {
@@ -498,6 +505,16 @@ module openconfig-optical-amplifier {
               "Configuration data for the amplifier";
 
             uses optical-amplifier-config;
+
+            leaf target-output-power {
+              type decimal64 {
+                fraction-digits 2;
+              }
+              units dBm;
+              description
+                "Output optical power of the amplifier.";
+            }
+
           }
 
           container state {
