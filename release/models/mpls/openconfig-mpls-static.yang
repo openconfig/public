@@ -23,7 +23,15 @@ submodule openconfig-mpls-static {
   description
     "Defines static LSP configuration";
 
-  oc-ext:openconfig-version "3.6.2";
+  oc-ext:openconfig-version "3.7.0";
+
+  revision "2026-10-08" {
+    description
+      "Add static LSP enabled, payload-type, oper-status and down-reason
+      leaves, a recurse leaf on static LSP next-hops, and a reference to
+      a reserved label block for static LSPs.";
+    reference "3.7.0";
+  }
 
   revision "2025-12-10" {
     description
@@ -210,6 +218,21 @@ submodule openconfig-mpls-static {
 
     // interface-ref
     uses oc-if:interface-ref-common;
+
+    leaf recurse {
+      type boolean;
+      default false;
+      description
+        "Determines whether the next-hop IP address may be resolved
+        recursively - i.e., via a RIB entry which has been installed
+        by a routing protocol, or a static route - rather than needing
+        to be connected directly to an interface of the local system
+        within the network instance in which the next-hop is resolved.
+        When the interface reference specified within the next-hop
+        entry is set (i.e., is not null) then forwarding is restricted
+        to being via the interface specified - and recursion is hence
+        disabled.";
+    }
   }
 
   grouping static-lsp-common-config {
@@ -438,18 +461,90 @@ submodule openconfig-mpls-static {
       description
         "name to identify the LSP";
     }
+
+    leaf enabled {
+      type boolean;
+      default true;
+      description
+        "When set to true, the static LSP is administratively enabled
+        and the system should program it in the forwarding plane. When
+        set to false, the static LSP and all of its next-hops are
+        administratively disabled and must not be used for
+        forwarding.";
+    }
+
+    leaf payload-type {
+      type enumeration {
+        enum UNICAST {
+          description
+            "The payload exposed after the label operation is forwarded
+            as unicast traffic, with the destination MAC address taken
+            from the ARP or ND entry of the next-hop, or of the
+            next-hop of the resolving route when the next-hop is
+            resolved recursively.";
+        }
+        enum MULTICAST {
+          description
+            "The payload exposed after the label operation is forwarded
+            as multicast traffic, with a multicast destination MAC
+            address derived from the destination IP address of the
+            payload.";
+        }
+      }
+      description
+        "Whether the payload exposed after the label operation is
+        forwarded as unicast or multicast traffic. The difference
+        affects the destination MAC address of the forwarded packet.";
+    }
   }
 
   grouping static-lsp-state {
     description
       "Operational state data for static LSPs";
 
+    leaf oper-status {
+      type identityref {
+        base oc-mplst:LSP_OPER_STATUS;
+      }
+      description
+        "The operational status of the static LSP. A static LSP is UP
+        when it is programmed in the forwarding plane and capable of
+        carrying traffic.";
+    }
+
+    leaf down-reason {
+      type enumeration {
+        enum ADMIN_DOWN {
+          description
+            "The static LSP is administratively disabled because the
+            enabled leaf is set to false.";
+        }
+        enum LABEL_UNAVAILABLE {
+          description
+            "The incoming label of the static LSP could not be
+            allocated, for example because it is already in use or is
+            outside of the configured label block.";
+        }
+        enum NEXT_HOPS_UNRESOLVED {
+          description
+            "None of the next-hops of the static LSP are resolved, so
+            there is no valid next-hop to forward traffic to.";
+        }
+        enum RESOURCE_ALLOCATION_FAILED {
+          description
+            "The forwarding plane resources required to program the
+            static LSP could not be allocated.";
+        }
+      }
+      description
+        "The reason why the static LSP is operationally down. This leaf
+        is only populated when oper-status is DOWN.";
+    }
   }
 
   grouping static-lsp-top {
     description
       "grouping for top level list of static LSPs";
-
 
     list static-lsp {
       key "name";
