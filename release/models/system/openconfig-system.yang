@@ -49,7 +49,13 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2026-09-16" {
+    description
+      "Add a system-wide network-instance leaf to NTP config and state.";
+    reference "3.4.0";
+  }
 
   revision "2026-07-20" {
     description
@@ -859,7 +865,10 @@ module openconfig-system {
     leaf network-instance {
       type oc-ni:network-instance-ref;
       description
-        "The network instance used to find this server.";
+        "The network instance used to find this server. When set,
+        this value overrides the system-wide network instance
+        configured in 'ntp/config/network-instance' for this
+        server.";
     }
 
     leaf source-address {
@@ -1078,6 +1087,28 @@ module openconfig-system {
         "Enable or disable NTP authentication -- when enabled, the
         system will only use packets containing a trusted
         authentication key to synchronize the time.";
+    }
+
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "The default network instance used for NTP operation on the
+        system. Servers in the 'ntp/servers/server' list are contacted
+        over this network instance, as are NTP packets that are not
+        associated with a specific configured server.
+
+        Some implementations run a single NTP client bound to one
+        network instance, and so cannot select a network instance per
+        server. Such implementations use this leaf and do not support
+        the network-instance leaf in the 'ntp/servers/server' list.
+
+        Where an implementation supports selecting the network instance
+        per server, the network instance configured in
+        'ntp/servers/server/config/network-instance' takes precedence,
+        and this leaf applies to any server that does not specify one.
+
+        If neither is specified, the default network instance is
+        used.";
     }
   }
 
