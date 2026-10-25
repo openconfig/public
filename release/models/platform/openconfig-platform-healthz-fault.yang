@@ -23,7 +23,13 @@ module openconfig-platform-healthz-fault {
   description
     "This model defines device reported fault";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.1.1";
+
+  revision "2026-03-23" {
+    description
+      "Add remediation description and ACTION_FW_REPROGRAM";
+    reference "0.1.1";
+  }
 
   revision "2025-08-05" {
     description
@@ -124,6 +130,26 @@ module openconfig-platform-healthz-fault {
     base ACTION_BASE;
     description
       "Replace component.";
+  }
+
+  identity ACTION_FW_REPROGRAM {
+    base ACTION_BASE;
+    description
+      "Force-reprogram the firmware for the targeted component.
+      The targeted component may need to be powercycled
+      for the reprogramming to take effect.
+
+      In comparison to ACTION_FACTORY_RESET action,
+      ACTION_FW_REPROGRAM does not necessarily involve resetting
+      the firmware back to its factory default. It also does not
+      involve resetting any certificates on disk or removing
+      any config files or OS images.
+
+      E.g. for the Chassis component this could mean
+      force-reprogramming all FPGAs and reloading
+      all drivers on the Chassis.
+      This reprogramming would be to the currently-installed
+      version, not the factory default version.";
   }
 
   grouping platform-health-faults {
@@ -293,6 +319,12 @@ module openconfig-platform-healthz-fault {
               "This index indicates the order in which the actions should be
               applied. The order should progress from least to most
               disruptive.";
+          }
+
+          leaf description {
+            type string;
+            description
+              "Description for the remediating action";
           }
 
           leaf action {
