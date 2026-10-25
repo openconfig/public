@@ -24,7 +24,13 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.9.1";
+  oc-ext:openconfig-version "9.9.2";
+
+  revision "2026-07-15" {
+    description
+      "Extend Add-path Send leaf with values ADDPATH-ECMP, ADDPATH-ALL and ADDPATH-BACKUP";
+    reference "9.9.2";
+  }
 
   revision "2025-04-18" {
     description
@@ -527,9 +533,44 @@ submodule openconfig-bgp-common {
     leaf send {
       type boolean;
       default false;
+      status deprecated;
       description
-        "Enable capability negotiation to send multiple path
+        "DEPRECATED: Use the send-mode leaf instead.
+        Enable capability negotiation to send multiple path
         advertisements for an NLRI from the neighbor or group";
+      reference
+        "RFC 7911 - Advertisement of Multiple Paths in BGP";
+    }
+
+    leaf send-mode {
+      type enumeration {
+        enum STANDARD {
+          description
+            "Enable capability negotiation to send multiple path
+            advertisements for an NLRI from the neighbor or group";
+        }
+        enum ADDPATH_ECMP {
+          description
+            "Enable capability negotiation to send multiple paths,
+            and select/advertise all active ECMP paths
+            for a destination to the peer.";
+        }
+        enum ADDPATH_ALL {
+          description
+            "Enable capability negotiation to send all RIB/FIB paths
+            to the peer.";
+        }
+        enum ADDPATH_BACKUP {
+          description
+            "Enable capability negotiation to send multiple paths,
+            and select/advertise the best path and backup path
+            for a destination to the peer.";
+        }
+      }
+      description
+        "Configures the mode for sending additional paths to the BGP peer. 
+        This replaces the deprecated boolean 'send' leaf to allow for 
+        more granular control over which paths are advertised.";
       reference
         "RFC 7911 - Advertisement of Multiple Paths in BGP";
     }
