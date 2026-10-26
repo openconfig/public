@@ -27,7 +27,13 @@ submodule openconfig-bgp-global {
     "This sub-module contains groupings that are specific to the
     global context of the OpenConfig BGP module";
 
-  oc-ext:openconfig-version "9.10.0";
+  oc-ext:openconfig-version "9.11.0";
+
+  revision "2026-10-25" {
+    description
+      "Add next-hop-trigger-delay to BGP global configuration.";
+    reference "9.11.0";
+  }
 
   revision "2026-06-16" {
     description
@@ -246,6 +252,15 @@ submodule openconfig-bgp-global {
       reference
         "RFC4271 - A Border Gateway Protocol 4 (BGP-4),
         Section 4.2";
+    }
+
+    leaf next-hop-trigger-delay {
+      type uint8;
+      units "seconds";
+      description
+        "Delay between a next-hop change notification from the RIB
+        and the BGP next-hop scan and best-path recalculation.  A
+        value of 0 triggers the scan immediately.";
     }
   }
 
