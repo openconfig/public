@@ -26,7 +26,13 @@ module openconfig-vlan {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.2.2";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2026-10-05" {
+    description
+      "Add encap-state leaf to vlan-logical-state grouping.";
+    reference "3.3.0";
+  }
 
   revision "2023-02-07" {
     description
@@ -302,8 +308,13 @@ module openconfig-vlan {
       "VLAN related operational state that is part of logical
       interface state data";
 
-    //TODO: placeholder to add VLAN-specific state variables on
-    //the subinterface
+    leaf encap-state {
+      type oc-vlan-types:encap-oper-status;
+      description
+        "The operational status of the subinterface VLAN encapsulation,
+        indicating whether it is active, inactive, or in conflict with
+        another subinterface.";
+    }
   }
 
   grouping vlan-logical-single-tagged-config {
