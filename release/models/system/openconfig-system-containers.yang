@@ -1,0 +1,392 @@
+module openconfig-system-containers {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/system/containers";
+
+  prefix "oc-sys-ctr";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-types { prefix oc-types; }
+  import openconfig-yang-types { prefix oc-yang; }
+
+  // meta
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module provides operational state for the containers in
+    which a network device runs its system software, such as routing,
+    platform and management services. It reports the
+    lifecycle of each container (status, start and stop times, the
+    reason for the last stop and a restart counter), the
+    administrative intent of the service the container belongs to,
+    and its resource usage.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2026-10-26" {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // grouping statements
+
+  grouping system-container-counters-state {
+    description
+      "Counters related to the lifecycle of a system container.";
+
+    leaf restarts {
+      type oc-yang:counter64;
+      description
+        "The number of times the container was started since the
+        system booted, excluding the first start after boot. Every
+        start counts, whatever its cause, including a recovery from a
+        failure, an operator restart and a restart caused by a
+        dependent service.
+
+        The counter is reset to 0 when the system boots. A decrease
+        of the value indicates a discontinuity.";
+    }
+
+    leaf last-event-gap-time {
+      type oc-types:timeticks64;
+      description
+        "The time at which the system last detected that lifecycle
+        events of this container were lost, so that a change of the
+        container was found by comparison with the container runtime
+        rather than observed as it happened. From this time the
+        restarts counter is a lower bound, since several restarts
+        within the gap are counted once. The value is the time in
+        nanoseconds relative to the Unix epoch. It is not reported
+        if no events were lost since the system booted.";
+    }
+  }
+
+  grouping system-container-state {
+    description
+      "Operational state of a system container.";
+
+    leaf name {
+      type string;
+      description
+        "The name of the container. It is unique among the system
+        containers of the device and is kept when the container is
+        replaced by a new one. For a service that runs one container
+        per instance, each instance has its own name.";
+    }
+
+    leaf feature {
+      type string;
+      description
+        "The name of the system feature or service that the container
+        implements. Several containers have the same feature when the
+        service runs one container per instance.";
+    }
+
+    leaf oper-status {
+      type enumeration {
+        enum CREATED {
+          description
+            "The container exists but has not been started.";
+        }
+        enum RUNNING {
+          description
+            "The container is running.";
+        }
+        enum EXITED {
+          description
+            "The container has stopped.";
+        }
+        enum NOT_PRESENT {
+          description
+            "The container is expected to run according to the
+            configuration of the device, for example because its
+            feature is enabled, but it does not exist.";
+        }
+      }
+      description
+        "The operational status of the container.";
+    }
+
+    leaf container-id {
+      type string;
+      description
+        "The identifier assigned to the container by the container
+        runtime. A new identifier indicates that the container was
+        replaced by a new one.";
+    }
+
+    leaf image-name {
+      type string;
+      description
+        "The name of the image from which the container was created.";
+    }
+
+    leaf tag {
+      type string;
+      description
+        "The version of the image from which the container was
+        created.";
+    }
+
+    leaf created-on {
+      type oc-types:timeticks64;
+      description
+        "The time at which the container was created, in nanoseconds
+        relative to the Unix epoch.";
+    }
+
+    leaf start-time {
+      type oc-types:timeticks64;
+      description
+        "The time at which the container was last started, in
+        nanoseconds relative to the Unix epoch.";
+    }
+
+    leaf last-stop-time {
+      type oc-types:timeticks64;
+      description
+        "The time at which the container last stopped, in nanoseconds
+        relative to the Unix epoch. It is not reported if the
+        container has not stopped since the system booted.";
+    }
+
+    leaf last-exit-code {
+      type int32;
+      description
+        "The exit code of the main process of the container at its
+        last stop. It is not reported if the container has not
+        stopped since the system booted.";
+    }
+
+    leaf last-stop-reason {
+      type enumeration {
+        enum STOPPED {
+          description
+            "The stop was requested through the container runtime,
+            for example by an operator, a service manager or a
+            container orchestrator. It does not indicate whether the
+            stop was planned.";
+        }
+        enum EXITED {
+          description
+            "The main process of the container exited by itself, for
+            example because of a failure within the container.";
+        }
+        enum OOM_KILLED {
+          description
+            "The container was stopped because it ran out of memory.";
+        }
+        enum UNKNOWN {
+          description
+            "The stop was detected, but the events that would identify
+            its reason were lost.";
+        }
+      }
+      description
+        "The reason for the last stop of the container. It is not
+        reported if the container has not stopped since the system
+        booted.";
+    }
+
+    leaf feature-state {
+      type enumeration {
+        enum ENABLED {
+          description
+            "The feature is enabled.";
+        }
+        enum DISABLED {
+          description
+            "The feature is disabled.";
+        }
+        enum ALWAYS_ENABLED {
+          description
+            "The feature is enabled and cannot be disabled.";
+        }
+        enum ALWAYS_DISABLED {
+          description
+            "The feature is disabled and cannot be enabled.";
+        }
+      }
+      description
+        "The administrative state of the feature that the container
+        implements.";
+    }
+
+    leaf auto-restart {
+      type enumeration {
+        enum ENABLED {
+          description
+            "The container is restarted automatically when it fails.";
+        }
+        enum DISABLED {
+          description
+            "The container is not restarted automatically when it
+            fails.";
+        }
+        enum ALWAYS_ENABLED {
+          description
+            "Automatic restart is enabled and cannot be disabled.";
+        }
+      }
+      description
+        "Whether the container is restarted automatically when it
+        fails.";
+    }
+
+    leaf app-ready-status {
+      type enumeration {
+        enum OK {
+          description
+            "The service in the container is ready.";
+        }
+        enum NOT_OK {
+          description
+            "The service in the container is not ready.";
+        }
+        enum STARTING {
+          description
+            "The service in the container is starting.";
+        }
+        enum STOPPING {
+          description
+            "The service in the container is stopping.";
+        }
+        enum DOWN {
+          description
+            "The service in the container is down.";
+        }
+      }
+      description
+        "The readiness of the service running in the container, as
+        determined by the health monitoring of the device.";
+    }
+
+    leaf fail-reason {
+      type string;
+      description
+        "The reason reported by the health monitoring of the device
+        when the service in the container is not ready. It is not reported
+        when there is no failure.";
+    }
+
+    leaf cpu-utilization {
+      type oc-types:percentage;
+      description
+        "The percentage of the total CPU capacity of the system that
+        is being used by the container.";
+    }
+
+    leaf memory-usage {
+      type uint64;
+      units "bytes";
+      description
+        "The memory used by the container.";
+    }
+
+    leaf memory-limit {
+      type uint64;
+      units "bytes";
+      description
+        "The memory limit of the container. When the container has no
+        limit, this is the memory of the system.";
+    }
+
+    leaf memory-utilization {
+      type oc-types:percentage;
+      description
+        "The memory used by the container as a percentage of its
+        memory-limit.";
+    }
+
+    leaf process-count {
+      type uint32;
+      description
+        "The number of processes and threads running in the
+        container.";
+    }
+
+    leaf last-sync-time {
+      type oc-types:timeticks64;
+      description
+        "The time at which the lifecycle state of the container was
+        last confirmed against the container runtime, in nanoseconds
+        relative to the Unix epoch. The lifecycle leaves should be
+        considered stale when this time is older than three times the
+        update interval of the implementation.";
+    }
+
+    leaf last-resource-update-time {
+      type oc-types:timeticks64;
+      description
+        "The time at which the resource usage leaves (cpu-utilization,
+        memory-usage, memory-limit, memory-utilization and
+        process-count) were last updated, in nanoseconds relative to
+        the Unix epoch.";
+    }
+
+    container counters {
+      description
+        "Counters related to the lifecycle of the container.";
+
+      uses system-container-counters-state;
+    }
+  }
+
+  grouping system-containers-top {
+    description
+      "Top-level grouping for system containers.";
+
+    container containers {
+      config false;
+      description
+        "Enclosing container for the list of system containers.";
+
+      list container {
+        key "name";
+        config false;
+        description
+          "List of system containers. An entry exists for each
+          container that runs system software of the device, and for
+          each such container that is expected to run but does not
+          exist.";
+
+        leaf name {
+          type leafref {
+            path "../state/name";
+          }
+          description
+            "Reference to the name of the container.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state of the container.";
+
+          uses system-container-state;
+        }
+      }
+    }
+  }
+
+  // data definition statements
+
+  // augment statements
+
+  // rpc statements
+
+  // notification statements
+}
