@@ -24,7 +24,13 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.11.0";
+  oc-ext:openconfig-version "9.12.0";
+
+  revision "2026-10-26" {
+    description
+      "Add weight to BGP neighbor and peer-group configuration.";
+    reference "9.12.0";
+  }
 
   revision "2026-10-25" {
     description
@@ -417,6 +423,15 @@ submodule openconfig-bgp-common {
         group. The default is to not send the community attribute.  Note, if
         the NONE community-type is specified, no other types must be
         specified.";
+    }
+
+    leaf weight {
+      type uint16;
+      description
+        "Weight assigned to routes received from the neighbor or
+        group.  Routes with a higher weight are preferred, before
+        LOCAL_PREF is compared.  Weight is locally significant and
+        not advertised.";
     }
 
     leaf description {
