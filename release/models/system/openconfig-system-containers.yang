@@ -59,19 +59,6 @@ module openconfig-system-containers {
         The counter is reset to 0 when the system boots. A decrease
         of the value indicates a discontinuity.";
     }
-
-    leaf last-event-gap-time {
-      type oc-types:timeticks64;
-      description
-        "The time at which the system last detected that lifecycle
-        events of this container were lost, so that a change of the
-        container was found by comparison with the container runtime
-        rather than observed as it happened. From this time the
-        restarts counter is a lower bound, since several restarts
-        within the gap are counted once. The value is the time in
-        nanoseconds relative to the Unix epoch. It is not reported
-        if no events were lost since the system booted.";
-    }
   }
 
   grouping system-container-state {
@@ -85,14 +72,6 @@ module openconfig-system-containers {
         containers of the device and is kept when the container is
         replaced by a new one. For a service that runs one container
         per instance, each instance has its own name.";
-    }
-
-    leaf feature {
-      type string;
-      description
-        "The name of the system feature or service that the container
-        implements. Several containers have the same feature when the
-        service runs one container per instance.";
     }
 
     leaf oper-status {
@@ -143,6 +122,7 @@ module openconfig-system-containers {
 
     leaf created-on {
       type oc-types:timeticks64;
+      units "nanoseconds";
       description
         "The time at which the container was created, in nanoseconds
         relative to the Unix epoch.";
@@ -150,6 +130,7 @@ module openconfig-system-containers {
 
     leaf start-time {
       type oc-types:timeticks64;
+      units "nanoseconds";
       description
         "The time at which the container was last started, in
         nanoseconds relative to the Unix epoch.";
@@ -157,6 +138,7 @@ module openconfig-system-containers {
 
     leaf last-stop-time {
       type oc-types:timeticks64;
+      units "nanoseconds";
       description
         "The time at which the container last stopped, in nanoseconds
         relative to the Unix epoch. It is not reported if the
@@ -201,28 +183,28 @@ module openconfig-system-containers {
         booted.";
     }
 
-    leaf feature-state {
+    leaf admin-status {
       type enumeration {
         enum ENABLED {
           description
-            "The feature is enabled.";
+            "The service is enabled.";
         }
         enum DISABLED {
           description
-            "The feature is disabled.";
+            "The service is disabled.";
         }
         enum ALWAYS_ENABLED {
           description
-            "The feature is enabled and cannot be disabled.";
+            "The service is enabled and cannot be disabled.";
         }
         enum ALWAYS_DISABLED {
           description
-            "The feature is disabled and cannot be enabled.";
+            "The service is disabled and cannot be enabled.";
         }
       }
       description
-        "The administrative state of the feature that the container
-        implements.";
+        "The configured administrative state of the service this
+        container belongs to.";
     }
 
     leaf auto-restart {
@@ -320,6 +302,7 @@ module openconfig-system-containers {
 
     leaf last-sync-time {
       type oc-types:timeticks64;
+      units "nanoseconds";
       description
         "The time at which the lifecycle state of the container was
         last confirmed against the container runtime, in nanoseconds
@@ -330,6 +313,7 @@ module openconfig-system-containers {
 
     leaf last-resource-update-time {
       type oc-types:timeticks64;
+      units "nanoseconds";
       description
         "The time at which the resource usage leaves (cpu-utilization,
         memory-usage, memory-limit, memory-utilization and
