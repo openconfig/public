@@ -308,28 +308,33 @@ module openconfig-vlan-types {
       "Operations that can be performed on a VLAN stack.";
   }
 
-  typedef encap-oper-status {
-    type enumeration {
-      enum ACTIVE {
-        description
-          "The subinterface encapsulation is valid, conflict-free, and successfully
-          programmed in hardware; traffic can use the mapping.";
-      }
-      enum INACTIVE {
-        description
-          "The subinterface encapsulation is configured but not operational.
-          This is the generic non-operational state, commonly caused by a hardware
-          programming failure or unavailable resources.";
-      }
-      enum CONFLICT {
-        description
-          "The subinterface encapsulation conflicts with another encapsulation
-          in the same conflict domain (under the same parent interface).";
-      }
-    }
+  identity ENCAP_OPER_STATUS {
     description
-      "Operational status of a subinterface VLAN encapsulation.";
+      "Base identity for the operational status of a subinterface VLAN
+      encapsulation. Implementations and vendors may derive additional
+      values from this base identity.";
   }
 
+  identity ACTIVE {
+    base ENCAP_OPER_STATUS;
+    description
+      "The subinterface encapsulation is valid, conflict-free, and successfully
+      programmed in hardware; traffic can use the mapping.";
+  }
+
+  identity INACTIVE {
+    base ENCAP_OPER_STATUS;
+    description
+      "The subinterface encapsulation is configured but not operational.
+      This is the generic non-operational state, commonly caused by a hardware
+      programming failure or unavailable resources.";
+  }
+
+  identity CONFLICT {
+    base ENCAP_OPER_STATUS;
+    description
+      "The subinterface encapsulation conflicts with another encapsulation
+      in the same conflict domain (under the same parent interface).";
+  }
 
 }
