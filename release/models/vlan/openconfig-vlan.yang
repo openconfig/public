@@ -26,7 +26,13 @@ module openconfig-vlan {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.2.2";
+  oc-ext:openconfig-version "3.2.3";
+
+  revision "2026-10-08" {
+    description
+      "Define canonical form of the trunk-vlans leaf-list";
+    reference "3.2.3";
+  }
 
   revision "2023-02-07" {
     description
@@ -220,7 +226,26 @@ module openconfig-vlan {
         carry when in trunk mode.  If not specified, all VLANs are
         allowed on the interface. Ranges are specified in the form
         x..y, where x<y - ranges are assumed to be inclusive (such
-        that the VLAN range is x <= range <= y.";
+        that the VLAN range is x <= range <= y.
+
+        The canonical form of the set of allowed VLANs is the
+        minimal set of entries that represents it:
+          - a VLAN that is not adjacent to any other allowed VLAN
+            is represented as a single vlan-id;
+          - each run of two or more consecutive allowed VLANs is
+            represented as exactly one range x..y, where x<y;
+          - entries never overlap and no two entries are adjacent
+            (e.g., 1..3 and 4..6 are expressed as 1..6).
+        For example, the VLANs 1, 2, 4, 5, 6 and 8 are expressed
+        as the entries '1..2', '4..6' and 8.
+
+        Clients SHOULD send values in canonical form. Servers MUST
+        normalize values to canonical form when storing them, and
+        MUST return the canonical form in both config and state
+        data, so a value written by a client may be returned in a
+        different but equivalent representation. Operations that
+        add or remove individual VLANs are applied to the set of
+        VLANs and the result is re-normalized.";
     }
   }
 
