@@ -25,8 +25,8 @@ module openconfig-system-containers {
     platform and management services. It reports the
     lifecycle of each container (status, start and stop times, the
     reason for the last stop and a restart counter), the
-    administrative intent of the service the container belongs to,
-    and its resource usage.";
+    administrative intent and status of the service that runs in the
+    container, and its resource usage.";
 
   oc-ext:openconfig-version "0.1.0";
 
@@ -228,40 +228,42 @@ module openconfig-system-containers {
         fails.";
     }
 
-    leaf app-ready-status {
+    leaf service-status {
       type enumeration {
         enum OK {
           description
-            "The service in the container is ready.";
-        }
-        enum NOT_OK {
-          description
-            "The service in the container is not ready.";
+            "The service is running and, where the service reports
+            readiness, it is ready.";
         }
         enum STARTING {
           description
-            "The service in the container is starting.";
+            "The service is starting.";
         }
         enum STOPPING {
           description
-            "The service in the container is stopping.";
+            "The service is stopping.";
         }
         enum DOWN {
           description
-            "The service in the container is down.";
+            "The service is not running, has failed, or is not
+            ready.";
         }
       }
       description
-        "The readiness of the service running in the container, as
-        determined by the health monitoring of the device.";
+        "The status of the system service that runs in the container,
+        as reported by the health monitoring of the device. It
+        describes the service inside the container and can differ
+        from oper-status; for example, the container can be RUNNING
+        while its service is STARTING.";
     }
 
-    leaf fail-reason {
+    leaf service-failure-reason {
       type string;
       description
-        "The reason reported by the health monitoring of the device
-        when the service in the container is not ready. It is not reported
-        when there is no failure.";
+        "Why the service that runs in the container is not running or
+        not ready, as reported by the health monitoring of the device,
+        for example the result reported by the service manager. It is
+        not reported when the service has no failure.";
     }
 
     leaf cpu-utilization {
@@ -300,25 +302,16 @@ module openconfig-system-containers {
         container.";
     }
 
-    leaf last-sync-time {
+    leaf last-refresh-time {
       type oc-types:timeticks64;
       units "nanoseconds";
       description
-        "The time at which the lifecycle state of the container was
-        last confirmed against the container runtime, in nanoseconds
-        relative to the Unix epoch. The lifecycle leaves should be
+        "The time at which the implementation last confirmed the state
+        of the container against the container runtime, in nanoseconds
+        relative to the Unix epoch. It advances periodically even when
+        nothing has changed. The state of the container should be
         considered stale when this time is older than three times the
-        update interval of the implementation.";
-    }
-
-    leaf last-resource-update-time {
-      type oc-types:timeticks64;
-      units "nanoseconds";
-      description
-        "The time at which the resource usage leaves (cpu-utilization,
-        memory-usage, memory-limit, memory-utilization and
-        process-count) were last updated, in nanoseconds relative to
-        the Unix epoch.";
+        refresh interval of the implementation.";
     }
 
     container counters {
