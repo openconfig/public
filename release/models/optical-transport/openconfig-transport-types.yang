@@ -22,7 +22,15 @@ module openconfig-transport-types {
     "This module contains general type definitions and identities
     for optical transport models.";
 
-  oc-ext:openconfig-version "1.5.0";
+  oc-ext:openconfig-version "1.6.0";
+
+  revision "2026-10-27" {
+    description
+      "Add ETH_1600GBASE_ZR, ETH_1600GBASE_ZR_PLUS, ETH_3200GBASE_ZR,
+      and ETH_3200GBASE_ZR_PLUS PMD types, and PROT_1600GE and
+      PROT_3200GE tributary protocol types.";
+    reference "1.6.0";
+  }
 
   revision "2026-06-09" {
     description
@@ -869,6 +877,16 @@ module openconfig-transport-types {
     description "800G Ethernet protocol";
   }
 
+  identity PROT_1600GE {
+    base TRIBUTARY_PROTOCOL_TYPE;
+    description "1600G Ethernet protocol";
+ }
+
+  identity PROT_3200GE {
+    base TRIBUTARY_PROTOCOL_TYPE;
+    description "3200G Ethernet protocol";
+}
+
   identity PROT_OTSIG {
     base TRIBUTARY_PROTOCOL_TYPE;
     description "Optical tributary signal group protocol";
@@ -1346,6 +1364,26 @@ module openconfig-transport-types {
   identity ETH_800GBASE_2XPLR4 {
     base ETHERNET_PMD_TYPE;
     description "Ethernet compliance code: 800GBASE-2xPLR4";
+  }
+
+ identity ETH_1600GBASE_ZR {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 1600GBASE_ZR";
+  }
+
+  identity ETH_1600GBASE_ZR_PLUS {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 1600GBASE_ZR_PLUS";
+  }
+
+  identity ETH_3200GBASE_ZR {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 3200GBASE_ZR";
+  }
+
+  identity ETH_3200GBASE_ZR_PLUS {
+    base ETHERNET_PMD_TYPE;
+    description "Ethernet compliance code: 3200GBASE_ZR_PLUS";
   }
 
   identity ETH_UNDEFINED {
