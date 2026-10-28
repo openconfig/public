@@ -25,8 +25,8 @@ module openconfig-system-containers {
     platform and management services. It reports the
     lifecycle of each container (status, start and stop times, the
     reason for the last stop and a restart counter), the
-    administrative intent and status of the service that runs in the
-    container, and its resource usage.";
+    administrative intent, the status of the application that runs in
+    the container, and its resource usage.";
 
   oc-ext:openconfig-version "0.1.0";
 
@@ -74,6 +74,51 @@ module openconfig-system-containers {
         per instance, each instance has its own name.";
     }
 
+    leaf container-id {
+      type string;
+      description
+        "The identifier assigned to the container by the container
+        runtime. A new identifier indicates that the container was
+        replaced by a new one.";
+    }
+
+    leaf image-name {
+      type string;
+      description
+        "The name of the image from which the container was created.";
+    }
+
+    leaf image-tag {
+      type string;
+      description
+        "The version of the image from which the container was
+        created.";
+    }
+
+    leaf admin-status {
+      type enumeration {
+        enum ENABLED {
+          description
+            "The service is enabled.";
+        }
+        enum DISABLED {
+          description
+            "The service is disabled.";
+        }
+        enum ALWAYS_ENABLED {
+          description
+            "The service is enabled and cannot be disabled.";
+        }
+        enum ALWAYS_DISABLED {
+          description
+            "The service is disabled and cannot be enabled.";
+        }
+      }
+      description
+        "The configured administrative state of the service this
+        container belongs to.";
+    }
+
     leaf oper-status {
       type enumeration {
         enum CREATED {
@@ -99,25 +144,64 @@ module openconfig-system-containers {
         "The operational status of the container.";
     }
 
-    leaf container-id {
-      type string;
+    leaf auto-restart {
+      type enumeration {
+        enum ENABLED {
+          description
+            "The container is restarted automatically when it fails.";
+        }
+        enum DISABLED {
+          description
+            "The container is not restarted automatically when it
+            fails.";
+        }
+        enum ALWAYS_ENABLED {
+          description
+            "Automatic restart is enabled and cannot be disabled.";
+        }
+      }
       description
-        "The identifier assigned to the container by the container
-        runtime. A new identifier indicates that the container was
-        replaced by a new one.";
+        "Whether the container is restarted automatically when it
+        fails.";
     }
 
-    leaf image-name {
-      type string;
+    leaf application-status {
+      type enumeration {
+        enum OK {
+          description
+            "The application is running and, where the application
+            reports readiness, it is ready.";
+        }
+        enum STARTING {
+          description
+            "The application is starting.";
+        }
+        enum STOPPING {
+          description
+            "The application is stopping.";
+        }
+        enum DOWN {
+          description
+            "The application is not running, has failed, or is not
+            ready.";
+        }
+      }
       description
-        "The name of the image from which the container was created.";
+        "The status of the application that runs in the container, as
+        reported by the health monitoring of the device. It describes
+        the application inside the container and can differ from
+        oper-status; for example, the container can be RUNNING while
+        its application is STARTING.";
     }
 
-    leaf tag {
+    leaf application-failure-reason {
       type string;
       description
-        "The version of the image from which the container was
-        created.";
+        "Why the application that runs in the container is not
+        running or not ready, as reported by the health monitoring of
+        the device, for example the result reported by the service
+        manager. It is not reported when the application has no
+        failure.";
     }
 
     leaf created-on {
@@ -143,14 +227,6 @@ module openconfig-system-containers {
         "The time at which the container last stopped, in nanoseconds
         relative to the Unix epoch. It is not reported if the
         container has not stopped since the system booted.";
-    }
-
-    leaf last-exit-code {
-      type int32;
-      description
-        "The exit code of the main process of the container at its
-        last stop. It is not reported if the container has not
-        stopped since the system booted.";
     }
 
     leaf last-stop-reason {
@@ -183,87 +259,12 @@ module openconfig-system-containers {
         booted.";
     }
 
-    leaf admin-status {
-      type enumeration {
-        enum ENABLED {
-          description
-            "The service is enabled.";
-        }
-        enum DISABLED {
-          description
-            "The service is disabled.";
-        }
-        enum ALWAYS_ENABLED {
-          description
-            "The service is enabled and cannot be disabled.";
-        }
-        enum ALWAYS_DISABLED {
-          description
-            "The service is disabled and cannot be enabled.";
-        }
-      }
+    leaf last-exit-code {
+      type int32;
       description
-        "The configured administrative state of the service this
-        container belongs to.";
-    }
-
-    leaf auto-restart {
-      type enumeration {
-        enum ENABLED {
-          description
-            "The container is restarted automatically when it fails.";
-        }
-        enum DISABLED {
-          description
-            "The container is not restarted automatically when it
-            fails.";
-        }
-        enum ALWAYS_ENABLED {
-          description
-            "Automatic restart is enabled and cannot be disabled.";
-        }
-      }
-      description
-        "Whether the container is restarted automatically when it
-        fails.";
-    }
-
-    leaf service-status {
-      type enumeration {
-        enum OK {
-          description
-            "The service is running and, where the service reports
-            readiness, it is ready.";
-        }
-        enum STARTING {
-          description
-            "The service is starting.";
-        }
-        enum STOPPING {
-          description
-            "The service is stopping.";
-        }
-        enum DOWN {
-          description
-            "The service is not running, has failed, or is not
-            ready.";
-        }
-      }
-      description
-        "The status of the system service that runs in the container,
-        as reported by the health monitoring of the device. It
-        describes the service inside the container and can differ
-        from oper-status; for example, the container can be RUNNING
-        while its service is STARTING.";
-    }
-
-    leaf service-failure-reason {
-      type string;
-      description
-        "Why the service that runs in the container is not running or
-        not ready, as reported by the health monitoring of the device,
-        for example the result reported by the service manager. It is
-        not reported when the service has no failure.";
+        "The exit code of the main process of the container at its
+        last stop. It is not reported if the container has not
+        stopped since the system booted.";
     }
 
     leaf cpu-utilization {
