@@ -17,6 +17,7 @@ module openconfig-system {
   import openconfig-system-logging { prefix oc-log; }
   import openconfig-system-terminal { prefix oc-sys-term; }
   import openconfig-procmon { prefix oc-proc; }
+  import openconfig-system-containers { prefix oc-sys-ctr; }
   import openconfig-platform { prefix oc-platform; }
   import openconfig-alarms { prefix oc-alarms; }
   import openconfig-messages { prefix oc-messages; }
@@ -49,7 +50,14 @@ module openconfig-system {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2026-10-26" {
+    description
+      "Add operational state for system service containers via
+      openconfig-system-containers.";
+    reference "3.4.0";
+  }
 
   revision "2026-07-20" {
     description
@@ -1420,6 +1428,7 @@ module openconfig-system {
       uses oc-alarms:alarms-top;
       uses oc-log:logging-top;
       uses oc-proc:procmon-processes-top;
+      uses oc-sys-ctr:system-containers-top;
       uses oc-messages:messages-top;
       uses oc-license:license-top;
       uses oc-sys-term:system-ssh-server-top;
