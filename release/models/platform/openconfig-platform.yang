@@ -887,6 +887,20 @@ revision "2024-05-29" {
 
       uses oc-platform-types:avg-min-max-instant-stats-precision1-celsius;
       uses platform-component-temp-alarm-state;
+    }
+  }
+
+  grouping platform-component-temp-thresholds-top {
+    description
+      "Top-level grouping for the temperature sensor attributes of a
+      component that are not part of its operational state, such as
+      alarm thresholds.";
+
+    container temperature {
+      description
+        "Temperature sensor related data for the component, sibling of
+        the temperature statistics reported under state.";
+
       uses platform-component-temp-threshold-top;
     }
   }
@@ -1450,6 +1464,7 @@ revision "2024-05-29" {
         uses platform-component-properties-top;
         uses platform-subcomponent-ref-top;
         uses platform-anchors-top;
+        uses platform-component-temp-thresholds-top;
       }
     }
   }
