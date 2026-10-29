@@ -26,7 +26,14 @@ module openconfig-if-8021x {
     "Model for managing 8021X. Augments the OpenConfig models for
     wired interfaces and wireless SSIDs for configuration and state.";
 
-  oc-ext:openconfig-version "0.0.1";
+  oc-ext:openconfig-version "0.0.2";
+
+  revision "2026-10-29" {
+    description
+      "Clarify that 802.1X port authentication requires an
+      authentication server group to be bound in openconfig-dot1x.";
+    reference "0.0.2";
+  }
 
   revision "2020-01-28" {
     description
@@ -63,7 +70,13 @@ module openconfig-if-8021x {
     leaf authenticate-port {
       type boolean;
       description
-        "Enable 802.1X port control on an interface.";
+        "Enable 802.1X port control on an interface.
+
+        When set to true, at least one AAA server group must be
+        configured at /dot1x/config/authentication-server-group
+        (openconfig-dot1x).  Without such a binding the 802.1X
+        configuration is incomplete and implementations SHOULD reject
+        it.";
     }
 
     leaf host-mode {

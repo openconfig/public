@@ -32,7 +32,14 @@ module openconfig-aaa {
     Portions of this model reuse data definitions or structure from
     RFC 7317 - A YANG Data Model for System Management";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "1.1.1";
+
+  revision "2026-10-29" {
+    description
+      "Make the AAA server list within a server group ordered-by user
+      to define the order in which servers are used.";
+    reference "1.1.1";
+  }
 
   revision 2025-10-31 {
       description
@@ -267,8 +274,13 @@ module openconfig-aaa {
 
       list server {
         key "address";
+        ordered-by user;
         description
-          "List of AAA servers";
+          "Ordered list of AAA servers in the server group.  Servers
+          are used in the order in which they appear in the list.  The
+          next server is used only when the current server does not
+          respond; an explicit rejection from a server is final and
+          no further servers are consulted.";
 
         leaf address {
           type leafref {
