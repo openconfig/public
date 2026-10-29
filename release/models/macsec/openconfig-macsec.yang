@@ -18,10 +18,23 @@ module openconfig-macsec {
     "This module defines configuration and state data for
      MACsec IEEE Std 802.1AE-2018.";
 
-  oc-ext:openconfig-version "1.2.0";
+  oc-ext:openconfig-version "1.3.1";
   oc-ext:regexp-posix;
   oc-ext:catalog-organization "openconfig";
   oc-ext:origin "openconfig";
+
+  revision "2026-10-28" {
+    description
+      "Updating description of openconfig/macsec leaf sak-rekey-on-live-peer-loss.";
+    reference "1.3.1";
+  }
+
+  revision "2026-01-26" {
+    description
+      "Add interface status and security-policy leaf with should-secure and
+      must-secure enum.";
+    reference "1.3.0";
+  }
 
   revision "2025-01-02" {
     description
@@ -36,7 +49,7 @@ module openconfig-macsec {
     reference "1.1.1";
   }
 
-revision "2023-06-08" {
+  revision "2023-06-08" {
     description
       "Support rx-late-pkts leaf.";
     reference "1.1.0";
@@ -233,6 +246,8 @@ revision "2023-06-08" {
     description
       "MKA interface state grouping";
 
+    uses macsec-session-status;
+
     container counters {
       description
         "MKA interface counters";
@@ -291,6 +306,30 @@ revision "2023-06-08" {
         "MACsec window size, as defined by the number of out-of-order frames
         that are accepted. A value of 0 means that frames are accepted only in
         the correct order.";
+    }
+  }
+
+  grouping macsec-session-status {
+    description
+      "Media Access Control Security (MACsec) status grouping";
+
+    leaf status {
+      description
+        "Status of MACsec on an interface.";
+
+      type enumeration {
+        enum ACTIVE {
+          description  "MACSec is operational and encrypting/decrypting frames
+          on the interface.";
+        }
+        enum INACTIVE {
+          description  "MACSec is disabled on the interface.";
+        }
+        enum PENDING {
+          description  "MACSec is enabled, but the secure channel and
+          association are not yet established.";
+        }
+      }
     }
   }
 
@@ -564,6 +603,7 @@ revision "2023-06-08" {
             "Operational state data ";
 
           uses macsec-interface-config;
+          uses macsec-session-status;
 
           container counters {
             description
@@ -654,7 +694,30 @@ revision "2023-06-08" {
       type boolean;
       default "false";
       description
-        "Rekey on peer loss";
+		  "When set to true, the loss of a peer triggers a SAK rekey only if the
+			MKA session still has other live peers. If the peer loss results in no
+			live peers remaining in the MKA session, an automatic rekey is not
+			triggered. Instead, the security-policy leaf configuration determines
+			the subsequent behavior. Based on the security-policy leaf configuration,
+			the system may retain the currently active SAK to allow encrypted traffic
+			exchange, or it may immediately remove the SAK to halt or allow unencrypted
+			transmission.";
+    }
+
+    leaf security-policy {
+        type enumeration {
+          enum SHOULD_SECURE {
+            description  "Allows encrypted traffic and also allows un-encrypted
+            traffic if there is no successful MKA session on the port.";
+          }
+          enum MUST_SECURE {
+            description  "Only encrypted frames will be processed.
+            Unencrypted frames will be dropped.";
+          }
+        }
+      description
+      "List of options for how to handle unencrypted frames on an interface configured
+      to use MACSec.";
     }
 
     leaf use-updated-eth-header {

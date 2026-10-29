@@ -23,8 +23,49 @@ submodule openconfig-ospf-global {
     "This submodule provides common OSPF configuration and operational
     state parameters that are global to a particular OSPF instance";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.7.0";
 
+  revision "2026-09-11" {
+    description
+      "Add minimum-hold leaf to OSPF global timers, equivalent to
+      spf-second-interval and lsp-second-wait-interval of IS-IS
+      global timers.";
+    reference "0.7.0";
+  }
+  revision "2026-09-10" {
+    description
+      "Add send-default-route container to the OSPF global
+      structure, allowing origination of a default external route,
+      equivalent to send-default-route of BGP global and neighbors
+      config.";
+    reference "0.6.0";
+  }
+  revision "2026-09-09" {
+    description
+      "Add nsr container to OSPF global structure, equivalent to
+      that of ISIS global config.";
+    reference "0.5.0";
+  }
+  revision "2026-09-08" {
+    description
+      "Add max-ecmp-paths leaf to OSPF global config, equivalent to
+      that of ISIS global config.";
+    reference "0.4.0";
+  }
+  revision "2026-09-07" {
+    description
+      "Add reference-bandwidth container to OSPF global structure,
+      equivalent to that of ISIS global config.";
+    reference "0.3.0";
+  }
+  revision "2026-09-06" {
+    description
+      "Add route-preference container to OSPF global structure,
+      providing administrative distance (preference) leafs for
+      intra-area, inter-area and external OSPF routes, equivalent to
+      those of ISIS global config.";
+    reference "0.2.0";
+  }
   revision "2025-08-10" {
     description
       "Removed duplicate import and updated prefixes in openconfig-ospf-area";
@@ -78,6 +119,14 @@ submodule openconfig-ospf-global {
          the router acts as an ABR when the router participates
          in multiple OSPF areas, one of which must be backbone.";
     }
+
+    leaf max-ecmp-paths {
+      type uint8;
+      description
+        "The maximum number of equal-cost paths that OSPF can
+        install for a single destination. Equivalent to the
+        max-ecmp-paths of ISIS global config.";
+    }
   }
 
   grouping ospf-global-spf-timers-config {
@@ -96,6 +145,15 @@ submodule openconfig-ospf-global {
         algorithm.";
     }
 
+    leaf minimum-hold {
+      type uint32;
+      units msec;
+      description
+        "The value of this leaf specifies the minimum hold time
+        between consecutive SPF runs. Equivalent to
+        spf-second-interval of IS-IS SPF timer.";
+    }
+
     leaf maximum-delay {
       // rjs TODO: same question as above
       type uint32;
@@ -106,12 +164,6 @@ submodule openconfig-ospf-global {
         running. This value is used for implementations that support
         increasing the wait time between SPF runs.";
     }
-
-    // rjs TODO: some questions here around what we should specify:
-    // JUNOS has rapid-runs and holddown
-    // Cisco has maximum time between runs, and then a doubling of
-    // the wait interval up to that maximum.
-    // ALU has first-wait, second-wait, max-wait
   }
 
   grouping ospf-global-lsa-generation-timers-config {
@@ -126,6 +178,15 @@ submodule openconfig-ospf-global {
         "The value of this leaf specifies the time between the first
         time an LSA is generated and advertised and the subsequent
         generation of that LSA.";
+    }
+
+    leaf minimum-hold {
+      type uint32;
+      units msec;
+      description
+        "The value of this leaf specifies the minimum hold time
+        between consecutive generations of an LSA. Equivalent to
+        lsp-second-wait-interval of IS-IS LSP generation timer.";
     }
 
     leaf maximum-delay {
@@ -207,6 +268,126 @@ submodule openconfig-ospf-global {
 
     uses oc-rpol:apply-policy-import-config;
     uses oc-rpol:default-policy-import-config;
+  }
+
+  grouping ospf-global-route-preference-config {
+    description
+      "Configuration options relating to the administrative distance
+      (preference) assigned to routes per different OSPF route type,
+      intra-area, inter-area and external routes. Equivalent to
+      external-route-preference and internal-route-preference of
+      ISIS route-preference grouping.";
+
+    leaf intra-area-route-preference {
+      type uint8 {
+        range "1..255";
+      }
+      description
+        "Administrative distance (preference) for intra-area OSPF
+        routes.";
+    }
+
+    leaf inter-area-route-preference {
+      type uint8 {
+        range "1..255";
+      }
+      description
+        "Administrative distance (preference) for inter-area OSPF
+        routes.";
+    }
+
+    leaf external-route-preference {
+      type uint8 {
+        range "1..255";
+      }
+      description
+        "Administrative distance (preference) for external OSPF
+        routes.";
+    }
+  }
+
+  grouping ospf-global-reference-bandwidth-config {
+    description
+      "Configuration parameters relating to the OSPF auto-cost
+      reference bandwidth.";
+
+    leaf reference-bandwidth {
+      type uint32;
+      units Mbps;
+      description
+        "The reference bandwidth, in Mbps, used by the local
+        system to calculate the default metric for an interface
+        based on its bandwidth. Equivalent to the
+        reference-bandwidth leaf on the ISIS global config.";
+    }
+  }
+
+  grouping ospf-global-admin-config {
+    description
+      "Re-usable grouping to enable or disable a particular OSPF
+      feature.";
+
+    leaf enabled {
+      type boolean;
+      description
+        "When set to true, the functionality within which this leaf
+        is defined is enabled; when set to false it is explicitly
+        disabled.";
+    }
+  }
+
+  grouping ospf-global-send-default-route-config {
+    description
+      "Configuration parameters relating to origination of a default
+      external route into the local OSPF instance.";
+
+    leaf enabled {
+      type boolean;
+      default false;
+      description
+        "When set to true, originate a default external route,
+        subject to the values of the always, metric, and
+        metric-type leafs.";
+    }
+
+    leaf always {
+      type boolean;
+      default false;
+      description
+        "When set to true, originate a default external route even
+        when no default route exists in the local system's routing
+        information base. When set to false (default), the default
+        external route is only originated when a default route is
+        already present locally.";
+    }
+
+    leaf metric {
+      type uint32 {
+        range "0..16777214";
+      }
+      description
+        "The metric to advertise for the originated default
+        external route.";
+    }
+
+    leaf metric-type {
+      type enumeration {
+        enum EXTERNAL_TYPE_1 {
+          description
+            "Advertise the default external route with an OSPF
+            external route type 1.";
+        }
+        enum EXTERNAL_TYPE_2 {
+          description
+            "Advertise the default external route with an OSPF
+            external route type 2.";
+        }
+      }
+      default "EXTERNAL_TYPE_2";
+      description
+        "Specify the external route type with which the default
+        external route is advertised.";
+    }
   }
 
   grouping ospf-global-max-metric-config {
@@ -419,6 +600,92 @@ submodule openconfig-ospf-global {
               propagation policy";
             uses ospf-global-inter-areapp-config;
           }
+        }
+      }
+
+      container route-preference {
+        description
+          "Administrative distance (preference) assigned to routes
+          per different OSPF route type, intra-area, inter-area,
+          external routes.";
+
+        container config {
+          description
+            "Configuration parameters relating to the OSPF route
+            preference";
+          uses ospf-global-route-preference-config;
+        }
+
+        container state {
+          config false;
+          description
+            "State information relating to the OSPF route
+            preference";
+          uses ospf-global-route-preference-config;
+        }
+      }
+
+      container reference-bandwidth {
+        description
+          "Configuration and operational state parameters relating
+          to the OSPF auto-cost reference bandwidth.";
+
+        container config {
+          description
+            "Configuration parameters relating to the OSPF auto-cost
+            reference bandwidth.";
+          uses ospf-global-reference-bandwidth-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to the OSPF
+            auto-cost reference bandwidth.";
+          uses ospf-global-reference-bandwidth-config;
+        }
+      }
+
+      container nsr {
+        description
+          "Configuration and operational state parameters for OSPF
+          Non-Stop Routing (NSR)";
+
+        container config {
+          description
+            "Configuration parameters relating to OSPF Non-Stop
+            Routing (NSR)";
+          uses ospf-global-admin-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to OSPF Non-Stop
+            Routing (NSR)";
+          uses ospf-global-admin-config;
+        }
+      }
+
+      container send-default-route {
+        description
+          "Configuration and operational state parameters relating
+          to origination of a default external route into the local
+          OSPF instance.";
+
+        container config {
+          description
+            "Configuration parameters relating to origination of a
+            default external route.";
+          uses ospf-global-send-default-route-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to origination
+            of a default external route.";
+          uses ospf-global-send-default-route-config;
         }
       }
     }
