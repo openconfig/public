@@ -43,7 +43,14 @@ module openconfig-mpls-ldp {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.2.1";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2026-10-12" {
+    description
+      "Add nsr container to LDP global structure, equivalent to
+      that of ISIS global config.";
+    reference "3.3.0";
+  }
 
   revision "2023-02-06" {
     description
@@ -212,6 +219,7 @@ module openconfig-mpls-ldp {
         uses mpls-ldp-global;
         uses mpls-ldp-graceful-restart;
         uses mpls-ldp-authentication-top;
+        uses mpls-ldp-nsr;
       }
 
       uses mpls-ldp-interface-attributes-top;
@@ -971,6 +979,32 @@ module openconfig-mpls-ldp {
       description
         "When set to true, the functionality within which this leaf is
         defined is enabled, when set to false it is explicitly disabled.";
+    }
+  }
+
+  grouping mpls-ldp-nsr {
+    description
+      "Attributes relating to LDP Non-Stop Routing (NSR)";
+
+    container nsr {
+      description
+        "Configuration and operational state parameters for LDP
+        Non-Stop Routing (NSR)";
+
+      container config {
+        description
+          "Configuration parameters relating to LDP Non-Stop Routing
+          (NSR)";
+        uses admin-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters relating to LDP Non-Stop
+          Routing (NSR)";
+        uses admin-config;
+      }
     }
   }
 
