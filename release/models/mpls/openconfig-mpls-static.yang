@@ -221,7 +221,6 @@ submodule openconfig-mpls-static {
 
     leaf recurse {
       type boolean;
-      default false;
       description
         "Determines whether the next-hop IP address may be resolved
         recursively - i.e., via a RIB entry which has been installed
@@ -493,8 +492,12 @@ submodule openconfig-mpls-static {
       }
       description
         "Whether the payload exposed after the label operation is
-        forwarded as unicast or multicast traffic. The difference
-        affects the destination MAC address of the forwarded packet.";
+        forwarded as unicast or multicast traffic. This allows the
+        system to determine the forwarding behaviour of the static LSP
+        from the incoming label alone, rather than by inspecting the
+        destination IP address of the payload underneath the label.
+        The difference affects the destination MAC address of the
+        forwarded packet.";
     }
   }
 
