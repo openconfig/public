@@ -20,15 +20,7 @@ module openconfig-aft-summary {
     "This module provides summary of aft entry counts per protocol type for each network
     instance.";
 
-  oc-ext:openconfig-version "0.2.2";
-
-  revision "2026-06-15" {
-    description
-      "Clarify that aft-summaries counters reflect total unfiltered
-       entries in the hardware FIB, independent of any global-filter
-       policy.";
-    reference "0.2.2";
-  }
+  oc-ext:openconfig-version "0.2.1";
 
   revision "2026-03-11" {
     description
@@ -67,10 +59,7 @@ module openconfig-aft-summary {
 
       leaf aft-entries {
         description
-          "Total number of entries installed in the hardware FIB for
-           the given protocol. This count reflects all entries
-           regardless of any AFT global-filter policy that may be
-           configured to limit which prefixes are streamed via gNMI.";
+          "Total number of entries in the aft.";
         type uint64;
       }
     }
@@ -137,11 +126,7 @@ module openconfig-aft-summary {
       uses aft-summary-ipv6;
 
       description
-        "Summary of AFT entry counts per protocol type for the network
-         instance. These counts reflect total entries installed in the
-         hardware FIB and are not affected by any AFT global-filter
-         policy that may restrict which prefixes are streamed to gNMI
-         subscribers.";
+        "Aft summary for the network instance.";
     }
   }
 
