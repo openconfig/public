@@ -664,11 +664,11 @@ submodule openconfig-aft-common {
     leaf policy-tag {
       type string;
       description
-        "A policy tag applied to the next-hop. This tag can be used to
-        group next-hops together, so that policies can be applied at
-        the group level. In one use case, this allows for a group of next-hops
-        to be associated with a policy-forwarding policy. The next-hops may
-        change over time, but the policy definition can remain static.";
+        "A tag applied to the next-hop. A policy-forwarding rule can match this
+        tag. As a result, the policy-forwarding action will be applied to all
+        next-hops with this tag. This allows the next-hops which the policy
+        applies to change dynamically with next-hop programming while the
+        policy-forwarding rule configuration may remain static.";
     }
 
     uses aft-common-install-protocol;
