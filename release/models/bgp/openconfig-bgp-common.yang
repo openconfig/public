@@ -24,7 +24,19 @@ submodule openconfig-bgp-common {
     may be application to a subset of global, peer-group or neighbor
     contexts.";
 
-  oc-ext:openconfig-version "9.10.0";
+  oc-ext:openconfig-version "9.12.0";
+
+  revision "2026-10-26" {
+    description
+      "Add weight to BGP neighbor and peer-group configuration.";
+    reference "9.12.0";
+  }
+
+  revision "2026-10-25" {
+    description
+      "Add next-hop-trigger-delay to BGP global configuration.";
+    reference "9.11.0";
+  }
 
   revision "2026-06-16" {
     description
@@ -418,6 +430,18 @@ submodule openconfig-bgp-common {
       description
         "An optional textual description (intended primarily for use
         with a peer or group";
+    }
+
+    leaf weight {
+      type uint16;
+      description
+        "Weight assigned to routes received from the neighbor or
+        group.  The route with the highest weight is selected as
+        the best path, prior to the LOCAL_PREF comparison.  Weight
+        is locally significant and not advertised.  Some
+        implementations also assign a default weight to locally
+        originated routes, which is compared with the weight of
+        routes received from peers.";
     }
   }
 
