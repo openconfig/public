@@ -436,9 +436,12 @@ submodule openconfig-bgp-common {
       type uint16;
       description
         "Weight assigned to routes received from the neighbor or
-        group.  Routes with a higher weight are preferred, before
-        LOCAL_PREF is compared.  Weight is locally significant and
-        not advertised.";
+        group.  The route with the highest weight is selected as
+        the best path, prior to the LOCAL_PREF comparison.  Weight
+        is locally significant and not advertised.  Some
+        implementations also assign a default weight to locally
+        originated routes, which is compared with the weight of
+        routes received from peers.";
     }
   }
 
