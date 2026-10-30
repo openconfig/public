@@ -23,7 +23,13 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.7.0";
+  oc-ext:openconfig-version "3.8.0";
+
+  revision "2026-10-30" {
+    description
+      "Add policy-tag leaf to AFT next-hop state.";
+    reference "3.8.0";
+  }
 
   revision "2026-10-22" {
     description
@@ -653,6 +659,16 @@ submodule openconfig-aft-common {
          forwarding lookup is performed on the packet encapsulated
          within the header, matched within the relevant AFT within the
          specified network-instance.";
+    }
+
+    leaf policy-tag {
+      type string;
+      description
+        "A policy tag applied to the next-hop. This tag can be used to
+        group next-hops together, so that policies can be applied at
+        the group level. In one use case, this allows for a group of next-hops
+        to be associated with a policy-forwarding policy. The next-hops may
+        change over time, but the policy definition can remain static.";
     }
 
     uses aft-common-install-protocol;
