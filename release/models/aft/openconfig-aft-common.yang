@@ -23,11 +23,23 @@ submodule openconfig-aft-common {
     "Submodule containing definitions of groupings that are re-used
     across multiple contexts within the AFT model.";
 
-  oc-ext:openconfig-version "3.6.0";
+  oc-ext:openconfig-version "3.8.0";
 
-  revision "2026-10-20" {
+  revision "2026-11-04" {
     description
       "Update description of nexthop encapsulation ip-ttl and dscp leaves.";
+  oc-ext:openconfig-version "3.8.0";
+
+  revision "2026-10-22" {
+    description
+      "Add DSCP leaf to GRE encapsulation config.";
+    reference "3.7.0";
+  }
+
+  revision "2026-10-04" {
+    description
+      "Add in-profile-dscp and out-profile-dscp to GRE and UDP
+      encapsulation headers.";
     reference "3.6.0";
   }
 
@@ -745,6 +757,36 @@ submodule openconfig-aft-common {
         encapsulation. If unspecified, the TTL value of the inner packet is
         copied to the GRE header TTL value during encapsulation.";
     }
+
+    leaf dscp {
+      type oc-inet:dscp;
+      description
+        "DSCP value to use for the outer IP header of the GRE-encapsulated
+         packet.";
+    }
+
+    leaf in-profile-dscp {
+      type oc-inet:dscp;
+      description
+        "DSCP value to use in the outer IP header of the GRE-encapsulated
+        packet when the packet is in-profile.  A packet is in-profile
+        unless it is out-of-profile (see out-profile-dscp); for example,
+        packets that conform to a policer (i.e., are subject to its
+        conform-action) are in-profile.  When this leaf is not set, the
+        value of the dscp leaf is used for in-profile packets.";
+    }
+
+    leaf out-profile-dscp {
+      type oc-inet:dscp;
+      description
+        "DSCP value to use in the outer IP header of the GRE-encapsulated
+        packet when the packet is out-of-profile.  A packet is
+        out-of-profile when a policer has determined it to be exceeding or
+        violating (i.e., subject to its exceed-action or violate-action)
+        and it has not been dropped, or when the system has otherwise
+        classified it as out-of-profile.  When this leaf is not set, the
+        value of the dscp leaf is used for out-of-profile packets.";
+    }
   }
 
   grouping aft-common-entry-nexthop-mpls-state {
@@ -859,6 +901,29 @@ submodule openconfig-aft-common {
         in the outer header during packet encapsulation. When this leaf is
         not set, the DSCP value of the inner packet is copied to the
         outer packet's DSCP value during encapsulation.";
+    }
+
+    leaf in-profile-dscp {
+      type oc-inet:dscp;
+      description
+        "DSCP value to use in the outer IP header of the UDP-encapsulated
+         packet when the packet is in-profile.  A packet is in-profile
+         unless it is out-of-profile (see out-profile-dscp); for example,
+         packets that conform to a policer (i.e., are subject to its
+         conform-action) are in-profile.  When this leaf is not set, the
+         value of the dscp leaf is used for in-profile packets.";
+    }
+
+    leaf out-profile-dscp {
+      type oc-inet:dscp;
+      description
+        "DSCP value to use in the outer IP header of the UDP-encapsulated
+         packet when the packet is out-of-profile.  A packet is
+         out-of-profile when a policer has determined it to be exceeding or
+         violating (i.e., subject to its exceed-action or violate-action)
+         and it has not been dropped, or when the system has otherwise
+         classified it as out-of-profile.  When this leaf is not set, the
+         value of the dscp leaf is used for out-of-profile packets.";
     }
 
     leaf src-udp-port {
