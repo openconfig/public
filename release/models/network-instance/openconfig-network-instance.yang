@@ -51,7 +51,13 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.9.0";
+  oc-ext:openconfig-version "4.10.0";
+
+  revision "2026-11-04" {
+    description
+      "Add os-namespace to network instance state.";
+    reference "4.10.0";
+  }
 
   revision "2026-10-07" {
     description
@@ -1461,6 +1467,16 @@ module openconfig-network-instance {
   grouping network-instance-state {
     description
       "Operational state parameters relating to a network instance";
+
+    leaf os-namespace {
+      type string;
+      description
+        "Name of the operating system network namespace in which local
+        applications open sockets to send and receive traffic in this
+        network instance. The leaf is absent if the system does not
+        use a separate namespace for this network instance.";
+      oc-ext:telemetry-on-change;
+    }
   }
 
   grouping protocols-config {
