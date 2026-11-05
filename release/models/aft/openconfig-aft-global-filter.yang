@@ -1,0 +1,103 @@
+module openconfig-aft-global-filter {
+  namespace "http://openconfig.net/yang/aft/global-filter";
+  prefix "oc-aft-gf";
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-network-instance { prefix "oc-ni"; }
+  import openconfig-routing-policy { prefix "oc-rpol"; }
+
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Module containing definitions of groupings for the global
+     filter configuration applicable to abstract forwarding tables.";
+
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2026-03-10" {
+    description
+      "Add global-filter container to support per-network-instance and per
+       AFT filtering, with routing policy split by address family.";
+    reference "3.3.0";
+  }
+
+  grouping aft-global-filter-config {
+    description
+      "Configuration parameters for the AFT global filter.";
+    leaf ipv6-policy {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions" +
+             "/oc-rpol:policy-definition/oc-rpol:config/oc-rpol:name";
+      }
+      description
+        "Reference to a routing policy that is used to filter the
+         IPv6 prefixes that are streamed from the FIB. This does
+         not affect which prefixes are installed in the FIB. The
+         policy may, for example, use an explicit prefix set to
+         match prefixes, or match prefixes that are more specific than
+         a given prefix.";
+    }
+
+    leaf ipv4-policy {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions" +
+             "/oc-rpol:policy-definition/oc-rpol:config/oc-rpol:name";
+      }
+      description
+        "Reference to a routing policy that is used to filter the
+         IPv4 prefixes that are streamed from the FIB. This does
+         not affect which prefixes are installed in the FIB. The
+         policy may, for example, use an explicit prefix set to
+         match prefixes, or match prefixes that are more specific than
+         a given prefix.";
+    }
+  }
+
+
+  grouping aft-global-filter-structural {
+    description
+      "Structural grouping defining the schema for the global filter
+       applied to the abstract forwarding tables.";
+
+    container global-filter {
+      description
+        "Configuration and state for a global filter applied to the
+         AFT. The filter is used to restrict which prefixes from the
+         network instance's AFT are streamed via gNMI; it does not
+         affect which prefixes are installed in the forwarding plane
+         (hardware FIB). All gNMI clients subscribing to the IPv4 or
+         IPv6 AFT for this network instance will only receive data
+         corresponding to prefixes accepted by the configured
+         filter policy. Prefixes rejected by the policy are omitted
+         from the streamed AFT state for every subscriber, regardless
+         of the client.";
+
+      container config {
+        description
+          "Configuration parameters for the AFT global filter.";
+
+        uses aft-global-filter-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters for the AFT global filter.";
+
+        uses aft-global-filter-config;
+      }
+    }
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/oc-ni:afts" {
+    description
+      "Add global filter to AFT tree.";
+
+    uses aft-global-filter-structural;
+  }
+}

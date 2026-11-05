@@ -20,6 +20,7 @@ module openconfig-network-instance {
   import openconfig-types { prefix "oc-types"; }
   import openconfig-bgp { prefix "oc-bgp"; }
   import openconfig-mpls { prefix "oc-mpls"; }
+  import openconfig-mpls-types { prefix "oc-mplst"; }
   import openconfig-vlan { prefix "oc-vlan"; }
   import openconfig-ospfv2 { prefix "oc-ospfv2"; }
   import openconfig-ospf   { prefix "oc-ospf"; }
@@ -50,7 +51,25 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.6.0";
+  oc-ext:openconfig-version "4.9.0";
+
+  revision "2026-10-07" {
+    description
+      "Add static endpoint attributes.";
+    reference "4.9.0";
+  }
+
+  revision "2026-08-04" {
+    description
+      "Add connection point operational status.";
+    reference "4.8.0";
+  }
+
+  revision "2026-03-17" {
+    description
+      "Add enable-aigp to BGP address families in neighbors and peer-groups.";
+    reference "4.7.0";
+  }
 
   revision "2025-03-26" {
     description
@@ -839,6 +858,36 @@ module openconfig-network-instance {
                     uses instance-endpoint-remote-config;
                   }
                 }
+
+                container static {
+                  when "../config/type = 'oc-ni-types:STATIC'" {
+                    description
+                      "Only include the static configuration when the endpoint
+                      type is STATIC.";
+                  }
+
+                  description
+                    "Configuration and operational state parameters
+                    relating to a statically configured endpoint of
+                    a connection point";
+
+                  container config {
+                    description
+                      "Configuration parameters relating to a statically
+                      configured endpoint of a connection point";
+                    uses instance-endpoint-static-config;
+                  }
+
+                  container state {
+                    config false;
+                    description
+                      "Operational state parameters relating to a
+                      statically configured endpoint of a connection
+                      point";
+                    uses instance-endpoint-static-config;
+                  }
+                }
+
                 container vxlan {
                   description
                     "Configuration and operational state parameters
@@ -1112,6 +1161,54 @@ module openconfig-network-instance {
     }
   }
 
+  grouping instance-endpoint-static-config {
+    description
+      "Configuration parameters relating to a statically configured endpoint
+      of a connection point";
+
+    leaf local-label {
+      type oc-mplst:mpls-label;
+      description
+        "Local MPLS label used for decapsulation by the static endpoint.";
+    }
+
+    leaf neighbor-label {
+      type oc-mplst:mpls-label;
+      description
+        "Neighbor MPLS label used for encapsulation by the static endpoint.";
+    }
+
+    leaf control-word {
+      type boolean;
+      description
+        "When true, a four-byte control word is prepended during
+        encapsulation and expected during decapsulation.
+        Both endpoints of the connection point must agree on control-word
+        usage for the connection point to come up.";
+      reference "RFC4385";
+    }
+
+    leaf tunnel-interface {
+      type leafref {
+        path "/oc-if:interfaces/oc-if:interface/oc-if:name";
+      }
+      description
+        "A reference to the transport tunnel interface used by the
+        static endpoint.";
+    }
+
+    leaf next-hop-group {
+      type leafref {
+        // We are at network-instance/connection-points/connection-point/endpoints/endpoint/static/config/next-hop-group
+        path "../../../../../../../static/next-hop-groups/" +
+             "next-hop-group/config/name";
+      }
+      description
+        "A reference to the static next-hop-group used as transport
+        by the static endpoint.";
+    }
+  }
+
   grouping instance-endpoint-state {
     description
       "Operational state data relating to a forwarding-instance
@@ -1140,6 +1237,14 @@ module openconfig-network-instance {
     description
       "Operational state data relating to a forwarding-instance
       connection point";
+
+    leaf oper-status {
+      type identityref {
+        base oc-ni-types:CONNECTION_POINT_OPER_STATUS;
+      }
+      description
+        "Operational status of the connection point.";
+    }
   }
 
   grouping table-config {
@@ -1453,5 +1558,98 @@ module openconfig-network-instance {
         in the network instance";
     }
   }
+
+  grouping ni-bgp-afi-aigp-config {
+    description
+      "Grouping for enable-aigp leaf";
+    leaf enable-aigp {
+      type boolean;
+      description
+        "Flag to enable sending / receiving accumulated IGP
+        attribute in routing updates for the address family as
+        stipulated by RFC 7311 Section 3.3";
+    }
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:neighbors/oc-netinst:neighbor/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv4-unicast/oc-netinst:config" {
+    description
+      "Add enable-aigp to BGP neighbor IPv4 unicast config";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:neighbors/oc-netinst:neighbor/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv4-unicast/oc-netinst:state" {
+    description
+      "Add enable-aigp to BGP neighbor IPv4 unicast state";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:neighbors/oc-netinst:neighbor/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv6-unicast/oc-netinst:config" {
+    description
+      "Add enable-aigp to BGP neighbor IPv6 unicast config";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:neighbors/oc-netinst:neighbor/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv6-unicast/oc-netinst:state" {
+    description
+      "Add enable-aigp to BGP neighbor IPv6 unicast state";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:peer-groups/oc-netinst:peer-group/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv4-unicast/oc-netinst:config" {
+    description
+      "Add enable-aigp to BGP peer-group IPv4 unicast config";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:peer-groups/oc-netinst:peer-group/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv4-unicast/oc-netinst:state" {
+    description
+      "Add enable-aigp to BGP peer-group IPv4 unicast state";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:peer-groups/oc-netinst:peer-group/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv6-unicast/oc-netinst:config" {
+    description
+      "Add enable-aigp to BGP peer-group IPv6 unicast config";
+    uses ni-bgp-afi-aigp-config;
+  }
+
+  augment "/oc-netinst:network-instances/oc-netinst:network-instance/" +
+          "oc-netinst:protocols/oc-netinst:protocol/oc-netinst:bgp/" +
+          "oc-netinst:peer-groups/oc-netinst:peer-group/" +
+          "oc-netinst:afi-safis/oc-netinst:afi-safi/" +
+          "oc-netinst:ipv6-unicast/oc-netinst:state" {
+    description
+      "Add enable-aigp to BGP peer-group IPv6 unicast state";
+    uses ni-bgp-afi-aigp-config;
+  }
+
   uses network-instance-top;
 }

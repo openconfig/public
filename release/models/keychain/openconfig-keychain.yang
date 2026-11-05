@@ -33,9 +33,15 @@ module openconfig-keychain {
     which may be then referenced by other models such as routing protocol
     management.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
 
-revision "2024-05-30" {
+  revision "2026-05-18" {
+    description
+      "Update description of send-and-receive.";
+    reference "0.6.0";
+  }
+
+  revision "2024-05-30" {
     description
       "Update key-id to a union of hex-string-prefixed and uint64.";
     reference "0.5.0";
@@ -106,14 +112,15 @@ revision "2024-05-30" {
 
     leaf send-and-receive {
       type boolean;
-      description
-        "When this is set to true (the default value), the specified
-        send lifetime is also used in the receive direction.  When set
-        to false, the device should use the specified receive-lifetime
-        for the receive direction (asymmetric mode).  If send-and-receive
-        is false, and the device does not support asymmetric configuration,
-        the config should be rejected as unsupported.";
       default true;
+      description
+        "When this is set to true (the default value), the specified send-lifetime
+         is also used in the receive direction; configuration of a distinct
+         receive-lifetime is not valid in that case and the server should reject it
+         as an invalid configuration. When set to false, the device uses the
+         configured receive-lifetime for the receive direction (asymmetric mode).
+         If send-and-receive is false and the device does not support asymmetric
+         configuration, the server should reject the config as unsupported.";
     }
   }
 

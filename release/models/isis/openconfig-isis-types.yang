@@ -20,7 +20,13 @@ module openconfig-isis-types {
     "This module contains general data definitions for use in ISIS YANG
     model.";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2026-05-23" {
+    description
+      "Add IP reachability suppression mode enumeration.";
+    reference "0.7.0";
+  }
 
   revision "2022-02-11" {
     description
@@ -205,6 +211,29 @@ module openconfig-isis-types {
   }
 
   // typedef statements
+  typedef suppress-interface-ip-mode {
+    type enumeration {
+      enum NONE {
+        description
+          "Do not suppress IP reachability on any interface.";
+      }
+      enum ALL {
+        description
+          "Suppress IP reachability on all interfaces in this level/address-family.";
+      }
+      enum NON_PASSIVE {
+        description
+          "Suppress IP reachability on all non-passive (active) interfaces.";
+      }
+      enum NON_PASSIVE_POINT_TO_POINT {
+        description
+          "Suppress IP reachability on non-passive (active) point-to-point interfaces only.";
+      }
+    }
+    description
+      "Mode for interface IP reachability suppression.";
+  }
+
   typedef level-type {
     type enumeration {
       enum LEVEL_1 {

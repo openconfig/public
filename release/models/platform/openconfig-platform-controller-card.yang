@@ -22,7 +22,13 @@ module openconfig-platform-controller-card {
     "This module defines data related to CONTROLLER_CARD components in
     the openconfig-platform model";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2026-07-08" {
+    description
+      "Add read-only power-oper-state leaf to controller-card state.";
+    reference "0.3.0";
+  }
 
   revision "2024-04-10" {
     description
@@ -83,6 +89,7 @@ module openconfig-platform-controller-card {
       is only valid when the type of the component is CONTROLLER_CARD.";
 
     uses controller-card-config;
+    uses oc-platform:component-power-management-state;
   }
 
   // rpc statements
