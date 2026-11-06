@@ -126,7 +126,7 @@ grouping aft-common-entry-nexthop-state {
 
 #### Next-hop example
 
-Here is canonical OpenConfig JSON for an example AFT `next-hop` entry with `label`:
+Here is canonical OpenConfig JSON for an example AFT `next-hop` entry with `policy-tag`:
 
 ```json
 {
@@ -141,7 +141,7 @@ Here is canonical OpenConfig JSON for an example AFT `next-hop` entry with `labe
                 "index": 1001,
                 "state": {
                   "index": 1001,
-                  "label": "clusterA",
+                  "policy-tag": "clusterA",
                   // other fields specifying other aspects, such as the forwarding behavior, of the next-hop
                 }
               }
