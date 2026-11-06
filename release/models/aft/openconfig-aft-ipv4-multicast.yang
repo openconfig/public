@@ -1,0 +1,109 @@
+submodule openconfig-aft-ipv4-multicast {
+  belongs-to "openconfig-aft" {
+    prefix "oc-aft";
+  }
+
+  import openconfig-extensions { prefix "oc-ext"; }
+  import openconfig-inet-types { prefix "oc-inet"; }
+  import openconfig-interfaces { prefix "oc-if"; }
+
+  // Include common cross-AFT groupings from the common submodule.
+  include openconfig-aft-common;
+
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "Submodule containing definitions of groupings for the abstract
+    forwarding table for IPv4 multicast.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2026-05-20" {
+    description
+      "Initial revision of the IPv4 multicast abstract forwarding table.";
+    reference "0.1.0";
+  }
+
+  grouping aft-ipv4-multicast-structural {
+    description
+      "Structural grouping defining the schema for the IPv4 multicast
+      abstract forwarding table.";
+
+    list ipv4-multicast-entry {
+      key "source-address group-address";
+
+      oc-ext:telemetry-atomic;
+      description
+        "List of the IPv4 multicast entries within the abstract
+        forwarding table. Each entry is keyed by the (source, group)
+        pair. The source-address 0.0.0.0 represents any-source (*,G)
+        entries used for shared-tree and BiDir RP forwarding.";
+
+      leaf source-address {
+        type leafref {
+          path "../state/source-address";
+        }
+        description
+          "Reference to the IPv4 source address. Use 0.0.0.0 for
+          any-source (*,G) entries.";
+      }
+
+      leaf group-address {
+        type leafref {
+          path "../state/group-address";
+        }
+        description
+          "Reference to the IPv4 multicast group address.";
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters for the IPv4 multicast AFT
+          entry.";
+        uses aft-ipv4-multicast-entry-state;
+      }
+
+    }
+  }
+
+  grouping aft-ipv4-multicast-entry-state {
+    description
+      "Operational state parameters for the IPv4 multicast entry.";
+
+    leaf source-address {
+      type oc-inet:ipv4-address;
+      description
+        "The IPv4 source address for this multicast entry. The value
+        0.0.0.0 represents any-source (*,G) entries.";
+    }
+
+    leaf group-address {
+      type oc-inet:ipv4-address;
+      description
+        "The IPv4 multicast group address for this entry.";
+    }
+
+    uses aft-common-entry-state;
+    uses aft-common-ip-state;
+
+    container reverse-path-interface {
+      description
+        "Reference to the incoming (reverse-path) interface used by
+        the forwarding plane to validate the arrival of packets for
+        this multicast entry. Packets received on any other interface
+        are discarded (see the rpf-discards counter).
+
+        For directly-connected sources, or where the system does not
+        program an RPF interface for the entry (e.g. bidirectional
+        PIM in some implementations), this container may be absent.";
+
+      uses oc-if:interface-ref-state;
+    }
+  }
+}
