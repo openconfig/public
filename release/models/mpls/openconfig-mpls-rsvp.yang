@@ -28,7 +28,13 @@ module openconfig-mpls-rsvp {
      parameters and LSP-specific configuration for constrained-path
      LSPs";
 
-  oc-ext:openconfig-version "4.1.0";
+  oc-ext:openconfig-version "4.2.0";
+
+  revision "2026-10-12" {
+    description
+      "Add ldp-tunneling to RSVP-TE point-to-point tunnel attributes.";
+    reference "4.2.0";
+  }
 
   revision "2025-12-10" {
     description
@@ -640,6 +646,17 @@ module openconfig-mpls-rsvp {
       default false;
       description
         "Enables RSVP soft-preemption on this LSP";
+    }
+
+    leaf ldp-tunneling {
+      when "../signaling-protocol = 'oc-mplst:PATH_SETUP_RSVP'" {
+        description
+          "When the signaling protocol is RSVP-TE ";
+      }
+      type boolean;
+      description
+        "When set to true, LDP is tunneled over this RSVP-TE tunnel
+        (LDP over RSVP-TE); when set to false it is not.";
     }
 
     uses rsvp-priorities-tunnel-config;
