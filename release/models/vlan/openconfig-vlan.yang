@@ -26,7 +26,17 @@ module openconfig-vlan {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.2.2";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2026-11-05" {
+    description
+      "Add routed VLAN binding under subinterfaces for interfaces of
+      type l3ipvlan.  Deprecate the interface level routed-vlan
+      container, including routed-vlan/ipv4 and routed-vlan/ipv6, in
+      favor of the subinterface routed-vlan container and
+      subinterfaces/subinterface/ipv4|ipv6.";
+    reference "3.3.0";
+  }
 
   revision "2023-02-07" {
     description
@@ -914,11 +924,23 @@ module openconfig-vlan {
       "Top-level grouping for routed vlan logical interfaces";
 
     container routed-vlan {
+      status deprecated;
       description
         "Top-level container for routed vlan interfaces.  These
         logical interfaces are also known as SVI (switched virtual
         interface), IRB (integrated routing and bridging), RVI
-        (routed VLAN interface)";
+        (routed VLAN interface).
+
+        This container is deprecated.  The VLAN binding should be
+        configured using
+        /interfaces/interface/subinterfaces/subinterface/routed-vlan
+        and L3 configuration using
+        /interfaces/interface/subinterfaces/subinterface/ipv4|ipv6.
+        Implementations that do not have a native subinterface
+        concept for routed VLAN interfaces should use subinterface
+        index 0.  This container and the subinterface routed-vlan
+        container must not both be configured for the same
+        interface.";
 
       container config {
         description
@@ -933,6 +955,35 @@ module openconfig-vlan {
 
         description
           "Operational state data ";
+
+        uses vlan-routed-config;
+        uses vlan-routed-state;
+      }
+    }
+  }
+
+  grouping subinterface-routed-vlan-top {
+    description
+      "Top-level grouping for the routed VLAN binding on a
+      subinterface.";
+
+    container routed-vlan {
+      description
+        "VLAN for which this subinterface provides routing services.
+        L3 configuration is specified using the ipv4 and ipv6
+        containers of the subinterface.";
+
+      container config {
+        description
+          "Configuration data for the routed VLAN binding";
+
+        uses vlan-routed-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for the routed VLAN binding";
 
         uses vlan-routed-config;
         uses vlan-routed-state;
@@ -991,6 +1042,19 @@ module openconfig-vlan {
         L3 routing for VLANs";
       }
     }
+  }
+
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:subinterfaces/" +
+    "oc-if:subinterface" {
+    when "../../oc-if:config/oc-if:type = 'ianaift:l3ipvlan'" {
+      description
+        "Active when the subinterface belongs to a logical interface
+        providing L3 routing for VLANs";
+    }
+    description
+      "Adds routed VLAN binding to subinterfaces";
+
+    uses subinterface-routed-vlan-top;
   }
 
 
