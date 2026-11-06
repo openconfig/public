@@ -1,0 +1,209 @@
+module openconfig-icmp {
+
+  yang-version "1";
+
+  // namespace
+  namespace "http://openconfig.net/yang/icmp";
+
+  prefix "oc-icmp";
+
+  // import some basic types
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-interfaces { prefix oc-if; }
+  import openconfig-network-instance { prefix oc-ni; }
+  import openconfig-yang-types { prefix oc-yang; }
+
+  // meta
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines configuration and operational state data
+    for Internet Control Message Protocol (ICMPv4 and ICMPv6)
+    within a network-instance, including source-interface selection
+    and RFC 5837 ICMP error extensions.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2026-10-23" {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // grouping statements
+
+  grouping icmp-proto-config {
+    description
+      "Configuration parameters for ICMP in a network-instance.";
+
+    leaf source-interface {
+      type oc-if:interface-id;
+      description
+        "The interface name from which ICMP error responses
+        source their IP address.";
+    }
+  }
+
+  grouping icmp-error-extensions-config {
+    description
+      "Configuration parameters for RFC 5837 ICMP error
+      extensions.";
+
+    leaf enabled {
+      type boolean;
+      description
+        "When set to true, enables RFC 5837 ICMP error interface
+        information extensions.";
+    }
+  }
+
+  grouping icmp-error-extensions-counters-state {
+    description
+      "Counters for RFC 5837 ICMP error extensions.";
+
+    leaf packets-processed {
+      type oc-yang:counter64;
+      description
+        "Number of packets processed for ICMP error message
+        generation.";
+    }
+
+    leaf socket-not-found {
+      type oc-yang:counter64;
+      description
+        "Number of ICMP error generation attempts where the
+        interface socket was not found.";
+    }
+
+    leaf extended-errors-sent {
+      type oc-yang:counter64;
+      description
+        "Number of ICMP error messages sent with RFC 5837
+        extensions.";
+    }
+
+    leaf errors-without-extensions-sent {
+      type oc-yang:counter64;
+      description
+        "Number of ICMP error messages sent without RFC 5837
+        extensions.";
+    }
+
+    leaf output-socket-error-drops {
+      type oc-yang:counter64;
+      description
+        "Number of ICMP error messages dropped due to output
+        socket errors.";
+    }
+  }
+
+  grouping icmp-error-extensions-state {
+    description
+      "Operational state parameters for RFC 5837 ICMP error
+      extensions.";
+
+    leaf extensions-active {
+      type boolean;
+      description
+        "Indicates whether ICMP error extensions are currently
+        active in the forwarding plane.";
+    }
+
+    container counters {
+      description
+        "Telemetry counters for RFC 5837 ICMP error extensions.";
+      uses icmp-error-extensions-counters-state;
+    }
+  }
+
+  grouping icmp-error-extensions-top {
+    description
+      "Top-level grouping for RFC 5837 ICMP error extensions
+      configuration and operational state.";
+
+    container error-extensions {
+      description
+        "RFC 5837 ICMP error interface information extensions.";
+
+      container config {
+        description
+          "Configuration parameters for ICMP error extensions.";
+        uses icmp-error-extensions-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters for ICMP error
+          extensions.";
+        uses icmp-error-extensions-config;
+        uses icmp-error-extensions-state;
+      }
+    }
+  }
+
+  grouping icmp-proto-top {
+    description
+      "Top-level grouping for per-address-family ICMP protocol
+      configuration and operational state.";
+
+    container config {
+      description
+        "Configuration parameters for ICMP.";
+      uses icmp-proto-config;
+    }
+
+    container state {
+      config false;
+      description
+        "Operational state parameters for ICMP.";
+      uses icmp-proto-config;
+    }
+
+    uses icmp-error-extensions-top;
+  }
+
+  grouping icmp-top {
+    description
+      "Top-level grouping for ICMP configuration and operational
+      state in a network-instance.";
+
+    container icmp {
+      description
+        "Top-level container for ICMP configuration and
+        operational state.";
+
+      container ipv4 {
+        description
+          "ICMPv4 parameters for the network-instance.";
+        uses icmp-proto-top;
+      }
+
+      container ipv6 {
+        description
+          "ICMPv6 parameters for the network-instance.";
+        uses icmp-proto-top;
+      }
+    }
+  }
+
+  // augment statements
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance" {
+    description
+      "Adds ICMPv4 and ICMPv6 configuration and operational state
+      to the network-instance model.";
+
+    uses icmp-top;
+  }
+}
