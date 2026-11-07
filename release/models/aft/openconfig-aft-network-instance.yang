@@ -19,7 +19,14 @@ module openconfig-aft-network-instance {
      when building the OpenConfig network instance model to
      add per-NI AFTs.";
 
-  oc-ext:openconfig-version "0.3.1";
+  oc-ext:openconfig-version "0.4.0";
+
+  revision "2026-04-02" {
+    description
+      "Add next-hop-group augmentations for IPv4, IPv6, and MPLS
+      multicast AFT entry types.";
+    reference "0.4.0";
+  }
 
   revision "2023-04-25" {
     description
@@ -176,6 +183,39 @@ module openconfig-aft-network-instance {
     description
       "Add leaves that require referencing of a network instance to the
       operational state parameters of an entry within the Ethernet AFT.";
+
+    uses aft-entry-nexthop-group-state;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:afts/oc-ni:ipv4-multicast/oc-ni:ipv4-multicast-entry/" +
+          "oc-ni:state" {
+    description
+      "Add leaves that require referencing of a network instance to the
+      operational state parameters of an entry within the IPv4 multicast
+      AFT.";
+
+    uses aft-entry-nexthop-group-state;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:afts/oc-ni:ipv6-multicast/oc-ni:ipv6-multicast-entry/" +
+          "oc-ni:state" {
+    description
+      "Add leaves that require referencing of a network instance to the
+      operational state parameters of an entry within the IPv6 multicast
+      AFT.";
+
+    uses aft-entry-nexthop-group-state;
+  }
+
+  augment "/oc-ni:network-instances/oc-ni:network-instance/" +
+          "oc-ni:afts/oc-ni:mpls-multicast/oc-ni:multicast-label-entry/" +
+          "oc-ni:state" {
+    description
+      "Add leaves that require referencing of a network instance to the
+      operational state parameters of an entry within the MPLS multicast
+      AFT.";
 
     uses aft-entry-nexthop-group-state;
   }
