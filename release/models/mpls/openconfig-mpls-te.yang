@@ -30,7 +30,20 @@ submodule openconfig-mpls-te {
     signaling protocol or mechanism (see related submodules for
     signaling protocol-specific configuration).";
 
-  oc-ext:openconfig-version "3.6.0";
+  oc-ext:openconfig-version "3.6.2";
+
+  revision "2025-12-10" {
+    description
+      "Update description for tunnel type to include bypass_p2p.";
+    reference "3.6.2";
+  }
+
+  revision "2025-06-24" {
+    description
+      "Added a new enum EXCLUDE to the mpls-hop-type to specify
+      the exclude address for RSVP-TE explicit path";
+    reference "3.6.1";
+  }
 
   revision "2024-06-19" {
     description
@@ -207,9 +220,13 @@ submodule openconfig-mpls-te {
         description
           "strict hop in an explicit path";
       }
+      enum EXCLUDE {
+        description
+          "exclude hop in an explicit path";
+      }
     }
     description
-     "enumerated type for specifying loose or strict
+     "enumerated type for specifying loose, strict or exclude
       paths";
   }
 
@@ -734,7 +751,7 @@ submodule openconfig-mpls-te {
         base oc-mplst:TUNNEL_TYPE;
       }
       description
-        "Tunnel type, p2p or p2mp";
+        "Tunnel type, p2p, p2mp or bypass_p2p";
     }
 
     leaf signaling-protocol {

@@ -25,7 +25,13 @@ module openconfig-defined-sets {
     for example, in network access control lists (i.e., filters,
     rules, etc.) in the matching fields.";
 
-  oc-ext:openconfig-version "1.0.0";
+  oc-ext:openconfig-version "1.1.0";
+
+  revision "2025-05-30" {
+    description
+      "Add support for exclude-prefix and exclude-port";
+    reference "1.1.0";
+  }
 
   revision "2022-12-14" {
     description
@@ -55,7 +61,20 @@ module openconfig-defined-sets {
        type oc-inet:ipv4-prefix;
        description
          "A user defined list of IPv4 prefixes to be used in match
-         conditions. Each entry is a IPv4 + mask combination.";
+         conditions. Each entry is an IPv4 + mask combination. Addresses
+         within these prefixes will be considered for matching,
+         unless they also fall within any of the 'exclude-prefix' entries.";
+    }
+
+    leaf-list exclude-prefix {
+       type oc-inet:ipv4-prefix;
+       description
+         "A user-defined list of IPv4 prefixes to be excluded from the
+         'prefix' list. Each entry is an IPv4 address with a mask.
+         Let P be the union of all addresses in the 'prefix' list,
+         and E be the union of all addresses in the 'exclude-prefix' list.
+         The effective match set is ( P - E ), i.e., addresses in 'prefix'
+         that are not in 'exclude-prefix'.";
     }
   }
 
@@ -78,7 +97,20 @@ module openconfig-defined-sets {
        type oc-inet:ipv6-prefix;
        description
          "A user defined list of IPv6 prefixes to be used in match
-         conditions. Each entry is a IPv6 + mask combination.";
+         conditions. Each entry is an IPv6 + mask combination. Addresses
+         within these prefixes will be considered for matching,
+         unless they also fall within any of the 'exclude-prefix' entries.";
+    }
+
+    leaf-list exclude-prefix {
+       type oc-inet:ipv6-prefix;
+       description
+         "A user-defined list of IPv6 prefixes to be excluded from the
+         'prefix' list. Each entry is an IPv6 address with a mask.
+         Let P be the union of all addresses in the 'prefix' list,
+         and E be the union of all addresses in the 'exclude-prefix' list.
+         The effective match set is ( P - E ), i.e., addresses in 'prefix'
+         that are not in 'exclude-prefix'.";
     }
   }
 
@@ -101,8 +133,19 @@ module openconfig-defined-sets {
       leaf-list port {
         type oc-pkt-match-types:port-num-range;
         description
-          "A user defined set of ports to be
-          used in the match conditions.";
+          "A user defined set of ports to be used in the match conditions.
+          Ports listed here will be considered for matching, unless they
+          are also included in 'exclude-port'.";
+      }
+
+      leaf-list exclude-port {
+        type oc-pkt-match-types:port-num-range;
+        description
+          "A user-defined list of ports to be excluded from the 'port'
+          list. Let P be the union of the ports in the 'port' list,
+          and E be the union of ports in the 'exclude-port' list.
+          The effective match set is ( P - E ) i.e., ports in 'port'
+          that are not in 'exclude-port'.";
       }
   }
 

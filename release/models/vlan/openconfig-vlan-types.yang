@@ -21,7 +21,15 @@ module openconfig-vlan-types {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.2.0";
+  oc-ext:openconfig-version "3.3.0";
+
+  revision "2026-06-24" {
+    description
+      "Add vlan-id-or-none typedef to support VLAN ID values that
+      include 0 to indicate that the system either does not know
+      the PVID or does not support Port-based VLAN operation.";
+    reference "3.3.0";
+  }
 
   revision "2022-05-24" {
     description
@@ -134,6 +142,16 @@ module openconfig-vlan-types {
     }
     description
       "Type definition representing a single-tagged VLAN";
+  }
+
+  typedef vlan-id-or-none {
+    type uint16 {
+      range 0..4094;
+    }
+    description
+      "Type definition representing a single-tagged VLAN identifier
+      where a value of 0 indicates that the system either does not
+      know the PVID or does not support Port-based VLAN operation.";
   }
 
   typedef vlan-range {

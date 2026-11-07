@@ -31,7 +31,26 @@ module openconfig-packet-match {
     wildcard ('any') for that field.";
 
 
-  oc-ext:openconfig-version "2.1.0";
+  oc-ext:openconfig-version "2.4.0";
+
+  revision "2026-05-11" {
+    description
+      "Deprecate source/destination flow-label definitions and replace
+      with single IPv6 flow-label leaf.";
+    reference "2.4.0";
+  }
+
+  revision "2026-03-25" {
+    description
+      "Add internal switching fabric parameters";
+    reference "2.3.0";
+  }
+
+  revision "2025-06-10" {
+    description
+      "Add Fragment Offsets as a match condition";
+    reference "2.2.0";
+  }
 
   revision "2023-03-01" {
     description
@@ -339,6 +358,15 @@ module openconfig-packet-match {
           to match the destination address";
     }
 
+    leaf-list fragment-offsets {
+      type oc-pkt-match-types:fragment-offset-range;
+      description
+        "A list of Fragment Offset values to be matched for incoming packets.
+        An OR match should be performed, such that a packet must match one of
+        the values defined in this list. If the field is left empty then any
+        packet matches. Ranges and single values may be overlapping";
+    }
+
     uses ip-protocol-fields-common-config;
 
   }
@@ -395,8 +423,11 @@ module openconfig-packet-match {
 
     leaf source-flow-label {
       type oc-inet:ipv6-flow-label;
+      status deprecated;
       description
-        "Source IPv6 Flow label.";
+        "Deprecated: use flow-label instead.  The IPv6 header contains a
+        single flow-label field; there is no distinct source or
+        destination flow-label.";
     }
 
     leaf destination-address {
@@ -417,8 +448,17 @@ module openconfig-packet-match {
 
     leaf destination-flow-label {
       type oc-inet:ipv6-flow-label;
+      status deprecated;
       description
-        "Destination IPv6 Flow label.";
+        "Deprecated: use flow-label instead.  The IPv6 header contains a
+        single flow-label field; there is no distinct source or
+        destination flow-label.";
+    }
+
+    leaf flow-label {
+      type oc-inet:ipv6-flow-label;
+      description
+        "IPv6 Flow label.";
     }
 
     uses ip-protocol-fields-common-config;
@@ -724,4 +764,48 @@ module openconfig-packet-match {
     }
   }
 
+  grouping fabric-params-top {
+    description
+      "Top-level grouping for parameters related to the internal
+       switching fabric of the device.";
+
+    container fabric {
+      description
+        "Enclosing container for managing device-specific fabric
+         attributes.";
+
+      container config {
+        description
+          "Configuration parameters relating to fabric
+          parameters.";
+
+        uses fabric-params-config;
+      }
+
+      container state {
+        description
+          "Operational state parameters relating to fabric
+          parameters.";
+        config false;
+
+        uses fabric-params-config;
+      }
+    }
+  }
+
+  grouping fabric-params-config {
+    description
+      "Top-level grouping for configurable parameters related to the
+      internal switching fabric of the device.";
+    leaf fabric-priority {
+      type uint8;
+      description
+        "Specifies the priority for the forwarding group for local
+         transmission through the device (e.g., across the internal
+         switching fabric). The priority is expressed as a numerical
+         value where higher values indicate higher precedence. For
+         example, traffic with fabric priority 128 is treated with
+         higher priority than traffic with fabric priority 0.";
+    }
+  }
 }
