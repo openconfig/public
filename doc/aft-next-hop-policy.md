@@ -11,7 +11,7 @@ This document describes the proposal for adding next-hop-tag-based forwarding po
 
 OpenConfig policy-forwarding matches and applies actions to packets. Policy-forwarding rules match on various properties of the packets, such as destination IP, TTL, DSCP, protocol and apply actions, such as drop the packet, set TTL or set the next-hop.  These rules require inspecting fields inside the packet.
 
-gRIBI can be used to inject routes and next-hops. In addition to the traditional next-hop attributes like destination IP address, additional attributes can be added such defining encapsulation headers.
+gRIBI can be used to inject routes and next-hops. In addition to the traditional next-hop attributes like destination IP address, additional attributes can be added such as encapsulation headers.
 
 In certain cases, it’s desirable to match gRIBI next-hops in policy-forwarding policies. This allows policy-forwarding actions to be applied to packets sent to those next-hops. In this scenario, the policy-forwarding match rule is evaluated against next-hop table entries instead of matching on fields inside the packet.
 
@@ -161,7 +161,7 @@ Here is canonical OpenConfig JSON for an example AFT `next-hop` entry with `poli
 
 ### Modeling Next-hop Policy-tag Forwarding Policies
 
-A `next-hop` container is added under `policy-forwarding/policies/policy/rules/rule`, which allows next-hop properties to be matched. A `policy-tag` leaf is added under `next-hop/config` and `next-hop/state`. This leaf allows a forwarding policy to match the policy-tags configured on next-hops. If it matches, then the forwarding action of this forwarding policy applies to the traffic resolved through that next-hop.
+A `next-hop` container is added under `policy-forwarding/policies/policy/rules/rule`, which allows next-hop properties to be matched. A `policy-tag` leaf is added under `next-hop/config` and `next-hop/state`. This leaf allows a forwarding policy to match the policy-tags configured on next-hops. If it matches, then the forwarding action of this forwarding policy applies to the packets resolved through that next-hop.
 
 #### OpenConfig AFT next-hops tree
 
