@@ -406,7 +406,9 @@ module openconfig-aaa {
       status deprecated;
       description
         "SSH public key for the user. Deprecated in favour of the
-        public-keys list, which supports mutiple keys per user.";
+        public-keys list, which supports multiple keys per user.  
+        Configuring both ssh-key and public-keys simultaneously
+        should be avoided.";
     }
 
     leaf role {
@@ -432,27 +434,23 @@ module openconfig-aaa {
   grouping public-key-config {
     description
       "Configuration data for user SSH keys";
-
-     leaf name {
-       type string;
-       description
-         "The name with which to reference the authorized SSH public key";
-     }
-
-     leaf public-key {
-       type string;
-       description
-         "An authorized SSH public key for the user, formatted as a single
-         entry of an OpenSSH authorized_keys file:
-
-           [options] <algorithm> <base64-key> [comment]
-
-         Encoding the full entry as one string preserves any key options
-         and algorithm names not known to the system.";
-
-       reference
-          "OpenSSH sshd(8), AUTHORIZED_KEYS FILE FORMAT";
-     }
+    leaf name {
+      type string;
+      description
+        "The name with which to reference the authorized SSH public
+        key";
+    }
+    leaf public-key {
+      type string;
+      description
+        "An authorized SSH public key for the user, formatted as a
+        single entry of an OpenSSH authorized_keys file:
+          [options] <algorithm> <base64-key> [comment]
+        Encoding the full entry as one string preserves any key
+        options and algorithm names not known to the system.";
+      reference
+        "OpenSSH sshd(8), AUTHORIZED_KEYS FILE FORMAT";
+    }
   }
 
   grouping public-keys {
