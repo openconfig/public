@@ -9,7 +9,7 @@ This document describes the proposal for adding next-hop-tag-based forwarding po
 
 ## Background
 
-Forwarding policy matches traffic and applies forwarding actions to the traffic. Current forwarding policies can match on various properties of the traffic, such as destination IP and TTL, and apply different forwarding actions, such as setting TTL and applying traffic policers.  These PBR_POLICY and MATCH_ACTION_POLICY rules require inspection fields inside the packet.
+OpenConfig policy-forwarding matches and applies actions to packets. Policy-forwarding rules match on various properties of the traffic, such as destination IP, TTL, DSCP, protocol and apply actions, such as drop the packet, set TTL or set the next-hop.  These rules require inspecting fields inside the packet.
 
 gRIBI can be used to inject routes and next-hops. In addition to the traditional next-hop attributes like destination IP address, additional attributes can be added such defining encapsulation headers.
 
