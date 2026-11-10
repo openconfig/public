@@ -34,7 +34,7 @@ For attaching policy-tags to next-hops, these tags are programmed together with 
 
 For configuring forwarding policies, the existing forwarding policies in OpenConfig are enhanced to match these next-hop policy-tags.  Only one policy may exist for a given policy-tag.  The maximum number of policy-tags and the number of type of policy-forwarding actions are platform dependent.
 
-When the next-hops are programmed through gRIBI and the forwarding policies matching their policy-tags are configured, the traffic forwarded through such next-hops has the forwarding action specified in the forwarding policies applied to it. For example, a forwarding policy matches a next-hop policy-tag and specifies a traffic policier to be applied. All traffic forwarded through next-hops with that policy-tag is policed by that policer.
+When the next-hops are programmed through gRIBI and the forwarding policies matching their policy-tags are configured, the traffic forwarded through such next-hops has the forwarding action specified in the forwarding policies applied to it. For example, a forwarding policy matches a next-hop policy-tag and specifies a traffic policer to be applied. All traffic forwarded through next-hops with that policy-tag is policed by that policer.
 
 ### Use Cases
 
@@ -264,7 +264,7 @@ submodule openconfig-pf-forwarding-policies {
         "Match an AFT next-hop policy-tag
         (afts/next-hops/next-hop/state/policy-tag) in the same
         network-instance. All packets with next-hops with a matching policy-tag
-        will have the policy-forwarding action will be applied.";
+        have the policy-forwarding action will be applied.";
     }
   }
 ...
