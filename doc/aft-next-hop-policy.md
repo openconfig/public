@@ -1,31 +1,38 @@
 # Next-hop-tag-based Forwarding Policy
 
+**Contributors**: henryhu@google.com, dloher@google.com
+Date: Created Nov 10, 2026
+
 ## Summary
  
 This document describes the proposal for adding next-hop-tag-based forwarding policy.
 
 ## Background
 
-Forwarding policy matches traffic and applies forwarding actions to the traffic. Current forwarding policies can match on various properties of the traffic, such as destination IP and TTL, and apply different forwarding actions, such as setting TTL and applying traffic policer.
+Forwarding policy matches traffic and applies forwarding actions to the traffic. Current forwarding policies can match on various properties of the traffic, such as destination IP and TTL, and apply different forwarding actions, such as setting TTL and applying traffic policers.  These PBR_POLICY and MATCH_ACTION_POLICY rules require inspection fields inside the packet.
 
-On the other hand, traffic forwarding can be controlled by gRIBI programming. Specifically, routes can be programmed through gRIBI to match specific attributes of the traffic, such as destination IP, and apply forwarding actions, such as performing MPLS-over-GUE encapsulation.
+gRIBI can be used to inject routes and next-hops. In addition to the traditional next-hop attributes like destination IP address, additional attributes can be added such defining encapsulation headers.
 
-In certain cases, it’s desirable to match gRIBI next-hops in forwarding policies. This allows forwarding actions to be applied to traffic sent to those next-hops. In this scenario, the match rule is evaluated against forwarding table entires for next-hop instead of matching on fields inside the packet.
+In certain cases, it’s desirable to match gRIBI next-hops in policy-forwarding policies. This allows policy-forwarding actions to be applied to traffic sent to those next-hops. In this scenario, the policy-forwarding match rule is evaluated against next-hop table entries instead of matching on fields inside the packet.
 
 ## Proposal
 
-We will allow policy-tags to be attached to gRIBI next-hops, and enhance forwarding policies to be able to match next-hops with such policy-tags. For traffic forwarded through a gRIBI next-hop, if it has a policy-tag attached, and if we have a forwarding policy which matches that policy-tag, then the forwarding actions specified in that forwarding policy would be applied to the traffic.
+We will allow policy-tags to be attached to gRIBI next-hops, and enhance forwarding policies to be able to match next-hops with such policy-tags.
+
+When packets are forwarded using a route that resolves to a gRIBI-installed next-hop and that next-hop contains a policy-tag, such packets become subject to the actions of a forwarding policy with a match rule for the same policy-tag.
+
+For traffic forwarded through a gRIBI next-hop, if it has a policy-tag attached, and if we have a forwarding policy which matches that policy-tag, then the forwarding actions specified in that forwarding policy are applied to the traffic.
 
 ### Details
 
 To use this new feature, 2 steps need to be done:
 
   * First, attach policy-tags to next-hops programmed by gRIBI.
-  * Second, configure forwarding-policies which match these gRIBI next-hop policy-tags, and specify actions for the policies.
+  * Second, configure policy-forwarding policies which match these gRIBI next-hop policy-tags, and specify actions for the policies.
 
 For attaching policy-tags with next-hops, we can have these tags programmed together with next-hops through gRIBI. We can extend the OpenConfig model to add a policy-tag leaf to the next-hop container, and the policy-tag is set with this new leaf.
 
-For configuring forwarding policies, we can enhance the existing forwarding policies in OpenConfig to allow them to match these next-hop policy-tags.
+For configuring forwarding policies, we can enhance the existing forwarding policies in OpenConfig to allow them to match these next-hop policy-tags.  Multiple policies may define rules with the same policy-tag.  The maximum number of policy-tags and the number of type of policy-forwarding actions are platform dependent.
 
 When the next-hops are programmed through gRIBI and the forwarding policies matching their policy-tags are configured, the traffic forwarded through such next-hops would have the forwarding action specified in the forwarding policies applied to it. For example, a forwarding policy might match a next-hop policy-tag and specify a traffic policier to be applied. Then, all traffic forwarded through next-hops with that policy-tag would be policed by that policer.
 
