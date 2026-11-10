@@ -9,40 +9,38 @@ This document describes the proposal for adding next-hop-tag-based forwarding po
 
 ## Background
 
-OpenConfig policy-forwarding matches and applies actions to packets. Policy-forwarding rules match on various properties of the traffic, such as destination IP, TTL, DSCP, protocol and apply actions, such as drop the packet, set TTL or set the next-hop.  These rules require inspecting fields inside the packet.
+OpenConfig policy-forwarding matches and applies actions to packets. Policy-forwarding rules match on various properties of the packets, such as destination IP, TTL, DSCP, protocol and apply actions, such as drop the packet, set TTL or set the next-hop.  These rules require inspecting fields inside the packet.
 
 gRIBI can be used to inject routes and next-hops. In addition to the traditional next-hop attributes like destination IP address, additional attributes can be added such defining encapsulation headers.
 
-In certain cases, it’s desirable to match gRIBI next-hops in policy-forwarding policies. This allows policy-forwarding actions to be applied to traffic sent to those next-hops. In this scenario, the policy-forwarding match rule is evaluated against next-hop table entries instead of matching on fields inside the packet.
+In certain cases, it’s desirable to match gRIBI next-hops in policy-forwarding policies. This allows policy-forwarding actions to be applied to packets sent to those next-hops. In this scenario, the policy-forwarding match rule is evaluated against next-hop table entries instead of matching on fields inside the packet.
 
 ## Next-hop Policy-tag Specification
 
-This specification allows policy-tags to be attached to gRIBI next-hops, and enhances forwarding policies to match next-hops with such policy-tags.
+This specification allows policy-tags to be attached to gRIBI next-hops, and adds a rule to policy-forwarding policies to match next-hops with such policy-tags.
 
-When packets are forwarded using a route that resolves to a gRIBI-installed next-hop and that next-hop contains a policy-tag, such packets become subject to the actions of a forwarding policy with a match rule for the same policy-tag.
-
-For traffic forwarded through a gRIBI next-hop, if it has a policy-tag attached, and if we have a forwarding policy which matches that policy-tag, then the forwarding actions specified in that forwarding policy are applied to the traffic.
+When packets are forwarded using a route that resolves to a next-hop containing a policy-tag, such packets become subject to the actions of a policy-forwarding policy with a match rule for the same policy-tag.
 
 ### Details
 
 To use this new feature, 2 steps need to be done:
 
-  * First, attach policy-tags to next-hops programmed by gRIBI.
-  * Second, configure policy-forwarding policies which match these gRIBI next-hop policy-tags, and specify actions for the policies.
+  * First, configure policy-forwarding policies which match these gRIBI next-hop policy-tags, and specify actions for the policies.
+  * Second, inject routes and next-hops with policy-tags using gRIBI.
 
-For attaching policy-tags to next-hops, these tags are programmed together with next-hops through gRIBI. The OpenConfig model is extended with a policy-tag leaf in the next-hop container, and the policy-tag is set with this new leaf.
+The OpenConfig AFT model is extended with a policy-tag leaf in the next-hop container.  gRIBI is used to program next-hops which include the policy-tag leaf.
 
-For configuring forwarding policies, the existing forwarding policies in OpenConfig are enhanced to match these next-hop policy-tags.  Only one policy may exist for a given policy-tag.  The maximum number of policy-tags and the number of type of policy-forwarding actions are platform dependent.
+gNMI is used to configure a policy-forwarding policy with a rule for next-hop policy-tag.  A given policy may contain rules for one or more policy-tags, but only one policy may exist for a given policy-tag. The maximum number of policy-tags and the supported policy-forwarding actions are platform dependent.
 
-When the next-hops are programmed through gRIBI and the forwarding policies matching their policy-tags are configured, the traffic forwarded through such next-hops has the forwarding action specified in the forwarding policies applied to it. For example, a forwarding policy matches a next-hop policy-tag and specifies a traffic policer to be applied. All traffic forwarded through next-hops with that policy-tag is policed by that policer.
+The packets forwarded to the affected next-hops has the policy-forwarding action applied to them. For example, a policy-forwarding policy matches a next-hop policy-tag and specifies a policer to be applied. All packets forwarded through next-hops with that policy-tag are policed by that policer.  If a next-hop has a policy-tag with no matching policy-forwarding policy, no actions are applied.
 
 ### Use Cases
 
-In one use case, gRIBI routes are programmed on a device which directs traffic with different destination IPs to be encapsulated into different tunnels.  We want to apply a common bandwidth limit for the tunnels sharing the same destination, because such tunnels typically share the same path across the backbone network.
+In one use case, gRIBI routes are programmed on a device which directs packets with different destination IPs to be encapsulated into different tunnels.  We want to apply a common bandwidth limit for the tunnels sharing the same destination, because such tunnels typically share the same path across the backbone network.
 
-One option is adding forwarding policies which match specific destination prefixes of the traffic and apply policers. The problem with this approach is that it requires separate matching of destination prefixes for the forwarding policies, which needs additional hardware resources on the device. Specifically, the forwarding policies are often implemented with TCAM lookups, while the routes are often implemented with LPM lookups. Separate lookups mean additional hardware resource consumption. In addition, the scale achievable with TCAM is often lower than the scale achievable with LPM.
+One option is configuring policy-forwarding policies which match specific destination prefixes of the packets and apply policers. The problem with this approach is that it requires separate matching of destination prefixes for the policies, which needs additional hardware resources on the device. Specifically, the policy-forwarding policies are often implemented with TCAM lookups, while the routes are often implemented with LPM lookups. Separate lookups mean additional hardware resource consumption. In addition, the scale achievable with TCAM is often lower than the scale achievable with LPM.
 
-Using next-hop policy-tag, the lookup is done just once in LPM, and the policy-tag is part of the LPM lookup result. The policy-tag identifies a next-hop-tag-based forwarding policy, which then specifies a policer to be applied. This avoids the double lookups needed in the previous approach.
+Using next-hop policy-tag, the lookup is done just once in LPM, and the policy-tag is part of the LPM lookup result. The policy-tag identifies a policy-forwarding policy which then specifies a policer action to be applied. This avoids the double lookups needed in the previous approach.
 
 ### Example
 
@@ -58,9 +56,9 @@ For interface I2, we have 1 route:
 
 Goal: for bandwidth enforcement, we want to apply
 
-- policer ‘i1-to-dc-X’ to traffic sent to data center X from interface 1
-- policer ‘i1-to-dc-Y’ to traffic sent to data center Y from interface 1
-- policer ‘i2-to-dc-Y’ to traffic sent to data center Y from interface 2
+- policer ‘i1-to-dc-X’ to packets sent to data center X from interface 1
+- policer ‘i1-to-dc-Y’ to packets sent to data center Y from interface 1
+- policer ‘i2-to-dc-Y’ to packets sent to data center Y from interface 2
 
 With the policy-tag approach, we
 
@@ -73,9 +71,9 @@ With the policy-tag approach, we
 
 This allows
 
-- traffic resolved through next-hops 1 and 2 to be policed by policer ‘i1-to-cluster-X’
-- traffic resolved through next-hop 3 to be policed by policer ‘i1-to-dc-Y’
-- traffic resolved through next-hop 4 to be policed by policer ‘i2-to-dc-Y’
+- packets resolved through next-hops 1 and 2 to be policed by policer ‘i1-to-cluster-X’
+- trafpacketsfic resolved through next-hop 3 to be policed by policer ‘i1-to-dc-Y’
+- packets resolved through next-hop 4 to be policed by policer ‘i2-to-dc-Y’
 
 satisfying the requirements.
 
