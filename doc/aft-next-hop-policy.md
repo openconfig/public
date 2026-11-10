@@ -1,4 +1,4 @@
-# Next-hop-tag-based Forwarding Policy
+# Next-hop Policy-tag Forwarding Policy
 
 **Contributors**: henryhu@google.com, dloher@google.com
 Date: Created Nov 10, 2026
@@ -15,9 +15,9 @@ gRIBI can be used to inject routes and next-hops. In addition to the traditional
 
 In certain cases, it’s desirable to match gRIBI next-hops in policy-forwarding policies. This allows policy-forwarding actions to be applied to traffic sent to those next-hops. In this scenario, the policy-forwarding match rule is evaluated against next-hop table entries instead of matching on fields inside the packet.
 
-## Proposal
+## Next-hop Policy-tag Specification
 
-We will allow policy-tags to be attached to gRIBI next-hops, and enhance forwarding policies to be able to match next-hops with such policy-tags.
+This specification allows policy-tags to be attached to gRIBI next-hops, and enhances forwarding policies to match next-hops with such policy-tags.
 
 When packets are forwarded using a route that resolves to a gRIBI-installed next-hop and that next-hop contains a policy-tag, such packets become subject to the actions of a forwarding policy with a match rule for the same policy-tag.
 
@@ -30,19 +30,19 @@ To use this new feature, 2 steps need to be done:
   * First, attach policy-tags to next-hops programmed by gRIBI.
   * Second, configure policy-forwarding policies which match these gRIBI next-hop policy-tags, and specify actions for the policies.
 
-For attaching policy-tags with next-hops, we can have these tags programmed together with next-hops through gRIBI. We can extend the OpenConfig model to add a policy-tag leaf to the next-hop container, and the policy-tag is set with this new leaf.
+For attaching policy-tags to next-hops, these tags are programmed together with next-hops through gRIBI. The OpenConfig model is extended with a policy-tag leaf in the next-hop container, and the policy-tag is set with this new leaf.
 
-For configuring forwarding policies, we can enhance the existing forwarding policies in OpenConfig to allow them to match these next-hop policy-tags.  Multiple policies may define rules with the same policy-tag.  The maximum number of policy-tags and the number of type of policy-forwarding actions are platform dependent.
+For configuring forwarding policies, the existing forwarding policies in OpenConfig are enhanced to match these next-hop policy-tags.  Only one policy may exist for a given policy-tag.  The maximum number of policy-tags and the number of type of policy-forwarding actions are platform dependent.
 
-When the next-hops are programmed through gRIBI and the forwarding policies matching their policy-tags are configured, the traffic forwarded through such next-hops would have the forwarding action specified in the forwarding policies applied to it. For example, a forwarding policy might match a next-hop policy-tag and specify a traffic policier to be applied. Then, all traffic forwarded through next-hops with that policy-tag would be policed by that policer.
+When the next-hops are programmed through gRIBI and the forwarding policies matching their policy-tags are configured, the traffic forwarded through such next-hops has the forwarding action specified in the forwarding policies applied to it. For example, a forwarding policy matches a next-hop policy-tag and specifies a traffic policier to be applied. All traffic forwarded through next-hops with that policy-tag is policed by that policer.
 
-### Use Case
+### Use Cases
 
-Let’s consider such a use case: we have gRIBI routes programmed on a device which directs traffic with different destination IPs to be encapsulated into different tunnels, whose destinations are in different data centers, and we would like to apply a common bandwidth limit for the tunnels sharing the same destination data center, because such tunnels typically share the same path across the backbone network.
+In one use case, gRIBI routes are programmed on a device which directs traffic with different destination IPs to be encapsulated into different tunnels.  We want to apply a common bandwidth limit for the tunnels sharing the same destination, because such tunnels typically share the same path across the backbone network.
 
-One option is adding forwarding policies which match specific destination prefixes of the traffic and apply policers. The problem with this approach is that it requires separate matching of destination prefixes for the forwarding policies, which needs additional hardware resources on the device. Specifically, the forwarding policies might be implemented with TCAM lookups, while the routes might be implemented with LPM lookups. Separate lookups mean additional hardware resource consumption. In addition, the scale achievable with TCAM might be lower than the scale achievable with LPM.
+One option is adding forwarding policies which match specific destination prefixes of the traffic and apply policers. The problem with this approach is that it requires separate matching of destination prefixes for the forwarding policies, which needs additional hardware resources on the device. Specifically, the forwarding policies are often implemented with TCAM lookups, while the routes are often implemented with LPM lookups. Separate lookups mean additional hardware resource consumption. In addition, the scale achievable with TCAM is often lower than the scale achievable with LPM.
 
-With the proposed approach, the lookup can be done just once in LPM, and the policy-tag can be part of the LPM lookup result. The policy-tag can be used to identify a next-hop-tag-based forwarding policy, which can then specify a policer to be applied. This avoids the double lookups needed in the previous approach.
+Using next-hop policy-tag, the lookup is done just once in LPM, and the policy-tag is part of the LPM lookup result. The policy-tag identifies a next-hop-tag-based forwarding policy, which then specifies a policer to be applied. This avoids the double lookups needed in the previous approach.
 
 ### Example
 
@@ -56,13 +56,13 @@ For interface I2, we have 1 route:
 
 - Route 4: match prefix D, forward through next hop 4: send packets through tunnel 4, whose destination is in data center Y
 
-Goal: for bandwidth enforcement, we would like to apply
+Goal: for bandwidth enforcement, we want to apply
 
 - policer ‘i1-to-dc-X’ to traffic sent to data center X from interface 1
 - policer ‘i1-to-dc-Y’ to traffic sent to data center Y from interface 1
 - policer ‘i2-to-dc-Y’ to traffic sent to data center Y from interface 2
 
-With the proposed approach, we’ll
+With the policy-tag approach, we
 
 - first, mark next-hops 1 and 2 with policy-tag ‘DC-X’, and next-hops 3 and 4 with policy-tag ‘DC-Y’
 - then, configure 3 policers, i1-to-dc-X, i1-to-dc-Y, and i2-to-dc-Y
@@ -79,11 +79,11 @@ This allows
 
 satisfying the requirements.
 
-### Design Options
+### Alternative Design Options
 
-There are alternative ways to implement such forwarding policies. One idea is to have the policies match next-hops directly. If we do that, then with every change of the next-hops, whether it is addition or deletion, the policy would need to be updated to add or remove the next-hop, so that the policers are still applied to the correct next-hops. By having a level of indirection, the policy-tag allows the next-hops to be updated dynamically, while the policy can be configured in a relatively static way.
+There are alternative ways to implement such forwarding policies. One idea is to have the policies match next-hops directly. With that approach, every change to the next-hops, whether an addition or a deletion, requires the policy to be updated to add or remove the next-hop, so that the policers are still applied to the correct next-hops. By having a level of indirection, the policy-tag allows the next-hops to be updated dynamically, while the policy can be configured in a static way.
 
-Another idea might be specifying the policer name directly in every next-hop. However, setting the policer through forwarding policies provides more flexibility. For example, the forwarding policy can match additional properties, such as ingressing interface, and applying different policers based on that. Also, forwarding policy can have other forwarding actions other than applying a policer.
+Another idea is specifying the policer name directly in every next-hop. However, setting the policer through forwarding policies provides more flexibility. For example, the forwarding policy can match additional properties, such as ingressing interface, and applying different policers based on that. Also, forwarding policy can have other forwarding actions other than applying a policer.
 
 ## OpenConfig Changes
 
@@ -94,7 +94,7 @@ This proposal requires 2 parts of OpenConfig changes:
 
 ### Add Policy-tag to gRIBI next-hop
 
-We can add a `policy-tag` leaf under `afts/next-hops/next-hop/state`. This allows a policy-tag to be specified for every next-hop. It’s an optional field, and if it’s not set, then no forwarding policy matching policy-tag would match it.
+A `policy-tag` leaf is added under `afts/next-hops/next-hop/state`. This allows a policy-tag to be specified for every next-hop. It’s an optional field, and if it’s not set, then no forwarding policy matching on policy-tag matches the next-hop.
 
 #### OpenConfig AFT next-hops tree
 
@@ -161,9 +161,9 @@ Here is canonical OpenConfig JSON for an example AFT `next-hop` entry with `poli
 }
 ```
 
-### Modeling Next-hop-tag-based Forwarding Policies
+### Modeling Next-hop Policy-tag Forwarding Policies
 
-We can add a `next-hop` container under `policy-forwarding/policies/policy/rules/rule`, which allows next-hop properties to be matched. Then, we can add a `policy-tag` leaf under `next-hop/config` and `next-hop/state`. This leaf allows a forwarding policy to match the policy-tags configured on next-hops. If it matches, then the forwarding action of this forwarding policy would apply to the traffic resolved through that next-hop.
+A `next-hop` container is added under `policy-forwarding/policies/policy/rules/rule`, which allows next-hop properties to be matched. A `policy-tag` leaf is added under `next-hop/config` and `next-hop/state`. This leaf allows a forwarding policy to match the policy-tags configured on next-hops. If it matches, then the forwarding action of this forwarding policy applies to the traffic resolved through that next-hop.
 
 #### OpenConfig AFT next-hops tree
 
