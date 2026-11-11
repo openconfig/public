@@ -1,0 +1,291 @@
+module openconfig-gnsi-auditz {
+  yang-version "1";
+
+  namespace "https://github.com/openconfig/yang/gnsi/auditz";
+  prefix "oc-gnsi-auditz";
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-system { prefix oc-sys; }
+  import openconfig-system-grpc { prefix oc-sys-grpc; }
+  import openconfig-types { prefix oc-types; }
+  import openconfig-yang-types { prefix oc-yang; }
+  import openconfig-gnsi { prefix oc-gnsi; }
+
+  organization
+    "OpenConfig Working Group";
+
+  contact
+    "OpenConfig working group
+    netopenconfig@googlegroups.com";
+
+  description
+    "This module provides operational state and counters for the gNSI
+    Runtime Host and Kernel Security Auditing (gNSI.auditz) telemetry
+    service.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision 2026-11-10 {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  typedef event-category {
+    type enumeration {
+      enum UNSPECIFIED {
+        value 0;
+        description
+          "Unspecified runtime event category.";
+      }
+      enum PROCESS {
+        value 1;
+        description
+          "Process lifecycle events (fork, execve, exit).";
+      }
+      enum KERNEL {
+        value 2;
+        description
+          "Kernel integrity events (module load/unload, eBPF, kprobe,
+          netfilter, sysctl).";
+      }
+      enum FILESYSTEM {
+        value 3;
+        description
+          "Filesystem integrity events (remount-rw, dm-verity,
+          fs-verity, IMA appraisal, critical file edits, package
+          drift).";
+      }
+      enum PRIVILEGE {
+        value 4;
+        description
+          "Privilege transition, capability escalation, namespace
+          escape, and unlinked binary execution events.";
+      }
+      enum SOCKET {
+        value 5;
+        description
+          "Control-plane, management-VRF, and revenue-VRF socket bind,
+          listen, and connect events.";
+      }
+      enum HEARTBEAT {
+        value 6;
+        description
+          "Periodic agent health and TCB integrity heartbeat
+          records.";
+      }
+    }
+    description
+      "Enumeration of runtime security event categories produced by
+      the gNSI.auditz subsystem.";
+  }
+
+  // gNSI.auditz gRPC server client statistics.
+  grouping client-counters {
+    description
+      "A collection of counters collected by the gNSI.auditz module
+      while servicing EventSubscribe gRPC clients.";
+
+    container state {
+      description
+        "Operational state relating to gNSI.auditz gRPC server
+        counters.";
+
+      container counters {
+        description
+          "Counters collected by the gNSI.auditz module per gRPC
+          server.";
+
+        leaf history-istruncated {
+          type oc-yang:counter64;
+          description
+            "The total number of times an EventRequest resulted in an
+            EventResponse being marked with history-istruncated due to
+            ring-buffer wrap-around or backpressure shedding.";
+        }
+
+        leaf event-requests {
+          type oc-yang:counter64;
+          description
+            "The total number of EventRequest messages received.";
+        }
+
+        leaf event-responses {
+          type oc-yang:counter64;
+          description
+            "The total number of EventResponse messages streamed to
+            collectors.";
+        }
+      }
+    }
+  }
+
+  // gNSI.auditz system-level producer state and counters.
+  grouping source-events {
+    description
+      "Operational state and per-category counters for gNSI.auditz
+      runtime event production on the system.";
+
+    container state {
+      description
+        "System-wide operational state of the gNSI.auditz runtime
+        agent.";
+
+      leaf agent-version {
+        type string;
+        description
+          "Semantic version string of the active gNSI.auditz
+          collector.";
+      }
+
+      leaf agent-binary-sha256 {
+        type binary {
+          length "32";
+        }
+        description
+          "SHA-256 digest of the running gNSI.auditz collector binary
+          (measurable via IMA/PCR).";
+      }
+
+      leaf-list active-probes {
+        type string;
+        description
+          "List of active runtime telemetry probes or instrumentation
+          backends (e.g., BPF_LSM, IMA, NETLINK_AUDIT,
+          USERSPACE_SHIM).";
+      }
+
+      leaf rss-memory-kb {
+        type uint32;
+        units "kilobytes";
+        description
+          "Current resident set size (RSS) memory usage of the
+          gNSI.auditz collector in kilobytes.";
+      }
+
+      leaf cpu-utilization-pct {
+        type oc-types:percentage;
+        description
+          "Current CPU utilization percentage of the gNSI.auditz
+          collector.";
+      }
+
+      leaf last-heartbeat-time {
+        type oc-types:timeticks64;
+        units "nanoseconds";
+        description
+          "Timestamp of the most recent AgentHeartbeat generated by
+          the gNSI.auditz collector, in nanoseconds relative to the
+          Unix Epoch (Jan 1, 1970 00:00:00 UTC).";
+      }
+
+      container counters {
+        description
+          "System-wide aggregate counters for the gNSI.auditz
+          collector.";
+
+        leaf dropped-events {
+          type oc-yang:counter64;
+          description
+            "The total number of runtime events dropped due to
+            ring-buffer capacity limits or supervisor CPU/memory
+            guardrails.";
+        }
+      }
+    }
+
+    container source-events {
+      description
+        "Per-category counters for gNSI.auditz event production.";
+
+      list source-event {
+        key "category";
+        description
+          "Counters of runtime security events produced for a given
+          event-category.";
+
+        leaf category {
+          type leafref {
+            path "../state/category";
+          }
+          description
+            "Reference to the runtime security event category.";
+        }
+
+        container state {
+          description
+            "Operational state for gNSI.auditz event production per
+            category.";
+
+          leaf category {
+            type event-category;
+            description
+              "Runtime security event category.";
+          }
+
+          container counters {
+            description
+              "Counters for gNSI.auditz event production for this
+              category.";
+
+            leaf events {
+              type oc-yang:counter64;
+              description
+                "The total number of runtime events produced for this
+                category.";
+            }
+          }
+        }
+      }
+    }
+  }
+
+  grouping grpc-server-auditz-counters {
+    description
+      "Top-level container for gNSI.auditz counters per gRPC server.";
+
+    container auditz {
+      config false;
+      description
+        "Counters collected by the gNSI.auditz module per gRPC
+        server.";
+      uses client-counters;
+    }
+  }
+
+  grouping system-auditz-state {
+    description
+      "Top-level container for system-wide gNSI.auditz operational
+      state and producer counters.";
+
+    container auditz {
+      config false;
+      description
+        "System-wide operational state and counters for the
+        gNSI.auditz runtime security collector.";
+      uses source-events;
+    }
+  }
+
+  // Augments section.
+  augment "/oc-sys:system/oc-sys-grpc:grpc-servers/" +
+          "oc-sys-grpc:grpc-server" {
+    when "oc-sys-grpc:config[contains(oc-sys-grpc:services, " +
+         "'oc-gnsi:GNSI')]/oc-sys-grpc:enable = 'true'";
+    description
+      "Counters collected by the gNSI.auditz module per gRPC server.";
+
+    uses grpc-server-auditz-counters;
+  }
+
+  augment "/oc-sys:system" {
+    when "oc-sys-grpc:grpc-servers/oc-sys-grpc:grpc-server" +
+         "/oc-sys-grpc:config[contains(oc-sys-grpc:services, " +
+         "'oc-gnsi:GNSI')]/oc-sys-grpc:enable = 'true'";
+    description
+      "System-level operational state and counters for the gNSI.auditz
+      runtime security collector.";
+
+    uses system-auditz-state;
+  }
+}
