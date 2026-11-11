@@ -26,7 +26,13 @@ module openconfig-lacp {
     managing aggregate interfaces.   It works in conjunction with
     the OpenConfig interfaces and aggregate interfaces models.";
 
-oc-ext:openconfig-version "2.2.0";
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2026-10-06" {
+    description
+      "Add LACP fallback-mode leaf under both config and state.";
+    reference "2.3.0";
+  }
 
 revision "2026-04-09" {
 description
@@ -149,6 +155,26 @@ reference "2.2.0";
       "Defines the period options for the time between sending
       LACP messages";
     reference "IEEE 802.3ad";
+  }
+
+  identity LACP_FALLBACK_MODE {
+    description
+      "Base type to specify LACP fallback modes on the interface.";
+  }
+
+  identity STATIC {
+    base LACP_FALLBACK_MODE;
+    description
+      "The port channel maintains one active port while in fallback
+       mode; all its other member ports are in standby mode until a
+       LACP PDU is received by the port channel.";
+  }
+
+  identity INDIVIDUAL {
+    base LACP_FALLBACK_MODE;
+    description
+      "All member ports act as individual switch ports while in fallback
+       mode.";
   }
 
   // grouping statements
@@ -434,6 +460,14 @@ grouping aggregation-lacp-members-statistics {
       units "seconds";
       description
         "The timeout in seconds to wait for LACP PDUs before falling back to a single port.";
+    }
+
+    leaf fallback-mode {
+      type identityref {
+        base LACP_FALLBACK_MODE;
+      }
+      description
+        "The LACP fallback mode on the interface.";
     }
 
     uses aggregation-lacp-global-config;
