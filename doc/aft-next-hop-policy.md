@@ -265,3 +265,40 @@ submodule openconfig-pf-forwarding-policies {
 }
 ```
 
+## TODO
+
+We need a way to solve for the same tag into more than one policy and prevent
+any ambiguity on rules matching or conflicts. For example, we cannot have
+rule 1 = tagX,police1,   rule2 = tagX,police2.
+
+Said another way, we need to be able to create policies like 
+
+  - match interface I1 and policy-tag ‘DC-X’, and apply policer ‘i1-to-dc-X’
+  - match interface I1 and policy-tag ‘DC-Y’, and apply policer ‘i1-to-dc-Y’
+  - match interface I2 and policy-tag ‘DC-Y’, and apply policer ‘i2-to-dc-Y’
+
+policy_if1 applied to interface 1
+if tag DC-X, action ‘policer-i1-to-dc-X’
+if tag DC-Y, action ‘policer-i1-to-dc-Y’
+
+policy_if2 applied to interface 2
+if tag DC-Y, action ‘policer-i2-to-dc-Y’
+
+
+Do we need to define a new `.../policy-forwarding/policy/config/type`  For
+example, NEXT_HOP_TAG_POLICY to differentiate PBR_POLICY from MATCH_ACTION
+and VRF_SELECTION.
+
+When the policy type is NEXT_HOP_TAG_POLICY do we need to require:
+
+* A policy of type NEXT_HOP_TAG_POLICY must only have rules in the next-hop container
+* A policy-tag can only appear once within a NEXT_HOP_TAG_POLICY
+* An interface can only have one NEXT_HOP_TAG_POLICY
+
+This is to avoid rule conflicts between policies which could occur if two
+NEXT_HOP_TAG_POLICY policies are on the same interface.   A policy with only
+next-hop/policy-tag rules can't conflict with another policy given both these
+constraints.    It also allows flexibility to add more "next-hop" rules in the
+future, should a use case arise.   
+
+
