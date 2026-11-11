@@ -1,7 +1,7 @@
 # Next-hop Policy-tag Forwarding Policy
 
-**Contributors**: henryhu@google.com, dloher@google.com
-Date: Created Nov 10, 2026
+**Contributors**: henryhu@google.com, dloher@google.com, robjs@google.com
+Date: Created Nov 11, 2026
 
 ## Summary
  
@@ -30,9 +30,8 @@ Next-hop policy-tag forwarding is enabled in 2 steps:
 
 The OpenConfig AFT model includes a policy-tag leaf in the next-hop container.  gRIBI is used to program next-hops which include the policy-tag leaf.
 
-gNMI is used to configure a policy-forwarding policy with a rule matching a next-hop policy-tag.  A given policy may contain rules for one or more policy-tags, but only one policy may exist for a given policy-tag. The maximum number of policy-tags and the supported policy-forwarding actions are platform dependent.
 
-Packets forwarded to the matching next-hops have the policy-forwarding action applied to them. For example, a policy-forwarding policy matches a next-hop policy-tag and specifies a policer to be applied. All packets forwarded through next-hops with that policy-tag are policed by that policer.  If a next-hop has a policy-tag with no matching policy-forwarding policy, no actions are applied.
+Packets forwarded to the matching next-hops have the policy-forwarding action applied to them. For example, a policy-forwarding policy matches a next-hop policy-tag and specifies a policer action. All packets forwarded through next-hops with that policy-tag are policed by that policer.  If a next-hop has a policy-tag with no matching policy-forwarding policy, no actions are applied.
 
 ### Use Cases
 
@@ -62,10 +61,14 @@ This is achieved with policy-tags as follows:
 
 - Next-hops 1 and 2 are marked with policy-tag ‘DC-X’, and next-hops 3 and 4 with policy-tag ‘DC-Y’.
 - 3 policers are configured: ‘i1-to-dc-X’, ‘i1-to-dc-Y’, and ‘i2-to-dc-Y’.
-- Policy-forwarding policies are configured with rules which:
-  - match interface I1 and policy-tag ‘DC-X’, and apply policer ‘i1-to-dc-X’
-  - match interface I1 and policy-tag ‘DC-Y’, and apply policer ‘i1-to-dc-Y’
-  - match interface I2 and policy-tag ‘DC-Y’, and apply policer ‘i2-to-dc-Y’
+- Policy-forwarding policies are configured and applied to interfaces:
+
+policy_if1 applied to interface i1
+if tag DC-X, action ‘policer-i1-to-dc-X’
+if tag DC-Y, action ‘policer-i1-to-dc-Y’
+
+policy_if2 applied to interface i2
+if tag DC-Y, action ‘policer-i2-to-dc-Y’
 
 As a result:
 
@@ -267,38 +270,7 @@ submodule openconfig-pf-forwarding-policies {
 
 ## TODO
 
-We need a way to solve for the same tag into more than one policy and prevent
-any ambiguity on rules matching or conflicts. For example, we cannot have
-rule 1 = tagX,police1,   rule2 = tagX,police2.
-
-Said another way, we need to be able to create policies like 
-
-  - match interface I1 and policy-tag ‘DC-X’, and apply policer ‘i1-to-dc-X’
-  - match interface I1 and policy-tag ‘DC-Y’, and apply policer ‘i1-to-dc-Y’
-  - match interface I2 and policy-tag ‘DC-Y’, and apply policer ‘i2-to-dc-Y’
-
-policy_if1 applied to interface 1
-if tag DC-X, action ‘policer-i1-to-dc-X’
-if tag DC-Y, action ‘policer-i1-to-dc-Y’
-
-policy_if2 applied to interface 2
-if tag DC-Y, action ‘policer-i2-to-dc-Y’
-
-
-Do we need to define a new `.../policy-forwarding/policy/config/type`  For
-example, NEXT_HOP_TAG_POLICY to differentiate PBR_POLICY from MATCH_ACTION
-and VRF_SELECTION.
-
-When the policy type is NEXT_HOP_TAG_POLICY do we need to require:
-
-* A policy of type NEXT_HOP_TAG_POLICY must only have rules in the next-hop container
-* A policy-tag can only appear once within a NEXT_HOP_TAG_POLICY
-* An interface can only have one NEXT_HOP_TAG_POLICY
-
-This is to avoid rule conflicts between policies which could occur if two
-NEXT_HOP_TAG_POLICY policies are on the same interface.   A policy with only
-next-hop/policy-tag rules can't conflict with another policy given both these
-constraints.    It also allows flexibility to add more "next-hop" rules in the
-future, should a use case arise.   
-
-
+We need to create more examples of policies and consider possible issues
+regarding order of operations, rules matching and conflicts.  (For context,
+see doc/ocpf-match-action.md). Discussion is required to resolve how 
+configuration of next-hop policy-tag fits into policy-forwarding overall.
