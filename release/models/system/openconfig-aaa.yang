@@ -10,6 +10,7 @@ module openconfig-aaa {
   // import some basic types
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-network-instance { prefix oc-ni; }
   import openconfig-yang-types { prefix oc-yang; }
   import openconfig-aaa-types { prefix oc-aaa-types; }
 
@@ -32,7 +33,13 @@ module openconfig-aaa {
     Portions of this model reuse data definitions or structure from
     RFC 7317 - A YANG Data Model for System Management";
 
-  oc-ext:openconfig-version "1.1.0";
+  oc-ext:openconfig-version "1.2.0";
+
+  revision 2026-10-09 {
+      description
+          "Added network-instance to server.";
+      reference "1.2.0";
+  }
 
   revision 2025-10-31 {
       description
@@ -197,6 +204,12 @@ module openconfig-aaa {
       description
         "Set the timeout in seconds on responses from the AAA
         server";
+    }
+
+    leaf network-instance {
+      type oc-ni:network-instance-ref;
+      description
+        "Network instance to reach the AAA server.";
     }
   }
 
