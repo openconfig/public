@@ -55,7 +55,7 @@ module openconfig-network-instance {
 
   revision "2026-11-04" {
     description
-      "Add os-namespace to network instance state.";
+      "Add os-namespace and os-vrf to network instance state.";
     reference "4.10.0";
   }
 
@@ -1473,8 +1473,27 @@ module openconfig-network-instance {
       description
         "Name of the operating system network namespace in which local
         applications open sockets to send and receive traffic in this
-        network instance. The leaf is absent if the system does not
-        use a separate namespace for this network instance.";
+        network instance, for example a Linux network namespace. The
+        name is implementation-specific. Systems should populate this
+        leaf even if the name matches or can be derived from the
+        network instance name. The leaf is absent if the system does
+        not use a separate namespace for this network instance.";
+      oc-ext:telemetry-on-change;
+    }
+
+    leaf os-vrf {
+      type string;
+      description
+        "Name of the operating system routing instance that local
+        applications bind their sockets to in order to send and
+        receive traffic in this network instance, for example a Linux
+        VRF device. It exists within the namespace given by
+        os-namespace, or within the default namespace if os-namespace
+        is absent. The name is implementation-specific. Systems should
+        populate this leaf even if the name matches or can be derived
+        from the network instance name. The leaf is absent if the
+        system does not use a separate routing instance for this
+        network instance.";
       oc-ext:telemetry-on-change;
     }
   }
