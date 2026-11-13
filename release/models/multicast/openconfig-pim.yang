@@ -27,7 +27,13 @@ module openconfig-pim {
   description
     "An OpenConfig model for Protocol Independent Multicast (PIM) that supports IPv4 address family.";
 
-  oc-ext:openconfig-version "0.4.4";
+  oc-ext:openconfig-version "0.5.0";
+
+  revision "2026-11-13" {
+    description
+      "Add rpf-table to PIM global configuration.";
+    reference "0.5.0";
+  }
 
   revision "2024-12-06" {
     description
@@ -356,6 +362,26 @@ module openconfig-pim {
       description
          "Limit the number of accepted (S, G) and (*, G)
          PIM join states on the network-instance.";
+    }
+
+    leaf rpf-table {
+      type enumeration {
+        enum UNICAST {
+          description
+            "RPF checks use the unicast routing table.";
+        }
+        enum MULTICAST {
+          description
+            "RPF checks use a multicast-specific RPF table, which
+             preserves native IGP paths independent of IGP shortcuts
+             or TE tunnels installed in the unicast table.";
+        }
+      }
+      description
+        "Selects the routing table used for multicast reverse path
+         forwarding (RPF) checks and upstream join selection. If this
+         leaf is not configured, RPF checks use the unicast routing
+         table.";
     }
   }
 
