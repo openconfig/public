@@ -45,7 +45,13 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.12.0";
+  oc-ext:openconfig-version "3.13.0";
+
+  revision "2026-11-04" {
+    description
+      "Add arp-timeout to IPv4 interface configuration.";
+    reference "3.13.0";
+  }
 
   revision "2026-10-05" {
     description
@@ -567,6 +573,14 @@ revision "2023-06-30" {
 
     uses ip-common-global-config;
 
+    leaf arp-timeout {
+      type uint32;
+      units "seconds";
+      description
+        "The time after which a dynamic ARP entry learned on this
+        interface expires and is removed from the ARP cache unless
+        it is refreshed.";
+    }
 
   }
 
