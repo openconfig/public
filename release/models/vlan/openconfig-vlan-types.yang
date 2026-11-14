@@ -21,7 +21,14 @@ module openconfig-vlan-types {
     "This module defines configuration and state variables for VLANs,
     in addition to VLAN parameters associated with interfaces";
 
-  oc-ext:openconfig-version "3.3.0";
+  oc-ext:openconfig-version "3.4.0";
+
+  revision "2026-10-05" {
+    description
+      "Add RETAIN enum value to vlan-stack-action typedef and add ENCAP_OPER_STATUS
+      identity for subinterface VLAN encapsulation operational status.";
+    reference "3.4.0";
+  }
 
   revision "2026-06-24" {
     description
@@ -291,11 +298,43 @@ module openconfig-vlan-types {
         description
           "Swap the VLAN at the top of the VLAN stack.";
       }
+      enum RETAIN {
+        description
+          "Pass the packet through without modifying the VLAN stack.";
+      }
       // TODO: add push-push, pop-pop, push-swap etc
     }
     description
       "Operations that can be performed on a VLAN stack.";
   }
 
+  identity ENCAP_OPER_STATUS {
+    description
+      "Base identity for the operational status of a subinterface VLAN
+      encapsulation. Implementations and vendors may derive additional
+      values from this base identity.";
+  }
+
+  identity ACTIVE {
+    base ENCAP_OPER_STATUS;
+    description
+      "The subinterface encapsulation is valid, conflict-free, and successfully
+      programmed in hardware; traffic can use the mapping.";
+  }
+
+  identity INACTIVE {
+    base ENCAP_OPER_STATUS;
+    description
+      "The subinterface encapsulation is configured but not operational.
+      This is the generic non-operational state, commonly caused by a hardware
+      programming failure or unavailable resources.";
+  }
+
+  identity CONFLICT {
+    base ENCAP_OPER_STATUS;
+    description
+      "The subinterface encapsulation conflicts with another encapsulation
+      in the same conflict domain (under the same parent interface).";
+  }
 
 }
