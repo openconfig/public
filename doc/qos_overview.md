@@ -1,10 +1,15 @@
 # Overview of OpenConfig QoS
 
-Contributors: aashaikh†, robjs†  
+Contributors: aashaikh†, robjs†, dloher†
 † @google.com  
-December ‘17
+August 2025
 
-# Overview of the QoS Model
+## Schema of the QoS Model
+
+The schema of the QoS model can be visualized with this diagram which
+highlights the relationships between the objects in the model.
+
+![QoS schema relationships](img/qos_schema.svg)
 
 The OpenConfig quality of service model is made up of two sets of definitions:
 
@@ -19,9 +24,11 @@ The OpenConfig quality of service model is made up of two sets of definitions:
    correspond to each of the instantiated elements (e.g., schedulers, or
    queues). This is located under `/qos/interfaces`.
 
-The flow of the QoS model is shown in the diagram below:
+## Flow of data through the QoS Model
 
-![Overview of QoS model](img/qos_layout.svg)
+The flow of packets through of the QoS model is shown in the diagram below.
+
+![QoS model data flow](img/qos_layout.svg)
 
 When a packet arrives at an interface it is initially classified according to
 the classifier that is described under
@@ -52,15 +59,15 @@ to virtual output queues that are instantiated for remote interfaces. In this
 case, statistics for each egress interface are reported within the ingress
 interface's entry in the `/qos/interfaces/interface` list.
 
-# Annotated QoS Example
+## Annotated QoS Examples
 
-## Ingress Classification with Egress Scheduling
+### Example 1: Ingress Classification with Egress Scheduling
 
 The example QoS configuration below shows the configuration of an interface,
 assumed to be facing a customer which has ingress classification based on DSCP
 markings. The same interface has an egress scheduler policy applied to it.
 
-```
+```json
 {
   #
   # The standard definition of an interface, assumed to be facing the customer.
@@ -411,6 +418,167 @@ markings. The same interface has an egress scheduler policy applied to it.
                       "id": "SILVER_CLASS"
                     }
                   ]
+                },
+                "sequence": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+### Example 2: Ingress Classification with Ingress Scheduling (Policer) on a VOQ device
+
+The example QoS configuration below shows the configuration of an interface,
+assumed to be facing a customer which has ingress classification based on
+DSCP values.  The same interface has an ingress scheduler policy applied to it
+which implements a `ONE_RATE_TWO_COLOR` policer.
+
+In this scenario, the device has a VOQ architecture and does not have hardware
+or software to implement in ingress queue.  To allow a consistent representation
+to be used across different architectures, a dummy or "fake" queue is created for
+the ingress side of the pipeline.  Note, an egress queue could still be defined
+on the egress side, but it is not included here for simplication.
+
+```json
+{
+  "interfaces": {
+    "interface": [
+      {
+        "config": {
+          "description": "Input Interface",
+          "name": "port1"
+        },
+        "name": "port1"
+      }
+    ]
+  },
+  "qos": {
+    "classifiers": {
+      "classifier": [
+        {
+          "config": {
+            "name": "match-traffic-to-police",
+            "type": "IPV4"
+          },
+          "name": "match-traffic-to-police",
+          "terms": {
+            "term": [
+              {
+                "actions": {
+                  "config": {
+                    "target-group": "fg-policer"
+                  }
+                },
+                "config": {
+                  "id": "term1"
+                },
+                "id": "term1"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "forwarding-groups": {
+      "forwarding-group": [
+        {
+          "config": {
+            "name": "fg-policer",
+            "output-queue": "q-dummy"
+          },
+          "name": "fg-policer"
+        }
+      ]
+    },
+    "interfaces": {
+      "interface": [
+        {
+          "config": {
+            "interface-id": "port1"
+          },
+          "input": {
+            "classifiers": {
+              "classifier": [
+                {
+                  "config": {
+                    "name": "match-traffic-to-police",
+                    "type": "IPV4"
+                  },
+                  "type": "IPV4"
+                }
+              ]
+            },
+            "queues": {
+              "queue": [
+                {
+                  "config": {
+                    "name": "q-dummy"
+                  },
+                  "name": "q-dummy"
+                }
+              ]
+            },
+            "scheduler-policy": {
+              "config": {
+                "name": "scheduler-policy"
+              }
+            }
+          },
+          "interface-id": "port1"
+        }
+      ]
+    },
+    "queues": {
+      "queue": [
+        {
+          "config": {
+            "name": "q-dummy"
+          },
+          "name": "q-dummy"
+        }
+      ]
+    },
+    "scheduler-policies": {
+      "scheduler-policy": [
+        {
+          "config": {
+            "name": "policer"
+          },
+          "name": "policer",
+          "schedulers": {
+            "scheduler": [
+              {
+                "config": {
+                  "sequence": 1,
+                  "type": "ONE_RATE_TWO_COLOR"
+                },
+                "inputs": {
+                  "input": [
+                    {
+                      "config": {
+                        "id": "in-policer",
+                        "input-type": "QUEUE",
+                        "queue": "q-dummy"
+                      },
+                      "id": "in-policer"
+                    }
+                  ]
+                },
+                "one-rate-two-color": {
+                  "config": {
+                    "bc": 1000000,
+                    "cir": "1000000000",
+                    "queuing-behavior": "POLICE"
+                  },
+                  "exceed-action": {
+                    "config": {
+                      "drop": true
+                    }
+                  }
                 },
                 "sequence": 1
               }
