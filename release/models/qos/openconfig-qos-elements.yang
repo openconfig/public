@@ -36,7 +36,13 @@ submodule openconfig-qos-elements {
       packets for transmission, including policer and shaper
       functions";
 
-  oc-ext:openconfig-version "2.2.0";
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2026-11-11" {
+    description
+      "Add policer-profiles and policers.";
+    reference "2.3.0";
+  }
 
   revision "2026-04-30" {
     description
@@ -1372,6 +1378,133 @@ submodule openconfig-qos-elements {
             uses qos-scheduler-1r2c-top;
             uses qos-scheduler-2r3c-top;
           }
+        }
+      }
+    }
+  }
+
+  grouping qos-policer-profile-config {
+    description
+      "Configuration parameters relating to a policer profile.";
+
+    leaf name {
+      type string;
+      description
+        "A unique name identifying the policer profile.";
+    }
+  }
+
+  grouping qos-policer-profile-top {
+    description
+      "Top-level grouping for policer profiles.";
+
+    container policer-profiles {
+      description
+        "Enclosing container for the list of policer profiles.";
+
+      list policer-profile {
+        key "name";
+
+        description
+          "A list of policer profiles.  A policer profile defines a set of
+          commonly reused policer parameters, such as the token bucket
+          rates, burst sizes and the actions applied to packets for each
+          color.  A policer profile is a template and is not itself an
+          instance of a policer.  Policer instances are defined in
+          /qos/policers/policer and reference a policer profile.  Many
+          policers may reference the same policer profile.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the name of the policer profile.";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the policer profile.";
+
+          uses qos-policer-profile-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to the policer
+            profile.";
+
+          uses qos-policer-profile-config;
+        }
+
+        uses qos-scheduler-2r3c-top;
+      }
+    }
+  }
+
+  grouping qos-policer-config {
+    description
+      "Configuration parameters relating to a policer.";
+
+    leaf name {
+      type string;
+      description
+        "A unique name identifying the policer.";
+    }
+
+    leaf policer-profile {
+      type leafref {
+        // we are at /qos/policers/policer/config/policer-profile
+        path "../../../../policer-profiles/policer-profile/config/name";
+      }
+      description
+        "Reference to the policer profile which defines the parameters
+        of this policer.";
+    }
+  }
+
+  grouping qos-policer-top {
+    description
+      "Top-level grouping for policers.";
+
+    container policers {
+      description
+        "Enclosing container for the list of policers.";
+
+      list policer {
+        key "name";
+
+        description
+          "A list of policers.  Each policer represents a unique policer
+          instance in the system, such as a token bucket in the forwarding
+          hardware, whose parameters are defined by the referenced policer
+          profile.  A policer is applied to traffic by referencing it from a
+          context which matches packets, for example a policy-forwarding
+          rule action.  All traffic matched by the contexts which reference
+          the same policer is policed in aggregate by that policer.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the name of the policer.";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the policer.";
+
+          uses qos-policer-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to the policer.";
+
+          uses qos-policer-config;
         }
       }
     }
