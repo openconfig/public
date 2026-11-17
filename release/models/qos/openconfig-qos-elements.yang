@@ -1410,9 +1410,11 @@ submodule openconfig-qos-elements {
           commonly reused policer parameters, such as the token bucket
           rates, burst sizes and the actions applied to packets for each
           color.  A policer profile is a template and is not itself an
-          instance of a policer.  Policer instances are defined in
+          instance of a policer.  Policers are defined in
           /qos/policers/policer and reference a policer profile.  Many
-          policers may reference the same policer profile.";
+          policers may reference the same policer profile.  Policer
+          instances are created per INTEGRATED_CIRCUIT component, as
+          described in /qos/policers/policer.";
 
         leaf name {
           type leafref {
@@ -1460,7 +1462,9 @@ submodule openconfig-qos-elements {
       }
       description
         "Reference to the policer profile which defines the parameters
-        of this policer.";
+        of this policer.  Each instance of this policer, one per
+        INTEGRATED_CIRCUIT component, uses the parameters of the
+        referenced policer profile.";
     }
   }
 
@@ -1476,13 +1480,34 @@ submodule openconfig-qos-elements {
         key "name";
 
         description
-          "A list of policers.  Each policer represents a unique policer
-          instance in the system, such as a token bucket in the forwarding
-          hardware, whose parameters are defined by the referenced policer
-          profile.  A policer is applied to traffic by referencing it from a
-          context which matches packets, for example a policy-forwarding
-          rule action.  All traffic matched by the contexts which reference
-          the same policer is policed in aggregate by that policer.";
+          "A list of policers.  Each entry is a named policer definition
+          whose parameters are defined by the referenced policer profile.
+          A policer is applied to traffic by referencing it from a context
+          which matches packets, for example a policy-forwarding rule
+          action.  A policer may be referenced by more than one rule and
+          by more than one policy.
+
+          The rate of a policer is enforced per INTEGRATED_CIRCUIT
+          component, not globally and not per interface.  For each
+          INTEGRATED_CIRCUIT which forwards traffic for an interface or
+          subinterface where a policy referencing the policer is applied,
+          the system creates one policer instance, such as a token bucket
+          in the forwarding hardware.
+
+          When a policer is applied to two or more interfaces on the same
+          INTEGRATED_CIRCUIT, the traffic of those interfaces shares the
+          same token bucket and is policed in aggregate, regardless of
+          which rules or policies reference the policer.  When the
+          interfaces are on separate INTEGRATED_CIRCUIT components, each
+          INTEGRATED_CIRCUIT uses a separate token bucket, and each
+          enforces the full rates and burst sizes of the referenced policer
+          profile.
+
+          For example, when a policer is applied to an aggregate interface
+          whose member interfaces are on N separate INTEGRATED_CIRCUIT
+          components, N token buckets are used, and the total traffic
+          permitted on the aggregate interface may be up to N times the
+          rates of the referenced policer profile.";
 
         leaf name {
           type leafref {

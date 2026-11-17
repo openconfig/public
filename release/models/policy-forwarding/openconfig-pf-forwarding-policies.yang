@@ -399,8 +399,11 @@ submodule openconfig-pf-forwarding-policies {
       "Policer related counters for user-defined policy counters.  These
       counters are incremented for packets matching rules where both this
       counter and a policer are defined as actions.  The color of a packet
-      (conforming, exceeding or violating) is determined by the referenced
-      policer.";
+      (conforming, exceeding or violating) is determined by the instance
+      of the referenced policer on the INTEGRATED_CIRCUIT which forwarded
+      the packet.  As with the other counters of a policy-counter, these
+      counters are summed across all interfaces where the policy is
+      applied.";
 
     leaf conforming-pkts {
       type oc-yang:counter64;
@@ -697,9 +700,16 @@ grouping pf-forwarding-policy-action-forwarding-config {
         and violating packets, are defined by the policer-profile which is
         referenced by the policer.
 
-        When the same policer is referenced by multiple rules, the traffic
-        matching all of those rules is policed in aggregate by a single
-        policer instance.
+        A policer may be referenced by more than one rule and by more
+        than one policy.  The rate of the policer is enforced per
+        INTEGRATED_CIRCUIT component.  Traffic matching any rule which
+        references the same policer, on any interfaces which are on the
+        same INTEGRATED_CIRCUIT, shares the same token bucket and is
+        policed in aggregate.  Interfaces on separate INTEGRATED_CIRCUIT
+        components use separate token buckets, each enforcing the full
+        rates of the policer profile.  For example, an aggregate interface
+        whose members are on N INTEGRATED_CIRCUIT components may permit
+        up to N times the rates of the policer profile.
 
         When a count action is also specified for the rule, the referenced
         policy-counter is expected to increment the per-color policer
