@@ -22,7 +22,13 @@ module openconfig-segment-routing-types {
   description
     "Types associated with a network instance";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.3.0";
+
+  revision "2026-11-18" {
+    description
+      "Add TI-LFA protection type identities.";
+    reference "0.3.0";
+  }
 
   revision "2020-02-04" {
     description
@@ -153,6 +159,35 @@ module openconfig-segment-routing-types {
     description
       "The list of possible ENLP(Explicit NULL Label Policy) values.";
     reference "draft-ietf-idr-segment-routing-te-policy";
+  }
+
+  identity TI_LFA_PROTECTION_TYPE {
+    description
+      "Base identity for the protection scope requested for
+      topology-independent loop-free alternate (TI-LFA) backup
+      path computation.";
+    reference
+      "RFC 9855: Topology Independent Fast Reroute Using
+       Segment Routing";
+  }
+
+  identity TI_LFA_LINK_PROTECTION {
+    base TI_LFA_PROTECTION_TYPE;
+    description
+      "Backup paths protect against the failure of the link.";
+    reference
+      "RFC 9855: Topology Independent Fast Reroute Using
+       Segment Routing";
+  }
+
+  identity TI_LFA_LINK_NODE_PROTECTION {
+    base TI_LFA_PROTECTION_TYPE;
+    description
+      "Backup paths protect against the failure of the neighbor
+      node connected to the link, in addition to the link itself.";
+    reference
+      "RFC 9855: Topology Independent Fast Reroute Using
+       Segment Routing";
   }
 
 }
