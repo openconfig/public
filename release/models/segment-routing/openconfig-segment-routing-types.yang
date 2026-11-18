@@ -163,9 +163,9 @@ module openconfig-segment-routing-types {
 
   identity TI_LFA_PROTECTION_TYPE {
     description
-      "Base identity for the protection scope requested for
-      topology-independent loop-free alternate (TI-LFA) backup
-      path computation.";
+      "Base identity for the type of failure that topology-independent
+      loop-free alternate (TI-LFA) backup path computation protects
+      against.";
     reference
       "RFC 9855: Topology Independent Fast Reroute Using
        Segment Routing";
@@ -174,7 +174,8 @@ module openconfig-segment-routing-types {
   identity TI_LFA_LINK_PROTECTION {
     base TI_LFA_PROTECTION_TYPE;
     description
-      "Backup paths protect against the failure of the link.";
+      "The destination is protected assuming the failure of the
+      link (link failure mode in RFC 9855).";
     reference
       "RFC 9855: Topology Independent Fast Reroute Using
        Segment Routing";
@@ -183,8 +184,10 @@ module openconfig-segment-routing-types {
   identity TI_LFA_LINK_NODE_PROTECTION {
     base TI_LFA_PROTECTION_TYPE;
     description
-      "Backup paths protect against the failure of the neighbor
-      node connected to the link, in addition to the link itself.";
+      "The destination is protected assuming the failure of the
+      neighbor connected to the primary link, in addition to the
+      failure of the link itself (node protection mode in
+      RFC 9855).";
     reference
       "RFC 9855: Topology Independent Fast Reroute Using
        Segment Routing";
