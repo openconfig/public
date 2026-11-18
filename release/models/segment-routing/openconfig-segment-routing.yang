@@ -694,6 +694,30 @@ module openconfig-segment-routing {
         "RFC 9855: Topology Independent Fast Reroute Using
          Segment Routing";
     }
+
+    leaf protection-type {
+      type identityref {
+        base oc-mplst:PROTECTION_TYPE;
+      }
+      description
+        "The protection scope requested for TI-LFA backup path
+        computation - link protection only, or link and node
+        protection. If not configured, the implementation default
+        applies.";
+      reference
+        "RFC 9855: Topology Independent Fast Reroute Using
+         Segment Routing";
+    }
+
+    leaf srlg-disjoint {
+      type boolean;
+      description
+        "When set to true, TI-LFA backup path computation takes SRLG
+        disjointness from the protected link into account.";
+      reference
+        "RFC 9855: Topology Independent Fast Reroute Using
+         Segment Routing";
+    }
   }
 
   grouping sr-igp-interface-prefix-sid-config {
