@@ -6,17 +6,23 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions: {}
+
 jobs:
   build:
     name: YAML Lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
 
     - name: yaml-lint individual specs
-      uses: ibiqlik/action-yamllint@v3
+      uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c # v3.1.1
       with:
         file_or_dir: release
         no_warnings: true
@@ -30,7 +36,7 @@ jobs:
       run: bash scripts/create_concatenated_spec_file.sh
 
     - name: yaml-lint concatenated spec
-      uses: ibiqlik/action-yamllint@v3
+      uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c # v3.1.1
       with:
         file_or_dir: concatenated_spec_file.yml
         no_warnings: true

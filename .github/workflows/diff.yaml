@@ -4,21 +4,27 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions: {}
+
 jobs:
   build:
     name: major version update check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
     - name: Install go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
       with:
         go-version: '1.x'
+        cache: false
 
     - name: Check out code
-      uses: actions/checkout@v3
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0
+        persist-credentials: false
 
     - name: Install openconfig-ci CLI
       run: |
@@ -26,8 +32,10 @@ jobs:
 
     - name: Make sure all backward-incompatible changes are covered by version changes.
       id: check
+      env:
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       run: |
-        readonly HEAD=${{ github.event.pull_request.head.sha }}
+        readonly HEAD="${HEAD_SHA}"
         readonly BASE="$(git merge-base origin/master "${HEAD}")"
 
         BASEREPODIR=public_base
