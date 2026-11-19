@@ -9,6 +9,7 @@ module openconfig-if-tunnel {
   import openconfig-extensions { prefix oc-ext; }
   import openconfig-inet-types { prefix oc-inet; }
   import openconfig-if-ip { prefix oc-ip; }
+  import iana-if-type { prefix ianaift; }
 
   organization
     "OpenConfig working group";
@@ -22,7 +23,17 @@ module openconfig-if-tunnel {
     model to configure tunnel interfaces on a network
     device.";
 
-  oc-ext:openconfig-version "0.1.1";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2026-11-05" {
+    description
+      "Add tunnel configuration under subinterfaces for interfaces
+      of type tunnel.  Deprecate the interface level tunnel
+      container, including tunnel/ipv4 and tunnel/ipv6, in favor of
+      the subinterface tunnel container and
+      subinterfaces/subinterface/ipv4|ipv6.";
+    reference "0.2.0";
+  }
 
   revision "2018-11-21" {
     description
@@ -47,12 +58,23 @@ module openconfig-if-tunnel {
       a tunnel interface.";
 
     container tunnel {
+      status deprecated;
       description
         "In the case that the interface is logical tunnel
         interface, the parameters for the tunnel are
         specified within this subtree. Tunnel interfaces
         have only a single logical subinterface associated
-        with them.";
+        with them.
+
+        This container is deprecated.  Tunnel parameters should be
+        configured using
+        /interfaces/interface/subinterfaces/subinterface/tunnel and
+        L3 configuration using
+        /interfaces/interface/subinterfaces/subinterface/ipv4|ipv6.
+        Implementations that do not have a native subinterface
+        concept for tunnels should use subinterface index 0.  This
+        container and the subinterface tunnel container must not
+        both be configured for the same interface.";
 
       container config {
         description
@@ -71,6 +93,36 @@ module openconfig-if-tunnel {
 
       uses oc-ip:ipv4-top;
       uses oc-ip:ipv6-top;
+    }
+  }
+
+  grouping subinterface-tunnel-top {
+    description
+      "Top-level grouping for tunnel parameters on a
+      subinterface.";
+
+    container tunnel {
+      description
+        "Parameters for the tunnel associated with this
+        subinterface.  Each subinterface of an interface of type
+        tunnel represents a single tunnel.  L3 configuration for
+        the tunnel is specified using the ipv4 and ipv6 containers
+        of the subinterface.";
+
+      container config {
+        description
+          "Configuration parameters associated with the
+          tunnel subinterface.";
+        uses tunnel-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters associated with
+          the tunnel subinterface.";
+        uses tunnel-config;
+      }
     }
   }
 
@@ -116,5 +168,17 @@ module openconfig-if-tunnel {
     description
       "Augment to add tunnel configuration to interfaces";
     uses tunnel-top;
+  }
+
+  augment "/oc-if:interfaces/oc-if:interface/oc-if:subinterfaces/" +
+    "oc-if:subinterface" {
+    when "../../oc-if:config/oc-if:type = 'ianaift:tunnel'" {
+      description
+        "Tunnel configuration is only applicable to subinterfaces of
+        interfaces of type tunnel.";
+    }
+    description
+      "Augment to add tunnel configuration to subinterfaces";
+    uses subinterface-tunnel-top;
   }
 }
