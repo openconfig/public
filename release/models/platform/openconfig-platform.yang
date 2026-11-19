@@ -65,7 +65,13 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.33.0";
+  oc-ext:openconfig-version "0.33.1";
+
+  revision "2026-11-17" {
+    description
+      "Correct install-component to reference the ancestor component.";
+    reference "0.33.1";
+  }
 
   revision "2026-07-08" {
     description
@@ -500,7 +506,7 @@ revision "2024-05-29" {
 
     leaf install-component {
       type leafref {
-        path "../name";
+        path "../../../component/config/name";
       }
       description
         "This leaf contains the name of the ancestor component which
