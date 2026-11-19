@@ -29,7 +29,15 @@ module openconfig-transport-line-common {
     models for optical transport line system elements, such as
     amplifiers and ROADMs (wavelength routers).";
 
-  oc-ext:openconfig-version "0.6.0";
+  oc-ext:openconfig-version "0.7.0";
+
+  revision "2026-10-22" {
+    description
+      "Add optical-port output-frequency configuration and state
+      leaves, and output-frequency-statistics with instantaneous,
+      average, minimum, maximum, interval, and timestamp values.";
+    reference "0.7.0";
+  }
 
   revision "2019-06-03" {
     description
@@ -185,6 +193,13 @@ module openconfig-transport-line-common {
       description
           "Sets the admin state of the optical-port";
     }
+
+	leaf output-frequency {
+	    type oc-opt-types:frequency-type;
+	    description
+	      "Configured output optical frequency of the port,
+	      expressed in MHz.";
+	  }
   }
 
   grouping transport-line-common-port-state {
@@ -231,6 +246,15 @@ module openconfig-transport-line-common {
 
       uses oc-types:avg-min-max-instant-stats-precision2-dBm;
     }
+
+	container output-frequency-statistics {
+	    description
+	      "Operational output optical frequency statistics for the
+	      port. Systems without statistical support report only
+	      the instantaneous value.";
+	
+	    uses oc-opt-types:avg-min-max-instant-stats-precision1-mhz;
+	  }
   }
 
   grouping transport-line-common-port-top {
