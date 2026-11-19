@@ -25,7 +25,13 @@ module openconfig-optical-amplifier {
     for optical amplifiers, deployed as part of a transport
     line system.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.6.0";
+
+  revision "2026-10-22" {
+    description
+      "Add target-output-power-statistics container with min/max/avg stats";
+    reference "0.6.0";
+  }
 
   revision "2019-12-06" {
     description
@@ -465,6 +471,13 @@ module openconfig-optical-amplifier {
         statistics are not supported, just supply the instant value";
 
       uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+    }
+
+    container target-output-power-statistics {
+          description
+            "Statistics for the operational target output power of
+            the amplifier";
+          uses oc-types:avg-min-max-instant-stats-precision2-dBm;
     }
   }
 
