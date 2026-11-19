@@ -27,7 +27,14 @@ module openconfig-oam-cfm {
     maintenance domains, associations, maintenance endpoints,
     performance management policies and remote defect handling features";
 
-  oc-ext:openconfig-version "0.1.0";
+  oc-ext:openconfig-version "0.2.0";
+
+  revision "2026-05-28" {
+    description
+      "Add per PM type profile support.
+      Add SLM model and move pm-profile to remote MEP level";
+    reference "0.2.0";
+  }
 
   revision "2024-09-11" {
     description
@@ -139,15 +146,21 @@ module openconfig-oam-cfm {
                       } //end container mep state
 
                       container pm-profiles {
+                        status deprecated;
                         description
                           "This container includes configuration and state objects for the Frame Loss
-                          Measurement & Delay Measurement functions defined in [Y.1731] and [MEF SOAM PM IA].";
+                          Measurement & Delay Measurement functions defined in [Y.1731] and [MEF SOAM PM IA].
+
+                          This container has been deprecated in favor of keeping pm-profiles at the remote
+                          mep level.";
 
                         list pm-profile {
+                          status deprecated;
                           description " Measurement profile name and state.";
                           key "profile-name";
 
                           leaf "profile-name" {
+                            status deprecated;
                             description  "A unique profile name identifying the profile";
                             type leafref {
                               path "../config/profile-name";
@@ -155,19 +168,22 @@ module openconfig-oam-cfm {
                           }
 
                           container config {
+                            status deprecated;
                             description "Associated performance Measurement profile.";
 
                             leaf "profile-name" {
+                              status deprecated;
                               description  "A unique profile name identifying the profile";
                               type string;
                             }
                           }
 
                           container state {
+                            status deprecated;
                             description "Operational data for loss measurement.";
                             config false;
-                            uses performance-measurement-config;
-                            uses performance-measurement-state;
+                            uses performance-measurement-config-deprecated;
+                            uses performance-measurement-state-deprecated;
                           }
                         }
                       }
@@ -228,6 +244,86 @@ module openconfig-oam-cfm {
                               uses remote-mep-config;
                               uses mep-oper-states;
                             }
+
+                            container pm-profiles {
+                              description
+                                "Performance measurement profiles associated with this remote MEP.";
+
+                              list pm-profile {
+                                description "Measurement profile name and state.";
+                                key "profile-name";
+
+                                leaf profile-name {
+                                  description "A unique profile name identifying the profile";
+                                  type leafref {
+                                    path "../config/profile-name";
+                                  }
+                                }
+
+                                container config {
+                                  description "Associated performance measurement profile.";
+                                  leaf profile-name {
+                                    description "A unique profile name identifying the profile";
+                                    type string;
+                                  }
+                                }
+
+                                container state {
+                                  description "Operational data for performance measurement.";
+                                  config false;
+
+                                  leaf profile-name {
+                                    type string;
+                                    description "Name of the measurement profile.";
+                                  }
+
+                                  leaf enable {
+                                    type boolean;
+                                    default false;
+                                    description "Enable or disable profile.";
+                                  }
+                                }
+
+                                container measurement-types {
+                                  description
+                                    "Container for measurement types within a performance measurement profile.";
+
+                                  list measurement-type {
+                                    description
+                                      "List of measurement types within a performance measurement profile.";
+                                    key "pm-type-name";
+
+                                    leaf pm-type-name {
+                                      description
+                                        "The type of Performance Measurement for this entry.";
+                                      type leafref {
+                                        path "../config/pm-type-name";
+                                      }
+                                    }
+
+                                    container config {
+                                      description "Configuration data for measurement type.";
+
+                                      leaf pm-type-name {
+                                        description
+                                          "The type of Performance Measurement for this entry.";
+                                        type oc-cfm-types:pm-type;
+                                      }
+                                    }
+
+                                    container state {
+                                      description
+                                        "Statistical data for performance measurement profiles.";
+                                      config false;
+                                      uses performance-measurement-config;
+                                      uses performance-measurement-state;
+                                    }
+
+                                    uses synthetic-loss-measurement-state;
+                                  }
+                                }
+                              }
+                            }
                         } // end list remote-mep
                       } // end container remote-meps
                       } // end list mep-endpoint
@@ -263,15 +359,50 @@ module openconfig-oam-cfm {
             container config {
               description
                 "Configuration data for Performance measurement profile.";
-              uses performance-measurement-config;
+              uses performance-measurement-profile-config;
             }
 
             container state {
               description
                 "Statistical data for performance measurement profiles.";
               config false;
-              uses performance-measurement-config;
-              uses performance-measurement-state;
+              uses performance-measurement-profile-config;
+              uses performance-measurement-state-deprecated;
+            }
+
+            container measurement-types {
+              description
+                "Container for measurement types within a performance measurement profile.";
+
+              list measurement-type {
+                description
+                  "List of measurement types within a performance measurement profile.";
+                key "pm-type-name";
+
+                leaf pm-type-name {
+                  description
+                    "The type of Performance Measurement for this entry.";
+                  type leafref {
+                    path "../config/pm-type-name";
+                  }
+                }
+
+                container config {
+                  description
+                    "Configuration data for Performance measurement profile.";
+                  uses performance-measurement-config;
+                }
+
+                container state {
+                  description
+                    "Statistical data for performance measurement profiles.";
+                  config false;
+                  uses performance-measurement-config;
+                  uses performance-measurement-state;
+                }
+
+                uses synthetic-loss-measurement-state;
+              }
             }
           }
         }
@@ -937,61 +1068,56 @@ module openconfig-oam-cfm {
   }
  }
 
-  grouping loss-measurement-state {
-    description "Loss measurement state grouping.";
+  grouping loss-measurement-common-stats {
+    description "Shared loss measurement grouping.";
 
-    container loss-measurement-state {
-      description "Loss measurement state container.";
-
-      leaf far-end-min-frame-loss-ratio {
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
-        description
-          "This object contains the minimum one-way availability flr in the
-          egress direction (source --> destination),
-          from among the set of availability flr values
-          calculated by the MEP in this Measurement Interval. There is
-          one availability flr value for each 'delta_t' time period
-          within the Measurement Interval, as specified in MEF 10.2.1.
-
-          The flr value is a ratio that is expressed as a percent with a
-          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
-
-          Units are in milli-percent, where 1 indicates 0.001 percent.";
-          reference
-            "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMinFlr";
+    leaf far-end-min-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
       }
-      leaf far-end-max-frame-loss-ratio {
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
-        description
-          "This object contains the maximum one-way availability flr in the
-          forward direction (source --> destination),
-          from among the set of availability flr
-          values calculated by the MEP in this Measurement Interval.
-          There is one availability flr value for each 'delta_t' time
-          period within the Measurement Interval, as specified in MEF
-          10.2.1.
+      units milli-percent;
+      description
+        "This object contains the minimum one-way availability flr in the
+        egress direction (source --> destination),
+        from among the set of availability flr values
+        calculated by the MEP in this Measurement Interval. There is
+        one availability flr value for each 'delta_t' time period
+        within the Measurement Interval, as specified in MEF 10.2.1.
 
-          The flr value is a ratio that is expressed as a percent with a
-          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
 
-          Units are in milli-percent, where 1 indicates 0.001 percent.";
-        reference
-          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMaxFlr";
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMinFlr";
+    }
+    leaf far-end-max-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
       }
-      leaf far-end-average-frame-loss-ratio {
+      units milli-percent;
+      description
+        "This object contains the maximum one-way availability flr in the
+        forward direction (source --> destination),
+        from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
 
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
 
-        description
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMaxFlr";
+    }
+    leaf far-end-average-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
+      }
+      units milli-percent;
+      description
         "This object contains the average one-way availability flr in the
         forward direction, from among the set of availability flr
         values calculated by the MEP in this Measurement Interval.
@@ -1003,62 +1129,58 @@ module openconfig-oam-cfm {
         value of 0 (ratio 0.00) through 100000 (ratio 1.00).
 
         Units are in milli-percent, where 1 indicates 0.001 percent.";
-        reference
+      reference
         "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardAvgFlr";
-        }
-
-      leaf near-end-min-frame-loss-ratio {
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
-        description
-          "This object contains the minimum one-way availability flr in the
-          backward direction (destination --> source),
-          from among the set of availability flr
-          values calculated by the MEP in this Measurement Interval.
-          There is one availability flr value for each 'delta_t' time
-          period within the Measurement Interval, as specified in MEF
-          10.2.1.
-
-          The flr value is a ratio that is expressed as a percent with a
-          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
-
-          Units are in milli-percent, where 1 indicates 0.001 percent.";
-        reference
-          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMinFlr";
+    }
+    leaf near-end-min-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
       }
-      leaf near-end-max-frame-loss-ratio {
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
-        description
-          "This object contains the maximum one-way availability flr in the
-          backward direction, from among the set of availability flr
-          values calculated by the MEP in this Measurement Interval.
-          There is one availability flr value for each 'delta_t' time
-          period within the Measurement Interval, as specified in MEF
-          10.2.1.
+      units milli-percent;
+      description
+        "This object contains the minimum one-way availability flr in the
+        backward direction (destination --> source),
+        from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
 
-          The flr value is a ratio that is expressed as a percent with a
-          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
-          Service OAM Performance Monitoring YANG Module
-          MEF 39
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
 
-          Units are in milli-percent, where 1 indicates 0.001 percent.";
-        reference
-          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMaxFlr";
-        }
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMinFlr";
+    }
+    leaf near-end-max-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
+      }
+      units milli-percent;
+      description
+        "This object contains the maximum one-way availability flr in the
+        backward direction, from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
 
-      leaf near-end-average-frame-loss-ratio {
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+        Service OAM Performance Monitoring YANG Module
+        MEF 39
 
-        type uint32 {
-          range "0..100000";
-        }
-        units milli-percent;
-
-        description
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMaxFlr";
+    }
+    leaf near-end-average-frame-loss-ratio {
+      type uint32 {
+        range "0..100000";
+      }
+      units milli-percent;
+      description
         "This object contains the average one-way availability flr in the
         backward direction, from among the set of availability flr
         values calculated by the MEP in this Measurement Interval.
@@ -1070,17 +1192,9 @@ module openconfig-oam-cfm {
         value of 0 (ratio 0.00) through 100000 (ratio 1.00).
 
         Units are in milli-percent, where 1 indicates 0.001 percent.";
-        reference
+      reference
         "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardAvgFlr";
-        }
-
-      uses loss-measurement-counters-state;
     }
-  }
-
-  grouping loss-measurement-counters-state {
-    description "Loss-measurement-related measurement counters state.";
-
     container counters {
       description
         "A collection of loss-measurement-related statistics objects.";
@@ -1103,6 +1217,64 @@ module openconfig-oam-cfm {
       leaf slr-received {
         type oc-yang:counter64;
         description "slm Probes sent.";
+      }
+    }
+  }
+
+  grouping loss-measurement-state {
+    description "Loss measurement state grouping.";
+
+    container loss-measurement-state {
+      description "Loss measurement state container.";
+      uses loss-measurement-common-stats;
+    }
+  }
+
+  grouping synthetic-loss-measurement-stats {
+    description "Synthetic loss measurement grouping.";
+
+    leaf cos {
+      type uint8;
+      description "Class of Service for this synthetic loss measurement entry.";
+    }
+
+    leaf test-id {
+      type uint32;
+      description "Test ID for this synthetic loss measurement entry.";
+    }
+
+    uses loss-measurement-common-stats;
+  }
+
+  grouping synthetic-loss-measurement-state {
+    description "Synthetic loss measurement state grouping.";
+
+    container synthetic-loss-measurement-states {
+      config false;
+      description "Collection of synthetic loss measurement states.";
+
+      list synthetic-loss-measurement-state {
+        key "cos test-id";
+        description "Synthetic loss measurement state entry, keyed by CoS and test ID.";
+
+        leaf cos {
+          type leafref {
+            path "../state/cos";
+          }
+          description "Class of Service for this synthetic loss measurement entry.";
+        }
+
+        leaf test-id {
+          type leafref {
+            path "../state/test-id";
+          }
+          description "Test ID for this synthetic loss measurement entry.";
+        }
+        container state {
+          description "Statistical data for synthetic loss measurement";
+          config false;
+          uses synthetic-loss-measurement-stats;
+        }
       }
     }
   }
@@ -1143,7 +1315,262 @@ module openconfig-oam-cfm {
     uses delay-measurement-state;
   }
 
-  grouping performance-measurement-config {
+  grouping performance-measurement-state-deprecated {
+    description "Performance measurement state grouping (deprecated).";
+
+    container loss-measurement-state {
+      status deprecated;
+      description "Loss measurement state container.";
+
+      leaf far-end-min-frame-loss-ratio {
+        status deprecated;
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the minimum one-way availability flr in the
+          egress direction (source --> destination),
+          from among the set of availability flr values
+          calculated by the MEP in this Measurement Interval. There is
+          one availability flr value for each 'delta_t' time period
+          within the Measurement Interval, as specified in MEF 10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+          reference
+            "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMinFlr";
+      }
+      leaf far-end-max-frame-loss-ratio {
+        status deprecated;
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the maximum one-way availability flr in the
+          forward direction (source --> destination),
+          from among the set of availability flr
+          values calculated by the MEP in this Measurement Interval.
+          There is one availability flr value for each 'delta_t' time
+          period within the Measurement Interval, as specified in MEF
+          10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardMaxFlr";
+      }
+      leaf far-end-average-frame-loss-ratio {
+        status deprecated;
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+
+        description
+        "This object contains the average one-way availability flr in the
+        forward direction, from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
+
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsForwardAvgFlr";
+        }
+
+      leaf near-end-min-frame-loss-ratio {
+        status deprecated;
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the minimum one-way availability flr in the
+          backward direction (destination --> source),
+          from among the set of availability flr
+          values calculated by the MEP in this Measurement Interval.
+          There is one availability flr value for each 'delta_t' time
+          period within the Measurement Interval, as specified in MEF
+          10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMinFlr";
+      }
+      leaf near-end-max-frame-loss-ratio {
+        status deprecated;
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+        description
+          "This object contains the maximum one-way availability flr in the
+          backward direction, from among the set of availability flr
+          values calculated by the MEP in this Measurement Interval.
+          There is one availability flr value for each 'delta_t' time
+          period within the Measurement Interval, as specified in MEF
+          10.2.1.
+
+          The flr value is a ratio that is expressed as a percent with a
+          value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+          Service OAM Performance Monitoring YANG Module
+          MEF 39
+
+          Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+          "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardMaxFlr";
+        }
+
+      leaf near-end-average-frame-loss-ratio {
+        status deprecated;
+        type uint32 {
+          range "0..100000";
+        }
+        units milli-percent;
+
+        description
+        "This object contains the average one-way availability flr in the
+        backward direction, from among the set of availability flr
+        values calculated by the MEP in this Measurement Interval.
+        There is one availability flr value for each 'delta_t' time
+        period within the Measurement Interval, as specified in MEF
+        10.2.1.
+
+        The flr value is a ratio that is expressed as a percent with a
+        value of 0 (ratio 0.00) through 100000 (ratio 1.00).
+
+        Units are in milli-percent, where 1 indicates 0.001 percent.";
+        reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCurrentAvailStatsBackwardAvgFlr";
+        }
+
+      container counters {
+        status deprecated;
+        description
+          "A collection of loss-measurement-related statistics objects.";
+
+        leaf slm-sent {
+          status deprecated;
+          type oc-yang:counter64;
+          description "slm Probes sent.";
+        }
+
+        leaf slm-received {
+          status deprecated;
+          type oc-yang:counter64;
+          description "slm Probes sent.";
+        }
+
+        leaf slr-sent {
+          status deprecated;
+          type oc-yang:counter64;
+          description "slm Probes sent.";
+        }
+
+        leaf slr-received {
+          status deprecated;
+          type oc-yang:counter64;
+          description "slm Probes sent.";
+        }
+      }
+    }
+
+    container delay-measurement-state {
+      status deprecated;
+      description "Delay measurement state.";
+
+      leaf frame-delay-two-way-min {
+        status deprecated;
+        type uint32;
+        units microseconds;
+        description
+          "This object contains the minimum two-way frame delay calculated by this
+          MEP for this Measurement Interval.
+
+          This object is undefined if measurement-type is dm1-transmitted
+          or dm1-received.";
+      }
+      leaf frame-delay-two-way-max {
+        status deprecated;
+        type uint32;
+        units microseconds;
+        description
+          "This object contains the maximum two-way frame delay calculated by this
+          MEP for this Measurement Interval.
+
+          This object is undefined if measurement-type is dm1DmTx or
+          dm1-received.";
+      }
+      leaf frame-delay-two-way-average {
+        status deprecated;
+        type uint32;
+        units microseconds;
+        description
+          "This object contains the average two-way frame delay calculated by this
+          MEP for this Measurement Interval.
+
+          This object is undefined if measurement-type is dm1-transmitted or
+          dm1-received.";
+      }
+
+      leaf frame-delay-two-way-stddev {
+        status deprecated;
+        type uint32;
+        units microseconds;
+          description
+          "This object contains the standard deviation of two-way frame delay calculated by this
+          MEP for this Measurement Interval.
+
+          This object is undefined if measurement-type is dm1DmTx or
+          dm1-received.";
+      }
+
+      container counters {
+        status deprecated;
+        description
+          "A collection of delay-measurement-related statistics objects.";
+
+        leaf dmm-sent {
+          status deprecated;
+          type oc-yang:counter64;
+          description "slm Probes sent.";
+        }
+
+        leaf dmm-received {
+          status deprecated;
+          type oc-yang:counter64;
+          description "slm Probes sent.";
+        }
+
+        leaf dmr-sent {
+          status deprecated;
+          type oc-yang:counter64;
+          description "slm Probes sent.";
+        }
+
+        leaf dmr-received {
+          status deprecated;
+          type oc-yang:counter64;
+          description "slm Probes sent.";
+        }
+      }
+    }
+  }
+
+  grouping performance-measurement-profile-config {
     description "Performance measurement configuration.";
 
     leaf profile-name {
@@ -1154,10 +1581,11 @@ module openconfig-oam-cfm {
     leaf enable {
       type boolean;
       default false;
-      description "Enable or disable measurement.";
+      description "Enable or disable profile.";
     }
 
     leaf measurement-type {
+      status deprecated;
       type enumeration {
         enum LMM {
           description
@@ -1179,9 +1607,145 @@ module openconfig-oam-cfm {
       default SLM;
       description
         "This object specifies what type of Performance Measurement will be
-        performed.";
+        performed.
+
+        This leaf has been deprecated and replaced by
+        .../measurement-types/config/pm-type-name";
       reference
         "ITU Y1731";
+    }
+
+    leaf protocol-type {
+      status deprecated;
+      description "protocol type.
+
+        This leaf has been deprecated and replaced by
+        .../measurement-types/config/protocol-type";
+      type enumeration {
+        enum SINGLE_ENDED {
+          description "single-ended measurement mode.";
+        }
+        enum DUAL_ENDED {
+          description "dual-ended measurement mode.";
+        }
+      }
+      reference
+        "https://datatracker.ietf.org/doc/html/rfc7456#section-4";
+    }
+
+    leaf frame-size {
+      status deprecated;
+      type uint16;
+      description "Probe Frame size for measurement.
+
+        This leaf has been deprecated and replaced by
+        .../measurement-types/config/frame-size";
+    }
+
+    leaf measurement-interval {
+      status deprecated;
+      type uint32 {
+        range "1..525600";
+      }
+      units "minutes";
+      description
+        "This object specifies the Measurement Interval for FLR statistics, in
+        minutes.
+        A Measurement Interval of 15 minutes needs to be supported,
+        other intervals may be supported.
+
+        This leaf has been deprecated and replaced by
+        .../measurement-types/config/measurement-interval";
+      reference
+       "MEF-SOAM-PM-MIB.mefSoamLmCfgMeasurementInterval";
+    }
+
+    leaf repetition-period {
+      status deprecated;
+      type uint32;
+      default 0;
+      description
+        "This object specifies a configurable repetition time between
+        Measurement Intervals in a Measurement session in hundredths of a
+        second.
+
+        If the value is less than or equal to one Measurement Interval
+        there is no time gap between the end of one Measurement
+        Interval and the start of a new Measurement Interval. This is
+        the normal usage case.
+
+        If the value is greater than one Measurement Interval there is
+        time gap between the end of one Measurement Interval and the
+        start of the next Measurement Interval.
+
+        This leaf has been deprecated and replaced by
+        .../measurement-types/config/repetition-period";
+      reference
+        "[MEF SOAM PM IA] R18, D3, R19, R20";
+    }
+
+    leaf intervals-archived {
+      status deprecated;
+      type uint16;
+      description
+        "This object specifies the number of completed measurement intervals to
+        store in the history statistic table.
+
+        At least 32 completed measurement intervals are to be
+        stored. 96 measurement intervals are recommended to be stored.
+
+        This leaf has been deprecated and replaced by
+        .../measurement-types/config/intervals-archived";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCfgNumIntervalsStored";
+    }
+
+    leaf packets-per-meaurement-period {
+      status deprecated;
+      type uint16;
+      description "Number of probe packets to send within a measurement interval.
+
+        This leaf has been deprecated and replaced by
+        .../measurement-types/config/packets-per-meaurement-period";
+    }
+
+    leaf burst-interval {
+      status deprecated;
+      type uint32;
+      units "milliseconds";
+      description "Interval between bursts within a measurement interval.
+
+        This leaf has been deprecated and replaced by
+        .../measurement-types/config/burst-interval";
+    }
+
+    leaf packet-per-burst {
+      status deprecated;
+      type uint32;
+      description
+      "if burst enabled. The leaf defines the number of packet per burst of probes.
+      packets-per-measurement-period / burst-interval
+
+      This leaf has been deprecated and replaced by
+      .../measurement-types/config/packet-per-burst";
+    }
+  }
+
+  grouping performance-measurement-config {
+    description "Performance measurement configuration.";
+
+    leaf enable {
+      type boolean;
+      default false;
+      description "Enable or disable measurement.";
+    }
+
+    leaf pm-type-name {
+      type oc-cfm-types:pm-type;
+      default "oc-cfm-types:SLM";
+      description
+        "This object specifies what type of Performance Measurement will be
+        performed.";
     }
 
     leaf protocol-type {
@@ -1261,6 +1825,117 @@ module openconfig-oam-cfm {
     }
 
     leaf packet-per-burst {
+      type uint32;
+      description
+      "if burst enabled. The leaf defines the number of packet per burst of probes.
+      packets-per-measurement-period / burst-interval";
+    }
+  }
+
+  grouping performance-measurement-config-deprecated {
+    description "Performance measurement configuration (deprecated).";
+
+    leaf enable {
+      status deprecated;
+      type boolean;
+      default false;
+      description "Enable or disable measurement.";
+    }
+
+    leaf pm-type-name {
+      status deprecated;
+      type oc-cfm-types:pm-type;
+      default "oc-cfm-types:SLM";
+      description
+        "This object specifies what type of Performance Measurement will be
+        performed.";
+    }
+
+    leaf protocol-type {
+      status deprecated;
+      description "protocol type.";
+      type enumeration {
+        enum SINGLE_ENDED {
+          description "single-ended measurement mode.";
+        }
+        enum DUAL_ENDED {
+          description "dual-ended measurement mode.";
+        }
+      }
+      reference
+        "https://datatracker.ietf.org/doc/html/rfc7456#section-4";
+    }
+
+    leaf frame-size {
+      status deprecated;
+      type uint16;
+      description "Probe Frame size for measurement.";
+    }
+
+    leaf measurement-interval {
+      status deprecated;
+      type uint32 {
+        range "1..525600";
+      }
+      units "minutes";
+      description
+        "This object specifies the Measurement Interval for FLR statistics, in
+        minutes.
+        A Measurement Interval of 15 minutes needs to be supported,
+        other intervals may be supported.";
+      reference
+       "MEF-SOAM-PM-MIB.mefSoamLmCfgMeasurementInterval";
+    }
+
+    leaf repetition-period {
+      status deprecated;
+      type uint32;
+      default 0;
+      description
+        "This object specifies a configurable repetition time between
+        Measurement Intervals in a Measurement session in hundredths of a
+        second.
+
+        If the value is less than or equal to one Measurement Interval
+        there is no time gap between the end of one Measurement
+        Interval and the start of a new Measurement Interval. This is
+        the normal usage case.
+
+        If the value is greater than one Measurement Interval there is
+        time gap between the end of one Measurement Interval and the
+        start of the next Measurement Interval.";
+      reference
+        "[MEF SOAM PM IA] R18, D3, R19, R20";
+    }
+
+    leaf intervals-archived {
+      status deprecated;
+      type uint16;
+      description
+        "This object specifies the number of completed measurement intervals to
+        store in the history statistic table.
+
+        At least 32 completed measurement intervals are to be
+        stored. 96 measurement intervals are recommended to be stored.";
+      reference
+        "MEF-SOAM-PM-MIB.mefSoamLmCfgNumIntervalsStored";
+    }
+
+    leaf packets-per-meaurement-period {
+      status deprecated;
+      type uint16;
+      description "Number of probe packets to send within a measurement interval.";
+    }
+
+    leaf burst-interval {
+      status deprecated;
+      type uint32;
+      units "milliseconds";
+      description "Interval between bursts within a measurement interval.";
+    }
+
+    leaf packet-per-burst {
+      status deprecated;
       type uint32;
       description
       "if burst enabled. The leaf defines the number of packet per burst of probes.
