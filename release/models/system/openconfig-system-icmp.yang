@@ -1,0 +1,399 @@
+module openconfig-system-icmp {
+
+  yang-version "1";
+
+  namespace "http://openconfig.net/yang/system-icmp";
+
+  prefix "oc-sys-icmp";
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-inet-types { prefix oc-inet; }
+  import openconfig-system { prefix oc-sys; }
+  import openconfig-aft-types { prefix oc-aftt; }
+
+  organization
+    "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module adds system-wide configuration and operational state
+    for the generation of ICMPv4 and ICMPv6 error messages by the
+    system. It covers:
+
+      - the maximum size of the Original Datagram field quoted in
+        ICMP error messages (RFC 4884),
+      - removal of outer tunnel encapsulation headers prior to
+        generating an ICMP error message, such that the message is
+        addressed to the source of the inner packet, and
+      - inclusion of the Interface Information Object (RFC 5837,
+        Class-Num 2) and the Extended Interface Information Object
+        (draft-mitchell-intarea-rfc5837bis, Class-Num 7) in ICMP
+        error messages, restricted to a set of allowed destination
+        prefixes.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2026-11-17" {
+    description
+      "Initial revision.";
+    reference "0.1.0";
+  }
+
+  // OpenConfig specific extensions for module metadata.
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // identity statements
+
+  identity ICMP_INTERFACE_ROLE {
+    description
+      "Base identity for the role of an interface, or IP next-hop,
+      that is described by an interface information object carried
+      in an ICMP error message.";
+    reference
+      "RFC 5837: Extending ICMP for Interface and Next-Hop
+      Identification, Section 4.1.
+      draft-mitchell-intarea-rfc5837bis: Extending ICMP for
+      Interface and Next-Hop Identification, Sections 4 and 5.";
+  }
+
+  identity INCOMING_IP_INTERFACE {
+    base ICMP_INTERFACE_ROLE;
+    description
+      "The IP interface on which the datagram that elicited the ICMP
+      error message was received. Encoded as Interface Role 0 of the
+      Interface Information Object (Class-Num 2).";
+    reference
+      "RFC 5837, Section 4.1.";
+  }
+
+  identity INCOMING_SUB_IP_COMPONENT {
+    base ICMP_INTERFACE_ROLE;
+    description
+      "The sub-IP component of the incoming IP interface on which the
+      datagram that elicited the ICMP error message was received,
+      for example the physical member port of an aggregate
+      interface. Encoded as Interface Role 1 of the Interface
+      Information Object (Class-Num 2).";
+    reference
+      "RFC 5837, Section 4.1.";
+  }
+
+  identity OUTGOING_IP_INTERFACE {
+    base ICMP_INTERFACE_ROLE;
+    description
+      "The IP interface via which the datagram that elicited the ICMP
+      error message would have been forwarded had it been
+      forwarded. Encoded as Interface Role 2 of the Interface
+      Information Object (Class-Num 2).";
+    reference
+      "RFC 5837, Section 4.1.";
+  }
+
+  identity IP_NEXT_HOP {
+    base ICMP_INTERFACE_ROLE;
+    description
+      "The IP next-hop to which the datagram that elicited the ICMP
+      error message would have been forwarded had it been
+      forwarded. Encoded as Interface Role 3 of the Interface
+      Information Object (Class-Num 2).";
+    reference
+      "RFC 5837, Section 4.1.";
+  }
+
+  identity OUTGOING_SUB_IP_COMPONENT {
+    base ICMP_INTERFACE_ROLE;
+    description
+      "The sub-IP component of the outgoing IP interface via which
+      the datagram that elicited the ICMP error message would have
+      been forwarded, for example the physical member port of an
+      aggregate interface selected by the forwarding plane. Encoded
+      as Extended Interface Role 0 of the Extended Interface
+      Information Object (Class-Num 7).";
+    reference
+      "draft-mitchell-intarea-rfc5837bis, Section 5.";
+  }
+
+  identity ICMP_INTERFACE_SUB_OBJECT {
+    description
+      "Base identity for the sub-objects that may be included in an
+      interface information object carried in an ICMP error
+      message.";
+    reference
+      "RFC 5837, Section 4.1.
+      draft-mitchell-intarea-rfc5837bis, Sections 4 and 5.";
+  }
+
+  identity IFINDEX {
+    base ICMP_INTERFACE_SUB_OBJECT;
+    description
+      "The ifIndex of the interface, as a 32-bit unsigned integer.
+      Signalled by bit 4 of the C-Type field.";
+    reference
+      "RFC 5837, Section 4.1.";
+  }
+
+  identity IP_ADDRESS {
+    base ICMP_INTERFACE_SUB_OBJECT;
+    description
+      "The IP Address Sub-Object, carrying an address of the
+      interface or the IP next-hop. Signalled by bit 5 of the C-Type
+      field.";
+    reference
+      "RFC 5837, Section 4.2.";
+  }
+
+  identity NAME {
+    base ICMP_INTERFACE_SUB_OBJECT;
+    description
+      "The Interface Name Sub-Object, carrying the name of the
+      interface. Signalled by bit 6 of the C-Type field.";
+    reference
+      "RFC 5837, Section 4.3.";
+  }
+
+  identity MTU {
+    base ICMP_INTERFACE_SUB_OBJECT;
+    description
+      "The MTU of the interface in octets, as a 32-bit unsigned
+      integer. Signalled by bit 7 of the C-Type field.";
+    reference
+      "RFC 5837, Section 4.1.";
+  }
+
+  // grouping statements
+
+  grouping system-icmp-config {
+    description
+      "Configuration data for system-wide ICMP error message
+      generation.";
+
+    leaf max-original-datagram-size {
+      type uint16 {
+        range "128..1020";
+      }
+      units "octets";
+      description
+        "The maximum number of octets of the datagram that elicited
+        the error that the system includes in the Original Datagram
+        field of the ICMPv4 and ICMPv6 error messages that it
+        generates. Datagrams longer than this value are truncated.
+        When an ICMP extension structure is appended, the Original
+        Datagram field is zero-padded to at least 128 octets and to
+        a 32-bit (ICMPv4) or 64-bit (ICMPv6) boundary, as required by
+        RFC 4884.
+
+        Regardless of this value, the system must not generate an
+        ICMPv4 error message exceeding 576 octets or an ICMPv6 error
+        message exceeding 1280 octets.
+
+        When this leaf is not set, the size of the Original Datagram
+        field is determined by the implementation.";
+      reference
+        "RFC 4884: Extended ICMP to Support Multi-Part Messages,
+        Sections 4 and 5.
+        RFC 1812: Requirements for IP Version 4 Routers,
+        Section 4.3.2.3.
+        RFC 4443: Internet Control Message Protocol (ICMPv6) for the
+        Internet Protocol Version 6 (IPv6) Specification,
+        Section 2.4.";
+    }
+
+    leaf-list decapsulate-headers {
+      type oc-aftt:encapsulation-header-type;
+      description
+        "The set of outer encapsulation header types that the system
+        removes from a received packet before generating an ICMP
+        error message for it, such as when the TTL of the outer IPv4
+        header expires in transit.
+
+        When a received packet's outermost header matches one of the
+        configured types, the system makes its forwarding decision on
+        the received packet, removes the outer header(s), and
+        generates an ICMPv4 or ICMPv6 error message (according to the
+        address family of the inner packet) addressed to the source
+        address of the inner packet, with the Original Datagram field
+        starting at the inner IP header.
+
+        The IPV4 and IPV6 values match only an outer IPv4 or IPv6
+        header that encapsulates an IPv4 (protocol or next-header 4)
+        or IPv6 (protocol or next-header 41) packet; native,
+        non-tunneled IPv4 and IPv6 packets are never decapsulated.
+        GRE and MPLS indicate removal of a GRE (with its delivery
+        header) or an MPLS label stack respectively. The behaviour for
+        other values is not defined by this model and implementations
+        may reject them.
+
+        When this leaf-list is empty, or a packet's encapsulation does
+        not match any configured type, no header is removed and the
+        ICMP error message is addressed to the source address of the
+        outermost header, quoting the received packet.";
+    }
+  }
+
+  grouping system-icmp-state {
+    description
+      "Operational state data for system-wide ICMP error message
+      generation.";
+  }
+
+  grouping system-icmp-interface-info-config {
+    description
+      "Configuration data for the inclusion of interface information
+      objects in ICMP error messages.";
+
+    leaf enabled {
+      type boolean;
+      description
+        "When set to true, the system appends an RFC 4884 extension
+        structure carrying interface information objects to the
+        ICMPv4 and ICMPv6 error messages that it generates, when the
+        destination address of the ICMP error message matches an
+        entry in allowed-source-prefixes. When set to false, or not
+        set, no interface information objects are included.";
+      reference
+        "RFC 5837, Section 4.
+        draft-mitchell-intarea-rfc5837bis, Sections 4 and 5.";
+    }
+
+    leaf-list allowed-source-prefixes {
+      type oc-inet:ip-prefix;
+      description
+        "The set of IPv4 and IPv6 prefixes that are allowed to receive
+        ICMP error messages carrying interface information objects.
+        A prefix is matched against the destination address of the
+        generated ICMP error message, i.e., the source address of the
+        inner packet when an outer header has been removed according
+        to decapsulate-headers, or otherwise the source address of the
+        received packet.
+
+        ICMP error messages addressed to a destination which does not
+        match any entry are generated without an RFC 4884 extension
+        structure. When this leaf-list is empty, no destination is
+        allowed, even when enabled is set to true. The prefixes
+        0.0.0.0/0 and ::/0 may be used to allow all destinations.";
+      reference
+        "RFC 5837, Section 7.
+        draft-mitchell-intarea-rfc5837bis, Section 9.";
+    }
+
+    leaf-list include-roles {
+      type identityref {
+        base ICMP_INTERFACE_ROLE;
+      }
+      description
+        "The set of interface roles for which the system includes an
+        interface information object in ICMP error messages, where
+        the role is applicable to the datagram that elicited the
+        error. An Extended Interface Information Object (Class-Num 7)
+        is included only when at least one role encoded in that
+        object class is listed.
+
+        When this leaf-list is not configured, the system includes
+        all applicable roles that it supports.";
+    }
+
+    leaf-list include-sub-objects {
+      type identityref {
+        base ICMP_INTERFACE_SUB_OBJECT;
+      }
+      description
+        "The set of sub-objects that the system includes in each
+        interface information object, where the sub-object is
+        applicable to the role and available for the address family
+        of the ICMP error message.
+
+        When this leaf-list is not configured, the system includes
+        all applicable sub-objects that it supports.";
+    }
+  }
+
+  grouping system-icmp-interface-info-state {
+    description
+      "Operational state data for the inclusion of interface
+      information objects in ICMP error messages.";
+  }
+
+  grouping system-icmp-interface-info-top {
+    description
+      "Top-level grouping for the inclusion of interface information
+      objects in ICMP error messages.";
+
+    container interface-info-extension {
+      description
+        "Configuration and operational state for the inclusion of the
+        Interface Information Object (Class-Num 2) and the Extended
+        Interface Information Object (Class-Num 7) in ICMPv4 and
+        ICMPv6 error messages generated by the system.";
+      reference
+        "RFC 5837: Extending ICMP for Interface and Next-Hop
+        Identification.
+        draft-mitchell-intarea-rfc5837bis: Extending ICMP for
+        Interface and Next-Hop Identification.";
+
+      container config {
+        description
+          "Configuration data for the inclusion of interface
+          information objects in ICMP error messages.";
+
+        uses system-icmp-interface-info-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for the inclusion of interface
+          information objects in ICMP error messages.";
+
+        uses system-icmp-interface-info-config;
+        uses system-icmp-interface-info-state;
+      }
+    }
+  }
+
+  grouping system-icmp-top {
+    description
+      "Top-level grouping for system-wide ICMP error message
+      generation.";
+
+    container icmp {
+      description
+        "Configuration and operational state for ICMPv4 and ICMPv6
+        error messages generated by the system.";
+
+      container config {
+        description
+          "Configuration data for system-wide ICMP error message
+          generation.";
+
+        uses system-icmp-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for system-wide ICMP error message
+          generation.";
+
+        uses system-icmp-config;
+        uses system-icmp-state;
+      }
+
+      uses system-icmp-interface-info-top;
+    }
+  }
+
+  // augment statements
+
+  augment "/oc-sys:system" {
+    description
+      "Add system-wide ICMP error message generation configuration
+      and operational state.";
+
+    uses system-icmp-top;
+  }
+}
