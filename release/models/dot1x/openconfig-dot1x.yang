@@ -1,0 +1,99 @@
+module openconfig-dot1x {
+  yang-version "1";
+  namespace "http://openconfig.net/yang/dot1x";
+  prefix "oc-dot1x";
+
+  import openconfig-extensions {
+    prefix oc-ext;
+  }
+
+  import openconfig-system {
+    prefix oc-sys;
+  }
+
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines device-wide configuration and operational
+    state data for IEEE 802.1X port-based network access control.
+
+    It binds 802.1X to AAA server groups defined in
+    /system/aaa/server-groups, allowing the servers used for 802.1X
+    to be distinct from those used for other AAA consumers such as
+    system (management plane) authentication.
+
+    Per-port 802.1X configuration is defined in openconfig-if-8021x.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2026-10-29" {
+    description
+      "Initial revision";
+    reference "0.1.0";
+  }
+
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  grouping dot1x-config {
+    description
+      "Device-wide configuration data for 802.1X.";
+
+    leaf-list authentication-server-group {
+      type leafref {
+        path "/oc-sys:system/oc-sys:aaa/oc-sys:server-groups" +
+             "/oc-sys:server-group/oc-sys:config/oc-sys:name";
+      }
+      ordered-by user;
+      description
+        "Ordered list of AAA server groups used for 802.1X
+        authentication.  Referenced server groups must be of type
+        RADIUS.
+
+        Server groups are used in the order in which they appear in
+        the list.  The next server group is used only when no server
+        in the current server group responds; an explicit rejection
+        from a server is final and no further servers or server groups
+        are consulted.
+
+        802.1X port authentication requires at least one server group
+        to be configured.  Without such a binding the 802.1X
+        configuration is incomplete and implementations SHOULD reject
+        it.";
+    }
+  }
+
+  grouping dot1x-top {
+    description
+      "Top-level grouping for device-wide 802.1X configuration and
+      operational state data.";
+
+    container dot1x {
+      description
+        "Top-level container for device-wide 802.1X configuration and
+        operational state data.";
+
+      container config {
+        description
+          "Configuration data for 802.1X.";
+
+        uses dot1x-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state data for 802.1X.";
+
+        uses dot1x-config;
+      }
+    }
+  }
+
+  uses dot1x-top;
+}
