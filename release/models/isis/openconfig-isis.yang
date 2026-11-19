@@ -54,7 +54,15 @@ module openconfig-isis {
             +-> { levels config }
             +-> { level adjacencies }";
 
-  oc-ext:openconfig-version "1.8.0";
+  oc-ext:openconfig-version "1.9.0";
+
+  revision "2026-11-18" {
+    description
+      "Add the IS-IS specific isis-level flex-algorithm binding leaf
+      by augmenting the sr-igp-top grouping from
+      openconfig-segment-routing; the IS-IS tree is unchanged.";
+    reference "1.9.0";
+  }
 
   revision "2026-05-23" {
     description
@@ -1311,7 +1319,28 @@ module openconfig-isis {
       uses isis-afi-safi-list;
     }
 
-    uses oc-sr:sr-igp-top;
+    uses oc-sr:sr-igp-top {
+      augment "segment-routing/flex-algorithm-bindings/flex-algorithm-binding/config" {
+        description
+          "Add the IS-IS level binding, which is specific to IS-IS.";
+        leaf isis-level {
+          type oc-isis-types:level-type;
+          default "LEVEL_1_2";
+          description
+            "IS-IS Level associated with this Flex Algorithm";
+        }
+      }
+      augment "segment-routing/flex-algorithm-bindings/flex-algorithm-binding/state" {
+        description
+          "Add the IS-IS level binding, which is specific to IS-IS.";
+        leaf isis-level {
+          type oc-isis-types:level-type;
+          default "LEVEL_1_2";
+          description
+            "IS-IS Level associated with this Flex Algorithm";
+        }
+      }
+    }
   }
 
   grouping isis-route-preference-config {
