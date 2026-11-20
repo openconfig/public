@@ -92,7 +92,13 @@ module openconfig-routing-policy {
     default value for the default-(import|export)-policy leaf must be
     applied.  See RFC6020 7.6.1 which applies to this model.";
 
-  oc-ext:openconfig-version "3.5.0";
+  oc-ext:openconfig-version "3.6.0";
+
+  revision "2026-08-12" {
+    description
+      "Add conditional prefix sets";
+    reference "3.6.0";
+  }
 
   revision "2024-11-26" {
     description
@@ -403,6 +409,104 @@ module openconfig-routing-policy {
     }
   }
 
+  grouping conditional-prefix-set-config {
+    description
+      "Configuration data for conditional prefix sets used in policy
+      definitions.";
+
+    leaf name {
+      type string;
+      description
+        "Name of the conditional prefix set";
+    }
+
+    leaf match-policy {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:policy-definitions/" +
+          "oc-rpol:policy-definition/oc-rpol:name";
+      }
+      description
+        "The policy which this conditional prefix set would match on to accept the
+        target prefix-set.";
+    }
+
+    leaf match-source-protocol {
+      type union {
+        type enumeration {
+          enum ANY {
+            description
+              "Use installed routes from any protocols";
+          }
+        }
+
+        type identityref {
+          base oc-pol-types:INSTALL_PROTOCOL_TYPE;
+        }
+      }
+      default ANY;
+      description
+        "The source protocol of the routes to match against the applied policy.
+        The default is to match against any type of routes currently in the RIB.";
+    }
+
+    leaf target-prefix-set {
+      type leafref {
+        path "/oc-rpol:routing-policy/oc-rpol:defined-sets/" +
+          "oc-rpol:prefix-sets/oc-rpol:prefix-set/oc-rpol:name";
+      }
+
+      description
+        "The prefix-set that would be used when the match-policy results in
+        true or ACCEPT_ROUTE.";
+    }
+  }
+  grouping conditional-prefix-set-state {
+    description
+      "Operational status for conditional prefix sets used in policy
+      definitions.";
+  }
+
+  grouping conditional-prefix-set-top {
+    description
+      "Top level definition of conditional prefix sets";
+
+    container conditional-prefix-sets {
+      description
+        "Enclosing container for conditional prefix set list";
+
+      list conditional-prefix-set {
+        key "name";
+        description
+          "List of the defined conditional prefix sets";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to conditional prefix name list key";
+        }
+
+        container config {
+          description
+            "Configuration container for conditional prefix set";
+
+          uses conditional-prefix-set-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational status container for conditional prefix set";
+
+          uses conditional-prefix-set-config;
+          uses conditional-prefix-set-state;
+        }
+
+      }
+    }
+  }
+
   grouping neighbor-set-config {
     description
       "Configuration data for neighbor set definitions";
@@ -544,6 +648,7 @@ module openconfig-routing-policy {
       protocols.";
 
     uses prefix-set-top;
+    uses conditional-prefix-set-top;
     uses neighbor-set-top;
     uses tag-set-top;
   }
@@ -910,9 +1015,9 @@ module openconfig-routing-policy {
       }
 
       container state {
+        config false;
         description
           "Operational state related to tag application.";
-        config false;
         uses action-tag-set-config;
       }
 
@@ -935,9 +1040,9 @@ module openconfig-routing-policy {
         }
 
         container state {
+          config false;
           description
             "Operational state related to in-line tag specification.";
-          config false;
           uses action-tag-set-inline-config;
         }
       }
