@@ -51,7 +51,16 @@ module openconfig-interfaces {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.11.1";
+  oc-ext:openconfig-version "3.12.0";
+
+  revision "2026-10-27" {
+      description
+        "Add ignore-phy configuration and ignore-phy-active state to
+        allow an interface to be operationally up for control-plane
+        use while the physical link is down.";
+      reference
+        "3.12.0";
+  }
 
   revision "2026-10-05" {
       description
@@ -496,10 +505,51 @@ module openconfig-interfaces {
       description
         "Sets the loopback type on the interface. Setting the
         mode to something besides NONE activates the loopback in
-        the specified mode.";
+        the specified mode. A value other than NONE cannot be set
+        while ignore-phy is true.";
+    }
+
+    leaf ignore-phy {
+      type boolean;
+      description
+        "When true, the interface may report oper-status UP while
+        the physical link remains down, allowing control-plane
+        protocols (for example IS-IS, BGP, LLDP) to use the
+        interface without requiring link-up or session success
+        on a real peer.
+
+        When not set, the interface behaves as if ignore-phy is
+        false. A compatible transceiver must be present.
+
+        ignore-phy and loopback-mode are mutually exclusive. A
+        device must reject configuration that sets ignore-phy to
+        true while loopback-mode is not NONE, and must reject
+        setting loopback-mode to a value other than NONE while
+        ignore-phy is true. Interfaces that do not support this
+        capability must reject the configuration.";
     }
 
     uses interface-common-config;
+  }
+
+  grouping interface-phys-state {
+    description
+      "Operational state data at the global, physical interface
+      level that is not shared with subinterfaces.";
+
+    leaf ignore-phy-active {
+      type boolean;
+      description
+        "True when ignore-phy is configured and the platform
+        considers the interface logically up for control-plane
+        purposes.
+
+        When true, oper-status may be UP even though the
+        physical link is down. Operators should use platform
+        transceiver and link state for PHY truth. This leaf
+        does not imply production forwarding viability.";
+      oc-ext:telemetry-on-change;
+    }
   }
 
   grouping interface-phys-holdtime-config {
@@ -732,6 +782,10 @@ module openconfig-interfaces {
       mandatory true;
       description
         "The current operational state of the interface.
+
+         When ignore-phy-active is true, oper-status may be UP while
+         the physical link is down. Neither oper-status TESTING nor
+         admin-status TESTING is used to signal this state.
 
          This leaf has the same semantics as ifOperStatus.";
       reference
@@ -1412,6 +1466,7 @@ module openconfig-interfaces {
 
           uses interface-phys-config;
           uses interface-common-state;
+          uses interface-phys-state;
 
           container counters {
             description
