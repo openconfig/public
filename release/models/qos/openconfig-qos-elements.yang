@@ -34,9 +34,19 @@ submodule openconfig-qos-elements {
 
       schedulers: sequence of one more elements that schedule
       packets for transmission, including policer and shaper
-      functions";
+      functions
 
-  oc-ext:openconfig-version "2.2.0";
+      policers: named traffic meters that are defined independently
+      of queues and schedulers, and are referenced by other
+      constructs";
+
+  oc-ext:openconfig-version "2.3.0";
+
+  revision "2026-10-04" {
+    description
+      "Add global policers.";
+    reference "2.3.0";
+  }
 
   revision "2026-04-30" {
     description
@@ -1372,6 +1382,374 @@ submodule openconfig-qos-elements {
             uses qos-scheduler-1r2c-top;
             uses qos-scheduler-2r3c-top;
           }
+        }
+      }
+    }
+  }
+
+  grouping qos-policer-config {
+    description
+      "Configuration parameters relating to a global policer.";
+
+    leaf name {
+      type string;
+      description
+        "User-defined name of the policer.";
+    }
+
+    leaf type {
+      type identityref {
+        base oc-qos-types:QOS_SCHEDULER_TYPE;
+      }
+      description
+        "The token bucket algorithm implemented by the policer.  When
+        set to ONE_RATE_TWO_COLOR, the parameters within the
+        one-rate-two-color container are used.  When set to
+        TWO_RATE_THREE_COLOR, the parameters within the
+        two-rate-three-color container are used.";
+    }
+
+    leaf color-mode {
+      type enumeration {
+        enum COLOR_BLIND {
+          description
+            "The policer ignores any color previously assigned to the
+            packet, and meters all packets against the token buckets.";
+        }
+        enum COLOR_AWARE {
+          description
+            "The policer takes into account any color previously assigned
+            to the packet, e.g. by the ingress interface classifier
+            policy.  A packet that was previously marked as exceeding or
+            violating is not eligible to be marked with a better color by
+            this policer.";
+        }
+      }
+      description
+        "The color mode of the policer.";
+      reference
+        "RFC 2697 - A Single Rate Three Color Marker
+        RFC 2698 - A Two Rate Three Color Marker";
+    }
+  }
+
+  grouping qos-policer-state {
+    description
+      "Operational state parameters relating to a global policer.";
+
+    container counters {
+      description
+        "Counters relating to the policer.  The counters are aggregated
+        across all instances of the policer in the system.";
+
+      leaf conforming-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of packets that were marked as conforming by the
+          policer.";
+      }
+
+      leaf conforming-octets {
+        type oc-yang:counter64;
+        description
+          "The number of octets in packets that were marked as
+          conforming by the policer.";
+      }
+
+      leaf exceeding-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of packets that were marked as exceeding by the
+          policer.";
+      }
+
+      leaf exceeding-octets {
+        type oc-yang:counter64;
+        description
+          "The number of octets in packets that were marked as exceeding
+          by the policer.";
+      }
+
+      leaf violating-pkts {
+        type oc-yang:counter64;
+        description
+          "The number of packets that were marked as violating by the
+          policer.  This counter is only applicable when the policer
+          type is TWO_RATE_THREE_COLOR.";
+      }
+
+      leaf violating-octets {
+        type oc-yang:counter64;
+        description
+          "The number of octets in packets that were marked as violating
+          by the policer.  This counter is only applicable when the
+          policer type is TWO_RATE_THREE_COLOR.";
+      }
+    }
+  }
+
+  grouping qos-policer-1r2c-config {
+    description
+      "Configuration parameters for a one rate, two color policer.";
+
+    leaf cir {
+      type uint64;
+      units bps;
+      description
+        "Committed information rate for the single-rate token bucket
+        policer.  This value represents the rate at which tokens are
+        added to the bucket.";
+    }
+
+    leaf bc {
+      type uint32;
+      units bytes;
+      description
+        "Committed burst size for the single-rate token bucket policer.
+        This value represents the depth of the token bucket.";
+    }
+  }
+
+  grouping qos-policer-2r3c-config {
+    description
+      "Configuration parameters for a two rate, three color policer.";
+
+    leaf cir {
+      type uint64;
+      units bps;
+      description
+        "Committed information rate for the dual-rate token bucket
+        policer.  This value represents the rate at which tokens are
+        added to the primary bucket.";
+    }
+
+    leaf pir {
+      type uint64;
+      units bps;
+      description
+        "Peak information rate for the dual-rate token bucket policer.
+        This value represents the rate at which tokens are added to the
+        secondary bucket.";
+    }
+
+    leaf bc {
+      type uint32;
+      units bytes;
+      description
+        "Committed burst size for the dual-rate token bucket policer.
+        This value represents the depth of the primary bucket.";
+    }
+
+    leaf be {
+      type uint32;
+      units bytes;
+      description
+        "Excess burst size for the dual-rate token bucket policer.  This
+        value represents the depth of the secondary bucket.";
+    }
+  }
+
+  grouping qos-policer-conform-action-top {
+    description
+      "Top-level grouping for the action applied to packets that
+      conform to the policer.";
+
+    container conform-action {
+      description
+        "Action to be applied to packets that are marked as conforming
+        by the policer, i.e., packets that receive a token from the
+        committed bucket.  When no action is specified, conforming
+        packets are forwarded unmodified.";
+
+      container config {
+        description
+          "Configuration parameters relating to conforming packets.";
+
+        uses qos-common-remark-actions-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters relating to conforming packets.";
+
+        uses qos-common-remark-actions-config;
+      }
+    }
+  }
+
+  grouping qos-policer-exceed-action-top {
+    description
+      "Top-level grouping for the action applied to packets that
+      exceed the policer.";
+
+    container exceed-action {
+      description
+        "Action to be applied to packets that are marked as exceeding by
+        the policer.  For a one rate, two color policer, these are
+        packets that do not receive a token from the committed bucket.
+        For a two rate, three color policer, these are packets that do
+        not receive a token from the committed bucket, but receive a
+        token from the peak bucket.  Exceeding packets that are not
+        dropped retain the exceeding color, which may be used by
+        subsequent color-aware functions such as queue drop profiles.";
+
+      container config {
+        description
+          "Configuration parameters relating to exceeding packets.";
+
+        uses qos-common-remark-actions-config;
+        uses qos-common-scheduler-actions-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters relating to exceeding packets.";
+
+        uses qos-common-remark-actions-config;
+        uses qos-common-scheduler-actions-config;
+      }
+    }
+  }
+
+  grouping qos-policer-violate-action-top {
+    description
+      "Top-level grouping for the action applied to packets that
+      violate the policer.";
+
+    container violate-action {
+      description
+        "Action to be applied to packets that are marked as violating by
+        the policer, i.e., packets that do not receive a token from
+        either bucket.  Violating packets that are not dropped retain the
+        violating color, which may be used by subsequent color-aware
+        functions such as queue drop profiles.";
+
+      container config {
+        description
+          "Configuration parameters relating to violating packets.";
+
+        uses qos-common-remark-actions-config;
+        uses qos-common-scheduler-actions-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters relating to violating packets.";
+
+        uses qos-common-remark-actions-config;
+        uses qos-common-scheduler-actions-config;
+      }
+    }
+  }
+
+  grouping qos-policer-top {
+    description
+      "Top-level grouping for global policers.";
+
+    container policers {
+      description
+        "Surrounding container for global policers.";
+
+      list policer {
+        key "name";
+        description
+          "A global policer is a named traffic meter that is defined
+          independently of any queue or scheduler, and is applied to
+          traffic by referencing it from another construct, such as a
+          policy-forwarding rule action.  All references to the same
+          policer share the same token buckets, such that the configured
+          rates limit the aggregate of all traffic that is directed to
+          the policer.  Where an implementation cannot share a policer
+          across forwarding resources, e.g., across forwarding complexes,
+          it may instantiate one copy of the policer per resource, in
+          which case the configured rates apply to each copy
+          independently.
+
+          Some implementations meter packets at an ingress stage where
+          the policer result can only change the internal classification
+          of the packet, such as its color or drop precedence, and cannot
+          directly rewrite packet header fields such as the DSCP, 802.1p
+          or MPLS TC values.  For such implementations, drop may be the
+          only supported action for exceeding and violating packets.";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description
+            "Reference to the name of the policer.";
+        }
+
+        container config {
+          description
+            "Configuration parameters relating to the policer.";
+
+          uses qos-policer-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters relating to the policer.";
+
+          uses qos-policer-config;
+          uses qos-policer-state;
+        }
+
+        container one-rate-two-color {
+          when "../config/type = 'oc-qos-types:ONE_RATE_TWO_COLOR'";
+          description
+            "Parameters for a one rate, two color policer.";
+
+          container config {
+            description
+              "Configuration parameters for a one rate, two color
+              policer.";
+
+            uses qos-policer-1r2c-config;
+          }
+
+          container state {
+            config false;
+            description
+              "Operational state parameters for a one rate, two color
+              policer.";
+
+            uses qos-policer-1r2c-config;
+          }
+
+          uses qos-policer-conform-action-top;
+          uses qos-policer-exceed-action-top;
+        }
+
+        container two-rate-three-color {
+          when "../config/type = 'oc-qos-types:TWO_RATE_THREE_COLOR'";
+          description
+            "Parameters for a two rate, three color policer.";
+
+          container config {
+            description
+              "Configuration parameters for a two rate, three color
+              policer.";
+
+            uses qos-policer-2r3c-config;
+          }
+
+          container state {
+            config false;
+            description
+              "Operational state parameters for a two rate, three color
+              policer.";
+
+            uses qos-policer-2r3c-config;
+          }
+
+          uses qos-policer-conform-action-top;
+          uses qos-policer-exceed-action-top;
+          uses qos-policer-violate-action-top;
         }
       }
     }
