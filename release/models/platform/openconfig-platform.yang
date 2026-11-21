@@ -65,7 +65,15 @@ module openconfig-platform {
     (presence or absence of a component) and state (physical
     attributes or status).";
 
-  oc-ext:openconfig-version "0.33.0";
+  oc-ext:openconfig-version "0.34.0";
+
+  revision "2026-11-18" {
+    description
+      "Add read-only temperature-thresholds list keyed by alarm
+      severity, with upper and lower thresholds, hysteresis clear
+      values, soak-time and alarm status leaves.";
+    reference "0.34.0";
+  }
 
   revision "2026-07-08" {
     description
@@ -770,6 +778,168 @@ revision "2024-05-29" {
     }
   }
 
+  grouping platform-component-temp-threshold-state {
+    description
+      "Operational data for a temperature alarm threshold at a
+      given severity.";
+
+    leaf severity {
+      type identityref {
+        base oc-alarm-types:OPENCONFIG_ALARM_SEVERITY;
+      }
+      description
+        "The type of alarm to which the thresholds apply.";
+    }
+
+    leaf temperature-upper {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "celsius";
+      description
+        "Upper temperature threshold for this severity, in degrees
+        Celsius. Compared against the instantaneous temperature
+        reading. If unset, the implementation does not define an
+        upper threshold at this severity.";
+    }
+
+    leaf temperature-lower {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "celsius";
+      description
+        "Lower temperature threshold for this severity, in degrees
+        Celsius. Compared against the instantaneous temperature
+        reading. If unset, the implementation does not define a
+        lower threshold at this severity.";
+    }
+
+    leaf temperature-upper-clear {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "celsius";
+      description
+        "Hysteresis value for the upper threshold, in degrees Celsius.
+        An upper alarm at this severity clears when the instantaneous
+        temperature drops below this value. The value must be less
+        than or equal to temperature-upper. If unset, the alarm clears
+        when the instantaneous temperature drops below
+        temperature-upper.";
+    }
+
+    leaf temperature-lower-clear {
+      type decimal64 {
+        fraction-digits 1;
+      }
+      units "celsius";
+      description
+        "Hysteresis value for the lower threshold, in degrees Celsius.
+        A lower alarm at this severity clears when the instantaneous
+        temperature rises above this value. The value must be greater
+        than or equal to temperature-lower. If unset, the alarm clears
+        when the instantaneous temperature rises above
+        temperature-lower.";
+    }
+
+    leaf soak-time {
+      type uint32;
+      units "seconds";
+      description
+        "The time for which a threshold crossing, or its clearing,
+        must persist before the alarm is raised, or cleared. A value
+        of 0, or an unset value, means the alarm is raised or cleared
+        immediately.";
+    }
+
+    leaf upper-alarm-active {
+      type boolean;
+      description
+        "True while the upper threshold at this severity is crossed
+        and the resulting alarm has not cleared.";
+    }
+
+    leaf lower-alarm-active {
+      type boolean;
+      description
+        "True while the lower threshold at this severity is crossed
+        and the resulting alarm has not cleared.";
+    }
+
+    leaf alarm-ref {
+      type string;
+      description
+        "The id of the active alarm, as it appears in
+        /system/alarms/alarm/id, raised for a crossing of a threshold
+        at this severity. This is a string rather than a leafref
+        because openconfig-system and openconfig-alarms import
+        openconfig-platform, so a leafref would create a circular
+        import.";
+    }
+  }
+
+  grouping platform-component-temp-threshold-top {
+    description
+      "Top-level grouping for temperature alarm thresholds keyed by
+      alarm severity.";
+
+    container temperature-thresholds {
+      description
+        "Enclosing container for alarm thresholds that apply to the
+        temperature reported in /components/component/state/temperature.
+
+        These thresholds are intended for components that report a
+        single temperature. More complex components that report
+        multiple temperatures may add component-specific leaves to
+        describe the thresholds for the additional temperatures. For
+        example, the transceiver component defines
+        laser-temperature-upper and laser-temperature-lower in
+        /components/component/transceiver/thresholds for the laser
+        temperature, in addition to the module temperature reported in
+        /components/component/state/temperature.";
+
+      list temperature-threshold {
+        key "severity";
+        config false;
+        description
+          "List of temperature alarm thresholds, indexed by alarm
+          severity. An implementation's highest severity threshold
+          should be mapped to OpenConfig's CRITICAL severity level.
+          A missing list entry or unset leaf means that threshold is
+          not defined.
+
+          This list should be supported in addition to any
+          component-specific thresholds for the same temperature. When
+          both are supported, the values must be the same. For example,
+          for a transceiver component,
+          /components/component/transceiver/thresholds/threshold/state/
+          module-temperature-upper and module-temperature-lower must
+          equal temperature-upper and temperature-lower for the same
+          severity.
+
+          These thresholds are read-only and are sourced by the device
+          manufacturer; configuring them is not in scope.";
+
+        leaf severity {
+          type leafref {
+            path "../state/severity";
+          }
+          config false;
+          description
+            "The severity applied to the group of thresholds.";
+        }
+
+        container state {
+          config false;
+          description
+            "Operational alarm thresholds for the temperature sensor.";
+          uses platform-component-temp-threshold-state;
+        }
+      }
+    }
+  }
+
   grouping platform-component-power-state {
     description
       "Power-related operational state for device components.";
@@ -1364,6 +1534,7 @@ revision "2024-05-29" {
         uses platform-component-properties-top;
         uses platform-subcomponent-ref-top;
         uses platform-anchors-top;
+        uses platform-component-temp-threshold-top;
       }
     }
   }
