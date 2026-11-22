@@ -24,16 +24,16 @@
 
 set -e
 
-tw_lines=""  # Lines containing trailing whitespaces.
-
-# Only search YANG files within the yang directory.
-for file in $(git ls-files 'release/models/*\.yang' | sed -e 's/^/.\//')
-do
-  lines=$(egrep -rnIH " +$" $file | cut -f-2 -d ":")
-  if [ ! -z "$lines" ]; then
-    tw_lines+=$([[ -z "$tw_lines" ]] && echo "$lines" || echo $'\n'"$lines")
+# Scan all tracked YANG files in a single git grep process.
+tw_lines=""
+if tw_lines=$(git grep -n -I -E '[[:blank:]]+$' -- 'release/models/*.yang'); then
+  :
+else
+  grep_status=$?
+  if [ "$grep_status" -ne 1 ]; then
+    exit "$grep_status"
   fi
-done
+fi
 
 exit_code=0
 
