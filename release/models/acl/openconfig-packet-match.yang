@@ -31,7 +31,14 @@ module openconfig-packet-match {
     wildcard ('any') for that field.";
 
 
-  oc-ext:openconfig-version "2.4.0";
+  oc-ext:openconfig-version "2.5.0";
+
+  revision "2026-11-22" {
+    description
+      "Add protocol-set leaf-list to match any of several IP protocols
+      in a single entry.";
+    reference "2.5.0";
+  }
 
   revision "2026-05-11" {
     description
@@ -307,6 +314,18 @@ module openconfig-packet-match {
       description
         "The protocol carried in the IP packet, expressed either
         as its IP protocol number, or by a defined identity.";
+    }
+
+    leaf-list protocol-set {
+      type oc-pkt-match-types:ip-protocol-type;
+      description
+        "A list of IP protocols to be matched for incoming packets. An OR
+        match should be performed, such that a packet must match one of the
+        protocols defined in this list. Each element is expressed either as
+        its IP protocol number, or by a defined identity, as for the
+        'protocol' leaf. If the field is left empty then any protocol
+        matches unless the 'protocol' leaf is specified. It is not valid
+        to specify both 'protocol' and 'protocol-set' in the same entry.";
     }
 
     leaf hop-limit {
