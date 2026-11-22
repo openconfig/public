@@ -190,6 +190,15 @@ submodule openconfig-qos-elements {
       description
         "Identifier for the match term";
     }
+    leaf sequence-id {
+      type uint32;
+      description
+        "The sequence id determines the order in which terms
+        are matched. The sequence id must be unique for each entry
+        in terms. Target devices should apply the terms
+        in ascending order determined by sequence id (low to
+        high), rather than the relying only on order in the list.";
+    }
   }
 
   grouping qos-classifier-term-state {
