@@ -20,7 +20,7 @@ All contributions must follow the [OpenConfig style guide](doc/openconfig_style_
 **Source:** `doc/contributions-guide.md`
 
 OpenConfig models are operator-driven and strictly vendor-neutral. Every pull request adding or altering configuration/state models must demonstrate feasibility across industry network operating systems:
-- **Target OSes:** Cisco IOS-XR, Nokia SR Linux, Juniper JunOS / JunOS Evolved, Arista EOS, NVIDIA Cumulus Linux, and SONiC.
+- **Target OSes:** Cisco IOS-XR, Nokia SR Linux, Juniper JunOS / JunOS Evolved, Arista EOS, Ciena SAOS, NVIDIA Cumulus Linux, and SONiC.
 - **Review Requirement:**
   - Generate a comparison table in the review output comparing the affected OpenConfig leaves/containers with equivalent command-line (CLI) or configuration constructs in the target network operating systems.
   - If a 1:1 leaf mapping does not exist, compare at the enclosing container or feature level and provide documentation links.
@@ -141,6 +141,6 @@ All automated and human reviews must follow this structured output:
    - `[Major]`: Missing config/state separation; telemetry placed in config; signed counter types; missing units; camelCase or underscores in identifiers.
    - `[Nit/Style]`: Description formatting; line length > 70 characters; missing punctuation.
 3. **Multi-Vendor Implementation Comparison Table:**
-   - Table detailing equivalent commands for Cisco IOS-XR, Juniper JunOS, Arista EOS, Nokia SR Linux, and SONiC with documentation links.
+   - Table detailing equivalent commands for Cisco IOS-XR, Juniper JunOS, Arista EOS, Nokia SR Linux, Ciena SAOS, and SONiC with documentation links.
 4. **Suggested Code / Diff Blocks:**
    - Concrete before & after YANG snippets demonstrating exact required fixes.
