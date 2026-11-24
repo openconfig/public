@@ -36,7 +36,7 @@ module openconfig-packet-match {
   revision "2026-11-22" {
     description
       "Add protocol-set leaf-list to match any of several IP protocols
-      in a single entry.";
+      in a single entry, mutually exclusive with protocol.";
     reference "2.5.0";
   }
 
@@ -318,6 +318,11 @@ module openconfig-packet-match {
 
     leaf-list protocol-set {
       type oc-pkt-match-types:ip-protocol-type;
+      must "not(../protocol)" {
+        description
+          "The 'protocol' and 'protocol-set' leaves are mutually
+          exclusive: an entry specifies at most one of them.";
+      }
       description
         "A list of IP protocols to be matched for incoming packets. An OR
         match should be performed, such that a packet must match one of the
