@@ -22,20 +22,16 @@ All contributions must follow the [OpenConfig style guide](doc/openconfig_style_
 OpenConfig models are operator-driven and strictly vendor-neutral. Every pull request adding or altering configuration/state models must demonstrate feasibility across industry network operating systems:
 - **Target OSes:** Cisco IOS-XR, Nokia SR Linux, Juniper JunOS / JunOS Evolved, Arista EOS, Ciena SAOS, NVIDIA Cumulus Linux, and SONiC.
 - **Review Requirement:**
-  - Generate a comparison table in the review output comparing the affected OpenConfig leaves/containers with the **exact, concrete command-line (CLI) configuration syntax** in the target network operating systems.
-  - **Hierarchy of Documentation Links:**
-    1. **Primary: Public, Unauthenticated Configuration Guides & User Manuals:**
-       - All links must be openly accessible without login credentials, paid subscriptions, or gated enterprise accounts.
-       - **Arista:** Link to the public User Manual under `https://www.arista.com/en/um-eos/...` (e.g. `https://www.arista.com/en/um-eos/eos-bgp-pic-edge-for-evpn-vxlan-routes-for-remote-vtep-failures`). **STRICTLY FORBIDDEN:** Linking to Arista TOIs (`/support/toi/`) or TAC customer portals that prompt for a login or return "Access Denied".
-       - **Juniper / HPE:** Link to public JunOS documentation under `https://networkingdocs.hpe.com/documentation/...` or `https://www.juniper.net/documentation/...` (e.g. `https://networkingdocs.hpe.com/documentation/us/en/software/junos/vpn-l3/topics/topic-map/l3-vpns-bgp-pic.html`).
-       - **Cisco:** Link to public Command References or Configuration Guides under `https://www.cisco.com/c/en/us/td/docs/...` (never CCO login-gated tools).
-       - **Nokia SR Linux:** Link to public documentation under `https://learn.nokia.com/srlinux` or official public doc portals.
-       - **SONiC:** Link directly to public feature design docs or command guides under `https://github.com/sonic-net/SONiC/blob/master/doc/...` (never the `/wiki` homepage).
-    2. **Fallback: Vendor Native YANG Models (`YangModels/yang`):**
-       - If a public, non-paywalled CLI doc page cannot be linked or verified, fall back directly to the vendor's native YANG models in [github.com/YangModels/yang/tree/main/vendor](https://github.com/YangModels/yang/tree/main/vendor) (linking to the exact file and line number on GitHub).
-    3. **Strict Prohibition on Generic Doc Roots & Paywalls:**
-       - **Forbidden:** Linking to high-level doc homepages (e.g., `https://www.juniper.net/documentation/`, `https://learn.nokia.com`, `https://www.arista.com/support`, `https://www.cisco.com`).
-       - If a feature is not supported by a platform, explicitly mark the column as `Unsupported / No Match` and do NOT provide a generic homepage URL fallback.
+  - Generate a comparison table in the review output comparing the affected OpenConfig leaves/containers with equivalent command-line (CLI) or native YANG constructs in target network operating systems.
+  - **Reference Verification Hierarchy (Zero-Tolerance for 404s & Paywalls):**
+    1. **Primary Reference: Vendor Native YANG Models (`YangModels/yang` on GitHub):**
+       - To eliminate broken URLs, link rot, and paywalls, the primary verification reference MUST be the vendor's published open-source native YANG models in the public [YangModels/yang repository](https://github.com/YangModels/yang/tree/main/vendor).
+       - Cite the exact repository path and module file (e.g. `YangModels/yang:vendor/cisco/xr/...`, `YangModels/yang:vendor/juniper/...`, `YangModels/yang:vendor/arista/...`, `YangModels/yang:vendor/nokia/...`). GitHub repository paths are permanent, public, unauthenticated, and never return 404s.
+    2. **Fallback Reference: Exact CLI Command & Official Manual Title (No Guessing Deep URLs):**
+       - If a native YANG model is unavailable in `YangModels/yang` or CLI documentation is cited:
+         - Provide the **exact concrete multi-line CLI configuration command hierarchy**.
+         - Cite the **official vendor document title, release guide, or book chapter** (e.g., *Cisco IOS-XR Routing Configuration Guide*, *JunOS BGP Configuration Guide*, *Arista EOS User Manual*).
+         - **Prohibition on Hallucinated Deep URLs:** Do NOT invent or guess deep web URL sub-paths (which almost always result in 404s or enterprise login screens like Arista TOIs). Either link to a verified, unauthenticated documentation portal (e.g., `https://www.arista.com/en/um-eos/`, `https://networkingdocs.hpe.com`) or rely strictly on the manual title and CLI syntax.
   - **Match Definition & Truthful Evaluation:**
     - A feature match requires that the target NOS provides explicit configuration knobs (CLI or native YANG) or operational telemetry matching the proposed OpenConfig schema semantics.
     - **No Forced Matches or Fabricated CLI:** If a target NOS does not expose a dedicated CLI configuration command or YANG container for the feature (e.g., SONiC implements BGP PIC as an underlying dataplane/SAI architecture without dedicated CLI configuration commands), the reviewer MUST explicitly mark it as `No Match / Unsupported via CLI` and state that no CLI configuration knob exists.
@@ -43,13 +39,13 @@ OpenConfig models are operator-driven and strictly vendor-neutral. Every pull re
   - **Neutrality Threshold:** At least **two** separate implementations from different organizations must have a strong match with the YANG changes to satisfy OpenConfig vendor-neutrality criteria. If fewer than two have a match, provide explicit feedback and suggested modifications.
 
 #### Required Table Format:
-| Network OS | Exact CLI Command Syntax / Hierarchy | Exact Command Reference URL or Native YANG Path | Match Strength |
-| :--- | :--- | :--- | :--- |
-| **Cisco IOS-XR** | `telemetry model-driven \n destination-group <id> \n address ...` | `[Cisco telemetry cr](https://www.cisco.com/c/en/us/td/docs/routers/asr9000/software/asr9k-r7-3/telemetry/command/reference/b-telemetry-cr-asr9000-73x/telemetry-commands.html)` or `YangModels/yang:vendor/cisco/xr/...` | Strong |
-| **Juniper JunOS** | `set protocols bgp family inet unicast extended-nexthop` | `[JunOS BGP PIC Guide](https://networkingdocs.hpe.com/documentation/us/en/software/junos/vpn-l3/topics/topic-map/l3-vpns-bgp-pic.html)` or `YangModels/yang:vendor/juniper/...` | Strong |
-| **Arista EOS** | `bgp bestpath prefix-independent-convergence` | `[Arista User Manual](https://www.arista.com/en/um-eos/eos-bgp-pic-edge-for-evpn-vxlan-routes-for-remote-vtep-failures)` or `YangModels/yang:vendor/arista/...` | Strong |
-| **Nokia SR Linux** | `routing-policy prefix-independent-convergence` | `[Nokia SR Linux Guide](https://learn.nokia.com/srlinux)` or `YangModels/yang:vendor/nokia/...` | Strong |
-| **SONiC** | None (Dataplane/SAI architecture only; no dedicated CLI configuration knob) | `[SONiC BGP PIC Arch Doc](https://github.com/sonic-net/SONiC/blob/master/doc/pic/bgp_pic_arch_doc.md)` | No Match |
+| Network OS | Exact CLI Command Syntax / Hierarchy | Primary Native YANG Path (in YangModels/yang) | Official Manual Title & Portal Reference | Match Strength |
+| :--- | :--- | :--- | :--- | :--- |
+| **Cisco IOS-XR** | `router bgp <asn> \n address-family ipv4 unicast \n fast-reroute per-prefix` | `vendor/cisco/xr/791/Cisco-IOS-XR-ipv4-bgp-cfg.yang` | *Cisco IOS-XR BGP Configuration Guide* (`https://www.cisco.com/c/en/us/td/docs/...`) | Strong |
+| **Juniper JunOS** | `set protocols bgp family inet unicast extended-nexthop` | `vendor/juniper/openconfig/latest/juniper-openconfig-bgp.yang` | *JunOS BGP Configuration Guide* (`https://networkingdocs.hpe.com`) | Strong |
+| **Arista EOS** | `router bgp <asn> \n bgp bestpath prefix-independent-convergence` | `vendor/arista/arista-exp-eos.yang` | *Arista EOS User Manual - BGP PIC* (`https://www.arista.com/en/um-eos/`) | Strong |
+| **Nokia SR Linux** | `protocols bgp prefix-independent-convergence true` | `vendor/nokia/srlinux/24.10.1/models/srl_nokia-bgp.yang` | *Nokia SR Linux Routing Protocols Guide* (`https://learn.nokia.com/srlinux`) | Strong |
+| **SONiC** | None (Dataplane/SAI architecture only; no dedicated CLI knob) | N/A | *SONiC BGP PIC Architecture Document* (`https://github.com/sonic-net/SONiC/blob/master/doc/pic/bgp_pic_arch_doc.md`) | No Match |
 
 ---
 
