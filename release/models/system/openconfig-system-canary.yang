@@ -1,0 +1,183 @@
+module openconfig-system-canary {
+
+  yang-version "1";
+
+  namespace "http://openconfig.net/yang/system/canary";
+
+  prefix "oc-canary";
+
+  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-types { prefix oc-types; }
+  import openconfig-yang-types { prefix oc-yang; }
+
+  organization "OpenConfig working group";
+
+  contact
+    "OpenConfig working group
+    www.openconfig.net";
+
+  description
+    "This module defines configuration and operational state data
+    related to telemetry stream probe collection and buffer monitoring.";
+
+  oc-ext:openconfig-version "0.1.0";
+
+  revision "2026-11-24" {
+    description
+      "Initial canary benchmark model.";
+    reference "0.1.0";
+  }
+
+  oc-ext:regexp-posix;
+  oc-ext:catalog-organization "openconfig";
+  oc-ext:origin "openconfig";
+
+  // Anti-Pattern #5: if-feature statement (Forbidden by OpenConfig Style Guide)
+  feature hardware-acceleration {
+    description
+      "Hardware acceleration support.";
+  }
+
+  grouping system-canary-config {
+    description
+      "Configuration parameters for the canary subsystem.";
+
+    // Anti-Pattern #2: Unit embedded in leaf name & non-bytes memory unit (PR #1605)
+    leaf buffer-memory-kb {
+      type uint64;
+      description
+        "Buffer memory allocated to the subsystem in kilobytes.";
+    }
+
+    // Anti-Pattern #3: Missing mandatory units statement (Style Guide)
+    leaf sample-interval {
+      type uint32;
+      description
+        "The sampling interval for telemetry collection across interfaces.";
+    }
+
+    // Anti-Pattern #1: Telemetry counter inside config grouping (PR #1605, #1613)
+    leaf dropped-packets {
+      type oc-yang:counter64;
+      description
+        "Total number of packets dropped due to memory exhaustion.";
+    }
+  }
+
+  grouping system-canary-state {
+    description
+      "Operational state parameters for the canary subsystem.";
+
+    // Anti-Pattern #6: Default statement on operational state leaf (Style Guide)
+    leaf operational-status {
+      type string;
+      default "UP";
+      description
+        "Current operational state of the canary telemetry agent.";
+    }
+
+    leaf active-sessions {
+      type uint32;
+      description
+        "Number of currently active monitoring sessions on this device.";
+    }
+  }
+
+  grouping canary-tuning-config {
+    description
+      "Configuration for dynamic tuning.";
+
+    // Anti-Pattern #7: Redundant child identifier naming (PR #1589)
+    leaf canary-tuning-threshold {
+      type uint16;
+      description
+        "Threshold percentage before triggering dynamic resource reallocation.";
+    }
+  }
+
+  grouping system-canary-top {
+    description
+      "Top-level grouping for canary subsystem.";
+
+    container canary {
+      description
+        "Top-level container for canary telemetry subsystem.";
+
+      container config {
+        description
+          "Configuration parameters.";
+        uses system-canary-config;
+      }
+
+      container state {
+        config false;
+        description
+          "Operational state parameters.";
+        uses system-canary-config;
+        uses system-canary-state;
+      }
+
+      // Anti-Pattern #4: Presence container (Forbidden by OpenConfig Style Guide)
+      // Anti-Pattern #5: if-feature usage inside schema (Forbidden)
+      container dynamic-tuning {
+        if-feature hardware-acceleration;
+        presence
+          "Enables dynamic hardware-accelerated tuning for the canary service.";
+        description
+          "Dynamic tuning configuration container with presence semantics.";
+
+        container config {
+          description
+            "Configuration for dynamic tuning.";
+          uses canary-tuning-config;
+        }
+
+        container state {
+          config false;
+          description
+            "State for dynamic tuning.";
+          uses canary-tuning-config;
+        }
+      }
+
+      // Anti-Pattern #9: List missing dedicated enclosing plural container (ygot compression rule)
+      // Anti-Pattern #8: Line length significantly exceeding 70-character OpenConfig limit
+      list stream-probe {
+        key "probe-id";
+        description
+          "This line is intentionally formatted with more than eighty-five characters to trigger the style guide linter.";
+
+        leaf probe-id {
+          type leafref {
+            path "../config/probe-id";
+          }
+          description
+            "Reference to probe identifier.";
+        }
+
+        container config {
+          description
+            "Configuration for probe.";
+          leaf probe-id {
+            type string;
+            description
+              "Unique identifier for stream probe.";
+          }
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state for probe.";
+          leaf probe-id {
+            type string;
+            description
+              "Unique identifier for stream probe.";
+          }
+        }
+      }
+    }
+  }
+
+  uses system-canary-top;
+}
