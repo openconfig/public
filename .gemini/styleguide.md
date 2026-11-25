@@ -23,11 +23,19 @@ OpenConfig models are operator-driven and strictly vendor-neutral. Every pull re
 - **Target OSes:** Cisco IOS-XR, Nokia SR Linux, Juniper JunOS / JunOS Evolved, Arista EOS, Ciena SAOS, NVIDIA Cumulus Linux, and SONiC.
 - **Review Requirement:**
   - Generate a comparison table in the review output comparing the affected OpenConfig leaves/containers with the **exact, concrete command-line (CLI) configuration syntax** in the target network operating systems.
-  - **Hyperlink to Exact Configuration Command:** Every entry in the table MUST provide a direct hyperlink to the **exact command-reference page or section** documenting that specific command hierarchy and its parameters.
-  - **Device YANG Model Links (YangModels/yang):** If public CLI reference documentation is gated or unavailable, link directly to the vendor's native YANG module in [github.com/YangModels/yang/tree/main/vendor](https://github.com/YangModels/yang/tree/main/vendor) pointing to the specific file and line number defining the configuration node.
-  - **STRICT PROHIBITION ON GENERIC DOC ROOTS:**
-    - **Forbidden:** Linking to high-level doc homepages (e.g., `https://www.juniper.net/documentation/`, `https://learn.nokia.com`, `https://www.arista.com/support`, `https://www.cisco.com`). Reviews with generic root URLs will be rejected as non-compliant.
-    - If a feature is not supported by a platform, explicitly mark the column as `Unsupported / No Match` and do NOT provide a generic URL fallback.
+  - **Hierarchy of Documentation Links:**
+    1. **Primary: Public, Unauthenticated Configuration Guides & User Manuals:**
+       - All links must be openly accessible without login credentials, paid subscriptions, or gated enterprise accounts.
+       - **Arista:** Link to the public User Manual under `https://www.arista.com/en/um-eos/...` (e.g. `https://www.arista.com/en/um-eos/eos-bgp-pic-edge-for-evpn-vxlan-routes-for-remote-vtep-failures`). **STRICTLY FORBIDDEN:** Linking to Arista TOIs (`/support/toi/`) or TAC customer portals that prompt for a login or return "Access Denied".
+       - **Juniper / HPE:** Link to public JunOS documentation under `https://networkingdocs.hpe.com/documentation/...` or `https://www.juniper.net/documentation/...` (e.g. `https://networkingdocs.hpe.com/documentation/us/en/software/junos/vpn-l3/topics/topic-map/l3-vpns-bgp-pic.html`).
+       - **Cisco:** Link to public Command References or Configuration Guides under `https://www.cisco.com/c/en/us/td/docs/...` (never CCO login-gated tools).
+       - **Nokia SR Linux:** Link to public documentation under `https://learn.nokia.com/srlinux` or official public doc portals.
+       - **SONiC:** Link directly to public feature design docs or command guides under `https://github.com/sonic-net/SONiC/blob/master/doc/...` (never the `/wiki` homepage).
+    2. **Fallback: Vendor Native YANG Models (`YangModels/yang`):**
+       - If a public, non-paywalled CLI doc page cannot be linked or verified, fall back directly to the vendor's native YANG models in [github.com/YangModels/yang/tree/main/vendor](https://github.com/YangModels/yang/tree/main/vendor) (linking to the exact file and line number on GitHub).
+    3. **Strict Prohibition on Generic Doc Roots & Paywalls:**
+       - **Forbidden:** Linking to high-level doc homepages (e.g., `https://www.juniper.net/documentation/`, `https://learn.nokia.com`, `https://www.arista.com/support`, `https://www.cisco.com`).
+       - If a feature is not supported by a platform, explicitly mark the column as `Unsupported / No Match` and do NOT provide a generic homepage URL fallback.
   - **Match Definition:** A feature match means the target NOS provides configuration knobs or operational state metrics that match the exact semantics, parameters, and units proposed in the OpenConfig model.
   - **Neutrality Threshold:** At least **two** separate implementations from different organizations must have a strong match with the YANG changes to satisfy OpenConfig vendor-neutrality criteria. If fewer than two have a match, provide explicit feedback and suggested modifications.
 
@@ -35,10 +43,10 @@ OpenConfig models are operator-driven and strictly vendor-neutral. Every pull re
 | Network OS | Exact CLI Command Syntax / Hierarchy | Exact Command Reference URL or Native YANG Path | Match Strength |
 | :--- | :--- | :--- | :--- |
 | **Cisco IOS-XR** | `telemetry model-driven \n destination-group <id> \n address ...` | `[Cisco telemetry cr](https://www.cisco.com/c/en/us/td/docs/routers/asr9000/software/asr9k-r7-3/telemetry/command/reference/b-telemetry-cr-asr9000-73x/telemetry-commands.html)` or `YangModels/yang:vendor/cisco/xr/...` | Strong |
-| **Juniper JunOS** | `set services analytics streaming-server <name> remote-port <port>` | `[JunOS streaming-server ref](https://www.juniper.net/documentation/us/en/software/junos/interfaces-telemetry/topics/ref/statement/streaming-server-edit-services-analytics.html)` or `YangModels/yang:vendor/juniper/...` | Strong |
-| **Arista EOS** | `management api gnmi \n transport grpc default` | `[Arista gNMI config guide](https://www.arista.com/en/um-eos/eos-4-30-1f/management-api-gnmi)` or `YangModels/yang:vendor/arista/...` | Strong |
-| **Nokia SR Linux** | `system app telemetry \n server <name> port <port>` | `[Nokia SR Linux Telemetry Guide](https://documentation.nokia.com/srlinux/...)` or `YangModels/yang:vendor/nokia/...` | Strong |
-| **SONiC** | `config telemetry set ...` | `[SONiC Telemetry HLD](https://github.com/sonic-net/SONiC/blob/gh-pages/doc/telemetry/telemetry_hld.md)` | Strong |
+| **Juniper JunOS** | `set protocols bgp family inet unicast extended-nexthop` | `[JunOS BGP PIC Guide](https://networkingdocs.hpe.com/documentation/us/en/software/junos/vpn-l3/topics/topic-map/l3-vpns-bgp-pic.html)` or `YangModels/yang:vendor/juniper/...` | Strong |
+| **Arista EOS** | `bgp bestpath prefix-independent-convergence` | `[Arista User Manual](https://www.arista.com/en/um-eos/eos-bgp-pic-edge-for-evpn-vxlan-routes-for-remote-vtep-failures)` or `YangModels/yang:vendor/arista/...` | Strong |
+| **Nokia SR Linux** | `routing-policy prefix-independent-convergence` | `[Nokia SR Linux Guide](https://learn.nokia.com/srlinux)` or `YangModels/yang:vendor/nokia/...` | Strong |
+| **SONiC** | `config bgp fast-reroute ...` | `[SONiC BGP HLD](https://github.com/sonic-net/SONiC/blob/master/doc/bgp/bgp_hld.md)` | Strong |
 
 ---
 
