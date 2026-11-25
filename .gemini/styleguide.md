@@ -24,7 +24,9 @@ OpenConfig models are operator-driven and strictly vendor-neutral. Every pull re
 - **Review Requirement:**
   - Generate a comparison table in the review output comparing the affected OpenConfig leaves/containers with equivalent command-line (CLI) or configuration constructs in the target network operating systems.
   - If a 1:1 leaf mapping does not exist, compare at the enclosing container or feature level and provide documentation links.
-  - Provide a publicly accessible URL link citing the vendor documentation.
+  - **Hyperlink to Exact Configuration:** Every entry in the comparison table MUST include a direct, publicly accessible hyperlink to the **exact command-reference or configuration-guide page** documenting the specific command or configuration hierarchy. Generic portal landing pages (e.g., `https://documentation.nokia.com` or `https://www.cisco.com`) are strictly disallowed. The page linked must contain the actual configuration knobs, syntax, and operational semantics.
+  - **Device YANG Models:** If CLI documentation is unavailable, compare against the vendor's native YANG models published in [YangModels/yang](https://github.com/YangModels/yang/tree/main/vendor) and link directly to the relevant YANG model path on GitHub.
+  - **Match Definition:** A feature match means the target NOS provides configuration knobs or operational state metrics that match the exact semantics, parameters, and units proposed in the OpenConfig model. If a feature is not supported or lacks matching knobs, explicitly mark it as `None / Unmatched` rather than providing loose or approximate links.
   - If an `enum` or `identity` is defined, verify its values against reference vendor implementations.
   - **Neutrality Threshold:** At least **two** separate implementations from different organizations must have a strong match with the YANG changes to satisfy OpenConfig vendor-neutrality criteria. If fewer than two have a match, provide explicit feedback and suggested modifications.
 
@@ -141,6 +143,6 @@ All automated and human reviews must follow this structured output:
    - `[Major]`: Missing config/state separation; telemetry placed in config; signed counter types; missing units; camelCase or underscores in identifiers.
    - `[Nit/Style]`: Description formatting; line length > 70 characters; missing punctuation.
 3. **Multi-Vendor Implementation Comparison Table:**
-   - Table detailing equivalent commands for Cisco IOS-XR, Juniper JunOS, Arista EOS, Nokia SR Linux, Ciena SAOS, and SONiC with documentation links.
+   - Table detailing equivalent commands for Cisco IOS-XR, Juniper JunOS, Arista EOS, Nokia SR Linux, Ciena SAOS, and SONiC with direct hyperlinks to the exact configuration reference page for each command.
 4. **Suggested Code / Diff Blocks:**
    - Concrete before & after YANG snippets demonstrating exact required fixes.
