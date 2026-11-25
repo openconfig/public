@@ -265,17 +265,17 @@ submodule openconfig-bgp-global {
 
   grouping bgp-global-pic-config {
     description
-      "Configuration parameters for BGP Prefix Independent Convergence
-      (PIC).";
+      "Configuration parameters for BGP Prefix Independent
+      Convergence (PIC).";
 
     leaf enabled {
       type boolean;
       description
-        "Enables BGP Prefix Independent Convergence (PIC) fast-reroute
-        for rapid dataplane failover upon next-hop failure. When
-        unspecified, default device forwarding behavior applies.";
+        "Enables BGP Prefix Independent Convergence (PIC)
+        fast-reroute for rapid dataplane failover upon next-hop
+        failure. When unspecified, default forwarding applies.";
       reference
-        "RFC/Draft: draft-ietf-rtgwg-bgp-pic - BGP Prefix Independent
+        "draft-ietf-rtgwg-bgp-pic: BGP Prefix Independent
         Convergence";
     }
   }
@@ -288,38 +288,39 @@ submodule openconfig-bgp-global {
     leaf active {
       type boolean;
       description
-        "Operational status indicating whether BGP Prefix Independent
-        Convergence is currently active in the forwarding plane.";
+        "Operational status indicating whether BGP Prefix
+        Independent Convergence is active in forwarding plane.";
     }
 
     leaf protected-prefixes {
       type uint32;
       description
-        "The number of BGP destination prefix paths currently programmed
-        with a pre-computed backup next-hop in the FIB.";
+        "The number of BGP destination prefix paths currently
+        programmed with a backup next-hop in the FIB.";
     }
   }
 
   grouping bgp-global-pic-top {
     description
-      "Top-level grouping for BGP Prefix Independent Convergence (PIC).";
+      "Top-level grouping for BGP Prefix Independent
+      Convergence (PIC).";
 
     container prefix-independent-convergence {
       description
-        "Configuration and operational state parameters for BGP Prefix
-        Independent Convergence (PIC) fast-reroute.";
+        "Configuration and operational state parameters for BGP
+        Prefix Independent Convergence (PIC) fast-reroute.";
 
       container config {
         description
-          "Configuration parameters relating to BGP Prefix Independent
-          Convergence.";
+          "Configuration parameters relating to BGP Prefix
+          Independent Convergence.";
         uses bgp-global-pic-config;
       }
       container state {
         config false;
         description
-          "Operational state parameters relating to BGP Prefix Independent
-          Convergence.";
+          "Operational state parameters relating to BGP Prefix
+          Independent Convergence.";
         uses bgp-global-pic-config;
         uses bgp-global-pic-state;
       }
