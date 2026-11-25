@@ -36,7 +36,10 @@ OpenConfig models are operator-driven and strictly vendor-neutral. Every pull re
     3. **Strict Prohibition on Generic Doc Roots & Paywalls:**
        - **Forbidden:** Linking to high-level doc homepages (e.g., `https://www.juniper.net/documentation/`, `https://learn.nokia.com`, `https://www.arista.com/support`, `https://www.cisco.com`).
        - If a feature is not supported by a platform, explicitly mark the column as `Unsupported / No Match` and do NOT provide a generic homepage URL fallback.
-  - **Match Definition:** A feature match means the target NOS provides configuration knobs or operational state metrics that match the exact semantics, parameters, and units proposed in the OpenConfig model.
+  - **Match Definition & Truthful Evaluation:**
+    - A feature match requires that the target NOS provides explicit configuration knobs (CLI or native YANG) or operational telemetry matching the proposed OpenConfig schema semantics.
+    - **No Forced Matches or Fabricated CLI:** If a target NOS does not expose a dedicated CLI configuration command or YANG container for the feature (e.g., SONiC implements BGP PIC as an underlying dataplane/SAI architecture without dedicated CLI configuration commands), the reviewer MUST explicitly mark it as `No Match / Unsupported via CLI` and state that no CLI configuration knob exists.
+    - **Never invent or guess CLI syntax.** OpenConfig vendor-neutrality requires at least **two** independent implementations from different vendors (e.g., Cisco + Arista + Juniper is already 3 strong matches). Accurately recording `No Match` for platforms lacking CLI knobs is essential for high-signal reviews.
   - **Neutrality Threshold:** At least **two** separate implementations from different organizations must have a strong match with the YANG changes to satisfy OpenConfig vendor-neutrality criteria. If fewer than two have a match, provide explicit feedback and suggested modifications.
 
 #### Required Table Format:
@@ -46,7 +49,7 @@ OpenConfig models are operator-driven and strictly vendor-neutral. Every pull re
 | **Juniper JunOS** | `set protocols bgp family inet unicast extended-nexthop` | `[JunOS BGP PIC Guide](https://networkingdocs.hpe.com/documentation/us/en/software/junos/vpn-l3/topics/topic-map/l3-vpns-bgp-pic.html)` or `YangModels/yang:vendor/juniper/...` | Strong |
 | **Arista EOS** | `bgp bestpath prefix-independent-convergence` | `[Arista User Manual](https://www.arista.com/en/um-eos/eos-bgp-pic-edge-for-evpn-vxlan-routes-for-remote-vtep-failures)` or `YangModels/yang:vendor/arista/...` | Strong |
 | **Nokia SR Linux** | `routing-policy prefix-independent-convergence` | `[Nokia SR Linux Guide](https://learn.nokia.com/srlinux)` or `YangModels/yang:vendor/nokia/...` | Strong |
-| **SONiC** | `config bgp fast-reroute ...` | `[SONiC BGP HLD](https://github.com/sonic-net/SONiC/blob/master/doc/bgp/bgp_hld.md)` | Strong |
+| **SONiC** | None (Dataplane/SAI architecture only; no dedicated CLI configuration knob) | `[SONiC BGP PIC Arch Doc](https://github.com/sonic-net/SONiC/blob/master/doc/pic/bgp_pic_arch_doc.md)` | No Match |
 
 ---
 
