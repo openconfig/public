@@ -22,13 +22,23 @@ All contributions must follow the [OpenConfig style guide](doc/openconfig_style_
 OpenConfig models are operator-driven and strictly vendor-neutral. Every pull request adding or altering configuration/state models must demonstrate feasibility across industry network operating systems:
 - **Target OSes:** Cisco IOS-XR, Nokia SR Linux, Juniper JunOS / JunOS Evolved, Arista EOS, Ciena SAOS, NVIDIA Cumulus Linux, and SONiC.
 - **Review Requirement:**
-  - Generate a comparison table in the review output comparing the affected OpenConfig leaves/containers with equivalent command-line (CLI) or configuration constructs in the target network operating systems.
-  - If a 1:1 leaf mapping does not exist, compare at the enclosing container or feature level and provide documentation links.
-  - **Hyperlink to Exact Configuration:** Every entry in the comparison table MUST include a direct, publicly accessible hyperlink to the **exact command-reference or configuration-guide page** documenting the specific command or configuration hierarchy. Generic portal landing pages (e.g., `https://documentation.nokia.com` or `https://www.cisco.com`) are strictly disallowed. The page linked must contain the actual configuration knobs, syntax, and operational semantics.
-  - **Device YANG Models:** If CLI documentation is unavailable, compare against the vendor's native YANG models published in [YangModels/yang](https://github.com/YangModels/yang/tree/main/vendor) and link directly to the relevant YANG model path on GitHub.
-  - **Match Definition:** A feature match means the target NOS provides configuration knobs or operational state metrics that match the exact semantics, parameters, and units proposed in the OpenConfig model. If a feature is not supported or lacks matching knobs, explicitly mark it as `None / Unmatched` rather than providing loose or approximate links.
-  - If an `enum` or `identity` is defined, verify its values against reference vendor implementations.
+  - Generate a comparison table in the review output comparing the affected OpenConfig leaves/containers with the **exact, concrete command-line (CLI) configuration syntax** in the target network operating systems.
+  - **Hyperlink to Exact Configuration Command:** Every entry in the table MUST provide a direct hyperlink to the **exact command-reference page or section** documenting that specific command hierarchy and its parameters.
+  - **Device YANG Model Links (YangModels/yang):** If public CLI reference documentation is gated or unavailable, link directly to the vendor's native YANG module in [github.com/YangModels/yang/tree/main/vendor](https://github.com/YangModels/yang/tree/main/vendor) pointing to the specific file and line number defining the configuration node.
+  - **STRICT PROHIBITION ON GENERIC DOC ROOTS:**
+    - **Forbidden:** Linking to high-level doc homepages (e.g., `https://www.juniper.net/documentation/`, `https://learn.nokia.com`, `https://www.arista.com/support`, `https://www.cisco.com`). Reviews with generic root URLs will be rejected as non-compliant.
+    - If a feature is not supported by a platform, explicitly mark the column as `Unsupported / No Match` and do NOT provide a generic URL fallback.
+  - **Match Definition:** A feature match means the target NOS provides configuration knobs or operational state metrics that match the exact semantics, parameters, and units proposed in the OpenConfig model.
   - **Neutrality Threshold:** At least **two** separate implementations from different organizations must have a strong match with the YANG changes to satisfy OpenConfig vendor-neutrality criteria. If fewer than two have a match, provide explicit feedback and suggested modifications.
+
+#### Required Table Format:
+| Network OS | Exact CLI Command Syntax / Hierarchy | Exact Command Reference URL or Native YANG Path | Match Strength |
+| :--- | :--- | :--- | :--- |
+| **Cisco IOS-XR** | `telemetry model-driven \n destination-group <id> \n address ...` | `[Cisco telemetry cr](https://www.cisco.com/c/en/us/td/docs/routers/asr9000/software/asr9k-r7-3/telemetry/command/reference/b-telemetry-cr-asr9000-73x/telemetry-commands.html)` or `YangModels/yang:vendor/cisco/xr/...` | Strong |
+| **Juniper JunOS** | `set services analytics streaming-server <name> remote-port <port>` | `[JunOS streaming-server ref](https://www.juniper.net/documentation/us/en/software/junos/interfaces-telemetry/topics/ref/statement/streaming-server-edit-services-analytics.html)` or `YangModels/yang:vendor/juniper/...` | Strong |
+| **Arista EOS** | `management api gnmi \n transport grpc default` | `[Arista gNMI config guide](https://www.arista.com/en/um-eos/eos-4-30-1f/management-api-gnmi)` or `YangModels/yang:vendor/arista/...` | Strong |
+| **Nokia SR Linux** | `system app telemetry \n server <name> port <port>` | `[Nokia SR Linux Telemetry Guide](https://documentation.nokia.com/srlinux/...)` or `YangModels/yang:vendor/nokia/...` | Strong |
+| **SONiC** | `config telemetry set ...` | `[SONiC Telemetry HLD](https://github.com/sonic-net/SONiC/blob/gh-pages/doc/telemetry/telemetry_hld.md)` | Strong |
 
 ---
 
