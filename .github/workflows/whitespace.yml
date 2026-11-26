@@ -6,19 +6,21 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions: {}
+
 jobs:
 
   build:
     name: Trailing whitespace
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
     - name: Check out code
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
 
     - name: Test
       run: bash scripts/find_trailing_whitespace.sh
-
-    permissions:
-      actions: read
-      pull-requests: read
