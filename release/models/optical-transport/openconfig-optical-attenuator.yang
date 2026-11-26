@@ -24,7 +24,13 @@ module openconfig-optical-attenuator {
     for variable optical attenuators, deployed as part of a transport
     line system.";
 
-  oc-ext:openconfig-version "0.2.0";
+  oc-ext:openconfig-version "0.2.1";
+
+  revision "2026-11-26" {
+    description
+      "Correct output power and optical return loss units.";
+    reference "0.2.1";
+  }
 
   revision "2024-07-10" {
     description
@@ -100,7 +106,7 @@ module openconfig-optical-attenuator {
       type decimal64 {
         fraction-digits 2;
       }
-      units dB;
+      units dBm;
       description
         "Power level set on the output of attenuator.  This leaf is
         only relevant when in CONSTANT_POWER mode.";
@@ -216,10 +222,10 @@ module openconfig-optical-attenuator {
       description
         "The optical return loss (ORL) is the ratio of the light
         reflected back into the port to the light launched out of
-        the port. ORL is in units of 0.01dBm. If avg/min/max
+        the port. ORL is in dB with 0.01 dB precision. If avg/min/max
         statistics are not supported, just supply the instant value.";
 
-      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+      uses oc-types:avg-min-max-instant-stats-precision2-dB;
     }
   }
 

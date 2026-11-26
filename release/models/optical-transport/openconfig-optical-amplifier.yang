@@ -25,7 +25,13 @@ module openconfig-optical-amplifier {
     for optical amplifiers, deployed as part of a transport
     line system.";
 
-  oc-ext:openconfig-version "0.5.0";
+  oc-ext:openconfig-version "0.5.1";
+
+  revision "2026-11-26" {
+    description
+      "Correct gain and optical return loss units to dB.";
+    reference "0.5.1";
+  }
 
   revision "2019-12-06" {
     description
@@ -248,7 +254,7 @@ module openconfig-optical-amplifier {
       type decimal64 {
         fraction-digits 2;
       }
-      units dBm;
+      units dB;
       description
         "The minimum allowed gain of the amplifier. This is used
         when the amp-mode is in CONSTANT_POWER or DYNAMIC_GAIN mode
@@ -261,7 +267,7 @@ module openconfig-optical-amplifier {
       type decimal64 {
         fraction-digits 2;
       }
-      units dBm;
+      units dB;
       description
         "The maximum allowed gain of the amplifier. This is used
         when the amp-mode is in CONSTANT_POWER or DYNAMIC_GAIN mode
@@ -461,10 +467,10 @@ module openconfig-optical-amplifier {
       description
         "The optical return loss (ORL) is the ratio of the light
         reflected back into the port to the light launched out of
-        the port. ORL is in units of 0.01dBm. If avg/min/max
+        the port. ORL is in dB with 0.01 dB precision. If avg/min/max
         statistics are not supported, just supply the instant value";
 
-      uses oc-types:avg-min-max-instant-stats-precision2-dBm;
+      uses oc-types:avg-min-max-instant-stats-precision2-dB;
     }
   }
 
