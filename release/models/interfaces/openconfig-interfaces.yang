@@ -55,7 +55,7 @@ module openconfig-interfaces {
 
   revision "2026-11-04" {
       description
-        "Add os-name to interface and subinterface state.";
+        "Add host-stack-name to interface and subinterface state.";
       reference
         "3.12.0";
   }
@@ -791,12 +791,13 @@ module openconfig-interfaces {
       oc-ext:telemetry-on-change;
     }
 
-    leaf os-name {
+    leaf host-stack-name {
       type string;
       description
-        "Name of the operating system network device through which
-        local applications send and receive this interface's traffic.
-        A subinterface may share its parent interface's device, for
+        "Name of the underlying host networking stack device through
+        which on-box applications send and receive this interface's
+        traffic, for example a Linux kernel network device. A
+        subinterface may share its parent interface's device, for
         example subinterface 0. The device name is
         implementation-specific. Systems should populate this leaf
         even if the device name matches or can be derived from the
