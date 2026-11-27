@@ -51,7 +51,14 @@ module openconfig-network-instance {
     virtual switch instance (VSI). Mixed Layer 2 and Layer 3
     instances are also supported.";
 
-  oc-ext:openconfig-version "4.9.0";
+  oc-ext:openconfig-version "4.10.0";
+
+  revision "2026-11-04" {
+    description
+      "Add host-stack-namespace and host-stack-vrf to network instance
+      state.";
+    reference "4.10.0";
+  }
 
   revision "2026-10-07" {
     description
@@ -1461,6 +1468,35 @@ module openconfig-network-instance {
   grouping network-instance-state {
     description
       "Operational state parameters relating to a network instance";
+
+    leaf host-stack-namespace {
+      type string;
+      description
+        "Name of the underlying host networking stack namespace in
+        which on-box applications open sockets to send and receive
+        traffic in this network instance, for example a Linux network
+        namespace. The name is implementation-specific. Systems should
+        populate this leaf even if the name matches or can be derived
+        from the network instance name. The leaf is absent if the system
+        does not use a separate namespace for this network instance.";
+      oc-ext:telemetry-on-change;
+    }
+
+    leaf host-stack-vrf {
+      type string;
+      description
+        "Name of the underlying host networking stack routing instance
+        that on-box applications bind their sockets to in order to send
+        and receive traffic in this network instance, for example a
+        Linux VRF device. It exists within the namespace given by
+        host-stack-namespace, or within the default namespace if
+        host-stack-namespace is absent. The name is
+        implementation-specific. Systems should populate this leaf
+        even if the name matches or can be derived from the network
+        instance name. The leaf is absent if the system does not use a
+        separate routing instance for this network instance.";
+      oc-ext:telemetry-on-change;
+    }
   }
 
   grouping protocols-config {
