@@ -45,7 +45,14 @@ module openconfig-if-ip {
     Section 4.c of the IETF Trust's Legal Provisions Relating
     to IETF Documents (http://trustee.ietf.org/license-info).";
 
-  oc-ext:openconfig-version "3.12.0";
+  oc-ext:openconfig-version "3.13.0";
+
+  revision "2026-11-11" {
+    description
+      "Add IPv6 proxy neighbor discovery (proxy-nd) configuration and
+      state.";
+    reference "3.13.0";
+  }
 
   revision "2026-10-05" {
     description
@@ -1646,6 +1653,69 @@ revision "2023-06-30" {
     }
   }
 
+  grouping ipv6-proxy-nd-config {
+    description
+      "Configuration parameters for IPv6 proxy neighbor discovery";
+
+    leaf mode {
+      type enumeration {
+        enum DISABLE {
+          description
+            "The system should not respond to Neighbor Solicitation
+            messages that do not specify an IPv6 address configured on
+            the local subinterface as the target address.";
+        }
+        enum SAME_INTERFACE {
+          description
+            "The system responds to Neighbor Solicitation messages
+            only when the target address is reachable via the
+            subinterface on which the Neighbor Solicitation was
+            received. This is commonly referred to as local proxy
+            ND, and allows hosts on the same subnet that cannot
+            reach each other directly at layer 2 (for example, due
+            to split-horizon or private VLAN isolation) to
+            communicate via the local system.";
+        }
+        enum OTHER_INTERFACE {
+          description
+            "The system responds to Neighbor Solicitation messages
+            only when the target address is reachable via a
+            subinterface other than the one on which the Neighbor
+            Solicitation was received, and does not respond when
+            the target address is reachable via the receiving
+            subinterface. This allows hosts on different links that
+            share an on-link prefix to communicate via the local
+            system.";
+        }
+        enum ALL {
+          description
+            "The system responds to Neighbor Solicitation messages
+            regardless of whether the target address falls within
+            or outside the on-link prefixes configured on the local
+            subinterface, and regardless of the subinterface via
+            which the target address is reachable.";
+        }
+      }
+      default "DISABLE";
+      description
+        "When set to a value other than DISABLE, the local system
+        should respond to Neighbor Solicitation messages for target
+        addresses other than those that are configured on the local
+        subinterface, using its own link-layer address in the Target
+        Link-Layer Address option of the Neighbor Advertisement. If
+        SAME_INTERFACE is specified, replies are only sent when the
+        target address is reachable via the receiving subinterface.
+        If OTHER_INTERFACE is specified, replies are only sent when
+        the target address is reachable via a different subinterface.
+        With the ALL value, Neighbor Solicitations are replied to
+        regardless of their target address.";
+      reference
+        "RFC4861: Neighbor Discovery for IP version 6 (IPv6),
+        section 7.2.8
+        RFC4389: Neighbor Discovery Proxies (ND Proxy)";
+    }
+  }
+
   grouping urpf-config {
     description
         "Grouping configuration coniguration of URPF";
@@ -2013,6 +2083,29 @@ revision "2023-06-30" {
         }
 
         uses ipv6-dns-server-top;
+      }
+
+      container proxy-nd {
+        description
+          "Configuration and operational state parameters
+          relating to proxy neighbor discovery. This functionality
+          allows a system to respond to Neighbor Solicitation
+          messages whose target address is not explicitly assigned
+          to the local system.";
+
+        container config {
+          description
+            "Configuration parameters for proxy neighbor discovery";
+          uses ipv6-proxy-nd-config;
+        }
+
+        container state {
+          config false;
+          description
+            "Operational state parameters for proxy neighbor
+            discovery";
+          uses ipv6-proxy-nd-config;
+        }
       }
 
       container neighbors {
