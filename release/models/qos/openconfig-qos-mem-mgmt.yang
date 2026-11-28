@@ -29,7 +29,14 @@ submodule openconfig-qos-mem-mgmt {
       per-queue basis, and determine how packets are marked/dropped within
       the queue instantiation.";
 
-  oc-ext:openconfig-version "2.2.0";
+  oc-ext:openconfig-version "2.2.1";
+
+  revision "2026-10-27" {
+    description
+      "Clarify that min-threshold must be less than or equal to
+      max-threshold.";
+    reference "2.2.1";
+  }
 
   revision "2026-04-30" {
     description
@@ -389,7 +396,9 @@ revision "2023-07-26" {
       description
         "The minimum threshold parameter for a RED-managed queue in bytes.
         When the average queue length is less than minth, all packets are admitted
-        to the queue.  Mututally exclusive with min-threshold-percent and
+        to the queue. The min-threshold value must be less than or equal to
+        max-threshold (configuring min-threshold > max-threshold is invalid).
+        Mutually exclusive with min-threshold-percent and
         max-threshold-percent.";
     }
 
@@ -399,7 +408,9 @@ revision "2023-07-26" {
       description
         "The maximum threshold parameter for a RED-managed queue in bytes.
         When the average queue length exceeds the maxth value, all packets are
-        dropped (or marked if ECN is enabled).  Mutually exclusive with
+        dropped (or marked if ECN is enabled). The max-threshold value must be
+        greater than or equal to min-threshold (configuring min-threshold >
+        max-threshold is invalid). Mutually exclusive with
         min-threshold-percent and max-threshold-percent.";
     }
 
